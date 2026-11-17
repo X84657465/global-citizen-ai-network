@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   });
   if (error) {
     const conflict = /idempotency key payload conflict|not reviewable|no longer rejected/i.test(error.message);
-    return NextResponse.json({ error: conflict ? "申訴狀態或複核資料衝突，請重新整理確認。" : "複核未完成，請確認 Migration 0009 已套用。" }, {
+    return NextResponse.json({ error: conflict ? "申訴狀態或複核資料衝突，請重新整理確認。" : "複核未完成，請確認 Migration 0009–0011 已套用。" }, {
       status: conflict ? 409 : 503,
     });
   }
