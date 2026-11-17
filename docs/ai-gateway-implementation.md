@@ -15,7 +15,8 @@ The repository contains a server-side OpenAI-compatible gateway and database-enf
 7. On validated success, atomically settle the reservation, save the assistant message, write an internal-estimate ledger row, and complete the idempotency response in one transaction.
 8. On a known failure, atomically release the reservation and mark the request failed.
 9. On an uncertain provider outcome—timeout, transport failure, provider 408/5xx, malformed success response, or database finalization failure—do not retry the provider and do not release the reservation. Preserve the same idempotency key and make the request visible for operator reconciliation.
-10. The admin reconciliation queue is read-only and bounded. It does not prove whether the provider billed the request and does not automatically retry, settle, or release anything. Operators must verify provider request logs and billing evidence before manual resolution.
+10. The authenticated member recovery endpoint can restore the original conversation, payload, and idempotency key after a tab/browser session is lost. It returns only the caller's own oldest unresolved request and uses no-store responses; the key must never be logged.
+11. The admin reconciliation queue is read-only and bounded. It does not prove whether the provider billed the request and does not automatically retry, settle, or release anything. Operators must verify provider request logs and billing evidence before manual resolution.
 
 ## Accounting rules
 
