@@ -26,6 +26,7 @@ export default function ContributionReviewClient() {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [requestKeys, setRequestKeys] = useState<Record<string, { signature: string; key: string }>>({});
 
   async function load() {
     setLoading(true);
@@ -50,13 +51,16 @@ export default function ContributionReviewClient() {
       setError("審核理由至少需要 10 個字元。");
       return;
     }
+    const signature = JSON.stringify({ submissionId: row.id, decision, rationale });
+    const key = requestKeys[row.id]?.signature === signature ? requestKeys[row.id].key : crypto.randomUUID();
+    setRequestKeys(prev => ({ ...prev, [row.id]: { signature, key } }));
     setBusy(row.id);
     setError("");
     setNotice("");
     try {
       const response = await fetch("/api/admin/contribution/reviews", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
+        headers: { "Content-Type": "application/json", "Idempotency-Key": key },
         body: JSON.stringify({ submissionId: row.id, decision, rationale }),
       });
       const data = await response.json() as { result?: { status: string; reward_amount: number; reward_currency: string }; error?: string };
@@ -65,6 +69,7 @@ export default function ContributionReviewClient() {
       setNotice(decision === "accept"
         ? "已通過驗收，貢獻帳本已寫入。" + (amount > 0 ? "待確認獎勵：" + amount + " " + data.result?.reward_currency + "。" : "此任務沒有設定獎勵金額。")
         : "已退回成果，審核理由已記錄。");
+      setRequestKeys(prev => { const next = { ...prev }; delete next[row.id]; return next; });
       await load();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "審核未完成。");
