@@ -177,7 +177,7 @@ assert.ok(contributionReviewSql.includes("for update of s, t"), "Review must loc
 assert.ok(contributionReviewSql.includes("insert into public.contribution_ledger"), "Review must write the contribution ledger");
 assert.ok(contributionReviewSql.includes("insert into public.reward_ledger"), "Accepted submissions must accrue reward ledger entries");
 assert.ok(contributionReviewSql.includes("insert into public.audit_logs"), "Review must write an audit record");
-assert.ok(contributionReviewSql.includes("grant execute on function public.review_task_submission(uuid,uuid,text,text,text) to service_role"), "Review RPC must be service-role only");
+assert.ok(contributionReviewSql.includes("grant execute on function public.review_task_submission(uuid,uuid,text,text,text)") && contributionReviewSql.includes("to service_role;"), "Review RPC must be service-role only");
 assert.ok(reviewApi.includes('["admin", "reviewer"]'), "Review API must enforce reviewer/admin role");
 assert.ok(reviewApi.includes('"Idempotency-Key"'), "Review API must require idempotency key");
 assert.ok(reviewApi.includes('p_actor_id: context.auth.user.id'), "Review actor must come from authenticated session");
