@@ -40,11 +40,11 @@ create or replace function public.prevent_ai_reconciliation_event_mutation()
 returns trigger
 language plpgsql
 set search_path = ''
-as $
+as $trigger$
 begin
   raise exception 'AI reconciliation evidence events are immutable';
 end;
-$;
+$trigger$;
 
 revoke all on function public.prevent_ai_reconciliation_event_mutation() from public, anon, authenticated, service_role;
 
