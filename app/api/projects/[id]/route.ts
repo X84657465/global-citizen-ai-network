@@ -27,12 +27,18 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   }
 
   const input = body as { title?: unknown; description?: unknown };
-  const updates: { title?: string; description?: string | null } = {};
+  const updates: { title?: string; description?: string | null; archived_at?: string | null } = {};
   if (input.title !== undefined) {
     if (typeof input.title !== "string" || input.title.trim().length < 1 || input.title.trim().length > 160) {
       return NextResponse.json({ error: "專案名稱長度不符合限制。" }, { status: 400 });
     }
     updates.title = input.title.trim();
+  }
+  if (input.archived !== undefined) {
+    if (typeof input.archived !== "boolean") {
+      return NextResponse.json({ error: "封存狀態必須是布林值。" }, { status: 400 });
+    }
+    updates.archived_at = input.archived ? new Date().toISOString() : null;
   }
   if (input.description !== undefined) {
     if (input.description !== null && (typeof input.description !== "string" || input.description.length > 4000)) {
@@ -48,7 +54,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     .from("projects")
     .update(updates)
     .eq("id", id)
-    .select("id,title,description,created_at,updated_at")
+    .select("id,title,description,archived_at,created_at,updated_at")
     .maybeSingle();
 
   if (error) return NextResponse.json({ error: "目前無法更新專案。" }, { status: 400 });
