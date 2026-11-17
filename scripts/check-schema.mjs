@@ -168,7 +168,7 @@ assert.ok(aiGateway.includes("p_conversation_id: conversationId"), "AI gateway m
 assert.ok(singlePendingSql.includes("pg_catalog.hashtextextended(p_owner_id::text, 0)"), "AI claims must serialize across all conversations for one member");
 const claimLockPositions = [
   singlePendingSql.indexOf("pg_catalog.pg_advisory_xact_lock"),
-  singlePendingSql.indexOf("from public.platform_ai_controls\\n  where id = true\\n  for update"),
+  singlePendingSql.indexOf("from public.platform_ai_controls\n  where id = true\n  for update"),
   singlePendingSql.indexOf("select * into v_existing"),
 ];
 assert.ok(claimLockPositions.every((position) => position >= 0)
