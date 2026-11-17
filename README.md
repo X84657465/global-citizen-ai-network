@@ -48,7 +48,7 @@ docs/                Product, architecture, security, and data specifications
 
 ## Local development
 
-Requirements: Node.js 20.9+ and npm.
+Requirements: Node.js 22.13+ and npm.
 
 ```bash
 npm install
