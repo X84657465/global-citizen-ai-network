@@ -91,7 +91,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Non-finite reservation ceiling', 'test-ai-infinity-ceiling-001',
-    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\\n' || 'Non-finite reservation ceiling', 'UTF8')), 'hex')::char(64),
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Non-finite reservation ceiling', 'UTF8')), 'hex')::char(64),
     '52000000-0000-4000-8000-000000000008',
     'openai-compatible', 'test-model', 'chat', 'Infinity'::numeric, 0.1
   );
