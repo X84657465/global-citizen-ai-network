@@ -204,6 +204,24 @@ begin
 end;
 $$;
 
+-- Prevent privilege escalation through the profile self-update policy.
+-- Role and account status can only be changed by trusted server-side operations.
+create or replace function public.protect_profile_privileges()
+returns trigger language plpgsql set search_path = '' as $
+begin
+  if auth.uid() is not null and (
+    new.role is distinct from old.role
+    or new.account_status is distinct from old.account_status
+  ) then
+    raise exception 'Role and account status changes require a trusted server-side operation.';
+  end if;
+  return new;
+end;
+$;
+
+create trigger profiles_protect_privileges before update on public.profiles
+  for each row execute procedure public.protect_profile_privileges();
+
 create trigger profiles_updated_at before update on public.profiles
   for each row execute procedure public.set_updated_at();
 create trigger projects_updated_at before update on public.projects
@@ -270,7 +288,13 @@ create policy "published_tasks_read" on public.contribution_tasks for select to 
 create policy "submissions_owner_select" on public.task_submissions for select to authenticated
   using (contributor_id = (select auth.uid()));
 create policy "submissions_owner_insert" on public.task_submissions for insert to authenticated
-  with check (contributor_id = (select auth.uid()));
+  with check (
+    contributor_id = (select auth.uid())
+    and exists (
+      select 1 from public.contribution_tasks t
+      where t.id = task_id and t.status = 'published'
+    )
+  );
 create policy "reviews_owner_select" on public.task_reviews for select to authenticated
   using (
     exists (select 1 from public.task_submissions s
