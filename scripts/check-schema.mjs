@@ -334,3 +334,7 @@ assert.ok(aiCostsClient.includes("不代表供應商請款金額"), "AI cost UI 
 const aiCompletionSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 assert.ok(aiCompletionSql.includes("v_request.conversation_id is distinct from p_conversation_id"),
   "AI completion must remain bound to the conversation persisted during the atomic claim");
+assert.ok(aiCompletionSql.includes("p_estimated_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
+  "AI completion must reject non-finite settlement costs");
+assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
+  "AI claim must reject non-finite reservation ceilings");
