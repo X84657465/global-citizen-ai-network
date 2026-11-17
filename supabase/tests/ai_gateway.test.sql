@@ -184,6 +184,11 @@ begin
      or v_claim.claimed_request_id <> v_unknown_request then
     raise exception 'same-key retry did not preserve the original unresolved request';
   end if;
+  if (select count(*) from public.messages
+      where conversation_id = v_conversation and owner_id = v_owner
+        and role = 'user' and content = 'Uncertain request original prompt') <> 1 then
+    raise exception 'same-key retry duplicated the original user prompt';
+  end if;
 
   -- A different key and conversation for the same member must not start a
   -- second billable request while the first provider outcome is unresolved.
@@ -200,6 +205,11 @@ begin
   if exists (select 1 from public.ai_requests where id = v_blocked_request)
      or exists (select 1 from public.ai_budget_reservations where request_id = v_blocked_request) then
     raise exception 'blocked cross-conversation request created a request or budget reservation';
+  end if;
+  if exists (select 1 from public.messages
+      where conversation_id = v_other_conversation and owner_id = v_owner
+        and role = 'user' and content = 'Blocked cross conversation prompt') then
+    raise exception 'blocked cross-conversation claim persisted a user prompt';
   end if;
 
   update public.ai_requests
