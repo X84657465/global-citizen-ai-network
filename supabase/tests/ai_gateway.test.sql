@@ -1,6 +1,6 @@
 begin;
 
-select plan(25);
+select plan(24);
 
 -- Exercise atomic AI completion, known-failure release, and uncertain outcomes.
 select ok(to_regprocedure('public.complete_ai_chat_request(uuid,uuid,uuid,text,text,integer,integer,integer,numeric,text,integer,text,jsonb)') is not null,
@@ -78,10 +78,12 @@ begin
     raise exception 'AI success fixture claim failed: %', v_claim.disposition;
   end if;
 
-  perform pg_temp.assert_true(
-    (select conversation_id = v_conversation from public.ai_requests where id = v_success_request),
-    'AI claim persists its originating conversation before the API starts provider work'
-  );
+  if not exists (
+    select 1 from public.ai_requests
+    where id = v_success_request and conversation_id = v_conversation
+  ) then
+    raise exception 'AI claim did not persist its originating conversation';
+  end if;
 
   update public.ai_requests
   set status = 'running', started_at = now()
