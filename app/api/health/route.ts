@@ -11,12 +11,12 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const supabaseConfigured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   );
   const aiProvider = process.env.AI_PROVIDER ?? "mock";
   const aiConfigured =
     aiProvider === "mock" ||
-    Boolean(process.env.AI_API_KEY && process.env.AI_MODEL);
+    Boolean(process.env.AI_BASE_URL && process.env.AI_API_KEY && process.env.AI_MODEL && process.env.AI_MAX_REQUEST_COST_TWD && process.env.AI_INPUT_COST_PER_MILLION_TWD && process.env.AI_OUTPUT_COST_PER_MILLION_TWD);
 
   return NextResponse.json(
     {
