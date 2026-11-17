@@ -4,6 +4,7 @@ import { strict as assert } from "node:assert";
 const sql = readFileSync("supabase/migrations/0001_initial_schema.sql", "utf8");
 const statusSql = readFileSync("supabase/migrations/0002_member_status_rls.sql", "utf8");
 const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reservations.sql", "utf8");
+const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_hard_stop.sql", "utf8");
 const env = readFileSync(".env.example", "utf8");
 const page = readFileSync("app/page.tsx", "utf8");
 const bodyReader = readFileSync("lib/http/read-json-body.ts", "utf8");
@@ -56,6 +57,12 @@ assert.ok(budgetSql.includes("Record the provider's actual charge even when it e
 
 assert.ok(budgetSql.includes("Record the provider's actual charge even when it exceeds the estimate"));
 
+assert.ok(hardStopSql.includes("create or replace function public.finalize_ai_budget"));
+assert.ok(hardStopSql.includes("from public.platform_ai_controls") && hardStopSql.includes("for update"), "Settlement must serialize against reservations");
+assert.ok(hardStopSql.includes("set ai_enabled = false"), "Actual-cost overrun must trigger the global AI hard-stop");
+assert.ok(hardStopSql.includes("v_monthly_committed > v_controls.monthly_spend_cap"), "Hard-stop must compare committed actual spend with the monthly cap");
+assert.ok(hardStopSql.includes("grant execute on function public.finalize_ai_budget") && hardStopSql.includes("to service_role"), "Settlement RPC must remain server-only");
+
 assert.ok(statusSql.includes("'active', 'restricted'"));
 
 assert.ok(env.includes("ENABLE_PUBLIC_SIGNUP=false"), "Server signup gate must default closed");
@@ -77,4 +84,4 @@ for (const forbidden of [
   assert.equal(sql.includes(forbidden), false, "Immutable ledger FK must not be rewritten by ON DELETE SET NULL: " + forbidden);
 }
 
-console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC, account-status gates, atomic AI budget reservations, bounded request parsing, and closed AI/signup defaults.");
+console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC, account-status gates, atomic AI budget reservations, overrun hard-stop, bounded request parsing, and closed AI/signup defaults.");
