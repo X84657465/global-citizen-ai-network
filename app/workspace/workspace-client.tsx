@@ -47,6 +47,15 @@ function findStoredPendingConversationId(exceptId = "") {
   } catch { /* Storage may be unavailable in restricted browser contexts. */ }
   return "";
 }
+function clearAllStoredPendingRequests() {
+  try {
+    for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
+      const key = sessionStorage.key(index);
+      if (key?.startsWith("gcan:pending-ai:")) sessionStorage.removeItem(key);
+      if (key?.startsWith("gcan:pending-ai-content:")) sessionStorage.removeItem(key);
+    }
+  } catch { /* Storage may be unavailable in restricted browser contexts. */ }
+}
 
 const shell: CSSProperties = { minHeight: "100vh", background: "#f4f7fb", color: "#17263b", padding: "28px 16px" };
 const card: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 16 };
@@ -84,6 +93,11 @@ export default function WorkspaceClient() {
             storePendingContent(recovered.conversationId, recovered.content);
             setPendingConversationId(recovered.conversationId);
             setNotice("已從伺服器恢復一筆尚待核對的 AI 請求，返回原對話查看原始內容與狀態，等待管理員核對。");
+          } else if (pendingResponse.ok) {
+            // The server is authoritative: clear stale tab-local keys after the
+            // request has been completed or safely failed/reconciled.
+            clearAllStoredPendingRequests();
+            setPendingConversationId("");
           } else {
             setPendingConversationId(findStoredPendingConversationId());
           }
