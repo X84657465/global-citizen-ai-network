@@ -401,6 +401,7 @@ assert.ok(projectsClient.includes('fetch("/api/projects?includeArchived=true"') 
 assert.ok(projectsClient.includes("還原專案") && projectsClient.includes("封存專案"),
   "Project management UI must expose both archive and restore actions");
 const conversationsApi = readFileSync("app/api/conversations/route.ts", "utf8");
+const conversationProjectApi = readFileSync("app/api/conversations/[id]/route.ts", "utf8");
 const projectLinkedWorkspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
 assert.ok(conversationsApi.includes('.eq("owner_id", auth.user.id)') && conversationsApi.includes('.is("archived_at", null)'),
   "Conversation creation must reject projects not owned by the member or already archived");
@@ -424,3 +425,14 @@ assert.ok(projectMetadataUi.includes("async function saveProject(project: Projec
   "Project management UI must support editing title and description through the authenticated PATCH endpoint");
 assert.ok(projectMetadataUi.includes("編輯") && projectMetadataUi.includes("儲存") && projectMetadataUi.includes("取消"),
   "Project metadata editing must provide explicit edit, save, and cancel controls");
+
+assert.ok(conversationProjectApi.includes('.eq("owner_id", auth.user.id)') &&
+  conversationProjectApi.includes('.eq("id", id)') &&
+  conversationProjectApi.includes('.is("archived_at", null)'),
+  "Conversation project reassignment must be owner-scoped and reject archived or foreign projects");
+assert.ok(conversationProjectApi.includes('readJsonBody(request, 32768)') &&
+  conversationProjectApi.includes('hasOwnProperty.call(body, "project_id")'),
+  "Conversation project reassignment must use bounded JSON parsing and explicit nullable project_id input");
+assert.ok(projectLinkedWorkspaceClient.includes('method: "PATCH"') &&
+  projectLinkedWorkspaceClient.includes("assignConversationProject"),
+  "Workspace must allow existing conversations to be reassigned or unassigned from active projects");
