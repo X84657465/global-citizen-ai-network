@@ -71,3 +71,8 @@ Start with a single-region, small, observable deployment. Add queues, replicas, 
 The AI gateway requires an `Idempotency-Key` per logical user action. PostgreSQL serializes same-member/same-key claims with a transaction-scoped advisory lock, compares a SHA-256 payload hash, and creates the idempotency record and budget reservation in the same transaction. A different payload under the same key is rejected. Completed responses are replayed for 24 hours; processing and failed states are not silently re-executed. The response cache contains generated answer text and is service-role-only, so production retention/deletion scheduling and privacy review are required.
 
 New logical requests are subject to database-enforced fixed-window limits of 10 per minute and 60 per hour per member. Safe retries are detected before rate counters increment. Rate counters are service-role-only and must be included in operational retention/cleanup planning. These limits are conservative defaults, not final product pricing or capacity commitments.
+
+
+## Operational retention and stuck-request handling
+
+Migration 0007 adds a service-role-only cleanup function for expired completed/failed idempotency mappings and old rate-limit windows, plus a read-only stale-request report. It intentionally never deletes in-flight idempotency rows, AI requests, reservations, or financial ledgers. Requests with a reserved budget that remain queued/running beyond the operational threshold are surfaced for manual provider/billing reconciliation; age alone is never treated as proof that a provider call failed. Scheduling is deferred until a real database has Cron enabled and the function has been manually tested.
