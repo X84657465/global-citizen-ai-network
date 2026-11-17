@@ -36,6 +36,10 @@ export default async function AccountPage() {
           <Info label="帳戶角色" value={profile?.role ?? "member"} />
           <Info label="帳戶狀態" value={profile?.account_status ?? "待確認"} />
           <Info label="會員識別碼" value={user.id} />
+          <Link href="/contributions" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#eff8f3", color: "#24724f", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>查看我的貢獻與獎勵 →</Link>
+          {profile && ["admin", "reviewer"].includes(profile.role) && profile.account_status === "active" ? (
+            <Link href="/admin/contributions" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#eef4ff", color: "#315d91", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>開啟貢獻成果審核 →</Link>
+          ) : null}
           {profile?.role === "admin" && profile.account_status === "active" ? (
             <Link href="/admin/ai-operations" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#eef4ff", color: "#315d91", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>開啟 AI 營運安全中心 →</Link>
           ) : null}
