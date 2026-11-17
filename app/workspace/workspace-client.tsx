@@ -23,6 +23,17 @@ function clearStoredPendingKey(conversationId: string) {
   try { sessionStorage.removeItem(pendingKeyStorageKey(conversationId)); }
   catch { /* Storage may be unavailable in restricted browser contexts. */ }
 }
+function findStoredPendingConversationId(exceptId = "") {
+  try {
+    for (let index = 0; index < sessionStorage.length; index += 1) {
+      const key = sessionStorage.key(index);
+      if (!key || !key.startsWith("gcan:pending-ai:")) continue;
+      const id = key.slice("gcan:pending-ai:".length);
+      if (id && id !== exceptId && sessionStorage.getItem(key)) return id;
+    }
+  } catch { /* Storage may be unavailable in restricted browser contexts. */ }
+  return "";
+}
 
 const shell: CSSProperties = { minHeight: "100vh", background: "#f4f7fb", color: "#17263b", padding: "28px 16px" };
 const card: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 16 };
@@ -36,6 +47,7 @@ export default function WorkspaceClient() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("已連接會員工作區。AI 服務仍須由管理員完成供應商與預算設定後才能啟用。");
   const [pendingKey, setPendingKey] = useState("");
+  const [pendingConversationId, setPendingConversationId] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const conversationLoadRef = useRef(0);
 
@@ -45,7 +57,10 @@ export default function WorkspaceClient() {
       .then(async response => {
         const data = await response.json() as { conversations?: Conversation[] } & ApiError;
         if (!response.ok) throw new Error(data.error ?? "無法載入對話。");
-        if (!cancelled) setConversations(data.conversations ?? []);
+        if (!cancelled) {
+          setConversations(data.conversations ?? []);
+          setPendingConversationId(findStoredPendingConversationId());
+        }
       })
       .catch(reason => { if (!cancelled) setError(reason instanceof Error ? reason.message : "無法載入對話。"); });
     return () => { cancelled = true; };
@@ -71,6 +86,7 @@ export default function WorkspaceClient() {
     setMessages(visibleMessages);
     const storedKey = readStoredPendingKey(id);
     setPendingKey(storedKey);
+    setPendingConversationId(storedKey ? id : findStoredPendingConversationId(id));
     if (storedKey && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "user") {
       setPrompt(visibleMessages[visibleMessages.length - 1].content);
       setNotice("上一個 AI 請求結果尚待確認，重試時會沿用原冪等鍵，避免重複呼叫供應商。");
@@ -78,6 +94,7 @@ export default function WorkspaceClient() {
       // The atomic server transaction committed successfully before the browser lost its response.
       clearStoredPendingKey(id);
       setPendingKey("");
+      setPendingConversationId(findStoredPendingConversationId(id));
     }
   }
 
@@ -85,6 +102,12 @@ export default function WorkspaceClient() {
     event.preventDefault();
     const content = prompt.trim();
     if (!content || busy) return;
+    const otherPendingConversationId = findStoredPendingConversationId(conversationId);
+    if (otherPendingConversationId) {
+      setError("另一個對話的 AI 請求尚未確認，請先開啟該對話，沿用原冪等鍵完成重試或等待管理員核對，避免產生第二筆費用。");
+      setNotice("系統已暫停新的 AI 請求，直到上一筆未知結果獲得確認。");
+      return;
+    }
     const existingPendingKey = pendingKey || (conversationId ? readStoredPendingKey(conversationId) : "");
     if (hasPendingRetryContentMismatch(existingPendingKey, messages[messages.length - 1], content)) {
       setError("上一筆 AI 請求尚未確認，為避免重複計費，請先恢復原始訊息並使用相同冪等鍵重試。");
@@ -109,6 +132,7 @@ export default function WorkspaceClient() {
 
       const key = pendingKey || readStoredPendingKey(activeId) || crypto.randomUUID();
       setPendingKey(key);
+      setPendingConversationId(activeId);
       storePendingKey(activeId, key);
       setMessages(prev => prev.length > 0 && prev[prev.length - 1].role === "user" && prev[prev.length - 1].content === content ? prev : [...prev, { role: "user", content }]);
       setPrompt("");
@@ -123,6 +147,7 @@ export default function WorkspaceClient() {
         if (data.retryWithSameKey !== true) {
           setPendingKey("");
           clearStoredPendingKey(activeId);
+          setPendingConversationId(findStoredPendingConversationId(activeId));
         }
         throw new Error(data.error ?? "AI 請求未完成。");
       }
@@ -130,7 +155,9 @@ export default function WorkspaceClient() {
       setNotice(data.costLabel ? data.costLabel + "。每次請求均經過預算與冪等性檢查。" : "AI 回覆完成。");
       setPendingKey("");
       clearStoredPendingKey(activeId);
+      setPendingConversationId(findStoredPendingConversationId(activeId));
     } catch (reason) {
+      if (activeId && readStoredPendingKey(activeId)) setPendingConversationId(activeId);
       setPrompt(content);
       setError(reason instanceof Error ? reason.message : "請求發生錯誤。");
     } finally {
@@ -149,6 +176,8 @@ export default function WorkspaceClient() {
           </div>
           <button type="button" disabled={busy} onClick={() => { conversationLoadRef.current += 1; setConversationId(""); setMessages([]); setPendingKey(""); setError(""); }} style={{ border: "1px solid #d7e0eb", background: "#fff", color: "#315d91", borderRadius: 10, padding: "10px 14px", fontWeight: 700 }}>＋ 新對話</button>
         </header>
+
+        {pendingConversationId && pendingConversationId !== conversationId && <p role="status" style={{ ...card, borderColor: "#f0d7a6", background: "#fff9ed", color: "#8a5a12", padding: 12, fontSize: 12, lineHeight: 1.7 }}>有一筆其他對話的 AI 請求尚未確認，為避免重複計費，目前暫停新請求，請先回到原對話完成相同冪等鍵重試或等待管理員核對。</p>}
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 280px", gap: 16 }}>
           <section style={{ ...card, minHeight: 620, display: "flex", flexDirection: "column", overflow: "hidden" }}>
