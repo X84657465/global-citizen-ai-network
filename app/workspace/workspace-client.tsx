@@ -75,6 +75,7 @@ export default function WorkspaceClient() {
   const [notice, setNotice] = useState("已連接會員工作區。AI 服務仍須由管理員完成供應商與預算設定後才能啟用。");
   const [pendingKey, setPendingKey] = useState("");
   const [pendingConversationId, setPendingConversationId] = useState("");
+  const [pendingRecoveryBlocked, setPendingRecoveryBlocked] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const conversationLoadRef = useRef(0);
 
@@ -88,6 +89,8 @@ export default function WorkspaceClient() {
         const data = await conversationResponse.json() as { conversations?: Conversation[] } & ApiError;
         const pendingData = await pendingResponse.json() as {
           pending?: { conversationId: string; idempotencyKey: string; content: string; status: string } | null;
+          unresolved?: boolean;
+          recoverable?: boolean;
         } & ApiError;
         if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
         if (!cancelled) {
@@ -97,12 +100,20 @@ export default function WorkspaceClient() {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
             storePendingContent(recovered.conversationId, recovered.content);
             setPendingConversationId(recovered.conversationId);
+            setPendingRecoveryBlocked(false);
             setNotice("已從伺服器恢復一筆尚待核對的 AI 請求，返回原對話查看原始內容與狀態，等待管理員核對。");
-          } else if (pendingResponse.ok) {
+          } else if (pendingResponse.ok && pendingData.unresolved === false) {
             // The server is authoritative: clear stale tab-local keys after the
             // request has been completed or safely failed/reconciled.
             clearAllStoredPendingRequests();
             setPendingConversationId("");
+            setPendingRecoveryBlocked(false);
+          } else if (pendingResponse.ok && pendingData.unresolved === true) {
+            // Do not discard a possibly valid local key when the server found
+            // an unresolved request but could not safely reconstruct its prompt.
+            setPendingConversationId(findStoredPendingConversationId());
+            setPendingRecoveryBlocked(true);
+            setNotice("系統找到尚未結案的 AI 請求，但無法安全還原原始訊息，已暫停新請求並保留本機資料，請由管理員核對，不要更換冪等鍵。");
           } else {
             setPendingConversationId(findStoredPendingConversationId());
           }
@@ -149,6 +160,10 @@ export default function WorkspaceClient() {
     event.preventDefault();
     const content = prompt.trim();
     if (!content || busy) return;
+    if (pendingRecoveryBlocked) {
+      setError("有一筆尚未結案的 AI 請求無法安全恢復，請等待管理員核對，不能建立新請求或更換冪等鍵。");
+      return;
+    }
     const otherPendingConversationId = findStoredPendingConversationId(conversationId);
     if (otherPendingConversationId) {
       setError("另一個對話的 AI 請求尚未確認，請先開啟原對話查看狀態並等待管理員核對，請勿建立新請求或更換冪等鍵。");
@@ -254,10 +269,10 @@ export default function WorkspaceClient() {
             </div>
             <form onSubmit={send} style={{ borderTop: "1px solid #edf1f5", padding: 14 }}>
               {error && <p role="alert" style={{ color: "#b42318", background: "#fff1f0", padding: 10, borderRadius: 8, fontSize: 12 }}>{error}</p>}
-              <textarea value={prompt} onChange={event => setPrompt(event.target.value)} maxLength={8000} placeholder="輸入你想研究或處理的問題…" rows={3} style={{ width: "100%", resize: "vertical", border: "1px solid #dce3ec", borderRadius: 10, padding: 12, outlineColor: "#8aa6d4", font: "inherit", fontSize: 13 }} />
+              <textarea value={prompt} onChange={event => setPrompt(event.target.value)} disabled={pendingRecoveryBlocked} maxLength={8000} placeholder="輸入你想研究或處理的問題…" rows={3} style={{ width: "100%", resize: "vertical", border: "1px solid #dce3ec", borderRadius: 10, padding: 12, outlineColor: "#8aa6d4", font: "inherit", fontSize: 13 }} />
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 9 }}>
                 <span style={{ color: "#8995a5", fontSize: 10 }}>最多 8,000 字元 · 每次請求有預算上限</span>
-                <button type="submit" disabled={busy || !prompt.trim()} style={{ border: 0, borderRadius: 9, padding: "10px 17px", background: "#315d91", color: "#fff", fontWeight: 700, opacity: busy || !prompt.trim() ? .5 : 1 }}>{busy ? "處理中…" : "送出問題"}</button>
+                <button type="submit" disabled={busy || !prompt.trim() || pendingRecoveryBlocked} style={{ border: 0, borderRadius: 9, padding: "10px 17px", background: "#315d91", color: "#fff", fontWeight: 700, opacity: busy || !prompt.trim() ? .5 : 1 }}>{busy ? "處理中…" : "送出問題"}</button>
               </div>
             </form>
           </section>
