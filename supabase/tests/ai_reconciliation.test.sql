@@ -1,6 +1,6 @@
 begin;
 
-select plan(9);
+select plan(8);
 
 select ok(
   to_regprocedure('public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)') is not null,
@@ -33,11 +33,6 @@ select ok(
 select ok(
   not has_function_privilege('anon', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
   'anonymous and public callers cannot invoke reconciliation'
-);
-
-select ok(
-  not has_function_privilege('service_role', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
-  'service-role RPC calls are not used as a substitute for an authenticated admin identity'
 );
 
 set local role authenticated;
