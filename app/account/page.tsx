@@ -36,6 +36,9 @@ export default async function AccountPage() {
           <Info label="帳戶角色" value={profile?.role ?? "member"} />
           <Info label="帳戶狀態" value={profile?.account_status ?? "待確認"} />
           <Info label="會員識別碼" value={user.id} />
+          {profile?.role === "admin" && profile.account_status === "active" ? (
+            <Link href="/admin/ai-operations" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#eef4ff", color: "#315d91", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>開啟 AI 營運安全中心 →</Link>
+          ) : null}
         </div>
         <form action="/auth/signout" method="post" style={{ marginTop: 26 }}>
           <button type="submit" style={{ border: 0, borderRadius: 10, padding: "12px 18px", background: "#244f83", color: "#fff", fontWeight: 700, cursor: "pointer" }}>安全登出</button>
