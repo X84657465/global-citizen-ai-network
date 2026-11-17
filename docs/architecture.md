@@ -18,6 +18,7 @@ This is a proposed baseline, not a claim that these services are already provisi
 2. Application API: authentication, authorization, validation, quotas, business rules.
 3. Model gateway: provider routing, prompt templates, timeouts, retries, token usage.
 4. Cost ledger: supplier charges, estimated marginal costs, tools, review and infra allocation.
+5. Budget guard: platform kill switch, per-request ceiling, per-user daily/monthly quotas, and monthly hard spend cap.
 5. Contribution engine: task lifecycle, submissions, quality checks, human review, appeal.
 6. Admin console: spend limits, fraud signals, moderation, audit trail.
 7. Data layer: PostgreSQL, private object storage, backups.
@@ -25,13 +26,14 @@ This is a proposed baseline, not a claim that these services are already provisi
 ## AI request lifecycle
 
 1. Authenticate user and verify role, account status, quota, and policy.
-2. Estimate maximum request cost and reserve budget where supported.
-3. Reject or downgrade requests that exceed per-user or platform budget limits.
-4. Call a server-side provider adapter with timeout and bounded retries.
-5. Capture provider-reported usage, model identifier, request ID, and invoice data when available.
-6. Write request and cost events; distinguish actual provider bill from internal estimate.
-7. Return response and show usage status to the user.
-8. Reconcile provider invoices against request-level estimates periodically.
+2. Read the platform AI kill switch and per-user budget policy; reject by default when disabled.
+3. Estimate maximum request cost and reserve budget where supported.
+4. Reject or downgrade requests that exceed per-user or platform budget limits.
+5. Call a server-side provider adapter with timeout and bounded retries.
+6. Capture provider-reported usage, model identifier, request ID, and invoice data when available.
+7. Write request and cost events; distinguish actual provider bill from internal estimate.
+8. Return response and show usage status to the user.
+9. Reconcile provider invoices against request-level estimates periodically.
 
 If exact supplier cost is not available per request, store the allocation method and mark it estimated. Never label estimates as invoices.
 
