@@ -8,15 +8,16 @@ The repository contains a server-side OpenAI-compatible gateway and database-enf
 
 1. Authenticate the member and derive owner_id from the verified session. Never accept an owner ID, role, price, or model cost from the browser.
 2. Validate request content, conversation ownership, provider configuration, and the idempotency key.
-3. Claim the logical request through the service-role-only database RPC. PostgreSQL serializes claims per member across all conversations, verifies the conversation belongs to the member, compares the payload hash, blocks a second new request while an earlier reservation is unresolved, enforces fixed-window quotas, reserves the maximum budget, and stores the originating conversation on the request in the same transaction before any provider call.
-4. Reject closed or missing controls by default. Do not fall back to an unmetered provider call.
-5. Call the provider once from server code with a bounded timeout, no automatic retry, and redirect following disabled. Provider credentials and the Supabase service-role key must never enter browser code, logs, or Git.
-6. Bound provider response reads and validate the response shape, answer, token usage, and request identifiers before accepting it.
-7. On validated success, atomically settle the reservation, save the assistant message, write an internal-estimate ledger row, and complete the idempotency response in one transaction.
-8. On a known failure, atomically release the reservation and mark the request failed.
-9. On an uncertain provider outcome—timeout, transport failure, provider-specific status without a guaranteed rejection contract (including 408/409/425/429/5xx), malformed success response, or database finalization failure—do not retry the provider and do not release the reservation. Only explicit validation/authentication rejection statuses (400/401/403/404/422) are treated as known non-accepted failures. Preserve the same idempotency key and make the request visible for operator reconciliation.
-10. The authenticated member recovery endpoint can restore the original conversation, payload, and idempotency key after a tab/browser session is lost. It returns only the caller's own oldest unresolved request and uses no-store responses; the key must never be logged.
-11. The admin reconciliation queue is read-only and bounded. It does not prove whether the provider billed the request and does not automatically retry, settle, or release anything. Operators must verify provider request logs and billing evidence before manual resolution.
+3. Run conservative prompt-cost preflight before side effects. If the request exceeds the configured per-request ceiling, reject it without creating a reservation or persisting the prompt.
+4. Claim the logical request through the service-role-only database RPC. PostgreSQL serializes claims per member across all conversations, verifies the conversation belongs to the member, compares the payload hash, blocks a second new request while an earlier reservation is unresolved, enforces fixed-window quotas, reserves the maximum budget, stores the originating conversation and original user message, and creates the idempotency record in the same transaction before any provider call.
+5. Reject closed or missing controls by default. Do not fall back to an unmetered provider call.
+6. Call the provider once from server code with a bounded timeout, no automatic retry, and redirect following disabled. Provider credentials and the Supabase service-role key must never enter browser code, logs, or Git.
+7. Bound provider response reads and validate the response shape, answer, token usage, and request identifiers before accepting it.
+8. On validated success, atomically settle the reservation, save the assistant message, write an internal-estimate ledger row, and complete the idempotency response in one transaction.
+9. On a known failure, atomically release the reservation and mark the request failed.
+10. On an uncertain provider outcome—timeout, transport failure, provider-specific status without a guaranteed rejection contract (including 408/409/425/429/5xx), malformed success response, or database finalization failure—do not retry the provider and do not release the reservation. Only explicit validation/authentication rejection statuses (400/401/403/404/422) are treated as known non-accepted failures. Preserve the same idempotency key and make the request visible for operator reconciliation.
+11. The authenticated member recovery endpoint can restore the original conversation, payload, and idempotency key after a tab/browser session is lost. It returns only the caller's own oldest unresolved request and uses no-store responses; the key must never be logged.
+12. The admin reconciliation queue is read-only and bounded. It does not prove whether the provider billed the request and does not automatically retry, settle, or release anything. Operators must verify provider request logs and billing evidence before manual resolution.
 
 ## Accounting rules
 
