@@ -1,5 +1,9 @@
 name: CI
 
+concurrency:
+  group: global-citizen-ai-network-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
