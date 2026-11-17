@@ -129,3 +129,15 @@ assert.ok(idempotencySql.includes("v_existing.state = 'processing' or v_existing
   "In-flight idempotency claims must never expire automatically");
 assert.ok(rateLimitSql.includes("v_existing.state = 'processing' or v_existing.expires_at > now()"),
   "Rate-limit claim path must preserve in-flight idempotency records");
+
+
+const retentionSql = readFileSync("supabase/migrations/0007_ai_operational_retention.sql", "utf8");
+assert.ok(retentionSql.includes("cleanup_expired_ai_operational_records"));
+assert.ok(retentionSql.includes("state in ('completed', 'failed')"), "Cleanup must never delete processing idempotency rows");
+assert.ok(retentionSql.includes("interval '48 hours'"), "Rate-limit cleanup must retain recent windows");
+assert.ok(retentionSql.includes("list_stale_ai_requests"));
+assert.ok(retentionSql.includes("b.status = 'reserved'"), "Stale report must only surface outstanding reservations");
+assert.ok(retentionSql.includes("revoke all on function public.cleanup_expired_ai_operational_records() from public, anon, authenticated"));
+assert.ok(retentionSql.includes("grant execute on function public.cleanup_expired_ai_operational_records() to service_role"));
+assert.ok(retentionSql.includes("grant execute on function public.list_stale_ai_requests(integer) to service_role"));
+assert.ok(!retentionSql.toLowerCase().includes("cron.schedule"), "Do not silently schedule cleanup before Cron is deliberately enabled");
