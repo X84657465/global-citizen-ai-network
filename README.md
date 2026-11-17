@@ -93,3 +93,7 @@ No open-source license has been selected yet. Until a license is added, all righ
 - \`/api/admin/ai-operations\`: active-admin-only operational JSON endpoint.
 
 The workspace is connected to the existing conversation and AI APIs; it is not a claim that the live AI provider is configured. No public signup, paid AI request, payout, or live deployment is enabled by this code alone.
+
+
+- \`/contribute\`: authenticated contribution center. It lists only database-published tasks and accepts member submissions through RLS-protected APIs. Rewards are not granted at submission time; verification and the reward ledger remain separate.
+- \`/api/contribution/tasks\`: lists published tasks and the signed-in member's submissions, and accepts validated submissions. Reward values and task state are read from the database, never trusted from the client.
