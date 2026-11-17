@@ -269,7 +269,16 @@ create policy "profiles_update_own" on public.profiles for update to authenticat
 create policy "projects_owner_all" on public.projects for all to authenticated
   using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
 create policy "conversations_owner_all" on public.conversations for all to authenticated
-  using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
+  using (owner_id = (select auth.uid())) with check (
+    owner_id = (select auth.uid())
+    and (
+      project_id is null
+      or exists (
+        select 1 from public.projects p
+        where p.id = project_id and p.owner_id = (select auth.uid())
+      )
+    )
+  );
 create policy "messages_owner_all" on public.messages for all to authenticated
   using (owner_id = (select auth.uid())) with check (
     owner_id = (select auth.uid()) and exists (
