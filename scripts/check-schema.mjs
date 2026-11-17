@@ -188,6 +188,8 @@ assert.ok(pendingRecovery.includes("timingSafeEqual") && pendingRecovery.include
 assert.ok(pendingRecovery.includes("message.content.length > 8000"), "Pending recovery must enforce the original prompt size limit");
 assert.ok(aiPendingRecoveryApi.includes('Cache-Control": "no-store"'), "Pending AI recovery responses must never be cached");
 assert.ok(workspaceClient.includes('fetch("/api/ai/pending"'), "Workspace must recover unresolved requests from the server after session loss");
+assert.ok(aiPendingRecoveryApi.includes("unresolved: false") && aiPendingRecoveryApi.includes("unresolved: true"), "Pending recovery API must distinguish no pending request from an unresolved but unrecoverable request");
+assert.ok(workspaceClient.includes("pendingRecoveryBlocked") && workspaceClient.includes("pendingData.unresolved === true"), "Workspace must retain local pending keys and block new prompts when server recovery is incomplete");
 assert.ok(workspaceClient.includes("另一個對話的 AI 請求尚未確認"), "Workspace must explain why a second request is blocked");
 
 
