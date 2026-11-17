@@ -73,6 +73,7 @@ The initial interface is a prototype. Demo task data is illustrative, not paid w
 - [RLS security verification plan](docs/rls-test-plan.md)
 - [Authentication implementation](docs/authentication.md)
 - [Application API reference](docs/api.md)
+- [AI budget overrun hard-stop](docs/ai-budget-overrun-hard-stop.md)
 
 ## Contributions
 
