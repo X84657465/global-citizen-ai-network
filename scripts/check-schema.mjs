@@ -8,6 +8,9 @@ const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_har
 const idempotencySql = readFileSync("supabase/migrations/0005_ai_request_idempotency.sql", "utf8");
 const rateLimitSql = readFileSync("supabase/migrations/0006_ai_request_rate_limits.sql", "utf8");
 const contributionReviewSql = readFileSync("supabase/migrations/0008_atomic_contribution_review.sql", "utf8");
+const appealReviewSql = readFileSync("supabase/migrations/0009_atomic_appeal_review.sql", "utf8");
+const appealReviewApi = readFileSync("app/api/admin/contribution/appeals/route.ts", "utf8");
+const appealReviewClient = readFileSync("app/admin/appeals/appeal-review-client.tsx", "utf8");
 const reviewApi = readFileSync("app/api/admin/contribution/reviews/route.ts", "utf8");
 const memberSummaryApi = readFileSync("app/api/contribution/summary/route.ts", "utf8");
 const appealApi = readFileSync("app/api/contribution/appeals/route.ts", "utf8");
@@ -205,3 +208,15 @@ assert.ok(appealApi.includes('appellant_id: auth.user.id'), "Appeal ownership mu
 assert.ok(memberSummaryApi.includes('from("task_appeals")'), "Member ledger summary must include appeal status");
 assert.ok(memberContributionsClient.includes('"/api/contribution/appeals"'), "Member contribution page must use the appeal API");
 assert.ok(memberContributionsClient.includes("提出申訴"), "Member page must expose an appeal action for rejected work");
+
+
+assert.ok(appealReviewSql.includes("create table public.task_appeal_review_idempotency"), "Appeal review idempotency table must exist");
+assert.ok(appealReviewSql.includes("create or replace function public.review_task_appeal"), "Atomic appeal adjudication RPC must exist");
+assert.ok(appealReviewSql.includes("v_new_submission_status := 'accepted'"), "Overturned appeals must restore accepted submission status");
+assert.ok(appealReviewSql.includes("insert into public.contribution_ledger"), "Overturned appeals must append contribution ledger events");
+assert.ok(appealReviewSql.includes("insert into public.reward_ledger"), "Overturned appeals must accrue reward entries");
+assert.ok(appealReviewSql.includes("grant execute on function public.review_task_appeal(uuid,uuid,text,text,text)") && appealReviewSql.includes("to service_role;"), "Appeal review RPC must be service-role only");
+assert.ok(appealReviewApi.includes('["admin", "reviewer"]'), "Appeal review API must enforce reviewer/admin role");
+assert.ok(appealReviewApi.includes('"Idempotency-Key"'), "Appeal review API must require idempotency key");
+assert.ok(appealReviewClient.includes('"/api/admin/contribution/appeals"'), "Appeal review UI must use server-side API");
+assert.ok(appealReviewClient.includes("申訴成立，撤銷退回"), "Reviewer UI must offer appeal overturn decision");
