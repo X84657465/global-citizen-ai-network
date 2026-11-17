@@ -71,7 +71,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_conversation, 'test-ai-success-001', repeat('a', 64)::char(64), v_success_request,
+    v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001', repeat('a', 64)::char(64), v_success_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'claimed' then
@@ -83,6 +83,13 @@ begin
     where id = v_success_request and conversation_id = v_conversation
   ) then
     raise exception 'AI claim did not persist its originating conversation';
+  end if;
+  if not exists (
+    select 1 from public.messages
+    where conversation_id = v_conversation and owner_id = v_owner
+      and role = 'user' and content = 'Atomic original user prompt'
+  ) then
+    raise exception 'AI claim did not atomically persist the original user prompt';
   end if;
 
   update public.ai_requests
@@ -132,7 +139,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_conversation, 'test-ai-failure-001', repeat('b', 64)::char(64), v_failed_request,
+    v_owner, v_conversation, 'Known failure original prompt', 'test-ai-failure-001', repeat('b', 64)::char(64), v_failed_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'claimed' then
@@ -149,7 +156,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_conversation, 'test-ai-unknown-001', repeat('c', 64)::char(64), v_unknown_request,
+    v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', repeat('c', 64)::char(64), v_unknown_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'claimed' then
@@ -169,7 +176,7 @@ begin
   -- A same-key retry remains attached to the original unresolved request.
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_conversation, 'test-ai-unknown-001', repeat('c', 64)::char(64), v_blocked_request,
+    v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', repeat('c', 64)::char(64), v_blocked_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'processing'
@@ -182,7 +189,7 @@ begin
   -- second billable request while the first provider outcome is unresolved.
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_other_conversation, 'test-ai-cross-conversation-001', repeat('e', 64)::char(64), v_blocked_request,
+    v_owner, v_other_conversation, 'Blocked cross conversation prompt', 'test-ai-cross-conversation-001', repeat('e', 64)::char(64), v_blocked_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'processing'
@@ -219,7 +226,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_overrun_owner, v_overrun_conversation, 'test-ai-overrun-001', repeat('d', 64)::char(64), v_overrun_request,
+    v_overrun_owner, v_overrun_conversation, 'Budget overrun original prompt', 'test-ai-overrun-001', repeat('d', 64)::char(64), v_overrun_request,
     'openai-compatible', 'test-model', 'chat', 0.001
   );
   if v_claim.disposition <> 'claimed' then
