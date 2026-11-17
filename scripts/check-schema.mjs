@@ -219,6 +219,19 @@ assert.ok(taskAdminClient.includes('"建立草稿"'), "Task admin UI must create
 
 console.log("Contribution operations guard passed: task authoring, controlled publication, reviewer approval, and member ledger access.");
 
+const reconciliationQueueSql = readFileSync("supabase/migrations/0013_bound_ai_reconciliation_queue.sql", "utf8");
+const reconciliationApi = readFileSync("app/api/admin/ai-reconciliation/route.ts", "utf8");
+assert.ok(aiGateway.includes('redirect: "error"'), "AI provider calls must reject unexpected redirects");
+assert.ok(reconciliationQueueSql.includes("limit 100;"), "Admin reconciliation query must have a hard result bound");
+assert.ok(reconciliationQueueSql.includes("p_older_than_seconds < 300") && reconciliationQueueSql.includes("p_older_than_seconds > 86400"),
+  "Admin reconciliation age filter must be bounded");
+assert.ok(reconciliationQueueSql.includes("to service_role"), "Stale request report must remain service-role only");
+assert.ok(reconciliationApi.includes('profile.role !== "admin"') && reconciliationApi.includes('profile.account_status !== "active"'),
+  "AI reconciliation endpoint must require an active admin");
+assert.ok(reconciliationApi.includes('Cache-Control": "no-store"'), "AI reconciliation response must not be cached");
+console.log("AI reconciliation guard passed: admin-only read access, bounded stale queue, and redirect-safe provider calls.");
+
+
 
 assert.ok(appealApi.includes('getAuthenticatedClient()'), "Contribution appeals must require authentication");
 assert.ok(appealApi.includes('submission.status !== "rejected"'), "Only rejected submissions may be appealed");
