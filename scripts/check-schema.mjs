@@ -91,7 +91,8 @@ console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC
 
 
 const aiGateway = readFileSync("app/api/ai/chat/route.ts", "utf8");
-assert.ok(aiGateway.includes('reserve_ai_budget'), "AI gateway must reserve budget before provider calls");
+assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
+assert.ok(idempotencySql.includes("public.reserve_ai_budget("), "Idempotency claim must atomically reserve AI budget");
 assert.ok(aiGateway.includes('finalize_ai_budget'), "AI gateway must settle successful provider calls");
 assert.ok(aiGateway.includes('release_ai_budget'), "AI gateway must release failed reservations");
 assert.ok(aiGateway.includes('AbortController'), "AI gateway must enforce provider timeout");
