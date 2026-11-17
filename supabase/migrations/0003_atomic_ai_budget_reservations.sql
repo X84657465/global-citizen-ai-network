@@ -162,6 +162,8 @@ $$;
 create or replace function public.finalize_ai_budget(
   p_request_id uuid,
   p_actual_cost_twd numeric,
+  p_provider_billed_cost numeric,
+  p_provider_billed_currency char(3),
   p_input_tokens integer,
   p_output_tokens integer,
   p_cached_tokens integer,
@@ -177,6 +179,9 @@ declare
   v_reservation public.ai_budget_reservations%rowtype;
 begin
   if p_request_id is null or p_actual_cost_twd is null or p_actual_cost_twd < 0
+     or (p_provider_billed_cost is not null and p_provider_billed_cost < 0)
+     or (p_provider_billed_cost is not null and p_provider_billed_currency is null)
+     or (p_provider_billed_currency is not null and length(trim(p_provider_billed_currency::text)) <> 3)
      or (p_input_tokens is not null and p_input_tokens < 0)
      or (p_output_tokens is not null and p_output_tokens < 0)
      or (p_cached_tokens is not null and p_cached_tokens < 0)
@@ -203,13 +208,14 @@ begin
 
   update public.ai_requests
   set status = 'succeeded',
-      provider_billed_cost = p_actual_cost_twd,
-      provider_billed_currency = 'TWD',
+      provider_billed_cost = p_provider_billed_cost,
+      provider_billed_currency = p_provider_billed_currency,
       input_tokens = p_input_tokens,
       output_tokens = p_output_tokens,
       cached_tokens = p_cached_tokens,
       provider_request_id = p_provider_request_id,
       latency_ms = p_latency_ms,
+      cost_method = 'provider_actual_cost_normalized_to_twd',
       completed_at = now()
   where id = p_request_id;
 
@@ -252,8 +258,8 @@ end;
 $$;
 
 revoke all on function public.reserve_ai_budget(uuid,uuid,text,text,text,numeric) from public, anon, authenticated;
-revoke all on function public.finalize_ai_budget(uuid,numeric,integer,integer,integer,text,integer) from public, anon, authenticated;
+revoke all on function public.finalize_ai_budget(uuid,numeric,numeric,char,integer,integer,integer,text,integer) from public, anon, authenticated;
 revoke all on function public.release_ai_budget(uuid,text) from public, anon, authenticated;
 grant execute on function public.reserve_ai_budget(uuid,uuid,text,text,text,numeric) to service_role;
-grant execute on function public.finalize_ai_budget(uuid,numeric,integer,integer,integer,text,integer) to service_role;
+grant execute on function public.finalize_ai_budget(uuid,numeric,numeric,char,integer,integer,integer,text,integer) to service_role;
 grant execute on function public.release_ai_budget(uuid,text) to service_role;
