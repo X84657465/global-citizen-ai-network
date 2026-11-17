@@ -44,7 +44,13 @@ begin
      or p_cost_method is null or length(trim(p_cost_method)) < 1 or length(p_cost_method) > 120
      or p_response is null or pg_catalog.jsonb_typeof(p_response) <> 'object'
      or p_response->>'requestId' is distinct from p_request_id::text
-     or p_response->>'answer' is distinct from p_answer then
+     or p_response->>'answer' is distinct from p_answer
+     or p_response->'usage' is distinct from pg_catalog.jsonb_build_object(
+       'inputTokens', p_input_tokens,
+       'outputTokens', p_output_tokens,
+       'cachedTokens', p_cached_tokens,
+       'estimatedCostTwd', p_estimated_cost_twd
+     ) then
     return false;
   end if;
 
