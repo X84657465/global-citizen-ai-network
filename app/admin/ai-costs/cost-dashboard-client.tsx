@@ -9,6 +9,7 @@ type ProviderModel = { provider: string; model: string; requests: number; inputT
 type Invoice = { provider: string; periodStart: string; periodEnd: string; currency: string; total: number; status: string; createdAt: string };
 type Data = {
   generatedAt?: string;
+  providerBilledByCurrency?: { currency: string; amount: number }[];
   window?: { costLedgerRows: number; requestRows: number; invoiceRows: number; note: string };
   costByKindCurrency?: CostItem[];
   costByCategory?: CategoryItem[];
@@ -56,6 +57,12 @@ export default function AiCostDashboardClient() {
           {(data.costByKindCurrency ?? []).length === 0 ? <p style={{ color: "#8793a5", fontSize: 12 }}>目前尚無成本紀錄。</p> :
             <div style={{ display: "grid", gap: 9 }}>{data.costByKindCurrency!.map(item => <div key={item.kind+item.currency} style={{ display: "flex", justifyContent: "space-between", gap: 10, borderTop: "1px solid #edf1f5", paddingTop: 9 }}><span style={{ fontSize: 12 }}>{kindLabel[item.kind] ?? item.kind} · {item.currency}</span><strong style={{ fontSize: 13 }}>{money(item.amount,item.currency)}</strong></div>)}</div>}
           <p style={{ color: "#8793a5", fontSize: 10, lineHeight: 1.7, marginBottom: 0 }}>供應商帳單實際金額以發票匯入與對帳結果為準，內部估算不代表供應商請款金額。</p>
+        </section>
+        <section style={{ ...panel, marginBottom: 14 }}>
+          <h2 style={{ fontSize: 16, margin: "0 0 12px" }}>供應商回報成本（依幣別）</h2>
+          {(data.providerBilledByCurrency ?? []).length === 0 ? <p style={{ color: "#8793a5", fontSize: 12 }}>目前沒有供應商回報的實際成本數據。</p> :
+            <div style={{ display: "grid", gap: 8 }}>{data.providerBilledByCurrency!.map(item => <div key={item.currency} style={{ display: "flex", justifyContent: "space-between", gap: 10, borderTop: "1px solid #edf1f5", paddingTop: 8 }}><span style={{ fontSize: 12 }}>供應商回報 · {item.currency}</span><strong style={{ fontSize: 12 }}>{money(item.amount,item.currency)}</strong></div>)}</div>}
+          <p style={{ color: "#8793a5", fontSize: 10, marginBottom: 0 }}>此數據來自 API 使用量回報，不一定等於供應商最終發票金額。</p>
         </section>
         <section style={{ ...panel, marginBottom: 14 }}>
           <h2 style={{ fontSize: 16, margin: "0 0 12px" }}>成本分類</h2>
