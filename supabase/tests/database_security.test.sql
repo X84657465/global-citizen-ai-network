@@ -1,6 +1,6 @@
 begin;
 
-select plan(24);
+select plan(26);
 
 select is(
   (select count(*)::integer
@@ -43,6 +43,15 @@ select ok(not has_function_privilege('authenticated','public.claim_ai_request(uu
   'authenticated users cannot execute privileged idempotency claim RPC');
 select ok(has_function_privilege('service_role','public.claim_ai_request(uuid,text,character,uuid,text,text,text,numeric)','EXECUTE'),
   'service_role can execute privileged idempotency claim RPC');
+
+select ok(
+  exists (select 1 from pg_constraint where conname = 'task_submissions_content_length_check'),
+  'submission content length is enforced by the database'
+);
+select ok(
+  position('closes_at' in (select qual from pg_policies where schemaname = 'public' and tablename = 'task_submissions' and policyname = 'submissions_owner_insert')) > 0,
+  'submission RLS policy rejects expired tasks'
+);
 
 select ok(to_regclass('public.task_review_idempotency') is not null, 'task review idempotency table exists');
 select ok((select relrowsecurity from pg_class where oid = 'public.task_review_idempotency'::regclass),
