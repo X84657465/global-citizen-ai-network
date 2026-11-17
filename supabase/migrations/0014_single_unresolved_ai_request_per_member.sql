@@ -64,10 +64,10 @@ begin
     pg_catalog.hashtextextended(p_owner_id::text, 0)
   );
 
-  -- Follow the same global lock order as completion/failure RPCs:
-  -- platform controls -> reservation/request -> idempotency. Locking the
-  -- idempotency row before the global controls row can deadlock a same-key
-  -- retry against a completion transaction that already holds global controls.
+  -- Completion/failure RPCs lock platform controls before reservation,
+  -- request, and idempotency rows. Claim follows the same global-first order:
+  -- it locks controls before inspecting an existing idempotency row, and only
+  -- creates a new reservation/request after replay resolution.
   perform 1
   from public.platform_ai_controls
   where id = true
