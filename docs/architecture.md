@@ -26,14 +26,14 @@ This is a proposed baseline, not a claim that these services are already provisi
 ## AI request lifecycle
 
 1. Authenticate user and verify role, account status, quota, and policy.
-2. Call the service-role-only `reserve_ai_budget` database function; it locks the global control row, checks the kill switch, active member status, per-request cap, platform monthly cap, member daily/monthly request quotas, and member monthly spend cap.
-3. The reservation and `ai_requests` row are inserted atomically. Reject by default when any control or member limit is missing, disabled, zero, or exceeded.
-4. Use the reservation amount as the maximum expected exposure for the provider call; never treat it as a guarantee of the final provider charge.
-5. Call a server-side provider adapter with timeout and bounded retries.
-6. Capture provider-reported usage, model identifier, request ID, and invoice data when available.
-7. Call `finalize_ai_budget` to record provider-reported actual cost and usage, or `release_ai_budget` for a failed request. Actual charges above the estimate must still be recorded and surfaced as an overrun; never discard a real charge.
-8. Return response and show usage status to the user.
-9. Reconcile provider invoices against request-level estimates periodically.
+2. The `/api/ai/chat` route authenticates the member, verifies conversation ownership, checks server-only provider configuration, and bounds request size/history.
+3. Call the service-role-only `reserve_ai_budget` database function; it locks the global control row, checks the AI enable switch, active member status, per-request cap, platform monthly cap, member daily/monthly request quotas, and member monthly spend cap.
+4. The reservation and `ai_requests` row are inserted atomically. Reject by default when any control or member limit is missing, disabled, zero, or exceeded.
+5. Apply a conservative prompt-size cost preflight, then call the OpenAI-compatible endpoint server-side with a hard timeout and no automatic retries.
+6. Capture provider usage and request ID when available. If usage is missing, use a conservative character-count fallback and label the result as an internal estimate.
+7. Call `finalize_ai_budget` to record normalized TWD cost, or `release_ai_budget` for a failed request. Provider invoice amounts remain null until verified supplier billing data is imported. Actual charges above the estimate must still be recorded and surfaced as an overrun; never discard a real charge.
+8. Append an `ai_cost_ledger` internal-estimate entry and save the assistant response.
+9. Return the response with explicit cost-estimate labeling. Reconcile provider invoices against request-level estimates periodically.
 
 If exact supplier cost is not available per request, store the allocation method and mark it estimated. Never label estimates as invoices.
 
@@ -54,3 +54,13 @@ An AI evaluator can assist triage but cannot be the sole authority for high-impa
 ## Deployment principle
 
 Start with a single-region, small, observable deployment. Add queues, replicas, and regional infrastructure only when measured demand justifies them. Do not build a global microservice architecture before there is a product-market signal.
+
+## Implemented gateway scaffold
+
+- `POST /api/ai/chat` requires an authenticated member and a conversation owned by that member.
+- The route is disabled unless `AI_PROVIDER=openai-compatible`, HTTPS (or localhost) `AI_BASE_URL`, server-only API key, model, TWD per-million-token rates, and a positive per-request reservation are configured.
+- The route reserves budget before calling the provider, uses a 32 KiB JSON limit, caps history to 16,000 characters, applies a conservative character-count preflight, limits output to 1,200 tokens, and enforces a timeout.
+- No automatic provider retries are performed. Failed calls release the reservation. Successful calls settle the budget, append an internal-estimate cost-ledger entry, and save the assistant message.
+- Provider invoice amount is intentionally left null; configured token rates are internal estimates, not verified invoice charges.
+- The service-role key is accessed only by a server-only module and is never returned to the client.
+- This route is an initial single-provider adapter, not yet a production-grade multi-provider router. Idempotency, rate limiting, streaming, provider-specific token accounting, and PostgreSQL integration tests remain required before public launch.
