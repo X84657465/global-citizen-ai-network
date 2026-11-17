@@ -1,7 +1,7 @@
-import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { findOriginalPendingMessage } from "@/lib/ai/pending-recovery";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -54,14 +54,11 @@ export async function GET() {
     return NextResponse.json({ error: "AI 請求狀態暫時無法讀取。" }, { status: 500, headers: { "Cache-Control": "no-store" } });
   }
 
-  const originalMessage = (lastMessages ?? []).find((message) => {
-    if (message.role !== "user" || typeof message.content !== "string"
-        || message.content.length < 1 || message.content.length > 8000) return false;
-    const hash = createHash("sha256")
-      .update(JSON.stringify({ conversationId: pending.conversation_id, content: message.content }))
-      .digest("hex");
-    return hash === idempotency?.request_hash?.trim();
-  });
+  const originalMessage = findOriginalPendingMessage(
+    lastMessages ?? [],
+    pending.conversation_id,
+    idempotency?.request_hash,
+  );
   if (!idempotency?.idempotency_key || !/^[A-Za-z0-9._:-]{8,128}$/.test(idempotency.idempotency_key)
       || !idempotency.request_hash || !originalMessage) {
     return NextResponse.json({ pending: null }, { headers: { "Cache-Control": "no-store" } });
