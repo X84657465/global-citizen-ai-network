@@ -384,3 +384,11 @@ assert.ok(singlePendingSql.includes("p_preflight_cost_twd > 9999999999.99999999"
   "AI claim preflight estimates must fit numeric(18,8)");
 assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
   "AI claim must reject non-finite reservation ceilings");
+const projectsApi = readFileSync("app/api/projects/route.ts", "utf8");
+const projectDetailApi = readFileSync("app/api/projects/[id]/route.ts", "utf8");
+assert.ok(projectsApi.includes('request.nextUrl.searchParams.get("includeArchived")'),
+  "Project listing must support explicit inclusion of archived records");
+assert.ok(projectsApi.includes('.is("archived_at", null)'),
+  "Archived projects must be excluded from the default active-project list");
+assert.ok(projectDetailApi.includes("typeof input.archived !== \"boolean\"") && projectDetailApi.includes("updates.archived_at"),
+  "Project archive and restore operations must accept only a boolean state");
