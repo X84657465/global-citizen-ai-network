@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
 
 export const runtime = "nodejs";
@@ -36,12 +37,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const auth = await getAuthenticatedClient();
   if (!auth) return NextResponse.json({ error: "請先登入。" }, { status: 401 });
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "請提供有效的訊息內容。" }, { status: 400 });
+  const parsed = await readJsonBody(request, 98304);
+  if (!parsed.ok) {
+    const message = parsed.status === 413 ? "請求內容超過大小限制。" : "請提供有效的訊息內容。";
+    return NextResponse.json({ error: message }, { status: parsed.status });
   }
+  const body = parsed.value;
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return NextResponse.json({ error: "請提供有效的訊息內容。" }, { status: 400 });
   }
