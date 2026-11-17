@@ -166,6 +166,15 @@ assert.ok(singlePendingSql.includes("p_conversation_id uuid"), "AI request claim
 assert.ok(singlePendingSql.includes("set conversation_id = p_conversation_id"), "AI request claim must persist the conversation in the reservation transaction");
 assert.ok(aiGateway.includes("p_conversation_id: conversationId"), "AI gateway must bind the claimed request to the validated conversation");
 assert.ok(singlePendingSql.includes("pg_catalog.hashtextextended(p_owner_id::text, 0)"), "AI claims must serialize across all conversations for one member");
+const claimLockPositions = [
+  singlePendingSql.indexOf("pg_catalog.pg_advisory_xact_lock"),
+  singlePendingSql.indexOf("from public.platform_ai_controls\\n  where id = true\\n  for update"),
+  singlePendingSql.indexOf("select * into v_existing"),
+];
+assert.ok(claimLockPositions.every((position) => position >= 0)
+  && claimLockPositions[0] < claimLockPositions[1]
+  && claimLockPositions[1] < claimLockPositions[2],
+  "AI claim must lock member advisory key, global controls, then idempotency in the same global-first order as completion/failure RPCs");
 assert.ok(singlePendingSql.includes("r.status in ('queued','running')"), "A member must be blocked while any AI request is unresolved");
 assert.ok(singlePendingSql.includes("b.status = 'reserved'") && singlePendingSql.includes("i.state = 'processing'"), "Cross-conversation lock must only block requests with a live reservation and processing idempotency record");
 assert.ok(singlePendingSql.includes("member_has_unresolved_request"), "Cross-conversation lock must return a distinguishable disposition reason");
