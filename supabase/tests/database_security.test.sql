@@ -1,6 +1,6 @@
 begin;
 
-select plan(32);
+select plan(33);
 
 select is(
   (select count(*)::integer
@@ -36,6 +36,8 @@ select ok(to_regclass('public.ai_budget_reservations') is not null, 'AI budget r
 select ok(to_regclass('public.ai_request_idempotency') is not null, 'AI idempotency table exists');
 select ok(to_regclass('public.ai_request_rate_limits') is not null, 'AI request rate-limit table exists');
 select ok(to_regprocedure('public.claim_ai_request(uuid,uuid,text,character,uuid,text,text,text,numeric)') is not null, 'atomic idempotency claim function exists');
+select ok(to_regprocedure('public.claim_ai_request(uuid,text,character,uuid,text,text,text,numeric)') is null,
+  'legacy claim RPC signature is removed so callers cannot bypass conversation binding');
 select ok(to_regprocedure('public.reserve_ai_budget(uuid,uuid,text,text,text,numeric)') is not null, 'atomic budget reservation function exists');
 select ok(to_regprocedure('public.finalize_ai_budget(uuid,numeric,numeric,character,integer,integer,integer,text,integer)') is not null, 'budget settlement function exists');
 
