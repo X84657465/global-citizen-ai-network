@@ -389,6 +389,7 @@ const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reco
 const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
 const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
 const reconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
+const reconciliationOperationsPage = readFileSync("app/admin/ai-operations/page.tsx", "utf8");
 assert.ok(reconciliationSql.includes("auth.uid() is distinct from p_actor_id"),
   "Reconciliation RPC must bind the claimed actor ID to the authenticated session");
 assert.ok(reconciliationSql.includes("v_profile.role <> 'admin'") && reconciliationSql.includes("v_profile.account_status <> 'active'"),
@@ -413,3 +414,12 @@ assert.ok(reconciliationUi.includes("crypto.randomUUID()") && reconciliationUi.i
   "Admin resolution UI must preserve an idempotency key for safe retries");
 assert.ok(reconciliationTests.includes("actor ID without an authenticated identity"),
   "Database tests must cover forged actor identity");
+
+assert.ok(reconciliationOperationsPage.includes('.from("ai_reconciliation_events")') &&
+  reconciliationOperationsPage.includes('.order("created_at", { ascending: false })') &&
+  reconciliationOperationsPage.includes(".limit(100)"),
+  "Admin operations page must load a bounded, newest-first reconciliation event history");
+assert.ok(reconciliationOperationsPage.includes("event.evidence_reference") &&
+  reconciliationOperationsPage.includes("event.rationale") &&
+  reconciliationOperationsPage.includes("event.actor_id"),
+  "Admin reconciliation history must expose evidence, rationale, and accountable actor metadata");
