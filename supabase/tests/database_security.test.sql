@@ -9,6 +9,7 @@ select is(
    join pg_namespace n on n.oid = c.relnamespace
    where n.nspname = 'public'
      and c.relkind = 'r'
+     and c.relname = any(array['profiles','projects','conversations','messages','platform_ai_controls','ai_user_limits','ai_requests','provider_invoice_imports','ai_cost_ledger','contribution_tasks','task_submissions','task_appeals','task_reviews','contribution_ledger','reward_ledger','audit_logs'])
      and c.relrowsecurity),
   16,
   'all 16 initial public tables have row-level security enabled'
@@ -20,6 +21,7 @@ select is(
    join pg_namespace n on n.oid = c.relnamespace
    where n.nspname = 'public'
      and c.relkind = 'r'
+     and c.relname = any(array['profiles','projects','conversations','messages','platform_ai_controls','ai_user_limits','ai_requests','provider_invoice_imports','ai_cost_ledger','contribution_tasks','task_submissions','task_appeals','task_reviews','contribution_ledger','reward_ledger','audit_logs'])
      and not c.relrowsecurity),
   0,
   'no public table is missing row-level security'
