@@ -154,6 +154,30 @@ begin
     raise exception 'AI completion accepted response usage inconsistent with settlement arguments';
   end if;
 
+  -- Completion must not move a claimed request into another conversation
+  -- owned by the same member.
+  if public.complete_ai_chat_request(
+    v_owner, v_success_request, v_other_conversation, 'Wrong conversation response', 'test-model',
+    5, 4, 1, 0.0123, 'provider-test-atomic-001', 120,
+    'configured_token_rates_provider_usage_internal_estimate',
+    pg_catalog.jsonb_build_object(
+      'requestId', v_success_request::text,
+      'answer', 'Wrong conversation response',
+      'usage', pg_catalog.jsonb_build_object(
+        'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 1, 'estimatedCostTwd', 0.0123
+      )
+    )
+  ) then
+    raise exception 'AI completion accepted a different conversation than the one bound at claim time';
+  end if;
+  if exists (
+    select 1 from public.messages
+    where conversation_id = v_other_conversation and owner_id = v_owner
+      and role = 'assistant' and content = 'Wrong conversation response'
+  ) then
+    raise exception 'cross-conversation completion persisted an assistant message';
+  end if;
+
   v_completed := public.complete_ai_chat_request(
     v_owner, v_success_request, v_conversation, 'Atomic assistant response', 'test-model',
     5, 4, 1, 0.0123, 'provider-test-atomic-001', 120,

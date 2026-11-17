@@ -82,6 +82,13 @@ begin
     return false;
   end if;
 
+  -- The claim transaction binds the request to its originating conversation.
+  -- Completion must preserve that binding, even when another conversation
+  -- belongs to the same member.
+  if v_request.conversation_id is distinct from p_conversation_id then
+    return false;
+  end if;
+
   select * into v_idempotency
   from public.ai_request_idempotency
   where owner_id = p_owner_id and request_id = p_request_id

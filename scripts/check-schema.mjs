@@ -330,3 +330,7 @@ assert.ok(aiCostsApi.includes("unpricedRequests"), "Requests without a cost ledg
 assert.ok(!aiCostsApi.includes("estimated_internal_cost"), "Cost dashboard must not report reservation ceilings as internal estimates");
 assert.ok(aiCostsClient.includes("成本性質（依幣別分開）"), "AI cost UI must separate cost types and currencies");
 assert.ok(aiCostsClient.includes("不代表供應商請款金額"), "AI cost UI must disclose estimates are not supplier invoices");
+
+const aiCompletionSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
+assert.ok(aiCompletionSql.includes("v_request.conversation_id is distinct from p_conversation_id"),
+  "AI completion must remain bound to the conversation persisted during the atomic claim");
