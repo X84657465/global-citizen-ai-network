@@ -49,7 +49,7 @@ select ok(
   'submission content length is enforced by the database'
 );
 select ok(
-  position('closes_at' in (select qual from pg_policies where schemaname = 'public' and tablename = 'task_submissions' and policyname = 'submissions_owner_insert')) > 0,
+  position('closes_at' in (select with_check from pg_policies where schemaname = 'public' and tablename = 'task_submissions' and policyname = 'submissions_owner_insert')) > 0,
   'submission RLS policy rejects expired tasks'
 );
 
@@ -75,7 +75,7 @@ select ok(has_function_privilege('service_role','public.list_stale_ai_requests(i
   'service_role can inspect stale AI operations');
 
 select ok(
-  position('rejected' in (select qual from pg_policies where schemaname = 'public' and tablename = 'task_appeals' and policyname = 'appeals_owner_insert')) > 0,
+  position('rejected' in (select with_check from pg_policies where schemaname = 'public' and tablename = 'task_appeals' and policyname = 'appeals_owner_insert')) > 0,
   'appeal RLS policy only allows appeals on rejected submissions'
 );
 select ok(
