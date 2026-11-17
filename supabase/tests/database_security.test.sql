@@ -122,7 +122,9 @@ begin
     ('10000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated',
      'snapshot-reviewer@example.test', '', now(), '{}'::jsonb, '{"name":"Test Reviewer"}'::jsonb, now(), now()),
     ('10000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated',
-     'snapshot-contributor@example.test', '', now(), '{}'::jsonb, '{"name":"Test Contributor"}'::jsonb, now(), now());
+     'snapshot-contributor@example.test', '', now(), '{}'::jsonb, '{"name":"Test Contributor"}'::jsonb, now(), now()),
+    ('10000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated',
+     'snapshot-rls-contributor@example.test', '', now(), '{}'::jsonb, '{"name":"RLS Test Contributor"}'::jsonb, now(), now());
 
   update public.profiles
   set role = 'admin'
@@ -292,12 +294,30 @@ begin
      or coalesce((v_appeal_replay->>'replayed')::boolean, false) is not true then
     raise exception 'appeal review did not preserve snapshot or idempotency';
   end if;
+
+  -- Give the authenticated-RLS tests a separate contributor so the existing
+  -- one-active-submission-per-user invariant remains intact.
+  insert into public.task_submissions (
+    id, task_id, contributor_id, content
+  ) values (
+    '30000000-0000-4000-8000-000000000004',
+    '20000000-0000-4000-8000-000000000001',
+    '10000000-0000-4000-8000-000000000003',
+    'A rejected submission reserved for authenticated appeal RLS testing.'
+  );
+  perform public.review_task_submission(
+    '10000000-0000-4000-8000-000000000001',
+    '30000000-0000-4000-8000-000000000004',
+    'reject',
+    'The evidence is insufficient for this RLS test case.',
+    'test-review-reject-rls-003'
+  );
 end;
 $fixture$;
 
 -- Exercise the member-facing RLS policies as an authenticated contributor,
 -- not only as the database owner used by the fixture setup above.
-select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000003', true);
 set local role authenticated;
 
 insert into public.task_submissions (
@@ -306,7 +326,7 @@ insert into public.task_submissions (
 ) values (
   '30000000-0000-4000-8000-000000000003',
   '20000000-0000-4000-8000-000000000001',
-  '10000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000003',
   'Authenticated contributor submission exercising the owner insert policy.',
   'accepted', '2000-01-01T00:00:00Z',
   1.00, 'EUR', 'legacy_backfill_current_task'
@@ -316,8 +336,8 @@ insert into public.task_appeals (
   id, submission_id, appellant_id, reason, status, resolution, resolved_at
 ) values (
   '40000000-0000-4000-8000-000000000004',
-  '30000000-0000-4000-8000-000000000002',
-  '10000000-0000-4000-8000-000000000002',
+  '30000000-0000-4000-8000-000000000004',
+  '10000000-0000-4000-8000-000000000003',
   'Authenticated contributor appeal exercising the owner insert policy.',
   'dismissed', 'forged resolution', '2000-01-01T00:00:00Z'
 );
@@ -327,7 +347,7 @@ reset role;
 select ok(
   exists (select 1 from public.task_submissions
     where id = '30000000-0000-4000-8000-000000000003'
-      and contributor_id = '10000000-0000-4000-8000-000000000002'
+      and contributor_id = '10000000-0000-4000-8000-000000000003'
       and status = 'submitted'
       and reward_amount_snapshot = 999.00
       and reward_currency_snapshot = 'EUR'
@@ -337,7 +357,8 @@ select ok(
 select ok(
   exists (select 1 from public.task_appeals
     where id = '40000000-0000-4000-8000-000000000004'
-      and appellant_id = '10000000-0000-4000-8000-000000000002'
+      and submission_id = '30000000-0000-4000-8000-000000000004'
+      and appellant_id = '10000000-0000-4000-8000-000000000003'
       and status = 'submitted'
       and resolution is null and resolved_at is null),
   'authenticated member appeal passes owner RLS and server overwrites forged resolution fields'
