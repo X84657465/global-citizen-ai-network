@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import AiReconciliationForm from "./ai-reconciliation-form";
 
 export const dynamic = "force-dynamic";
 
@@ -102,7 +103,7 @@ export default async function AiOperationsPage() {
                 <td style={{ padding: 13 }}>{money(row.reserved_amount)}</td>
                 <td style={{ padding: 13 }}>{money(row.actual_cost)}</td>
                 <td style={{ padding: 13, maxWidth: 150, overflowWrap: "anywhere" }}>{row.provider_request_id ?? "尚無"}</td>
-              </tr>)}</tbody>
+              </tr><tr key={row.request_id + "-resolution"} style={{ borderTop: "1px solid #edf1f5" }}><td colSpan={7} style={{ padding: 13 }}><AiReconciliationForm requestId={row.request_id} provider={row.provider} /></td></tr>)}</tbody>
             </table>
           </div>
         )}
