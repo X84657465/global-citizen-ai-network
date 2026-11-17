@@ -168,6 +168,7 @@ console.log("Product guard passed: authenticated AI workspace, admin-only operat
 assert.ok(contributionReviewSql.includes("create table public.task_review_idempotency"), "Review idempotency table must exist");
 assert.ok(contributionReviewSql.includes("alter table public.task_review_idempotency enable row level security"), "Review idempotency table must have RLS");
 assert.ok(contributionReviewSql.includes("create or replace function public.review_task_submission"), "Atomic review RPC must exist");
+assert.ok(contributionReviewSql.includes("pg_catalog.sha256("), "Review request hashes must use PostgreSQL SHA-256");
 assert.ok(contributionReviewSql.includes("for update of s, t"), "Review must lock the submission and task rows");
 assert.ok(contributionReviewSql.includes("insert into public.contribution_ledger"), "Review must write the contribution ledger");
 assert.ok(contributionReviewSql.includes("insert into public.reward_ledger"), "Accepted submissions must accrue reward ledger entries");
@@ -178,5 +179,6 @@ assert.ok(reviewApi.includes('"Idempotency-Key"'), "Review API must require idem
 assert.ok(reviewApi.includes('p_actor_id: context.auth.user.id'), "Review actor must come from authenticated session");
 assert.ok(memberSummaryApi.includes('from("contribution_ledger")') && memberSummaryApi.includes('from("reward_ledger")'), "Member dashboard must read both immutable ledgers");
 assert.ok(reviewClient.includes('"/api/admin/contribution/reviews"'), "Reviewer UI must use server-side review API");
+assert.ok(reviewClient.includes("requestKeys[row.id]?.signature === signature"), "Reviewer retries must reuse the same idempotency key for an identical payload");
 
 console.log("Contribution review guard passed: idempotent review, immutable ledgers, member visibility, and reviewer-only controls.");
