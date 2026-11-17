@@ -41,6 +41,9 @@ export default async function AccountPage() {
             <Link href="/admin/contribution-tasks" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#fff7e8", color: "#94621b", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>管理貢獻任務 →</Link>
           ) : null}
           {profile && ["admin", "reviewer"].includes(profile.role) && profile.account_status === "active" ? (
+            <Link href="/admin/appeals" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#f5f0ff", color: "#6541a5", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>處理貢獻申訴 →</Link>
+          ) : null}
+          {profile && ["admin", "reviewer"].includes(profile.role) && profile.account_status === "active" ? (
             <Link href="/admin/contributions" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#eef4ff", color: "#315d91", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>開啟貢獻成果審核 →</Link>
           ) : null}
           {profile?.role === "admin" && profile.account_status === "active" ? (
