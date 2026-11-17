@@ -66,6 +66,7 @@ The initial interface is a prototype. Demo task data is illustrative, not paid w
 - [Architecture](docs/architecture.md)
 - [Security and privacy baseline](docs/security-baseline.md)
 - [Data model and transparent cost ledger](docs/data-model.md)
+- [Database safety, ledger retention, and pre-launch verification](docs/database-safety.md)
 - [Database migration](docs/database.md)
 - [Backend provisioning checklist](docs/backend-setup.md)
 - [Health endpoint](docs/health-endpoint.md)
