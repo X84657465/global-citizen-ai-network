@@ -386,7 +386,7 @@ assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity',
   "AI claim must reject non-finite reservation ceilings");
 
 const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reconciliation_resolution.sql", "utf8");
-const reconciliationApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
+const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
 const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
 const reconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
 assert.ok(reconciliationSql.includes("auth.uid() is distinct from p_actor_id"),
@@ -405,9 +405,9 @@ assert.ok(reconciliationSql.includes("provider_billed_delivery_unavailable"),
   "Confirmed billing must not fabricate or deliver an unavailable assistant response");
 assert.ok(reconciliationSql.includes("from public, anon, authenticated") && reconciliationSql.includes("to authenticated"),
   "Reconciliation RPC must be callable only through an authenticated session");
-assert.ok(reconciliationApi.includes("auth.supabase.rpc(\"resolve_ai_reconciliation\""),
+assert.ok(reconciliationResolveApi.includes("auth.supabase.rpc(\"resolve_ai_reconciliation\""),
   "Admin resolution API must call the RPC using the authenticated session, not a service-role client");
-assert.ok(reconciliationApi.includes("profile?.role !== \"admin\"") && reconciliationApi.includes("profile.account_status !== \"active\""),
+assert.ok(reconciliationResolveApi.includes("profile?.role !== \"admin\"") && reconciliationResolveApi.includes("profile.account_status !== \"active\""),
   "Admin resolution API must enforce active-admin authorization");
 assert.ok(reconciliationUi.includes("crypto.randomUUID()") && reconciliationUi.includes("使用相同資料重試"),
   "Admin resolution UI must preserve an idempotency key for safe retries");
