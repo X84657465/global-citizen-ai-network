@@ -19,6 +19,7 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 - Required header: Idempotency-Key, 8–128 characters using letters, digits, dot, underscore, colon, or hyphen. Generate one key per logical user action and reuse it for all retries of that action.
 - Body: { "conversationId": "<uuid>", "content": "..." }; maximum body size 32 KiB and content length 1–8,000 characters.
 - The server hashes the conversation ID and content. Reusing a key with a different payload returns 409; clients must restore the original payload and reuse the original key.
+- Prompt preflight runs before any reservation or message write. Once accepted, the claim RPC atomically reserves budget, links the conversation, stores the original user message, and creates the idempotency record in one transaction. A process crash cannot leave a live reservation without its recoverable prompt.
 - New logical requests are limited to 10 per fixed minute and 60 per fixed hour per member. Duplicate retries do not consume additional rate quota.
 - Only one unresolved billable AI request is allowed per member across all conversations. A second new request is rejected before reservation/provider call until the original request is safely completed, failed, or manually reconciled.
 - A completed request replays its cached response for 24 hours without another provider call or budget reservation. A request still processing or awaiting reconciliation returns 409 with Retry-After where applicable.
