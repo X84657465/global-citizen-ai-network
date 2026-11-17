@@ -70,6 +70,7 @@ The initial interface is a prototype. Demo task data is illustrative, not paid w
 - [Backend provisioning checklist](docs/backend-setup.md)
 - [Health endpoint](docs/health-endpoint.md)
 - [RLS security verification plan](docs/rls-test-plan.md)
+- [Authentication implementation](docs/authentication.md)
 
 ## Contributions
 
