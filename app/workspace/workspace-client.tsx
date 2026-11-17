@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
+import { hasPendingRetryContentMismatch } from "@/lib/ai/pending-retry";
 
 type Conversation = { id: string; title: string; updated_at: string };
 type Message = { id?: string; role: "user" | "assistant"; content: string; created_at?: string };
@@ -80,6 +81,11 @@ export default function WorkspaceClient() {
     event.preventDefault();
     const content = prompt.trim();
     if (!content || busy) return;
+    const existingPendingKey = pendingKey || (conversationId ? readStoredPendingKey(conversationId) : "");
+    if (hasPendingRetryContentMismatch(existingPendingKey, messages[messages.length - 1], content)) {
+      setError("上一筆 AI 請求尚未確認，為避免重複計費，請先恢復原始訊息並使用相同冪等鍵重試。");
+      return;
+    }
     setBusy(true);
     setError("");
     let activeId = conversationId;
