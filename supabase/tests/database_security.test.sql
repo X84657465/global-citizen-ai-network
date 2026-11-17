@@ -1,6 +1,6 @@
 begin;
 
-select plan(42);
+select plan(45);
 
 select is(
   (select count(*)::integer
@@ -112,6 +112,7 @@ declare
   v_appeal_review jsonb;
   v_appeal_replay jsonb;
   v_update_rejected boolean := false;
+  v_accepted_appeal_rejected boolean := false;
 begin
   insert into auth.users (
     id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -141,13 +142,14 @@ begin
 
   -- Deliberately submit forged snapshot values; the trigger must replace them.
   insert into public.task_submissions (
-    id, task_id, contributor_id, content,
+    id, task_id, contributor_id, content, status, submitted_at,
     reward_amount_snapshot, reward_currency_snapshot, reward_snapshot_source
   ) values (
     '30000000-0000-4000-8000-000000000001',
     '20000000-0000-4000-8000-000000000001',
     '10000000-0000-4000-8000-000000000002',
     'A valid submission for the first task.',
+    'accepted', '2000-01-01T00:00:00Z',
     999.00, 'EUR', 'legacy_backfill_current_task'
   );
 
@@ -157,8 +159,10 @@ begin
       and reward_amount_snapshot = 25.00
       and reward_currency_snapshot = 'TWD'
       and reward_snapshot_source = 'submission_time'
+      and status = 'submitted'
+      and submitted_at > now() - interval '1 minute'
   ) then
-    raise exception 'submission reward snapshot did not override caller values';
+    raise exception 'submission trigger did not protect snapshot or initial state';
   end if;
 
   begin
@@ -215,13 +219,38 @@ begin
   );
 
   insert into public.task_appeals (
-    id, submission_id, appellant_id, reason
+    id, submission_id, appellant_id, reason, status, resolution, resolved_at, created_at
   ) values (
     '40000000-0000-4000-8000-000000000001',
     '30000000-0000-4000-8000-000000000002',
     '10000000-0000-4000-8000-000000000002',
-    'I have supplied the required supporting evidence.'
+    'I have supplied the required supporting evidence.',
+    'resolved', 'forged resolution', '2000-01-01T00:00:00Z', '2000-01-01T00:00:00Z'
   );
+
+  if not exists (
+    select 1 from public.task_appeals
+    where id = '40000000-0000-4000-8000-000000000001'
+      and status = 'submitted' and resolution is null and resolved_at is null
+      and created_at > now() - interval '1 minute'
+  ) then
+    raise exception 'appeal trigger did not protect initial state';
+  end if;
+
+  begin
+    insert into public.task_appeals (id, submission_id, appellant_id, reason)
+    values (
+      '40000000-0000-4000-8000-000000000002',
+      '30000000-0000-4000-8000-000000000001',
+      '10000000-0000-4000-8000-000000000002',
+      'An invalid appeal against an accepted submission.'
+    );
+  exception when others then
+    v_accepted_appeal_rejected := true;
+  end;
+  if not v_accepted_appeal_rejected then
+    raise exception 'appeal against accepted submission was not rejected';
+  end if;
 
   update public.contribution_tasks
   set reward_amount = 888.00, reward_currency = 'EUR'
@@ -277,6 +306,24 @@ select ok(
       and reward_currency_snapshot = 'TWD'
       and reward_snapshot_source = 'submission_time'),
   'client-supplied reward snapshot values are replaced and snapshot remains immutable'
+);
+select ok(
+  exists (select 1 from public.task_submissions
+    where id = '30000000-0000-4000-8000-000000000001'
+      and status = 'submitted' and submitted_at > now() - interval '1 minute'),
+  'submission status and timestamp are server-controlled on insert'
+);
+select ok(
+  exists (select 1 from public.task_appeals
+    where id = '40000000-0000-4000-8000-000000000001'
+      and status = 'submitted' and resolution is null and resolved_at is null
+      and created_at > now() - interval '1 minute'),
+  'appeal status and resolution fields are server-controlled on insert'
+);
+select ok(
+  not exists (select 1 from public.task_appeals
+    where id = '40000000-0000-4000-8000-000000000002'),
+  'an appeal cannot be created for an accepted submission'
 );
 select ok(
   exists (select 1 from public.reward_ledger
