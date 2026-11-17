@@ -115,12 +115,19 @@ const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
 const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
 const claimPosition = aiGateway.indexOf('admin.rpc("claim_ai_request"');
-const completedReplayPosition = aiGateway.indexOf('claim.disposition === "completed"');
-const preflightPosition = aiGateway.indexOf("const worstCaseCost");
-assert.ok(claimPosition >= 0 && completedReplayPosition > claimPosition && preflightPosition > completedReplayPosition,
-  "AI cost preflight must run only after claim RPC has returned completed/processing idempotency replays");
-assert.ok(aiGateway.includes("preflight_cost_exceeds_reservation") && aiGateway.includes("failKnownOutcome"),
-  "A newly claimed request rejected by preflight must safely release its reservation without calling the provider");
+const routePreflightPosition = aiGateway.indexOf("const worstCaseCost");
+assert.ok(routePreflightPosition >= 0 && claimPosition > routePreflightPosition
+  && aiGateway.includes("p_preflight_cost_twd: worstCaseCost"),
+  "AI gateway must pass the conservative preflight estimate into the atomic claim RPC");
+const existingIdempotencyPosition = singlePendingSql.indexOf("if found and (v_existing.state = 'processing' or v_existing.expires_at > now())");
+const sqlPreflightPosition = singlePendingSql.indexOf("if p_preflight_cost_twd > p_max_cost_twd");
+const reservationPosition = singlePendingSql.indexOf("public.reserve_ai_budget(");
+assert.ok(existingIdempotencyPosition >= 0 && sqlPreflightPosition > existingIdempotencyPosition
+  && reservationPosition > sqlPreflightPosition,
+  "Claim RPC must return completed/processing idempotency outcomes before preflight, and reject oversized new requests before reserving budget or persisting prompts");
+assert.ok(singlePendingSql.includes("p_preflight_cost_twd::text in ('NaN', 'Infinity', '-Infinity')")
+  && aiGateway.includes("preflight_cost_exceeds_reservation"),
+  "AI preflight must reject non-finite costs and expose a distinct over-ceiling result");
 assert.ok(idempotencySql.includes("public.reserve_ai_budget("), "Idempotency claim must atomically reserve AI budget");
 assert.ok(aiGateway.includes('complete_ai_chat_request'), "AI gateway must atomically settle successful provider calls");
 assert.ok(aiGateway.includes('fail_ai_chat_request'), "AI gateway must atomically release known failed reservations");
