@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { createHash } from "node:crypto";
 import { getAiRuntimeConfig, estimateCostTwd } from "@/lib/ai/config";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
@@ -71,23 +72,52 @@ export async function POST(request: NextRequest) {
   }
 
   const admin = createAdminClient();
+  const idempotencyKey = request.headers.get("Idempotency-Key")?.trim() ?? "";
+  if (idempotencyKey.length < 8 || idempotencyKey.length > 128 || !/^[A-Za-z0-9._:-]+$/.test(idempotencyKey)) {
+    return NextResponse.json({ error: "請提供有效的 Idempotency-Key（8–128 個英數字或 . _ : -）。" }, { status: 400 });
+  }
+
+  const requestHash = createHash("sha256")
+    .update(JSON.stringify({ conversationId, content }))
+    .digest("hex");
   const requestId = crypto.randomUUID();
-  const { data: reservationData, error: reserveError } = await admin.rpc("reserve_ai_budget", {
-    p_request_id: requestId,
+  const { data: claimData, error: claimError } = await admin.rpc("claim_ai_request", {
     p_owner_id: auth.user.id,
+    p_idempotency_key: idempotencyKey,
+    p_request_hash: requestHash,
+    p_request_id: requestId,
     p_provider: "openai-compatible",
     p_model: config.model,
     p_feature: "chat",
     p_max_cost_twd: config.maxRequestCostTwd,
   }).single();
-  const reservation = reservationData as { allowed: boolean; reason: string; reservation_id: string | null } | null;
+  const claim = claimData as {
+    disposition: string;
+    reason: string;
+    claimed_request_id: string | null;
+    cached_response: Record<string, unknown> | null;
+  } | null;
 
-  if (reserveError || !reservation?.allowed) {
-    return NextResponse.json(
-      { error: reservation?.reason === "platform_ai_disabled" ? "平台 AI 服務目前暫停。" : "目前未通過 AI 預算或使用額度檢查。" },
-      { status: 429 },
-    );
+  if (claimError || !claim) {
+    return NextResponse.json({ error: "無法確認請求狀態，請使用相同 Idempotency-Key 重試。" }, { status: 503 });
   }
+  if (claim.disposition === "completed" && claim.cached_response) {
+    return NextResponse.json(claim.cached_response, { headers: { "Cache-Control": "no-store", "Idempotency-Replayed": "true" } });
+  }
+  if (claim.disposition === "processing") {
+    return NextResponse.json({ error: "相同請求仍在處理中，請稍後使用相同 Idempotency-Key 重試。" }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
+  }
+  if (claim.disposition !== "claimed" || claim.claimed_request_id !== requestId) {
+    const status = claim.disposition === "conflict" ? 409 : claim.disposition === "failed" ? 502 : 429;
+    return NextResponse.json({ error: claim.reason === "platform_ai_disabled" ? "平台 AI 服務目前暫停。" : "請求未通過預算、額度或冪等性檢查。" }, { status });
+  }
+  const failIdempotency = async (code: string) => {
+    await admin.rpc("fail_ai_request_idempotency", {
+      p_owner_id: auth.user.id,
+      p_request_id: requestId,
+      p_error_code: safeErrorCode(code),
+    });
+  };
 
   const { error: linkError } = await admin
     .from("ai_requests")
@@ -95,6 +125,7 @@ export async function POST(request: NextRequest) {
     .eq("id", requestId);
   if (linkError) {
     await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "request_link_failed" });
+    await failIdempotency("request_link_failed");
     return NextResponse.json({ error: "無法建立 AI 請求紀錄。" }, { status: 500 });
   }
 
@@ -103,6 +134,7 @@ export async function POST(request: NextRequest) {
     .insert({ conversation_id: conversationId, owner_id: auth.user.id, role: "user", content });
   if (userMessageError) {
     await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "message_persist_failed" });
+    await failIdempotency("message_persist_failed");
     return NextResponse.json({ error: "訊息儲存失敗，未呼叫 AI。" }, { status: 500 });
   }
 
@@ -121,6 +153,7 @@ export async function POST(request: NextRequest) {
   const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
   if (worstCaseCost > config.maxRequestCostTwd) {
     await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "preflight_cost_exceeds_reservation" });
+    await failIdempotency("preflight_cost_exceeds_reservation");
     return NextResponse.json({ error: "本次內容超過單次預算上限，請縮短內容後再試。" }, { status: 413 });
   }
   const startedAt = Date.now();
@@ -147,6 +180,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const code = `provider_http_${response.status}`;
       await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: code });
+      await failIdempotency(code);
       return NextResponse.json({ error: "AI 服務目前無法完成請求，預算保留已釋放。" }, { status: 502 });
     }
 
@@ -159,6 +193,7 @@ export async function POST(request: NextRequest) {
         : "";
     if (!answer.trim()) {
       await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "empty_provider_response" });
+      await failIdempotency("empty_provider_response");
       return NextResponse.json({ error: "AI 沒有回傳可用內容，預算保留已釋放。" }, { status: 502 });
     }
 
@@ -181,6 +216,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (finalizeError || finalized !== true) {
+      await failIdempotency("budget_finalize_failed");
       return NextResponse.json({ error: "AI 回應已產生，但成本結算未完成，系統已阻止回傳並標記需管理員核對。" }, { status: 503 });
     }
 
@@ -194,6 +230,7 @@ export async function POST(request: NextRequest) {
       token_output: outputTokens,
     });
     if (assistantMessageError) {
+      await failIdempotency("assistant_message_persist_failed");
       return NextResponse.json({ error: "AI 已完成並結算，但訊息保存失敗，請稍後查看請求紀錄。" }, { status: 500 });
     }
 
@@ -208,19 +245,30 @@ export async function POST(request: NextRequest) {
         calculation_method: "configured_twd_per_million_tokens_or_character_fallback",
       });
       if (ledgerError) {
+        await failIdempotency("cost_ledger_write_failed");
         return NextResponse.json({ error: "AI 已完成，但成本明細寫入失敗，已標記為需對帳。" }, { status: 503 });
       }
     }
 
-    return NextResponse.json({
+    const payload = {
       requestId,
       answer,
       usage: { inputTokens, outputTokens, cachedTokens, estimatedCostTwd: estimatedActualCost },
       costLabel: "依管理員設定的每百萬 Token 成本估算，非供應商發票金額",
-    }, { headers: { "Cache-Control": "no-store" } });
+    };
+    const { data: idempotencyCompleted, error: idempotencyCompleteError } = await admin.rpc("complete_ai_request_idempotency", {
+      p_owner_id: auth.user.id,
+      p_request_id: requestId,
+      p_response: payload,
+    });
+    if (idempotencyCompleteError || idempotencyCompleted !== true) {
+      return NextResponse.json({ error: "AI 已完成並結算，但請求回放紀錄未完成，請勿更換 Idempotency-Key 重送。" }, { status: 503 });
+    }
+    return NextResponse.json(payload, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const code = error instanceof Error && error.name === "AbortError" ? "provider_timeout" : safeErrorCode(error instanceof Error ? error.message : "provider_failed");
     await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: code });
+    await failIdempotency(code);
     return NextResponse.json({ error: "AI 服務發生錯誤，預算保留已釋放。" }, { status: 502 });
   } finally {
     clearTimeout(timeout);
