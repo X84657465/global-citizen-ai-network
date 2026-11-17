@@ -51,7 +51,8 @@ begin
      or coalesce(length(trim(p_provider)), 0) = 0
      or coalesce(length(trim(p_model)), 0) = 0
      or coalesce(length(trim(p_feature)), 0) = 0
-     or p_max_cost_twd is null or p_max_cost_twd <= 0 then
+     or p_max_cost_twd is null or p_max_cost_twd <= 0
+     or p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity') then
     return query select false, 'invalid_request'::text, null::uuid;
     return;
   end if;
@@ -179,7 +180,11 @@ declare
   v_reservation public.ai_budget_reservations%rowtype;
 begin
   if p_request_id is null or p_actual_cost_twd is null or p_actual_cost_twd < 0
-     or (p_provider_billed_cost is not null and p_provider_billed_cost < 0)
+     or p_actual_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
+     or (p_provider_billed_cost is not null and (
+       p_provider_billed_cost < 0
+       or p_provider_billed_cost::text in ('NaN', 'Infinity', '-Infinity')
+     ))
      or (p_provider_billed_cost is not null and p_provider_billed_currency is null)
      or (p_provider_billed_currency is not null and length(trim(p_provider_billed_currency::text)) <> 3)
      or (p_input_tokens is not null and p_input_tokens < 0)

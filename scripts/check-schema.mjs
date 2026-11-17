@@ -62,6 +62,12 @@ assert.ok(budgetSql.includes("revoke all on public.ai_budget_reservations from a
 assert.ok(budgetSql.includes("for update"), "Budget reservation must lock shared control rows");
 assert.ok(budgetSql.includes("create or replace function public.reserve_ai_budget"));
 assert.ok(budgetSql.includes("create or replace function public.finalize_ai_budget"));
+assert.ok(budgetSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
+  "Direct budget reservations must reject non-finite ceilings");
+assert.ok(budgetSql.includes("p_actual_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
+  "Legacy budget settlement must reject non-finite normalized costs");
+assert.ok(budgetSql.includes("p_provider_billed_cost::text in ('NaN', 'Infinity', '-Infinity')"),
+  "Legacy budget settlement must reject non-finite provider billed costs");
 assert.ok(budgetSql.includes("p_provider_billed_currency char(3)"), "Invoice currency must be recorded separately from normalized TWD budget cost");
 assert.ok(budgetSql.includes("provider_billed_cost = p_provider_billed_cost"));
 assert.ok(budgetSql.includes("provider_billed_currency = p_provider_billed_currency"));

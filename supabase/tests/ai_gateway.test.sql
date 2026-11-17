@@ -39,6 +39,7 @@ declare
   v_overrun_conversation uuid := '51000000-0000-4000-8000-000000000002';
   v_overrun_request uuid := '52000000-0000-4000-8000-000000000004';
   v_claim record;
+  v_reservation record;
   v_response jsonb;
   v_completed boolean;
   v_replayed boolean;
@@ -101,6 +102,20 @@ begin
   if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000008')
      or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000008') then
     raise exception 'non-finite reservation ceiling created request side effects';
+  end if;
+
+  -- The lower-level reservation RPC must independently reject non-finite amounts.
+  select * into v_reservation
+  from public.reserve_ai_budget(
+    '52000000-0000-4000-8000-000000000009',
+    v_owner, 'openai-compatible', 'test-model', 'chat', 'Infinity'::numeric
+  );
+  if coalesce(v_reservation.allowed, false) then
+    raise exception 'reserve_ai_budget accepted an infinite reservation ceiling';
+  end if;
+  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000009')
+     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000009') then
+    raise exception 'non-finite direct reservation created request side effects';
   end if;
 
   -- The database must reject a prompt that does not match the supplied hash.
@@ -168,6 +183,19 @@ begin
     )
   ) then
     raise exception 'AI completion accepted response usage inconsistent with settlement arguments';
+  end if;
+
+  -- The legacy low-level settlement RPC must also reject non-finite costs.
+  if public.finalize_ai_budget(
+    v_success_request, 'Infinity'::numeric, null, null, 5, 4, 1, null, 120
+  ) then
+    raise exception 'finalize_ai_budget accepted an infinite settlement cost';
+  end if;
+  if not exists (
+    select 1 from public.ai_budget_reservations
+    where request_id = v_success_request and status = 'reserved'
+  ) then
+    raise exception 'non-finite legacy settlement mutated the reservation';
   end if;
 
   -- Completion must not move a claimed request into another conversation
