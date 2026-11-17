@@ -110,3 +110,7 @@ The workspace is connected to the existing conversation and AI APIs; it is not a
 
 - \`/admin/contribution-tasks\`: admin-only task authoring and lifecycle management. New tasks are drafts; publication requires complete task details, acceptance criteria, and a non-expired deadline.
 - \`/api/admin/contribution/tasks\`: admin-only task creation, publication, pause, and close operations. MVP reward currency is explicitly TWD.
+
+
+- \`/api/contribution/appeals\`: members may submit one reasoned appeal for their own rejected submission; RLS and a unique submission constraint enforce ownership and one appeal per submission.
+- \`/contributions\`: the member ledger view now displays submission and appeal statuses and allows an appeal on rejected work.
