@@ -106,3 +106,7 @@ The workspace is connected to the existing conversation and AI APIs; it is not a
 - \`/api/admin/contribution/reviews\`: privileged review endpoint. The database RPC verifies the actor role again, locks the submission and task, and atomically writes the review, submission status, contribution ledger, pending reward ledger, and audit event.
 - \`/api/contribution/summary\`: member-scoped read-only summary using RLS.
 - Migration \`0008_atomic_contribution_review.sql\`: review idempotency and atomic ledger posting. A repeated identical review request returns the original result; a key reused with a different payload is rejected.
+
+
+- \`/admin/contribution-tasks\`: admin-only task authoring and lifecycle management. New tasks are drafts; publication requires complete task details, acceptance criteria, and a non-expired deadline.
+- \`/api/admin/contribution/tasks\`: admin-only task creation, publication, pause, and close operations. MVP reward currency is explicitly TWD.
