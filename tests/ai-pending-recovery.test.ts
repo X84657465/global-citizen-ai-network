@@ -19,6 +19,13 @@ test("recovers the exact user prompt by its conversation-bound SHA-256 hash", ()
   assert.deepEqual(recovered, { content: original });
 });
 
+test("canonicalizes UUID case before hashing the conversation-bound prompt", () => {
+  assert.equal(
+    hashPendingPrompt(conversationId.toUpperCase(), original),
+    hashPendingPrompt(conversationId, original),
+  );
+});
+
 test("does not recover a prompt whose hash belongs to another conversation", () => {
   const requestHash = hashPendingPrompt(conversationId, original);
   assert.equal(findOriginalPendingMessage(
