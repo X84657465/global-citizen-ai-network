@@ -237,7 +237,7 @@ export default function WorkspaceClient() {
       <section style={{ maxWidth: 1180, margin: "0 auto" }}>
         <header className="workspace-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 22 }}>
           <div>
-            <Link href="/" style={{ color: "#315d91", textDecoration: "none", fontSize: 13 }}>← 平台首頁</Link>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}><Link href="/" style={{ color: "#315d91", textDecoration: "none", fontSize: 13 }}>← 平台首頁</Link><Link href="/projects" style={{ color: "#315d91", textDecoration: "none", fontSize: 13 }}>我的專案管理 →</Link></div>
             <h1 style={{ fontSize: 28, margin: "12px 0 4px" }}>AI 工作空間</h1>
             <p style={{ margin: 0, color: "#64748b", fontSize: 13 }}>你的研究、問題與對話紀錄由會員帳戶隔離保存。</p>
           </div>
