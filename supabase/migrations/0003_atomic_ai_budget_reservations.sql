@@ -52,7 +52,8 @@ begin
      or coalesce(length(trim(p_model)), 0) = 0
      or coalesce(length(trim(p_feature)), 0) = 0
      or p_max_cost_twd is null or p_max_cost_twd <= 0
-     or p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity') then
+     or p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
+     or p_max_cost_twd > 9999999999.99999999 then
     return query select false, 'invalid_request'::text, null::uuid;
     return;
   end if;
@@ -181,9 +182,11 @@ declare
 begin
   if p_request_id is null or p_actual_cost_twd is null or p_actual_cost_twd < 0
      or p_actual_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
+     or p_actual_cost_twd > 9999999999.99999999
      or (p_provider_billed_cost is not null and (
        p_provider_billed_cost < 0
        or p_provider_billed_cost::text in ('NaN', 'Infinity', '-Infinity')
+       or p_provider_billed_cost > 9999999999.99999999
      ))
      or (p_provider_billed_cost is not null and p_provider_billed_currency is null)
      or (p_provider_billed_currency is not null and length(trim(p_provider_billed_currency::text)) <> 3)
