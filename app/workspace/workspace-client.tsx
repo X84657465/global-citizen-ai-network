@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 
 type Conversation = { id: string; title: string; updated_at: string };
 type Message = { id?: string; role: "user" | "assistant"; content: string; created_at?: string };
 type ApiError = { error?: string };
 
-const shell: React.CSSProperties = { minHeight: "100vh", background: "#f4f7fb", color: "#17263b", padding: "28px 16px" };
-const card: React.CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 16 };
+const shell: CSSProperties = { minHeight: "100vh", background: "#f4f7fb", color: "#17263b", padding: "28px 16px" };
+const card: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 16 };
 
 export default function WorkspaceClient() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
