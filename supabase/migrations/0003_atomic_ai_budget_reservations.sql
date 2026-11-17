@@ -109,14 +109,19 @@ begin
   end if;
 
   select
-    coalesce(sum(case when status = 'settled' then actual_cost else reserved_amount end), 0),
+    coalesce(sum(
+      case
+        when status = 'settled' then actual_cost
+        when status = 'reserved' then reserved_amount
+        else 0
+      end
+    ), 0),
     count(*) filter (where created_at >= v_day_start),
     count(*)
   into v_user_committed, v_daily_count, v_monthly_count
   from public.ai_budget_reservations
   where owner_id = p_owner_id
-    and created_at >= v_month_start
-    and status in ('reserved','settled');
+    and created_at >= v_month_start;
 
   if v_user_committed + p_max_cost_twd > v_limits.monthly_spend_limit then
     return query select false, 'member_monthly_budget_exceeded'::text, null::uuid;
