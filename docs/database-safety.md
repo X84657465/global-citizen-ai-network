@@ -33,7 +33,7 @@ The status-check helpers live in a non-exposed schema and are callable by authen
 
 Run these checks on a disposable Supabase project first:
 
-1. Apply both migrations to an empty project and confirm they complete without SQL errors.
+1. Apply all four migrations in order to an empty project and confirm they complete without SQL errors.
 2. Create two test users. Verify each can read and modify only their own profile/workspace.
 3. Verify a user cannot assign themselves admin/reviewer, change account_status, insert assistant/system messages, or read another user's requests or ledgers.
 4. Verify a user cannot attach a conversation to another user's project.
@@ -41,15 +41,15 @@ Run these checks on a disposable Supabase project first:
 6. Verify released failed requests no longer consume reserved spend but still count toward daily/monthly request quotas; verify provider actual cost above the estimate is recorded and blocks later requests once the remaining cap is exhausted.
 7. Verify raw provider invoice currency is kept separate from the normalized TWD amount used for budget enforcement.
 8. Verify unpublished tasks are not visible to ordinary members and submissions require a published task.
-6. Verify rejected submissions can be resubmitted, while a second active submission for the same task/user is rejected.
-7. Verify a rejected submission can be appealed by its owner only.
-8. Verify authenticated users cannot write to AI controls, AI limits, cost ledgers, contribution ledgers, reward ledgers, invoice imports, or audit logs.
-9. Verify ledger UPDATE and DELETE operations fail, including attempts caused by deleting referenced records.
-10. Verify restricted members can read but cannot write, and suspended/closed members cannot read or write member data.
-11. Verify service-role operations are performed only in trusted server code and the service-role key is never exposed to a browser bundle.
+9. Verify rejected submissions can be resubmitted, while a second active submission for the same task/user is rejected.
+10. Verify a rejected submission can be appealed by its owner only.
+11. Verify authenticated users cannot write to AI controls, AI limits, cost ledgers, contribution ledgers, reward ledgers, invoice imports, or audit logs.
+12. Verify ledger UPDATE and DELETE operations fail, including attempts caused by deleting referenced records.
+13. Verify restricted members can read but cannot write, and suspended/closed members cannot read or write member data.
+14. Verify service-role operations are performed only in trusted server code and the service-role key is never exposed to a browser bundle.
 
 ## Important implementation boundary
 
-The schema's AI kill switch and budget columns are configuration data only. Migration 0003 adds a database-side reservation workflow: `reserve_ai_budget` serializes global reservations with a row lock, checks platform and member controls, validates active account status, applies daily/monthly request limits, and creates the request plus reservation in one transaction. `finalize_ai_budget` records actual provider charges (including estimate overruns), while `release_ai_budget` releases reservations for failed requests. These functions are executable by `service_role` only; browser clients cannot call them. The reservation amount and normalized actual cost are stored in TWD for budget enforcement, while raw provider invoice amount/currency are recorded separately when available. If the provider does not expose an exact charge, those invoice fields remain null and the allocation must remain explicitly estimated.
+The schema's AI kill switch and budget columns are configuration data only. Migration 0003 adds a database-side reservation workflow: `reserve_ai_budget` serializes global reservations with a row lock, checks whether AI is enabled plus platform and member spending controls, validates active account status, applies daily/monthly request limits, and creates the request plus reservation in one transaction. The separate `hard_stop_enabled` flag controls whether an actual monthly overrun automatically disables `ai_enabled`; it does not itself prevent otherwise-authorized requests. `finalize_ai_budget` records actual provider charges (including estimate overruns), while `release_ai_budget` releases reservations for failed requests. These functions are executable by `service_role` only; browser clients cannot call them. The reservation amount and normalized actual cost are stored in TWD for budget enforcement, while raw provider invoice amount/currency are recorded separately when available. If the provider does not expose an exact charge, those invoice fields remain null and the allocation must remain explicitly estimated.
 
 This is a database primitive, not a complete AI gateway. The application still needs a trusted server-only orchestration route, provider adapter, timeout/retry policy, idempotency strategy, and integration tests. A provider charge above the estimate is recorded as actual cost and consumes budget for subsequent requests; it cannot be retroactively prevented. Until migrations are applied and the complete gateway is tested, keep real AI generation disabled.
