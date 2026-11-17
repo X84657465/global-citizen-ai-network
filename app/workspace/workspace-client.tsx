@@ -121,7 +121,7 @@ export default function WorkspaceClient() {
       setPendingKey("");
       setPendingConversationId(findStoredPendingConversationId(id));
     } else if (storedKey && (readStoredPendingContent(id) || lastVisibleMessage?.role === "user")) {
-      setPrompt(readStoredPendingContent(id) || lastVisibleMessage.content);
+      setPrompt(readStoredPendingContent(id) || lastVisibleMessage?.content || "");
       setNotice("上一個 AI 請求結果尚待確認，系統會保留原冪等鍵；核對完成前不會再次呼叫供應商。");
     }
   }
