@@ -14,10 +14,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  if (contentLength > 4096) {
+    return NextResponse.json({ error: "註冊資料超過允許大小。" }, { status: 413 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
   } catch {
+    return NextResponse.json({ error: "請提供有效的註冊資料。" }, { status: 400 });
+  }
+
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
     return NextResponse.json({ error: "請提供有效的註冊資料。" }, { status: 400 });
   }
 
