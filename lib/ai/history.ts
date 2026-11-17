@@ -22,6 +22,7 @@ export function buildAiProviderMessages(
   let totalCharacters = currentPrompt.length;
 
   for (const item of [...newestFirstHistory].reverse()) {
+    if (!item || typeof item !== "object") continue;
     if (
       (item.role !== "assistant" && item.role !== "user")
       || typeof item.content !== "string"
