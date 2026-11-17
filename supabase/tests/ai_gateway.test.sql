@@ -33,6 +33,7 @@ declare
   v_success_request uuid := '52000000-0000-4000-8000-000000000001';
   v_failed_request uuid := '52000000-0000-4000-8000-000000000002';
   v_unknown_request uuid := '52000000-0000-4000-8000-000000000003';
+  v_blocked_request uuid := '52000000-0000-4000-8000-000000000005';
   v_overrun_owner uuid := '50000000-0000-4000-8000-000000000002';
   v_overrun_conversation uuid := '51000000-0000-4000-8000-000000000002';
   v_overrun_request uuid := '52000000-0000-4000-8000-000000000004';
@@ -152,6 +153,19 @@ begin
   );
   if not v_marked then
     raise exception 'AI uncertain outcome was not marked for reconciliation';
+  end if;
+
+  -- A different key and conversation for the same member must not start a
+  -- second billable request while the first provider outcome is unresolved.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, 'test-ai-cross-conversation-001', repeat('e', 64)::char(64), v_blocked_request,
+    'openai-compatible', 'test-model', 'chat', 1
+  );
+  if v_claim.disposition <> 'processing'
+     or v_claim.reason <> 'member_has_unresolved_request'
+     or v_claim.claimed_request_id <> v_unknown_request then
+    raise exception 'cross-conversation AI request was not blocked by unresolved request';
   end if;
 
   update public.ai_requests
