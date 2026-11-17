@@ -7,6 +7,10 @@ const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reserv
 const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_hard_stop.sql", "utf8");
 const idempotencySql = readFileSync("supabase/migrations/0005_ai_request_idempotency.sql", "utf8");
 const rateLimitSql = readFileSync("supabase/migrations/0006_ai_request_rate_limits.sql", "utf8");
+const contributionReviewSql = readFileSync("supabase/migrations/0008_atomic_contribution_review.sql", "utf8");
+const reviewApi = readFileSync("app/api/admin/contribution/reviews/route.ts", "utf8");
+const memberSummaryApi = readFileSync("app/api/contribution/summary/route.ts", "utf8");
+const reviewClient = readFileSync("app/admin/contributions/review-client.tsx", "utf8");
 const env = readFileSync(".env.example", "utf8");
 const page = readFileSync("app/page.tsx", "utf8");
 const bodyReader = readFileSync("lib/http/read-json-body.ts", "utf8");
@@ -159,3 +163,20 @@ assert.ok(adminOpsApi.includes('profile.account_status !== "active"'), "Operatio
 assert.ok(adminOpsApi.includes('list_stale_ai_requests'), "Operations API must use the server-only stale request report");
 
 console.log("Product guard passed: authenticated AI workspace, admin-only operational visibility, and RLS-backed contribution task submission.");
+
+
+assert.ok(contributionReviewSql.includes("create table public.task_review_idempotency"), "Review idempotency table must exist");
+assert.ok(contributionReviewSql.includes("alter table public.task_review_idempotency enable row level security"), "Review idempotency table must have RLS");
+assert.ok(contributionReviewSql.includes("create or replace function public.review_task_submission"), "Atomic review RPC must exist");
+assert.ok(contributionReviewSql.includes("for update of s, t"), "Review must lock the submission and task rows");
+assert.ok(contributionReviewSql.includes("insert into public.contribution_ledger"), "Review must write the contribution ledger");
+assert.ok(contributionReviewSql.includes("insert into public.reward_ledger"), "Accepted submissions must accrue reward ledger entries");
+assert.ok(contributionReviewSql.includes("insert into public.audit_logs"), "Review must write an audit record");
+assert.ok(contributionReviewSql.includes("grant execute on function public.review_task_submission(uuid,uuid,text,text,text) to service_role"), "Review RPC must be service-role only");
+assert.ok(reviewApi.includes('["admin", "reviewer"]'), "Review API must enforce reviewer/admin role");
+assert.ok(reviewApi.includes('"Idempotency-Key"'), "Review API must require idempotency key");
+assert.ok(reviewApi.includes('p_actor_id: context.auth.user.id'), "Review actor must come from authenticated session");
+assert.ok(memberSummaryApi.includes('from("contribution_ledger")') && memberSummaryApi.includes('from("reward_ledger")'), "Member dashboard must read both immutable ledgers");
+assert.ok(reviewClient.includes('"/api/admin/contribution/reviews"'), "Reviewer UI must use server-side review API");
+
+console.log("Contribution review guard passed: idempotent review, immutable ledgers, member visibility, and reviewer-only controls.");
