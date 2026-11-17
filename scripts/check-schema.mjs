@@ -25,6 +25,8 @@ const messageApi = readFileSync("app/api/conversations/[id]/messages/route.ts", 
 const contributionApi = readFileSync("app/api/contribution/tasks/route.ts", "utf8");
 const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
 const adminOpsApi = readFileSync("app/api/admin/ai-operations/route.ts", "utf8");
+const aiCostsApi = readFileSync("app/api/admin/ai-costs/route.ts", "utf8");
+const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx", "utf8");
 const adminTasksApi = readFileSync("app/api/admin/contribution/tasks/route.ts", "utf8");
 const taskAdminClient = readFileSync("app/admin/contribution-tasks/tasks-client.tsx", "utf8");
 
@@ -220,3 +222,12 @@ assert.ok(appealReviewApi.includes('["admin", "reviewer"]'), "Appeal review API 
 assert.ok(appealReviewApi.includes('"Idempotency-Key"'), "Appeal review API must require idempotency key");
 assert.ok(appealReviewClient.includes('"/api/admin/contribution/appeals"'), "Appeal review UI must use server-side API");
 assert.ok(appealReviewClient.includes("申訴成立，撤銷退回"), "Reviewer UI must offer appeal overturn decision");
+
+
+assert.ok(aiCostsApi.includes('profile.role !== "admin"'), "AI cost dashboard API must be admin-only");
+assert.ok(aiCostsApi.includes('SUPABASE_SERVICE_ROLE_KEY'), "AI cost dashboard must use server-only admin access");
+assert.ok(aiCostsApi.includes('.limit(500)'), "AI cost dashboard queries must be bounded");
+assert.ok(aiCostsApi.includes('amount_kind'), "AI cost dashboard must distinguish invoice, allocation, and estimate types");
+assert.ok(aiCostsApi.includes('provider_billed_currency'), "Provider billed amounts must remain grouped by currency");
+assert.ok(aiCostsClient.includes("成本性質（依幣別分開）"), "AI cost UI must separate cost types and currencies");
+assert.ok(aiCostsClient.includes("不代表供應商請款金額"), "AI cost UI must disclose estimates are not supplier invoices");
