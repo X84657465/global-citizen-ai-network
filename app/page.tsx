@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import Link from "next/link";
 import {
   Activity, ArrowDownRight, ArrowUpRight, BrainCircuit, CheckCircle2,
   ChevronRight, CircleDollarSign, Clock3, Cpu, FileSearch, Globe2,
@@ -80,7 +81,7 @@ export default function Home() {
         <header className="topbar">
           <button className="menu-toggle" onClick={() => setMobileMenu(true)} aria-label="開啟選單"><Menu size={20}/></button>
           <div className="breadcrumb">平台 / <b>{title}</b></div>
-          <div className="top-actions"><span className="status-pill"><span/> 系統原型運作中</span><button className="icon-button" aria-label="搜尋"><Search size={18}/></button><div className="avatar small">G</div></div>
+          <div className="top-actions"><Link href="/login" className="login-link">會員登入</Link><span className="status-pill"><span/> 系統原型運作中</span><button className="icon-button" aria-label="搜尋"><Search size={18}/></button><div className="avatar small">G</div></div>
         </header>
 
         <div className="content">
