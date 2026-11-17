@@ -120,6 +120,18 @@ create table public.task_submissions (
   unique (task_id, contributor_id, id)
 );
 
+create table public.task_appeals (
+  id uuid primary key default gen_random_uuid(),
+  submission_id uuid not null unique references public.task_submissions(id) on delete cascade,
+  appellant_id uuid not null references public.profiles(id) on delete cascade,
+  reason text not null check (char_length(reason) between 10 and 4000),
+  evidence jsonb not null default '[]'::jsonb,
+  status text not null default 'submitted' check (status in ('submitted','under_review','resolved','dismissed')),
+  resolution text,
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+
 create table public.task_reviews (
   id uuid primary key default gen_random_uuid(),
   submission_id uuid not null references public.task_submissions(id) on delete cascade,
@@ -174,6 +186,11 @@ create index ai_cost_ledger_request_idx on public.ai_cost_ledger(request_id);
 create index contribution_tasks_status_created_idx on public.contribution_tasks(status, created_at desc);
 create index task_submissions_contributor_idx on public.task_submissions(contributor_id, submitted_at desc);
 create index task_reviews_submission_idx on public.task_reviews(submission_id, reviewed_at desc);
+create index task_appeals_appellant_idx on public.task_appeals(appellant_id, created_at desc);
+
+create unique index task_submissions_one_active_per_user
+  on public.task_submissions(task_id, contributor_id)
+  where status in ('submitted','under_review','accepted','appealed');
 create index contribution_ledger_owner_idx on public.contribution_ledger(contributor_id, occurred_at desc);
 create index reward_ledger_owner_idx on public.reward_ledger(owner_id, recorded_at desc);
 
@@ -256,6 +273,7 @@ alter table public.ai_cost_ledger enable row level security;
 alter table public.contribution_tasks enable row level security;
 alter table public.task_submissions enable row level security;
 alter table public.task_reviews enable row level security;
+alter table public.task_appeals enable row level security;
 alter table public.contribution_ledger enable row level security;
 alter table public.reward_ledger enable row level security;
 alter table public.audit_logs enable row level security;
@@ -279,9 +297,13 @@ create policy "conversations_owner_all" on public.conversations for all to authe
       )
     )
   );
-create policy "messages_owner_all" on public.messages for all to authenticated
-  using (owner_id = (select auth.uid())) with check (
-    owner_id = (select auth.uid()) and exists (
+create policy "messages_owner_select" on public.messages for select to authenticated
+  using (owner_id = (select auth.uid()));
+create policy "messages_owner_insert_user_only" on public.messages for insert to authenticated
+  with check (
+    owner_id = (select auth.uid())
+    and role = 'user'
+    and exists (
       select 1 from public.conversations c
       where c.id = conversation_id and c.owner_id = (select auth.uid())
     )
@@ -304,6 +326,17 @@ create policy "submissions_owner_insert" on public.task_submissions for insert t
       where t.id = task_id and t.status = 'published'
     )
   );
+create policy "appeals_owner_select" on public.task_appeals for select to authenticated
+  using (appellant_id = (select auth.uid()));
+create policy "appeals_owner_insert" on public.task_appeals for insert to authenticated
+  with check (
+    appellant_id = (select auth.uid())
+    and exists (
+      select 1 from public.task_submissions s
+      where s.id = submission_id and s.contributor_id = (select auth.uid())
+        and s.status = 'rejected'
+    )
+  );
 create policy "reviews_owner_select" on public.task_reviews for select to authenticated
   using (
     exists (select 1 from public.task_submissions s
@@ -321,12 +354,13 @@ create policy "reward_ledger_owner_select" on public.reward_ledger for select to
 grant select, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.projects to authenticated;
 grant select, insert, update, delete on public.conversations to authenticated;
-grant select, insert, update, delete on public.messages to authenticated;
+grant select, insert on public.messages to authenticated;
 grant select on public.ai_requests to authenticated;
 grant select on public.ai_cost_ledger to authenticated;
 grant select on public.contribution_tasks to authenticated;
 grant select, insert on public.task_submissions to authenticated;
 grant select on public.task_reviews to authenticated;
+grant select, insert on public.task_appeals to authenticated;
 grant select on public.contribution_ledger to authenticated;
 grant select on public.reward_ledger to authenticated;
 
