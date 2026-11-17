@@ -49,10 +49,15 @@ function findStoredPendingConversationId(exceptId = "") {
 }
 function clearAllStoredPendingRequests() {
   try {
-    for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
+    const keys: string[] = [];
+    for (let index = 0; index < sessionStorage.length; index += 1) {
       const key = sessionStorage.key(index);
-      if (key?.startsWith("gcan:pending-ai:")) sessionStorage.removeItem(key);
-      if (key?.startsWith("gcan:pending-ai-content:")) sessionStorage.removeItem(key);
+      if (key) keys.push(key);
+    }
+    for (const key of keys) {
+      if (key.startsWith("gcan:pending-ai:") || key.startsWith("gcan:pending-ai-content:")) {
+        sessionStorage.removeItem(key);
+      }
     }
   } catch { /* Storage may be unavailable in restricted browser contexts. */ }
 }
