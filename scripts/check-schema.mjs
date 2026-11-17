@@ -7,6 +7,7 @@ const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reserv
 const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_hard_stop.sql", "utf8");
 const idempotencySql = readFileSync("supabase/migrations/0005_ai_request_idempotency.sql", "utf8");
 const rateLimitSql = readFileSync("supabase/migrations/0006_ai_request_rate_limits.sql", "utf8");
+const singlePendingSql = readFileSync("supabase/migrations/0014_single_unresolved_ai_request_per_member.sql", "utf8");
 const contributionReviewSql = readFileSync("supabase/migrations/0008_atomic_contribution_review.sql", "utf8");
 const appealReviewSql = readFileSync("supabase/migrations/0009_atomic_appeal_review.sql", "utf8");
 const appealReviewApi = readFileSync("app/api/admin/contribution/appeals/route.ts", "utf8");
@@ -158,6 +159,14 @@ assert.ok(idempotencySql.includes("v_existing.state = 'processing' or v_existing
   "In-flight idempotency claims must never expire automatically");
 assert.ok(rateLimitSql.includes("v_existing.state = 'processing' or v_existing.expires_at > now()"),
   "Rate-limit claim path must preserve in-flight idempotency records");
+
+assert.ok(singlePendingSql.includes("pg_catalog.hashtextextended(p_owner_id::text, 0)"), "AI claims must serialize across all conversations for one member");
+assert.ok(singlePendingSql.includes("r.status in ('queued','running')"), "A member must be blocked while any AI request is unresolved");
+assert.ok(singlePendingSql.includes("b.status = 'reserved'") && singlePendingSql.includes("i.state = 'processing'"), "Cross-conversation lock must only block requests with a live reservation and processing idempotency record");
+assert.ok(singlePendingSql.includes("member_has_unresolved_request"), "Cross-conversation lock must return a distinguishable disposition reason");
+assert.ok(singlePendingSql.includes("revoke all on function public.claim_ai_request") && singlePendingSql.includes("to service_role"), "Replaced claim RPC must remain service-role only");
+assert.ok(workspaceClient.includes("findStoredPendingConversationId"), "Workspace must detect pending requests across conversations");
+assert.ok(workspaceClient.includes("另一個對話的 AI 請求尚未確認"), "Workspace must explain why a second request is blocked");
 
 
 const retentionSql = readFileSync("supabase/migrations/0007_ai_operational_retention.sql", "utf8");
