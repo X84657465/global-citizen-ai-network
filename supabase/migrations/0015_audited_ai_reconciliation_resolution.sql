@@ -33,7 +33,24 @@ create table public.ai_reconciliation_events (
 
 alter table public.ai_reconciliation_events enable row level security;
 revoke all on public.ai_reconciliation_events from public, anon, authenticated;
-grant all privileges on public.ai_reconciliation_events to service_role;
+grant select, insert on public.ai_reconciliation_events to service_role;
+revoke update, delete, truncate on public.ai_reconciliation_events from service_role;
+
+create or replace function public.prevent_ai_reconciliation_event_mutation()
+returns trigger
+language plpgsql
+set search_path = ''
+as $
+begin
+  raise exception 'AI reconciliation evidence events are immutable';
+end;
+$;
+
+revoke all on function public.prevent_ai_reconciliation_event_mutation() from public, anon, authenticated, service_role;
+
+create trigger ai_reconciliation_events_immutable
+before update or delete on public.ai_reconciliation_events
+for each row execute function public.prevent_ai_reconciliation_event_mutation();
 
 create index ai_reconciliation_events_request_created_idx
   on public.ai_reconciliation_events (request_id, created_at desc);
