@@ -10,10 +10,10 @@ type CostRow = {
   amount_kind: string; occurred_at: string; calculation_method: string | null;
 };
 type RequestRow = {
-  provider: string; model: string; status: string;
+  id: string; provider: string; model: string; status: string;
   input_tokens: number | null; output_tokens: number | null; cached_tokens: number | null;
   provider_billed_cost: number | string | null; provider_billed_currency: string | null;
-  estimated_internal_cost: number | string | null; created_at: string;
+  created_at: string;
 };
 type InvoiceRow = {
   provider: string; billing_period_start: string; billing_period_end: string;
@@ -44,7 +44,7 @@ export async function GET() {
       .select("cost_category,amount,currency,amount_kind,occurred_at,calculation_method")
       .order("occurred_at", { ascending: false }).limit(500),
     admin.from("ai_requests")
-      .select("provider,model,status,input_tokens,output_tokens,cached_tokens,provider_billed_cost,provider_billed_currency,estimated_internal_cost,created_at")
+      .select("id,provider,model,status,input_tokens,output_tokens,cached_tokens,provider_billed_cost,provider_billed_currency,created_at")
       .order("created_at", { ascending: false }).limit(500),
     admin.from("provider_invoice_imports")
       .select("provider,billing_period_start,billing_period_end,currency,invoice_total,reconciliation_status,created_at")
@@ -57,9 +57,27 @@ export async function GET() {
   const costs = (costResult.data ?? []) as CostRow[];
   const requests = (requestResult.data ?? []) as RequestRow[];
   const invoices = (invoiceResult.data ?? []) as InvoiceRow[];
+  const requestIds = requests.map(row => row.id);
+  const requestCostResult = requestIds.length > 0
+    ? await admin.from("ai_cost_ledger")
+        .select("request_id,amount")
+        .in("request_id", requestIds)
+        .eq("cost_category", "model_provider")
+        .eq("amount_kind", "internal_estimate")
+        .limit(500)
+    : { data: [], error: null };
+  if (requestCostResult.error) {
+    return NextResponse.json({ error: "AI 請求成本帳本讀取失敗。" }, { status: 503 });
+  }
+
+  const estimateByRequest = new Map<string, number>();
+  for (const row of requestCostResult.data ?? []) {
+    if (row.request_id) add(estimateByRequest, row.request_id, Number(row.amount));
+  }
+
   const byKindCurrency = new Map<string, number>();
   const byCategory = new Map<string, number>();
-  const byProvider = new Map<string, { requests: number; inputTokens: number; outputTokens: number; estimatedCost: number; currencies: Record<string, number> }>();
+  const byProvider = new Map<string, { requests: number; inputTokens: number; outputTokens: number; estimatedCost: number; unpricedRequests: number }>();
   const billed = new Map<string, number>();
 
   for (const row of costs) {
@@ -69,11 +87,16 @@ export async function GET() {
   }
   for (const row of requests) {
     const key = row.provider + "|" + row.model;
-    const group = byProvider.get(key) ?? { requests: 0, inputTokens: 0, outputTokens: 0, estimatedCost: 0, currencies: {} };
+    const group = byProvider.get(key) ?? { requests: 0, inputTokens: 0, outputTokens: 0, estimatedCost: 0, unpricedRequests: 0 };
     group.requests += 1;
     group.inputTokens += Number(row.input_tokens ?? 0);
     group.outputTokens += Number(row.output_tokens ?? 0);
-    group.estimatedCost += Number(row.estimated_internal_cost ?? 0);
+    const ledgerEstimate = estimateByRequest.get(row.id);
+    if (ledgerEstimate === undefined) {
+      if (row.status === "succeeded") group.unpricedRequests += 1;
+    } else {
+      group.estimatedCost += ledgerEstimate;
+    }
     byProvider.set(key, group);
     if (row.provider_billed_cost !== null && row.provider_billed_currency) {
       add(billed, row.provider_billed_currency.trim(), Number(row.provider_billed_cost));
@@ -82,7 +105,7 @@ export async function GET() {
 
   return NextResponse.json({
     generatedAt: new Date().toISOString(),
-    window: { costLedgerRows: costs.length, requestRows: requests.length, invoiceRows: invoices.length, note: "僅彙總最近 500 筆成本與請求、最近 100 筆帳單匯入，不代表全期間總額。" },
+    window: { costLedgerRows: costs.length, requestRows: requests.length, invoiceRows: invoices.length, note: "僅彙總最近 500 筆成本與請求、最近 100 筆帳單匯入，不代表全期間總額；模型成本只採用有對應 internal_estimate 帳本的請求，成功但沒有帳本的舊請求不以預留上限冒充成本。" },
     costByKindCurrency: [...byKindCurrency].map(([key, amount]) => {
       const [kind, currency] = key.split("|"); return { kind, currency, amount: rounded(amount) };
     }),
@@ -91,7 +114,7 @@ export async function GET() {
     }),
     providerBilledByCurrency: [...billed].map(([currency, amount]) => ({ currency, amount: rounded(amount) })),
     providerModels: [...byProvider].map(([key, group]) => {
-      const [provider, model] = key.split("|"); return { provider, model, requests: group.requests, inputTokens: group.inputTokens, outputTokens: group.outputTokens, estimatedCost: rounded(group.estimatedCost) };
+      const [provider, model] = key.split("|"); return { provider, model, requests: group.requests, inputTokens: group.inputTokens, outputTokens: group.outputTokens, estimatedCost: rounded(group.estimatedCost), unpricedRequests: group.unpricedRequests };
     }),
     invoices: invoices.map(row => ({
       provider: row.provider, periodStart: row.billing_period_start, periodEnd: row.billing_period_end,

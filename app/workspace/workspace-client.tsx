@@ -5,7 +5,23 @@ import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 
 
 type Conversation = { id: string; title: string; updated_at: string };
 type Message = { id?: string; role: "user" | "assistant"; content: string; created_at?: string };
-type ApiError = { error?: string };
+type ApiError = { error?: string; retryWithSameKey?: boolean };
+
+function pendingKeyStorageKey(conversationId: string) {
+  return `gcan:pending-ai:${conversationId}`;
+}
+function readStoredPendingKey(conversationId: string) {
+  try { return sessionStorage.getItem(pendingKeyStorageKey(conversationId)) ?? ""; }
+  catch { return ""; }
+}
+function storePendingKey(conversationId: string, key: string) {
+  try { sessionStorage.setItem(pendingKeyStorageKey(conversationId), key); }
+  catch { /* In-memory idempotency still protects the current page session. */ }
+}
+function clearStoredPendingKey(conversationId: string) {
+  try { sessionStorage.removeItem(pendingKeyStorageKey(conversationId)); }
+  catch { /* Storage may be unavailable in restricted browser contexts. */ }
+}
 
 const shell: CSSProperties = { minHeight: "100vh", background: "#f4f7fb", color: "#17263b", padding: "28px 16px" };
 const card: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 16 };
@@ -46,8 +62,18 @@ export default function WorkspaceClient() {
       setError(data.error ?? "無法載入訊息。");
       return;
     }
-    setMessages((data.messages ?? []).filter(message => message.role === "user" || message.role === "assistant"));
-    setPendingKey("");
+    const visibleMessages = (data.messages ?? []).filter(message => message.role === "user" || message.role === "assistant");
+    setMessages(visibleMessages);
+    const storedKey = readStoredPendingKey(id);
+    setPendingKey(storedKey);
+    if (storedKey && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "user") {
+      setPrompt(visibleMessages[visibleMessages.length - 1].content);
+      setNotice("上一個 AI 請求結果尚待確認，重試時會沿用原冪等鍵，避免重複呼叫供應商。");
+    } else if (storedKey && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "assistant") {
+      // The atomic server transaction committed successfully before the browser lost its response.
+      clearStoredPendingKey(id);
+      setPendingKey("");
+    }
   }
 
   async function send(event: FormEvent<HTMLFormElement>) {
@@ -71,8 +97,9 @@ export default function WorkspaceClient() {
         setConversations(prev => [created.conversation!, ...prev]);
       }
 
-      const key = pendingKey || crypto.randomUUID();
+      const key = pendingKey || readStoredPendingKey(activeId) || crypto.randomUUID();
       setPendingKey(key);
+      storePendingKey(activeId, key);
       setMessages(prev => prev.length > 0 && prev[prev.length - 1].role === "user" && prev[prev.length - 1].content === content ? prev : [...prev, { role: "user", content }]);
       setPrompt("");
 
@@ -83,12 +110,16 @@ export default function WorkspaceClient() {
       });
       const data = await response.json() as { answer?: string; requestId?: string; costLabel?: string; usage?: { estimatedCostTwd?: number } } & ApiError;
       if (!response.ok) {
-        if (response.status !== 409 && response.status !== 503) setPendingKey("");
+        if (data.retryWithSameKey !== true) {
+          setPendingKey("");
+          clearStoredPendingKey(activeId);
+        }
         throw new Error(data.error ?? "AI 請求未完成。");
       }
       setMessages(prev => [...prev, { role: "assistant", content: data.answer ?? "AI 沒有回傳內容。" }]);
       setNotice(data.costLabel ? data.costLabel + "。每次請求均經過預算與冪等性檢查。" : "AI 回覆完成。");
       setPendingKey("");
+      clearStoredPendingKey(activeId);
     } catch (reason) {
       setPrompt(content);
       setError(reason instanceof Error ? reason.message : "請求發生錯誤。");

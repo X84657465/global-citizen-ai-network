@@ -107,13 +107,26 @@ console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC
 
 
 const aiGateway = readFileSync("app/api/ai/chat/route.ts", "utf8");
+const atomicAiSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
+const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
 assert.ok(idempotencySql.includes("public.reserve_ai_budget("), "Idempotency claim must atomically reserve AI budget");
-assert.ok(aiGateway.includes('finalize_ai_budget'), "AI gateway must settle successful provider calls");
-assert.ok(aiGateway.includes('release_ai_budget'), "AI gateway must release failed reservations");
+assert.ok(aiGateway.includes('complete_ai_chat_request'), "AI gateway must atomically settle successful provider calls");
+assert.ok(aiGateway.includes('fail_ai_chat_request'), "AI gateway must atomically release known failed reservations");
+assert.ok(aiGateway.includes('mark_ai_request_reconciliation_required'), "AI gateway must preserve uncertain provider outcomes for reconciliation");
+assert.ok(atomicAiSql.includes("insert into public.messages"), "Atomic completion must persist the assistant message");
+assert.ok(atomicAiSql.includes("insert into public.ai_cost_ledger"), "Atomic completion must write the internal cost ledger");
+assert.ok(atomicAiSql.includes("estimated_internal_cost = p_estimated_cost_twd"), "Atomic completion must store the computed internal estimate");
+const reconciliationFunction = atomicAiSql.slice(atomicAiSql.indexOf("create or replace function public.mark_ai_request_reconciliation_required"));
+assert.ok(reconciliationFunction.includes("v_reservation.status <> 'reserved'"), "Reconciliation may only mark a still-reserved request");
+assert.ok(!reconciliationFunction.includes("status = 'released'"), "Uncertain provider outcomes must never release the budget reservation");
+assert.ok(atomicAiSql.includes("ai_member_budget_hard_stop_triggered"), "Member budget hard stops must be audited");
+assert.ok(atomicAiSql.includes("ai_platform_budget_hard_stop_triggered"), "Global budget hard stops must be audited");
+assert.ok(providerResponse.includes("MAX_PROVIDER_RESPONSE_BYTES = 1024 * 1024"), "Provider response bodies must be byte bounded");
+assert.ok(providerResponse.includes("Number.isSafeInteger(value)"), "Provider token counts must be validated as safe integers");
 assert.ok(aiGateway.includes('AbortController'), "AI gateway must enforce provider timeout");
 assert.ok(aiGateway.includes('max_tokens: 1200'), "AI gateway must cap provider output");
-assert.ok(aiGateway.includes('ai_cost_ledger'), "AI gateway must append an internal cost ledger entry");
+assert.ok(atomicAiSql.includes("amount_kind, calculation_method"), "AI gateway settlement must append a labelled internal cost ledger entry");
 assert.ok(aiGateway.includes('SUPABASE_SERVICE_ROLE_KEY'), "AI gateway must require server-only service role credentials");
 assert.ok(aiGateway.includes('worstCaseCost > config.maxRequestCostTwd'), "AI gateway must reject conservative preflight cost overruns");
 
@@ -129,8 +142,8 @@ assert.ok(idempotencySql.includes("to service_role"));
 assert.ok(idempotencySql.includes("interval '24 hours'"), "Cached responses must have a bounded replay window");
 assert.ok(aiGateway.includes('request.headers.get("Idempotency-Key")'));
 assert.ok(aiGateway.includes('claim_ai_request'));
-assert.ok(aiGateway.includes('complete_ai_request_idempotency'));
-assert.ok(aiGateway.includes('fail_ai_request_idempotency'));
+assert.ok(aiGateway.includes('complete_ai_chat_request'));
+assert.ok(aiGateway.includes('fail_ai_chat_request'));
 
 assert.ok(rateLimitSql.includes("create table public.ai_request_rate_limits"));
 assert.ok(rateLimitSql.includes("primary key (owner_id, window_seconds, window_start)"));
@@ -166,6 +179,9 @@ assert.ok(contributionApi.includes('content.length < 10 || content.length > 1600
 assert.ok(contributionApi.includes('contributor_id: auth.user.id'), "Submission ownership must come from the authenticated session");
 assert.ok(!contributionApi.includes("reward_amount:"), "Client submission must never set or alter reward amounts");
 assert.ok(workspaceClient.includes('"Idempotency-Key": key'), "Workspace AI calls must use idempotency keys");
+assert.ok(workspaceClient.includes("data.retryWithSameKey !== true"), "Workspace must retain the same idempotency key for uncertain outcomes");
+assert.ok(workspaceClient.includes("sessionStorage"), "Workspace must preserve pending idempotency keys across page reloads");
+assert.ok(aiGateway.includes("retryWithSameKey: true"), "AI gateway must explicitly identify uncertain outcomes that require the same idempotency key");
 assert.ok(workspaceClient.includes('"/api/conversations"'), "Workspace must use the authenticated conversation API");
 assert.ok(adminOpsApi.includes('profile?.role !== "admin"'), "Operations API must verify admin role");
 assert.ok(adminOpsApi.includes('profile.account_status !== "active"'), "Operations API must reject inactive admins");
@@ -229,5 +245,8 @@ assert.ok(aiCostsApi.includes('SUPABASE_SERVICE_ROLE_KEY'), "AI cost dashboard m
 assert.ok(aiCostsApi.includes('.limit(500)'), "AI cost dashboard queries must be bounded");
 assert.ok(aiCostsApi.includes('amount_kind'), "AI cost dashboard must distinguish invoice, allocation, and estimate types");
 assert.ok(aiCostsApi.includes('provider_billed_currency'), "Provider billed amounts must remain grouped by currency");
+assert.ok(aiCostsApi.includes('.in("request_id", requestIds)'), "Provider model estimates must come from linked internal-estimate ledger rows");
+assert.ok(aiCostsApi.includes("unpricedRequests"), "Requests without a cost ledger must be reported separately, not priced from reservation ceilings");
+assert.ok(!aiCostsApi.includes("estimated_internal_cost"), "Cost dashboard must not report reservation ceilings as internal estimates");
 assert.ok(aiCostsClient.includes("成本性質（依幣別分開）"), "AI cost UI must separate cost types and currencies");
 assert.ok(aiCostsClient.includes("不代表供應商請款金額"), "AI cost UI must disclose estimates are not supplier invoices");

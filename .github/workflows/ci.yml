@@ -29,6 +29,8 @@ jobs:
         run: node scripts/check-schema.mjs
       - name: Dependency security audit
         run: npm audit --audit-level=high
+      - name: AI provider response tests
+        run: npm run test:unit
       - name: Type check
         run: npx tsc --noEmit
       - name: Lint

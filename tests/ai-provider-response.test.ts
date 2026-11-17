@@ -1,0 +1,121 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  parseProviderResponse,
+  ProviderResponseError,
+  readProviderJson,
+} from "../lib/ai/provider-response.ts";
+
+test("reads a valid bounded provider JSON response", async () => {
+  const response = new Response(JSON.stringify({ choices: [] }), {
+    headers: { "content-type": "application/json" },
+  });
+  assert.deepEqual(await readProviderJson(response), { choices: [] });
+});
+
+test("rejects a declared provider response larger than the configured limit", async () => {
+  const response = new Response('{"ok":true}', {
+    headers: { "content-length": "1000" },
+  });
+  await assert.rejects(
+    readProviderJson(response, 32),
+    (error) => error instanceof ProviderResponseError && error.code === "response_too_large",
+  );
+});
+
+test("rejects a streamed provider response after it crosses the byte limit", async () => {
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode('{"payload":"too large"}'));
+      controller.close();
+    },
+  });
+  const response = new Response(body);
+  await assert.rejects(
+    readProviderJson(response, 8),
+    (error) => error instanceof ProviderResponseError && error.code === "response_too_large",
+  );
+});
+
+test("rejects malformed JSON instead of treating it as an empty response", async () => {
+  const response = new Response("{not-json");
+  await assert.rejects(
+    readProviderJson(response),
+    (error) => error instanceof ProviderResponseError && error.code === "invalid_provider_json",
+  );
+});
+
+test("validates OpenAI-compatible content and provider token usage", () => {
+  const parsed = parseProviderResponse({
+    id: "provider-request-123",
+    choices: [{ message: { content: "  Hello citizen  " } }],
+    usage: {
+      prompt_tokens: 12,
+      completion_tokens: 7,
+      prompt_tokens_details: { cached_tokens: 3 },
+    },
+  }, 100);
+
+  assert.deepEqual(parsed, {
+    answer: "Hello citizen",
+    inputTokens: 12,
+    outputTokens: 7,
+    cachedTokens: 3,
+    providerRequestId: "provider-request-123",
+    usageSource: "provider",
+  });
+});
+
+test("supports text-part content arrays and partial usage fallback", () => {
+  const parsed = parseProviderResponse({
+    choices: [{ message: { content: [{ type: "text", text: "Hello " }, { type: "text", text: "world" }] } }],
+    usage: { prompt_tokens: 9 },
+  }, 100);
+
+  assert.equal(parsed.answer, "Hello world");
+  assert.equal(parsed.inputTokens, 9);
+  assert.equal(parsed.outputTokens, "Hello world".length);
+  assert.equal(parsed.usageSource, "provider_partial_with_fallback");
+});
+
+test("uses conservative character fallback when provider usage is absent", () => {
+  const parsed = parseProviderResponse({
+    choices: [{ message: { content: "A response" } }],
+  }, 37);
+
+  assert.equal(parsed.inputTokens, 37);
+  assert.equal(parsed.outputTokens, "A response".length);
+  assert.equal(parsed.usageSource, "conservative_character_fallback");
+});
+
+test("rejects negative, fractional, excessive, and inconsistent token counts", () => {
+  const cases = [
+    { prompt_tokens: -1, completion_tokens: 1 },
+    { prompt_tokens: 1.5, completion_tokens: 1 },
+    { prompt_tokens: 1, completion_tokens: 1000001 },
+    { prompt_tokens: 0, completion_tokens: 1 },
+    { prompt_tokens: 1, completion_tokens: 0 },
+    { prompt_tokens: 2, completion_tokens: 1, prompt_tokens_details: { cached_tokens: 3 } },
+  ];
+
+  for (const usage of cases) {
+    assert.throws(
+      () => parseProviderResponse({
+        choices: [{ message: { content: "response" } }],
+        usage,
+      }, 10),
+      ProviderResponseError,
+    );
+  }
+});
+
+test("rejects malformed provider choices and non-text content parts", () => {
+  assert.throws(
+    () => parseProviderResponse({ choices: [{ message: { content: 123 } }] }, 10),
+    ProviderResponseError,
+  );
+  assert.throws(
+    () => parseProviderResponse({ choices: [{ message: { content: [{ type: "image", text: "x" }] } }] }, 10),
+    ProviderResponseError,
+  );
+});
