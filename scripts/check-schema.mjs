@@ -26,6 +26,7 @@ const messageApi = readFileSync("app/api/conversations/[id]/messages/route.ts", 
 const contributionApi = readFileSync("app/api/contribution/tasks/route.ts", "utf8");
 const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
 const aiPendingRecoveryApi = readFileSync("app/api/ai/pending/route.ts", "utf8");
+const pendingRecovery = readFileSync("lib/ai/pending-recovery.ts", "utf8");
 const adminOpsApi = readFileSync("app/api/admin/ai-operations/route.ts", "utf8");
 const aiCostsApi = readFileSync("app/api/admin/ai-costs/route.ts", "utf8");
 const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx", "utf8");
@@ -173,7 +174,9 @@ assert.ok(workspaceClient.includes("findStoredPendingConversationId"), "Workspac
 assert.ok(aiPendingRecoveryApi.includes('getAuthenticatedClient()'), "Pending AI recovery must require an authenticated member");
 assert.ok(aiPendingRecoveryApi.includes('.eq("owner_id", auth.user.id)'), "Pending AI recovery must scope requests to the authenticated owner");
 assert.ok(aiPendingRecoveryApi.includes('.eq("state", "processing")'), "Pending AI recovery must only return unresolved idempotency records");
-assert.ok(aiPendingRecoveryApi.includes("request_hash") && aiPendingRecoveryApi.includes("createHash"), "Pending AI recovery must verify the original prompt against the idempotency payload hash");
+assert.ok(aiPendingRecoveryApi.includes("request_hash") && aiPendingRecoveryApi.includes("findOriginalPendingMessage"), "Pending AI recovery must verify the original prompt against the idempotency payload hash");
+assert.ok(pendingRecovery.includes("timingSafeEqual") && pendingRecovery.includes("hashPendingPrompt"), "Pending recovery must compare fixed-length SHA-256 digests safely");
+assert.ok(pendingRecovery.includes("message.content.length > 8000"), "Pending recovery must enforce the original prompt size limit");
 assert.ok(aiPendingRecoveryApi.includes('Cache-Control": "no-store"'), "Pending AI recovery responses must never be cached");
 assert.ok(workspaceClient.includes('fetch("/api/ai/pending"'), "Workspace must recover unresolved requests from the server after session loss");
 assert.ok(workspaceClient.includes("另一個對話的 AI 請求尚未確認"), "Workspace must explain why a second request is blocked");
