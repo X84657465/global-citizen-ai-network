@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
   const requestId = crypto.randomUUID();
   const { data: claimData, error: claimError } = await admin.rpc("claim_ai_request", {
     p_owner_id: auth.user.id,
+    p_conversation_id: conversationId,
     p_idempotency_key: idempotencyKey,
     p_request_hash: requestHash,
     p_request_id: requestId,
