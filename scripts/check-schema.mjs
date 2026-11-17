@@ -114,6 +114,13 @@ const atomicAiSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_comple
 const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
 const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
+const claimPosition = aiGateway.indexOf('admin.rpc("claim_ai_request"');
+const completedReplayPosition = aiGateway.indexOf('claim.disposition === "completed"');
+const preflightPosition = aiGateway.indexOf("const worstCaseCost");
+assert.ok(claimPosition >= 0 && completedReplayPosition > claimPosition && preflightPosition > completedReplayPosition,
+  "AI cost preflight must run only after claim RPC has returned completed/processing idempotency replays");
+assert.ok(aiGateway.includes("preflight_cost_exceeds_reservation") && aiGateway.includes("failKnownOutcome"),
+  "A newly claimed request rejected by preflight must safely release its reservation without calling the provider");
 assert.ok(idempotencySql.includes("public.reserve_ai_budget("), "Idempotency claim must atomically reserve AI budget");
 assert.ok(aiGateway.includes('complete_ai_chat_request'), "AI gateway must atomically settle successful provider calls");
 assert.ok(aiGateway.includes('fail_ai_chat_request'), "AI gateway must atomically release known failed reservations");
