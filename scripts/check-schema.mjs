@@ -401,13 +401,13 @@ assert.ok(projectsClient.includes('fetch("/api/projects?includeArchived=true"') 
 assert.ok(projectsClient.includes("還原專案") && projectsClient.includes("封存專案"),
   "Project management UI must expose both archive and restore actions");
 const conversationsApi = readFileSync("app/api/conversations/route.ts", "utf8");
-const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
+const projectLinkedWorkspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
 assert.ok(conversationsApi.includes('.eq("owner_id", auth.user.id)') && conversationsApi.includes('.is("archived_at", null)'),
   "Conversation creation must reject projects not owned by the member or already archived");
-assert.ok(workspaceClient.includes('fetch("/api/projects", { cache: "no-store" })') &&
-  workspaceClient.includes("project_id: selectedProjectId || null"),
+assert.ok(projectLinkedWorkspaceClient.includes('fetch("/api/projects", { cache: "no-store" })') &&
+  projectLinkedWorkspaceClient.includes("project_id: selectedProjectId || null"),
   "Workspace must load active projects and persist the selected project on new conversations");
-assert.ok(workspaceClient.includes("新對話歸屬專案") && workspaceClient.includes("未分類對話"),
+assert.ok(projectLinkedWorkspaceClient.includes("新對話歸屬專案") && projectLinkedWorkspaceClient.includes("未分類對話"),
   "Workspace must expose project assignment and identify unclassified conversations");
 const projectOwnershipSql = readFileSync("supabase/migrations/0016_conversation_project_ownership.sql", "utf8");
 const projectOwnershipTests = readFileSync("supabase/tests/project_conversation_security.test.sql", "utf8");
