@@ -69,7 +69,7 @@ export default function WorkspaceClient() {
           if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
             setPendingConversationId(recovered.conversationId);
-            setNotice("已從伺服器恢復一筆尚待核對的 AI 請求，返回原對話即可沿用原冪等鍵安全重試。");
+            setNotice("已從伺服器恢復一筆尚待核對的 AI 請求，返回原對話查看原始內容與狀態，等待管理員核對。");
           } else {
             setPendingConversationId(findStoredPendingConversationId());
           }
@@ -102,7 +102,7 @@ export default function WorkspaceClient() {
     setPendingConversationId(storedKey ? id : findStoredPendingConversationId(id));
     if (storedKey && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "user") {
       setPrompt(visibleMessages[visibleMessages.length - 1].content);
-      setNotice("上一個 AI 請求結果尚待確認，重試時會沿用原冪等鍵，避免重複呼叫供應商。");
+      setNotice("上一個 AI 請求結果尚待確認，系統會保留原冪等鍵；核對完成前不會再次呼叫供應商。");
     } else if (storedKey && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "assistant") {
       // The atomic server transaction committed successfully before the browser lost its response.
       clearStoredPendingKey(id);
@@ -117,13 +117,13 @@ export default function WorkspaceClient() {
     if (!content || busy) return;
     const otherPendingConversationId = findStoredPendingConversationId(conversationId);
     if (otherPendingConversationId) {
-      setError("另一個對話的 AI 請求尚未確認，請先開啟該對話，沿用原冪等鍵完成重試或等待管理員核對，避免產生第二筆費用。");
+      setError("另一個對話的 AI 請求尚未確認，請先開啟原對話查看狀態並等待管理員核對，請勿建立新請求或更換冪等鍵。");
       setNotice("系統已暫停新的 AI 請求，直到上一筆未知結果獲得確認。");
       return;
     }
     const existingPendingKey = pendingKey || (conversationId ? readStoredPendingKey(conversationId) : "");
     if (hasPendingRetryContentMismatch(existingPendingKey, messages[messages.length - 1], content)) {
-      setError("上一筆 AI 請求尚未確認，為避免重複計費，請先恢復原始訊息並使用相同冪等鍵重試。");
+      setError("上一筆 AI 請求尚未確認，為避免重複計費，請先恢復原始訊息並保留相同冪等鍵，等待管理員核對；系統不會再次呼叫供應商。");
       return;
     }
     setBusy(true);
@@ -191,7 +191,7 @@ export default function WorkspaceClient() {
         </header>
 
         {pendingConversationId && pendingConversationId !== conversationId && <div role="status" style={{ ...card, borderColor: "#f0d7a6", background: "#fff9ed", color: "#8a5a12", padding: 12, fontSize: 12, lineHeight: 1.7, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-          <span>有一筆其他對話的 AI 請求尚未確認，為避免重複計費，目前暫停新請求，請先回到原對話完成相同冪等鍵重試或等待管理員核對。</span>
+          <span>有一筆其他對話的 AI 請求尚未確認，為避免重複計費，目前暫停新請求，請先回到原對話查看狀態並等待管理員核對。</span>
           <button type="button" disabled={busy} onClick={() => void openConversation(pendingConversationId)} style={{ border: "1px solid #d7b875", background: "#fff", color: "#805515", borderRadius: 8, padding: "7px 11px", fontWeight: 700 }}>回到待核對對話</button>
         </div>}
 
