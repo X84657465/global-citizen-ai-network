@@ -1,6 +1,6 @@
 begin;
 
-select plan(20);
+select plan(23);
 
 -- Exercise atomic AI completion, known-failure release, and uncertain outcomes.
 select ok(to_regprocedure('public.complete_ai_chat_request(uuid,uuid,uuid,text,text,integer,integer,integer,numeric,text,integer,text,jsonb)') is not null,
@@ -237,6 +237,42 @@ select is(
   1,
   'replaying successful AI completion does not duplicate the cost ledger entry'
 );
+-- A different member must not be able to settle, fail, or reconcile another
+-- member's request, even when the request UUID is known.
+select ok(
+  not public.fail_ai_chat_request(
+    '50000000-0000-4000-8000-000000000002',
+    '52000000-0000-4000-8000-000000000002',
+    'cross_owner_attempt'
+  ),
+  'cross-owner failure attempts are rejected'
+);
+select ok(
+  not public.mark_ai_request_reconciliation_required(
+    '50000000-0000-4000-8000-000000000002',
+    '52000000-0000-4000-8000-000000000003',
+    'cross_owner_attempt',
+    null
+  ),
+  'cross-owner reconciliation attempts are rejected'
+);
+select ok(
+  not public.complete_ai_chat_request(
+    '50000000-0000-4000-8000-000000000002',
+    '52000000-0000-4000-8000-000000000001',
+    '51000000-0000-4000-8000-000000000001',
+    'Unauthorized response',
+    'test-model',
+    1, 1, 0, 0.001, null, 1,
+    'cross_owner_test',
+    pg_catalog.jsonb_build_object(
+      'requestId', '52000000-0000-4000-8000-000000000001',
+      'answer', 'Unauthorized response'
+    )
+  ),
+  'cross-owner completion attempts are rejected'
+);
+
 select ok(
   exists (select 1 from public.ai_budget_reservations b
     join public.ai_requests r on r.id = b.request_id
