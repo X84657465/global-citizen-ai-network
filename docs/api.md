@@ -53,3 +53,11 @@ All data endpoints require a valid Supabase session. Ordinary member routes use 
 - `500`: read failure; response does not expose database diagnostics.
 
 All private data responses use `Cache-Control: no-store`. JSON request bodies are read from the request stream and stopped once the configured byte ceiling is exceeded, including when `Content-Length` is absent.
+
+
+## AI operations and retention (service-role only)
+
+- \`cleanup_expired_ai_operational_records()\`: removes expired completed/failed idempotency mappings and rate-limit windows older than 48 hours. It does not delete financial or AI request records.
+- \`list_stale_ai_requests(p_older_than_seconds)\`: read-only operator report for requests still queued/running with a reserved budget after the age threshold. Default 900 seconds; accepted range 300–86,400.
+- A stale request is not proof of provider failure. Never auto-retry it or release its reservation solely because it is old. Reconcile provider logs/request IDs and billing evidence first.
+- Cleanup is not scheduled by migrations. Enable Supabase Cron intentionally only after a project exists and manual execution has been verified.
