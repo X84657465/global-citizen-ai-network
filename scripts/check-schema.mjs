@@ -183,6 +183,8 @@ assert.ok(rateLimitSql.includes("v_existing.state = 'processing' or v_existing.e
 assert.ok(singlePendingSql.includes("p_conversation_id uuid"), "AI request claim must receive the originating conversation");
 assert.ok(singlePendingSql.includes("set conversation_id = p_conversation_id"), "AI request claim must persist the conversation in the reservation transaction");
 assert.ok(singlePendingSql.includes("p_prompt text") && singlePendingSql.includes("length(p_prompt) > 8000"), "AI request claim must validate the original prompt before persistence");
+assert.ok(singlePendingSql.includes("pg_catalog.sha256") && singlePendingSql.includes("p_request_hash <> pg_catalog.encode"), "Database claim must verify the stored prompt matches its conversation-bound SHA-256 hash");
+assert.ok(pendingRecovery.includes(".update(`${conversationId}\\n${content}`)") && aiGateway.includes("hashPendingPrompt(conversationId, content)"), "API and recovery must share the canonical conversation-bound prompt hash");
 assert.ok(singlePendingSql.includes("p_preflight_cost_twd numeric") && singlePendingSql.includes("preflight_cost_exceeds_reservation"), "AI request claim must reject over-budget new requests before reservation and prompt persistence");
 assert.ok(singlePendingSql.includes("if p_preflight_cost_twd > p_max_cost_twd") && singlePendingSql.indexOf("if p_preflight_cost_twd > p_max_cost_twd") < singlePendingSql.indexOf("public.reserve_ai_budget("), "Preflight ceiling must be checked before budget reservation");
 assert.ok(aiGateway.includes("p_preflight_cost_twd: worstCaseCost"), "AI gateway must pass the conservative preflight estimate into the atomic claim");
