@@ -62,10 +62,16 @@ assert.ok(budgetSql.includes("revoke all on public.ai_budget_reservations from a
 assert.ok(budgetSql.includes("for update"), "Budget reservation must lock shared control rows");
 assert.ok(budgetSql.includes("create or replace function public.reserve_ai_budget"));
 assert.ok(budgetSql.includes("create or replace function public.finalize_ai_budget"));
+assert.ok(budgetSql.includes("p_max_cost_twd > 9999999999.99999999"),
+  "Direct budget reservations must reject values outside numeric(18,8)");
 assert.ok(budgetSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
   "Direct budget reservations must reject non-finite ceilings");
+assert.ok(budgetSql.includes("p_actual_cost_twd > 9999999999.99999999"),
+  "Legacy budget settlement must reject values outside numeric(18,8)");
 assert.ok(budgetSql.includes("p_actual_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
   "Legacy budget settlement must reject non-finite normalized costs");
+assert.ok(budgetSql.includes("p_provider_billed_cost > 9999999999.99999999"),
+  "Legacy provider billed cost must fit numeric(18,8)");
 assert.ok(budgetSql.includes("p_provider_billed_cost::text in ('NaN', 'Infinity', '-Infinity')"),
   "Legacy budget settlement must reject non-finite provider billed costs");
 assert.ok(budgetSql.includes("p_provider_billed_currency char(3)"), "Invoice currency must be recorded separately from normalized TWD budget cost");
@@ -340,7 +346,13 @@ assert.ok(aiCostsClient.includes("不代表供應商請款金額"), "AI cost UI 
 const aiCompletionSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 assert.ok(aiCompletionSql.includes("v_request.conversation_id is distinct from p_conversation_id"),
   "AI completion must remain bound to the conversation persisted during the atomic claim");
+assert.ok(aiCompletionSql.includes("p_estimated_cost_twd > 9999999999.99999999"),
+  "AI completion costs must fit numeric(18,8)");
 assert.ok(aiCompletionSql.includes("p_estimated_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
   "AI completion must reject non-finite settlement costs");
+assert.ok(singlePendingSql.includes("p_max_cost_twd > 9999999999.99999999"),
+  "AI claim reservation ceilings must fit numeric(18,8)");
+assert.ok(singlePendingSql.includes("p_preflight_cost_twd > 9999999999.99999999"),
+  "AI claim preflight estimates must fit numeric(18,8)");
 assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
   "AI claim must reject non-finite reservation ceilings");
