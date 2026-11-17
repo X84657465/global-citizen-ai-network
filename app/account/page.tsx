@@ -37,6 +37,9 @@ export default async function AccountPage() {
           <Info label="帳戶狀態" value={profile?.account_status ?? "待確認"} />
           <Info label="會員識別碼" value={user.id} />
           <Link href="/contributions" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#eff8f3", color: "#24724f", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>查看我的貢獻與獎勵 →</Link>
+          {profile?.role === "admin" && profile.account_status === "active" ? (
+            <Link href="/admin/contribution-tasks" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#fff7e8", color: "#94621b", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>管理貢獻任務 →</Link>
+          ) : null}
           {profile && ["admin", "reviewer"].includes(profile.role) && profile.account_status === "active" ? (
             <Link href="/admin/contributions" style={{ display: "block", padding: "14px 16px", borderRadius: 10, background: "#eef4ff", color: "#315d91", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>開啟貢獻成果審核 →</Link>
           ) : null}
