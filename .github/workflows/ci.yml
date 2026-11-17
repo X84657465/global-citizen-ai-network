@@ -29,3 +29,23 @@ jobs:
         run: npm run lint
       - name: Build production app
         run: npm run build
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: v2.stable
+      - name: Initialize local Supabase config
+        run: supabase init
+      - name: Start local Supabase services and apply migrations
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
+      - name: Run PostgreSQL and RLS tests
+        run: supabase test db
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup
