@@ -66,6 +66,7 @@ declare
   v_event_id uuid;
 begin
   if p_actor_id is null or p_request_id is null or p_idempotency_key is null
+     or p_decision is null
      or p_decision not in ('confirmed_billed', 'confirmed_not_billed', 'inconclusive')
      or p_provider is null or char_length(trim(p_provider)) not between 1 and 120
      or p_evidence_reference is null or char_length(trim(p_evidence_reference)) not between 8 and 500
