@@ -155,6 +155,18 @@ begin
     raise exception 'AI uncertain outcome was not marked for reconciliation';
   end if;
 
+  -- A same-key retry remains attached to the original unresolved request.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, 'test-ai-unknown-001', repeat('c', 64)::char(64), v_blocked_request,
+    'openai-compatible', 'test-model', 'chat', 1
+  );
+  if v_claim.disposition <> 'processing'
+     or v_claim.reason <> 'request_in_progress'
+     or v_claim.claimed_request_id <> v_unknown_request then
+    raise exception 'same-key retry did not preserve the original unresolved request';
+  end if;
+
   -- A different key and conversation for the same member must not start a
   -- second billable request while the first provider outcome is unresolved.
   select * into v_claim
