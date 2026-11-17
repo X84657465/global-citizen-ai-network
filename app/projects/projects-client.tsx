@@ -21,6 +21,9 @@ export default function ProjectsClient() {
   const [busyId, setBusyId] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [editingProjectId, setEditingProjectId] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -59,6 +62,37 @@ export default function ProjectsClient() {
       await load();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "建立專案失敗。");
+    } finally {
+      setBusyId("");
+    }
+  }
+
+  function beginEdit(project: Project) {
+    setEditingProjectId(project.id);
+    setEditTitle(project.title);
+    setEditDescription(project.description ?? "");
+    setError("");
+    setNotice("");
+  }
+
+  async function saveProject(project: Project) {
+    setBusyId(project.id);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch("/api/projects/" + project.id, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({ title: editTitle, description: editDescription.trim() || null }),
+      });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "更新專案資料失敗。");
+      setEditingProjectId("");
+      setNotice("專案資料已更新。");
+      await load();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "更新專案資料失敗。");
     } finally {
       setBusyId("");
     }
@@ -131,16 +165,41 @@ export default function ProjectsClient() {
               <div style={{ display: "grid", gap: 10 }}>
                 {visibleProjects.map(project => <article key={project.id} style={{ border: "1px solid #edf1f5", borderRadius: 10, padding: 14, display: "flex", justifyContent: "space-between", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
                   <div style={{ minWidth: 220, flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      <strong style={{ fontSize: 13 }}>{project.title}</strong>
-                      <span style={{ fontSize: 10, borderRadius: 20, padding: "4px 7px", background: project.archived_at ? "#f1f5f9" : "#ecfdf5", color: project.archived_at ? "#64748b" : "#047857" }}>{project.archived_at ? "已封存" : "進行中"}</span>
-                    </div>
-                    {project.description && <p style={{ color: "#64748b", fontSize: 11, lineHeight: 1.7, margin: "6px 0" }}>{project.description}</p>}
-                    <p style={{ color: "#94a3b8", fontSize: 10, margin: "6px 0 0" }}>最後更新：{new Date(project.updated_at).toLocaleString("zh-TW")}</p>
+                    {editingProjectId === project.id ? (
+                      <div style={{ display: "grid", gap: 8 }}>
+                        <label style={{ display: "grid", gap: 4, fontSize: 11 }}>專案名稱
+                          <input value={editTitle} onChange={event => setEditTitle(event.target.value)} maxLength={160} required style={{ padding: 8, border: "1px solid #cbd5e1", borderRadius: 7 }} />
+                        </label>
+                        <label style={{ display: "grid", gap: 4, fontSize: 11 }}>專案說明
+                          <textarea value={editDescription} onChange={event => setEditDescription(event.target.value)} maxLength={4000} rows={2} style={{ padding: 8, border: "1px solid #cbd5e1", borderRadius: 7, resize: "vertical" }} />
+                        </label>
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <strong style={{ fontSize: 13 }}>{project.title}</strong>
+                          <span style={{ fontSize: 10, borderRadius: 20, padding: "4px 7px", background: project.archived_at ? "#f1f5f9" : "#ecfdf5", color: project.archived_at ? "#64748b" : "#047857" }}>{project.archived_at ? "已封存" : "進行中"}</span>
+                        </div>
+                        {project.description && <p style={{ color: "#64748b", fontSize: 11, lineHeight: 1.7, margin: "6px 0" }}>{project.description}</p>}
+                        <p style={{ color: "#94a3b8", fontSize: 10, margin: "6px 0 0" }}>最後更新：{new Date(project.updated_at).toLocaleString("zh-TW")}</p>
+                      </>
+                    )}
                   </div>
-                  <button type="button" onClick={() => void setArchived(project, !project.archived_at)} disabled={busyId === project.id} style={{ border: "1px solid #cbd5e1", borderRadius: 7, background: "#fff", color: "#334155", padding: "8px 12px", fontSize: 11 }}>
-                    {busyId === project.id ? "更新中…" : project.archived_at ? "還原專案" : "封存專案"}
-                  </button>
+                  <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                    {editingProjectId === project.id ? (
+                      <>
+                        <button type="button" onClick={() => void saveProject(project)} disabled={busyId === project.id || !editTitle.trim()} style={{ border: 0, borderRadius: 7, background: "#315d91", color: "#fff", padding: "8px 12px", fontSize: 11 }}>{busyId === project.id ? "儲存中…" : "儲存"}</button>
+                        <button type="button" onClick={() => setEditingProjectId("")} disabled={busyId === project.id} style={{ border: "1px solid #cbd5e1", borderRadius: 7, background: "#fff", color: "#334155", padding: "8px 12px", fontSize: 11 }}>取消</button>
+                      </>
+                    ) : (
+                      <>
+                        <button type="button" onClick={() => beginEdit(project)} disabled={Boolean(busyId)} style={{ border: "1px solid #cbd5e1", borderRadius: 7, background: "#fff", color: "#334155", padding: "8px 12px", fontSize: 11 }}>編輯</button>
+                        <button type="button" onClick={() => void setArchived(project, !project.archived_at)} disabled={Boolean(busyId)} style={{ border: "1px solid #cbd5e1", borderRadius: 7, background: "#fff", color: "#334155", padding: "8px 12px", fontSize: 11 }}>
+                          {busyId === project.id ? "更新中…" : project.archived_at ? "還原專案" : "封存專案"}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </article>)}
               </div>}
         </section>

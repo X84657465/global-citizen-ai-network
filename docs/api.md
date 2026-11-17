@@ -80,15 +80,15 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 ## Projects
 
 - GET /api/projects: list up to 100 active projects owned by the current member; `?includeArchived=true` explicitly includes archived projects.
-- PATCH /api/projects/:id: update title/description or set `archived: true` to archive and `archived: false` to restore an owned project. The response includes `archived_at`.
 - POST /api/projects: create a project. JSON request bodies are streamed with a 32 KiB hard byte limit.
-- PATCH /api/projects/:id: update title and/or description for an owned project; JSON body limit is 32 KiB.
+- PATCH /api/projects/:id: update title and/or description, or set `archived: true` to archive and `archived: false` to restore an owned project; JSON body limit is 32 KiB. The response includes `archived_at`.
 - DELETE /api/projects/:id: delete an owned project.
 
 ## Conversations and messages
 
 - GET /api/conversations: list up to 100 conversations owned by the current member.
 - POST /api/conversations: create a conversation; optional project_id must belong to the current member and reference an active project. JSON body limit is 32 KiB. A database trigger independently enforces ownership and active status for direct PostgREST writes and future callers.
+- PATCH /api/conversations/:id: change or clear an existing conversation project association using `project_id` (UUID or null). The conversation must belong to the current member; a non-null project must be owned by the member and active. JSON body limit is 32 KiB. The database ownership trigger independently enforces the association.
 - GET /api/conversations/:id/messages: read up to 500 messages in an owned conversation.
 - POST /api/conversations/:id/messages: append a user message (1–20,000 characters; JSON body limit is 96 KiB).
 - Clients cannot submit assistant or system messages. Those roles are reserved for trusted server-side AI orchestration.
