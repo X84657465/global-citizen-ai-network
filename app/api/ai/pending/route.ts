@@ -30,8 +30,11 @@ export async function GET() {
   }
 
   const pending = requests?.[0];
-  if (!pending?.conversation_id) {
+  if (!pending) {
     return NextResponse.json({ pending: null, unresolved: false }, { headers: { "Cache-Control": "no-store" } });
+  }
+  if (!pending.conversation_id) {
+    return NextResponse.json({ pending: null, unresolved: true, recoverable: false }, { headers: { "Cache-Control": "no-store" } });
   }
 
   const [{ data: idempotency, error: idempotencyError }, { data: lastMessages, error: messageError }] = await Promise.all([
