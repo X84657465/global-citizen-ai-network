@@ -54,7 +54,7 @@ Do not fall back to an unmetered provider call. Do not release a reservation whe
 
 The admin AI cost center includes a read-only queue at `/admin/ai-costs`. Its server endpoint, `/api/admin/ai-reconciliation`, verifies the authenticated user's active admin profile before using the server-only service-role client to call `list_stale_ai_requests`.
 
-The database report returns at most the 100 oldest requests that remain queued/running with a reserved budget and are older than the configured threshold (15 minutes in the admin endpoint). The list is informational only: it does not retry a provider call, release a reservation, settle a charge, or alter request state. Operators must verify the provider-side outcome before any future manual resolution workflow is introduced.
+The database report returns at most the 100 oldest requests that remain queued/running with a reserved budget and are older than the configured threshold (15 minutes in the admin endpoint). A partial ordered index on queued/running requests keeps the oldest-first lookup efficient as the request table grows. The list is informational only: it does not retry a provider call, release a reservation, settle a charge, or alter request state. Operators must verify the provider-side outcome before any future manual resolution workflow is introduced.
 
 The endpoint uses no-store response headers and returns a generic service error rather than exposing database error details. The underlying report RPC is executable only by `service_role`; the API's separate active-admin check is mandatory because service-role access bypasses row-level security.
 
