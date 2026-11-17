@@ -114,3 +114,8 @@ The workspace is connected to the existing conversation and AI APIs; it is not a
 
 - \`/api/contribution/appeals\`: members may submit one reasoned appeal for their own rejected submission; RLS and a unique submission constraint enforce ownership and one appeal per submission.
 - \`/contributions\`: the member ledger view now displays submission and appeal statuses and allows an appeal on rejected work.
+
+
+- \`/admin/appeals\`: reviewer/admin appeal adjudication. Overturning a rejected submission restores accepted status and accrues pending reward atomically; upholding leaves the rejection in place.
+- \`/api/admin/contribution/appeals\`: authenticated reviewer-only API backed by a service-role-only idempotent database RPC.
+- Claude review handoff: see \`docs/claude-review-brief.md\` for an independent security and architecture review checklist.
