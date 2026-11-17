@@ -52,7 +52,7 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 ## Conversations and messages
 
 - GET /api/conversations: list up to 100 conversations owned by the current member.
-- POST /api/conversations: create a conversation; optional project_id must belong to the current member. JSON body limit is 32 KiB.
+- POST /api/conversations: create a conversation; optional project_id must belong to the current member and reference an active project. JSON body limit is 32 KiB. A database trigger independently enforces ownership and active status for direct PostgREST writes and future callers.
 - GET /api/conversations/:id/messages: read up to 500 messages in an owned conversation.
 - POST /api/conversations/:id/messages: append a user message (1–20,000 characters; JSON body limit is 96 KiB).
 - Clients cannot submit assistant or system messages. Those roles are reserved for trusted server-side AI orchestration.

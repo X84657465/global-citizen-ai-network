@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { hasPendingRetryContentMismatch } from "@/lib/ai/pending-retry";
 
-type Conversation = { id: string; title: string; updated_at: string };
+type Conversation = { id: string; project_id: string | null; title: string; updated_at: string };
+type ProjectOption = { id: string; title: string; archived_at: string | null };
 type Message = { id?: string; role: "user" | "assistant"; content: string; created_at?: string };
 type ApiError = { error?: string; retryWithSameKey?: boolean };
 
@@ -67,6 +68,8 @@ const card: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", b
 
 export default function WorkspaceClient() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState("");
   const [conversationId, setConversationId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
@@ -84,9 +87,13 @@ export default function WorkspaceClient() {
     Promise.all([
       fetch("/api/conversations", { cache: "no-store" }),
       fetch("/api/ai/pending", { cache: "no-store" }),
+      fetch("/api/projects", { cache: "no-store" }),
     ])
-      .then(async ([conversationResponse, pendingResponse]) => {
+      .then(async ([conversationResponse, pendingResponse, projectResponse]) => {
         const data = await conversationResponse.json() as { conversations?: Conversation[] } & ApiError;
+        const projectData = projectResponse.ok
+          ? await projectResponse.json() as { projects?: ProjectOption[] }
+          : { projects: [] as ProjectOption[] };
         const pendingData = await pendingResponse.json() as {
           pending?: { conversationId: string; idempotencyKey: string; content: string; status: string } | null;
           unresolved?: boolean;
@@ -95,6 +102,7 @@ export default function WorkspaceClient() {
         if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
         if (!cancelled) {
           setConversations(data.conversations ?? []);
+          setProjects((projectData.projects ?? []).filter(project => !project.archived_at));
           const recovered = pendingData.pending;
           if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
@@ -187,7 +195,7 @@ export default function WorkspaceClient() {
         const createResponse = await fetch("/api/conversations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: content.slice(0, 60) || "新對話" }),
+          body: JSON.stringify({ title: content.slice(0, 60) || "新對話", project_id: selectedProjectId || null }),
         });
         const created = await createResponse.json() as { conversation?: Conversation } & ApiError;
         if (!createResponse.ok || !created.conversation) throw new Error(created.error ?? "無法建立對話。");
@@ -269,6 +277,7 @@ export default function WorkspaceClient() {
             </div>
             <form onSubmit={send} style={{ borderTop: "1px solid #edf1f5", padding: 14 }}>
               {error && <p role="alert" style={{ color: "#b42318", background: "#fff1f0", padding: 10, borderRadius: 8, fontSize: 12 }}>{error}</p>}
+              <label style={{ display: "grid", gap: 5, marginBottom: 9, color: "#64748b", fontSize: 11 }}>新對話歸屬專案<select value={selectedProjectId} onChange={event => setSelectedProjectId(event.target.value)} disabled={busy || Boolean(conversationId)} style={{ width: "100%", maxWidth: 360, border: "1px solid #dce3ec", borderRadius: 8, padding: 8, background: "#fff", color: "#243247" }}><option value="">不指定專案</option>{projects.map(project => <option key={project.id} value={project.id}>{project.title}</option>)}</select></label>
               <textarea value={prompt} onChange={event => setPrompt(event.target.value)} disabled={pendingRecoveryBlocked} maxLength={8000} placeholder="輸入你想研究或處理的問題…" rows={3} style={{ width: "100%", resize: "vertical", border: "1px solid #dce3ec", borderRadius: 10, padding: 12, outlineColor: "#8aa6d4", font: "inherit", fontSize: 13 }} />
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 9 }}>
                 <span style={{ color: "#8995a5", fontSize: 10 }}>最多 8,000 字元 · 每次請求有預算上限</span>
@@ -281,7 +290,7 @@ export default function WorkspaceClient() {
             <div style={{ ...card, padding: 16 }}>
               <strong style={{ fontSize: 13 }}>對話紀錄</strong>
               <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
-                {conversations.length === 0 ? <p style={{ color: "#8793a5", fontSize: 12 }}>尚無已保存的對話。</p> : conversations.map(item => <button key={item.id} type="button" disabled={busy} onClick={() => void openConversation(item.id)} style={{ textAlign: "left", border: conversationId === item.id ? "1px solid #9bb4db" : "1px solid #edf1f5", background: conversationId === item.id ? "#f1f6ff" : "#fff", borderRadius: 9, padding: 10, color: "#243247", fontSize: 11 }}>{item.title}<span style={{ display: "block", color: "#98a2b1", marginTop: 4 }}>{new Date(item.updated_at).toLocaleDateString("zh-TW")}</span></button>)}
+                {conversations.length === 0 ? <p style={{ color: "#8793a5", fontSize: 12 }}>尚無已保存的對話。</p> : conversations.map(item => <button key={item.id} type="button" disabled={busy} onClick={() => void openConversation(item.id)} style={{ textAlign: "left", border: conversationId === item.id ? "1px solid #9bb4db" : "1px solid #edf1f5", background: conversationId === item.id ? "#f1f6ff" : "#fff", borderRadius: 9, padding: 10, color: "#243247", fontSize: 11 }}>{item.title}<span style={{ display: "block", color: "#64748b", marginTop: 4 }}>{item.project_id ? projects.find(project => project.id === item.project_id)?.title ?? "所屬專案" : "未分類對話"}</span><span style={{ display: "block", color: "#98a2b1", marginTop: 3 }}>{new Date(item.updated_at).toLocaleDateString("zh-TW")}</span></button>)}
               </div>
             </div>
             <div style={{ ...card, padding: 16 }}>
