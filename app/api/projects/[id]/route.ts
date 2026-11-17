@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
 
 export const runtime = "nodejs";
@@ -15,12 +16,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   const auth = await getAuthenticatedClient();
   if (!auth) return NextResponse.json({ error: "請先登入。" }, { status: 401 });
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "請提供有效的專案資料。" }, { status: 400 });
+  const parsed = await readJsonBody(request, 32768);
+  if (!parsed.ok) {
+    const message = parsed.status === 413 ? "請求內容超過大小限制。" : "請提供有效的專案資料。";
+    return NextResponse.json({ error: message }, { status: parsed.status });
   }
+  const body = parsed.value;
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return NextResponse.json({ error: "請提供有效的專案資料。" }, { status: 400 });
   }
@@ -65,7 +66,14 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
   const auth = await getAuthenticatedClient();
   if (!auth) return NextResponse.json({ error: "請先登入。" }, { status: 401 });
 
-  const { error } = await auth.supabase.from("projects").delete().eq("id", id);
+  const { data, error } = await auth.supabase
+    .from("projects")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
   if (error) return NextResponse.json({ error: "目前無法刪除專案。" }, { status: 400 });
+  if (!data) return NextResponse.json({ error: "找不到專案。" }, { status: 404 });
   return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
 }
