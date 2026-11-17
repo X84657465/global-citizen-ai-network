@@ -51,6 +51,32 @@ create table public.messages (
   created_at timestamptz not null default now()
 );
 
+-- Global kill switch and hard budget ceilings. AI is disabled until explicitly enabled.
+create table public.platform_ai_controls (
+  id boolean primary key default true check (id = true),
+  ai_enabled boolean not null default false,
+  monthly_spend_cap numeric(18,2) not null default 0 check (monthly_spend_cap >= 0),
+  per_request_spend_cap numeric(18,4) not null default 0 check (per_request_spend_cap >= 0),
+  currency char(3) not null default 'TWD',
+  hard_stop_enabled boolean not null default true,
+  updated_by uuid references public.profiles(id) on delete set null,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.platform_ai_controls (id, ai_enabled, monthly_spend_cap, per_request_spend_cap, currency, hard_stop_enabled)
+values (true, false, 0, 0, 'TWD', true)
+on conflict (id) do nothing;
+
+create table public.ai_user_limits (
+  owner_id uuid primary key references public.profiles(id) on delete cascade,
+  ai_enabled boolean not null default false,
+  daily_request_limit integer not null default 0 check (daily_request_limit >= 0),
+  monthly_request_limit integer not null default 0 check (monthly_request_limit >= 0),
+  monthly_spend_limit numeric(18,2) not null default 0 check (monthly_spend_limit >= 0),
+  currency char(3) not null default 'TWD',
+  updated_at timestamptz not null default now()
+);
+
 create table public.ai_requests (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid references public.profiles(id) on delete set null,
@@ -289,6 +315,8 @@ alter table public.projects enable row level security;
 alter table public.conversations enable row level security;
 alter table public.messages enable row level security;
 alter table public.ai_requests enable row level security;
+alter table public.platform_ai_controls enable row level security;
+alter table public.ai_user_limits enable row level security;
 alter table public.ai_cost_ledger enable row level security;
 alter table public.provider_invoice_imports enable row level security;
 alter table public.contribution_tasks enable row level security;
@@ -330,6 +358,8 @@ create policy "messages_owner_insert_user_only" on public.messages for insert to
     )
   );
 create policy "ai_requests_owner_select" on public.ai_requests for select to authenticated
+  using (owner_id = (select auth.uid()));
+create policy "ai_user_limits_owner_select" on public.ai_user_limits for select to authenticated
   using (owner_id = (select auth.uid()));
 create policy "ai_cost_owner_select" on public.ai_cost_ledger for select to authenticated
   using (owner_id = (select auth.uid()));
@@ -377,6 +407,7 @@ grant select, insert, update, delete on public.projects to authenticated;
 grant select, insert, update, delete on public.conversations to authenticated;
 grant select, insert on public.messages to authenticated;
 grant select on public.ai_requests to authenticated;
+grant select on public.ai_user_limits to authenticated;
 grant select on public.ai_cost_ledger to authenticated;
 grant select on public.contribution_tasks to authenticated;
 grant select, insert on public.task_submissions to authenticated;
@@ -392,6 +423,8 @@ grant all privileges on public.projects to service_role;
 grant all privileges on public.conversations to service_role;
 grant all privileges on public.messages to service_role;
 grant all privileges on public.ai_requests to service_role;
+grant all privileges on public.platform_ai_controls to service_role;
+grant all privileges on public.ai_user_limits to service_role;
 grant all privileges on public.ai_cost_ledger to service_role;
 grant all privileges on public.provider_invoice_imports to service_role;
 grant all privileges on public.contribution_tasks to service_role;
