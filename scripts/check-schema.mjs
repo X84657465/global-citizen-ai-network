@@ -20,6 +20,8 @@ const messageApi = readFileSync("app/api/conversations/[id]/messages/route.ts", 
 const contributionApi = readFileSync("app/api/contribution/tasks/route.ts", "utf8");
 const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
 const adminOpsApi = readFileSync("app/api/admin/ai-operations/route.ts", "utf8");
+const adminTasksApi = readFileSync("app/api/admin/contribution/tasks/route.ts", "utf8");
+const taskAdminClient = readFileSync("app/admin/contribution-tasks/tasks-client.tsx", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -182,3 +184,14 @@ assert.ok(reviewClient.includes('"/api/admin/contribution/reviews"'), "Reviewer 
 assert.ok(reviewClient.includes("requestKeys[row.id]?.signature === signature"), "Reviewer retries must reuse the same idempotency key for an identical payload");
 
 console.log("Contribution review guard passed: idempotent review, immutable ledgers, member visibility, and reviewer-only controls.");
+
+
+assert.ok(adminTasksApi.includes('getOperator(false)'), "Task creation and status changes must be admin-only");
+assert.ok(adminTasksApi.includes('status: "draft"'), "New contribution tasks must start as drafts");
+assert.ok(adminTasksApi.includes('["publish", "pause", "close"]'), "Task lifecycle actions must be allowlisted");
+assert.ok(adminTasksApi.includes('acceptanceCriteria'), "Task creation must require explicit acceptance criteria");
+assert.ok(adminTasksApi.includes('reward_currency: "TWD"'), "MVP contribution task rewards must use explicit TWD currency");
+assert.ok(taskAdminClient.includes('"/api/admin/contribution/tasks"'), "Task admin UI must use authenticated server API");
+assert.ok(taskAdminClient.includes('"建立草稿"'), "Task admin UI must create drafts before publication");
+
+console.log("Contribution operations guard passed: task authoring, controlled publication, reviewer approval, and member ledger access.");
