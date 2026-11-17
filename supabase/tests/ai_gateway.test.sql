@@ -207,6 +207,12 @@ begin
 end;
 $ai_fixture$;
 
+select ok(
+  exists (select 1 from public.list_stale_ai_requests(900)
+    where request_id = '52000000-0000-4000-8000-000000000003'),
+  'uncertain provider outcome appears in the administrator stale-request report'
+);
+
 -- Create more stale reservations than the operator report is allowed to return.
 insert into public.ai_requests (id, owner_id, provider, model, feature, status, created_at)
 select
@@ -340,12 +346,6 @@ select ok(
       and i.state = 'processing'),
   'uncertain provider outcome keeps budget reserved and idempotency locked for reconciliation'
 );
-select ok(
-  exists (select 1 from public.list_stale_ai_requests(900)
-    where request_id = '52000000-0000-4000-8000-000000000003'),
-  'uncertain provider outcome appears in the administrator stale-request report'
-);
-
 select ok(
   (select ai_enabled = false from public.platform_ai_controls where id = true),
   'an actual estimate above its reservation triggers the global AI hard stop'
