@@ -1,6 +1,6 @@
 begin;
 
-select plan(45);
+select plan(46);
 
 select is(
   (select count(*)::integer
@@ -113,6 +113,7 @@ declare
   v_appeal_replay jsonb;
   v_update_rejected boolean := false;
   v_accepted_appeal_rejected boolean := false;
+  v_non_owner_appeal_rejected boolean := false;
 begin
   insert into auth.users (
     id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -217,6 +218,22 @@ begin
     'The submitted evidence needs additional verification.',
     'test-review-reject-002'
   );
+
+  -- A different member must not be able to appeal someone else's rejected work.
+  begin
+    insert into public.task_appeals (id, submission_id, appellant_id, reason)
+    values (
+      '40000000-0000-4000-8000-000000000003',
+      '30000000-0000-4000-8000-000000000002',
+      '10000000-0000-4000-8000-000000000001',
+      'An unauthorized appeal by a different member.'
+    );
+  exception when others then
+    v_non_owner_appeal_rejected := true;
+  end;
+  if not v_non_owner_appeal_rejected then
+    raise exception 'appeal by a non-owner was not rejected';
+  end if;
 
   insert into public.task_appeals (
     id, submission_id, appellant_id, reason, status, resolution, resolved_at, created_at
@@ -324,6 +341,11 @@ select ok(
   not exists (select 1 from public.task_appeals
     where id = '40000000-0000-4000-8000-000000000002'),
   'an appeal cannot be created for an accepted submission'
+);
+select ok(
+  not exists (select 1 from public.task_appeals
+    where id = '40000000-0000-4000-8000-000000000003'),
+  'a member cannot appeal another contributor submission'
 );
 select ok(
   exists (select 1 from public.reward_ledger
