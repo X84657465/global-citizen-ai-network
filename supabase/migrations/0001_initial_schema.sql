@@ -258,6 +258,9 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- This SECURITY DEFINER function is trigger-only, not a public RPC endpoint.
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+
 -- updated_at is maintained by the database.
 create or replace function public.set_updated_at()
 returns trigger language plpgsql set search_path = '' as $$
