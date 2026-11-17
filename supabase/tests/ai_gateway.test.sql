@@ -87,6 +87,23 @@ begin
     raise exception 'over-budget preflight created request side effects';
   end if;
 
+  -- The database must reject a prompt that does not match the supplied hash.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, v_conversation, 'Prompt does not match its digest', 'test-ai-hash-mismatch-001',
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'different prompt', 'UTF8')), 'hex')::char(64),
+    '52000000-0000-4000-8000-000000000007',
+    'openai-compatible', 'test-model', 'chat', 1, 0.1
+  );
+  if v_claim.disposition <> 'rejected' or v_claim.reason <> 'invalid_idempotency_input' then
+    raise exception 'claim RPC accepted a prompt that did not match its payload hash';
+  end if;
+  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000007')
+     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000007')
+     or exists (select 1 from public.messages where conversation_id = v_conversation and content = 'Prompt does not match its digest') then
+    raise exception 'hash-mismatched prompt created request side effects';
+  end if;
+
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001', pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Atomic original user prompt', 'UTF8')), 'hex')::char(64), v_success_request,
