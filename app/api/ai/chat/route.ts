@@ -77,6 +77,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "請提供有效的 Idempotency-Key（8–128 個英數字或 . _ : -）。" }, { status: 400 });
   }
 
+  const recentHistory = ((history ?? []) as HistoryMessage[]).reverse();
+  const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
+  let historyCharacters = content.length;
+  for (const item of recentHistory) {
+    if (typeof item.content !== "string" || historyCharacters + item.content.length > 16000) continue;
+    messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
+    historyCharacters += item.content.length;
+  }
+  messages.push({ role: "user", content });
+
+  // Calculate preflight before side effects. The RPC checks this only after
+  // returning any existing completed/processing idempotency record, so safe
+  // replays remain available even if pricing configuration later changes.
+  const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
+  if (!Number.isFinite(worstCaseCost) || worstCaseCost < 0) {
+    return NextResponse.json({ error: "無法安全估算本次請求成本，請稍後再試。", retryWithSameKey: false }, { status: 400 });
+  }
+
   const requestHash = createHash("sha256")
     .update(JSON.stringify({ conversationId, content }))
     .digest("hex");
@@ -92,6 +110,7 @@ export async function POST(request: NextRequest) {
     p_model: config.model,
     p_feature: "chat",
     p_max_cost_twd: config.maxRequestCostTwd,
+    p_preflight_cost_twd: worstCaseCost,
   }).single();
   const claim = claimData as {
     disposition: string;
@@ -116,13 +135,22 @@ export async function POST(request: NextRequest) {
     }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
   }
   if (claim.disposition !== "claimed" || claim.claimed_request_id !== requestId) {
-    const status = claim.disposition === "conflict" ? 409 : claim.disposition === "failed" ? 502 : 429;
-    const error = claim.disposition === "conflict"
-      ? "此冪等鍵已綁定不同內容，原請求狀態尚未確認。請恢復原始訊息並沿用原鍵，不要改用新鍵重送。"
-      : claim.reason === "platform_ai_disabled"
-        ? "平台 AI 服務目前暫停。"
-        : "請求未通過預算、額度或冪等性檢查。";
-    return NextResponse.json({ error, retryWithSameKey: shouldPreservePendingRequestKey(claim.disposition) }, { status });
+    const status = claim.reason === "preflight_cost_exceeds_reservation"
+      ? 413
+      : claim.disposition === "conflict" ? 409 : claim.disposition === "failed" ? 502 : 429;
+    const error = claim.reason === "preflight_cost_exceeds_reservation"
+      ? "本次內容超過單次預算上限，請縮短內容後再試。"
+      : claim.disposition === "conflict"
+        ? "此冪等鍵已綁定不同內容，原請求狀態尚未確認。請恢復原始訊息並沿用原鍵，不要改用新鍵重送。"
+        : claim.reason === "platform_ai_disabled"
+          ? "平台 AI 服務目前暫停。"
+          : "請求未通過預算、額度或冪等性檢查。";
+    return NextResponse.json({
+      error,
+      retryWithSameKey: claim.reason === "preflight_cost_exceeds_reservation"
+        ? false
+        : shouldPreservePendingRequestKey(claim.disposition),
+    }, { status });
   }
 
   const failRequest = async (code: string) => {
@@ -151,28 +179,6 @@ export async function POST(request: NextRequest) {
     await markForReconciliation(`${code}_cleanup_pending`);
     return false;
   };
-
-  // Build provider context only for a newly claimed request. Completed and
-  // processing idempotency replays have already returned above, so a later
-  // history/config change cannot block a safe cached-response replay.
-  const recentHistory = ((history ?? []) as HistoryMessage[]).reverse();
-  const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
-  let historyCharacters = content.length;
-  for (const item of recentHistory) {
-    if (typeof item.content !== "string" || historyCharacters + item.content.length > 16000) continue;
-    messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
-    historyCharacters += item.content.length;
-  }
-  messages.push({ role: "user", content });
-
-  // The claim transaction has reserved the budget and persisted the original
-  // prompt atomically. Release that reservation if conservative preflight
-  // rejects the new request; never call the provider in this case.
-  const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
-  if (!Number.isFinite(worstCaseCost) || worstCaseCost > config.maxRequestCostTwd) {
-    const failed = await failKnownOutcome("preflight_cost_exceeds_reservation");
-    return NextResponse.json({ error: "本次內容超過單次預算上限，請縮短內容後再試。", retryWithSameKey: !failed }, { status: 413 });
-  }
 
   const { data: startedRequest, error: startError } = await admin
     .from("ai_requests")
