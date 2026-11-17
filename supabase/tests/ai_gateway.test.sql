@@ -74,7 +74,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Too expensive preflight prompt', 'test-ai-preflight-001',
-    repeat('f', 64)::char(64), '52000000-0000-4000-8000-000000000006',
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Too expensive preflight prompt', 'UTF8')), 'hex')::char(64), '52000000-0000-4000-8000-000000000006',
     'openai-compatible', 'test-model', 'chat', 1, 2
   );
   if v_claim.disposition <> 'rejected' or v_claim.reason <> 'preflight_cost_exceeds_reservation' then
@@ -89,7 +89,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001', repeat('a', 64)::char(64), v_success_request,
+    v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001', pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Atomic original user prompt', 'UTF8')), 'hex')::char(64), v_success_request,
     'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'claimed' then
@@ -160,7 +160,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001',
-    repeat('a', 64)::char(64), v_blocked_request,
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Atomic original user prompt', 'UTF8')), 'hex')::char(64), v_blocked_request,
     'openai-compatible', 'test-model', 'chat', 1, 99
   );
   if v_claim.disposition <> 'completed' or v_claim.cached_response->>'answer' <> 'Atomic assistant response' then
@@ -174,7 +174,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_conversation, 'Known failure original prompt', 'test-ai-failure-001', repeat('b', 64)::char(64), v_failed_request,
+    v_owner, v_conversation, 'Known failure original prompt', 'test-ai-failure-001', pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Known failure original prompt', 'UTF8')), 'hex')::char(64), v_failed_request,
     'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'claimed' then
@@ -191,7 +191,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', repeat('c', 64)::char(64), v_unknown_request,
+    v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Uncertain request original prompt', 'UTF8')), 'hex')::char(64), v_unknown_request,
     'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'claimed' then
@@ -211,7 +211,7 @@ begin
   -- A same-key retry remains attached to the original unresolved request.
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', repeat('c', 64)::char(64), v_blocked_request,
+    v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Uncertain request original prompt', 'UTF8')), 'hex')::char(64), v_blocked_request,
     'openai-compatible', 'test-model', 'chat', 1, 99
   );
   if v_claim.disposition <> 'processing'
@@ -229,7 +229,7 @@ begin
   -- second billable request while the first provider outcome is unresolved.
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, v_other_conversation, 'Blocked cross conversation prompt', 'test-ai-cross-conversation-001', repeat('e', 64)::char(64), v_blocked_request,
+    v_owner, v_other_conversation, 'Blocked cross conversation prompt', 'test-ai-cross-conversation-001', pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_other_conversation::text || E'\n' || 'Blocked cross conversation prompt', 'UTF8')), 'hex')::char(64), v_blocked_request,
     'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'processing'
@@ -271,7 +271,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_overrun_owner, v_overrun_conversation, 'Budget overrun original prompt', 'test-ai-overrun-001', repeat('d', 64)::char(64), v_overrun_request,
+    v_overrun_owner, v_overrun_conversation, 'Budget overrun original prompt', 'test-ai-overrun-001', pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_overrun_conversation::text || E'\n' || 'Budget overrun original prompt', 'UTF8')), 'hex')::char(64), v_overrun_request,
     'openai-compatible', 'test-model', 'chat', 0.001, 0.0005
   );
   if v_claim.disposition <> 'claimed' then
