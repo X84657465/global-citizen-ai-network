@@ -105,7 +105,6 @@ export async function readProviderJson(
 export function parseProviderResponse(
   value: unknown,
   fallbackInputTokens: number,
-  fallbackOutputTokens: number,
 ): ParsedProviderResponse {
   if (!isObject(value) || !Array.isArray(value.choices) || value.choices.length === 0) {
     throw new ProviderResponseError("invalid_provider_choices");
@@ -141,9 +140,7 @@ export function parseProviderResponse(
   const fallbackInput = Number.isSafeInteger(fallbackInputTokens) && fallbackInputTokens >= 0
     ? fallbackInputTokens
     : 0;
-  const fallbackOutput = Number.isSafeInteger(fallbackOutputTokens) && fallbackOutputTokens >= 0
-    ? fallbackOutputTokens
-    : 0;
+  const fallbackOutput = answer.length;
 
   let inputTokens = fallbackInput;
   let outputTokens = fallbackOutput;
