@@ -8,11 +8,13 @@ The application is not connected to a live database or AI provider until the own
 2. Open SQL Editor and run `supabase/migrations/0001_initial_schema.sql`.
 3. In Authentication settings, configure allowed redirect URLs and email verification. Keep public sign-up disabled until the privacy notice and support process are ready.
 4. Configure database backups and review the project's recovery options.
-5. Add server-side secrets to the deployment environment only:
+5. Keep Supabase Authentication public sign-ups disabled until privacy terms, abuse controls, email delivery, CAPTCHA/rate limits, and support procedures are ready.
+6. Add server-side secrets to the deployment environment only:
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY` (server only; never expose to browser)
-6. Never commit real credentials to GitHub or send them in chat. Use the deployment provider's encrypted secret manager.
+   - `ENABLE_PUBLIC_SIGNUP=false` (server-side gate; keep false until public launch is approved)
+7. Never commit real credentials to GitHub or send them in chat. Use the deployment provider's encrypted secret manager.
 
 ## Current implementation boundary
 
