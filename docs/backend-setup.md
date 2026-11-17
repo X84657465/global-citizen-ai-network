@@ -33,6 +33,7 @@ The service-role key is not currently used by the app runtime. Keep it unset unt
 - `POST /api/auth/signup`: server-side registration gate; requires `ENABLE_PUBLIC_SIGNUP=true`.
 - `/auth/callback`: exchanges the email confirmation code and rejects external redirect targets.
 - `middleware.ts`: refreshes Supabase cookie sessions for Next.js 15.
+- Authenticated project and conversation APIs use the member session and RLS; clients cannot write assistant/system messages.
 - `lib/supabase/client.ts` and `server.ts`: separate browser and server clients.
 
 The UI flag is not a security boundary. Before public launch, keep Supabase dashboard sign-ups disabled until the legal and abuse-prevention gates are approved. Enable both environment flags only after those controls are in place.
