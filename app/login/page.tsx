@@ -39,17 +39,14 @@ export default function LoginPage() {
         if (error) throw error;
         window.location.assign("/");
       } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        const response = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
         });
-        if (error) throw error;
-        setMessage(
-          data.session
-            ? "帳戶建立成功，正在進入平台。"
-            : "註冊資料已送出，請依照驗證郵件完成電子郵件確認。"
-        );
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? "目前無法建立帳戶。");
+        setMessage("註冊資料已送出，請依照驗證郵件完成電子郵件確認。");
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "目前無法完成要求，請稍後再試。");
@@ -89,7 +86,7 @@ export default function LoginPage() {
             <input type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} placeholder="name@example.com" style={inputStyle} />
           </label>
           <label style={{ display: "grid", gap: 7, fontSize: 13, fontWeight: 700 }}>密碼
-            <input type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} minLength={8} required value={password} onChange={event => setPassword(event.target.value)} placeholder="至少 8 個字元" style={inputStyle} />
+            <input type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} minLength={12} required value={password} onChange={event => setPassword(event.target.value)} placeholder="至少 12 個字元" style={inputStyle} />
           </label>
           <button type="submit" disabled={busy || !configured || (mode === "signup" && !signupEnabled)} style={{ border: 0, borderRadius: 12, padding: 14, marginTop: 4, background: "#244f83", color: "#fff", fontSize: 15, fontWeight: 700, opacity: busy || !configured || (mode === "signup" && !signupEnabled) ? .55 : 1 }}>
             {busy ? "處理中…" : mode === "signin" ? "登入平台" : "建立帳戶"}
