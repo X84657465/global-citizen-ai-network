@@ -167,6 +167,10 @@ begin
      or v_claim.claimed_request_id <> v_unknown_request then
     raise exception 'cross-conversation AI request was not blocked by unresolved request';
   end if;
+  if exists (select 1 from public.ai_requests where id = v_blocked_request)
+     or exists (select 1 from public.ai_budget_reservations where request_id = v_blocked_request) then
+    raise exception 'blocked cross-conversation request created a request or budget reservation';
+  end if;
 
   update public.ai_requests
   set created_at = now() - interval '20 minutes'
