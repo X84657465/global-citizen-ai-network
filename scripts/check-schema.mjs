@@ -173,6 +173,7 @@ assert.ok(workspaceClient.includes("findStoredPendingConversationId"), "Workspac
 assert.ok(aiPendingRecoveryApi.includes('getAuthenticatedClient()'), "Pending AI recovery must require an authenticated member");
 assert.ok(aiPendingRecoveryApi.includes('.eq("owner_id", auth.user.id)'), "Pending AI recovery must scope requests to the authenticated owner");
 assert.ok(aiPendingRecoveryApi.includes('.eq("state", "processing")'), "Pending AI recovery must only return unresolved idempotency records");
+assert.ok(aiPendingRecoveryApi.includes("request_hash") && aiPendingRecoveryApi.includes("createHash"), "Pending AI recovery must verify the original prompt against the idempotency payload hash");
 assert.ok(aiPendingRecoveryApi.includes('Cache-Control": "no-store"'), "Pending AI recovery responses must never be cached");
 assert.ok(workspaceClient.includes('fetch("/api/ai/pending"'), "Workspace must recover unresolved requests from the server after session loss");
 assert.ok(workspaceClient.includes("另一個對話的 AI 請求尚未確認"), "Workspace must explain why a second request is blocked");
