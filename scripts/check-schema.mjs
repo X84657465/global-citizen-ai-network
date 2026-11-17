@@ -393,6 +393,10 @@ assert.ok(reconciliationSql.includes("auth.uid() is distinct from p_actor_id"),
   "Reconciliation RPC must bind the claimed actor ID to the authenticated session");
 assert.ok(reconciliationSql.includes("v_profile.role <> 'admin'") && reconciliationSql.includes("v_profile.account_status <> 'active'"),
   "Reconciliation RPC must independently require an active admin");
+assert.ok(reconciliationSql.includes("create trigger ai_reconciliation_events_immutable"),
+  "Reconciliation evidence events must reject updates and deletes");
+assert.ok(reconciliationSql.includes("revoke update, delete, truncate on public.ai_reconciliation_events from service_role"),
+  "Service role must not mutate or truncate reconciliation evidence events");
 assert.ok(reconciliationSql.includes("unique (request_id, idempotency_key)"),
   "Reconciliation evidence must be idempotent per request");
 assert.ok(reconciliationSql.includes("p_decision = 'inconclusive'") && reconciliationSql.includes("deliberately leaves request, reservation, and idempotency untouched"),
