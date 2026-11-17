@@ -1,6 +1,6 @@
 begin;
 
-select plan(30);
+select plan(32);
 
 select is(
   (select count(*)::integer
@@ -88,6 +88,10 @@ select ok(to_regclass('public.task_appeal_review_idempotency') is not null,
 select ok(has_function_privilege('service_role','public.review_task_appeal(uuid,uuid,text,text,text)','EXECUTE')
   and not has_function_privilege('authenticated','public.review_task_appeal(uuid,uuid,text,text,text)','EXECUTE'),
   'appeal review RPC is restricted to service role');
+select ok((select relrowsecurity from pg_class where oid = 'public.task_appeal_review_idempotency'::regclass),
+  'appeal review idempotency table has RLS enabled');
+select ok(not has_table_privilege('authenticated','public.task_appeal_review_idempotency','SELECT'),
+  'authenticated users cannot inspect appeal review idempotency records');
 
 select ok(
   exists (select 1 from pg_trigger where tgname = 'reward_ledger_immutable' and not tgisinternal),
