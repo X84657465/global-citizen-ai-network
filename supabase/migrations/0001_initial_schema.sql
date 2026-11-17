@@ -293,6 +293,10 @@ create trigger conversations_updated_at before update on public.conversations
   for each row execute procedure public.set_updated_at();
 create trigger contribution_tasks_updated_at before update on public.contribution_tasks
   for each row execute procedure public.set_updated_at();
+create trigger platform_ai_controls_updated_at before update on public.platform_ai_controls
+  for each row execute procedure public.set_updated_at();
+create trigger ai_user_limits_updated_at before update on public.ai_user_limits
+  for each row execute procedure public.set_updated_at();
 
 -- Ledger records are append-only. Correct mistakes with a reversal/adjustment row.
 create or replace function public.prevent_ledger_mutation()
