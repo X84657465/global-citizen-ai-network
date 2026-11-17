@@ -1,6 +1,6 @@
 begin;
 
-select plan(26);
+select plan(28);
 
 select is(
   (select count(*)::integer
@@ -73,6 +73,15 @@ select ok(not has_function_privilege('authenticated','public.list_stale_ai_reque
   'authenticated users cannot inspect stale AI operations');
 select ok(has_function_privilege('service_role','public.list_stale_ai_requests(integer)','EXECUTE'),
   'service_role can inspect stale AI operations');
+
+select ok(
+  position('rejected' in (select qual from pg_policies where schemaname = 'public' and tablename = 'task_appeals' and policyname = 'appeals_owner_insert')) > 0,
+  'appeal RLS policy only allows appeals on rejected submissions'
+);
+select ok(
+  exists (select 1 from pg_class where oid = 'public.task_appeals'::regclass and relrowsecurity),
+  'task appeals table has RLS enabled'
+);
 
 select ok(
   exists (select 1 from pg_trigger where tgname = 'reward_ledger_immutable' and not tgisinternal),
