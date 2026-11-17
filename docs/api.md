@@ -29,6 +29,17 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 - Known failures release the reservation. Uncertain outcomes—including timeout, transport failure, provider 408/5xx, malformed successful response, and post-provider database finalization failure—retain the reservation and idempotency state for manual reconciliation. The route returns retryWithSameKey: true for cases where the original key must be preserved.
 - Costs returned by the gateway are configured internal estimates, not verified supplier invoice amounts. Missing usage values may use a conservative character-count fallback and are labeled in the calculation method.
 
+## Admin AI uncertain-outcome resolution
+
+- POST /api/admin/ai-reconciliation/resolve: active-admin-only, evidence-backed resolution for an AI request whose provider outcome is uncertain.
+- Decisions: confirmed billed, confirmed not billed, or inconclusive. Every decision requires a provider evidence reference and a written rationale.
+- Confirmed billed requires provider-reported amount/currency and a separately supplied normalized TWD amount. The reservation is settled, provider billing fields are recorded, and the request is marked failed because the assistant delivery outcome is unavailable; no synthetic assistant answer is created.
+- Confirmed not billed releases the reservation and marks the request/idempotency state safely failed.
+- Inconclusive appends an immutable review event and leaves request, reservation, and idempotency state unchanged.
+- Each submission uses a per-request idempotency UUID. Replays with the same payload return the original event; reusing the key with different content is rejected.
+- The route uses the authenticated session client. The SECURITY DEFINER RPC independently verifies auth.uid() equals the supplied actor and requires an active admin profile. It does not accept service-role identity as proof of the operator.
+- No decision triggers a provider retry. Evidence references must point to provider console records or internal tickets, never contain API secrets or idempotency keys.
+
 ## Admin AI reconciliation
 
 - GET /api/admin/ai-reconciliation: active-admin-only, read-only report of up to 100 oldest queued/running requests with reserved budgets older than 15 minutes.

@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import AiReconciliationForm from "./ai-reconciliation-form";
 
 export const dynamic = "force-dynamic";
 
@@ -94,7 +96,7 @@ export default async function AiOperationsPage() {
               <thead><tr style={{ background: "#f8fafc", textAlign: "left" }}>
                 {["請求識別碼","供應商 / 模型","狀態","建立時間","預留金額","實際成本","供應商請求 ID"].map(label => <th key={label} style={{ padding: 13, color: "#64748b", fontWeight: 600 }}>{label}</th>)}
               </tr></thead>
-              <tbody>{requests.map(row => <tr key={row.request_id} style={{ borderTop: "1px solid #edf1f5" }}>
+              <tbody>{requests.map(row => <Fragment key={row.request_id}><tr style={{ borderTop: "1px solid #edf1f5" }}>
                 <td style={{ padding: 13, maxWidth: 150, overflowWrap: "anywhere" }}>{row.request_id}</td>
                 <td style={{ padding: 13 }}>{row.provider}<br/><span style={{ color: "#64748b" }}>{row.model}</span></td>
                 <td style={{ padding: 13 }}>{row.request_status}<br/><span style={{ color: "#64748b" }}>{row.idempotency_state ?? "無冪等紀錄"}</span></td>
@@ -102,7 +104,7 @@ export default async function AiOperationsPage() {
                 <td style={{ padding: 13 }}>{money(row.reserved_amount)}</td>
                 <td style={{ padding: 13 }}>{money(row.actual_cost)}</td>
                 <td style={{ padding: 13, maxWidth: 150, overflowWrap: "anywhere" }}>{row.provider_request_id ?? "尚無"}</td>
-              </tr>)}</tbody>
+              </tr><tr style={{ borderTop: "1px solid #edf1f5" }}><td colSpan={7} style={{ padding: 13 }}><AiReconciliationForm requestId={row.request_id} provider={row.provider} /></td></tr></Fragment>)}</tbody>
             </table>
           </div>
         )}
