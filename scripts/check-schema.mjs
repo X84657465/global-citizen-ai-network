@@ -409,3 +409,12 @@ assert.ok(workspaceClient.includes('fetch("/api/projects", { cache: "no-store" }
   "Workspace must load active projects and persist the selected project on new conversations");
 assert.ok(workspaceClient.includes("新對話歸屬專案") && workspaceClient.includes("未分類對話"),
   "Workspace must expose project assignment and identify unclassified conversations");
+const projectOwnershipSql = readFileSync("supabase/migrations/0016_conversation_project_ownership.sql", "utf8");
+const projectOwnershipTests = readFileSync("supabase/tests/project_conversation_security.test.sql", "utf8");
+assert.ok(projectOwnershipSql.includes("v_project_owner is distinct from new.owner_id") &&
+  projectOwnershipSql.includes("v_archived_at is not null"),
+  "Database trigger must reject cross-owner and archived project links");
+assert.ok(projectOwnershipSql.includes("before insert or update of project_id, owner_id"),
+  "Conversation project ownership must be enforced on inserts and relinking updates");
+assert.ok(projectOwnershipTests.includes("cross-owner and archived project associations are rejected"),
+  "Database tests must cover invalid project associations");
