@@ -316,3 +316,18 @@ create policy "reward_ledger_owner_select" on public.reward_ledger for select to
   using (owner_id = (select auth.uid()));
 
 -- Audit log access is intentionally service/admin-only; no client policy is granted.
+
+-- Explicit least-privilege Data API grants. RLS remains the row-level boundary.
+grant select, update on public.profiles to authenticated;
+grant select, insert, update, delete on public.projects to authenticated;
+grant select, insert, update, delete on public.conversations to authenticated;
+grant select, insert, update, delete on public.messages to authenticated;
+grant select on public.ai_requests to authenticated;
+grant select on public.ai_cost_ledger to authenticated;
+grant select on public.contribution_tasks to authenticated;
+grant select, insert on public.task_submissions to authenticated;
+grant select on public.task_reviews to authenticated;
+grant select on public.contribution_ledger to authenticated;
+grant select on public.reward_ledger to authenticated;
+
+grant all privileges on all tables in schema public to service_role;
