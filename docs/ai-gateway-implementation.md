@@ -10,6 +10,7 @@ The current implementation includes:
 - Bounded request parsing and a 16,000-character conversation-history ceiling.
 - Atomic idempotency claim and database budget reservation before provider access.
 - A 1 MiB provider-response body limit and strict response/usage validation.
+- Provider calls reject HTTP redirects so a configured endpoint cannot silently forward a billable request to an unexpected destination.
 - Conservative character-based token fallback when provider usage is absent or partial.
 - Atomic database completion of reservation settlement, assistant-message persistence, internal cost-ledger insertion, and idempotency response.
 - Atomic known-failure release.
