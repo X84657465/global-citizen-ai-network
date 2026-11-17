@@ -67,23 +67,6 @@ export async function POST(request: NextRequest) {
     .limit(20);
   if (historyError) return NextResponse.json({ error: "目前無法讀取對話紀錄。" }, { status: 500 });
 
-  const recentHistory = ((history ?? []) as HistoryMessage[]).reverse();
-  const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
-  let historyCharacters = content.length;
-  for (const item of recentHistory) {
-    if (typeof item.content !== "string" || historyCharacters + item.content.length > 16000) continue;
-    messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
-    historyCharacters += item.content.length;
-  }
-  messages.push({ role: "user", content });
-
-  // Reject oversized estimated requests before claiming a reservation or
-  // persisting the prompt. This keeps rejected requests side-effect free.
-  const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
-  if (!Number.isFinite(worstCaseCost) || worstCaseCost > config.maxRequestCostTwd) {
-    return NextResponse.json({ error: "本次內容超過單次預算上限，請縮短內容後再試。", retryWithSameKey: false }, { status: 413 });
-  }
-
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: "AI 服務尚未完成伺服器端安全設定。" }, { status: 503 });
   }
@@ -168,6 +151,28 @@ export async function POST(request: NextRequest) {
     await markForReconciliation(`${code}_cleanup_pending`);
     return false;
   };
+
+  // Build provider context only for a newly claimed request. Completed and
+  // processing idempotency replays have already returned above, so a later
+  // history/config change cannot block a safe cached-response replay.
+  const recentHistory = ((history ?? []) as HistoryMessage[]).reverse();
+  const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
+  let historyCharacters = content.length;
+  for (const item of recentHistory) {
+    if (typeof item.content !== "string" || historyCharacters + item.content.length > 16000) continue;
+    messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
+    historyCharacters += item.content.length;
+  }
+  messages.push({ role: "user", content });
+
+  // The claim transaction has reserved the budget and persisted the original
+  // prompt atomically. Release that reservation if conservative preflight
+  // rejects the new request; never call the provider in this case.
+  const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
+  if (!Number.isFinite(worstCaseCost) || worstCaseCost > config.maxRequestCostTwd) {
+    const failed = await failKnownOutcome("preflight_cost_exceeds_reservation");
+    return NextResponse.json({ error: "本次內容超過單次預算上限，請縮短內容後再試。", retryWithSameKey: !failed }, { status: 413 });
+  }
 
   const { data: startedRequest, error: startError } = await admin
     .from("ai_requests")
