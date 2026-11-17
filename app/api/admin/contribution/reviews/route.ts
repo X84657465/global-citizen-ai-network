@@ -29,7 +29,7 @@ export async function GET() {
   if ("response" in context) return context.response;
   const { data, error } = await context.admin
     .from("task_submissions")
-    .select("id,task_id,contributor_id,content,status,submitted_at,contribution_tasks(title,reward_amount,reward_currency)")
+    .select("id,task_id,contributor_id,content,status,submitted_at,reward_amount_snapshot,reward_currency_snapshot,reward_snapshot_source,contribution_tasks(title)")
     .in("status", ["submitted", "under_review"])
     .order("submitted_at", { ascending: true })
     .limit(100);
