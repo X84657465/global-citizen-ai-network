@@ -364,4 +364,18 @@ grant select, insert on public.task_appeals to authenticated;
 grant select on public.contribution_ledger to authenticated;
 grant select on public.reward_ledger to authenticated;
 
-grant all privileges on all tables in schema public to service_role;
+grant usage on schema public to authenticated, service_role;
+
+grant all privileges on public.profiles to service_role;
+grant all privileges on public.projects to service_role;
+grant all privileges on public.conversations to service_role;
+grant all privileges on public.messages to service_role;
+grant all privileges on public.ai_requests to service_role;
+grant all privileges on public.ai_cost_ledger to service_role;
+grant all privileges on public.contribution_tasks to service_role;
+grant all privileges on public.task_submissions to service_role;
+grant all privileges on public.task_appeals to service_role;
+grant all privileges on public.task_reviews to service_role;
+grant all privileges on public.contribution_ledger to service_role;
+grant all privileges on public.reward_ledger to service_role;
+grant all privileges on public.audit_logs to service_role;
