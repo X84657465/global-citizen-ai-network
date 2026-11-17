@@ -3,6 +3,7 @@
 -- recovery remains possible even if the API process stops immediately afterward.
 
 drop function if exists public.claim_ai_request(uuid,text,char,uuid,text,text,text,numeric);
+drop function if exists public.claim_ai_request(uuid,uuid,text,char,uuid,text,text,text,numeric);
 drop function if exists public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric);
 -- This prevents a member from switching conversations and creating a second
 -- billable request while a prior provider outcome is still unknown.
