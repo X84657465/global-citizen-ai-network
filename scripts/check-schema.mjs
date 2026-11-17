@@ -74,4 +74,4 @@ for (const forbidden of [
   assert.equal(sql.includes(forbidden), false, "Immutable ledger FK must not be rewritten by ON DELETE SET NULL: " + forbidden);
 }
 
-console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC, account-status gates, and closed AI/signup defaults.");
+console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC, account-status gates, atomic AI budget reservations, bounded request parsing, and closed AI/signup defaults.");
