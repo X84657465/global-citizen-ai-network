@@ -13,6 +13,9 @@ const bodyReader = readFileSync("lib/http/read-json-body.ts", "utf8");
 const projectApi = readFileSync("app/api/projects/route.ts", "utf8");
 const conversationApi = readFileSync("app/api/conversations/route.ts", "utf8");
 const messageApi = readFileSync("app/api/conversations/[id]/messages/route.ts", "utf8");
+const contributionApi = readFileSync("app/api/contribution/tasks/route.ts", "utf8");
+const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
+const adminOpsApi = readFileSync("app/api/admin/ai-operations/route.ts", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -141,3 +144,18 @@ assert.ok(retentionSql.includes("revoke all on function public.cleanup_expired_a
 assert.ok(retentionSql.includes("grant execute on function public.cleanup_expired_ai_operational_records() to service_role"));
 assert.ok(retentionSql.includes("grant execute on function public.list_stale_ai_requests(integer) to service_role"));
 assert.ok(!retentionSql.toLowerCase().includes("cron.schedule"), "Do not silently schedule cleanup before Cron is deliberately enabled");
+
+
+assert.ok(contributionApi.includes('getAuthenticatedClient()'), "Contribution API must require an authenticated member");
+assert.ok(contributionApi.includes('.eq("status", "published")'), "Only published contribution tasks may be listed or submitted");
+assert.ok(contributionApi.includes('closes_at.gt.'), "Expired contribution tasks must be filtered out");
+assert.ok(contributionApi.includes('content.length < 10 || content.length > 16000'), "Contribution submission content must be bounded");
+assert.ok(contributionApi.includes('contributor_id: auth.user.id'), "Submission ownership must come from the authenticated session");
+assert.ok(!contributionApi.includes("reward_amount:"), "Client submission must never set or alter reward amounts");
+assert.ok(workspaceClient.includes('"Idempotency-Key": key'), "Workspace AI calls must use idempotency keys");
+assert.ok(workspaceClient.includes('"/api/conversations"'), "Workspace must use the authenticated conversation API");
+assert.ok(adminOpsApi.includes('profile?.role !== "admin"'), "Operations API must verify admin role");
+assert.ok(adminOpsApi.includes('profile.account_status !== "active"'), "Operations API must reject inactive admins");
+assert.ok(adminOpsApi.includes('list_stale_ai_requests'), "Operations API must use the server-only stale request report");
+
+console.log("Product guard passed: authenticated AI workspace, admin-only operational visibility, and RLS-backed contribution task submission.");
