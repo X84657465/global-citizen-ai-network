@@ -119,3 +119,6 @@ The workspace is connected to the existing conversation and AI APIs; it is not a
 - \`/admin/appeals\`: reviewer/admin appeal adjudication. Overturning a rejected submission restores accepted status and accrues pending reward atomically; upholding leaves the rejection in place.
 - \`/api/admin/contribution/appeals\`: authenticated reviewer-only API backed by a service-role-only idempotent database RPC.
 - Claude review handoff: see \`docs/claude-review-brief.md\` for an independent security and architecture review checklist.
+
+
+- \`/admin/ai-costs\`: admin-only cost transparency dashboard. It separately groups internal estimates, allocated costs, invoice imports, and provider-reported usage costs by currency; each query is bounded to a recent window.
