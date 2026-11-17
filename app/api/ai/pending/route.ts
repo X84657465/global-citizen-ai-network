@@ -31,7 +31,7 @@ export async function GET() {
 
   const pending = requests?.[0];
   if (!pending?.conversation_id) {
-    return NextResponse.json({ pending: null }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ pending: null, unresolved: false }, { headers: { "Cache-Control": "no-store" } });
   }
 
   const [{ data: idempotency, error: idempotencyError }, { data: lastMessages, error: messageError }] = await Promise.all([
@@ -61,10 +61,11 @@ export async function GET() {
   );
   if (!idempotency?.idempotency_key || !/^[A-Za-z0-9._:-]{8,128}$/.test(idempotency.idempotency_key)
       || !idempotency.request_hash || !originalMessage) {
-    return NextResponse.json({ pending: null }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ pending: null, unresolved: true, recoverable: false }, { headers: { "Cache-Control": "no-store" } });
   }
 
   return NextResponse.json({
+    unresolved: true,
     pending: {
       conversationId: pending.conversation_id,
       idempotencyKey: idempotency.idempotency_key,
