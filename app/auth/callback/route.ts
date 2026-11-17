@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     ? requestedNext
     : "/";
 
-  if (code) {
+  if (code && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
