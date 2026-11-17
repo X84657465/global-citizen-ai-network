@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient();
   const requestId = crypto.randomUUID();
-  const { data: reservation, error: reserveError } = await admin.rpc("reserve_ai_budget", {
+  const { data: reservationData, error: reserveError } = await admin.rpc("reserve_ai_budget", {
     p_request_id: requestId,
     p_owner_id: auth.user.id,
     p_provider: "openai-compatible",
@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
     p_feature: "chat",
     p_max_cost_twd: config.maxRequestCostTwd,
   }).single();
+  const reservation = reservationData as { allowed: boolean; reason: string; reservation_id: string | null } | null;
 
   if (reserveError || !reservation?.allowed) {
     return NextResponse.json(
