@@ -13,7 +13,6 @@ type Data = {
   window?: { costLedgerRows: number; requestRows: number; invoiceRows: number; note: string };
   costByKindCurrency?: CostItem[];
   costByCategory?: CategoryItem[];
-  providerBilledByCurrency?: { currency: string; amount: number }[];
   providerModels?: ProviderModel[];
   invoices?: Invoice[];
   error?: string;
