@@ -81,8 +81,12 @@ export async function POST(request: NextRequest) {
   const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
   let historyCharacters = content.length;
   for (const item of recentHistory) {
-    if (typeof item.content !== "string" || historyCharacters + item.content.length > 16000) continue;
-    messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
+    if (
+      (item.role !== "assistant" && item.role !== "user")
+      || typeof item.content !== "string"
+      || historyCharacters + item.content.length > 16000
+    ) continue;
+    messages.push({ role: item.role, content: item.content });
     historyCharacters += item.content.length;
   }
   messages.push({ role: "user", content });
