@@ -26,12 +26,12 @@ This is a proposed baseline, not a claim that these services are already provisi
 ## AI request lifecycle
 
 1. Authenticate user and verify role, account status, quota, and policy.
-2. Read the platform AI kill switch and per-user budget policy; reject by default when disabled.
-3. Estimate maximum request cost and reserve budget where supported.
-4. Reject or downgrade requests that exceed per-user or platform budget limits.
+2. Call the service-role-only `reserve_ai_budget` database function; it locks the global control row, checks the kill switch, active member status, per-request cap, platform monthly cap, member daily/monthly request quotas, and member monthly spend cap.
+3. The reservation and `ai_requests` row are inserted atomically. Reject by default when any control or member limit is missing, disabled, zero, or exceeded.
+4. Use the reservation amount as the maximum expected exposure for the provider call; never treat it as a guarantee of the final provider charge.
 5. Call a server-side provider adapter with timeout and bounded retries.
 6. Capture provider-reported usage, model identifier, request ID, and invoice data when available.
-7. Write request and cost events; distinguish actual provider bill from internal estimate.
+7. Call `finalize_ai_budget` to record provider-reported actual cost and usage, or `release_ai_budget` for a failed request. Actual charges above the estimate must still be recorded and surfaced as an overrun; never discard a real charge.
 8. Return response and show usage status to the user.
 9. Reconcile provider invoices against request-level estimates periodically.
 
