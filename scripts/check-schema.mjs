@@ -418,3 +418,9 @@ assert.ok(projectOwnershipSql.includes("before insert or update of project_id, o
   "Conversation project ownership must be enforced on inserts and relinking updates");
 assert.ok(projectOwnershipTests.includes("cross-owner and archived project associations are rejected"),
   "Database tests must cover invalid project associations");
+const projectMetadataUi = readFileSync("app/projects/projects-client.tsx", "utf8");
+assert.ok(projectMetadataUi.includes("async function saveProject(project: Project)") &&
+  projectMetadataUi.includes("JSON.stringify({ title: editTitle, description: editDescription.trim() || null })"),
+  "Project management UI must support editing title and description through the authenticated PATCH endpoint");
+assert.ok(projectMetadataUi.includes("編輯") && projectMetadataUi.includes("儲存") && projectMetadataUi.includes("取消"),
+  "Project metadata editing must provide explicit edit, save, and cancel controls");
