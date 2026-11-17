@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createHash } from "node:crypto";
 import { getAiRuntimeConfig, estimateCostTwd } from "@/lib/ai/config";
 import {
+  isKnownProviderRejection,
   parseProviderResponse,
   ProviderResponseError,
   readProviderJson,
@@ -229,7 +230,7 @@ export async function POST(request: NextRequest) {
         // Best-effort cleanup; the HTTP status still determines the outcome classification.
       }
       const code = `provider_http_${response.status}`;
-      if (response.status === 408 || response.status >= 500) {
+      if (!isKnownProviderRejection(response.status)) {
         await markForReconciliation(code, providerRequestId);
         return NextResponse.json({ error: "AI 供應商回應不確定，預算暫時保留，請稍後查看營運核對狀態。", retryWithSameKey: true }, { status: 502 });
       }
