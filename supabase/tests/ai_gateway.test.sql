@@ -87,6 +87,22 @@ begin
     raise exception 'over-budget preflight created request side effects';
   end if;
 
+  -- Non-finite reservation ceilings must be rejected before any request side effects.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, v_conversation, 'Non-finite reservation ceiling', 'test-ai-infinity-ceiling-001',
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\\n' || 'Non-finite reservation ceiling', 'UTF8')), 'hex')::char(64),
+    '52000000-0000-4000-8000-000000000008',
+    'openai-compatible', 'test-model', 'chat', 'Infinity'::numeric, 0.1
+  );
+  if v_claim.disposition <> 'rejected' or v_claim.reason <> 'invalid_idempotency_input' then
+    raise exception 'claim RPC accepted an infinite reservation ceiling';
+  end if;
+  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000008')
+     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000008') then
+    raise exception 'non-finite reservation ceiling created request side effects';
+  end if;
+
   -- The database must reject a prompt that does not match the supplied hash.
   select * into v_claim
   from public.claim_ai_request(
@@ -176,6 +192,27 @@ begin
       and role = 'assistant' and content = 'Wrong conversation response'
   ) then
     raise exception 'cross-conversation completion persisted an assistant message';
+  end if;
+
+  -- A non-finite provider cost must not settle or mutate the claimed request.
+  if public.complete_ai_chat_request(
+    v_owner, v_success_request, v_conversation, 'Invalid infinite cost response', 'test-model',
+    5, 4, 1, 'Infinity'::numeric, 'provider-test-infinity-001', 120,
+    'configured_token_rates_provider_usage_internal_estimate',
+    pg_catalog.jsonb_build_object(
+      'requestId', v_success_request::text,
+      'answer', 'Invalid infinite cost response',
+      'usage', pg_catalog.jsonb_build_object(
+        'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 1, 'estimatedCostTwd', 'Infinity'::numeric
+      )
+    )
+  ) then
+    raise exception 'AI completion accepted an infinite internal cost';
+  end if;
+  if not exists (select 1 from public.ai_budget_reservations where request_id = v_success_request and status = 'reserved')
+     or not exists (select 1 from public.ai_requests where id = v_success_request and status = 'running')
+     or exists (select 1 from public.messages where conversation_id = v_conversation and role = 'assistant' and content = 'Invalid infinite cost response') then
+    raise exception 'infinite AI cost validation changed request state or wrote an assistant message';
   end if;
 
   v_completed := public.complete_ai_chat_request(

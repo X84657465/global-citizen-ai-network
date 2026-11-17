@@ -38,7 +38,7 @@ begin
      or p_output_tokens is null or p_output_tokens < 0 or p_output_tokens > 1000000
      or p_cached_tokens is null or p_cached_tokens < 0 or p_cached_tokens > p_input_tokens
      or p_estimated_cost_twd is null or p_estimated_cost_twd < 0
-     or p_estimated_cost_twd::text = 'NaN'
+     or p_estimated_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
      or (p_provider_request_id is not null and length(p_provider_request_id) > 256)
      or p_latency_ms is null or p_latency_ms < 0 or p_latency_ms > 600000
      or p_cost_method is null or length(trim(p_cost_method)) < 1 or length(p_cost_method) > 120
