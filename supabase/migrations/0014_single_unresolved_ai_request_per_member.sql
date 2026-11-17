@@ -52,6 +52,20 @@ begin
     pg_catalog.hashtextextended(p_owner_id::text, 0)
   );
 
+  -- Follow the same global lock order as completion/failure RPCs:
+  -- platform controls -> reservation/request -> idempotency. Locking the
+  -- idempotency row before the global controls row can deadlock a same-key
+  -- retry against a completion transaction that already holds global controls.
+  perform 1
+  from public.platform_ai_controls
+  where id = true
+  for update;
+
+  if not found then
+    return query select 'rejected'::text, 'platform_ai_controls_missing'::text, null::uuid, null::jsonb;
+    return;
+  end if;
+
   select * into v_existing
   from public.ai_request_idempotency i
   where i.owner_id = p_owner_id
