@@ -37,13 +37,13 @@ test("enforces the aggregate character ceiling without dropping the current prom
   const result = buildAiProviderMessages([
     { role: "user", content: "old".repeat(4) },
     { role: "assistant", content: "new".repeat(4) },
-  ], "current", 15);
+  ], "current", 20);
 
   assert.deepEqual(result.messages, [
     { role: "assistant", content: "new".repeat(4) },
     { role: "user", content: "current" },
   ]);
-  assert.equal(result.totalCharacters, 18);
+  assert.equal(result.totalCharacters, 19);
 });
 
 test("ignores malformed message candidates", () => {
