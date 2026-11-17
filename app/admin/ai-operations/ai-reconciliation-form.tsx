@@ -21,7 +21,7 @@ export default function AiReconciliationForm({ requestId, provider }: { requestI
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy || locked) return;
+    if (busy || success) return;
     const key = idempotencyKey || crypto.randomUUID();
     setIdempotencyKey(key);
     setLocked(true);
@@ -88,8 +88,8 @@ export default function AiReconciliationForm({ requestId, provider }: { requestI
       {error && <p role="alert" style={{ color: "#b42318", fontSize: 11, margin: 0 }}>{error}</p>}
       {success && <p role="status" style={{ color: "#166534", fontSize: 11, margin: 0 }}>{success}</p>}
       {locked && !success && <p style={{ color: "#64748b", fontSize: 10, margin: 0 }}>為保護冪等性，送出後已鎖定本次內容與核對鍵，重試時會沿用相同資料。</p>}
-      <button type="submit" disabled={busy || locked || !evidenceReference.trim() || rationale.trim().length < 20 || (decision === "confirmed_billed" && (!billedCost || !normalizedCost))} style={{ justifySelf: "start", border: 0, borderRadius: 7, background: "#315d91", color: "white", padding: "9px 13px", fontSize: 11, fontWeight: 700, opacity: busy || locked ? 0.6 : 1 }}>
-        {busy ? "送出核對中…" : locked ? "核對已送出" : "記錄核對結果"}
+      <button type="submit" disabled={busy || Boolean(success) || !evidenceReference.trim() || rationale.trim().length < 20 || (decision === "confirmed_billed" && (!billedCost || !normalizedCost))} style={{ justifySelf: "start", border: 0, borderRadius: 7, background: "#315d91", color: "white", padding: "9px 13px", fontSize: 11, fontWeight: 700, opacity: busy || locked ? 0.6 : 1 }}>
+        {busy ? "送出核對中…" : locked ? "使用相同資料重試" : "記錄核對結果"}
       </button>
     </form>
   );
