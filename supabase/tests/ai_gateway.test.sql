@@ -30,6 +30,7 @@ do $ai_fixture$
 declare
   v_owner uuid := '50000000-0000-4000-8000-000000000001';
   v_conversation uuid := '51000000-0000-4000-8000-000000000001';
+  v_other_conversation uuid := '51000000-0000-4000-8000-000000000003';
   v_success_request uuid := '52000000-0000-4000-8000-000000000001';
   v_failed_request uuid := '52000000-0000-4000-8000-000000000002';
   v_unknown_request uuid := '52000000-0000-4000-8000-000000000003';
@@ -56,6 +57,9 @@ begin
   insert into public.conversations (id, owner_id, title)
   values (v_conversation, v_owner, 'AI gateway atomic completion test');
 
+  insert into public.conversations (id, owner_id, title)
+  values (v_other_conversation, v_owner, 'AI gateway second conversation test');
+
   update public.platform_ai_controls
   set ai_enabled = true, monthly_spend_cap = 100, per_request_spend_cap = 10,
       currency = 'TWD', hard_stop_enabled = true
@@ -67,7 +71,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, 'test-ai-success-001', repeat('a', 64)::char(64), v_success_request,
+    v_owner, v_conversation, 'test-ai-success-001', repeat('a', 64)::char(64), v_success_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'claimed' then
@@ -121,7 +125,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, 'test-ai-failure-001', repeat('b', 64)::char(64), v_failed_request,
+    v_owner, v_conversation, 'test-ai-failure-001', repeat('b', 64)::char(64), v_failed_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'claimed' then
@@ -138,7 +142,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, 'test-ai-unknown-001', repeat('c', 64)::char(64), v_unknown_request,
+    v_owner, v_conversation, 'test-ai-unknown-001', repeat('c', 64)::char(64), v_unknown_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'claimed' then
@@ -158,7 +162,7 @@ begin
   -- A same-key retry remains attached to the original unresolved request.
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, 'test-ai-unknown-001', repeat('c', 64)::char(64), v_blocked_request,
+    v_owner, v_conversation, 'test-ai-unknown-001', repeat('c', 64)::char(64), v_blocked_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'processing'
@@ -171,7 +175,7 @@ begin
   -- second billable request while the first provider outcome is unresolved.
   select * into v_claim
   from public.claim_ai_request(
-    v_owner, 'test-ai-cross-conversation-001', repeat('e', 64)::char(64), v_blocked_request,
+    v_owner, v_other_conversation, 'test-ai-cross-conversation-001', repeat('e', 64)::char(64), v_blocked_request,
     'openai-compatible', 'test-model', 'chat', 1
   );
   if v_claim.disposition <> 'processing'
@@ -208,7 +212,7 @@ begin
 
   select * into v_claim
   from public.claim_ai_request(
-    v_overrun_owner, 'test-ai-overrun-001', repeat('d', 64)::char(64), v_overrun_request,
+    v_overrun_owner, v_overrun_conversation, 'test-ai-overrun-001', repeat('d', 64)::char(64), v_overrun_request,
     'openai-compatible', 'test-model', 'chat', 0.001
   );
   if v_claim.disposition <> 'claimed' then
