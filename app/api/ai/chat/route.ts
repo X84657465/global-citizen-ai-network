@@ -9,6 +9,7 @@ import {
 } from "@/lib/ai/provider-response";
 import { shouldPreservePendingRequestKey } from "@/lib/ai/pending-retry";
 import { hashPendingPrompt } from "@/lib/ai/pending-recovery";
+import { buildAiProviderMessages } from "@/lib/ai/history";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -17,7 +18,6 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type ChatBody = { conversationId?: unknown; content?: unknown };
-type HistoryMessage = { role: string; content: string };
 
 function safeErrorCode(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 80) || "provider_failed";
@@ -77,19 +77,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "請提供有效的 Idempotency-Key（8–128 個英數字或 . _ : -）。" }, { status: 400 });
   }
 
-  const recentHistory = ((history ?? []) as HistoryMessage[]).reverse();
-  const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
-  let historyCharacters = content.length;
-  for (const item of recentHistory) {
-    if (
-      (item.role !== "assistant" && item.role !== "user")
-      || typeof item.content !== "string"
-      || historyCharacters + item.content.length > 16000
-    ) continue;
-    messages.push({ role: item.role, content: item.content });
-    historyCharacters += item.content.length;
-  }
-  messages.push({ role: "user", content });
+  const { messages, totalCharacters: historyCharacters } = buildAiProviderMessages(
+    (history ?? []) as Array<{ role: unknown; content: unknown }>,
+    content,
+  );
 
   // Calculate preflight before side effects. The RPC checks this only after
   // returning any existing completed/processing idempotency record, so safe
