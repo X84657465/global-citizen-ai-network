@@ -126,7 +126,7 @@ create table public.ai_cost_ledger (
   id uuid primary key default gen_random_uuid(),
   request_id uuid references public.ai_requests(id) on delete restrict,
   invoice_import_id uuid references public.provider_invoice_imports(id) on delete restrict,
-  owner_id uuid references public.profiles(id) on delete set null,
+  owner_id uuid references public.profiles(id) on delete restrict,
   cost_category text not null check (cost_category in ('model_provider','search_tool','storage','compute','human_review','payment_fee','infrastructure','other')),
   amount numeric(18,8) not null check (amount >= 0),
   currency char(3) not null,
@@ -187,7 +187,7 @@ create table public.task_reviews (
 
 create table public.contribution_ledger (
   id uuid primary key default gen_random_uuid(),
-  contributor_id uuid not null references public.profiles(id) on delete cascade,
+  contributor_id uuid not null references public.profiles(id) on delete restrict,
   submission_id uuid references public.task_submissions(id) on delete restrict,
   event_type text not null check (event_type in ('submitted','accepted','rejected','appealed','verified')),
   points numeric(18,4) not null default 0,
@@ -206,7 +206,7 @@ create table public.reward_ledger (
   idempotency_key text not null unique,
   reversal_of uuid references public.reward_ledger(id) on delete restrict,
   reason text not null,
-  created_by uuid references public.profiles(id) on delete set null,
+  created_by uuid references public.profiles(id) on delete restrict,
   occurred_at timestamptz not null default now(),
   recorded_at timestamptz not null default now()
 );
