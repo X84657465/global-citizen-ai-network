@@ -37,6 +37,7 @@ export default function WorkspaceClient() {
   const [notice, setNotice] = useState("已連接會員工作區。AI 服務仍須由管理員完成供應商與預算設定後才能啟用。");
   const [pendingKey, setPendingKey] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const conversationLoadRef = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,15 +56,18 @@ export default function WorkspaceClient() {
   }, [messages]);
 
   async function openConversation(id: string) {
-    setConversationId(id);
+    if (busy) return;
+    const loadId = ++conversationLoadRef.current;
     setError("");
     const response = await fetch("/api/conversations/" + id + "/messages", { cache: "no-store" });
     const data = await response.json() as { messages?: Message[] } & ApiError;
+    if (loadId !== conversationLoadRef.current) return;
     if (!response.ok) {
       setError(data.error ?? "無法載入訊息。");
       return;
     }
     const visibleMessages = (data.messages ?? []).filter(message => message.role === "user" || message.role === "assistant");
+    setConversationId(id);
     setMessages(visibleMessages);
     const storedKey = readStoredPendingKey(id);
     setPendingKey(storedKey);
@@ -143,7 +147,7 @@ export default function WorkspaceClient() {
             <h1 style={{ fontSize: 28, margin: "12px 0 4px" }}>AI 工作空間</h1>
             <p style={{ margin: 0, color: "#64748b", fontSize: 13 }}>你的研究、問題與對話紀錄由會員帳戶隔離保存。</p>
           </div>
-          <button type="button" onClick={() => { setConversationId(""); setMessages([]); setPendingKey(""); setError(""); }} style={{ border: "1px solid #d7e0eb", background: "#fff", color: "#315d91", borderRadius: 10, padding: "10px 14px", fontWeight: 700 }}>＋ 新對話</button>
+          <button type="button" disabled={busy} onClick={() => { conversationLoadRef.current += 1; setConversationId(""); setMessages([]); setPendingKey(""); setError(""); }} style={{ border: "1px solid #d7e0eb", background: "#fff", color: "#315d91", borderRadius: 10, padding: "10px 14px", fontWeight: 700 }}>＋ 新對話</button>
         </header>
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 280px", gap: 16 }}>
@@ -178,7 +182,7 @@ export default function WorkspaceClient() {
             <div style={{ ...card, padding: 16 }}>
               <strong style={{ fontSize: 13 }}>對話紀錄</strong>
               <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
-                {conversations.length === 0 ? <p style={{ color: "#8793a5", fontSize: 12 }}>尚無已保存的對話。</p> : conversations.map(item => <button key={item.id} type="button" onClick={() => void openConversation(item.id)} style={{ textAlign: "left", border: conversationId === item.id ? "1px solid #9bb4db" : "1px solid #edf1f5", background: conversationId === item.id ? "#f1f6ff" : "#fff", borderRadius: 9, padding: 10, color: "#243247", fontSize: 11 }}>{item.title}<span style={{ display: "block", color: "#98a2b1", marginTop: 4 }}>{new Date(item.updated_at).toLocaleDateString("zh-TW")}</span></button>)}
+                {conversations.length === 0 ? <p style={{ color: "#8793a5", fontSize: 12 }}>尚無已保存的對話。</p> : conversations.map(item => <button key={item.id} type="button" disabled={busy} onClick={() => void openConversation(item.id)} style={{ textAlign: "left", border: conversationId === item.id ? "1px solid #9bb4db" : "1px solid #edf1f5", background: conversationId === item.id ? "#f1f6ff" : "#fff", borderRadius: 9, padding: 10, color: "#243247", fontSize: 11 }}>{item.title}<span style={{ display: "block", color: "#98a2b1", marginTop: 4 }}>{new Date(item.updated_at).toLocaleDateString("zh-TW")}</span></button>)}
               </div>
             </div>
             <div style={{ ...card, padding: 16 }}>
