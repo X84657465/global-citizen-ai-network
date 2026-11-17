@@ -1,5 +1,9 @@
 -- Bound the operator reconciliation queue so a large backlog cannot
 -- produce an unbounded service-role query or admin API response.
+create index if not exists ai_requests_stale_queue_idx
+  on public.ai_requests (created_at asc, id)
+  where status in ('queued', 'running');
+
 create or replace function public.list_stale_ai_requests(
   p_older_than_seconds integer default 900
 )
