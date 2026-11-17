@@ -392,3 +392,11 @@ assert.ok(projectsApi.includes('.is("archived_at", null)'),
   "Archived projects must be excluded from the default active-project list");
 assert.ok(projectDetailApi.includes("typeof input.archived !== \"boolean\"") && projectDetailApi.includes("updates.archived_at"),
   "Project archive and restore operations must accept only a boolean state");
+const projectsPage = readFileSync("app/projects/page.tsx", "utf8");
+const projectsClient = readFileSync("app/projects/projects-client.tsx", "utf8");
+assert.ok(projectsPage.includes("getUser()") && projectsPage.includes("redirect(\"/login\")"),
+  "Project management page must require an authenticated member session");
+assert.ok(projectsClient.includes('fetch("/api/projects?includeArchived=true"') && projectsClient.includes('method: "PATCH"'),
+  "Project management UI must load archived records and use the owned-project archive API");
+assert.ok(projectsClient.includes("還原專案") && projectsClient.includes("封存專案"),
+  "Project management UI must expose both archive and restore actions");
