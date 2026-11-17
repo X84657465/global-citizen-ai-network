@@ -203,7 +203,7 @@ begin
       'requestId', v_success_request::text,
       'answer', 'Invalid infinite cost response',
       'usage', pg_catalog.jsonb_build_object(
-        'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 1, 'estimatedCostTwd', 'Infinity'::numeric
+        'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 1, 'estimatedCostTwd', 0.0123
       )
     )
   ) then
