@@ -1,6 +1,6 @@
 begin;
 
-select plan(23);
+select plan(24);
 
 -- Exercise atomic AI completion, known-failure release, and uncertain outcomes.
 select ok(to_regprocedure('public.complete_ai_chat_request(uuid,uuid,uuid,text,text,integer,integer,integer,numeric,text,integer,text,jsonb)') is not null,
@@ -206,6 +206,29 @@ begin
   end if;
 end;
 $ai_fixture$;
+
+-- Create more stale reservations than the operator report is allowed to return.
+insert into public.ai_requests (id, owner_id, provider, model, feature, status, created_at)
+select
+  ('53000000-0000-4000-8000-' || lpad(g::text, 12, '0'))::uuid,
+  '50000000-0000-4000-8000-000000000001',
+  'openai-compatible', 'test-model', 'chat', 'running',
+  now() - interval '30 minutes' - (g::text || ' seconds')::interval
+from generate_series(1, 101) as g;
+
+insert into public.ai_budget_reservations (request_id, owner_id, reserved_amount, status, created_at)
+select
+  ('53000000-0000-4000-8000-' || lpad(g::text, 12, '0'))::uuid,
+  '50000000-0000-4000-8000-000000000001',
+  0.001, 'reserved',
+  now() - interval '30 minutes' - (g::text || ' seconds')::interval
+from generate_series(1, 101) as g;
+
+select is(
+  (select count(*)::integer from public.list_stale_ai_requests(900)),
+  100,
+  'administrator stale-request report is capped at the 100 oldest records'
+);
 
 select ok(
   exists (select 1 from public.ai_budget_reservations
