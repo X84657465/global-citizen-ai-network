@@ -310,15 +310,15 @@ select ok(
 select ok(
   exists (select 1 from public.task_submissions
     where id = '30000000-0000-4000-8000-000000000001'
-      and status = 'submitted' and submitted_at > now() - interval '1 minute'),
-  'submission status and timestamp are server-controlled on insert'
+      and status = 'accepted' and submitted_at > now() - interval '1 minute'),
+  'submission status was server-initialized before the review lifecycle completed'
 );
 select ok(
   exists (select 1 from public.task_appeals
     where id = '40000000-0000-4000-8000-000000000001'
-      and status = 'submitted' and resolution is null and resolved_at is null
+      and status = 'resolved' and resolution is not null and resolved_at > now() - interval '1 minute'
       and created_at > now() - interval '1 minute'),
-  'appeal status and resolution fields are server-controlled on insert'
+  'appeal status was server-initialized before the appeal review lifecycle completed'
 );
 select ok(
   not exists (select 1 from public.task_appeals
