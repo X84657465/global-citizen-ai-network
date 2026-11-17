@@ -436,3 +436,9 @@ assert.ok(conversationProjectApi.includes('readJsonBody(request, 32768)') &&
 assert.ok(projectLinkedWorkspaceClient.includes('method: "PATCH"') &&
   projectLinkedWorkspaceClient.includes("assignConversationProject"),
   "Workspace must allow existing conversations to be reassigned or unassigned from active projects");
+
+const projectOwnershipLockSql = readFileSync("supabase/migrations/0017_conversation_project_locking.sql", "utf8");
+assert.ok(projectOwnershipLockSql.includes("for share") && !projectOwnershipLockSql.includes("for key share"),
+  "Project ownership trigger must take a row lock that conflicts with concurrent archived_at updates");
+assert.ok(projectOwnershipTests.includes("project row lock conflicts with concurrent archive updates"),
+  "Database tests must verify the stronger project row-lock mode");

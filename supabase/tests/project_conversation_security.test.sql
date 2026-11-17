@@ -1,6 +1,6 @@
 begin;
 
-select plan(4);
+select plan(5);
 
 insert into auth.users (
   id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -75,6 +75,12 @@ select ok(
     '63000000-0000-4000-8000-000000000003'
   )),
   'cross-owner and archived project associations are rejected'
+);
+
+select ok(
+  pg_get_functiondef('private.enforce_conversation_project_ownership()'::regprocedure) like '%for share%'
+  and pg_get_functiondef('private.enforce_conversation_project_ownership()'::regprocedure) not like '%for key share%',
+  'project row lock conflicts with concurrent archive updates'
 );
 
 select * from finish();
