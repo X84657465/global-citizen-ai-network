@@ -69,6 +69,7 @@ The initial interface is a prototype. Demo task data is illustrative, not paid w
 - [Database migration](docs/database.md)
 - [Backend provisioning checklist](docs/backend-setup.md)
 - [Health endpoint](docs/health-endpoint.md)
+- [RLS security verification plan](docs/rls-test-plan.md)
 
 ## Contributions
 
