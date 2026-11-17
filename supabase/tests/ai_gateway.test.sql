@@ -190,7 +190,10 @@ begin
 
   v_response := pg_catalog.jsonb_build_object(
     'requestId', v_overrun_request::text,
-    'answer', 'Overrun assistant response'
+    'answer', 'Overrun assistant response',
+    'usage', pg_catalog.jsonb_build_object(
+      'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 0, 'estimatedCostTwd', 0.03
+    )
   );
 
   v_completed := public.complete_ai_chat_request(
