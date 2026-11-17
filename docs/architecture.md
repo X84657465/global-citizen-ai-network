@@ -25,9 +25,9 @@ The repository is an early MVP and is not production-ready. No live provider bil
 
 1. Authenticate the member and verify ownership of the target conversation.
 2. Validate the server-only OpenAI-compatible provider configuration, request body, and Idempotency-Key.
-3. Call the service-role-only claim_ai_request RPC. PostgreSQL serializes same-member/same-key claims, compares the payload hash, applies rate limits, and reserves the maximum request budget before any provider call.
-4. Reject by default when platform controls, member limits, account status, or budget reservation do not permit the request.
-5. Apply a conservative prompt-cost preflight. The current route accepts up to 8,000 characters of new content, reads at most 20 history messages / 16,000 history characters, caps the JSON body at 32 KiB, and requests at most 1,200 output tokens.
+3. Apply a conservative prompt-cost preflight before any database reservation or prompt write. The current route accepts up to 8,000 characters of new content, reads at most 20 history messages / 16,000 history characters, caps the JSON body at 32 KiB, and requests at most 1,200 output tokens.
+4. Call the service-role-only claim_ai_request RPC. PostgreSQL serializes same-member/same-key claims, compares the payload hash, applies rate limits, reserves the maximum request budget, links the conversation, stores the original user message, and creates the idempotency record in one transaction before any provider call.
+5. Reject by default when platform controls, member limits, account status, or budget reservation do not permit the request.
 6. Send one server-side provider request with no automatic retry, redirect following disabled, and a bounded timeout. Provider response bodies are capped at 1 MiB and validated before usage or answer content is trusted.
 7. On a known pre-provider or provider rejection, fail_ai_chat_request atomically releases the reservation and marks the idempotency record failed.
 8. On a validated success, complete_ai_chat_request atomically settles the reservation, stores the assistant message, appends an internal_estimate cost-ledger row, and caches the idempotent response. A replay of the same committed response is safe.
