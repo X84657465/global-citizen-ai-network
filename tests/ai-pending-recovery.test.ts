@@ -28,6 +28,15 @@ test("does not recover a prompt whose hash belongs to another conversation", () 
   ), null);
 });
 
+test("does not recover modified content when the conversation is unchanged", () => {
+  const requestHash = hashPendingPrompt(conversationId, original);
+  assert.equal(findOriginalPendingMessage(
+    [{ role: "user", content: "內容遭到修改" }],
+    conversationId,
+    requestHash,
+  ), null);
+});
+
 test("rejects malformed hashes and invalid prompt candidates", () => {
   assert.equal(findOriginalPendingMessage([{ role: "user", content: original }], conversationId, "bad-hash"), null);
   assert.equal(findOriginalPendingMessage([{ role: "assistant", content: original }], conversationId, hashPendingPrompt(conversationId, original)), null);
