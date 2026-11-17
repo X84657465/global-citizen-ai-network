@@ -184,10 +184,13 @@ begin
   where request_id = p_request_id
   for update;
 
-  if not found or v_reservation.status <> 'reserved'
-     or p_actual_cost_twd > v_reservation.reserved_amount then
+  if not found or v_reservation.status <> 'reserved' then
     return false;
   end if;
+
+  -- Record the provider's actual charge even when it exceeds the estimate.
+  -- Blocking reconciliation would hide a real liability; the overage must be
+  -- visible and will consume the global/member budget for subsequent requests.
 
   update public.ai_budget_reservations
   set actual_cost = p_actual_cost_twd, status = 'settled', settled_at = now()
