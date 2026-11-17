@@ -1,6 +1,6 @@
 begin;
 
-select plan(63);
+select plan(61);
 
 select is(
   (select count(*)::integer
