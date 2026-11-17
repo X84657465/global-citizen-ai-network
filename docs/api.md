@@ -84,4 +84,5 @@ Private data responses use Cache-Control: no-store. JSON request bodies are read
 - cleanup_expired_ai_operational_records(): removes expired completed/failed idempotency mappings and rate-limit windows older than 48 hours. It does not delete financial or AI request records.
 - list_stale_ai_requests(p_older_than_seconds): service-role-only, read-only operator report. Default 900 seconds; accepted range 300–86,400; migration 0013 caps output at the 100 oldest records.
 - A stale request is not proof of provider failure. Never auto-retry it or release its reservation solely because it is old.
+- See [AI uncertain-outcome reconciliation runbook](./ai-reconciliation-runbook.md) for the evidence review procedure and current manual-resolution limitations.
 - Cleanup is not scheduled by migrations. Enable Supabase Cron intentionally only after a project exists and manual execution has been verified.
