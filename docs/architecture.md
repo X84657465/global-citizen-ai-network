@@ -64,3 +64,10 @@ Start with a single-region, small, observable deployment. Add queues, replicas, 
 - Provider invoice amount is intentionally left null; configured token rates are internal estimates, not verified invoice charges.
 - The service-role key is accessed only by a server-only module and is never returned to the client.
 - This route is an initial single-provider adapter, not yet a production-grade multi-provider router. Idempotency, rate limiting, streaming, provider-specific token accounting, and PostgreSQL integration tests remain required before public launch.
+
+
+## AI request idempotency and rate limits
+
+The AI gateway requires an `Idempotency-Key` per logical user action. PostgreSQL serializes same-member/same-key claims with a transaction-scoped advisory lock, compares a SHA-256 payload hash, and creates the idempotency record and budget reservation in the same transaction. A different payload under the same key is rejected. Completed responses are replayed for 24 hours; processing and failed states are not silently re-executed. The response cache contains generated answer text and is service-role-only, so production retention/deletion scheduling and privacy review are required.
+
+New logical requests are subject to database-enforced fixed-window limits of 10 per minute and 60 per hour per member. Safe retries are detected before rate counters increment. Rate counters are service-role-only and must be included in operational retention/cleanup planning. These limits are conservative defaults, not final product pricing or capacity commitments.
