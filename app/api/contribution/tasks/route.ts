@@ -14,6 +14,7 @@ export async function GET() {
       .from("contribution_tasks")
       .select("id,title,description,category,acceptance_criteria,reward_amount,reward_currency,closes_at,created_at")
       .eq("status", "published")
+      .or("closes_at.is.null,closes_at.gt." + new Date().toISOString())
       .order("created_at", { ascending: false })
       .limit(100),
     auth.supabase
@@ -57,12 +58,12 @@ export async function POST(request: NextRequest) {
 
   const { data: task, error: taskError } = await auth.supabase
     .from("contribution_tasks")
-    .select("id")
+    .select("id,closes_at")
     .eq("id", taskId)
     .eq("status", "published")
     .maybeSingle();
-  if (taskError || !task) {
-    return NextResponse.json({ error: "任務不存在或已停止接受提交。" }, { status: 404 });
+  if (taskError || !task || (task.closes_at && new Date(task.closes_at).getTime() <= Date.now())) {
+    return NextResponse.json({ error: "任務不存在、已截止或已停止接受提交。" }, { status: 404 });
   }
 
   const { data, error } = await auth.supabase
