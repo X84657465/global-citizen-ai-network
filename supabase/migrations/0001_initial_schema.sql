@@ -1,0 +1,285 @@
+-- Global Citizen AI Network — initial PostgreSQL schema
+-- Apply to a fresh Supabase project using the SQL editor or Supabase CLI.
+-- This migration is intentionally additive and enables RLS on every user-facing table.
+
+create extension if not exists pgcrypto;
+
+create type public.member_role as enum ('member', 'reviewer', 'admin');
+create type public.ai_request_status as enum ('queued', 'running', 'succeeded', 'failed', 'blocked');
+create type public.ledger_status as enum ('pending', 'confirmed', 'reversed', 'settled');
+create type public.task_status as enum ('draft', 'published', 'paused', 'closed');
+create type public.submission_status as enum ('submitted', 'under_review', 'accepted', 'rejected', 'appealed');
+
+create table public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  display_name text,
+  preferred_language text not null default 'zh-TW',
+  role public.member_role not null default 'member',
+  account_status text not null default 'active' check (account_status in ('active','restricted','suspended','closed')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.projects (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null check (char_length(title) between 1 and 160),
+  description text,
+  archived_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.conversations (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references public.profiles(id) on delete cascade,
+  project_id uuid references public.projects(id) on delete set null,
+  title text not null default '新對話',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  owner_id uuid not null references public.profiles(id) on delete cascade,
+  role text not null check (role in ('system','user','assistant','tool')),
+  content text not null,
+  model text,
+  token_input integer check (token_input is null or token_input >= 0),
+  token_output integer check (token_output is null or token_output >= 0),
+  created_at timestamptz not null default now()
+);
+
+create table public.ai_requests (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid references public.profiles(id) on delete set null,
+  project_id uuid references public.projects(id) on delete set null,
+  conversation_id uuid references public.conversations(id) on delete set null,
+  provider text not null,
+  model text not null,
+  feature text not null,
+  status public.ai_request_status not null default 'queued',
+  provider_request_id text,
+  input_tokens integer check (input_tokens is null or input_tokens >= 0),
+  output_tokens integer check (output_tokens is null or output_tokens >= 0),
+  cached_tokens integer check (cached_tokens is null or cached_tokens >= 0),
+  tool_calls integer not null default 0 check (tool_calls >= 0),
+  provider_billed_cost numeric(18,8),
+  provider_billed_currency char(3),
+  estimated_internal_cost numeric(18,8),
+  cost_method text,
+  latency_ms integer check (latency_ms is null or latency_ms >= 0),
+  retry_count integer not null default 0 check (retry_count >= 0),
+  error_code text,
+  started_at timestamptz not null default now(),
+  completed_at timestamptz,
+  created_at timestamptz not null default now(),
+  check (provider_billed_cost is null or provider_billed_cost >= 0),
+  check (estimated_internal_cost is null or estimated_internal_cost >= 0)
+);
+
+create table public.ai_cost_ledger (
+  id uuid primary key default gen_random_uuid(),
+  request_id uuid references public.ai_requests(id) on delete set null,
+  owner_id uuid references public.profiles(id) on delete set null,
+  cost_category text not null check (cost_category in ('model_provider','search_tool','storage','compute','human_review','payment_fee','infrastructure','other')),
+  amount numeric(18,8) not null check (amount >= 0),
+  currency char(3) not null,
+  amount_kind text not null check (amount_kind in ('actual_invoice','estimated_allocation','internal_estimate')),
+  calculation_method text,
+  source_reference text,
+  occurred_at timestamptz not null default now(),
+  recorded_at timestamptz not null default now()
+);
+
+create table public.contribution_tasks (
+  id uuid primary key default gen_random_uuid(),
+  created_by uuid references public.profiles(id) on delete set null,
+  title text not null check (char_length(title) between 1 and 180),
+  description text not null,
+  category text not null,
+  acceptance_criteria jsonb not null default '[]'::jsonb,
+  reward_amount numeric(18,2) not null default 0 check (reward_amount >= 0),
+  reward_currency char(3) not null default 'TWD',
+  status public.task_status not null default 'draft',
+  published_at timestamptz,
+  closes_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.task_submissions (
+  id uuid primary key default gen_random_uuid(),
+  task_id uuid not null references public.contribution_tasks(id) on delete restrict,
+  contributor_id uuid not null references public.profiles(id) on delete cascade,
+  content text not null,
+  evidence jsonb not null default '[]'::jsonb,
+  status public.submission_status not null default 'submitted',
+  submitted_at timestamptz not null default now(),
+  unique (task_id, contributor_id, id)
+);
+
+create table public.task_reviews (
+  id uuid primary key default gen_random_uuid(),
+  submission_id uuid not null references public.task_submissions(id) on delete cascade,
+  reviewer_id uuid not null references public.profiles(id) on delete restrict,
+  decision text not null check (decision in ('accept','reject','needs_changes')),
+  rationale text not null,
+  reviewed_at timestamptz not null default now()
+);
+
+create table public.contribution_ledger (
+  id uuid primary key default gen_random_uuid(),
+  contributor_id uuid not null references public.profiles(id) on delete cascade,
+  submission_id uuid references public.task_submissions(id) on delete set null,
+  event_type text not null check (event_type in ('submitted','accepted','rejected','appealed','verified')),
+  points numeric(18,4) not null default 0,
+  metadata jsonb not null default '{}'::jsonb,
+  occurred_at timestamptz not null default now()
+);
+
+create table public.reward_ledger (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references public.profiles(id) on delete cascade,
+  submission_id uuid references public.task_submissions(id) on delete set null,
+  event_type text not null check (event_type in ('earned','adjustment','reversal','settlement','refund')),
+  amount numeric(18,2) not null,
+  currency char(3) not null default 'TWD',
+  status public.ledger_status not null default 'pending',
+  idempotency_key text not null unique,
+  reversal_of uuid references public.reward_ledger(id) on delete restrict,
+  reason text not null,
+  created_by uuid references public.profiles(id) on delete set null,
+  occurred_at timestamptz not null default now(),
+  recorded_at timestamptz not null default now()
+);
+
+create table public.audit_logs (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid references public.profiles(id) on delete set null,
+  action text not null,
+  resource_type text not null,
+  resource_id uuid,
+  outcome text not null check (outcome in ('allowed','denied','error')),
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index projects_owner_updated_idx on public.projects(owner_id, updated_at desc);
+create index conversations_owner_updated_idx on public.conversations(owner_id, updated_at desc);
+create index messages_conversation_created_idx on public.messages(conversation_id, created_at);
+create index ai_requests_owner_created_idx on public.ai_requests(owner_id, created_at desc);
+create index ai_cost_ledger_request_idx on public.ai_cost_ledger(request_id);
+create index contribution_tasks_status_created_idx on public.contribution_tasks(status, created_at desc);
+create index task_submissions_contributor_idx on public.task_submissions(contributor_id, submitted_at desc);
+create index task_reviews_submission_idx on public.task_reviews(submission_id, reviewed_at desc);
+create index contribution_ledger_owner_idx on public.contribution_ledger(contributor_id, occurred_at desc);
+create index reward_ledger_owner_idx on public.reward_ledger(owner_id, recorded_at desc);
+
+-- New accounts receive a basic profile. The role is always assigned server-side.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, display_name)
+  values (new.id, coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)));
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- updated_at is maintained by the database.
+create or replace function public.set_updated_at()
+returns trigger language plpgsql set search_path = '' as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+create trigger profiles_updated_at before update on public.profiles
+  for each row execute procedure public.set_updated_at();
+create trigger projects_updated_at before update on public.projects
+  for each row execute procedure public.set_updated_at();
+create trigger conversations_updated_at before update on public.conversations
+  for each row execute procedure public.set_updated_at();
+create trigger contribution_tasks_updated_at before update on public.contribution_tasks
+  for each row execute procedure public.set_updated_at();
+
+-- Ledger records are append-only. Correct mistakes with a reversal/adjustment row.
+create or replace function public.prevent_ledger_mutation()
+returns trigger language plpgsql set search_path = '' as $$
+begin
+  raise exception 'Ledger records are append-only; create a reversal or adjustment event.';
+end;
+$$;
+
+create trigger ai_cost_ledger_immutable before update or delete on public.ai_cost_ledger
+  for each row execute procedure public.prevent_ledger_mutation();
+create trigger contribution_ledger_immutable before update or delete on public.contribution_ledger
+  for each row execute procedure public.prevent_ledger_mutation();
+create trigger reward_ledger_immutable before update or delete on public.reward_ledger
+  for each row execute procedure public.prevent_ledger_mutation();
+
+-- Enable row-level security on every table.
+alter table public.profiles enable row level security;
+alter table public.projects enable row level security;
+alter table public.conversations enable row level security;
+alter table public.messages enable row level security;
+alter table public.ai_requests enable row level security;
+alter table public.ai_cost_ledger enable row level security;
+alter table public.contribution_tasks enable row level security;
+alter table public.task_submissions enable row level security;
+alter table public.task_reviews enable row level security;
+alter table public.contribution_ledger enable row level security;
+alter table public.reward_ledger enable row level security;
+alter table public.audit_logs enable row level security;
+
+-- Profiles: members can read/update only their own non-privileged profile fields.
+create policy "profiles_select_own" on public.profiles for select to authenticated using (id = (select auth.uid()));
+create policy "profiles_update_own" on public.profiles for update to authenticated
+  using (id = (select auth.uid())) with check (id = (select auth.uid()));
+
+-- User-owned workspace records.
+create policy "projects_owner_all" on public.projects for all to authenticated
+  using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
+create policy "conversations_owner_all" on public.conversations for all to authenticated
+  using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
+create policy "messages_owner_all" on public.messages for all to authenticated
+  using (owner_id = (select auth.uid())) with check (
+    owner_id = (select auth.uid()) and exists (
+      select 1 from public.conversations c
+      where c.id = conversation_id and c.owner_id = (select auth.uid())
+    )
+  );
+create policy "ai_requests_owner_select" on public.ai_requests for select to authenticated
+  using (owner_id = (select auth.uid()));
+create policy "ai_cost_owner_select" on public.ai_cost_ledger for select to authenticated
+  using (owner_id = (select auth.uid()));
+
+-- Tasks are public to authenticated members only when published.
+create policy "published_tasks_read" on public.contribution_tasks for select to authenticated
+  using (status = 'published' or created_by = (select auth.uid()));
+create policy "submissions_owner_select" on public.task_submissions for select to authenticated
+  using (contributor_id = (select auth.uid()));
+create policy "submissions_owner_insert" on public.task_submissions for insert to authenticated
+  with check (contributor_id = (select auth.uid()));
+create policy "reviews_owner_select" on public.task_reviews for select to authenticated
+  using (
+    exists (select 1 from public.task_submissions s
+      where s.id = submission_id and s.contributor_id = (select auth.uid()))
+    or reviewer_id = (select auth.uid())
+  );
+create policy "contribution_ledger_owner_select" on public.contribution_ledger for select to authenticated
+  using (contributor_id = (select auth.uid()));
+create policy "reward_ledger_owner_select" on public.reward_ledger for select to authenticated
+  using (owner_id = (select auth.uid()));
+
+-- Audit log access is intentionally service/admin-only; no client policy is granted.
