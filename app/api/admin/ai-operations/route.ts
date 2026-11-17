@@ -35,7 +35,7 @@ export async function GET() {
 
   if (error) {
     return NextResponse.json(
-      { error: "異常請求查詢尚未就緒，請確認資料庫 Migration 0007 已套用。" },
+      { error: "異常請求查詢尚未就緒，請確認資料庫 Migration 0007、0013 已套用。" },
       { status: 503 },
     );
   }
