@@ -88,7 +88,7 @@ for (const forbidden of [
 console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC, account-status gates, atomic AI budget reservations, overrun hard-stop, bounded request parsing, and closed AI/signup defaults.");
 
 
-const aiGateway = read("app/api/ai/chat/route.ts");
+const aiGateway = readFileSync("app/api/ai/chat/route.ts", "utf8");
 assert.ok(aiGateway.includes('reserve_ai_budget'), "AI gateway must reserve budget before provider calls");
 assert.ok(aiGateway.includes('finalize_ai_budget'), "AI gateway must settle successful provider calls");
 assert.ok(aiGateway.includes('release_ai_budget'), "AI gateway must release failed reservations");
