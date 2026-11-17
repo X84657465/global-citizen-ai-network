@@ -177,7 +177,10 @@ export default function WorkspaceClient() {
           <button type="button" disabled={busy} onClick={() => { conversationLoadRef.current += 1; setConversationId(""); setMessages([]); setPendingKey(""); setError(""); }} style={{ border: "1px solid #d7e0eb", background: "#fff", color: "#315d91", borderRadius: 10, padding: "10px 14px", fontWeight: 700 }}>＋ 新對話</button>
         </header>
 
-        {pendingConversationId && pendingConversationId !== conversationId && <p role="status" style={{ ...card, borderColor: "#f0d7a6", background: "#fff9ed", color: "#8a5a12", padding: 12, fontSize: 12, lineHeight: 1.7 }}>有一筆其他對話的 AI 請求尚未確認，為避免重複計費，目前暫停新請求，請先回到原對話完成相同冪等鍵重試或等待管理員核對。</p>}
+        {pendingConversationId && pendingConversationId !== conversationId && <div role="status" style={{ ...card, borderColor: "#f0d7a6", background: "#fff9ed", color: "#8a5a12", padding: 12, fontSize: 12, lineHeight: 1.7, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+          <span>有一筆其他對話的 AI 請求尚未確認，為避免重複計費，目前暫停新請求，請先回到原對話完成相同冪等鍵重試或等待管理員核對。</span>
+          <button type="button" disabled={busy} onClick={() => void openConversation(pendingConversationId)} style={{ border: "1px solid #d7b875", background: "#fff", color: "#805515", borderRadius: 8, padding: "7px 11px", fontWeight: 700 }}>回到待核對對話</button>
+        </div>}
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 280px", gap: 16 }}>
           <section style={{ ...card, minHeight: 620, display: "flex", flexDirection: "column", overflow: "hidden" }}>
