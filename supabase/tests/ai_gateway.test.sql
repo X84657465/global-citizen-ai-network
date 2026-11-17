@@ -39,6 +39,7 @@ declare
   v_overrun_conversation uuid := '51000000-0000-4000-8000-000000000002';
   v_overrun_request uuid := '52000000-0000-4000-8000-000000000004';
   v_claim record;
+  v_reservation record;
   v_response jsonb;
   v_completed boolean;
   v_replayed boolean;
@@ -85,6 +86,50 @@ begin
      or exists (select 1 from public.messages where conversation_id = v_conversation and content = 'Too expensive preflight prompt')
      or exists (select 1 from public.ai_request_idempotency where owner_id = v_owner and idempotency_key = 'test-ai-preflight-001') then
     raise exception 'over-budget preflight created request side effects';
+  end if;
+
+  -- Non-finite reservation ceilings must be rejected before any request side effects.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, v_conversation, 'Non-finite reservation ceiling', 'test-ai-infinity-ceiling-001',
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Non-finite reservation ceiling', 'UTF8')), 'hex')::char(64),
+    '52000000-0000-4000-8000-000000000008',
+    'openai-compatible', 'test-model', 'chat', 'Infinity'::numeric, 0.1
+  );
+  if v_claim.disposition <> 'rejected' or v_claim.reason <> 'invalid_idempotency_input' then
+    raise exception 'claim RPC accepted an infinite reservation ceiling';
+  end if;
+  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000008')
+     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000008') then
+    raise exception 'non-finite reservation ceiling created request side effects';
+  end if;
+
+  -- The lower-level reservation RPC must independently reject non-finite amounts.
+  select * into v_reservation
+  from public.reserve_ai_budget(
+    '52000000-0000-4000-8000-000000000009',
+    v_owner, 'openai-compatible', 'test-model', 'chat', 'Infinity'::numeric
+  );
+  if coalesce(v_reservation.allowed, false) then
+    raise exception 'reserve_ai_budget accepted an infinite reservation ceiling';
+  end if;
+  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000009')
+     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000009') then
+    raise exception 'non-finite direct reservation created request side effects';
+  end if;
+
+  -- Numeric(18,8) ledger columns must not receive finite values outside their range.
+  select * into v_reservation
+  from public.reserve_ai_budget(
+    '52000000-0000-4000-8000-000000000011',
+    v_owner, 'openai-compatible', 'test-model', 'chat', 10000000000
+  );
+  if coalesce(v_reservation.allowed, false) then
+    raise exception 'reserve_ai_budget accepted an out-of-range finite reservation ceiling';
+  end if;
+  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000011')
+     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000011') then
+    raise exception 'out-of-range reservation created request side effects';
   end if;
 
   -- The database must reject a prompt that does not match the supplied hash.
@@ -152,6 +197,97 @@ begin
     )
   ) then
     raise exception 'AI completion accepted response usage inconsistent with settlement arguments';
+  end if;
+
+  -- The legacy low-level settlement RPC must also reject non-finite costs.
+  if public.finalize_ai_budget(
+    v_success_request, 'Infinity'::numeric, null, null, 5, 4, 1, null, 120
+  ) then
+    raise exception 'finalize_ai_budget accepted an infinite settlement cost';
+  end if;
+  if not exists (
+    select 1 from public.ai_budget_reservations
+    where request_id = v_success_request and status = 'reserved'
+  ) then
+    raise exception 'non-finite legacy settlement mutated the reservation';
+  end if;
+
+  if public.finalize_ai_budget(
+    v_success_request, 0.0123, 10000000000, 'TWD', 5, 4, 1, null, 120
+  ) then
+    raise exception 'finalize_ai_budget accepted an out-of-range provider billed cost';
+  end if;
+  if not exists (
+    select 1 from public.ai_budget_reservations
+    where request_id = v_success_request and status = 'reserved'
+  ) then
+    raise exception 'out-of-range provider billed cost mutated the reservation';
+  end if;
+
+  -- Completion must not move a claimed request into another conversation
+  -- owned by the same member.
+  if public.complete_ai_chat_request(
+    v_owner, v_success_request, v_other_conversation, 'Wrong conversation response', 'test-model',
+    5, 4, 1, 0.0123, 'provider-test-atomic-001', 120,
+    'configured_token_rates_provider_usage_internal_estimate',
+    pg_catalog.jsonb_build_object(
+      'requestId', v_success_request::text,
+      'answer', 'Wrong conversation response',
+      'usage', pg_catalog.jsonb_build_object(
+        'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 1, 'estimatedCostTwd', 0.0123
+      )
+    )
+  ) then
+    raise exception 'AI completion accepted a different conversation than the one bound at claim time';
+  end if;
+  if exists (
+    select 1 from public.messages
+    where conversation_id = v_other_conversation and owner_id = v_owner
+      and role = 'assistant' and content = 'Wrong conversation response'
+  ) then
+    raise exception 'cross-conversation completion persisted an assistant message';
+  end if;
+
+  -- A non-finite provider cost must not settle or mutate the claimed request.
+  if public.complete_ai_chat_request(
+    v_owner, v_success_request, v_conversation, 'Invalid infinite cost response', 'test-model',
+    5, 4, 1, 'Infinity'::numeric, 'provider-test-infinity-001', 120,
+    'configured_token_rates_provider_usage_internal_estimate',
+    pg_catalog.jsonb_build_object(
+      'requestId', v_success_request::text,
+      'answer', 'Invalid infinite cost response',
+      'usage', pg_catalog.jsonb_build_object(
+        'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 1, 'estimatedCostTwd', 0.0123
+      )
+    )
+  ) then
+    raise exception 'AI completion accepted an infinite internal cost';
+  end if;
+  if not exists (select 1 from public.ai_budget_reservations where request_id = v_success_request and status = 'reserved')
+     or not exists (select 1 from public.ai_requests where id = v_success_request and status = 'running')
+     or exists (select 1 from public.messages where conversation_id = v_conversation and role = 'assistant' and content = 'Invalid infinite cost response') then
+    raise exception 'infinite AI cost validation changed request state or wrote an assistant message';
+  end if;
+
+  if public.complete_ai_chat_request(
+    v_owner, v_success_request, v_conversation, 'Out-of-range cost response', 'test-model',
+    5, 4, 1, 10000000000, 'provider-test-overflow-001', 120,
+    'configured_token_rates_provider_usage_internal_estimate',
+    pg_catalog.jsonb_build_object(
+      'requestId', v_success_request::text,
+      'answer', 'Out-of-range cost response',
+      'usage', pg_catalog.jsonb_build_object(
+        'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 1, 'estimatedCostTwd', 10000000000
+      )
+    )
+  ) then
+    raise exception 'AI completion accepted an out-of-range finite settlement cost';
+  end if;
+  if not exists (
+    select 1 from public.ai_budget_reservations
+    where request_id = v_success_request and status = 'reserved'
+  ) then
+    raise exception 'out-of-range completion cost mutated the reservation';
   end if;
 
   v_completed := public.complete_ai_chat_request(

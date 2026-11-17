@@ -29,6 +29,18 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 - Known failures release the reservation. Uncertain outcomes—including timeout, transport failure, provider 408/5xx, malformed successful response, and post-provider database finalization failure—retain the reservation and idempotency state for manual reconciliation. The route returns retryWithSameKey: true for cases where the original key must be preserved.
 - Costs returned by the gateway are configured internal estimates, not verified supplier invoice amounts. Missing usage values may use a conservative character-count fallback and are labeled in the calculation method.
 
+## Admin AI uncertain-outcome resolution
+
+- POST /api/admin/ai-reconciliation/resolve: active-admin-only, evidence-backed resolution for an AI request whose provider outcome is uncertain.
+- Decisions: confirmed billed, confirmed not billed, or inconclusive. Every decision requires a provider evidence reference and a written rationale.
+- Confirmed billed requires provider-reported amount/currency and a separately supplied normalized TWD amount. The reservation is settled, provider billing fields are recorded, and the request is marked failed because the assistant delivery outcome is unavailable; no synthetic assistant answer is created.
+- Confirmed not billed releases the reservation and marks the request/idempotency state safely failed.
+- Inconclusive appends an immutable review event and leaves request, reservation, and idempotency state unchanged.
+- Each submission uses a per-request idempotency UUID. Replays with the same payload return the original event; reusing the key with different content is rejected.
+- The route uses the authenticated session client. The SECURITY DEFINER RPC independently verifies auth.uid() equals the supplied actor and requires an active admin profile. It does not accept service-role identity as proof of the operator.
+- No decision triggers a provider retry. Evidence references must point to provider console records or internal tickets, never contain API secrets or idempotency keys.
+- The admin operations page shows the newest 100 immutable reconciliation events, including the request, operator, decision, evidence reference, rationale, provider-reported amount, and normalized TWD cost. History is read server-side only after active-admin verification.
+
 ## Admin AI reconciliation
 
 - GET /api/admin/ai-reconciliation: active-admin-only, read-only report of up to 100 oldest queued/running requests with reserved budgets older than 15 minutes.
@@ -52,6 +64,31 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 
 - GET /api/conversations: list up to 100 conversations owned by the current member.
 - POST /api/conversations: create a conversation; optional project_id must belong to the current member. JSON body limit is 32 KiB.
+- GET /api/conversations/:id/messages: read up to 500 messages in an owned conversation.
+- POST /api/conversations/:id/messages: append a user message (1–20,000 characters; JSON body limit is 96 KiB).
+- Clients cannot submit assistant or system messages. Those roles are reserved for trusted server-side AI orchestration.
+
+## Contribution
+
+- GET/POST /api/contribution/tasks: list published tasks and submit member work.
+- GET /api/contribution/summary: member-scoped read-only contribution and reward summary.
+- GET/POST /api/contribution/appeals: submit and inspect appeals for the signed-in member's own rejected submissions.
+- GET/POST /api/admin/contribution/reviews: active reviewer/admin review queue and idempotent review action.
+- GET/POST /api/admin/contribution/appeals: active reviewer/admin appeal queue and idempotent appeal decision.
+- GET/POST /api/admin/contribution/tasks: admin-only task authoring and lifecycle operations.
+
+## Projects
+
+- GET /api/projects: list up to 100 active projects owned by the current member; `?includeArchived=true` explicitly includes archived projects.
+- POST /api/projects: create a project. JSON request bodies are streamed with a 32 KiB hard byte limit.
+- PATCH /api/projects/:id: update title and/or description, or set `archived: true` to archive and `archived: false` to restore an owned project; JSON body limit is 32 KiB. The response includes `archived_at`.
+- DELETE /api/projects/:id: delete an owned project.
+
+## Conversations and messages
+
+- GET /api/conversations: list up to 100 conversations owned by the current member.
+- POST /api/conversations: create a conversation; optional project_id must belong to the current member and reference an active project. JSON body limit is 32 KiB. A database trigger independently enforces ownership and active status for direct PostgREST writes and future callers.
+- PATCH /api/conversations/:id: change or clear an existing conversation project association using `project_id` (UUID or null). The conversation must belong to the current member; a non-null project must be owned by the member and active. JSON body limit is 32 KiB. The database ownership trigger independently enforces the association.
 - GET /api/conversations/:id/messages: read up to 500 messages in an owned conversation.
 - POST /api/conversations/:id/messages: append a user message (1–20,000 characters; JSON body limit is 96 KiB).
 - Clients cannot submit assistant or system messages. Those roles are reserved for trusted server-side AI orchestration.

@@ -8,7 +8,7 @@ on:
   push:
     branches: [main, "codex/**"]
   pull_request:
-    branches: [main, "codex/**"]
+    branches: [main]
 
 permissions:
   contents: read
@@ -29,9 +29,9 @@ jobs:
         run: node scripts/check-schema.mjs
       - name: Production dependency security audit
         run: npm audit --omit=dev --audit-level=high
-      - name: Development dependency advisory report
-        run: |
-          npm audit --audit-level=high || echo "::warning::High-severity advisories remain in development/build tooling. Review npm audit output; do not use forced upgrades without a compatible upstream fix."
+      - name: Full dependency audit (including development tooling)
+        run: npm audit --audit-level=high
+        continue-on-error: true
       - name: AI provider response tests
         run: npm run test:unit
       - name: Type check

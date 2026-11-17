@@ -103,8 +103,8 @@ export default function ContributionReviewClient() {
               <div style={{ background: "#f8fafc", borderRadius: 10, padding: 14, whiteSpace: "pre-wrap", overflowWrap: "anywhere", fontSize: 12, lineHeight: 1.8, maxHeight: 280, overflowY: "auto" }}>{row.content}</div>
               <textarea value={rationales[row.id] ?? ""} onChange={event => setRationales(prev => ({ ...prev, [row.id]: event.target.value }))} maxLength={4000} rows={3} placeholder="請寫下具體審核理由（至少 10 字）…" style={{ width: "100%", marginTop: 12, border: "1px solid #dce3ec", borderRadius: 9, padding: 11, resize: "vertical", font: "inherit", fontSize: 12 }} />
               <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
-                <button type="button" disabled={!!busy} onClick={() => void review(row, "reject")} style={{ border: "1px solid #e6c7c7", borderRadius: 8, background: "#fff", color: "#a33c3c", padding: "9px 14px", fontWeight: 700 }}>退回</button>
-                <button type="button" disabled={!!busy} onClick={() => void review(row, "accept")} style={{ border: 0, borderRadius: 8, background: "#315d91", color: "#fff", padding: "9px 14px", fontWeight: 700 }}>{busy === row.id ? "處理中…" : "通過驗收"}</button>
+                <button type="button" disabled={busy === row.id} onClick={() => void review(row, "reject")} style={{ border: "1px solid #e6c7c7", borderRadius: 8, background: "#fff", color: "#a33c3c", padding: "9px 14px", fontWeight: 700 }}>退回</button>
+                <button type="button" disabled={busy === row.id} onClick={() => void review(row, "accept")} style={{ border: 0, borderRadius: 8, background: "#315d91", color: "#fff", padding: "9px 14px", fontWeight: 700 }}>{busy === row.id ? "處理中…" : "通過驗收"}</button>
               </div>
             </article>;
           })}</div>}
