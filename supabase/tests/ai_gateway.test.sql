@@ -212,7 +212,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', repeat('c', 64)::char(64), v_blocked_request,
-    'openai-compatible', 'test-model', 'chat', 1, 0.1
+    'openai-compatible', 'test-model', 'chat', 1, 99
   );
   if v_claim.disposition <> 'processing'
      or v_claim.reason <> 'request_in_progress'
