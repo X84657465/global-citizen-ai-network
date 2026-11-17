@@ -11,6 +11,17 @@ type ApiError = { error?: string; retryWithSameKey?: boolean };
 function pendingKeyStorageKey(conversationId: string) {
   return `gcan:pending-ai:${conversationId}`;
 }
+function pendingContentStorageKey(conversationId: string) {
+  return `gcan:pending-ai-content:${conversationId}`;
+}
+function readStoredPendingContent(conversationId: string) {
+  try { return sessionStorage.getItem(pendingContentStorageKey(conversationId)) ?? ""; }
+  catch { return ""; }
+}
+function storePendingContent(conversationId: string, content: string) {
+  try { sessionStorage.setItem(pendingContentStorageKey(conversationId), content); }
+  catch { /* Server recovery remains available if browser storage is unavailable. */ }
+}
 function readStoredPendingKey(conversationId: string) {
   try { return sessionStorage.getItem(pendingKeyStorageKey(conversationId)) ?? ""; }
   catch { return ""; }
@@ -20,8 +31,10 @@ function storePendingKey(conversationId: string, key: string) {
   catch { /* In-memory idempotency still protects the current page session. */ }
 }
 function clearStoredPendingKey(conversationId: string) {
-  try { sessionStorage.removeItem(pendingKeyStorageKey(conversationId)); }
-  catch { /* Storage may be unavailable in restricted browser contexts. */ }
+  try {
+    sessionStorage.removeItem(pendingKeyStorageKey(conversationId));
+    sessionStorage.removeItem(pendingContentStorageKey(conversationId));
+  } catch { /* Storage may be unavailable in restricted browser contexts. */ }
 }
 function findStoredPendingConversationId(exceptId = "") {
   try {
@@ -68,6 +81,7 @@ export default function WorkspaceClient() {
           const recovered = pendingData.pending;
           if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
+            storePendingContent(recovered.conversationId, recovered.content);
             setPendingConversationId(recovered.conversationId);
             setNotice("已從伺服器恢復一筆尚待核對的 AI 請求，返回原對話查看原始內容與狀態，等待管理員核對。");
           } else {
@@ -100,8 +114,8 @@ export default function WorkspaceClient() {
     const storedKey = readStoredPendingKey(id);
     setPendingKey(storedKey);
     setPendingConversationId(storedKey ? id : findStoredPendingConversationId(id));
-    if (storedKey && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "user") {
-      setPrompt(visibleMessages[visibleMessages.length - 1].content);
+    if (storedKey && (readStoredPendingContent(id) || (visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "user"))) {
+      setPrompt(readStoredPendingContent(id) || visibleMessages[visibleMessages.length - 1].content);
       setNotice("上一個 AI 請求結果尚待確認，系統會保留原冪等鍵；核對完成前不會再次呼叫供應商。");
     } else if (storedKey && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "assistant") {
       // The atomic server transaction committed successfully before the browser lost its response.
@@ -122,7 +136,11 @@ export default function WorkspaceClient() {
       return;
     }
     const existingPendingKey = pendingKey || (conversationId ? readStoredPendingKey(conversationId) : "");
-    if (hasPendingRetryContentMismatch(existingPendingKey, messages[messages.length - 1], content)) {
+    const originalPendingContent = conversationId ? readStoredPendingContent(conversationId) : "";
+    const pendingMessage = originalPendingContent
+      ? { role: "user", content: originalPendingContent }
+      : messages[messages.length - 1];
+    if (hasPendingRetryContentMismatch(existingPendingKey, pendingMessage, content)) {
       setError("上一筆 AI 請求尚未確認，為避免重複計費，請先恢復原始訊息並保留相同冪等鍵，等待管理員核對；系統不會再次呼叫供應商。");
       return;
     }
@@ -147,6 +165,7 @@ export default function WorkspaceClient() {
       setPendingKey(key);
       setPendingConversationId(activeId);
       storePendingKey(activeId, key);
+      storePendingContent(activeId, content);
       setMessages(prev => prev.length > 0 && prev[prev.length - 1].role === "user" && prev[prev.length - 1].content === content ? prev : [...prev, { role: "user", content }]);
       setPrompt("");
 
