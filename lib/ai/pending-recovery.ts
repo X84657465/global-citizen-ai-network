@@ -7,7 +7,7 @@ export type PendingMessageCandidate = {
 
 export function hashPendingPrompt(conversationId: string, content: string): string {
   return createHash("sha256")
-    .update(`${conversationId}\n${content}`)
+    .update(`${conversationId.toLowerCase()}\n${content}`)
     .digest("hex");
 }
 

@@ -28,6 +28,10 @@ test("does not recover a prompt whose hash belongs to another conversation", () 
   ), null);
 });
 
+test("normalizes uppercase UUIDs to the database canonical form", () => {
+  assert.equal(hashPendingPrompt(conversationId.toUpperCase(), original), hashPendingPrompt(conversationId, original));
+});
+
 test("does not recover modified content when the conversation is unchanged", () => {
   const requestHash = hashPendingPrompt(conversationId, original);
   assert.equal(findOriginalPendingMessage(
