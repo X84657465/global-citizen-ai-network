@@ -219,17 +219,7 @@ export async function POST(request: NextRequest) {
     }
 
     const providerPayload = await readProviderJson(response);
-    const providerResult = parseProviderResponse(
-      providerPayload,
-      historyCharacters,
-      typeof providerPayload === "object" && providerPayload !== null
-        ? (providerPayload as { choices?: Array<{ message?: { content?: unknown } }> }).choices?.[0]?.message?.content instanceof Array
-          ? (providerPayload as { choices: Array<{ message: { content: Array<{ text?: string }> } }> }).choices[0].message.content.reduce((sum, part) => sum + (typeof part.text === "string" ? part.text.length : 0), 0)
-          : typeof (providerPayload as { choices?: Array<{ message?: { content?: unknown } }> }).choices?.[0]?.message?.content === "string"
-            ? ((providerPayload as { choices: Array<{ message: { content: string } }> }).choices[0].message.content.length)
-            : 0
-        : 0,
-    );
+    const providerResult = parseProviderResponse(providerPayload, historyCharacters);
     providerRequestId = providerResult.providerRequestId ?? providerRequestId;
 
     const estimatedActualCost = estimateCostTwd(
