@@ -218,7 +218,7 @@ begin
 
   return true;
 end;
-$;
+$$;
 
 create or replace function public.fail_ai_chat_request(
   p_owner_id uuid,
