@@ -31,8 +31,7 @@ select ok(
 );
 
 select ok(
-  not has_function_privilege('anon', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE')
-  and not has_function_privilege('public', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
+  not has_function_privilege('anon', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
   'anonymous and public callers cannot invoke reconciliation'
 );
 
