@@ -19,6 +19,7 @@ All data endpoints require a valid Supabase session. Ordinary member routes use 
 - Required header: `Idempotency-Key`, 8–128 characters using letters, digits, dot, underscore, colon or hyphen. Generate one key per logical user action and reuse the same key for transport retries.
 - Body: `{ "conversationId": "<uuid>", "content": "..." }`; maximum body size 32 KiB and content length 1–8,000 characters.
 - The server hashes the conversation ID and content. Reusing a key with a different payload returns `409`.
+- New logical requests are limited to 10 per fixed minute and 60 per fixed hour per member. Duplicate retries do not consume additional rate quota. These are conservative MVP defaults.
 - A completed request replays its cached response for 24 hours without another provider call or budget reservation. A request still processing returns `409` with `Retry-After`; a failed request remains failed for the replay window and is not automatically re-executed.
 - Clients must not generate a new key merely because a response timed out. First retry with the same key. If the result remains uncertain after the replay window, contact support rather than blindly submitting a new paid request.
 - Cached response JSON is stored server-side for 24 hours to support safe replay. It is inaccessible to anon/authenticated database roles. A production retention job and privacy review are still required before launch.
