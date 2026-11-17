@@ -10,6 +10,8 @@ const rateLimitSql = readFileSync("supabase/migrations/0006_ai_request_rate_limi
 const contributionReviewSql = readFileSync("supabase/migrations/0008_atomic_contribution_review.sql", "utf8");
 const reviewApi = readFileSync("app/api/admin/contribution/reviews/route.ts", "utf8");
 const memberSummaryApi = readFileSync("app/api/contribution/summary/route.ts", "utf8");
+const appealApi = readFileSync("app/api/contribution/appeals/route.ts", "utf8");
+const memberContributionsClient = readFileSync("app/contributions/member-contributions-client.tsx", "utf8");
 const reviewClient = readFileSync("app/admin/contributions/review-client.tsx", "utf8");
 const env = readFileSync(".env.example", "utf8");
 const page = readFileSync("app/page.tsx", "utf8");
@@ -195,3 +197,11 @@ assert.ok(taskAdminClient.includes('"/api/admin/contribution/tasks"'), "Task adm
 assert.ok(taskAdminClient.includes('"建立草稿"'), "Task admin UI must create drafts before publication");
 
 console.log("Contribution operations guard passed: task authoring, controlled publication, reviewer approval, and member ledger access.");
+
+
+assert.ok(appealApi.includes('getAuthenticatedClient()'), "Contribution appeals must require authentication");
+assert.ok(appealApi.includes('submission.status !== "rejected"'), "Only rejected submissions may be appealed");
+assert.ok(appealApi.includes('appellant_id: auth.user.id'), "Appeal ownership must come from the authenticated session");
+assert.ok(memberSummaryApi.includes('from("task_appeals")'), "Member ledger summary must include appeal status");
+assert.ok(memberContributionsClient.includes('"/api/contribution/appeals"'), "Member contribution page must use the appeal API");
+assert.ok(memberContributionsClient.includes("提出申訴"), "Member page must expose an appeal action for rejected work");
