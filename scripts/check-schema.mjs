@@ -5,6 +5,7 @@ const sql = readFileSync("supabase/migrations/0001_initial_schema.sql", "utf8");
 const statusSql = readFileSync("supabase/migrations/0002_member_status_rls.sql", "utf8");
 const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reservations.sql", "utf8");
 const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_hard_stop.sql", "utf8");
+const idempotencySql = readFileSync("supabase/migrations/0005_ai_request_idempotency.sql", "utf8");
 const env = readFileSync(".env.example", "utf8");
 const page = readFileSync("app/page.tsx", "utf8");
 const bodyReader = readFileSync("lib/http/read-json-body.ts", "utf8");
@@ -97,3 +98,18 @@ assert.ok(aiGateway.includes('max_tokens: 1200'), "AI gateway must cap provider 
 assert.ok(aiGateway.includes('ai_cost_ledger'), "AI gateway must append an internal cost ledger entry");
 assert.ok(aiGateway.includes('SUPABASE_SERVICE_ROLE_KEY'), "AI gateway must require server-only service role credentials");
 assert.ok(aiGateway.includes('worstCaseCost > config.maxRequestCostTwd'), "AI gateway must reject conservative preflight cost overruns");
+
+assert.ok(idempotencySql.includes("create table public.ai_request_idempotency"));
+assert.ok(idempotencySql.includes("unique (owner_id, idempotency_key)"));
+assert.ok(idempotencySql.includes("pg_advisory_xact_lock"), "Idempotency claims must serialize by owner/key");
+assert.ok(idempotencySql.includes("request_hash"), "Idempotency key reuse must validate payload hash");
+assert.ok(idempotencySql.includes("create or replace function public.claim_ai_request"));
+assert.ok(idempotencySql.includes("create or replace function public.complete_ai_request_idempotency"));
+assert.ok(idempotencySql.includes("create or replace function public.fail_ai_request_idempotency"));
+assert.ok(idempotencySql.includes("revoke all on public.ai_request_idempotency from public, anon, authenticated"));
+assert.ok(idempotencySql.includes("to service_role"));
+assert.ok(idempotencySql.includes("interval '24 hours'"), "Cached responses must have a bounded replay window");
+assert.ok(aiGateway.includes('request.headers.get("Idempotency-Key")'));
+assert.ok(aiGateway.includes('claim_ai_request'));
+assert.ok(aiGateway.includes('complete_ai_request_idempotency'));
+assert.ok(aiGateway.includes('fail_ai_request_idempotency'));
