@@ -63,7 +63,7 @@ begin
   where id = true
   for update;
 
-  if not found or not v_controls.ai_enabled or not v_controls.hard_stop_enabled then
+  if not found or not v_controls.ai_enabled then
     return query select false, 'platform_ai_disabled'::text, null::uuid;
     return;
   end if;
