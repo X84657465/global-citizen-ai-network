@@ -20,6 +20,7 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 - Body: { "conversationId": "<uuid>", "content": "..." }; maximum body size 32 KiB and content length 1–8,000 characters.
 - The server hashes the conversation ID and content. Reusing a key with a different payload returns 409; clients must restore the original payload and reuse the original key.
 - New logical requests are limited to 10 per fixed minute and 60 per fixed hour per member. Duplicate retries do not consume additional rate quota.
+- Only one unresolved billable AI request is allowed per member across all conversations. A second new request is rejected before reservation/provider call until the original request is safely completed, failed, or manually reconciled.
 - A completed request replays its cached response for 24 hours without another provider call or budget reservation. A request still processing or awaiting reconciliation returns 409 with Retry-After where applicable.
 - The workspace stores pending keys in session storage and preserves the original message after an uncertain outcome. Do not generate a new key merely because a response timed out.
 - Provider calls have no automatic retry, redirects are rejected, response bodies are capped at 1 MiB, and the timeout is bounded by server configuration (maximum 60 seconds).
