@@ -9,10 +9,10 @@ export const dynamic = "force-dynamic";
 // The idempotency key is returned only to its authenticated owner and is never logged.
 export async function GET() {
   const auth = await getAuthenticatedClient();
-  if (!auth) return NextResponse.json({ error: "請先登入。" }, { status: 401 });
+  if (!auth) return NextResponse.json({ error: "請先登入。" }, { status: 401, headers: { "Cache-Control": "no-store" } });
 
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return NextResponse.json({ error: "AI 請求狀態暫時無法讀取。" }, { status: 503 });
+    return NextResponse.json({ error: "AI 請求狀態暫時無法讀取。" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 
   const admin = createAdminClient();
@@ -53,7 +53,7 @@ export async function GET() {
   }
 
   const lastMessage = lastMessages?.[0];
-  if (!idempotency?.idempotency_key || lastMessage?.role !== "user" || typeof lastMessage.content !== "string") {
+  if (!idempotency?.idempotency_key || !/^[A-Za-z0-9._:-]{8,128}$/.test(idempotency.idempotency_key)\n      || lastMessage?.role !== "user" || typeof lastMessage.content !== "string"\n      || lastMessage.content.length < 1 || lastMessage.content.length > 8000) {
     return NextResponse.json({ pending: null }, { headers: { "Cache-Control": "no-store" } });
   }
 
