@@ -3,12 +3,14 @@
 -- recovery remains possible even if the API process stops immediately afterward.
 
 drop function if exists public.claim_ai_request(uuid,text,char,uuid,text,text,text,numeric);
+drop function if exists public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric);
 -- This prevents a member from switching conversations and creating a second
 -- billable request while a prior provider outcome is still unknown.
 
 create or replace function public.claim_ai_request(
   p_owner_id uuid,
   p_conversation_id uuid,
+  p_prompt text,
   p_idempotency_key text,
   p_request_hash char(64),
   p_request_id uuid,
@@ -28,6 +30,7 @@ declare
   v_pending_request_id uuid;
 begin
   if p_owner_id is null or p_conversation_id is null or p_request_id is null
+     or p_prompt is null or length(p_prompt) < 1 or length(p_prompt) > 8000
      or p_idempotency_key is null
      or length(p_idempotency_key) < 8
      or length(p_idempotency_key) > 128
@@ -138,6 +141,15 @@ begin
   if not found then
     raise exception 'claimed AI request could not be linked to its conversation';
   end if;
+
+  -- Persist the exact prompt in the same transaction as the request claim and
+  -- budget reservation. A process crash can no longer strand a reservation
+  -- without the original content required for safe idempotent recovery.
+  insert into public.messages (
+    conversation_id, owner_id, role, content
+  ) values (
+    p_conversation_id, p_owner_id, 'user', p_prompt
+  );
 
   insert into public.ai_request_idempotency (
     owner_id, idempotency_key, request_hash, request_id
