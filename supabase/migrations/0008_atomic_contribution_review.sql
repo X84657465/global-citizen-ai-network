@@ -62,7 +62,7 @@ begin
     pg_catalog.hashtextextended('task-review:' || p_idempotency_key, 0)
   );
 
-  v_hash := public.digest(
+  v_hash := pg_catalog.sha256(
     pg_catalog.convert_to(
       pg_catalog.jsonb_build_object(
         'actor', p_actor_id,
