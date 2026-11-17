@@ -25,6 +25,7 @@ const conversationApi = readFileSync("app/api/conversations/route.ts", "utf8");
 const messageApi = readFileSync("app/api/conversations/[id]/messages/route.ts", "utf8");
 const contributionApi = readFileSync("app/api/contribution/tasks/route.ts", "utf8");
 const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
+const aiPendingRecoveryApi = readFileSync("app/api/ai/pending/route.ts", "utf8");
 const adminOpsApi = readFileSync("app/api/admin/ai-operations/route.ts", "utf8");
 const aiCostsApi = readFileSync("app/api/admin/ai-costs/route.ts", "utf8");
 const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx", "utf8");
@@ -166,6 +167,11 @@ assert.ok(singlePendingSql.includes("b.status = 'reserved'") && singlePendingSql
 assert.ok(singlePendingSql.includes("member_has_unresolved_request"), "Cross-conversation lock must return a distinguishable disposition reason");
 assert.ok(singlePendingSql.includes("revoke all on function public.claim_ai_request") && singlePendingSql.includes("to service_role"), "Replaced claim RPC must remain service-role only");
 assert.ok(workspaceClient.includes("findStoredPendingConversationId"), "Workspace must detect pending requests across conversations");
+assert.ok(aiPendingRecoveryApi.includes('getAuthenticatedClient()'), "Pending AI recovery must require an authenticated member");
+assert.ok(aiPendingRecoveryApi.includes('.eq("owner_id", auth.user.id)'), "Pending AI recovery must scope requests to the authenticated owner");
+assert.ok(aiPendingRecoveryApi.includes('.eq("state", "processing")'), "Pending AI recovery must only return unresolved idempotency records");
+assert.ok(aiPendingRecoveryApi.includes('Cache-Control": "no-store"'), "Pending AI recovery responses must never be cached");
+assert.ok(workspaceClient.includes('fetch("/api/ai/pending"'), "Workspace must recover unresolved requests from the server after session loss");
 assert.ok(workspaceClient.includes("另一個對話的 AI 請求尚未確認"), "Workspace must explain why a second request is blocked");
 
 
