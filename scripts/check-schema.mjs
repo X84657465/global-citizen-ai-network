@@ -183,6 +183,10 @@ assert.ok(rateLimitSql.includes("v_existing.state = 'processing' or v_existing.e
 assert.ok(singlePendingSql.includes("p_conversation_id uuid"), "AI request claim must receive the originating conversation");
 assert.ok(singlePendingSql.includes("set conversation_id = p_conversation_id"), "AI request claim must persist the conversation in the reservation transaction");
 assert.ok(singlePendingSql.includes("p_prompt text") && singlePendingSql.includes("length(p_prompt) > 8000"), "AI request claim must validate the original prompt before persistence");
+assert.ok(singlePendingSql.includes("p_preflight_cost_twd numeric") && singlePendingSql.includes("preflight_cost_exceeds_reservation"), "AI request claim must reject over-budget new requests before reservation and prompt persistence");
+assert.ok(singlePendingSql.includes("if p_preflight_cost_twd > p_max_cost_twd") && singlePendingSql.indexOf("if p_preflight_cost_twd > p_max_cost_twd") < singlePendingSql.indexOf("public.reserve_ai_budget("), "Preflight ceiling must be checked before budget reservation");
+assert.ok(aiGateway.includes("p_preflight_cost_twd: worstCaseCost"), "AI gateway must pass the conservative preflight estimate into the atomic claim");
+assert.ok(aiGateway.indexOf("p_preflight_cost_twd: worstCaseCost") < aiGateway.indexOf("claim.disposition === \"completed\""), "Preflight data must be supplied without blocking completed idempotent replay");
 assert.ok(singlePendingSql.includes("insert into public.messages") && singlePendingSql.includes("p_conversation_id, p_owner_id, 'user', p_prompt"), "AI request claim must atomically persist the original user prompt");
 assert.ok(aiGateway.includes("p_prompt: content"), "AI gateway must pass the exact validated prompt into the atomic claim");
 assert.ok(!aiGateway.includes('auth.supabase\n    .from("messages")\n    .insert('), "AI gateway must not persist the user prompt outside the atomic claim transaction");
