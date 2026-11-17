@@ -1,40 +1,52 @@
-# AI Gateway: Budget Enforcement Contract
+# AI Gateway: Budget Enforcement and Recovery Contract
 
 ## Status
 
-This document is an implementation contract, not evidence that runtime spend controls are active. The current application has no provider-backed AI generation route. Keep `platform_ai_controls.ai_enabled = false` and all per-user limits disabled until the gateway and integration tests are complete.
+The repository contains a server-side OpenAI-compatible gateway and database-enforced budget/idempotency workflow, but it is not production-ready. No provider is configured by default. Keep platform AI controls disabled until a real Supabase project, provider adapter, billing limits, and operational procedures have been configured and tested.
 
 ## Required request lifecycle
 
-1. Authenticate the member and derive `owner_id` from the verified session. Never accept an owner ID, role, price, or model cost from the browser.
-2. Validate the feature, model allowlist, prompt size, attachment size, and request idempotency key.
-3. Create a server-owned `ai_requests` row with status `queued`. The client must never be able to insert or modify this table.
-4. Call one database reservation function that atomically locks the global control row, checks the global kill switch, per-request cap, global monthly cap, user enablement, user daily/monthly request limits, user monthly spend cap, and already-active reservations. Reject closed or missing controls by default.
-5. Only after reservation succeeds, call the provider from server code. Provider keys and the Supabase service-role key must never enter browser code, logs, or Git.
-6. Record provider-reported token usage, provider request ID, latency, retry count, and provider-reported charge where available. Never invent missing usage or invoice values.
-7. Finalize the reservation exactly once using an idempotent database operation. Record estimated TWD cost separately from actual invoice cost; do not add both to the same budget total.
-8. On provider failure or timeout, mark the request failed and release or reconcile the reservation. A timed-out provider call must not silently leave spend unaccounted.
-9. If final actual cost exceeds the reservation, record the variance, trigger a hard-stop/alert threshold, and prevent new requests until reviewed.
+1. Authenticate the member and derive owner_id from the verified session. Never accept an owner ID, role, price, or model cost from the browser.
+2. Validate request content, conversation ownership, provider configuration, and the idempotency key.
+3. Calculate conservative prompt-cost preflight before side effects, then pass the estimate into the service-role-only claim RPC. PostgreSQL first resolves an existing idempotency key, so completed and processing retries return before the current estimate can block them; for a new key, the RPC rejects an over-budget estimate before rate-limit consumption, reservation, or prompt persistence.
+4. For an accepted new claim, PostgreSQL serializes requests per member across all conversations, verifies conversation ownership, compares the payload hash, blocks a second request while an earlier reservation is unresolved, enforces fixed-window quotas, reserves the maximum budget, stores the originating conversation and original user message, and creates the idempotency record in one transaction before any provider call.
+5. Reject closed or missing controls by default. Do not fall back to an unmetered provider call.
+6. Call the provider once from server code with a bounded timeout, no automatic retry, and redirect following disabled. Provider credentials and the Supabase service-role key must never enter browser code, logs, or Git.
+7. Bound provider response reads and validate the response shape, answer, token usage, and request identifiers before accepting it.
+8. On validated success, atomically settle the reservation, save the assistant message, write an internal-estimate ledger row, and complete the idempotency response in one transaction.
+9. On a known failure, atomically release the reservation and mark the request failed.
+10. On an uncertain provider outcome—timeout, transport failure, provider-specific status without a guaranteed rejection contract (including 408/409/425/429/5xx), malformed success response, or database finalization failure—do not retry the provider and do not release the reservation. Only explicit validation/authentication rejection statuses (400/401/403/404/422) are treated as known non-accepted failures. Preserve the same idempotency key and make the request visible for operator reconciliation.
+11. The authenticated member recovery endpoint can restore the original conversation, payload, and idempotency key after a tab/browser session is lost. It returns only the caller's own oldest unresolved request and uses no-store responses; the key must never be logged.
+12. The admin reconciliation queue is read-only and bounded. It does not prove whether the provider billed the request and does not automatically retry, settle, or release anything. Operators must verify provider request logs and billing evidence before manual resolution.
 
 ## Accounting rules
 
-- All budget comparisons must use one normalized currency (initially TWD) and a documented FX source/rate/time when the provider bills in another currency.
-- Separate provider invoice charges from internal allocation estimates. Invoice import reconciliation must not double-count request estimates.
-- Reservations count against available budget before a provider call. Completed request costs replace the reservation; they are not added on top of it.
-- Retries are separate provider attempts and must be costed, even if the user sees one logical request.
+- All budget comparisons use normalized TWD and a documented conversion method when needed.
+- Separate provider invoice charges, provider-reported usage, internal estimates, and cost allocations. Never label an estimate as an invoice.
+- Reservations count against available budget before a provider call. On completion, the actual normalized estimate replaces the reservation; it is not added on top of it.
+- A provider charge above the reservation is recorded and triggers the configured hard-stop logic; it cannot be retroactively prevented.
+- A retry of the same logical action must reuse the original key and payload. A new key represents a new billable action.
 - Every mutation must be idempotent and leave an audit record.
 
 ## Fail-closed conditions
 
-Reject the request when the global control row is missing, AI is disabled, a user limit row is missing, a cap is zero, a reservation cannot be created, cost currency cannot be normalized, or the database cannot be reached. Do not fall back to an unmetered provider call.
+Reject the request when the global control row is missing, AI is disabled, a user limit row is missing, a cap is zero, a reservation cannot be created, cost cannot be normalized, or the database cannot be reached. Do not call the provider if reservation state is not confirmed.
 
-## Integration test gates
+## Integration and release test gates
 
-1. Two concurrent requests cannot jointly exceed the global monthly cap.
-2. Two concurrent requests for one member cannot exceed that member's monthly cap.
-3. Daily and monthly request limits count concurrent requests correctly.
-4. A duplicate idempotency key cannot create duplicate reservations or provider calls.
-5. Provider timeout, retry, and late response paths reconcile reservations exactly once.
-6. A missing control row, missing user limit, database error, or zero cap blocks generation.
-7. Browser users cannot call the reservation/finalization functions or write request/cost/ledger rows directly.
-8. Usage, estimates, invoice charges, FX conversion, and variances remain separately auditable.
+1. Concurrent requests cannot jointly exceed global or per-member spend caps.
+2. Daily and monthly request limits count concurrent logical requests correctly.
+3. A duplicate idempotency key cannot create duplicate reservations or provider calls.
+4. A different payload under an existing key is rejected without changing the original pending request.
+5. Provider timeout, ambiguous provider statuses (including 408/409/425/429/5xx), malformed success, transport failure, and post-provider database failure preserve the reservation for reconciliation; only the explicit known-rejection allowlist releases it.
+6. A known pre-provider or provider rejection releases the reservation exactly once.
+7. A successful completion atomically persists the assistant message, cost ledger entry, settlement, and replay response.
+8. A lost HTTP response after committed completion can be replayed without another provider call.
+9. A missing control row, missing user limit, database error, or zero cap blocks generation.
+10. Browser users cannot call privileged reservation/finalization/reconciliation functions or write request/cost/ledger rows directly.
+11. Provider usage, internal estimates, invoice charges, FX conversion, and variances remain separately auditable.
+12. Admin reconciliation access is role-checked, read-only, bounded, and returns no-store responses.
+
+## Operational gaps
+
+Provider-specific request lookup, invoice import automation, scheduled retention, incident response, and independent security review remain pre-launch requirements. The current stale-request report is a manual triage queue, not automatic reconciliation.

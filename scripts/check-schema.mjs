@@ -7,6 +7,7 @@ const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reserv
 const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_hard_stop.sql", "utf8");
 const idempotencySql = readFileSync("supabase/migrations/0005_ai_request_idempotency.sql", "utf8");
 const rateLimitSql = readFileSync("supabase/migrations/0006_ai_request_rate_limits.sql", "utf8");
+const singlePendingSql = readFileSync("supabase/migrations/0014_single_unresolved_ai_request_per_member.sql", "utf8");
 const contributionReviewSql = readFileSync("supabase/migrations/0008_atomic_contribution_review.sql", "utf8");
 const appealReviewSql = readFileSync("supabase/migrations/0009_atomic_appeal_review.sql", "utf8");
 const appealReviewApi = readFileSync("app/api/admin/contribution/appeals/route.ts", "utf8");
@@ -24,6 +25,9 @@ const conversationApi = readFileSync("app/api/conversations/route.ts", "utf8");
 const messageApi = readFileSync("app/api/conversations/[id]/messages/route.ts", "utf8");
 const contributionApi = readFileSync("app/api/contribution/tasks/route.ts", "utf8");
 const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
+const aiPendingRecoveryApi = readFileSync("app/api/ai/pending/route.ts", "utf8");
+const pendingRecovery = readFileSync("lib/ai/pending-recovery.ts", "utf8");
+const aiHistory = readFileSync("lib/ai/history.ts", "utf8");
 const adminOpsApi = readFileSync("app/api/admin/ai-operations/route.ts", "utf8");
 const aiCostsApi = readFileSync("app/api/admin/ai-costs/route.ts", "utf8");
 const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx", "utf8");
@@ -107,15 +111,50 @@ console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC
 
 
 const aiGateway = readFileSync("app/api/ai/chat/route.ts", "utf8");
+assert.ok(aiGateway.includes('buildAiProviderMessages'), "AI gateway must use the tested provider history builder");
+assert.ok(aiHistory.includes('item.role !== "assistant" && item.role !== "user"'), "Provider history builder must exclude system/tool and unknown roles");
+assert.ok(aiHistory.includes("totalCharacters + item.content.length > maxTotalCharacters"), "Provider history builder must enforce an aggregate character ceiling");
+
+const atomicAiSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
+const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
+const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
+const claimPosition = aiGateway.indexOf('admin.rpc("claim_ai_request"');
+const routePreflightPosition = aiGateway.indexOf("const worstCaseCost");
+assert.ok(routePreflightPosition >= 0 && claimPosition > routePreflightPosition
+  && aiGateway.includes("p_preflight_cost_twd: worstCaseCost"),
+  "AI gateway must pass the conservative preflight estimate into the atomic claim RPC");
+const existingIdempotencyPosition = singlePendingSql.indexOf("if found and (v_existing.state = 'processing' or v_existing.expires_at > now())");
+const sqlPreflightPosition = singlePendingSql.indexOf("if p_preflight_cost_twd > p_max_cost_twd");
+const reservationPosition = singlePendingSql.indexOf("public.reserve_ai_budget(");
+assert.ok(existingIdempotencyPosition >= 0 && sqlPreflightPosition > existingIdempotencyPosition
+  && reservationPosition > sqlPreflightPosition,
+  "Claim RPC must return completed/processing idempotency outcomes before preflight, and reject oversized new requests before reserving budget or persisting prompts");
+assert.ok(singlePendingSql.includes("p_preflight_cost_twd::text in ('NaN', 'Infinity', '-Infinity')")
+  && aiGateway.includes("preflight_cost_exceeds_reservation"),
+  "AI preflight must reject non-finite costs and expose a distinct over-ceiling result");
 assert.ok(idempotencySql.includes("public.reserve_ai_budget("), "Idempotency claim must atomically reserve AI budget");
-assert.ok(aiGateway.includes('finalize_ai_budget'), "AI gateway must settle successful provider calls");
-assert.ok(aiGateway.includes('release_ai_budget'), "AI gateway must release failed reservations");
+assert.ok(aiGateway.includes('complete_ai_chat_request'), "AI gateway must atomically settle successful provider calls");
+assert.ok(aiGateway.includes('fail_ai_chat_request'), "AI gateway must atomically release known failed reservations");
+assert.ok(aiGateway.includes('mark_ai_request_reconciliation_required'), "AI gateway must preserve uncertain provider outcomes for reconciliation");
+assert.ok(aiGateway.includes("isKnownProviderRejection") && providerResponse.includes("[400, 401, 403, 404, 422]"), "Only explicit validation/authentication rejection statuses may release reservations; ambiguous provider 4xx must reconcile");
+assert.ok(aiRuntimeConfig.includes('parsed.protocol === "https:"') && aiRuntimeConfig.includes('parsed.protocol === "http:" && isLoopback'), "AI provider configuration must require HTTPS except explicit loopback development");
+assert.ok(aiRuntimeConfig.includes("parsed.username") && aiRuntimeConfig.includes("parsed.password") && aiRuntimeConfig.includes("parsed.search") && aiRuntimeConfig.includes("parsed.hash"), "AI provider configuration must reject URL credentials and query/fragment secrets");
+assert.ok(atomicAiSql.includes("insert into public.messages"), "Atomic completion must persist the assistant message");
+assert.ok(atomicAiSql.includes("insert into public.ai_cost_ledger"), "Atomic completion must write the internal cost ledger");
+assert.ok(atomicAiSql.includes("estimated_internal_cost = p_estimated_cost_twd"), "Atomic completion must store the computed internal estimate");
+const reconciliationFunction = atomicAiSql.slice(atomicAiSql.indexOf("create or replace function public.mark_ai_request_reconciliation_required"));
+assert.ok(reconciliationFunction.includes("v_reservation.status <> 'reserved'"), "Reconciliation may only mark a still-reserved request");
+assert.ok(!reconciliationFunction.includes("status = 'released'"), "Uncertain provider outcomes must never release the budget reservation");
+assert.ok(atomicAiSql.includes("ai_member_budget_hard_stop_triggered"), "Member budget hard stops must be audited");
+assert.ok(atomicAiSql.includes("ai_platform_budget_hard_stop_triggered"), "Global budget hard stops must be audited");
+assert.ok(providerResponse.includes("MAX_PROVIDER_RESPONSE_BYTES = 1024 * 1024"), "Provider response bodies must be byte bounded");
+assert.ok(providerResponse.includes("Number.isSafeInteger(value)"), "Provider token counts must be validated as safe integers");
 assert.ok(aiGateway.includes('AbortController'), "AI gateway must enforce provider timeout");
 assert.ok(aiGateway.includes('max_tokens: 1200'), "AI gateway must cap provider output");
-assert.ok(aiGateway.includes('ai_cost_ledger'), "AI gateway must append an internal cost ledger entry");
+assert.ok(atomicAiSql.includes("amount_kind, calculation_method"), "AI gateway settlement must append a labelled internal cost ledger entry");
 assert.ok(aiGateway.includes('SUPABASE_SERVICE_ROLE_KEY'), "AI gateway must require server-only service role credentials");
-assert.ok(aiGateway.includes('worstCaseCost > config.maxRequestCostTwd'), "AI gateway must reject conservative preflight cost overruns");
+assert.ok(singlePendingSql.includes("if p_preflight_cost_twd > p_max_cost_twd"), "Atomic claim RPC must reject conservative preflight cost overruns before reservation and prompt persistence");
 
 assert.ok(idempotencySql.includes("create table public.ai_request_idempotency"));
 assert.ok(idempotencySql.includes("unique (owner_id, idempotency_key)"));
@@ -129,8 +168,8 @@ assert.ok(idempotencySql.includes("to service_role"));
 assert.ok(idempotencySql.includes("interval '24 hours'"), "Cached responses must have a bounded replay window");
 assert.ok(aiGateway.includes('request.headers.get("Idempotency-Key")'));
 assert.ok(aiGateway.includes('claim_ai_request'));
-assert.ok(aiGateway.includes('complete_ai_request_idempotency'));
-assert.ok(aiGateway.includes('fail_ai_request_idempotency'));
+assert.ok(aiGateway.includes('complete_ai_chat_request'));
+assert.ok(aiGateway.includes('fail_ai_chat_request'));
 
 assert.ok(rateLimitSql.includes("create table public.ai_request_rate_limits"));
 assert.ok(rateLimitSql.includes("primary key (owner_id, window_seconds, window_start)"));
@@ -145,6 +184,46 @@ assert.ok(idempotencySql.includes("v_existing.state = 'processing' or v_existing
   "In-flight idempotency claims must never expire automatically");
 assert.ok(rateLimitSql.includes("v_existing.state = 'processing' or v_existing.expires_at > now()"),
   "Rate-limit claim path must preserve in-flight idempotency records");
+
+assert.ok(singlePendingSql.includes("p_conversation_id uuid"), "AI request claim must receive the originating conversation");
+assert.ok(singlePendingSql.includes("set conversation_id = p_conversation_id"), "AI request claim must persist the conversation in the reservation transaction");
+assert.ok(singlePendingSql.includes("p_prompt text") && singlePendingSql.includes("length(p_prompt) > 8000"), "AI request claim must validate the original prompt before persistence");
+assert.ok(singlePendingSql.includes("pg_catalog.sha256") && singlePendingSql.includes("v_expected_hash := pg_catalog.encode") && singlePendingSql.includes("pg_catalog.rtrim(p_request_hash::text) <> v_expected_hash"), "Database claim must verify the stored prompt matches its conversation-bound SHA-256 hash");
+assert.ok(pendingRecovery.includes(".update(`${conversationId.toLowerCase()}\\n${content}`)") && aiGateway.includes("hashPendingPrompt(conversationId, content)"), "API and recovery must share the canonical database-normalized conversation-bound prompt hash");
+assert.ok(singlePendingSql.includes("p_preflight_cost_twd numeric") && singlePendingSql.includes("preflight_cost_exceeds_reservation"), "AI request claim must reject over-budget new requests before reservation and prompt persistence");
+assert.ok(singlePendingSql.includes("if p_preflight_cost_twd > p_max_cost_twd") && singlePendingSql.indexOf("if p_preflight_cost_twd > p_max_cost_twd") < singlePendingSql.indexOf("public.reserve_ai_budget("), "Preflight ceiling must be checked before budget reservation");
+assert.ok(aiGateway.includes("p_preflight_cost_twd: worstCaseCost"), "AI gateway must pass the conservative preflight estimate into the atomic claim");
+assert.ok(aiGateway.indexOf("p_preflight_cost_twd: worstCaseCost") < aiGateway.indexOf("claim.disposition === \"completed\""), "Preflight data must be supplied without blocking completed idempotent replay");
+assert.ok(singlePendingSql.includes("insert into public.messages") && singlePendingSql.includes("p_conversation_id, p_owner_id, 'user', p_prompt"), "AI request claim must atomically persist the original user prompt");
+assert.ok(aiGateway.includes("p_prompt: content"), "AI gateway must pass the exact validated prompt into the atomic claim");
+assert.ok(!aiGateway.includes('auth.supabase\n    .from("messages")\n    .insert('), "AI gateway must not persist the user prompt outside the atomic claim transaction");
+assert.ok(aiGateway.includes("p_conversation_id: conversationId"), "AI gateway must bind the claimed request to the validated conversation");
+assert.ok(singlePendingSql.includes("pg_catalog.hashtextextended(p_owner_id::text, 0)"), "AI claims must serialize across all conversations for one member");
+const claimLockPositions = [
+  singlePendingSql.indexOf("pg_catalog.pg_advisory_xact_lock"),
+  singlePendingSql.indexOf("from public.platform_ai_controls\n  where id = true\n  for update"),
+  singlePendingSql.indexOf("select * into v_existing"),
+];
+assert.ok(claimLockPositions.every((position) => position >= 0)
+  && claimLockPositions[0] < claimLockPositions[1]
+  && claimLockPositions[1] < claimLockPositions[2],
+  "AI claim must lock member advisory key, global controls, then idempotency in the same global-first order as completion/failure RPCs");
+assert.ok(singlePendingSql.includes("r.status in ('queued','running')"), "A member must be blocked while any AI request is unresolved");
+assert.ok(singlePendingSql.includes("b.status = 'reserved'") && singlePendingSql.includes("i.state = 'processing'"), "Cross-conversation lock must only block requests with a live reservation and processing idempotency record");
+assert.ok(singlePendingSql.includes("member_has_unresolved_request"), "Cross-conversation lock must return a distinguishable disposition reason");
+assert.ok(singlePendingSql.includes("revoke all on function public.claim_ai_request") && singlePendingSql.includes("to service_role"), "Replaced claim RPC must remain service-role only");
+assert.ok(workspaceClient.includes("findStoredPendingConversationId"), "Workspace must detect pending requests across conversations");
+assert.ok(aiPendingRecoveryApi.includes('getAuthenticatedClient()'), "Pending AI recovery must require an authenticated member");
+assert.ok(aiPendingRecoveryApi.includes('.eq("owner_id", auth.user.id)'), "Pending AI recovery must scope requests to the authenticated owner");
+assert.ok(aiPendingRecoveryApi.includes('.eq("state", "processing")'), "Pending AI recovery must only return unresolved idempotency records");
+assert.ok(aiPendingRecoveryApi.includes("request_hash") && aiPendingRecoveryApi.includes("findOriginalPendingMessage"), "Pending AI recovery must verify the original prompt against the idempotency payload hash");
+assert.ok(pendingRecovery.includes("timingSafeEqual") && pendingRecovery.includes("hashPendingPrompt"), "Pending recovery must compare fixed-length SHA-256 digests safely");
+assert.ok(pendingRecovery.includes("message.content.length > 8000"), "Pending recovery must enforce the original prompt size limit");
+assert.ok(aiPendingRecoveryApi.includes('Cache-Control": "no-store"'), "Pending AI recovery responses must never be cached");
+assert.ok(workspaceClient.includes('fetch("/api/ai/pending"'), "Workspace must recover unresolved requests from the server after session loss");
+assert.ok(aiPendingRecoveryApi.includes("unresolved: false") && aiPendingRecoveryApi.includes("unresolved: true"), "Pending recovery API must distinguish no pending request from an unresolved but unrecoverable request");
+assert.ok(workspaceClient.includes("pendingRecoveryBlocked") && workspaceClient.includes("pendingData.unresolved === true"), "Workspace must retain local pending keys and block new prompts when server recovery is incomplete");
+assert.ok(workspaceClient.includes("另一個對話的 AI 請求尚未確認"), "Workspace must explain why a second request is blocked");
 
 
 const retentionSql = readFileSync("supabase/migrations/0007_ai_operational_retention.sql", "utf8");
@@ -166,6 +245,9 @@ assert.ok(contributionApi.includes('content.length < 10 || content.length > 1600
 assert.ok(contributionApi.includes('contributor_id: auth.user.id'), "Submission ownership must come from the authenticated session");
 assert.ok(!contributionApi.includes("reward_amount:"), "Client submission must never set or alter reward amounts");
 assert.ok(workspaceClient.includes('"Idempotency-Key": key'), "Workspace AI calls must use idempotency keys");
+assert.ok(workspaceClient.includes("data.retryWithSameKey !== true"), "Workspace must retain the same idempotency key for uncertain outcomes");
+assert.ok(workspaceClient.includes("sessionStorage"), "Workspace must preserve pending idempotency keys across page reloads");
+assert.ok(aiGateway.includes("retryWithSameKey: true"), "AI gateway must explicitly identify uncertain outcomes that require the same idempotency key");
 assert.ok(workspaceClient.includes('"/api/conversations"'), "Workspace must use the authenticated conversation API");
 assert.ok(adminOpsApi.includes('profile?.role !== "admin"'), "Operations API must verify admin role");
 assert.ok(adminOpsApi.includes('profile.account_status !== "active"'), "Operations API must reject inactive admins");
@@ -203,6 +285,20 @@ assert.ok(taskAdminClient.includes('"建立草稿"'), "Task admin UI must create
 
 console.log("Contribution operations guard passed: task authoring, controlled publication, reviewer approval, and member ledger access.");
 
+const reconciliationQueueSql = readFileSync("supabase/migrations/0013_bound_ai_reconciliation_queue.sql", "utf8");
+const reconciliationApi = readFileSync("app/api/admin/ai-reconciliation/route.ts", "utf8");
+assert.ok(aiGateway.includes('redirect: "error"'), "AI provider calls must reject unexpected redirects");
+assert.ok(reconciliationQueueSql.includes("limit 100;"), "Admin reconciliation query must have a hard result bound");
+assert.ok(reconciliationQueueSql.includes("ai_requests_stale_queue_idx"), "Stale AI queue must have a partial ordered index");
+assert.ok(reconciliationQueueSql.includes("p_older_than_seconds < 300") && reconciliationQueueSql.includes("p_older_than_seconds > 86400"),
+  "Admin reconciliation age filter must be bounded");
+assert.ok(reconciliationQueueSql.includes("to service_role"), "Stale request report must remain service-role only");
+assert.ok(reconciliationApi.includes('profile.role !== "admin"') && reconciliationApi.includes('profile.account_status !== "active"'),
+  "AI reconciliation endpoint must require an active admin");
+assert.ok(reconciliationApi.includes('Cache-Control": "no-store"'), "AI reconciliation response must not be cached");
+console.log("AI reconciliation guard passed: admin-only read access, bounded stale queue, and redirect-safe provider calls.");
+
+
 
 assert.ok(appealApi.includes('getAuthenticatedClient()'), "Contribution appeals must require authentication");
 assert.ok(appealApi.includes('submission.status !== "rejected"'), "Only rejected submissions may be appealed");
@@ -229,5 +325,8 @@ assert.ok(aiCostsApi.includes('SUPABASE_SERVICE_ROLE_KEY'), "AI cost dashboard m
 assert.ok(aiCostsApi.includes('.limit(500)'), "AI cost dashboard queries must be bounded");
 assert.ok(aiCostsApi.includes('amount_kind'), "AI cost dashboard must distinguish invoice, allocation, and estimate types");
 assert.ok(aiCostsApi.includes('provider_billed_currency'), "Provider billed amounts must remain grouped by currency");
+assert.ok(aiCostsApi.includes('.in("request_id", requestIds)'), "Provider model estimates must come from linked internal-estimate ledger rows");
+assert.ok(aiCostsApi.includes("unpricedRequests"), "Requests without a cost ledger must be reported separately, not priced from reservation ceilings");
+assert.ok(!aiCostsApi.includes("estimated_internal_cost"), "Cost dashboard must not report reservation ceilings as internal estimates");
 assert.ok(aiCostsClient.includes("成本性質（依幣別分開）"), "AI cost UI must separate cost types and currencies");
 assert.ok(aiCostsClient.includes("不代表供應商請款金額"), "AI cost UI must disclose estimates are not supplier invoices");

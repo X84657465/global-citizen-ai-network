@@ -1,78 +1,69 @@
 # Architecture
 
-## Proposed MVP stack
+## MVP stack
 
-- Next.js App Router + TypeScript for the web application.
-- PostgreSQL for durable application data.
-- A managed authentication/database service may be evaluated for the pilot, but access controls and exportability must be verified before selection.
-- Server-only model provider adapters; never expose provider API keys to the browser.
-- Background jobs for review queues, usage aggregation, and reconciliation.
-- Object storage for user documents, with private access and short-lived signed URLs.
-- Deployment provider selected after region, privacy, budget, and backup requirements are compared.
+- Next.js App Router and TypeScript for the web application.
+- Supabase Auth and PostgreSQL for identity, durable data, and row-level security.
+- Server-only model provider adapter; provider credentials and the Supabase service-role key never reach the browser.
+- PostgreSQL RPCs for atomic budget reservation, idempotency, settlement, and contribution review.
+- Background jobs and external provider reconciliation remain intentionally deferred until an operator process and evidence source are available.
 
-This is a proposed baseline, not a claim that these services are already provisioned.
+The repository is an early MVP and is not production-ready. No live provider billing, payout, or distributed compute node is enabled by default.
 
 ## Logical components
 
 1. Web UI: AI workspace, projects, contribution center, personal ledger.
-2. Application API: authentication, authorization, validation, quotas, business rules.
-3. Model gateway: provider routing, prompt templates, timeouts, retries, token usage.
-4. Cost ledger: supplier charges, estimated marginal costs, tools, review and infra allocation.
-5. Budget guard: platform kill switch, per-request ceiling, per-user daily/monthly quotas, and monthly hard spend cap.
-5. Contribution engine: task lifecycle, submissions, quality checks, human review, appeal.
-6. Admin console: spend limits, fraud signals, moderation, audit trail.
-7. Data layer: PostgreSQL, private object storage, backups.
+2. Application API: authentication, authorization, validation, quotas, and business rules.
+3. Model gateway: provider request validation, bounded response parsing, timeout, and idempotent request lifecycle.
+4. Cost ledger: provider-reported usage, internal estimates, imported invoices, and allocations kept distinct.
+5. Budget guard: platform kill switch, per-request ceiling, per-user quotas, and monthly hard spend cap.
+6. Contribution engine: task lifecycle, immutable reward snapshots, submissions, human review, and appeals.
+7. Admin console: cost transparency, stale-request review, and audit trail.
+8. Data layer: PostgreSQL, RLS, and append-only financial ledgers.
 
 ## AI request lifecycle
 
-1. Authenticate user and verify role, account status, quota, and policy.
-2. The `/api/ai/chat` route authenticates the member, verifies conversation ownership, checks server-only provider configuration, and bounds request size/history.
-3. Call the service-role-only `reserve_ai_budget` database function; it locks the global control row, checks the AI enable switch, active member status, per-request cap, platform monthly cap, member daily/monthly request quotas, and member monthly spend cap.
-4. The reservation and `ai_requests` row are inserted atomically. Reject by default when any control or member limit is missing, disabled, zero, or exceeded.
-5. Apply a conservative prompt-size cost preflight, then call the OpenAI-compatible endpoint server-side with a hard timeout and no automatic retries.
-6. Capture provider usage and request ID when available. If usage is missing, use a conservative character-count fallback and label the result as an internal estimate.
-7. Call `finalize_ai_budget` to record normalized TWD cost, or `release_ai_budget` for a failed request. Provider invoice amounts remain null until verified supplier billing data is imported. Actual charges above the estimate must still be recorded and surfaced as an overrun; never discard a real charge.
-8. Append an `ai_cost_ledger` internal-estimate entry and save the assistant response.
-9. Return the response with explicit cost-estimate labeling. Reconcile provider invoices against request-level estimates periodically.
+1. Authenticate the member and verify ownership of the target conversation.
+2. Validate the server-only OpenAI-compatible provider configuration, request body, and Idempotency-Key.
+3. Calculate a conservative prompt-cost preflight before side effects. The current route accepts up to 8,000 characters of new content, reads at most 20 history messages / 16,000 history characters, caps the JSON body at 32 KiB, and requests at most 1,200 output tokens. Only user and assistant roles are forwarded to the provider; system/tool/unknown rows are excluded rather than coerced into user messages. The claim RPC checks the estimate after resolving an existing idempotency key, preserving cached replays even if pricing settings change.
+4. Call the service-role-only claim_ai_request RPC. PostgreSQL serializes same-member/same-key claims, compares the payload hash, applies rate limits, reserves the maximum request budget, links the conversation, stores the original user message, and creates the idempotency record in one transaction before any provider call.
+5. Reject by default when platform controls, member limits, account status, or budget reservation do not permit the request.
+6. Send one server-side provider request with no automatic retry, redirect following disabled, and a bounded timeout. Provider response bodies are capped at 1 MiB and validated before usage or answer content is trusted.
+7. On a known pre-provider or provider rejection, fail_ai_chat_request atomically releases the reservation and marks the idempotency record failed.
+8. On a validated success, complete_ai_chat_request atomically settles the reservation, stores the assistant message, appends an internal_estimate cost-ledger row, and caches the idempotent response. A replay of the same committed response is safe.
+9. If the provider outcome is uncertain—timeout, transport failure, provider 408/5xx, malformed success response, or database finalization failure—the route does not retry the provider or release the reservation. It preserves the idempotency state and marks the request for operator reconciliation.
+10. The admin reconciliation endpoint reports up to the 100 oldest queued/running requests with reserved budgets older than 15 minutes. It is read-only: it never retries, settles, or releases a request. Operators must verify provider logs and billing evidence before any manual resolution.
 
-If exact supplier cost is not available per request, store the allocation method and mark it estimated. Never label estimates as invoices.
+Provider usage, configured token-rate estimates, provider-reported billed usage, and imported invoices are different accounting facts. The dashboard labels them separately and does not claim an internal estimate is an invoice. If usage fields are absent, conservative character-count fallbacks are explicitly recorded in the calculation method.
+
+## Budget and concurrency controls
+
+- reserve_ai_budget and settlement functions lock the platform control row to serialize global budget decisions.
+- New logical requests consume fixed-window limits of 10 per minute and 60 per hour per member; safe same-key retries do not consume additional quota. A database advisory lock serializes claims per member, and only one unresolved reserved/processing request is allowed across all of that member's conversations.
+- The reservation ceiling counts against both platform and member monthly spend limits until settlement or release.
+- A hard-stop condition disables further AI generation after a configured monthly cap is exceeded or actual estimated cost exceeds the reservation.
+- Missing, disabled, or zero-valued budget controls fail closed.
 
 ## Contribution lifecycle
 
-Draft task → published task → submission → automated checks → human review/sample audit → accepted or rejected → appeal/re-review → ledger event → settlement eligibility.
+Draft task → published task → submission → human review → accepted or rejected → appeal/re-review → immutable contribution/reward ledger event → settlement eligibility.
 
-An AI evaluator can assist triage but cannot be the sole authority for high-impact reward decisions.
+Reward amount and currency are snapshotted when a submission is created. Legacy submissions are marked as estimates because their original task price cannot be reconstructed reliably. An AI evaluator may assist triage but cannot be the sole authority for high-impact reward decisions.
 
 ## Trust boundaries
 
-- Browser clients are untrusted.
-- User-uploaded documents and retrieved web content are untrusted inputs.
-- Model outputs are untrusted until validated.
-- Contribution submissions and volunteer node outputs are untrusted until verified.
+- Browser clients, user-uploaded documents, retrieved pages, and model outputs are untrusted.
 - Admin and service credentials are privileged secrets.
+- Service-role database calls must be preceded by server-side identity and role checks.
+- RLS remains the member-data boundary; privileged RPCs re-check ownership and state transitions.
 
 ## Deployment principle
 
-Start with a single-region, small, observable deployment. Add queues, replicas, and regional infrastructure only when measured demand justifies them. Do not build a global microservice architecture before there is a product-market signal.
+Start with a single-region, observable deployment. Add queues, replicas, and regional infrastructure only when measured demand justifies them. Do not build a global microservice or distributed-compute network before product-market signal and independent security review.
 
-## Implemented gateway scaffold
+## Known pre-launch gaps
 
-- `POST /api/ai/chat` requires an authenticated member and a conversation owned by that member.
-- The route is disabled unless `AI_PROVIDER=openai-compatible`, HTTPS (or localhost) `AI_BASE_URL`, server-only API key, model, TWD per-million-token rates, and a positive per-request reservation are configured.
-- The route reserves budget before calling the provider, uses a 32 KiB JSON limit, caps history to 16,000 characters, applies a conservative character-count preflight, limits output to 1,200 tokens, and enforces a timeout.
-- No automatic provider retries are performed. Failed calls release the reservation. Successful calls settle the budget, append an internal-estimate cost-ledger entry, and save the assistant message.
-- Provider invoice amount is intentionally left null; configured token rates are internal estimates, not verified invoice charges.
-- The service-role key is accessed only by a server-only module and is never returned to the client.
-- This route is an initial single-provider adapter, not yet a production-grade multi-provider router. Idempotency, rate limiting, streaming, provider-specific token accounting, and PostgreSQL integration tests remain required before public launch.
-
-
-## AI request idempotency and rate limits
-
-The AI gateway requires an `Idempotency-Key` per logical user action. PostgreSQL serializes same-member/same-key claims with a transaction-scoped advisory lock, compares a SHA-256 payload hash, and creates the idempotency record and budget reservation in the same transaction. A different payload under the same key is rejected. Completed responses are replayed for 24 hours; processing and failed states are not silently re-executed. The response cache contains generated answer text and is service-role-only, so production retention/deletion scheduling and privacy review are required.
-
-New logical requests are subject to database-enforced fixed-window limits of 10 per minute and 60 per hour per member. Safe retries are detected before rate counters increment. Rate counters are service-role-only and must be included in operational retention/cleanup planning. These limits are conservative defaults, not final product pricing or capacity commitments.
-
-
-## Operational retention and stuck-request handling
-
-Migration 0007 adds a service-role-only cleanup function for expired completed/failed idempotency mappings and old rate-limit windows, plus a read-only stale-request report. It intentionally never deletes in-flight idempotency rows, AI requests, reservations, or financial ledgers. Requests with a reserved budget that remain queued/running beyond the operational threshold are surfaced for manual provider/billing reconciliation; age alone is never treated as proof that a provider call failed. Scheduling is deferred until a real database has Cron enabled and the function has been manually tested.
+- No production provider is configured or billing-enabled by this repository.
+- The stale-request queue is a report, not a provider-specific reconciliation adapter.
+- Automated reconciliation, scheduled retention, data export/deletion workflows, backup/restore drills, MFA enforcement, and independent security review remain release gates.
+- Streaming, multi-provider routing, and a production incident-response process are not implemented.

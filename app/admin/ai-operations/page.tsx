@@ -50,7 +50,7 @@ export default async function AiOperationsPage() {
     const admin = createAdminClient();
     const { data, error } = await admin.rpc("list_stale_ai_requests", { p_older_than_seconds: 900 });
     if (error) {
-      loadError = "異常請求查詢尚未就緒，請確認 Migration 0007 已套用。";
+      loadError = "異常請求查詢尚未就緒，請確認 Migration 0007、0013 已套用。";
     } else {
       requests = (data ?? []) as StaleRequest[];
     }

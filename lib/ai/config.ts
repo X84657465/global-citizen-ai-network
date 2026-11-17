@@ -18,11 +18,15 @@ export function getAiRuntimeConfig(): AiRuntimeConfig | null {
   const baseUrl = process.env.AI_BASE_URL?.trim();
   const apiKey = process.env.AI_API_KEY?.trim();
   const model = process.env.AI_MODEL?.trim();
-  if (!baseUrl || !apiKey || !model) return null;
+  if (!baseUrl || baseUrl.length > 2048 || !apiKey || apiKey.length > 4096 || !model || model.length > 160) return null;
 
   try {
     const parsed = new URL(baseUrl);
-    if (parsed.protocol !== "https:" && parsed.hostname !== "localhost" && parsed.hostname !== "127.0.0.1") return null;
+    const isLoopback = ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname.toLowerCase());
+    const isSecureTransport = parsed.protocol === "https:";
+    const isLocalDevelopment = parsed.protocol === "http:" && isLoopback;
+    if (!isSecureTransport && !isLocalDevelopment) return null;
+    if (parsed.username || parsed.password || parsed.search || parsed.hash) return null;
   } catch {
     return null;
   }
@@ -33,7 +37,7 @@ export function getAiRuntimeConfig(): AiRuntimeConfig | null {
   if (!maxRequestCostTwd || !inputCostPerMillionTwd || !outputCostPerMillionTwd) return null;
 
   return {
-    baseUrl: baseUrl.replace(/\/$/, ""),
+    baseUrl: baseUrl.replace(/\/+$/, ""),
     apiKey,
     model,
     maxRequestCostTwd,
