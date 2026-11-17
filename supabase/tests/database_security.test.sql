@@ -1,6 +1,6 @@
 begin;
 
-select plan(12);
+select plan(18);
 
 -- The initial schema must protect every user-facing table with RLS.
 select is(
@@ -90,6 +90,53 @@ select ok(
     'EXECUTE'
   ),
   'service_role can execute the privileged idempotency claim RPC'
+);
+
+
+select ok(
+  to_regprocedure('public.cleanup_expired_ai_operational_records()') is not null,
+  'safe operational retention function exists'
+);
+
+select ok(
+  to_regprocedure('public.list_stale_ai_requests(integer)') is not null,
+  'read-only stale AI request report exists'
+);
+
+select ok(
+  not has_function_privilege(
+    'authenticated',
+    'public.cleanup_expired_ai_operational_records()',
+    'EXECUTE'
+  ),
+  'authenticated users cannot execute operational cleanup'
+);
+
+select ok(
+  has_function_privilege(
+    'service_role',
+    'public.cleanup_expired_ai_operational_records()',
+    'EXECUTE'
+  ),
+  'service_role can execute operational cleanup'
+);
+
+select ok(
+  not has_function_privilege(
+    'authenticated',
+    'public.list_stale_ai_requests(integer)',
+    'EXECUTE'
+  ),
+  'authenticated users cannot inspect stale AI operations'
+);
+
+select ok(
+  has_function_privilege(
+    'service_role',
+    'public.list_stale_ai_requests(integer)',
+    'EXECUTE'
+  ),
+  'service_role can inspect stale AI operations'
 );
 
 select * from finish();
