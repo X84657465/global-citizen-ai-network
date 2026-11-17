@@ -1,6 +1,6 @@
 begin;
 
-select plan(46);
+select plan(48);
 
 select is(
   (select count(*)::integer
@@ -294,6 +294,54 @@ begin
   end if;
 end;
 $fixture$;
+
+-- Exercise the member-facing RLS policies as an authenticated contributor,
+-- not only as the database owner used by the fixture setup above.
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+set local role authenticated;
+
+insert into public.task_submissions (
+  id, task_id, contributor_id, content, status, submitted_at,
+  reward_amount_snapshot, reward_currency_snapshot, reward_snapshot_source
+) values (
+  '30000000-0000-4000-8000-000000000003',
+  '20000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000002',
+  'Authenticated contributor submission exercising the owner insert policy.',
+  'accepted', '2000-01-01T00:00:00Z',
+  1.00, 'EUR', 'legacy_backfill_current_task'
+);
+
+insert into public.task_appeals (
+  id, submission_id, appellant_id, reason, status, resolution, resolved_at
+) values (
+  '40000000-0000-4000-8000-000000000004',
+  '30000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000002',
+  'Authenticated contributor appeal exercising the owner insert policy.',
+  'dismissed', 'forged resolution', '2000-01-01T00:00:00Z'
+);
+
+reset role;
+
+select ok(
+  exists (select 1 from public.task_submissions
+    where id = '30000000-0000-4000-8000-000000000003'
+      and contributor_id = '10000000-0000-4000-8000-000000000002'
+      and status = 'submitted'
+      and reward_amount_snapshot = 999.00
+      and reward_currency_snapshot = 'EUR'
+      and reward_snapshot_source = 'submission_time'),
+  'authenticated member submission passes owner RLS and server overwrites forged lifecycle and reward snapshot fields'
+);
+select ok(
+  exists (select 1 from public.task_appeals
+    where id = '40000000-0000-4000-8000-000000000004'
+      and appellant_id = '10000000-0000-4000-8000-000000000002'
+      and status = 'submitted'
+      and resolution is null and resolved_at is null),
+  'authenticated member appeal passes owner RLS and server overwrites forged resolution fields'
+);
 
 select ok(
   (select count(*) = 3
