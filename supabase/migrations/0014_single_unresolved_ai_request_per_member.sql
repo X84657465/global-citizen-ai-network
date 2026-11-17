@@ -3,7 +3,7 @@
 -- recovery remains possible even if the API process stops immediately afterward.
 
 drop function if exists public.claim_ai_request(uuid,text,char,uuid,text,text,text,numeric);
-drop function if exists public.claim_ai_request(uuid,uuid,text,char,uuid,text,text,text,numeric);
+drop function if exists public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric);
 -- This prevents a member from switching conversations and creating a second
 -- billable request while a prior provider outcome is still unknown.
 
@@ -17,7 +17,8 @@ create or replace function public.claim_ai_request(
   p_provider text,
   p_model text,
   p_feature text,
-  p_max_cost_twd numeric
+  p_max_cost_twd numeric,
+  p_preflight_cost_twd numeric
 )
 returns table (disposition text, reason text, claimed_request_id uuid, cached_response jsonb)
 language plpgsql
@@ -31,6 +32,8 @@ declare
 begin
   if p_owner_id is null or p_conversation_id is null or p_request_id is null
      or p_prompt is null or length(p_prompt) < 1 or length(p_prompt) > 8000
+     or p_preflight_cost_twd is null or p_preflight_cost_twd < 0
+     or p_preflight_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
      or p_idempotency_key is null
      or length(p_idempotency_key) < 8
      or length(p_idempotency_key) > 128
@@ -94,6 +97,15 @@ begin
 
   if found then
     delete from public.ai_request_idempotency where id = v_existing.id;
+  end if;
+
+  -- Existing completed/processing keys are replayed above before this check.
+  -- A new logical request is rejected before rate-limit consumption, reservation,
+  -- or prompt persistence when its conservative preflight exceeds the ceiling.
+  if p_preflight_cost_twd > p_max_cost_twd then
+    return query select 'rejected'::text, 'preflight_cost_exceeds_reservation'::text,
+      null::uuid, null::jsonb;
+    return;
   end if;
 
   -- A reservation in queued/running state is unresolved regardless of which
@@ -161,5 +173,5 @@ begin
 end;
 $$;
 
-revoke all on function public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric) from public, anon, authenticated;
-grant execute on function public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric) to service_role;
+revoke all on function public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric) from public, anon, authenticated;
+grant execute on function public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric) to service_role;
