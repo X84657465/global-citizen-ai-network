@@ -5,6 +5,10 @@ const sql = readFileSync("supabase/migrations/0001_initial_schema.sql", "utf8");
 const statusSql = readFileSync("supabase/migrations/0002_member_status_rls.sql", "utf8");
 const env = readFileSync(".env.example", "utf8");
 const page = readFileSync("app/page.tsx", "utf8");
+const bodyReader = readFileSync("lib/http/read-json-body.ts", "utf8");
+const projectApi = readFileSync("app/api/projects/route.ts", "utf8");
+const conversationApi = readFileSync("app/api/conversations/route.ts", "utf8");
+const messageApi = readFileSync("app/api/conversations/[id]/messages/route.ts", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -33,6 +37,12 @@ assert.ok(env.includes("ENABLE_PUBLIC_SIGNUP=false"), "Server signup gate must d
 assert.ok(env.includes("NEXT_PUBLIC_ENABLE_PUBLIC_SIGNUP=false"), "Signup UI must default closed");
 assert.ok(page.includes("Global Citizen AI Network") || page.includes("全球公民 AI 網路"),
   "Main product entry page must remain present");
+
+assert.ok(bodyReader.includes("request.body.getReader()"), "JSON bodies must be read as a bounded stream");
+assert.ok(bodyReader.includes("totalBytes > maxBytes"), "JSON body reader must enforce byte limits");
+assert.ok(projectApi.includes("readJsonBody(request, 32768)"), "Project API must enforce 32 KiB request limit");
+assert.ok(conversationApi.includes("readJsonBody(request, 32768)"), "Conversation API must enforce 32 KiB request limit");
+assert.ok(messageApi.includes("readJsonBody(request, 98304)"), "Message API must enforce 96 KiB request limit");
 
 for (const forbidden of [
   "request_id uuid references public.ai_requests(id) on delete set null",
