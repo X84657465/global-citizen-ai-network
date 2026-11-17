@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 type Contribution = { id: string; event_type: string; points: number | string; occurred_at: string };
 type Reward = { id: string; event_type: string; amount: number | string; currency: string; status: string; reason: string; occurred_at: string };
@@ -12,7 +12,7 @@ type Data = {
   error?: string;
 };
 
-const panel: React.CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 18 };
+const panel: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 18 };
 const money = (amount: number | string, currency: string) => new Intl.NumberFormat("zh-TW", { style: "currency", currency: currency.trim(), maximumFractionDigits: 2 }).format(Number(amount));
 
 export default function MemberContributionsClient() {
