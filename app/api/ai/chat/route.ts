@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createHash } from "node:crypto";
 import { getAiRuntimeConfig, estimateCostTwd } from "@/lib/ai/config";
 import {
   isKnownProviderRejection,
@@ -9,6 +8,7 @@ import {
   safeProviderRequestId,
 } from "@/lib/ai/provider-response";
 import { shouldPreservePendingRequestKey } from "@/lib/ai/pending-retry";
+import { hashPendingPrompt } from "@/lib/ai/pending-recovery";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -99,9 +99,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "無法安全估算本次請求成本，請稍後再試。", retryWithSameKey: false }, { status: 400 });
   }
 
-  const requestHash = createHash("sha256")
-    .update(JSON.stringify({ conversationId, content }))
-    .digest("hex");
+  const requestHash = hashPendingPrompt(conversationId, content);
   const requestId = crypto.randomUUID();
   const { data: claimData, error: claimError } = await admin.rpc("claim_ai_request", {
     p_owner_id: auth.user.id,
