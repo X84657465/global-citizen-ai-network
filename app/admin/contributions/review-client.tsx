@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 type Submission = {
   id: string;
@@ -13,7 +13,7 @@ type Submission = {
   contribution_tasks: { title: string; reward_amount: number | string; reward_currency: string } | { title: string; reward_amount: number | string; reward_currency: string }[] | null;
 };
 type Payload = { submissions?: Submission[]; error?: string };
-const panel: React.CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 18 };
+const panel: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 18 };
 
 function taskInfo(task: Submission["contribution_tasks"]) {
   return Array.isArray(task) ? task[0] : task;
