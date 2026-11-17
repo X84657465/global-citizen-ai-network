@@ -1,6 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createHash } from "node:crypto";
 import { getAiRuntimeConfig, estimateCostTwd } from "@/lib/ai/config";
+import {
+  parseProviderResponse,
+  ProviderResponseError,
+  readProviderJson,
+  safeProviderRequestId,
+} from "@/lib/ai/provider-response";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -9,15 +15,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type ChatBody = { conversationId?: unknown; content?: unknown };
-type ProviderResponse = {
-  id?: string;
-  choices?: Array<{ message?: { content?: string | Array<{ type?: string; text?: string }> } }>;
-  usage?: {
-    prompt_tokens?: number;
-    completion_tokens?: number;
-    prompt_tokens_details?: { cached_tokens?: number };
-  };
-};
+type HistoryMessage = { role: string; content: string };
 
 function safeErrorCode(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 80) || "provider_failed";
@@ -105,60 +103,89 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(claim.cached_response, { headers: { "Cache-Control": "no-store", "Idempotency-Replayed": "true" } });
   }
   if (claim.disposition === "processing") {
-    return NextResponse.json({ error: "相同請求仍在處理中，請稍後使用相同 Idempotency-Key 重試。" }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
+    return NextResponse.json({ error: "相同請求仍在處理或等待成本核對，請稍後使用相同 Idempotency-Key 重試。" }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
   }
   if (claim.disposition !== "claimed" || claim.claimed_request_id !== requestId) {
     const status = claim.disposition === "conflict" ? 409 : claim.disposition === "failed" ? 502 : 429;
     return NextResponse.json({ error: claim.reason === "platform_ai_disabled" ? "平台 AI 服務目前暫停。" : "請求未通過預算、額度或冪等性檢查。" }, { status });
   }
-  const failIdempotency = async (code: string) => {
-    await admin.rpc("fail_ai_request_idempotency", {
+
+  const failRequest = async (code: string) => {
+    const { data, error } = await admin.rpc("fail_ai_chat_request", {
       p_owner_id: auth.user.id,
       p_request_id: requestId,
       p_error_code: safeErrorCode(code),
     });
+    return !error && data === true;
+  };
+  const markForReconciliation = async (code: string, providerRequestId: string | null = null) => {
+    try {
+      const { data, error } = await admin.rpc("mark_ai_request_reconciliation_required", {
+        p_owner_id: auth.user.id,
+        p_request_id: requestId,
+        p_error_code: safeErrorCode(code),
+        p_provider_request_id: providerRequestId,
+      });
+      return !error && data === true;
+    } catch {
+      return false;
+    }
+  };
+  const failKnownOutcome = async (code: string) => {
+    if (!await failRequest(code)) {
+      await markForReconciliation(`${code}_cleanup_pending`);
+    }
   };
 
-  const { error: linkError } = await admin
-    .from("ai_requests")
-    .update({ conversation_id: conversationId })
-    .eq("id", requestId);
-  if (linkError) {
-    await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "request_link_failed" });
-    await failIdempotency("request_link_failed");
-    return NextResponse.json({ error: "無法建立 AI 請求紀錄。" }, { status: 500 });
-  }
-
-  const { error: userMessageError } = await auth.supabase
-    .from("messages")
-    .insert({ conversation_id: conversationId, owner_id: auth.user.id, role: "user", content });
-  if (userMessageError) {
-    await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "message_persist_failed" });
-    await failIdempotency("message_persist_failed");
-    return NextResponse.json({ error: "訊息儲存失敗，未呼叫 AI。" }, { status: 500 });
-  }
-
-  const recentHistory = (history ?? []).reverse();
+  const recentHistory = ((history ?? []) as HistoryMessage[]).reverse();
   const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
   let historyCharacters = content.length;
   for (const item of recentHistory) {
-    if (historyCharacters + item.content.length > 16000) continue;
+    if (typeof item.content !== "string" || historyCharacters + item.content.length > 16000) continue;
     messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
     historyCharacters += item.content.length;
   }
   messages.push({ role: "user", content });
 
   // Conservative preflight: one token per character plus the fixed output ceiling.
-  // Refuse requests whose configured worst-case estimate exceeds the reservation.
+  // Reject before persisting the user message or contacting the provider.
   const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
-  if (worstCaseCost > config.maxRequestCostTwd) {
-    await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "preflight_cost_exceeds_reservation" });
-    await failIdempotency("preflight_cost_exceeds_reservation");
+  if (!Number.isFinite(worstCaseCost) || worstCaseCost > config.maxRequestCostTwd) {
+    await failKnownOutcome("preflight_cost_exceeds_reservation");
     return NextResponse.json({ error: "本次內容超過單次預算上限，請縮短內容後再試。" }, { status: 413 });
   }
+
+  const { data: startedRequest, error: startError } = await admin
+    .from("ai_requests")
+    .update({
+      conversation_id: conversationId,
+      status: "running",
+      started_at: new Date().toISOString(),
+      error_code: null,
+    })
+    .eq("id", requestId)
+    .eq("owner_id", auth.user.id)
+    .eq("status", "queued")
+    .select("id")
+    .maybeSingle();
+
+  if (startError || !startedRequest) {
+    await failKnownOutcome("request_start_failed");
+    return NextResponse.json({ error: "無法啟動 AI 請求，預算保留已安全處理。" }, { status: 503 });
+  }
+
+  const { error: userMessageError } = await auth.supabase
+    .from("messages")
+    .insert({ conversation_id: conversationId, owner_id: auth.user.id, role: "user", content });
+  if (userMessageError) {
+    await failKnownOutcome("message_persist_failed");
+    return NextResponse.json({ error: "訊息儲存失敗，尚未呼叫 AI。" }, { status: 500 });
+  }
+
   const startedAt = Date.now();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+  let providerRequestId: string | null = null;
 
   try {
     const response = await fetch(`${config.baseUrl}/chat/completions`, {
@@ -177,99 +204,92 @@ export async function POST(request: NextRequest) {
       cache: "no-store",
     });
 
+    providerRequestId = safeProviderRequestId(
+      response.headers.get("x-request-id") ?? response.headers.get("request-id"),
+    );
+
     if (!response.ok) {
       const code = `provider_http_${response.status}`;
-      await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: code });
-      await failIdempotency(code);
-      return NextResponse.json({ error: "AI 服務目前無法完成請求，預算保留已釋放。" }, { status: 502 });
-    }
-
-    const result = (await response.json()) as ProviderResponse;
-    const rawContent = result.choices?.[0]?.message?.content;
-    const answer = typeof rawContent === "string"
-      ? rawContent
-      : Array.isArray(rawContent)
-        ? rawContent.map((part) => part.text ?? "").join("")
-        : "";
-    if (!answer.trim()) {
-      await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "empty_provider_response" });
-      await failIdempotency("empty_provider_response");
-      return NextResponse.json({ error: "AI 沒有回傳可用內容，預算保留已釋放。" }, { status: 502 });
-    }
-
-    const inputTokens = Math.max(0, Math.trunc(result.usage?.prompt_tokens ?? historyCharacters));
-    const outputTokens = Math.max(0, Math.trunc(result.usage?.completion_tokens ?? answer.length));
-    const cachedTokens = Math.max(0, Math.trunc(result.usage?.prompt_tokens_details?.cached_tokens ?? 0));
-    const estimatedActualCost = estimateCostTwd(inputTokens, outputTokens, config);
-    const latencyMs = Date.now() - startedAt;
-
-    const { data: finalized, error: finalizeError } = await admin.rpc("finalize_ai_budget", {
-      p_request_id: requestId,
-      p_actual_cost_twd: estimatedActualCost,
-      p_provider_billed_cost: null,
-      p_provider_billed_currency: null,
-      p_input_tokens: inputTokens,
-      p_output_tokens: outputTokens,
-      p_cached_tokens: cachedTokens,
-      p_provider_request_id: result.id ?? null,
-      p_latency_ms: latencyMs,
-    });
-
-    if (finalizeError || finalized !== true) {
-      await failIdempotency("budget_finalize_failed");
-      return NextResponse.json({ error: "AI 回應已產生，但成本結算未完成，系統已阻止回傳並標記需管理員核對。" }, { status: 503 });
-    }
-
-    const { error: assistantMessageError } = await admin.from("messages").insert({
-      conversation_id: conversationId,
-      owner_id: auth.user.id,
-      role: "assistant",
-      content: answer,
-      model: config.model,
-      token_input: inputTokens,
-      token_output: outputTokens,
-    });
-    if (assistantMessageError) {
-      await failIdempotency("assistant_message_persist_failed");
-      return NextResponse.json({ error: "AI 已完成並結算，但訊息保存失敗，請稍後查看請求紀錄。" }, { status: 500 });
-    }
-
-    if (estimatedActualCost > 0) {
-      const { error: ledgerError } = await admin.from("ai_cost_ledger").insert({
-        request_id: requestId,
-        owner_id: auth.user.id,
-        cost_category: "model_provider",
-        amount: estimatedActualCost,
-        currency: "TWD",
-        amount_kind: "internal_estimate",
-        calculation_method: "configured_twd_per_million_tokens_or_character_fallback",
-      });
-      if (ledgerError) {
-        await failIdempotency("cost_ledger_write_failed");
-        return NextResponse.json({ error: "AI 已完成，但成本明細寫入失敗，已標記為需對帳。" }, { status: 503 });
+      if (response.status === 408 || response.status >= 500) {
+        await markForReconciliation(code, providerRequestId);
+        return NextResponse.json({ error: "AI 供應商回應不確定，預算暫時保留，請稍後查看營運核對狀態。" }, { status: 502 });
       }
+      await failKnownOutcome(code);
+      return NextResponse.json({ error: "AI 服務拒絕本次請求，預算保留已釋放。" }, { status: 502 });
     }
+
+    const providerPayload = await readProviderJson(response);
+    const providerResult = parseProviderResponse(
+      providerPayload,
+      historyCharacters,
+      typeof providerPayload === "object" && providerPayload !== null
+        ? (providerPayload as { choices?: Array<{ message?: { content?: unknown } }> }).choices?.[0]?.message?.content instanceof Array
+          ? (providerPayload as { choices: Array<{ message: { content: Array<{ text?: string }> } }> }).choices[0].message.content.reduce((sum, part) => sum + (typeof part.text === "string" ? part.text.length : 0), 0)
+          : typeof (providerPayload as { choices?: Array<{ message?: { content?: unknown } }> }).choices?.[0]?.message?.content === "string"
+            ? ((providerPayload as { choices: Array<{ message: { content: string } }> }).choices[0].message.content.length)
+            : 0
+        : 0,
+    );
+    providerRequestId = providerResult.providerRequestId ?? providerRequestId;
+
+    const estimatedActualCost = estimateCostTwd(
+      providerResult.inputTokens,
+      providerResult.outputTokens,
+      config,
+    );
+    if (!Number.isFinite(estimatedActualCost) || estimatedActualCost < 0) {
+      throw new ProviderResponseError("invalid_estimated_cost");
+    }
+
+    const latencyMs = Date.now() - startedAt;
+    const costMethod = providerResult.usageSource === "provider"
+      ? "configured_token_rates_provider_usage_internal_estimate"
+      : providerResult.usageSource === "provider_partial_with_fallback"
+        ? "configured_token_rates_partial_provider_usage_internal_estimate"
+        : "configured_token_rates_conservative_character_fallback_internal_estimate";
 
     const payload = {
       requestId,
-      answer,
-      usage: { inputTokens, outputTokens, cachedTokens, estimatedCostTwd: estimatedActualCost },
+      answer: providerResult.answer,
+      usage: {
+        inputTokens: providerResult.inputTokens,
+        outputTokens: providerResult.outputTokens,
+        cachedTokens: providerResult.cachedTokens,
+        estimatedCostTwd: estimatedActualCost,
+      },
       costLabel: "依管理員設定的每百萬 Token 成本估算，非供應商發票金額",
     };
-    const { data: idempotencyCompleted, error: idempotencyCompleteError } = await admin.rpc("complete_ai_request_idempotency", {
+
+    const { data: completed, error: completionError } = await admin.rpc("complete_ai_chat_request", {
       p_owner_id: auth.user.id,
       p_request_id: requestId,
+      p_conversation_id: conversationId,
+      p_answer: providerResult.answer,
+      p_model: config.model,
+      p_input_tokens: providerResult.inputTokens,
+      p_output_tokens: providerResult.outputTokens,
+      p_cached_tokens: providerResult.cachedTokens,
+      p_estimated_cost_twd: estimatedActualCost,
+      p_provider_request_id: providerRequestId,
+      p_latency_ms: latencyMs,
+      p_cost_method: costMethod,
       p_response: payload,
     });
-    if (idempotencyCompleteError || idempotencyCompleted !== true) {
-      return NextResponse.json({ error: "AI 已完成並結算，但請求回放紀錄未完成，請勿更換 Idempotency-Key 重送。" }, { status: 503 });
+
+    if (completionError || completed !== true) {
+      await markForReconciliation("provider_succeeded_finalize_pending", providerRequestId);
+      return NextResponse.json({ error: "AI 已產生回應，但資料庫尚未完成原子結算，預算已保留並列入管理員核對。" }, { status: 503 });
     }
+
     return NextResponse.json(payload, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    const code = error instanceof Error && error.name === "AbortError" ? "provider_timeout" : safeErrorCode(error instanceof Error ? error.message : "provider_failed");
-    await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: code });
-    await failIdempotency(code);
-    return NextResponse.json({ error: "AI 服務發生錯誤，預算保留已釋放。" }, { status: 502 });
+    const code = error instanceof ProviderResponseError
+      ? error.code
+      : error instanceof Error && error.name === "AbortError"
+        ? "provider_timeout_outcome_unknown"
+        : "provider_transport_or_response_unknown";
+    await markForReconciliation(code, providerRequestId);
+    return NextResponse.json({ error: "AI 請求結果尚未能安全確認，預算暫時保留並列入管理員核對，請勿更換 Idempotency-Key 重送。" }, { status: 502 });
   } finally {
     clearTimeout(timeout);
   }
