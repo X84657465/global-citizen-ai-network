@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   Activity, ArrowDownRight, ArrowUpRight, BrainCircuit, CheckCircle2,
   ChevronRight, CircleDollarSign, Clock3, Cpu, FileSearch, Globe2,
@@ -119,15 +119,15 @@ export default function Home() {
   );
 }
 
-function Metric({icon,label,value,note}:{icon:React.ReactNode;label:string;value:string;note:string}) {
+function Metric({icon,label,value,note}:{icon:ReactNode;label:string;value:string;note:string}) {
   return <div className="metric-card"><div className="metric-top"><span>{label}</span><div className="metric-icon">{icon}</div></div><strong>{value}</strong><small>{note}</small></div>;
 }
-function Pillar({icon,number,title,text,tag}:{icon:React.ReactNode;number:string;title:string;text:string;tag:string}) {
+function Pillar({icon,number,title,text,tag}:{icon:ReactNode;number:string;title:string;text:string;tag:string}) {
   return <div className="pillar-card"><div className="pillar-top"><div className="pillar-icon">{icon}</div><span>{number}</span></div><h3>{title}</h3><p>{text}</p><div className="pillar-tag">{tag}</div></div>;
 }
 function Milestone({done=false,title,detail}:{done?:boolean;title:string;detail:string}) {
   return <div className="milestone"><div className={done?"milestone-check done":"milestone-check"}>{done?<CheckCircle2 size={15}/>:<span/>}</div><div><b>{title}</b><p>{detail}</p></div><span className={done?"milestone-state done":"milestone-state"}>{done?"已完成":"待執行"}</span></div>;
 }
-function InfoRow({icon,title,text}:{icon:React.ReactNode;title:string;text:string}) {
+function InfoRow({icon,title,text}:{icon:ReactNode;title:string;text:string}) {
   return <div className="info-row"><div>{icon}</div><section><b>{title}</b><p>{text}</p></section></div>;
 }
