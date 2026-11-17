@@ -53,7 +53,9 @@ export async function GET() {
   }
 
   const lastMessage = lastMessages?.[0];
-  if (!idempotency?.idempotency_key || !/^[A-Za-z0-9._:-]{8,128}$/.test(idempotency.idempotency_key)\n      || lastMessage?.role !== "user" || typeof lastMessage.content !== "string"\n      || lastMessage.content.length < 1 || lastMessage.content.length > 8000) {
+  if (!idempotency?.idempotency_key || !/^[A-Za-z0-9._:-]{8,128}$/.test(idempotency.idempotency_key)
+      || lastMessage?.role !== "user" || typeof lastMessage.content !== "string"
+      || lastMessage.content.length < 1 || lastMessage.content.length > 8000) {
     return NextResponse.json({ pending: null }, { headers: { "Cache-Control": "no-store" } });
   }
 
