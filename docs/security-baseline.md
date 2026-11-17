@@ -4,20 +4,21 @@ This document is a minimum design baseline, not a completed security audit or le
 
 ## Identity and authorization
 
-- Use secure, maintained authentication; require verified email for sensitive actions.
-- Enforce server-side authorization on every resource access.
-- Apply least privilege and role-based access control.
-- Require MFA for administrators and privileged reviewers.
+- Use secure, maintained authentication and verify the session server-side for every private request.
+- Enforce server-side authorization on every resource access and apply least privilege.
+- Privileged contribution and AI operations must verify an active admin/reviewer role before creating a service-role client or invoking privileged RPCs.
+- Require MFA for administrators and privileged reviewers before public launch.
 - Separate production, staging, and development credentials.
 
 ## Secrets and API spending
 
-- Keep model, database, payment, and signing secrets server-side.
-- Never commit real keys or put them in NEXT_PUBLIC variables.
+- Keep model, database, payment, and signing secrets server-side; never commit real keys or put them in NEXT_PUBLIC variables.
 - Rotate secrets and document incident procedures.
-- Set per-user, per-IP, per-feature, and global quotas.
-- Set provider billing alerts and hard platform spend limits where supported.
-- Bound request size, output size, tool calls, retries, and execution time.
+- Set per-user, per-feature, and global quotas and provider billing alerts.
+- Bound request size, provider response size, output size, retries, and execution time.
+- Use a database-enforced reservation before any provider call; fail closed when controls are missing or disabled.
+- Do not automatically retry uncertain provider outcomes. Preserve the idempotency key and reservation until provider-side evidence is checked.
+- Keep internal cost estimates, provider-reported usage, and imported invoice charges distinct.
 - Provide a kill switch and safe degraded mode.
 
 ## AI-specific threats
@@ -32,15 +33,16 @@ This document is a minimum design baseline, not a completed security audit or le
 ## User data
 
 - Collect the minimum data required.
-- Define retention periods and deletion workflows.
+- Define retention periods and deletion workflows before public launch.
 - Encrypt transport and use managed encryption at rest.
 - Use private object storage and expiring signed download links.
-- Prevent cross-user project, conversation, file, and ledger access.
+- Prevent cross-user project, conversation, file, and ledger access through RLS and server-side ownership checks.
 - Log access to sensitive records without logging secrets or unnecessary content.
 - Provide export and deletion request processes, subject to legal retention duties.
 
 ## Contribution integrity
 
+- Snapshot the reward amount and currency at submission time; never derive a historical reward from a task's current price.
 - Publish task scope, source/data rights, acceptance criteria, review method, reward amount, and appeal process before work begins.
 - Detect duplicates, plagiarism, collusion, automated farming, and suspicious account patterns.
 - Use human sampling and independent review.
@@ -63,4 +65,4 @@ Document owner, escalation path, severity levels, evidence preservation, user no
 
 ## Release gates
 
-Do not launch publicly until access isolation, upload scanning, rate limits, backups, recovery, logging, secret handling, and a security review have passed.
+Do not launch publicly until access isolation, upload scanning, rate limits, backups, recovery, logging, secret handling, data export/deletion, and an independent security review have passed.
