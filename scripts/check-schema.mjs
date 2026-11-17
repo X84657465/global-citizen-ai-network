@@ -112,12 +112,15 @@ console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC
 const aiGateway = readFileSync("app/api/ai/chat/route.ts", "utf8");
 const atomicAiSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
+const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
 assert.ok(idempotencySql.includes("public.reserve_ai_budget("), "Idempotency claim must atomically reserve AI budget");
 assert.ok(aiGateway.includes('complete_ai_chat_request'), "AI gateway must atomically settle successful provider calls");
 assert.ok(aiGateway.includes('fail_ai_chat_request'), "AI gateway must atomically release known failed reservations");
 assert.ok(aiGateway.includes('mark_ai_request_reconciliation_required'), "AI gateway must preserve uncertain provider outcomes for reconciliation");
 assert.ok(aiGateway.includes("isKnownProviderRejection") && providerResponse.includes("[400, 401, 403, 404, 422]"), "Only explicit validation/authentication rejection statuses may release reservations; ambiguous provider 4xx must reconcile");
+assert.ok(aiRuntimeConfig.includes('parsed.protocol === "https:"') && aiRuntimeConfig.includes('parsed.protocol === "http:" && isLoopback'), "AI provider configuration must require HTTPS except explicit loopback development");
+assert.ok(aiRuntimeConfig.includes("parsed.username") && aiRuntimeConfig.includes("parsed.password") && aiRuntimeConfig.includes("parsed.search") && aiRuntimeConfig.includes("parsed.hash"), "AI provider configuration must reject URL credentials and query/fragment secrets");
 assert.ok(atomicAiSql.includes("insert into public.messages"), "Atomic completion must persist the assistant message");
 assert.ok(atomicAiSql.includes("insert into public.ai_cost_ledger"), "Atomic completion must write the internal cost ledger");
 assert.ok(atomicAiSql.includes("estimated_internal_cost = p_estimated_cost_twd"), "Atomic completion must store the computed internal estimate");
