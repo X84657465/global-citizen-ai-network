@@ -124,8 +124,8 @@ create table public.provider_invoice_imports (
 
 create table public.ai_cost_ledger (
   id uuid primary key default gen_random_uuid(),
-  request_id uuid references public.ai_requests(id) on delete set null,
-  invoice_import_id uuid references public.provider_invoice_imports(id) on delete set null,
+  request_id uuid references public.ai_requests(id) on delete restrict,
+  invoice_import_id uuid references public.provider_invoice_imports(id) on delete restrict,
   owner_id uuid references public.profiles(id) on delete set null,
   cost_category text not null check (cost_category in ('model_provider','search_tool','storage','compute','human_review','payment_fee','infrastructure','other')),
   amount numeric(18,8) not null check (amount >= 0),
@@ -188,7 +188,7 @@ create table public.task_reviews (
 create table public.contribution_ledger (
   id uuid primary key default gen_random_uuid(),
   contributor_id uuid not null references public.profiles(id) on delete cascade,
-  submission_id uuid references public.task_submissions(id) on delete set null,
+  submission_id uuid references public.task_submissions(id) on delete restrict,
   event_type text not null check (event_type in ('submitted','accepted','rejected','appealed','verified')),
   points numeric(18,4) not null default 0,
   metadata jsonb not null default '{}'::jsonb,
@@ -197,8 +197,8 @@ create table public.contribution_ledger (
 
 create table public.reward_ledger (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references public.profiles(id) on delete cascade,
-  submission_id uuid references public.task_submissions(id) on delete set null,
+  owner_id uuid not null references public.profiles(id) on delete restrict,
+  submission_id uuid references public.task_submissions(id) on delete restrict,
   event_type text not null check (event_type in ('earned','adjustment','reversal','settlement','refund')),
   amount numeric(18,2) not null,
   currency char(3) not null default 'TWD',
@@ -270,7 +270,7 @@ $$;
 -- Prevent privilege escalation through the profile self-update policy.
 -- Role and account status can only be changed by trusted server-side operations.
 create or replace function public.protect_profile_privileges()
-returns trigger language plpgsql set search_path = '' as $
+returns trigger language plpgsql set search_path = '' as $$
 begin
   if auth.uid() is not null and (
     new.role is distinct from old.role
@@ -280,7 +280,7 @@ begin
   end if;
   return new;
 end;
-$;
+$$;
 
 create trigger profiles_protect_privileges before update on public.profiles
   for each row execute procedure public.protect_profile_privileges();
