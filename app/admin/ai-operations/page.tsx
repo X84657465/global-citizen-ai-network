@@ -20,6 +20,20 @@ type StaleRequest = {
   provider_request_id: string | null;
 };
 
+type ReconciliationEvent = {
+  id: string;
+  request_id: string;
+  actor_id: string;
+  decision: "confirmed_billed" | "confirmed_not_billed" | "inconclusive";
+  provider: string;
+  evidence_reference: string;
+  rationale: string;
+  provider_billed_cost: number | string | null;
+  provider_billed_currency: string | null;
+  normalized_cost_twd: number | string | null;
+  created_at: string;
+};
+
 function money(value: number | string | null) {
   if (value === null) return "尚未結算";
   return new Intl.NumberFormat("zh-TW", { style: "currency", currency: "TWD", maximumFractionDigits: 4 }).format(Number(value));
@@ -46,6 +60,8 @@ export default async function AiOperationsPage() {
 
   let requests: StaleRequest[] = [];
   let loadError = "";
+  let reconciliationEvents: ReconciliationEvent[] = [];
+  let historyError = "";
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     loadError = "伺服器尚未設定管理端資料庫金鑰。";
   } else {
@@ -55,6 +71,16 @@ export default async function AiOperationsPage() {
       loadError = "異常請求查詢尚未就緒，請確認 Migration 0007、0013 已套用。";
     } else {
       requests = (data ?? []) as StaleRequest[];
+    }
+    const { data: eventData, error: eventError } = await admin
+      .from("ai_reconciliation_events")
+      .select("id,request_id,actor_id,decision,provider,evidence_reference,rationale,provider_billed_cost,provider_billed_currency,normalized_cost_twd,created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (eventError) {
+      historyError = "核對歷程目前無法讀取，請確認 Migration 0015 已套用。";
+    } else {
+      reconciliationEvents = (eventData ?? []) as ReconciliationEvent[];
     }
   }
 
@@ -108,6 +134,40 @@ export default async function AiOperationsPage() {
             </table>
           </div>
         )}
+
+        <section style={{ marginTop: 22, background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 18 }}>
+          <header style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+            <div>
+              <h2 style={{ fontSize: 18, margin: 0 }}>AI 核對歷程</h2>
+              <p style={{ color: "#64748b", fontSize: 11, margin: "5px 0 0" }}>最近 100 筆不可變更的證據審查紀錄，包含已結案與仍待核對的案件。</p>
+            </div>
+            <span style={{ color: "#64748b", fontSize: 11 }}>{reconciliationEvents.length} 筆紀錄</span>
+          </header>
+          {historyError ? (
+            <p role="alert" style={{ color: "#9a3412", background: "#fff7ed", padding: 10, borderRadius: 8, fontSize: 12 }}>{historyError}</p>
+          ) : reconciliationEvents.length === 0 ? (
+            <p style={{ color: "#64748b", fontSize: 12, marginBottom: 0 }}>尚無人工核對紀錄。</p>
+          ) : (
+            <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+              {reconciliationEvents.map(event => <article key={event.id} style={{ border: "1px solid #edf1f5", borderRadius: 10, padding: 13 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <strong style={{ fontSize: 12 }}>{event.decision === "confirmed_billed" ? "確認已扣款" : event.decision === "confirmed_not_billed" ? "確認未扣款" : "證據不足，維持保留"}</strong>
+                  <time dateTime={event.created_at} style={{ color: "#64748b", fontSize: 10 }}>{new Date(event.created_at).toLocaleString("zh-TW")}</time>
+                </div>
+                <dl style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: "7px 16px", margin: "10px 0", fontSize: 11 }}>
+                  <div><dt style={{ color: "#64748b" }}>請求 ID</dt><dd style={{ margin: "3px 0", overflowWrap: "anywhere" }}>{event.request_id}</dd></div>
+                  <div><dt style={{ color: "#64748b" }}>操作管理員 ID</dt><dd style={{ margin: "3px 0", overflowWrap: "anywhere" }}>{event.actor_id}</dd></div>
+                  <div><dt style={{ color: "#64748b" }}>供應商</dt><dd style={{ margin: "3px 0" }}>{event.provider}</dd></div>
+                  <div><dt style={{ color: "#64748b" }}>供應商帳單金額</dt><dd style={{ margin: "3px 0" }}>{event.provider_billed_cost === null ? "未提供" : `${event.provider_billed_cost} ${event.provider_billed_currency?.trim() ?? ""}`}</dd></div>
+                  <div><dt style={{ color: "#64748b" }}>換算 TWD 成本</dt><dd style={{ margin: "3px 0" }}>{money(event.normalized_cost_twd)}</dd></div>
+                  <div><dt style={{ color: "#64748b" }}>證據參照</dt><dd style={{ margin: "3px 0", overflowWrap: "anywhere" }}>{event.evidence_reference}</dd></div>
+                </dl>
+                <p style={{ margin: 0, color: "#334155", fontSize: 11, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{event.rationale}</p>
+                <p style={{ margin: "8px 0 0", color: "#98a2b1", fontSize: 9, overflowWrap: "anywhere" }}>事件 ID：{event.id}</p>
+              </article>)}
+            </div>
+          )}
+        </section>
 
         <aside style={{ marginTop: 18, background: "#eff6ff", border: "1px solid #dbeafe", borderRadius: 12, padding: 16, color: "#1e40af", fontSize: 12, lineHeight: 1.8 }}>
           安全規則：逾時不等於供應商失敗。請先核對供應商請求紀錄及帳單，再由具權限的營運流程處理。此頁面沒有重送、釋放預算或修改帳本的按鈕，避免誤操作與重複計費。
