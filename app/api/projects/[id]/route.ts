@@ -26,7 +26,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "請提供有效的專案資料。" }, { status: 400 });
   }
 
-  const input = body as { title?: unknown; description?: unknown };
+  const input = body as { title?: unknown; description?: unknown; archived?: unknown };
   const updates: { title?: string; description?: string | null; archived_at?: string | null } = {};
   if (input.title !== undefined) {
     if (typeof input.title !== "string" || input.title.trim().length < 1 || input.title.trim().length > 160) {
