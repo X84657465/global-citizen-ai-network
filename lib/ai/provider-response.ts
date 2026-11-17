@@ -2,6 +2,13 @@ export const MAX_PROVIDER_RESPONSE_BYTES = 1024 * 1024;
 const MAX_PROVIDER_CONTENT_CHARACTERS = 40000;
 const MAX_PROVIDER_TOKEN_COUNT = 1000000;
 
+// Only explicit request-validation/authentication failures are treated as
+// known non-billable rejections. Generic provider-specific 4xx responses such
+// as 409/425/429 remain uncertain unless a provider adapter proves otherwise.
+export function isKnownProviderRejection(status: number): boolean {
+  return [400, 401, 403, 404, 422].includes(status);
+}
+
 export class ProviderResponseError extends Error {
   readonly code: string;
 
