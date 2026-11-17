@@ -42,7 +42,7 @@ begin
      or length(p_idempotency_key) > 128
      or p_idempotency_key !~ '^[A-Za-z0-9._:-]+$'
      or p_request_hash is null
-     or p_request_hash !~ '^[0-9a-f]{64}
+     or p_request_hash !~ '^[0-9a-f]{64}$' then
     return query select 'rejected'::text, 'invalid_idempotency_input'::text, null::uuid, null::jsonb;
     return;
   end if;
