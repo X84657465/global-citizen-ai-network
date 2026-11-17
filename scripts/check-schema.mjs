@@ -223,6 +223,7 @@ const reconciliationQueueSql = readFileSync("supabase/migrations/0013_bound_ai_r
 const reconciliationApi = readFileSync("app/api/admin/ai-reconciliation/route.ts", "utf8");
 assert.ok(aiGateway.includes('redirect: "error"'), "AI provider calls must reject unexpected redirects");
 assert.ok(reconciliationQueueSql.includes("limit 100;"), "Admin reconciliation query must have a hard result bound");
+assert.ok(reconciliationQueueSql.includes("ai_requests_stale_queue_idx"), "Stale AI queue must have a partial ordered index");
 assert.ok(reconciliationQueueSql.includes("p_older_than_seconds < 300") && reconciliationQueueSql.includes("p_older_than_seconds > 86400"),
   "Admin reconciliation age filter must be bounded");
 assert.ok(reconciliationQueueSql.includes("to service_role"), "Stale request report must remain service-role only");
