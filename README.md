@@ -40,8 +40,9 @@ This repository starts with the product principles, architecture, security basel
 ## Repository structure
 
 ```
-app/                 Next.js application
+app/                 Next.js application and API routes
 lib/                 Domain logic and shared types
+supabase/migrations/ PostgreSQL schema and row-level security
 docs/                Product, architecture, security, and data specifications
 ```
 
@@ -65,6 +66,9 @@ The initial interface is a prototype. Demo task data is illustrative, not paid w
 - [Architecture](docs/architecture.md)
 - [Security and privacy baseline](docs/security-baseline.md)
 - [Data model and transparent cost ledger](docs/data-model.md)
+- [Database migration](docs/database.md)
+- [Backend provisioning checklist](docs/backend-setup.md)
+- [Health endpoint](docs/health-endpoint.md)
 
 ## Contributions
 
