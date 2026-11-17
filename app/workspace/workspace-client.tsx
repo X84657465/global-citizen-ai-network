@@ -53,13 +53,26 @@ export default function WorkspaceClient() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/conversations", { cache: "no-store" })
-      .then(async response => {
-        const data = await response.json() as { conversations?: Conversation[] } & ApiError;
-        if (!response.ok) throw new Error(data.error ?? "無法載入對話。");
+    Promise.all([
+      fetch("/api/conversations", { cache: "no-store" }),
+      fetch("/api/ai/pending", { cache: "no-store" }),
+    ])
+      .then(async ([conversationResponse, pendingResponse]) => {
+        const data = await conversationResponse.json() as { conversations?: Conversation[] } & ApiError;
+        const pendingData = await pendingResponse.json() as {
+          pending?: { conversationId: string; idempotencyKey: string; content: string; status: string } | null;
+        } & ApiError;
+        if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
         if (!cancelled) {
           setConversations(data.conversations ?? []);
-          setPendingConversationId(findStoredPendingConversationId());
+          const recovered = pendingData.pending;
+          if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
+            storePendingKey(recovered.conversationId, recovered.idempotencyKey);
+            setPendingConversationId(recovered.conversationId);
+            setNotice("已從伺服器恢復一筆尚待核對的 AI 請求，返回原對話即可沿用原冪等鍵安全重試。");
+          } else {
+            setPendingConversationId(findStoredPendingConversationId());
+          }
         }
       })
       .catch(reason => { if (!cancelled) setError(reason instanceof Error ? reason.message : "無法載入對話。"); });
