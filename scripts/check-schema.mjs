@@ -27,6 +27,7 @@ const contributionApi = readFileSync("app/api/contribution/tasks/route.ts", "utf
 const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
 const aiPendingRecoveryApi = readFileSync("app/api/ai/pending/route.ts", "utf8");
 const pendingRecovery = readFileSync("lib/ai/pending-recovery.ts", "utf8");
+const aiHistory = readFileSync("lib/ai/history.ts", "utf8");
 const adminOpsApi = readFileSync("app/api/admin/ai-operations/route.ts", "utf8");
 const aiCostsApi = readFileSync("app/api/admin/ai-costs/route.ts", "utf8");
 const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx", "utf8");
@@ -110,6 +111,10 @@ console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC
 
 
 const aiGateway = readFileSync("app/api/ai/chat/route.ts", "utf8");
+assert.ok(aiGateway.includes('buildAiProviderMessages'), "AI gateway must use the tested provider history builder");
+assert.ok(aiHistory.includes('item.role !== "assistant" && item.role !== "user"'), "Provider history builder must exclude system/tool and unknown roles");
+assert.ok(aiHistory.includes("totalCharacters + item.content.length > maxTotalCharacters"), "Provider history builder must enforce an aggregate character ceiling");
+
 const atomicAiSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
 const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
