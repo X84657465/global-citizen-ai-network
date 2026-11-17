@@ -3,6 +3,7 @@ import { strict as assert } from "node:assert";
 
 const sql = readFileSync("supabase/migrations/0001_initial_schema.sql", "utf8");
 const statusSql = readFileSync("supabase/migrations/0002_member_status_rls.sql", "utf8");
+const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reservations.sql", "utf8");
 const env = readFileSync(".env.example", "utf8");
 const page = readFileSync("app/page.tsx", "utf8");
 const bodyReader = readFileSync("lib/http/read-json-body.ts", "utf8");
@@ -31,6 +32,23 @@ assert.ok(statusSql.includes("revoke all on schema private from anon"));
 assert.ok(statusSql.includes("grant execute on function private.member_can_access() to authenticated"));
 assert.ok(statusSql.includes("grant execute on function private.member_can_write() to authenticated"));
 assert.ok(statusSql.includes("account_status = 'active'"));
+
+assert.ok(budgetSql.includes("create table public.ai_budget_reservations"));
+assert.ok(budgetSql.includes("enable row level security"));
+assert.ok(budgetSql.includes("revoke all on public.ai_budget_reservations from anon, authenticated"));
+assert.ok(budgetSql.includes("for update"), "Budget reservation must lock shared control rows");
+assert.ok(budgetSql.includes("create or replace function public.reserve_ai_budget"));
+assert.ok(budgetSql.includes("create or replace function public.finalize_ai_budget"));
+assert.ok(budgetSql.includes("create or replace function public.release_ai_budget"));
+assert.ok(budgetSql.includes("grant execute on function public.reserve_ai_budget") && budgetSql.includes("to service_role"));
+assert.ok(budgetSql.includes("grant execute on function public.finalize_ai_budget") && budgetSql.includes("to service_role"));
+assert.ok(budgetSql.includes("grant execute on function public.release_ai_budget") && budgetSql.includes("to service_role"));
+assert.ok(budgetSql.includes("platform_monthly_budget_exceeded"));
+assert.ok(budgetSql.includes("member_daily_request_limit"));
+assert.ok(budgetSql.includes("member_monthly_request_limit"));
+assert.ok(budgetSql.includes("member_not_active"));
+assert.ok(budgetSql.includes("Record the provider's actual charge even when it exceeds the estimate"));
+
 assert.ok(statusSql.includes("'active', 'restricted'"));
 
 assert.ok(env.includes("ENABLE_PUBLIC_SIGNUP=false"), "Server signup gate must default closed");
