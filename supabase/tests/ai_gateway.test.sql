@@ -155,6 +155,23 @@ begin
     raise exception 'atomic AI completion replay was not idempotent';
   end if;
 
+  -- A completed same-key replay must be returned before current preflight
+  -- settings are evaluated; the estimate may differ after a pricing change.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001',
+    repeat('a', 64)::char(64), v_blocked_request,
+    'openai-compatible', 'test-model', 'chat', 1, 99
+  );
+  if v_claim.disposition <> 'completed' or v_claim.cached_response->>'answer' <> 'Atomic assistant response' then
+    raise exception 'completed idempotency replay was blocked by changed preflight estimate';
+  end if;
+  if (select count(*) from public.messages
+      where conversation_id = v_conversation and owner_id = v_owner
+        and role = 'user' and content = 'Atomic original user prompt') <> 1 then
+    raise exception 'completed idempotency replay duplicated the original user prompt';
+  end if;
+
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Known failure original prompt', 'test-ai-failure-001', repeat('b', 64)::char(64), v_failed_request,
