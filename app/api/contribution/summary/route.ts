@@ -7,16 +7,22 @@ export async function GET() {
   const auth = await getAuthenticatedClient();
   if (!auth) return NextResponse.json({ error: "請先登入。" }, { status: 401 });
 
-  const [{ data: contributions, error: contributionError }, { data: rewards, error: rewardError }] = await Promise.all([
+  const [{ data: contributions, error: contributionError }, { data: rewards, error: rewardError }, { data: submissions, error: submissionError }, { data: appeals, error: appealError }] = await Promise.all([
     auth.supabase.from("contribution_ledger")
       .select("id,event_type,points,metadata,occurred_at")
       .order("occurred_at", { ascending: false }).limit(100),
     auth.supabase.from("reward_ledger")
       .select("id,event_type,amount,currency,status,reason,occurred_at")
       .order("occurred_at", { ascending: false }).limit(100),
+    auth.supabase.from("task_submissions")
+      .select("id,task_id,status,submitted_at")
+      .order("submitted_at", { ascending: false }).limit(100),
+    auth.supabase.from("task_appeals")
+      .select("id,submission_id,status,reason,resolution,created_at,resolved_at")
+      .order("created_at", { ascending: false }).limit(100),
   ]);
 
-  if (contributionError || rewardError) {
+  if (contributionError || rewardError || submissionError || appealError) {
     return NextResponse.json({ error: "目前無法讀取貢獻與獎勵帳本。" }, { status: 503 });
   }
 
@@ -39,5 +45,7 @@ export async function GET() {
     },
     contributions: contributionRows,
     rewards: rewardRows,
+    submissions: submissions ?? [],
+    appeals: appeals ?? [],
   }, { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
 }
