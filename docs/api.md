@@ -39,6 +39,7 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 - Each submission uses a per-request idempotency UUID. Replays with the same payload return the original event; reusing the key with different content is rejected.
 - The route uses the authenticated session client. The SECURITY DEFINER RPC independently verifies auth.uid() equals the supplied actor and requires an active admin profile. It does not accept service-role identity as proof of the operator.
 - No decision triggers a provider retry. Evidence references must point to provider console records or internal tickets, never contain API secrets or idempotency keys.
+- The admin operations page shows the newest 100 immutable reconciliation events, including the request, operator, decision, evidence reference, rationale, provider-reported amount, and normalized TWD cost. History is read server-side only after active-admin verification.
 
 ## Admin AI reconciliation
 
