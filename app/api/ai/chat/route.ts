@@ -104,7 +104,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(claim.cached_response, { headers: { "Cache-Control": "no-store", "Idempotency-Replayed": "true" } });
   }
   if (claim.disposition === "processing") {
-    return NextResponse.json({ error: "相同請求仍在處理或等待成本核對，請稍後使用相同 Idempotency-Key 重試。", retryWithSameKey: shouldPreservePendingRequestKey(claim.disposition) }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
+    const blockedByAnotherRequest = claim.reason === "member_has_unresolved_request";
+    return NextResponse.json({
+      error: blockedByAnotherRequest
+        ? "你有另一個對話的 AI 請求尚未確認，為避免重複計費，請先回到原對話完成相同冪等鍵重試或等待管理員核對。"
+        : "相同請求仍在處理或等待成本核對，請稍後使用相同 Idempotency-Key 重試。",
+      retryWithSameKey: blockedByAnotherRequest ? false : shouldPreservePendingRequestKey(claim.disposition),
+    }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
   }
   if (claim.disposition !== "claimed" || claim.claimed_request_id !== requestId) {
     const status = claim.disposition === "conflict" ? 409 : claim.disposition === "failed" ? 502 : 429;
