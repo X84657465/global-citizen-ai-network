@@ -43,7 +43,8 @@ All private data endpoints require a valid Supabase session. Ordinary member rou
 
 ## Projects
 
-- GET /api/projects: list up to 100 projects owned by the current member.
+- GET /api/projects: list up to 100 active projects owned by the current member; `?includeArchived=true` explicitly includes archived projects.
+- PATCH /api/projects/:id: update title/description or set `archived: true` to archive and `archived: false` to restore an owned project. The response includes `archived_at`.
 - POST /api/projects: create a project. JSON request bodies are streamed with a 32 KiB hard byte limit.
 - PATCH /api/projects/:id: update title and/or description for an owned project; JSON body limit is 32 KiB.
 - DELETE /api/projects/:id: delete an owned project.
