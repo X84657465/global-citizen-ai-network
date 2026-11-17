@@ -4,6 +4,8 @@ import { strict as assert } from "node:assert";
 const sql = readFileSync("supabase/migrations/0001_initial_schema.sql", "utf8");
 const statusSql = readFileSync("supabase/migrations/0002_member_status_rls.sql", "utf8");
 const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reservations.sql", "utf8");
+const rewardSnapshotSql = readFileSync("supabase/migrations/0010_immutable_contribution_reward_snapshots.sql", "utf8");
+const submissionLifecycleSql = readFileSync("supabase/migrations/0011_submission_appeal_lifecycle_hardening.sql", "utf8");
 const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_hard_stop.sql", "utf8");
 const idempotencySql = readFileSync("supabase/migrations/0005_ai_request_idempotency.sql", "utf8");
 const rateLimitSql = readFileSync("supabase/migrations/0006_ai_request_rate_limits.sql", "utf8");
@@ -74,6 +76,14 @@ assert.ok(budgetSql.includes("p_provider_billed_cost > 9999999999.99999999"),
   "Legacy provider billed cost must fit numeric(18,8)");
 assert.ok(budgetSql.includes("p_provider_billed_cost::text in ('NaN', 'Infinity', '-Infinity')"),
   "Legacy budget settlement must reject non-finite provider billed costs");
+assert.ok(hardStopSql.includes("p_actual_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
+  "Hard-stop settlement must reject non-finite normalized costs");
+assert.ok(hardStopSql.includes("p_actual_cost_twd > 9999999999.99999999"),
+  "Hard-stop settlement costs must fit numeric(18,8)");
+assert.ok(hardStopSql.includes("p_provider_billed_cost::text in ('NaN', 'Infinity', '-Infinity')"),
+  "Hard-stop settlement must reject non-finite provider billed costs");
+assert.ok(hardStopSql.includes("p_provider_billed_cost > 9999999999.99999999"),
+  "Hard-stop provider billed costs must fit numeric(18,8)");
 assert.ok(budgetSql.includes("p_provider_billed_currency char(3)"), "Invoice currency must be recorded separately from normalized TWD budget cost");
 assert.ok(budgetSql.includes("provider_billed_cost = p_provider_billed_cost"));
 assert.ok(budgetSql.includes("provider_billed_currency = p_provider_billed_currency"));
@@ -342,6 +352,24 @@ assert.ok(aiCostsApi.includes("unpricedRequests"), "Requests without a cost ledg
 assert.ok(!aiCostsApi.includes("estimated_internal_cost"), "Cost dashboard must not report reservation ceilings as internal estimates");
 assert.ok(aiCostsClient.includes("成本性質（依幣別分開）"), "AI cost UI must separate cost types and currencies");
 assert.ok(aiCostsClient.includes("不代表供應商請款金額"), "AI cost UI must disclose estimates are not supplier invoices");
+assert.ok(hardStopSql.includes("p_actual_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
+  "Hard-stop settlement must reject non-finite normalized costs");
+assert.ok(hardStopSql.includes("p_actual_cost_twd > 9999999999.99999999"),
+  "Hard-stop settlement costs must fit numeric(18,8)");
+assert.ok(hardStopSql.includes("p_provider_billed_cost::text in ('NaN', 'Infinity', '-Infinity')"),
+  "Hard-stop settlement must reject non-finite provider billed costs");
+assert.ok(hardStopSql.includes("p_provider_billed_cost > 9999999999.99999999"),
+  "Hard-stop provider billed costs must fit numeric(18,8)");
+assert.ok(rewardSnapshotSql.includes("new.reward_amount_snapshot := v_reward_amount"),
+  "Submission reward snapshots must be assigned by the database, not the client");
+assert.ok(rewardSnapshotSql.includes("new.reward_amount_snapshot is distinct from old.reward_amount_snapshot"),
+  "Submission reward snapshots must remain immutable after insert");
+assert.ok(rewardSnapshotSql.includes("s.reward_amount_snapshot, s.reward_currency_snapshot"),
+  "Review and appeal rewards must use the submission-time snapshot");
+assert.ok(submissionLifecycleSql.includes("t.status = 'published'") && submissionLifecycleSql.includes("t.closes_at > now()"),
+  "Submissions must be rejected for unpublished or expired tasks");
+assert.ok(submissionLifecycleSql.includes("for update") && submissionLifecycleSql.includes("v_contributor_id is distinct from new.appellant_id"),
+  "Appeal creation must lock the rejected submission and verify its owner");
 
 const aiCompletionSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 assert.ok(aiCompletionSql.includes("v_request.conversation_id is distinct from p_conversation_id"),

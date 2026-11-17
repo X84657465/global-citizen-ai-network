@@ -8,12 +8,12 @@ type Appeal = {
   status: string; created_at: string;
   task_submissions: {
     id: string; content: string; status: string; submitted_at: string;
-    contribution_tasks: { title: string; reward_amount: number | string; reward_currency: string } |
-      { title: string; reward_amount: number | string; reward_currency: string }[] | null;
+    reward_amount_snapshot: number | string; reward_currency_snapshot: string; reward_snapshot_source: string;
+    contribution_tasks: { title: string } | { title: string }[] | null;
   } | {
     id: string; content: string; status: string; submitted_at: string;
-    contribution_tasks: { title: string; reward_amount: number | string; reward_currency: string } |
-      { title: string; reward_amount: number | string; reward_currency: string }[] | null;
+    reward_amount_snapshot: number | string; reward_currency_snapshot: string; reward_snapshot_source: string;
+    contribution_tasks: { title: string } | { title: string }[] | null;
   }[] | null;
 };
 type Payload = { appeals?: Appeal[]; error?: string };
@@ -89,6 +89,7 @@ export default function AppealReviewClient() {
             <p style={{ background: "#f8fafc", borderRadius: 10, padding: 12, fontSize: 12, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{row.reason}</p>
             <h3 style={{ fontSize: 12 }}>原始提交內容</h3>
             <div style={{ background: "#f8fafc", borderRadius: 10, padding: 12, fontSize: 12, lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: 220, overflowY: "auto" }}>{submission?.content ?? "無法讀取原始提交內容。"}</div>
+            {submission && <p style={{ color: "#8793a5", fontSize: 10 }}>提交時鎖定獎勵：{submission.reward_amount_snapshot} {submission.reward_currency_snapshot}{submission.reward_snapshot_source === "legacy_backfill_current_task" ? " · 歷史回填估值（非原始提交紀錄）" : ""}</p>}
             <textarea value={rationales[row.id] ?? ""} onChange={event => setRationales(prev => ({ ...prev, [row.id]: event.target.value }))} maxLength={4000} rows={3} placeholder="請寫下複核理由（至少 10 字）…" style={{ width: "100%", marginTop: 12, border: "1px solid #dce3ec", borderRadius: 9, padding: 11, resize: "vertical", font: "inherit", fontSize: 12 }}/>
             <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
               <button type="button" disabled={!!busy} onClick={() => void decide(row,"uphold")} style={{ border: "1px solid #e6c7c7", borderRadius: 8, background: "#fff", color: "#a33c3c", padding: "9px 14px", fontWeight: 700 }}>維持退回</button>
