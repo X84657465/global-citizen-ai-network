@@ -79,9 +79,27 @@ create table public.ai_requests (
   check (estimated_internal_cost is null or estimated_internal_cost >= 0)
 );
 
+create table public.provider_invoice_imports (
+  id uuid primary key default gen_random_uuid(),
+  provider text not null,
+  billing_period_start date not null,
+  billing_period_end date not null,
+  currency char(3) not null,
+  invoice_total numeric(18,8) not null check (invoice_total >= 0),
+  source_file_hash text not null,
+  source_storage_key text,
+  reconciliation_status text not null default 'pending' check (reconciliation_status in ('pending','matched','variance','rejected')),
+  imported_by uuid references public.profiles(id) on delete set null,
+  imported_at timestamptz not null default now(),
+  reconciled_at timestamptz,
+  check (billing_period_end >= billing_period_start),
+  unique (provider, billing_period_start, billing_period_end, source_file_hash)
+);
+
 create table public.ai_cost_ledger (
   id uuid primary key default gen_random_uuid(),
   request_id uuid references public.ai_requests(id) on delete set null,
+  invoice_import_id uuid references public.provider_invoice_imports(id) on delete set null,
   owner_id uuid references public.profiles(id) on delete set null,
   cost_category text not null check (cost_category in ('model_provider','search_tool','storage','compute','human_review','payment_fee','infrastructure','other')),
   amount numeric(18,8) not null check (amount >= 0),
@@ -183,6 +201,8 @@ create index conversations_owner_updated_idx on public.conversations(owner_id, u
 create index messages_conversation_created_idx on public.messages(conversation_id, created_at);
 create index ai_requests_owner_created_idx on public.ai_requests(owner_id, created_at desc);
 create index ai_cost_ledger_request_idx on public.ai_cost_ledger(request_id);
+create index ai_cost_ledger_invoice_idx on public.ai_cost_ledger(invoice_import_id);
+create index provider_invoice_period_idx on public.provider_invoice_imports(provider, billing_period_start desc);
 create index contribution_tasks_status_created_idx on public.contribution_tasks(status, created_at desc);
 create index task_submissions_contributor_idx on public.task_submissions(contributor_id, submitted_at desc);
 create index task_reviews_submission_idx on public.task_reviews(submission_id, reviewed_at desc);
@@ -270,6 +290,7 @@ alter table public.conversations enable row level security;
 alter table public.messages enable row level security;
 alter table public.ai_requests enable row level security;
 alter table public.ai_cost_ledger enable row level security;
+alter table public.provider_invoice_imports enable row level security;
 alter table public.contribution_tasks enable row level security;
 alter table public.task_submissions enable row level security;
 alter table public.task_reviews enable row level security;
@@ -372,6 +393,7 @@ grant all privileges on public.conversations to service_role;
 grant all privileges on public.messages to service_role;
 grant all privileges on public.ai_requests to service_role;
 grant all privileges on public.ai_cost_ledger to service_role;
+grant all privileges on public.provider_invoice_imports to service_role;
 grant all privileges on public.contribution_tasks to service_role;
 grant all privileges on public.task_submissions to service_role;
 grant all privileges on public.task_appeals to service_role;
