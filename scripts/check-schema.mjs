@@ -51,6 +51,7 @@ assert.ok(budgetSql.includes("platform_monthly_budget_exceeded"));
 assert.ok(budgetSql.includes("member_daily_request_limit"));
 assert.ok(budgetSql.includes("member_monthly_request_limit"));
 assert.ok(budgetSql.includes("member_not_active"));
+assert.ok(!budgetSql.includes("not v_controls.hard_stop_enabled"), "Hard-stop policy must not block requests merely because automatic overrun shutdown is disabled");
 
 assert.ok(budgetSql.includes("count(*) filter (where created_at >= v_day_start)"), "Daily quota must count all attempts, including released failures");
 assert.ok(budgetSql.includes("Record the provider's actual charge even when it exceeds the estimate"));
