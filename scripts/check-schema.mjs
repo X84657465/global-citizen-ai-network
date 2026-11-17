@@ -161,6 +161,9 @@ assert.ok(idempotencySql.includes("v_existing.state = 'processing' or v_existing
 assert.ok(rateLimitSql.includes("v_existing.state = 'processing' or v_existing.expires_at > now()"),
   "Rate-limit claim path must preserve in-flight idempotency records");
 
+assert.ok(singlePendingSql.includes("p_conversation_id uuid"), "AI request claim must receive the originating conversation");
+assert.ok(singlePendingSql.includes("set conversation_id = p_conversation_id"), "AI request claim must persist the conversation in the reservation transaction");
+assert.ok(aiGateway.includes("p_conversation_id: conversationId"), "AI gateway must bind the claimed request to the validated conversation");
 assert.ok(singlePendingSql.includes("pg_catalog.hashtextextended(p_owner_id::text, 0)"), "AI claims must serialize across all conversations for one member");
 assert.ok(singlePendingSql.includes("r.status in ('queued','running')"), "A member must be blocked while any AI request is unresolved");
 assert.ok(singlePendingSql.includes("b.status = 'reserved'") && singlePendingSql.includes("i.state = 'processing'"), "Cross-conversation lock must only block requests with a live reservation and processing idempotency record");
