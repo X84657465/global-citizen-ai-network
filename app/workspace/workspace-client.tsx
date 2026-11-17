@@ -114,14 +114,15 @@ export default function WorkspaceClient() {
     const storedKey = readStoredPendingKey(id);
     setPendingKey(storedKey);
     setPendingConversationId(storedKey ? id : findStoredPendingConversationId(id));
-    if (storedKey && (readStoredPendingContent(id) || (visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "user"))) {
-      setPrompt(readStoredPendingContent(id) || visibleMessages[visibleMessages.length - 1].content);
-      setNotice("上一個 AI 請求結果尚待確認，系統會保留原冪等鍵；核對完成前不會再次呼叫供應商。");
-    } else if (storedKey && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "assistant") {
+    const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
+    if (storedKey && lastVisibleMessage?.role === "assistant") {
       // The atomic server transaction committed successfully before the browser lost its response.
       clearStoredPendingKey(id);
       setPendingKey("");
       setPendingConversationId(findStoredPendingConversationId(id));
+    } else if (storedKey && (readStoredPendingContent(id) || lastVisibleMessage?.role === "user")) {
+      setPrompt(readStoredPendingContent(id) || lastVisibleMessage.content);
+      setNotice("上一個 AI 請求結果尚待確認，系統會保留原冪等鍵；核對完成前不會再次呼叫供應商。");
     }
   }
 
