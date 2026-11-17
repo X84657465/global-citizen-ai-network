@@ -216,6 +216,11 @@ export async function POST(request: NextRequest) {
     );
 
     if (!response.ok) {
+      try {
+        await response.body?.cancel();
+      } catch {
+        // Best-effort cleanup; the HTTP status still determines the outcome classification.
+      }
       const code = `provider_http_${response.status}`;
       if (response.status === 408 || response.status >= 500) {
         await markForReconciliation(code, providerRequestId);
