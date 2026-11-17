@@ -69,7 +69,7 @@ begin
     and i.idempotency_key = p_idempotency_key
   for update;
 
-  if found and v_existing.expires_at > now() then
+  if found and (v_existing.state = 'processing' or v_existing.expires_at > now()) then
     if v_existing.request_hash <> p_request_hash then
       return query select 'conflict'::text, 'idempotency_key_reused_with_different_payload'::text,
         v_existing.request_id, null::jsonb;
