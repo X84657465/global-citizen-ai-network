@@ -49,6 +49,14 @@ Reject or defer the request when the global control row is missing, AI is disabl
 Do not fall back to an unmetered provider call. Do not release a reservation when the provider may already have generated a billable response.
 
 
+## Administrator reconciliation queue
+
+The admin AI cost center includes a read-only queue at `/admin/ai-costs`. Its server endpoint, `/api/admin/ai-reconciliation`, verifies the authenticated user's active admin profile before using the server-only service-role client to call `list_stale_ai_requests`.
+
+The database report returns at most the 100 oldest requests that remain queued/running with a reserved budget and are older than the configured threshold (15 minutes in the admin endpoint). The list is informational only: it does not retry a provider call, release a reservation, settle a charge, or alter request state. Operators must verify the provider-side outcome before any future manual resolution workflow is introduced.
+
+The endpoint uses no-store response headers and returns a generic service error rather than exposing database error details. The underlying report RPC is executable only by `service_role`; the API's separate active-admin check is mandatory because service-role access bypasses row-level security.
+
 ## Provider-specific reconciliation limitation
 
 An OpenAI-compatible URL does not guarantee a common request-status, idempotency, or invoice API. Until the production provider is selected and its adapter is implemented, the gateway deliberately does not claim automatic reconciliation of ambiguous provider outcomes. It retains the reservation, preserves the original idempotency key, and exposes the stale request for administrator review. Do not release or settle an ambiguous request based only on a client timeout.
@@ -69,9 +77,9 @@ Still required before production provider activation:
 2. Concurrent daily/monthly request-limit behavior is verified under load.
 3. Real provider timeout/late-response behavior and provider-specific idempotency semantics are tested.
 4. Invoice import reconciliation, FX normalization, and request-to-invoice matching are implemented and verified.
-5. A production Supabase environment has applied all migrations through `0012`, and the production secrets/limits have been reviewed.
+5. A production Supabase environment has applied all migrations through `0013`, and the production secrets/limits have been reviewed.
 6. Independent security review and end-to-end authenticated UI tests are complete.
 
 ## Migration order
 
-Apply migrations in numeric order: `0001` through `0012`. Migration `0012_atomic_ai_chat_completion_and_reconciliation.sql` is additive and leaves earlier deployed migration files unchanged.
+Apply migrations in numeric order: `0001` through `0013`. Migration `0012_atomic_ai_chat_completion_and_reconciliation.sql` adds atomic completion and reconciliation safeguards. Migration `0013_bound_ai_reconciliation_queue.sql` caps the read-only operator queue at 100 oldest records. Both are additive and leave earlier deployed migration files unchanged.
