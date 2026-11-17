@@ -124,3 +124,8 @@ assert.ok(rateLimitSql.includes("consume_ai_request_rate_limit(p_owner_id, 60, 1
 assert.ok(rateLimitSql.includes("consume_ai_request_rate_limit(p_owner_id, 3600, 60)"));
 assert.ok(rateLimitSql.includes("revoke all on public.ai_request_rate_limits from public, anon, authenticated"));
 assert.ok(rateLimitSql.includes("to service_role"));
+
+assert.ok(idempotencySql.includes("v_existing.state = 'processing' or v_existing.expires_at > now()"),
+  "In-flight idempotency claims must never expire automatically");
+assert.ok(rateLimitSql.includes("v_existing.state = 'processing' or v_existing.expires_at > now()"),
+  "Rate-limit claim path must preserve in-flight idempotency records");
