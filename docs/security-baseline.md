@@ -18,6 +18,7 @@ This document is a minimum design baseline, not a completed security audit or le
 - Bound request size, provider response size, output size, retries, and execution time.
 - Use a database-enforced reservation before any provider call; fail closed when controls are missing or disabled.
 - Do not automatically retry uncertain provider outcomes. Preserve the idempotency key and reservation until provider-side evidence is checked.
+- Pending AI recovery may return an idempotency key only to the authenticated owner after owner-scoped request lookup; mark the endpoint no-store and never log the key or expose it in analytics/error telemetry.
 - Keep internal cost estimates, provider-reported usage, and imported invoice charges distinct.
 - Provide a kill switch and safe degraded mode.
 
