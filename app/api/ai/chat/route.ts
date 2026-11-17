@@ -67,6 +67,23 @@ export async function POST(request: NextRequest) {
     .limit(20);
   if (historyError) return NextResponse.json({ error: "目前無法讀取對話紀錄。" }, { status: 500 });
 
+  const recentHistory = ((history ?? []) as HistoryMessage[]).reverse();
+  const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
+  let historyCharacters = content.length;
+  for (const item of recentHistory) {
+    if (typeof item.content !== "string" || historyCharacters + item.content.length > 16000) continue;
+    messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
+    historyCharacters += item.content.length;
+  }
+  messages.push({ role: "user", content });
+
+  // Reject oversized estimated requests before claiming a reservation or
+  // persisting the prompt. This keeps rejected requests side-effect free.
+  const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
+  if (!Number.isFinite(worstCaseCost) || worstCaseCost > config.maxRequestCostTwd) {
+    return NextResponse.json({ error: "本次內容超過單次預算上限，請縮短內容後再試。", retryWithSameKey: false }, { status: 413 });
+  }
+
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: "AI 服務尚未完成伺服器端安全設定。" }, { status: 503 });
   }
@@ -84,6 +101,7 @@ export async function POST(request: NextRequest) {
   const { data: claimData, error: claimError } = await admin.rpc("claim_ai_request", {
     p_owner_id: auth.user.id,
     p_conversation_id: conversationId,
+    p_prompt: content,
     p_idempotency_key: idempotencyKey,
     p_request_hash: requestHash,
     p_request_id: requestId,
@@ -151,24 +169,6 @@ export async function POST(request: NextRequest) {
     return false;
   };
 
-  const recentHistory = ((history ?? []) as HistoryMessage[]).reverse();
-  const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
-  let historyCharacters = content.length;
-  for (const item of recentHistory) {
-    if (typeof item.content !== "string" || historyCharacters + item.content.length > 16000) continue;
-    messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
-    historyCharacters += item.content.length;
-  }
-  messages.push({ role: "user", content });
-
-  // Conservative preflight: one token per character plus the fixed output ceiling.
-  // Reject before persisting the user message or contacting the provider.
-  const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
-  if (!Number.isFinite(worstCaseCost) || worstCaseCost > config.maxRequestCostTwd) {
-    const failed = await failKnownOutcome("preflight_cost_exceeds_reservation");
-    return NextResponse.json({ error: "本次內容超過單次預算上限，請縮短內容後再試。", retryWithSameKey: !failed }, { status: 413 });
-  }
-
   const { data: startedRequest, error: startError } = await admin
     .from("ai_requests")
     .update({
@@ -186,14 +186,6 @@ export async function POST(request: NextRequest) {
   if (startError || !startedRequest) {
     const failed = await failKnownOutcome("request_start_failed");
     return NextResponse.json({ error: "無法啟動 AI 請求，預算保留已安全處理。", retryWithSameKey: !failed }, { status: 503 });
-  }
-
-  const { error: userMessageError } = await auth.supabase
-    .from("messages")
-    .insert({ conversation_id: conversationId, owner_id: auth.user.id, role: "user", content });
-  if (userMessageError) {
-    const failed = await failKnownOutcome("message_persist_failed");
-    return NextResponse.json({ error: "訊息儲存失敗，尚未呼叫 AI。", retryWithSameKey: !failed }, { status: 500 });
   }
 
   const startedAt = Date.now();
