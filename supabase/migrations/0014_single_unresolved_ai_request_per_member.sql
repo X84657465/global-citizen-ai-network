@@ -1,6 +1,7 @@
 -- Enforce one unresolved billable AI request per member across all conversations.
--- Persist the originating conversation in the same transaction as the claim so
--- recovery remains possible even if the API process stops immediately afterward.
+-- Persist the originating conversation and exact user prompt in the same
+-- transaction as the claim. The database verifies the conversation-bound hash
+-- and applies preflight before creating a reservation or storing the prompt.
 
 drop function if exists public.claim_ai_request(uuid,text,char,uuid,text,text,text,numeric);
 drop function if exists public.claim_ai_request(uuid,uuid,text,char,uuid,text,text,text,numeric);
