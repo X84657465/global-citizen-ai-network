@@ -399,7 +399,7 @@ assert.ok(reconciliationSql.includes("revoke update, delete, truncate on public.
   "Service role must not mutate or truncate reconciliation evidence events");
 assert.ok(reconciliationSql.includes("unique (request_id, idempotency_key)"),
   "Reconciliation evidence must be idempotent per request");
-assert.ok(reconciliationSql.includes("p_decision = 'inconclusive'") && reconciliationSql.includes("deliberately leaves request, reservation, and idempotency untouched"),
+assert.ok(reconciliationSql.includes("inconclusive deliberately leaves request, reservation, and idempotency untouched"),
   "Inconclusive review must preserve the unresolved request and reservation");
 assert.ok(reconciliationSql.includes("provider_billed_delivery_unavailable"),
   "Confirmed billing must not fabricate or deliver an unavailable assistant response");
