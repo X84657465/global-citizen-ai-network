@@ -25,7 +25,7 @@ export async function GET() {
   const context = await reviewerContext();
   if ("response" in context) return context.response;
   const { data, error } = await context.admin.from("task_appeals")
-    .select("id,submission_id,appellant_id,reason,evidence,status,created_at,task_submissions(id,content,status,submitted_at,contribution_tasks(title,reward_amount,reward_currency))")
+    .select("id,submission_id,appellant_id,reason,evidence,status,created_at,task_submissions(id,content,status,submitted_at,reward_amount_snapshot,reward_currency_snapshot,reward_snapshot_source,contribution_tasks(title))")
     .in("status", ["submitted", "under_review"])
     .order("created_at", { ascending: true }).limit(100);
   if (error) return NextResponse.json({ error: "目前無法讀取待複核申訴。" }, { status: 503 });
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   });
   if (error) {
     const conflict = /idempotency key payload conflict|not reviewable|no longer rejected/i.test(error.message);
-    return NextResponse.json({ error: conflict ? "申訴狀態或複核資料衝突，請重新整理確認。" : "複核未完成，請確認 Migration 0009 已套用。" }, {
+    return NextResponse.json({ error: conflict ? "申訴狀態或複核資料衝突，請重新整理確認。" : "複核未完成，請確認 Migration 0009–0011 已套用。" }, {
       status: conflict ? 409 : 503,
     });
   }

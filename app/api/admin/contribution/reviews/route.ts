@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
   });
   if (error) {
     const conflict = /idempotency key payload conflict|not reviewable|already exists/i.test(error.message);
-    return NextResponse.json({ error: conflict ? "審核資料衝突，請重新整理後確認任務狀態。" : "審核未完成，請確認 Migration 0008 已套用及資料庫狀態。" }, {
+    return NextResponse.json({ error: conflict ? "審核資料衝突，請重新整理後確認任務狀態。" : "審核未完成，請確認 Migration 0008–0011 已套用及資料庫狀態。" }, {
       status: conflict ? 409 : 503,
     });
   }
