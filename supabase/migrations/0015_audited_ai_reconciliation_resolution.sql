@@ -115,6 +115,15 @@ begin
     'UTF8'
   )), 'hex');
 
+  -- Serialize reconciliation decisions globally before idempotency lookup.
+  -- This makes a concurrent same-key retry observe the committed event rather
+  -- than racing into a closed-reservation rejection.
+  select * into v_controls from public.platform_ai_controls where id = true for update;
+  if not found then
+    return query select 'rejected'::text, 'platform_controls_missing'::text, null::uuid;
+    return;
+  end if;
+
   select * into v_existing
   from public.ai_reconciliation_events
   where request_id = p_request_id and idempotency_key = p_idempotency_key
@@ -125,13 +134,6 @@ begin
     else
       return query select 'replayed'::text, 'identical_resolution_already_recorded'::text, v_existing.id;
     end if;
-    return;
-  end if;
-
-  -- Match the AI gateway's global lock order to avoid lock inversions.
-  select * into v_controls from public.platform_ai_controls where id = true for update;
-  if not found then
-    return query select 'rejected'::text, 'platform_controls_missing'::text, null::uuid;
     return;
   end if;
 
@@ -174,7 +176,6 @@ begin
         error_code = 'provider_billed_delivery_unavailable',
         provider_billed_cost = p_provider_billed_cost,
         provider_billed_currency = p_provider_billed_currency,
-        estimated_internal_cost = p_normalized_cost_twd,
         cost_method = 'admin_verified_provider_billed_reconciliation',
         completed_at = now()
     where id = p_request_id;
