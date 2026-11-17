@@ -39,7 +39,7 @@ Provider usage, configured token-rate estimates, provider-reported billed usage,
 ## Budget and concurrency controls
 
 - reserve_ai_budget and settlement functions lock the platform control row to serialize global budget decisions.
-- New logical requests consume fixed-window limits of 10 per minute and 60 per hour per member; safe same-key retries do not consume additional quota.
+- New logical requests consume fixed-window limits of 10 per minute and 60 per hour per member; safe same-key retries do not consume additional quota. A database advisory lock serializes claims per member, and only one unresolved reserved/processing request is allowed across all of that member's conversations.
 - The reservation ceiling counts against both platform and member monthly spend limits until settlement or release.
 - A hard-stop condition disables further AI generation after a configured monthly cap is exceeded or actual estimated cost exceeds the reservation.
 - Missing, disabled, or zero-valued budget controls fail closed.
