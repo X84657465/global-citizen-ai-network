@@ -69,10 +69,28 @@ begin
     owner_id, ai_enabled, daily_request_limit, monthly_request_limit, monthly_spend_limit, currency
   ) values (v_owner, true, 10, 100, 100, 'TWD');
 
+  -- A new request whose preflight exceeds the ceiling must be rejected before
+  -- creating an AI request, reservation, idempotency row, or user message.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, v_conversation, 'Too expensive preflight prompt', 'test-ai-preflight-001',
+    repeat('f', 64)::char(64), '52000000-0000-4000-8000-000000000006',
+    'openai-compatible', 'test-model', 'chat', 1, 2
+  );
+  if v_claim.disposition <> 'rejected' or v_claim.reason <> 'preflight_cost_exceeds_reservation' then
+    raise exception 'over-budget preflight was not rejected inside the claim transaction';
+  end if;
+  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000006')
+     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000006')
+     or exists (select 1 from public.messages where conversation_id = v_conversation and content = 'Too expensive preflight prompt')
+     or exists (select 1 from public.ai_request_idempotency where owner_id = v_owner and idempotency_key = 'test-ai-preflight-001') then
+    raise exception 'over-budget preflight created request side effects';
+  end if;
+
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001', repeat('a', 64)::char(64), v_success_request,
-    'openai-compatible', 'test-model', 'chat', 1
+    'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'claimed' then
     raise exception 'AI success fixture claim failed: %', v_claim.disposition;
@@ -140,7 +158,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Known failure original prompt', 'test-ai-failure-001', repeat('b', 64)::char(64), v_failed_request,
-    'openai-compatible', 'test-model', 'chat', 1
+    'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'claimed' then
     raise exception 'AI failure fixture claim failed: %', v_claim.disposition;
@@ -157,7 +175,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', repeat('c', 64)::char(64), v_unknown_request,
-    'openai-compatible', 'test-model', 'chat', 1
+    'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'claimed' then
     raise exception 'AI uncertain-outcome fixture claim failed: %', v_claim.disposition;
@@ -177,7 +195,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Uncertain request original prompt', 'test-ai-unknown-001', repeat('c', 64)::char(64), v_blocked_request,
-    'openai-compatible', 'test-model', 'chat', 1
+    'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'processing'
      or v_claim.reason <> 'request_in_progress'
@@ -195,7 +213,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_other_conversation, 'Blocked cross conversation prompt', 'test-ai-cross-conversation-001', repeat('e', 64)::char(64), v_blocked_request,
-    'openai-compatible', 'test-model', 'chat', 1
+    'openai-compatible', 'test-model', 'chat', 1, 0.1
   );
   if v_claim.disposition <> 'processing'
      or v_claim.reason <> 'member_has_unresolved_request'
@@ -237,7 +255,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_overrun_owner, v_overrun_conversation, 'Budget overrun original prompt', 'test-ai-overrun-001', repeat('d', 64)::char(64), v_overrun_request,
-    'openai-compatible', 'test-model', 'chat', 0.001
+    'openai-compatible', 'test-model', 'chat', 0.001, 0.0005
   );
   if v_claim.disposition <> 'claimed' then
     raise exception 'AI overrun fixture claim failed: %', v_claim.disposition;
