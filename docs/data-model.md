@@ -29,6 +29,10 @@ Required or conditionally required fields:
 
 Never infer exact token counts or actual provider invoice charges when the provider did not report them.
 
+## Default AI budget controls
+
+The initial schema includes a platform-wide AI kill switch and per-user limits. Both default to disabled with zero spend/request caps. Trusted server-side operations must explicitly enable them only after provider billing alerts, quota enforcement, and reconciliation are tested. Client users can read their own limit record but cannot change it.
+
 ## Cost categories
 
 Keep these categories separate:
