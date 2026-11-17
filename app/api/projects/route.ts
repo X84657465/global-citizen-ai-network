@@ -5,18 +5,21 @@ import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
     return NextResponse.json({ error: "資料庫尚未設定。" }, { status: 503 });
   }
   const auth = await getAuthenticatedClient();
   if (!auth) return NextResponse.json({ error: "請先登入。" }, { status: 401 });
 
-  const { data, error } = await auth.supabase
+  const includeArchived = request.nextUrl.searchParams.get("includeArchived") === "true";
+  let query = auth.supabase
     .from("projects")
-    .select("id,title,description,created_at,updated_at")
+    .select("id,title,description,archived_at,created_at,updated_at")
     .order("updated_at", { ascending: false })
     .limit(100);
+  if (!includeArchived) query = query.is("archived_at", null);
+  const { data, error } = await query;
 
   if (error) return NextResponse.json({ error: "目前無法讀取專案。" }, { status: 500 });
   return NextResponse.json({ projects: data }, { headers: { "Cache-Control": "no-store" } });
