@@ -73,7 +73,7 @@ export default function WorkspaceClient() {
 
       const key = pendingKey || crypto.randomUUID();
       setPendingKey(key);
-      setMessages(prev => [...prev, { role: "user", content }]);
+      setMessages(prev => prev.length > 0 && prev[prev.length - 1].role === "user" && prev[prev.length - 1].content === content ? prev : [...prev, { role: "user", content }]);
       setPrompt("");
 
       const response = await fetch("/api/ai/chat", {
@@ -90,6 +90,7 @@ export default function WorkspaceClient() {
       setNotice(data.costLabel ? data.costLabel + "。每次請求均經過預算與冪等性檢查。" : "AI 回覆完成。");
       setPendingKey("");
     } catch (reason) {
+      setPrompt(content);
       setError(reason instanceof Error ? reason.message : "請求發生錯誤。");
     } finally {
       setBusy(false);
