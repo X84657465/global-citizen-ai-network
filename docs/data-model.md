@@ -31,7 +31,7 @@ Never infer exact token counts or actual provider invoice charges when the provi
 
 ## Default AI budget controls
 
-The initial schema includes a platform-wide AI kill switch and per-user limits. Both default to disabled with zero spend/request caps. Trusted server-side operations must explicitly enable them only after provider billing alerts, quota enforcement, and reconciliation are tested. Client users can read their own limit record but cannot change it.
+The initial schema includes a platform-wide AI kill switch and per-user limits. Both default to disabled with zero spend/request caps. Migration 0003 adds `ai_budget_reservations` and service-role-only reserve/finalize/release functions. Reservations count against global and per-member spend ceilings until finalized or released. Per-member daily and monthly request quotas are enforced at reservation time. Trusted server-side operations must explicitly enable controls only after provider billing alerts, quota enforcement, and reconciliation are tested. Client users can read their own limit record but cannot change it.
 
 ## Cost categories
 
