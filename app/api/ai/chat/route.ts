@@ -66,6 +66,10 @@ export async function POST(request: NextRequest) {
     .limit(20);
   if (historyError) return NextResponse.json({ error: "目前無法讀取對話紀錄。" }, { status: 500 });
 
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: "AI 服務尚未完成伺服器端安全設定。" }, { status: 503 });
+  }
+
   const admin = createAdminClient();
   const requestId = crypto.randomUUID();
   const { data: reservation, error: reserveError } = await admin.rpc("reserve_ai_budget", {
@@ -101,13 +105,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "訊息儲存失敗，未呼叫 AI。" }, { status: 500 });
   }
 
-  const messages = [
-    ...(history ?? []).reverse().map((item) => ({
-      role: item.role === "assistant" ? "assistant" : "user",
-      content: item.content,
-    })),
-    { role: "user", content },
-  ];
+  const recentHistory = (history ?? []).reverse();
+  const messages: Array<{ role: "assistant" | "user"; content: string }> = [];
+  let historyCharacters = content.length;
+  for (const item of recentHistory) {
+    if (historyCharacters + item.content.length > 16000) continue;
+    messages.push({ role: item.role === "assistant" ? "assistant" : "user", content: item.content });
+    historyCharacters += item.content.length;
+  }
+  messages.push({ role: "user", content });
+
+  // Conservative preflight: one token per character plus the fixed output ceiling.
+  // Refuse requests whose configured worst-case estimate exceeds the reservation.
+  const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
+  if (worstCaseCost > config.maxRequestCostTwd) {
+    await admin.rpc("release_ai_budget", { p_request_id: requestId, p_error_code: "preflight_cost_exceeds_reservation" });
+    return NextResponse.json({ error: "本次內容超過單次預算上限，請縮短內容後再試。" }, { status: 413 });
+  }
   const startedAt = Date.now();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
@@ -147,8 +161,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "AI 沒有回傳可用內容，預算保留已釋放。" }, { status: 502 });
     }
 
-    const inputTokens = Math.max(0, Math.trunc(result.usage?.prompt_tokens ?? 0));
-    const outputTokens = Math.max(0, Math.trunc(result.usage?.completion_tokens ?? 0));
+    const inputTokens = Math.max(0, Math.trunc(result.usage?.prompt_tokens ?? historyCharacters));
+    const outputTokens = Math.max(0, Math.trunc(result.usage?.completion_tokens ?? answer.length));
     const cachedTokens = Math.max(0, Math.trunc(result.usage?.prompt_tokens_details?.cached_tokens ?? 0));
     const estimatedActualCost = estimateCostTwd(inputTokens, outputTokens, config);
     const latencyMs = Date.now() - startedAt;
@@ -183,15 +197,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (estimatedActualCost > 0) {
-      await admin.from("ai_cost_ledger").insert({
+      const { error: ledgerError } = await admin.from("ai_cost_ledger").insert({
         request_id: requestId,
         owner_id: auth.user.id,
         cost_category: "model_provider",
         amount: estimatedActualCost,
         currency: "TWD",
         amount_kind: "internal_estimate",
-        calculation_method: "configured_twd_per_million_tokens",
+        calculation_method: "configured_twd_per_million_tokens_or_character_fallback",
       });
+      if (ledgerError) {
+        return NextResponse.json({ error: "AI 已完成，但成本明細寫入失敗，已標記為需對帳。" }, { status: 503 });
+      }
     }
 
     return NextResponse.json({
