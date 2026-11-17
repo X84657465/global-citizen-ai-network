@@ -7,6 +7,7 @@ import {
   readProviderJson,
   safeProviderRequestId,
 } from "@/lib/ai/provider-response";
+import { shouldPreservePendingRequestKey } from "@/lib/ai/pending-retry";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -103,11 +104,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(claim.cached_response, { headers: { "Cache-Control": "no-store", "Idempotency-Replayed": "true" } });
   }
   if (claim.disposition === "processing") {
-    return NextResponse.json({ error: "相同請求仍在處理或等待成本核對，請稍後使用相同 Idempotency-Key 重試。", retryWithSameKey: true }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
+    return NextResponse.json({ error: "相同請求仍在處理或等待成本核對，請稍後使用相同 Idempotency-Key 重試。", retryWithSameKey: shouldPreservePendingRequestKey(claim.disposition) }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
   }
   if (claim.disposition !== "claimed" || claim.claimed_request_id !== requestId) {
     const status = claim.disposition === "conflict" ? 409 : claim.disposition === "failed" ? 502 : 429;
-    return NextResponse.json({ error: claim.reason === "platform_ai_disabled" ? "平台 AI 服務目前暫停。" : "請求未通過預算、額度或冪等性檢查。", retryWithSameKey: false }, { status });
+    const error = claim.disposition === "conflict"
+      ? "此冪等鍵已綁定不同內容，原請求狀態尚未確認。請恢復原始訊息並沿用原鍵，不要改用新鍵重送。"
+      : claim.reason === "platform_ai_disabled"
+        ? "平台 AI 服務目前暫停。"
+        : "請求未通過預算、額度或冪等性檢查。";
+    return NextResponse.json({ error, retryWithSameKey: shouldPreservePendingRequestKey(claim.disposition) }, { status });
   }
 
   const failRequest = async (code: string) => {
