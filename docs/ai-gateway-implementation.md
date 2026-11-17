@@ -8,7 +8,7 @@ The repository contains a server-side OpenAI-compatible gateway and database-enf
 
 1. Authenticate the member and derive owner_id from the verified session. Never accept an owner ID, role, price, or model cost from the browser.
 2. Validate request content, conversation ownership, provider configuration, and the idempotency key.
-3. Claim the logical request through the service-role-only database RPC. PostgreSQL serializes same-member/same-key claims, compares the payload hash, enforces fixed-window quotas, and reserves the maximum budget before any provider call.
+3. Claim the logical request through the service-role-only database RPC. PostgreSQL serializes claims per member across all conversations, compares the payload hash, blocks a second new request while an earlier reservation is unresolved, enforces fixed-window quotas, and reserves the maximum budget before any provider call.
 4. Reject closed or missing controls by default. Do not fall back to an unmetered provider call.
 5. Call the provider once from server code with a bounded timeout, no automatic retry, and redirect following disabled. Provider credentials and the Supabase service-role key must never enter browser code, logs, or Git.
 6. Bound provider response reads and validate the response shape, answer, token usage, and request identifiers before accepting it.
