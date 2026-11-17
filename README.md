@@ -82,3 +82,14 @@ Early contributors must receive clear task scopes, acceptance criteria, ownershi
 ## License
 
 No open-source license has been selected yet. Until a license is added, all rights are reserved by the repository owner.
+
+## Current application routes
+
+- \`/\`: public platform overview and early prototype.
+- \`/login\`: member authentication UI. Public signup remains disabled by default.
+- \`/workspace\`: authenticated AI workspace. Loads the signed-in member's conversations and calls the server-side AI gateway with an idempotency key. AI calls fail closed until provider credentials, database controls, and member/global budgets are configured.
+- \`/account\`: authenticated member account page.
+- \`/admin/ai-operations\`: active-admin-only view of stale AI requests that require manual provider/billing reconciliation.
+- \`/api/admin/ai-operations\`: active-admin-only operational JSON endpoint.
+
+The workspace is connected to the existing conversation and AI APIs; it is not a claim that the live AI provider is configured. No public signup, paid AI request, payout, or live deployment is enabled by this code alone.
