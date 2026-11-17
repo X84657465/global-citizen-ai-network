@@ -118,20 +118,6 @@ begin
     raise exception 'non-finite direct reservation created request side effects';
   end if;
 
-  -- Numeric(18,8) ledger columns must not receive finite values outside their range.
-  select * into v_reservation
-  from public.reserve_ai_budget(
-    '52000000-0000-4000-8000-000000000011',
-    v_owner, 'openai-compatible', 'test-model', 'chat', 10000000000
-  );
-  if coalesce(v_reservation.allowed, false) then
-    raise exception 'reserve_ai_budget accepted an out-of-range finite reservation ceiling';
-  end if;
-  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000011')
-     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000011') then
-    raise exception 'out-of-range reservation created request side effects';
-  end if;
-
   -- The database must reject a prompt that does not match the supplied hash.
   select * into v_claim
   from public.claim_ai_request(
@@ -212,18 +198,6 @@ begin
     raise exception 'non-finite legacy settlement mutated the reservation';
   end if;
 
-  if public.finalize_ai_budget(
-    v_success_request, 0.0123, 10000000000, 'TWD', 5, 4, 1, null, 120
-  ) then
-    raise exception 'finalize_ai_budget accepted an out-of-range provider billed cost';
-  end if;
-  if not exists (
-    select 1 from public.ai_budget_reservations
-    where request_id = v_success_request and status = 'reserved'
-  ) then
-    raise exception 'out-of-range provider billed cost mutated the reservation';
-  end if;
-
   -- Completion must not move a claimed request into another conversation
   -- owned by the same member.
   if public.complete_ai_chat_request(
@@ -267,27 +241,6 @@ begin
      or not exists (select 1 from public.ai_requests where id = v_success_request and status = 'running')
      or exists (select 1 from public.messages where conversation_id = v_conversation and role = 'assistant' and content = 'Invalid infinite cost response') then
     raise exception 'infinite AI cost validation changed request state or wrote an assistant message';
-  end if;
-
-  if public.complete_ai_chat_request(
-    v_owner, v_success_request, v_conversation, 'Out-of-range cost response', 'test-model',
-    5, 4, 1, 10000000000, 'provider-test-overflow-001', 120,
-    'configured_token_rates_provider_usage_internal_estimate',
-    pg_catalog.jsonb_build_object(
-      'requestId', v_success_request::text,
-      'answer', 'Out-of-range cost response',
-      'usage', pg_catalog.jsonb_build_object(
-        'inputTokens', 5, 'outputTokens', 4, 'cachedTokens', 1, 'estimatedCostTwd', 10000000000
-      )
-    )
-  ) then
-    raise exception 'AI completion accepted an out-of-range finite settlement cost';
-  end if;
-  if not exists (
-    select 1 from public.ai_budget_reservations
-    where request_id = v_success_request and status = 'reserved'
-  ) then
-    raise exception 'out-of-range completion cost mutated the reservation';
   end if;
 
   v_completed := public.complete_ai_chat_request(

@@ -1,14 +1,14 @@
 name: CI
 
 concurrency:
-  group: global-citizen-ai-network-${{ github.head_ref || github.ref }}
+  group: global-citizen-ai-network-${{ github.ref }}
   cancel-in-progress: true
 
 on:
   push:
-    branches: [main, "codex/**"]
-  pull_request:
     branches: [main]
+  pull_request:
+    branches: [main, "codex/**"]
 
 permissions:
   contents: read

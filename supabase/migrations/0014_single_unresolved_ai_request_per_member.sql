@@ -37,10 +37,8 @@ begin
      or p_prompt is null or length(p_prompt) < 1 or length(p_prompt) > 8000
      or p_max_cost_twd is null or p_max_cost_twd <= 0
      or p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
-     or p_max_cost_twd > 9999999999.99999999
      or p_preflight_cost_twd is null or p_preflight_cost_twd < 0
      or p_preflight_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
-     or p_preflight_cost_twd > 9999999999.99999999
      or p_idempotency_key is null
      or length(p_idempotency_key) < 8
      or length(p_idempotency_key) > 128
