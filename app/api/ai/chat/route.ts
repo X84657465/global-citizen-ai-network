@@ -208,6 +208,7 @@ export async function POST(request: NextRequest) {
       }),
       signal: controller.signal,
       cache: "no-store",
+      redirect: "error",
     });
 
     providerRequestId = safeProviderRequestId(
