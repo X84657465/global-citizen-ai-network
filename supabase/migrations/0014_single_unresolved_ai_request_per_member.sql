@@ -1,9 +1,14 @@
 -- Enforce one unresolved billable AI request per member across all conversations.
+-- Persist the originating conversation in the same transaction as the claim so
+-- recovery remains possible even if the API process stops immediately afterward.
+
+drop function if exists public.claim_ai_request(uuid,text,char,uuid,text,text,text,numeric);
 -- This prevents a member from switching conversations and creating a second
 -- billable request while a prior provider outcome is still unknown.
 
 create or replace function public.claim_ai_request(
   p_owner_id uuid,
+  p_conversation_id uuid,
   p_idempotency_key text,
   p_request_hash char(64),
   p_request_id uuid,
@@ -22,7 +27,7 @@ declare
   v_reservation record;
   v_pending_request_id uuid;
 begin
-  if p_owner_id is null or p_request_id is null
+  if p_owner_id is null or p_conversation_id is null or p_request_id is null
      or p_idempotency_key is null
      or length(p_idempotency_key) < 8
      or length(p_idempotency_key) > 128
@@ -30,6 +35,14 @@ begin
      or p_request_hash is null
      or p_request_hash !~ '^[0-9a-f]{64}$' then
     return query select 'rejected'::text, 'invalid_idempotency_input'::text, null::uuid, null::jsonb;
+    return;
+  end if;
+
+  if not exists (
+    select 1 from public.conversations c
+    where c.id = p_conversation_id and c.owner_id = p_owner_id
+  ) then
+    return query select 'rejected'::text, 'invalid_conversation'::text, null::uuid, null::jsonb;
     return;
   end if;
 
@@ -105,6 +118,13 @@ begin
     return;
   end if;
 
+  update public.ai_requests
+  set conversation_id = p_conversation_id
+  where id = p_request_id and owner_id = p_owner_id and status = 'queued';
+  if not found then
+    raise exception 'claimed AI request could not be linked to its conversation';
+  end if;
+
   insert into public.ai_request_idempotency (
     owner_id, idempotency_key, request_hash, request_id
   ) values (
@@ -115,5 +135,5 @@ begin
 end;
 $$;
 
-revoke all on function public.claim_ai_request(uuid,text,char,uuid,text,text,text,numeric) from public, anon, authenticated;
-grant execute on function public.claim_ai_request(uuid,text,char,uuid,text,text,text,numeric) to service_role;
+revoke all on function public.claim_ai_request(uuid,uuid,text,char,uuid,text,text,text,numeric) from public, anon, authenticated;
+grant execute on function public.claim_ai_request(uuid,uuid,text,char,uuid,text,text,text,numeric) to service_role;
