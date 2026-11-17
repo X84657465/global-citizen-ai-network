@@ -285,7 +285,13 @@ select ok(
     'cross_owner_test',
     pg_catalog.jsonb_build_object(
       'requestId', '52000000-0000-4000-8000-000000000001',
-      'answer', 'Unauthorized response'
+      'answer', 'Unauthorized response',
+      'usage', pg_catalog.jsonb_build_object(
+        'inputTokens', 1,
+        'outputTokens', 1,
+        'cachedTokens', 0,
+        'estimatedCostTwd', 0.001
+      )
     )
   ),
   'cross-owner completion attempts are rejected'
