@@ -218,9 +218,9 @@ export default function WorkspaceClient() {
   }
 
   return (
-    <main style={shell}>
+    <main className="workspace-shell" style={shell}>
       <section style={{ maxWidth: 1180, margin: "0 auto" }}>
-        <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 22 }}>
+        <header className="workspace-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 22 }}>
           <div>
             <Link href="/" style={{ color: "#315d91", textDecoration: "none", fontSize: 13 }}>← 平台首頁</Link>
             <h1 style={{ fontSize: 28, margin: "12px 0 4px" }}>AI 工作空間</h1>
@@ -234,7 +234,7 @@ export default function WorkspaceClient() {
           <button type="button" disabled={busy} onClick={() => void openConversation(pendingConversationId)} style={{ border: "1px solid #d7b875", background: "#fff", color: "#805515", borderRadius: 8, padding: "7px 11px", fontWeight: 700 }}>回到待核對對話</button>
         </div>}
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 280px", gap: 16 }}>
+        <div className="workspace-layout" style={{ display: "grid", gap: 16 }}>
           <section style={{ ...card, minHeight: 620, display: "flex", flexDirection: "column", overflow: "hidden" }}>
             <div style={{ padding: "15px 18px", borderBottom: "1px solid #edf1f5", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <strong style={{ fontSize: 14 }}>全球公民 AI 助理</strong>
