@@ -6,6 +6,7 @@ const statusSql = readFileSync("supabase/migrations/0002_member_status_rls.sql",
 const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reservations.sql", "utf8");
 const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_hard_stop.sql", "utf8");
 const idempotencySql = readFileSync("supabase/migrations/0005_ai_request_idempotency.sql", "utf8");
+const rateLimitSql = readFileSync("supabase/migrations/0006_ai_request_rate_limits.sql", "utf8");
 const env = readFileSync(".env.example", "utf8");
 const page = readFileSync("app/page.tsx", "utf8");
 const bodyReader = readFileSync("lib/http/read-json-body.ts", "utf8");
@@ -113,3 +114,12 @@ assert.ok(aiGateway.includes('request.headers.get("Idempotency-Key")'));
 assert.ok(aiGateway.includes('claim_ai_request'));
 assert.ok(aiGateway.includes('complete_ai_request_idempotency'));
 assert.ok(aiGateway.includes('fail_ai_request_idempotency'));
+
+assert.ok(rateLimitSql.includes("create table public.ai_request_rate_limits"));
+assert.ok(rateLimitSql.includes("primary key (owner_id, window_seconds, window_start)"));
+assert.ok(rateLimitSql.includes("create or replace function public.consume_ai_request_rate_limit"));
+assert.ok(rateLimitSql.includes("pg_catalog.to_timestamp"));
+assert.ok(rateLimitSql.includes("consume_ai_request_rate_limit(p_owner_id, 60, 10)"));
+assert.ok(rateLimitSql.includes("consume_ai_request_rate_limit(p_owner_id, 3600, 60)"));
+assert.ok(rateLimitSql.includes("revoke all on public.ai_request_rate_limits from public, anon, authenticated"));
+assert.ok(rateLimitSql.includes("to service_role"));
