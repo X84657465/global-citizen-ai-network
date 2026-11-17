@@ -86,3 +86,14 @@ for (const forbidden of [
 }
 
 console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC, account-status gates, atomic AI budget reservations, overrun hard-stop, bounded request parsing, and closed AI/signup defaults.");
+
+
+const aiGateway = read("app/api/ai/chat/route.ts");
+assert.ok(aiGateway.includes('reserve_ai_budget'), "AI gateway must reserve budget before provider calls");
+assert.ok(aiGateway.includes('finalize_ai_budget'), "AI gateway must settle successful provider calls");
+assert.ok(aiGateway.includes('release_ai_budget'), "AI gateway must release failed reservations");
+assert.ok(aiGateway.includes('AbortController'), "AI gateway must enforce provider timeout");
+assert.ok(aiGateway.includes('max_tokens: 1200'), "AI gateway must cap provider output");
+assert.ok(aiGateway.includes('ai_cost_ledger'), "AI gateway must append an internal cost ledger entry");
+assert.ok(aiGateway.includes('SUPABASE_SERVICE_ROLE_KEY'), "AI gateway must require server-only service role credentials");
+assert.ok(aiGateway.includes('worstCaseCost > config.maxRequestCostTwd'), "AI gateway must reject conservative preflight cost overruns");
