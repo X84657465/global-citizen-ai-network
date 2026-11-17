@@ -97,3 +97,12 @@ The workspace is connected to the existing conversation and AI APIs; it is not a
 
 - \`/contribute\`: authenticated contribution center. It lists only database-published tasks and accepts member submissions through RLS-protected APIs. Rewards are not granted at submission time; verification and the reward ledger remain separate.
 - \`/api/contribution/tasks\`: lists published tasks and the signed-in member's submissions, and accepts validated submissions. Reward values and task state are read from the database, never trusted from the client.
+
+
+## Contribution review and reward ledger
+
+- \`/contributions\`: signed-in member view of contribution events and reward ledger entries. Pending rewards are not cash withdrawals; the current MVP does not enable automated payouts.
+- \`/admin/contributions\`: active admin/reviewer interface for reviewing submitted work.
+- \`/api/admin/contribution/reviews\`: privileged review endpoint. The database RPC verifies the actor role again, locks the submission and task, and atomically writes the review, submission status, contribution ledger, pending reward ledger, and audit event.
+- \`/api/contribution/summary\`: member-scoped read-only summary using RLS.
+- Migration \`0008_atomic_contribution_review.sql\`: review idempotency and atomic ledger posting. A repeated identical review request returns the original result; a key reused with a different payload is rejected.
