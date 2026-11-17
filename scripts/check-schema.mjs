@@ -117,6 +117,7 @@ assert.ok(idempotencySql.includes("public.reserve_ai_budget("), "Idempotency cla
 assert.ok(aiGateway.includes('complete_ai_chat_request'), "AI gateway must atomically settle successful provider calls");
 assert.ok(aiGateway.includes('fail_ai_chat_request'), "AI gateway must atomically release known failed reservations");
 assert.ok(aiGateway.includes('mark_ai_request_reconciliation_required'), "AI gateway must preserve uncertain provider outcomes for reconciliation");
+assert.ok(aiGateway.includes("isKnownProviderRejection") && providerResponse.includes("[400, 401, 403, 404, 422]"), "Only explicit validation/authentication rejection statuses may release reservations; ambiguous provider 4xx must reconcile");
 assert.ok(atomicAiSql.includes("insert into public.messages"), "Atomic completion must persist the assistant message");
 assert.ok(atomicAiSql.includes("insert into public.ai_cost_ledger"), "Atomic completion must write the internal cost ledger");
 assert.ok(atomicAiSql.includes("estimated_internal_cost = p_estimated_cost_twd"), "Atomic completion must store the computed internal estimate");
