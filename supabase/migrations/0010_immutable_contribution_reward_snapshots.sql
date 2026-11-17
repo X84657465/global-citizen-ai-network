@@ -141,6 +141,17 @@ begin
     )
   );
 
+  select * into v_existing
+  from public.task_review_idempotency
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing.request_hash <> v_hash then
+      raise exception 'idempotency key payload conflict';
+    end if;
+    return v_existing.response_json || pg_catalog.jsonb_build_object('replayed', true);
+  end if;
+
   select s.status, s.contributor_id, s.reward_amount_snapshot, s.reward_currency_snapshot
     into v_submission_status, v_contributor_id, v_reward_amount, v_reward_currency
   from public.task_submissions s
@@ -300,6 +311,17 @@ begin
       'UTF8'
     )
   );
+
+  select * into v_existing
+  from public.task_appeal_review_idempotency
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing.request_hash <> v_hash then
+      raise exception 'idempotency key payload conflict';
+    end if;
+    return v_existing.response_json || pg_catalog.jsonb_build_object('replayed', true);
+  end if;
 
   select a.status, a.submission_id, s.status, s.contributor_id,
          s.reward_amount_snapshot, s.reward_currency_snapshot
