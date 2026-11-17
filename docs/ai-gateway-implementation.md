@@ -48,6 +48,11 @@ Reject or defer the request when the global control row is missing, AI is disabl
 
 Do not fall back to an unmetered provider call. Do not release a reservation when the provider may already have generated a billable response.
 
+
+## Provider-specific reconciliation limitation
+
+An OpenAI-compatible URL does not guarantee a common request-status, idempotency, or invoice API. Until the production provider is selected and its adapter is implemented, the gateway deliberately does not claim automatic reconciliation of ambiguous provider outcomes. It retains the reservation, preserves the original idempotency key, and exposes the stale request for administrator review. Do not release or settle an ambiguous request based only on a client timeout.
+
 ## Integration test gates
 
 Completed in the current repository test suite:
