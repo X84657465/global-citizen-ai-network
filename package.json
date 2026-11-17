@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:unit": "node --experimental-strip-types --test tests/ai-provider-response.test.ts tests/ai-pending-retry.test.ts tests/ai-pending-recovery.test.ts tests/ai-config.test.ts"
+    "test:unit": "node --experimental-strip-types --test tests/ai-provider-response.test.ts tests/ai-pending-retry.test.ts tests/ai-pending-recovery.test.ts tests/ai-history.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
