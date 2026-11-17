@@ -105,7 +105,7 @@ select ok(
 -- Exercise the real RPCs: their hash calculation must execute, idempotent
 -- replays must not duplicate rewards, and task price edits must not alter a
 -- submission's locked reward snapshot.
-do $
+do $fixture$
 declare
   v_review jsonb;
   v_review_replay jsonb;
@@ -247,7 +247,7 @@ begin
     raise exception 'appeal review did not preserve snapshot or idempotency';
   end if;
 end;
-$;
+$fixture$;
 
 select ok(
   (select count(*) = 3
