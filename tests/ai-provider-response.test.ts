@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  isKnownProviderRejection,
   parseProviderResponse,
   ProviderResponseError,
   readProviderJson,
@@ -118,4 +119,13 @@ test("rejects malformed provider choices and non-text content parts", () => {
     () => parseProviderResponse({ choices: [{ message: { content: [{ type: "image", text: "x" }] } }] }, 10),
     ProviderResponseError,
   );
+});
+
+test("only explicit validation and authentication failures are known provider rejections", () => {
+  for (const status of [400, 401, 403, 404, 422]) {
+    assert.equal(isKnownProviderRejection(status), true, `HTTP ${status} should be treated as an explicit rejection`);
+  }
+  for (const status of [408, 409, 425, 429, 500, 502, 503, 504]) {
+    assert.equal(isKnownProviderRejection(status), false, `HTTP ${status} must retain the reservation for reconciliation`);
+  }
 });
