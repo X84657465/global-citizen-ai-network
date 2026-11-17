@@ -1,6 +1,26 @@
 -- Atomic contribution review, contribution scoring, and reward accrual.
 -- Review actions are idempotent and all ledger writes occur in one transaction.
 
+-- Enforce contribution submission bounds and task deadlines at the database boundary,
+-- not only in the Next.js route (members can also access Supabase Data API).
+alter table public.task_submissions
+  add constraint task_submissions_content_length_check
+  check (char_length(content) between 10 and 16000);
+
+drop policy if exists "submissions_owner_insert" on public.task_submissions;
+create policy "submissions_owner_insert" on public.task_submissions
+  for insert to authenticated
+  with check (
+    contributor_id = (select auth.uid())
+    and (select private.member_can_write())
+    and exists (
+      select 1 from public.contribution_tasks t
+      where t.id = task_id
+        and t.status = 'published'
+        and (t.closes_at is null or t.closes_at > now())
+    )
+  );
+
 create table public.task_review_idempotency (
   idempotency_key text primary key,
   request_hash bytea not null,
@@ -39,7 +59,7 @@ begin
   if p_actor_id is null or p_submission_id is null then
     raise exception 'actor and submission are required';
   end if;
-  if p_decision not in ('accept', 'reject') then
+  if p_decision is null or p_decision not in ('accept', 'reject') then
     raise exception 'decision must be accept or reject';
   end if;
   if p_rationale is null or char_length(pg_catalog.btrim(p_rationale)) < 10
