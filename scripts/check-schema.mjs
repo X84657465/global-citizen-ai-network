@@ -149,7 +149,7 @@ assert.ok(aiGateway.includes('AbortController'), "AI gateway must enforce provid
 assert.ok(aiGateway.includes('max_tokens: 1200'), "AI gateway must cap provider output");
 assert.ok(atomicAiSql.includes("amount_kind, calculation_method"), "AI gateway settlement must append a labelled internal cost ledger entry");
 assert.ok(aiGateway.includes('SUPABASE_SERVICE_ROLE_KEY'), "AI gateway must require server-only service role credentials");
-assert.ok(aiGateway.includes('worstCaseCost > config.maxRequestCostTwd'), "AI gateway must reject conservative preflight cost overruns");
+assert.ok(singlePendingSql.includes("if p_preflight_cost_twd > p_max_cost_twd"), "Atomic claim RPC must reject conservative preflight cost overruns before reservation and prompt persistence");
 
 assert.ok(idempotencySql.includes("create table public.ai_request_idempotency"));
 assert.ok(idempotencySql.includes("unique (owner_id, idempotency_key)"));
