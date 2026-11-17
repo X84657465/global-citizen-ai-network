@@ -70,6 +70,7 @@ export default function WorkspaceClient() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
+  const [updatingConversationId, setUpdatingConversationId] = useState("");
   const [conversationId, setConversationId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
@@ -134,6 +135,31 @@ export default function WorkspaceClient() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  async function assignConversationProject(item: Conversation, projectId: string) {
+    if (updatingConversationId) return;
+    setUpdatingConversationId(item.id);
+    setError("");
+    try {
+      const response = await fetch("/api/conversations/" + item.id, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: projectId || null }),
+      });
+      const data = await response.json() as { conversation?: Conversation } & ApiError;
+      if (!response.ok || !data.conversation) {
+        throw new Error(data.error ?? "無法更新對話所屬專案。");
+      }
+      setConversations(current => current.map(conversation =>
+        conversation.id === item.id ? { ...conversation, project_id: data.conversation!.project_id } : conversation
+      ));
+      setNotice("對話所屬專案已更新。");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "無法更新對話所屬專案。");
+    } finally {
+      setUpdatingConversationId("");
+    }
+  }
 
   async function openConversation(id: string) {
     if (busy) return;
@@ -290,7 +316,15 @@ export default function WorkspaceClient() {
             <div style={{ ...card, padding: 16 }}>
               <strong style={{ fontSize: 13 }}>對話紀錄</strong>
               <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
-                {conversations.length === 0 ? <p style={{ color: "#8793a5", fontSize: 12 }}>尚無已保存的對話。</p> : conversations.map(item => <button key={item.id} type="button" disabled={busy} onClick={() => void openConversation(item.id)} style={{ textAlign: "left", border: conversationId === item.id ? "1px solid #9bb4db" : "1px solid #edf1f5", background: conversationId === item.id ? "#f1f6ff" : "#fff", borderRadius: 9, padding: 10, color: "#243247", fontSize: 11 }}>{item.title}<span style={{ display: "block", color: "#64748b", marginTop: 4 }}>{item.project_id ? projects.find(project => project.id === item.project_id)?.title ?? "所屬專案" : "未分類對話"}</span><span style={{ display: "block", color: "#98a2b1", marginTop: 3 }}>{new Date(item.updated_at).toLocaleDateString("zh-TW")}</span></button>)}
+                {conversations.length === 0 ? <p style={{ color: "#8793a5", fontSize: 12 }}>尚無已保存的對話。</p> : conversations.map(item => <div key={item.id} style={{ border: conversationId === item.id ? "1px solid #9bb4db" : "1px solid #edf1f5", background: conversationId === item.id ? "#f1f6ff" : "#fff", borderRadius: 9, padding: 9 }}>
+                  <button type="button" disabled={busy} onClick={() => void openConversation(item.id)} style={{ width: "100%", textAlign: "left", border: 0, background: "transparent", padding: 2, color: "#243247", fontSize: 11 }}>{item.title}<span style={{ display: "block", color: "#64748b", marginTop: 4 }}>{item.project_id ? projects.find(project => project.id === item.project_id)?.title ?? "已封存或不可用專案" : "未分類對話"}</span><span style={{ display: "block", color: "#98a2b1", marginTop: 3 }}>{new Date(item.updated_at).toLocaleDateString("zh-TW")}</span></button>
+                  <label style={{ display: "grid", gap: 4, marginTop: 7, color: "#64748b", fontSize: 10 }}>所屬專案<select aria-label={item.title + " 所屬專案"} value={item.project_id ?? ""} disabled={busy || Boolean(updatingConversationId)} onChange={event => void assignConversationProject(item, event.target.value)} style={{ width: "100%", border: "1px solid #dce3ec", borderRadius: 7, padding: 7, background: "#fff", color: "#243247", fontSize: 11 }}>
+                    <option value="">不指定專案</option>
+                    {item.project_id && !projects.some(project => project.id === item.project_id) && <option value={item.project_id} disabled>已封存或不可用專案</option>}
+                    {projects.map(project => <option key={project.id} value={project.id}>{project.title}</option>)}
+                  </select></label>
+                  {updatingConversationId === item.id && <span role="status" style={{ display: "block", color: "#64748b", marginTop: 5, fontSize: 10 }}>更新中…</span>}
+                </div>)}
               </div>
             </div>
             <div style={{ ...card, padding: 16 }}>
