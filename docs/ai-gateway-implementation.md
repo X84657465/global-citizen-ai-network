@@ -14,7 +14,7 @@ The repository contains a server-side OpenAI-compatible gateway and database-enf
 6. Bound provider response reads and validate the response shape, answer, token usage, and request identifiers before accepting it.
 7. On validated success, atomically settle the reservation, save the assistant message, write an internal-estimate ledger row, and complete the idempotency response in one transaction.
 8. On a known failure, atomically release the reservation and mark the request failed.
-9. On an uncertain provider outcome—timeout, transport failure, provider 408/5xx, malformed success response, or database finalization failure—do not retry the provider and do not release the reservation. Preserve the same idempotency key and make the request visible for operator reconciliation.
+9. On an uncertain provider outcome—timeout, transport failure, provider-specific status without a guaranteed rejection contract (including 408/409/425/429/5xx), malformed success response, or database finalization failure—do not retry the provider and do not release the reservation. Only explicit validation/authentication rejection statuses (400/401/403/404/422) are treated as known non-accepted failures. Preserve the same idempotency key and make the request visible for operator reconciliation.
 10. The authenticated member recovery endpoint can restore the original conversation, payload, and idempotency key after a tab/browser session is lost. It returns only the caller's own oldest unresolved request and uses no-store responses; the key must never be logged.
 11. The admin reconciliation queue is read-only and bounded. It does not prove whether the provider billed the request and does not automatically retry, settle, or release anything. Operators must verify provider request logs and billing evidence before manual resolution.
 
@@ -37,7 +37,7 @@ Reject the request when the global control row is missing, AI is disabled, a use
 2. Daily and monthly request limits count concurrent logical requests correctly.
 3. A duplicate idempotency key cannot create duplicate reservations or provider calls.
 4. A different payload under an existing key is rejected without changing the original pending request.
-5. Provider timeout, 408/5xx, malformed success, transport failure, and post-provider database failure preserve the reservation for reconciliation.
+5. Provider timeout, ambiguous provider statuses (including 408/409/425/429/5xx), malformed success, transport failure, and post-provider database failure preserve the reservation for reconciliation; only the explicit known-rejection allowlist releases it.
 6. A known pre-provider or provider rejection releases the reservation exactly once.
 7. A successful completion atomically persists the assistant message, cost ledger entry, settlement, and replay response.
 8. A lost HTTP response after committed completion can be replayed without another provider call.
