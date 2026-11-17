@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       error: blockedByAnotherRequest
         ? "你有另一個對話的 AI 請求尚未確認，為避免重複計費，請先回到原對話完成相同冪等鍵重試或等待管理員核對。"
-        : "相同請求仍在處理或等待成本核對，請稍後使用相同 Idempotency-Key 重試。",
+        : "相同請求仍在處理或等待成本核對，請稍後使用相同 Idempotency-Key 查詢狀態；系統不會重複呼叫供應商。",
       retryWithSameKey: blockedByAnotherRequest ? false : shouldPreservePendingRequestKey(claim.disposition),
     }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
   }
