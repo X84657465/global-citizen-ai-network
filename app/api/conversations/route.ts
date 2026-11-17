@@ -49,6 +49,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "專案識別碼格式錯誤。" }, { status: 400 });
   }
 
+  if (projectId !== null) {
+    const { data: project, error: projectError } = await auth.supabase
+      .from("projects")
+      .select("id")
+      .eq("id", projectId)
+      .eq("owner_id", auth.user.id)
+      .is("archived_at", null)
+      .maybeSingle();
+    if (projectError || !project) {
+      return NextResponse.json({ error: "找不到可使用的專案，或專案已封存。" }, { status: 404 });
+    }
+  }
+
   const { data, error } = await auth.supabase
     .from("conversations")
     .insert({ owner_id: auth.user.id, title, project_id: projectId })

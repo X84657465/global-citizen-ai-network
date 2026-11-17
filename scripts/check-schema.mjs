@@ -389,6 +389,7 @@ const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reco
 const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
 const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
 const reconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
+const reconciliationOperationsPage = readFileSync("app/admin/ai-operations/page.tsx", "utf8");
 assert.ok(reconciliationSql.includes("auth.uid() is distinct from p_actor_id"),
   "Reconciliation RPC must bind the claimed actor ID to the authenticated session");
 assert.ok(reconciliationSql.includes("v_profile.role <> 'admin'") && reconciliationSql.includes("v_profile.account_status <> 'active'"),
@@ -413,3 +414,52 @@ assert.ok(reconciliationUi.includes("crypto.randomUUID()") && reconciliationUi.i
   "Admin resolution UI must preserve an idempotency key for safe retries");
 assert.ok(reconciliationTests.includes("actor ID without an authenticated identity"),
   "Database tests must cover forged actor identity");
+
+assert.ok(reconciliationOperationsPage.includes('.from("ai_reconciliation_events")') &&
+  reconciliationOperationsPage.includes('.order("created_at", { ascending: false })') &&
+  reconciliationOperationsPage.includes(".limit(100)"),
+  "Admin operations page must load a bounded, newest-first reconciliation event history");
+assert.ok(reconciliationOperationsPage.includes("event.evidence_reference") &&
+  reconciliationOperationsPage.includes("event.rationale") &&
+  reconciliationOperationsPage.includes("event.actor_id"),
+  "Admin reconciliation history must expose evidence, rationale, and accountable actor metadata");
+
+const projectsApi = readFileSync("app/api/projects/route.ts", "utf8");
+const projectDetailApi = readFileSync("app/api/projects/[id]/route.ts", "utf8");
+assert.ok(projectsApi.includes('request.nextUrl.searchParams.get("includeArchived")'),
+  "Project listing must support explicit inclusion of archived records");
+assert.ok(projectsApi.includes('.is("archived_at", null)'),
+  "Archived projects must be excluded from the default active-project list");
+assert.ok(projectDetailApi.includes("typeof input.archived !== \"boolean\"") && projectDetailApi.includes("updates.archived_at"),
+  "Project archive and restore operations must accept only a boolean state");
+const projectsPage = readFileSync("app/projects/page.tsx", "utf8");
+const projectsClient = readFileSync("app/projects/projects-client.tsx", "utf8");
+assert.ok(projectsPage.includes("getUser()") && projectsPage.includes("redirect(\"/login\")"),
+  "Project management page must require an authenticated member session");
+assert.ok(projectsClient.includes('fetch("/api/projects?includeArchived=true"') && projectsClient.includes('method: "PATCH"'),
+  "Project management UI must load archived records and use the owned-project archive API");
+assert.ok(projectsClient.includes("還原專案") && projectsClient.includes("封存專案"),
+  "Project management UI must expose both archive and restore actions");
+const conversationsApi = readFileSync("app/api/conversations/route.ts", "utf8");
+const projectLinkedWorkspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
+assert.ok(conversationsApi.includes('.eq("owner_id", auth.user.id)') && conversationsApi.includes('.is("archived_at", null)'),
+  "Conversation creation must reject projects not owned by the member or already archived");
+assert.ok(projectLinkedWorkspaceClient.includes('fetch("/api/projects", { cache: "no-store" })') &&
+  projectLinkedWorkspaceClient.includes("project_id: selectedProjectId || null"),
+  "Workspace must load active projects and persist the selected project on new conversations");
+assert.ok(projectLinkedWorkspaceClient.includes("新對話歸屬專案") && projectLinkedWorkspaceClient.includes("未分類對話"),
+  "Workspace must expose project assignment and identify unclassified conversations");
+const projectOwnershipSql = readFileSync("supabase/migrations/0016_conversation_project_ownership.sql", "utf8");
+const projectOwnershipLockSql = readFileSync("supabase/migrations/0017_conversation_project_locking.sql", "utf8");
+const projectOwnershipTests = readFileSync("supabase/tests/project_conversation_security.test.sql", "utf8");
+assert.ok(projectOwnershipSql.includes("v_project_owner is distinct from new.owner_id") &&
+  projectOwnershipSql.includes("v_archived_at is not null"),
+  "Database trigger must reject cross-owner and archived project links");
+assert.ok(projectOwnershipSql.includes("before insert or update of project_id, owner_id"),
+  "Conversation project ownership must be enforced on inserts and relinking updates");
+assert.ok(projectOwnershipTests.includes("cross-owner and archived project associations are rejected"),
+  "Database tests must cover invalid project associations");
+assert.ok(projectOwnershipLockSql.includes("for share") && !projectOwnershipLockSql.includes("for key share"),
+  "Project ownership trigger must take a row lock that conflicts with concurrent archived_at updates");
+assert.ok(projectOwnershipTests.includes("project row lock conflicts with concurrent archive updates"),
+  "Database tests must verify the stronger project row-lock mode");
