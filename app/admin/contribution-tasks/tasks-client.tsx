@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 
 type Task = {
   id: string; title: string; description: string; category: string;
@@ -10,7 +10,7 @@ type Task = {
 };
 type Payload = { tasks?: Task[]; task?: Task; error?: string };
 
-const panel: React.CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 18 };
+const panel: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 18 };
 
 export default function ContributionTasksAdminClient() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -70,7 +70,7 @@ export default function ContributionTasksAdminClient() {
     finally { setBusy(""); }
   }
 
-  const field: React.CSSProperties = { width: "100%", border: "1px solid #dce3ec", borderRadius: 9, padding: 11, font: "inherit", fontSize: 12 };
+  const field: CSSProperties = { width: "100%", border: "1px solid #dce3ec", borderRadius: 9, padding: 11, font: "inherit", fontSize: 12 };
   return (
     <main style={{ minHeight: "100vh", background: "#f4f7fb", color: "#17263b", padding: "30px 16px" }}>
       <section style={{ maxWidth: 1080, margin: "0 auto" }}>
