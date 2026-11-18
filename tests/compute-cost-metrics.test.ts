@@ -99,3 +99,10 @@ test("groups baselines by workload class and execution target", () => {
   const cloud = groups.filter(group => group.executionTarget === "trusted_cloud")[0];
   assert.equal(cloud.baseline.totalJobs, 2);
 });
+
+test("tracks accepted jobs whose latency has not been measured", () => {
+  const result = summarizeWorkloadCosts([{ ...sample[0], latencyMs: null }]);
+  assert.equal(result.acceptedJobs, 1);
+  assert.equal(result.unmeasuredAcceptedLatencyJobs, 1);
+  assert.equal(result.medianAcceptedLatencyMs, null);
+});
