@@ -62,6 +62,10 @@ The initial interface is a prototype. Demo task data is illustrative, not paid w
 
 ## Documentation
 
+- [Engineering governance and verification standard](docs/engineering-governance.md)
+- [AI agent security contract](docs/ai-agent-security-contract.md)
+- [Agent and CI cost ledger](docs/agent-cost-ledger.md)
+
 - [Product scope and phased roadmap](docs/product-scope.md)
 - [Architecture](docs/architecture.md)
 - [Security and privacy baseline](docs/security-baseline.md)
