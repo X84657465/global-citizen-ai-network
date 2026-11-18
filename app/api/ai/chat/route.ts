@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const idempotencyKey = request.headers.get("Idempotency-Key")?.trim() ?? "";
+  const idempotencyKey = request.headers.get("Idempotency-Key") ?? "";
   if (!isValidIdempotencyKey(idempotencyKey)) {
     return NextResponse.json({ error: "請提供有效的 Idempotency-Key（8–128 個英數字或 . _ : -）。" }, { status: 400 });
   }
