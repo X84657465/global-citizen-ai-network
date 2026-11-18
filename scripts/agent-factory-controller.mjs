@@ -61,6 +61,7 @@ const writeOutput = (key, value) => { if (output) appendFileSync(output, key + "
 if (mode === "check" && cooldownActive(localState)) {
   writeOutput("cooldown_active", true);
   writeOutput("cooldown_until", localState.cooldown_until);
+  writeOutput("skipped_issues", (localState.skipped_issue_numbers ?? []).join(","));
   console.log("Local circuit breaker active until " + localState.cooldown_until + "; skipped GitHub API calls and task work.");
   process.exit(0);
 }
@@ -77,24 +78,27 @@ if (mode === "check") {
   const active = cooldownActive(state);
   writeOutput("cooldown_active", active);
   writeOutput("cooldown_until", state.cooldown_until ?? "");
+  writeOutput("skipped_issues", (state.skipped_issue_numbers ?? []).join(","));
   saveLocalState(state);
   console.log(active ? "Circuit breaker active until " + state.cooldown_until + "; no task is started." : "Circuit breaker clear.");
 } else if (mode === "failure") {
-  state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.");
+  state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.", Date.now(), Number(process.env.FAILED_ISSUE_NUMBER) || null);
   saveLocalState(state);
   await persistState(allIssues, state);
   console.log("Recorded consecutive failure " + state.consecutive_failures + "/3. " + (state.cooldown_until ? "Cooldown until " + state.cooldown_until : "Next failure triggers 15 minutes of cooldown."));
 } else if (mode === "success") {
-  const reset = successState();
+  const reset = successState(Date.now(), state, Number(process.env.COMPLETED_ISSUE_NUMBER) || null);
   saveLocalState(reset);
   await persistState(allIssues, reset);
   console.log("Successful task publication recorded; circuit breaker reset.");
 } else if (mode === "plan") {
   const openIssues = await listIssues("open");
   const openPulls = await api("/pulls?state=open&per_page=100");
+  const skipped = new Set(state.skipped_issue_numbers ?? []);
   const openTasks = openIssues.filter((issue) => !issue.pull_request && issue.title?.startsWith("[AI Task]"));
+  const pendingTasks = openTasks.filter((issue) => !skipped.has(issue.number));
   const activeTaskPull = openPulls.some((pull) => /<!-- ai-task:\d+ -->/.test(pull.body || ""));
-  if (openTasks.length || activeTaskPull) {
+  if (pendingTasks.length || activeTaskPull) {
     writeOutput("created_issue_number", "");
     console.log("Planner idle: open task Issues or an active task PR still exist.");
   } else {
