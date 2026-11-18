@@ -589,7 +589,7 @@ jobs:
         run: node scripts/agent-factory-controller.mjs
 
       - name: Record failed task and activate cooldown after three consecutive failures
-        if: failure() && steps.select-task.outputs.issue_number != ''
+        if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
