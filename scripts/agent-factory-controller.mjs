@@ -1,4 +1,6 @@
-import { appendFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { cooldownActive, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
 
 const repository = process.env.GITHUB_REPOSITORY ?? "";
@@ -7,6 +9,16 @@ const mode = process.env.AGENT_FACTORY_MODE ?? "check";
 const output = process.env.GITHUB_OUTPUT ?? "";
 if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
 const base = "https://api.github.com/repos/" + repository;
+const localStateDir = join(homedir(), ".global-citizen-ai-network");
+const localStatePath = join(localStateDir, "agent-factory-state.json");
+function readLocalState() {
+  try { return JSON.parse(readFileSync(localStatePath, "utf8")); } catch { return {}; }
+}
+function saveLocalState(value) {
+  mkdirSync(localStateDir, { recursive: true });
+  writeFileSync(localStatePath, JSON.stringify(value, null, 2) + "\n", "utf8");
+}
+const localState = readLocalState();
 const headers = { Accept: "application/vnd.github+json", Authorization: "Bearer " + token, "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" };
 
 async function api(path, options = {}) {
@@ -46,21 +58,36 @@ async function persistState(issues, state) {
   return existing;
 }
 const writeOutput = (key, value) => { if (output) appendFileSync(output, key + "=" + String(value) + "\n", "utf8"); };
+if (mode === "check" && cooldownActive(localState)) {
+  writeOutput("cooldown_active", true);
+  writeOutput("cooldown_until", localState.cooldown_until);
+  console.log("Local circuit breaker active until " + localState.cooldown_until + "; skipped GitHub API calls and task work.");
+  process.exit(0);
+}
+
+try {
 const allIssues = await listIssues("all");
 const stateIssue = allIssues.find(isStateIssue);
 let state = readState(stateIssue);
+if (Date.parse(localState.cooldown_until ?? "") > Date.now()) {
+  state = { ...state, ...localState };
+}
 
 if (mode === "check") {
   const active = cooldownActive(state);
   writeOutput("cooldown_active", active);
   writeOutput("cooldown_until", state.cooldown_until ?? "");
+  saveLocalState(state);
   console.log(active ? "Circuit breaker active until " + state.cooldown_until + "; no task is started." : "Circuit breaker clear.");
 } else if (mode === "failure") {
   state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.");
+  saveLocalState(state);
   await persistState(allIssues, state);
   console.log("Recorded consecutive failure " + state.consecutive_failures + "/3. " + (state.cooldown_until ? "Cooldown until " + state.cooldown_until : "Next failure triggers 15 minutes of cooldown."));
 } else if (mode === "success") {
-  await persistState(allIssues, successState());
+  const reset = successState();
+  saveLocalState(reset);
+  await persistState(allIssues, reset);
   console.log("Successful task publication recorded; circuit breaker reset.");
 } else if (mode === "plan") {
   const openIssues = await listIssues("open");
@@ -81,6 +108,26 @@ if (mode === "check") {
       console.log("Created one bounded roadmap task: #" + created.number);
     }
   }
-} else {
+ } else {
   throw new Error("Unsupported AGENT_FACTORY_MODE: " + mode);
+}
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  const retryAfter = /Retry-After=(\\d+)/i.exec(message);
+  const retrySeconds = retryAfter ? Number(retryAfter[1]) : 15 * 60;
+  const reset = {
+    consecutive_failures: Math.max(3, Number(localState.consecutive_failures) || 0),
+    cooldown_until: new Date(Date.now() + Math.max(60, retrySeconds) * 1000).toISOString(),
+    last_failure_at: new Date().toISOString(),
+    last_error: message.slice(0, 1200),
+    updated_at: new Date().toISOString(),
+  };
+  saveLocalState(reset);
+  if (mode === "check") {
+    writeOutput("cooldown_active", true);
+    writeOutput("cooldown_until", reset.cooldown_until);
+    console.warn("API/controller error opened a local cooldown until " + reset.cooldown_until + ": " + message);
+    process.exit(0);
+  }
+  throw error;
 }
