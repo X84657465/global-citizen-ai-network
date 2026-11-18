@@ -40,6 +40,9 @@ const providerlessReplaySql = readFileSync("supabase/migrations/0022_ai_provider
 const aiChatApi = readFileSync("app/api/ai/chat/route.ts", "utf8");
 const idempotencyValidation = readFileSync("lib/ai/idempotency.ts", "utf8");
 const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8");
+const reconciliationFormError = readFileSync("lib/ai/reconciliation-form-error.ts", "utf8");
+const reconciliationFormTests = readFileSync("tests/ai-reconciliation-form-error.test.ts", "utf8");
+const reconciliationForm = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
 const singleActiveSubmissionSql = readFileSync("supabase/migrations/0023_single_active_task_submission.sql", "utf8");
 const singleActiveSubmissionTests = readFileSync("supabase/tests/task_submission_uniqueness.test.sql", "utf8");
 const submissionIndexCleanupSql = readFileSync("supabase/migrations/0024_dedupe_active_submission_index.sql", "utf8");
@@ -543,3 +546,8 @@ assert.ok(submissionIndexCleanupSql.includes("drop index if exists public.task_s
   "Active task submission hardening must converge to one canonical partial unique index");
 assert.ok(singleActiveSubmissionTests.includes("task_submissions_one_active_per_user"),
   "Database regression tests must verify the canonical active submission index name");
+
+assert.ok(reconciliationFormError.includes("status === 400 || status === 413") &&
+  reconciliationFormTests.includes("potentially ambiguous failures") &&
+  reconciliationForm.includes("canCorrectReconciliationSubmission(response.status)"),
+  "Reconciliation form may unlock only for guaranteed pre-RPC validation/body-size failures and must preserve keys for ambiguous outcomes");
