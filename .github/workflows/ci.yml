@@ -1,8 +1,8 @@
 name: CI
 
 concurrency:
-  group: global-citizen-ai-network-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+  group: global-citizen-ai-network-self-hosted-runner
+  cancel-in-progress: false
 
 on:
   push:
