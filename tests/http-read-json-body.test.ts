@@ -7,7 +7,7 @@ function post(body: BodyInit | null, headers?: HeadersInit) {
     method: "POST",
     body,
     headers,
-    ...(body instanceof ReadableStream ? { duplex: "half" } as RequestInit : {}),
+    duplex: "half",
   });
 }
 
