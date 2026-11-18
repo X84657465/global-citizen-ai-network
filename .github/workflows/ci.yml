@@ -243,7 +243,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pullNumber,
-                body: "Automatic merge was blocked because this PR deletes a SQL/migration file or contains a destructive database operation. Human review is required before merging.\n\\n" + blockers.map((item) => "- " + item).join("\\n")
+                body: "Automatic merge was blocked because this PR deletes a SQL/migration file or contains a destructive database operation. Human review is required before merging.\n\n" + blockers.map((item) => "- " + item).join("\n")
               });
               return;
             }
@@ -277,6 +277,17 @@ jobs:
               return;
             }
             core.notice("AI task PR #" + pullNumber + " passed build and database CI and was squash-merged.");
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: "ai-task-next",
+              client_payload: {
+                source_issue: Number(marker[1]),
+                source_pull_request: pullNumber,
+                outcome: "ai_task_merged"
+              }
+            });
+            core.notice("Dispatched the next AI task only after successful squash merge.");
 
   circuit-breaker:
     name: Persist CI failures in the factory circuit breaker
