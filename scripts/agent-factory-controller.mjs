@@ -68,10 +68,10 @@ if (mode === "check" && cooldownActive(localState)) {
 try {
 const allIssues = await listIssues("all");
 const stateIssue = allIssues.find(isStateIssue);
-let state = readState(stateIssue);
-if (Date.parse(localState.cooldown_until ?? "") > Date.now()) {
-  state = { ...state, ...localState };
-}
+const remoteState = readState(stateIssue);
+const localUpdated = Date.parse(localState.updated_at ?? "") || 0;
+const remoteUpdated = Date.parse(remoteState.updated_at ?? "") || 0;
+let state = localUpdated > remoteUpdated ? localState : remoteState;
 
 if (mode === "check") {
   const active = cooldownActive(state);
