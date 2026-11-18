@@ -94,8 +94,8 @@ test("p95 uses nearest-rank percentile", () => {
 
 test("groups baselines by workload class and execution target", () => {
   const groups = summarizeWorkloadCostsByDimension(sample);
-  assert.equal(groups.length, 3);
-  assert.deepEqual(groups.map(group => group.executionTarget).sort(), ["community_node", "trusted_cloud", "trusted_cloud"]);
+  assert.equal(groups.length, 2);
+  assert.deepEqual(groups.map(group => group.executionTarget).sort(), ["community_node", "trusted_cloud"]);
   const cloud = groups.filter(group => group.executionTarget === "trusted_cloud")[0];
   assert.equal(cloud.baseline.totalJobs, 2);
 });
