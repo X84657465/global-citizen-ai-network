@@ -307,7 +307,7 @@ begin
     id, task_id, contributor_id, content
   ) values (
     '30000000-0000-4000-8000-000000000004',
-    '20000000-0000-4000-8000-000000000001',
+    '20000000-0000-4000-8000-000000000002',
     '10000000-0000-4000-8000-000000000003',
     'A rejected submission reserved for authenticated appeal RLS testing.'
   );
@@ -331,7 +331,7 @@ insert into public.task_submissions (
   reward_amount_snapshot, reward_currency_snapshot, reward_snapshot_source
 ) values (
   '30000000-0000-4000-8000-000000000003',
-  '20000000-0000-4000-8000-000000000002',
+  '20000000-0000-4000-8000-000000000001',
   '10000000-0000-4000-8000-000000000003',
   'Authenticated contributor submission exercising the owner insert policy.',
   'accepted', '2000-01-01T00:00:00Z',
