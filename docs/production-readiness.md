@@ -69,3 +69,27 @@ Main now applies the following response headers globally through `next.config.ts
 
 A strict Content Security Policy is intentionally deferred. Next.js App Router streaming and inline bootstrap scripts require a nonce-aware CSP design; adding a broad `unsafe-inline` policy would create a false sense of protection. Cross-Origin-Resource-Policy is also deferred until all intentional external asset origins are inventoried. Vercel currently supplies HSTS on the live deployment; verify it remains present after the next deployment.
 
+## Legacy integration branch audit — 2026-11-18
+
+### Scope and decision
+
+The open integration PR #18 branch (`work/integration-audit`) is not safe to merge as a unit. At the time of review it is 85 commits ahead of `main` and 28 commits behind it, with a merge base at `032efc7b6158de84370fbda0159f57fdd2cd0e67`. Keep the PR open and Draft; do not merge it or rebase it wholesale onto the production line.
+
+### Verified overlap with current main
+
+- `app/api/ai/chat/route.ts` is byte-for-byte identical between the PR #18 head and current `main`; do not cherry-pick this file from PR #18.
+- The providerless completed-replay migration in PR #18 (`20261118013000_replay_completed_ai_requests_without_provider_config.sql`) implements the same `claim_ai_request` function body as the current main migration `20261118060600_ai_providerless_completed_replay.sql`, but the legacy file also starts with three `DROP FUNCTION IF EXISTS` statements. Do not reapply the legacy migration or copy those drops without first proving that the exact overloads exist and are safe to remove.
+- PR #18's `20261118014000_revoke_client_default_table_and_sequence_privileges.sql` sets default privileges for role `postgres`. Current main has an explicit least-privilege grant migration (`20261118045417_least_privilege_public_grants.sql`), but that is not textually equivalent to the legacy default-privilege migration. Treat future-object default privileges as a separate verification item; do not assume explicit grants on current objects prove future objects are protected.
+- PR #18 also contains a legacy internal-table revoke migration (`20261118005042_revoke_client_access_to_internal_tables.sql`). Current main's later least-privilege migration revokes client access across public-schema tables and functions, so the older migration must not be replayed blindly.
+
+### Required follow-up before any selective port
+
+1. Inspect live PostgreSQL default ACLs for the migration owner and compare them with the intended `anon`/`authenticated` policy.
+2. Inspect `pg_proc` for the exact historical `claim_ai_request` overload signatures before considering any function drop.
+3. Compare the remaining PR #18 changes by semantic unit, not by commit count; the branch contains overlapping application, migration, test, and documentation changes.
+4. Port only a minimal, independently reviewed change onto a branch created from current `main`, then run the complete local database and application test suites.
+5. Keep Production read-only until the migration history, grants, and tests are reconciled.
+
+### Validation boundary
+
+This audit used GitHub branch/file comparisons and reviewed the listed SQL and application patches. It did not execute SQL against Production, change database privileges, run GitHub Actions, or deploy Production.
