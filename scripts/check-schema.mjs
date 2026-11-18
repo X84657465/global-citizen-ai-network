@@ -54,6 +54,8 @@ const securityHeaderSource = readFileSync("lib/security/headers.ts", "utf8");
 const nextConfigSource = readFileSync("next.config.ts", "utf8");
 const securityHeaderTests = readFileSync("tests/security-headers.test.ts", "utf8");
 const submissionIndexCleanupSql = readFileSync("supabase/migrations/0024_dedupe_active_submission_index.sql", "utf8");
+const supabaseAdminDefaultsSql = readFileSync("supabase/migrations/0025_restrict_supabase_admin_default_grants.sql", "utf8");
+const supabaseAdminDefaultsTests = readFileSync("supabase/tests/supabase_admin_default_grants.test.sql", "utf8");
 const publicTableGrantTests = readFileSync("supabase/tests/public_table_grants.test.sql", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
@@ -589,3 +591,12 @@ assert.ok(publicTableGrantTests.includes("select plan(15)") &&
   publicTableGrantTests.includes("all internal service-only tables retain row-level security") &&
   publicTableGrantTests.includes("public sequences are not directly accessible"),
   "Least-privilege regression tests must cover full table privileges, internal-table RLS, and public sequence grants");
+
+assert.ok(supabaseAdminDefaultsSql.includes("alter default privileges for role supabase_admin in schema public") &&
+  supabaseAdminDefaultsSql.includes("revoke all on tables from anon, authenticated") &&
+  supabaseAdminDefaultsSql.includes("revoke all on sequences from anon, authenticated") &&
+  supabaseAdminDefaultsSql.includes("revoke execute on functions from public, anon, authenticated"),
+  "Supabase-managed public object defaults must not grant browser or PUBLIC access");
+assert.ok(supabaseAdminDefaultsTests.includes("set local role supabase_admin") &&
+  supabaseAdminDefaultsTests.includes("service_role retains its managed default sequence and function access"),
+  "Database tests must create objects as supabase_admin and verify browser revocation without breaking service_role");
