@@ -84,11 +84,11 @@ The open integration PR #18 branch (`work/integration-audit`) is not safe to mer
 
 ### Required follow-up before any selective port
 
-1. Inspect live PostgreSQL default ACLs for the migration owner and compare them with the intended `anon`/`authenticated` policy.
-2. Inspect `pg_proc` for the exact historical `claim_ai_request` overload signatures before considering any function drop.
-3. Compare the remaining PR #18 changes by semantic unit, not by commit count; the branch contains overlapping application, migration, test, and documentation changes.
-4. Port only a minimal, independently reviewed change onto a branch created from current `main`, then run the complete local database and application test suites.
-5. Keep Production read-only until the migration history, grants, and tests are reconciled.
+1. The current main pgTAP suite already checks the `postgres` default ACLs for future tables, sequences, and public functions; the database safety record documents a prior read-only catalog verification. Do not repeat a Production query solely to re-prove this point.
+2. Do not copy the legacy `DROP FUNCTION` statements. If a future change genuinely requires removing an overload, inspect its exact signature and dependencies in a disposable database first.
+3. Review the old `supabase_admin` fixture as a platform-role compatibility test only; application migrations are documented to run as `postgres`, and managed `supabase_admin` defaults are not project-owned.
+4. Compare the remaining PR #18 changes by semantic unit, not by commit count; the branch contains overlapping application, migration, test, and documentation changes.
+5. Port only a minimal, independently reviewed change onto a branch created from current `main`, then run the complete local database and application test suites. Keep Production read-only.
 
 ### Validation boundary
 
