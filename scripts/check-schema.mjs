@@ -42,6 +42,9 @@ const idempotencyValidation = readFileSync("lib/ai/idempotency.ts", "utf8");
 const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8");
 const singleActiveSubmissionSql = readFileSync("supabase/migrations/0023_single_active_task_submission.sql", "utf8");
 const singleActiveSubmissionTests = readFileSync("supabase/tests/task_submission_uniqueness.test.sql", "utf8");
+const securityHeaderSource = readFileSync("lib/security/headers.ts", "utf8");
+const nextConfigSource = readFileSync("next.config.ts", "utf8");
+const securityHeaderTests = readFileSync("tests/security-headers.test.ts", "utf8");
 const submissionIndexCleanupSql = readFileSync("supabase/migrations/0024_dedupe_active_submission_index.sql", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
@@ -543,3 +546,13 @@ assert.ok(submissionIndexCleanupSql.includes("drop index if exists public.task_s
   "Active task submission hardening must converge to one canonical partial unique index");
 assert.ok(singleActiveSubmissionTests.includes("task_submissions_one_active_per_user"),
   "Database regression tests must verify the canonical active submission index name");
+
+assert.ok(nextConfigSource.includes('source: "/:path*"') &&
+  nextConfigSource.includes("headers: [...securityHeaders]"),
+  "Next.js must apply the baseline security headers to every route");
+for (const header of ["X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy", "Cross-Origin-Opener-Policy"]) {
+  assert.ok(securityHeaderSource.includes(header), `Baseline security header is missing: ${header}`);
+}
+assert.ok(securityHeaderTests.includes("brittle CSP") &&
+  securityHeaderTests.includes("cross-origin resource restriction"),
+  "Security header tests must document CSP nonce and CORP deferrals");
