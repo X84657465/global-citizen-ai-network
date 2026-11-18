@@ -534,5 +534,5 @@ assert.ok(singleActiveSubmissionSql.includes("pg_advisory_xact_lock") &&
   singleActiveSubmissionSql.includes("another active submission exists for this task"),
   "Submission and appeal triggers must serialize member/task operations and block conflicting open appeals");
 assert.ok(singleActiveSubmissionTests.includes("rejected submissions are excluded") &&
-  singleActiveSubmissionTests.includes("pending appeal blocks new submission"),
+  singleActiveSubmissionTests.includes("new submission was allowed while appeal was open"),
   "Database tests must cover rejection retries and unresolved appeal blocking");
