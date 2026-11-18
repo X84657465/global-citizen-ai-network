@@ -1,8 +1,10 @@
 # Database Safety and Operational Notes
 
-## Current migration status
+## Verified live database status — 2026-11-18
 
-The SQL files under supabase/migrations are intended for a fresh Supabase project. They have been reviewed and guarded by static CI checks, but have not been executed against a live Supabase/PostgreSQL instance. Do not describe the database as deployed or integration-tested until the migrations and the checks below have actually run.
+The existing Supabase project `rtkpdafkpncoluhdihlv` is `ACTIVE_HEALTHY` (PostgreSQL 17, `ap-northeast-1`). Supabase reports 18 applied migrations, latest version `20261118005041`. A read-only catalog check found 22 public base tables and confirmed RLS is enabled on all 22.
+
+This supersedes the earlier bootstrap note that migrations had not yet been executed. It does **not** mean the full application has passed integration testing: two-user ownership tests, privileged-role tests, concurrent budget tests, ledger immutability tests, provider reconciliation, and restore drills remain to be demonstrated. Never replay the initial schema against this populated project.
 
 ## Immutable ledger and deletion policy
 
@@ -31,9 +33,9 @@ The status-check helpers live in a non-exposed schema and are callable by authen
 
 ## Required database verification before enabling real users
 
-Run these checks on a disposable Supabase project first:
+Run these checks in a disposable environment and then verify the relevant controls against the existing project without altering real member data:
 
-1. Apply all four migrations in order to an empty project and confirm they complete without SQL errors.
+1. Confirm all 18 migration versions in the repository match the applied migration history.
 2. Create two test users. Verify each can read and modify only their own profile/workspace.
 3. Verify a user cannot assign themselves admin/reviewer, change account_status, insert assistant/system messages, or read another user's requests or ledgers.
 4. Verify a user cannot attach a conversation to another user's project.
@@ -48,20 +50,19 @@ Run these checks on a disposable Supabase project first:
 13. Verify restricted members can read but cannot write, and suspended/closed members cannot read or write member data.
 14. Verify service-role operations are performed only in trusted server code and the service-role key is never exposed to a browser bundle.
 
-## Important implementation boundary
+## AI budget and request lifecycle
 
 The schema's AI kill switch and budget columns are configuration data only. Migration 0003 adds a database-side reservation workflow: `reserve_ai_budget` serializes global reservations with a row lock, checks whether AI is enabled plus platform and member spending controls, validates active account status, applies daily/monthly request limits, and creates the request plus reservation in one transaction. The separate `hard_stop_enabled` flag controls whether an actual monthly overrun automatically disables `ai_enabled`; it does not itself prevent otherwise-authorized requests. `finalize_ai_budget` records actual provider charges (including estimate overruns), while `release_ai_budget` releases reservations for failed requests. These functions are executable by `service_role` only; browser clients cannot call them. The reservation amount and normalized actual cost are stored in TWD for budget enforcement, while raw provider invoice amount/currency are recorded separately when available. If the provider does not expose an exact charge, those invoice fields remain null and the allocation must remain explicitly estimated.
 
-This is a database primitive, not a complete AI gateway. The application still needs a trusted server-only orchestration route, provider adapter, timeout/retry policy, idempotency strategy, and integration tests. A provider charge above the estimate is recorded as actual cost and consumes budget for subsequent requests; it cannot be retroactively prevented. Until migrations are applied and the complete gateway is tested, keep real AI generation disabled.
-
+This is a database primitive, not a complete AI gateway. The application still needs a trusted server-only orchestration route, provider adapter, timeout/retry policy, idempotency strategy, and integration tests. A provider charge above the estimate is recorded as actual cost and consumes budget for subsequent requests; it cannot be retroactively prevented. Keep real AI generation disabled until the complete gateway and budgets are verified.
 
 ## AI operational retention and uncertain-request recovery
 
 Migration 0007 adds two service-role-only operations:
 
-- \`cleanup_expired_ai_operational_records()\` deletes only expired \`completed\` or \`failed\` idempotency mappings and rate-limit windows untouched for more than 48 hours. It never deletes \`processing\` rows, AI requests, budget reservations, cost ledgers, reward ledgers, or contribution ledgers.
-- \`list_stale_ai_requests(seconds)\` is a read-only report of queued/running AI requests whose budget reservation is still reserved and whose age exceeds the selected threshold (300–86,400 seconds; default 900 seconds).
+- `cleanup_expired_ai_operational_records()` deletes only expired `completed` or `failed` idempotency mappings and rate-limit windows untouched for more than 48 hours. It never deletes `processing` rows, AI requests, budget reservations, cost ledgers, reward ledgers, or contribution ledgers.
+- `list_stale_ai_requests(seconds)` is a read-only report of queued/running AI requests whose budget reservation is still reserved and whose age exceeds the selected threshold (300–86,400 seconds; default 900 seconds).
 
 A stale request is an incident requiring provider-side reconciliation. Do not automatically retry, settle, release, or mark it failed based only on age: the provider may have completed and billed the request even if the application did not receive its response. An operator must inspect provider request/logs and invoice evidence first.
 
-The migration does not enable \`pg_cron\` and does not schedule a cleanup job. After a real Supabase project exists, deliberately enable Cron in the Dashboard, test the cleanup function manually, then schedule it through Supabase Cron. Supabase documents Cron as backed by \`pg_cron\` and supports scheduling database functions: https://supabase.com/docs/guides/cron.
+The migration does not enable `pg_cron` and does not schedule a cleanup job. Deliberately enable Cron in the Dashboard only after the cleanup function has been tested manually, then schedule it through Supabase Cron.
