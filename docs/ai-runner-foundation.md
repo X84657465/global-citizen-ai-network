@@ -42,7 +42,7 @@ The validation module is covered by Node's built-in test runner, including negat
 
 ## Local container isolation proof
 
-The Windows self-hosted runner reports Docker Desktop, WSL and an active hypervisor. A disposable Node container smoke test is also run with:
+The Windows self-hosted runner reports Windows 11 Pro, Docker Desktop 29.9.3, WSL and an active hypervisor. A disposable Node container smoke test passed on the user's PC using image digest `sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a`. The test verified the non-root UID, read-only root filesystem, writable bounded temporary filesystem, and blocked outbound network. The run also configured:
 
 - no network namespace connectivity (`--network none`);
 - read-only container root filesystem;
@@ -54,3 +54,12 @@ The Windows self-hosted runner reports Docker Desktop, WSL and an active hypervi
 - no host paths, Docker socket, repository secrets or production credentials mounted into the container.
 
 This is a proof of the configured container boundary, not a complete security certification. Future generated-code execution must occur only inside this disposable boundary, with model access and any GitHub write credential kept outside it.
+
+
+Latest Windows verification run: https://github.com/X84657465/global-citizen-ai-network/actions/runs/44337182323
+
+- Disposable container isolation smoke test: passed.
+- Complete unit test suite: passed (80 tests).
+- TypeScript validation: passed.
+- ESLint: passed.
+- The Windows Sandbox optional-feature query could not be completed because it requires elevation; this is not a blocker for the Docker-based proof.
