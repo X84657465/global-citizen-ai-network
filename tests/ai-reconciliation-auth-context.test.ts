@@ -6,7 +6,7 @@ const migration = readFileSync(
   new URL("../supabase/migrations/20261118123000_grant_authenticated_ai_reconciliation_rpc.sql", import.meta.url),
   "utf8",
 );
-const normalized = migration.toLowerCase().replace(/\\s+/g, " ");
+const normalized = migration.replaceAll("\\n", " ").toLowerCase();
 
 test("authenticated reconciliation RPC binds the supplied actor to the JWT identity", () => {
   assert.ok(normalized.includes("security definer set search_path = ''"));
