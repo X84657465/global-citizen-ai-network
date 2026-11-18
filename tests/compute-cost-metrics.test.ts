@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { summarizeWorkloadCosts, type WorkloadObservation } from "../lib/compute/cost-metrics.ts";
+import { summarizeWorkloadCosts, summarizeWorkloadCostsByDimension, type WorkloadObservation } from "../lib/compute/cost-metrics.ts";
 
 const sample: WorkloadObservation[] = [
   { workloadClass: "public_parallel", executionTarget: "trusted_cloud", outcome: "accepted", costTwd: 10, costEvidence: "provider_invoice", latencyMs: 100, attempts: 1 },
@@ -90,4 +90,12 @@ test("p95 uses nearest-rank percentile", () => {
   }));
   const result = summarizeWorkloadCosts(observations);
   assert.equal(result.p95AcceptedLatencyMs, 1900);
+});
+
+test("groups baselines by workload class and execution target", () => {
+  const groups = summarizeWorkloadCostsByDimension(sample);
+  assert.equal(groups.length, 3);
+  assert.deepEqual(groups.map(group => group.executionTarget).sort(), ["community_node", "trusted_cloud", "trusted_cloud"]);
+  const cloud = groups.filter(group => group.executionTarget === "trusted_cloud")[0];
+  assert.equal(cloud.baseline.totalJobs, 2);
 });
