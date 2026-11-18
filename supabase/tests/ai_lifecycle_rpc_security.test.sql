@@ -44,7 +44,6 @@ with required(function_name) as (
     'mark_ai_request_reconciliation_required',
     'release_ai_budget',
     'reserve_ai_budget',
-    'resolve_ai_reconciliation'
   ]::text[])
 )
 select ok(
@@ -75,7 +74,6 @@ with required(function_name) as (
     'mark_ai_request_reconciliation_required',
     'release_ai_budget',
     'reserve_ai_budget',
-    'resolve_ai_reconciliation'
   ]::text[])
 )
 select ok(
@@ -105,7 +103,6 @@ with required(function_name) as (
     'mark_ai_request_reconciliation_required',
     'release_ai_budget',
     'reserve_ai_budget',
-    'resolve_ai_reconciliation'
   ]::text[])
 )
 select ok(
@@ -135,7 +132,6 @@ with required(function_name) as (
     'mark_ai_request_reconciliation_required',
     'release_ai_budget',
     'reserve_ai_budget',
-    'resolve_ai_reconciliation'
   ]::text[])
 )
 select ok(
