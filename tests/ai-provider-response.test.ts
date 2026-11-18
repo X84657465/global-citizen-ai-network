@@ -129,3 +129,64 @@ test("only explicit validation and authentication failures are known provider re
     assert.equal(isKnownProviderRejection(status), false, `HTTP ${status} must retain the reservation for reconciliation`);
   }
 });
+
+
+test("rejects invalid content-length headers and empty provider bodies", async () => {
+  for (const contentLength of ["-1", "not-a-number", "1.5"]) {
+    const response = new Response("{}", { headers: { "content-length": contentLength } });
+    await assert.rejects(
+      readProviderJson(response),
+      (error) => error instanceof ProviderResponseError && error.code === "invalid_content_length",
+    );
+  }
+
+  await assert.rejects(
+    readProviderJson(new Response(null)),
+    (error) => error instanceof ProviderResponseError && error.code === "empty_provider_body",
+  );
+});
+
+test("rejects invalid UTF-8 instead of silently replacing provider bytes", async () => {
+  const response = new Response(new Uint8Array([0xc3, 0x28]));
+  await assert.rejects(
+    readProviderJson(response),
+    (error) => error instanceof ProviderResponseError && error.code === "invalid_provider_json",
+  );
+});
+
+test("rejects missing choices, empty answers, and oversized provider request IDs", () => {
+  assert.throws(
+    () => parseProviderResponse({ choices: [] }, 1),
+    (error) => error instanceof ProviderResponseError && error.code === "invalid_provider_choices",
+  );
+  assert.throws(
+    () => parseProviderResponse({ choices: [{ message: { content: "   " } }] }, 1),
+    (error) => error instanceof ProviderResponseError && error.code === "invalid_provider_answer_length",
+  );
+  assert.throws(
+    () => parseProviderResponse({
+      id: "x".repeat(257),
+      choices: [{ message: { content: "answer" } }],
+    }, 1),
+    (error) => error instanceof ProviderResponseError && error.code === "invalid_provider_request_id",
+  );
+});
+
+test("rejects malformed usage objects and cached token values", () => {
+  const invalidUsage: unknown[] = [
+    "usage",
+    { prompt_tokens: "3", completion_tokens: 1 },
+    { prompt_tokens: 3, completion_tokens: 1, prompt_tokens_details: [] },
+    { prompt_tokens: 3, completion_tokens: 1, prompt_tokens_details: { cached_tokens: -1 } },
+  ];
+
+  for (const usage of invalidUsage) {
+    assert.throws(
+      () => parseProviderResponse({
+        choices: [{ message: { content: "answer" } }],
+        usage,
+      }, 10),
+      ProviderResponseError,
+    );
+  }
+});
