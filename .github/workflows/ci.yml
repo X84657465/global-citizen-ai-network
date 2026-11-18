@@ -21,12 +21,12 @@ jobs:
         uses: actions/checkout@v5
       - name: Migration filename safety guard
         run: node scripts/check-migration-versions.mjs
-      - name: AI claim transaction ordering guard
-        run: npm run check:ai-claim-order
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
+      - name: AI claim transaction ordering guard
+        run: npm run check:ai-claim-order
       - name: Install dependencies
         run: npm ci
       - name: Schema safety guard
