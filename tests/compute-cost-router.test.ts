@@ -86,3 +86,8 @@ test("breaks equal-cost ties using lower estimated latency", () => {
   ]);
   assert.equal(result.target, "local_device");
 });
+
+test("rejects unknown runtime workload classes and execution targets", () => {
+  assert.throws(() => chooseExecutionTarget({ ...publicWorkload, workloadClass: "unknown" as never }, quotes), /invalid_workload_class/);
+  assert.throws(() => chooseExecutionTarget(publicWorkload, [{ ...quotes[0], target: "unknown" as never }]), /invalid_execution_target/);
+});
