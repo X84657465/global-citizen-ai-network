@@ -4,7 +4,7 @@
 
 - Production domain: https://global-citizen-ai-network.vercel.app
 - Vercel production deployment: READY on older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`.
-- Latest main and application-code commit: `6b8642848ef6b6e24df06cb078f03fb0315df36c` (AI completed-request replay when provider configuration is absent). It has passed CI but has not reached Production. The Vercel Hobby team has hit its 100 deployments/day API limit (`api-deployments-free-per-day`).
+- Latest main and application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61` (one active contribution submission per member/task). It has passed CI but has not reached Production. The Vercel Hobby team has hit its 100 deployments/day API limit (`api-deployments-free-per-day`).
 - PR #20 Build and Database CI: PASS; 101 database assertions.
 - PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
 - `GET /`: HTTP 200
@@ -17,7 +17,7 @@
 - Region: `ap-northeast-1` (Tokyo)
 - Project status: `ACTIVE_HEALTHY`
 - Database engine: PostgreSQL 17
-- Migrations applied: 21 (latest: `20261118050801`, `atomic_contribution_task_admin`). Repository migration 0022 is CI-tested but not applied live.
+- Migrations applied: 23 (latest: `20261118060607`, `single_active_task_submission`).
 - Public tables: 22
 - Public tables with RLS enabled: 22
 - All 22 public base tables have RLS enabled.
@@ -49,4 +49,6 @@
 ## Health endpoint contract
 
 `GET /api/health` is intentionally a lightweight deployment smoke check. It reports only whether required configuration is present. It must not expose keys, hostnames, stack traces, or infrastructure identifiers, and a configured status must never be interpreted as a successful live integration test.
-- PR #30 AI replay change: Build and Database CI PASS (40 unit tests; 114 pgTAP assertions). Migration 0022 remains pending; do not treat the new replay path as active in Production until the reviewed migration and application deployment are both complete.
+- PR #30 AI replay change: Build and Database CI PASS (40 unit tests; 114 pgTAP assertions). Migration 0022 is applied live as `20261118060600`.
+- PR #33 signup body hardening: Build and Database CI PASS (47 unit tests; 119 pgTAP assertions); signup remains disabled by default because `ENABLE_PUBLIC_SIGNUP` is not configured.
+- PR #34 single active contribution submission: Build and Database CI PASS (47 unit tests; 125 pgTAP assertions). Migration 0023 is applied live as `20261118060607`.
