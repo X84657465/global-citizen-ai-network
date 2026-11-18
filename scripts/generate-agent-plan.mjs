@@ -64,8 +64,8 @@ async function main() {
     const response = await fetch(endpoint + "/api/generate", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model, prompt: buildPrompt(task), format: PLAN_SCHEMA, stream: false, keep_alive: "0s",
-      options: { temperature: 0, num_ctx: 4096, num_predict: 2048 },
+      model, prompt: requestPrompt, format: PLAN_SCHEMA, think: false, stream: false, keep_alive: "30s",
+      options: { temperature: 0, num_ctx: 4096, num_predict: 1024 },
     }),
     signal: AbortSignal.timeout(180000),
   });
