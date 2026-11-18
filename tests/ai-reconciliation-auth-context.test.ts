@@ -13,7 +13,7 @@ test("authenticated reconciliation RPC binds the supplied actor to the JWT ident
   assert.ok(normalized.includes("auth.uid() is null or auth.uid() is distinct from p_actor_id"));
   assert.ok(normalized.includes("where id = auth.uid()"));
   assert.ok(normalized.includes("revoke all on function public.resolve_ai_reconciliation"));
-  assert.ok(normalized.includes("from public, anon, service_role;"));
+  assert.ok(normalized.includes("from public, anon, authenticated, service_role;"));
   assert.ok(normalized.includes("grant execute on function public.resolve_ai_reconciliation"));
   assert.ok(normalized.includes("to authenticated;"));
   assert.equal(normalized.includes("to authenticated, service_role;"), false);
