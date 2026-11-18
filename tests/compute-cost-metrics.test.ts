@@ -89,5 +89,5 @@ test("p95 uses nearest-rank percentile", () => {
     latencyMs: (index + 1) * 100,
   }));
   const result = summarizeWorkloadCosts(observations);
-  assert.equal(result.p95AcceptedLatencyMs, 2000);
+  assert.equal(result.p95AcceptedLatencyMs, 1900);
 });
