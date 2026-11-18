@@ -58,6 +58,22 @@ async function persistState(issues, state) {
   return existing;
 }
 const writeOutput = (key, value) => { if (output) appendFileSync(output, key + "=" + String(value) + "\n", "utf8"); };
+async function inferFailedIssueNumber() {
+  const explicit = Number(process.env.FAILED_ISSUE_NUMBER);
+  if (Number.isInteger(explicit) && explicit > 0) return explicit;
+  try {
+    const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+    let body = event.pull_request?.body ?? "";
+    if (!body && typeof event.ref === "string") {
+      const branch = event.ref.replace(/^refs\\/heads\\//, "");
+      const pulls = await api("/pulls?state=open&head=" + encodeURIComponent(owner + ":" + branch) + "&per_page=20");
+      body = pulls.find((pull) => pull.head?.ref === branch)?.body ?? "";
+    }
+    return Number(/<!-- ai-task:(\\d+) -->/.exec(body)?.[1]) || null;
+  } catch {
+    return null;
+  }
+}
 if (mode === "check" && cooldownActive(localState)) {
   writeOutput("cooldown_active", true);
   writeOutput("cooldown_until", localState.cooldown_until);
@@ -82,10 +98,10 @@ if (mode === "check") {
   saveLocalState(state);
   console.log(active ? "Circuit breaker active until " + state.cooldown_until + "; no task is started." : "Circuit breaker clear.");
 } else if (mode === "failure") {
-  state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.", Date.now(), Number(process.env.FAILED_ISSUE_NUMBER) || null);
+  const failedIssueNumber = await inferFailedIssueNumber();
+  state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.", Date.now(), failedIssueNumber);
   saveLocalState(state);
   await persistState(allIssues, state);
-  const failedIssueNumber = Number(process.env.FAILED_ISSUE_NUMBER) || null;
   if (failedIssueNumber && (state.skipped_issue_numbers ?? []).includes(failedIssueNumber)) {
     await api("/issues/" + failedIssueNumber + "/comments", {
       method: "POST",
