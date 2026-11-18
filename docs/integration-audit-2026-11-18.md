@@ -47,7 +47,7 @@ The latest production deployment is marked `READY`; that status alone does not p
 - Created `work/integration-audit` from `main`.
 - Updated `docs/database-safety.md` so its migration status no longer incorrectly claims that the linked database has never had migrations applied.
 - Added this evidence-based audit record.
-- Added timestamped migration `20261118005042_revoke_client_access_to_internal_tables.sql` and a read-only post-migration assertion at `tests/database/internal-table-grants.sql`, covering all nine internal tables. These are committed to the review branch only; they have not been applied to the linked Supabase project.
+- Added timestamped migration `20261118005042_revoke_client_access_to_internal_tables.sql` and a read-only post-migration assertion at `supabase/tests/internal_table_grants.test.sql`, covering all nine internal tables. These are committed to the review branch only; they have not been applied to the linked Supabase project.
 
 ## Blocking verification before enabling AI or public launch
 
