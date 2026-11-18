@@ -344,7 +344,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Different payload under completed key', 'test-ai-success-001',
-    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\\n' || 'Different payload under completed key', 'UTF8')), 'hex')::char(64),
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Different payload under completed key', 'UTF8')), 'hex')::char(64),
     v_blocked_request, null, null, null, null, null
   );
   if v_claim.disposition <> 'conflict'
