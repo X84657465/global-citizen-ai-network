@@ -303,7 +303,7 @@ jobs:
 
       - name: Apply validated patch and run checks in disposable Docker
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: .\\scripts\\run-agent-sandbox.ps1
+        run: .\scripts\run-agent-sandbox.ps1
 
       - name: Run complete unit test suite
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
@@ -327,7 +327,7 @@ jobs:
           retention-days: 3
 
   prepare-task:
-    name: Validate and plan one task (no code execution)
+    name: Validate, propose, and sandbox-test one task (no repository writes)
     if: github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 20
@@ -370,5 +370,7 @@ jobs:
           path: |
             artifacts/agent-task.json
             artifacts/agent-plan.json
+            artifacts/agent-patch.json
+            artifacts/sandbox-validation.json
           if-no-files-found: error
           retention-days: 3

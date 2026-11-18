@@ -54,3 +54,12 @@ Local AI task planning is enabled in the isolated preflight workflow. AI-generat
 `scripts/generate-agent-patch.mjs` reads only paths named by validated implementer tasks and only when those paths are present in the original task allowlist. It limits proposals to three files, 8 KiB per source file, and 12 KiB of combined source context. The local model returns a structured patch manifest, which must pass `validatePatchManifest` against the task allowlist and the existing-file inventory.
 
 The patch is written as an artifact only. This stage does not apply the patch, run generated code, execute shell commands, create a branch, or create a pull request.
+
+
+## Disposable patch application and verification
+
+A validated patch can be applied only to a disposable Docker scratch copy. The container receives the repository as a read-only mount, dependencies as a read-only mount, and a separate writable output mount. It has no network, a read-only root filesystem, dropped Linux capabilities, no-new-privileges, a 3 GiB memory ceiling, and two CPU cores.
+
+The sandbox revalidates the task, plan, patch allowlist, and existing-file state before applying patch content to the scratch copy. It then runs the unit suite, TypeScript, and ESLint using fixed commands. It records hashes of source files before and after validation to confirm the original checkout did not change. The scratch copy is discarded after the result artifact is written.
+
+This remains a validation stage only. It does not commit, push, create a pull request, merge, or deploy.

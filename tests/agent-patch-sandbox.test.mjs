@@ -22,7 +22,9 @@ test("sandbox executes only fixed test commands inside its isolated container", 
   assert.ok(script.includes('runCheck("unit tests", "npm", ["run", "test:unit"])'));
   assert.ok(script.includes('runCheck("TypeScript", process.execPath'));
   assert.ok(script.includes('runCheck("ESLint", "npm", ["run", "lint"])'));
-  assert.doesNotMatch(script, /eval\\(|new Function|execSync/);
+  assert.ok(!script.includes("eval("));
+  assert.ok(!script.includes("new Function"));
+  assert.ok(!script.includes("execSync"));
 });
 
 test("Docker sandbox has no network, read-only root and source/dependency mounts", () => {
