@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { summarizeWorkloadCostsByDimension, type WorkloadObservation } from "@/lib/compute/cost-metrics";
+import { indexTwdRequestEstimates, summarizeWorkloadCostsByDimension, type WorkloadObservation } from "@/lib/compute/cost-metrics";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -64,7 +64,7 @@ export async function GET() {
   const requestIds = requests.map(row => row.id);
   const requestCostResult = requestIds.length > 0
     ? await admin.from("ai_cost_ledger")
-        .select("request_id,amount")
+        .select("request_id,amount,currency")
         .in("request_id", requestIds)
         .eq("cost_category", "model_provider")
         .eq("amount_kind", "internal_estimate")
@@ -74,10 +74,7 @@ export async function GET() {
     return NextResponse.json({ error: "AI 請求成本帳本讀取失敗。" }, { status: 503 });
   }
 
-  const estimateByRequest = new Map<string, number>();
-  for (const row of requestCostResult.data ?? []) {
-    if (row.request_id) add(estimateByRequest, row.request_id, Number(row.amount));
-  }
+  const estimateByRequest = indexTwdRequestEstimates(requestCostResult.data ?? []);
 
   const computeObservations: WorkloadObservation[] = requests
     .filter(row => row.status === "succeeded" || row.status === "failed")
