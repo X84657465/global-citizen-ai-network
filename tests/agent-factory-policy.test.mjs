@@ -28,5 +28,13 @@ test("planner emits finite deduplicated four-section Runner tasks", () => {
   const body = plannerIssueBody(task);
   for (const heading of ["Goal", "Allowed paths", "Acceptance criteria", "Explicit exclusions"]) assert.equal(body.split("## " + heading).length - 1, 1);
   assert.match(body, /<!-- ai-task-generated-by-planner -->/);
-  assert.equal(nextPlannerTask([task.title]), null);
+  const titles = [task.title];
+  let next = nextPlannerTask(titles);
+  assert.ok(next);
+  assert.notEqual(next.title, task.title);
+  titles.push(next.title);
+  next = nextPlannerTask(titles);
+  assert.ok(next);
+  titles.push(next.title);
+  assert.equal(nextPlannerTask(titles), null);
 });
