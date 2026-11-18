@@ -171,6 +171,51 @@ jobs:
             Write-Host "This does not affect the read-only validation workflow."
           }
 
+      - name: Smoke-test local Ollama plan generation with a synthetic task
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
+          New-Item -ItemType Directory -Path "artifacts" -Force | Out-Null
+          try {
+            $task = @{
+              schema_version = 1
+              mode = "preflight_only"
+              ai_execution_enabled = $false
+              goal = "Produce a safe, read-only implementation plan for a small documentation-only smoke test."
+              allowed_paths = @("docs/agent-pipeline-smoke-test.md")
+              acceptance_criteria = @(
+                "The plan is valid JSON and passes the agent plan validator.",
+                "Every proposed file path stays within the one approved documentation path."
+              )
+              explicit_exclusions = @(
+                "Do not modify repository files.",
+                "Do not execute commands or deploy."
+              )
+            }
+            $json = $task | ConvertTo-Json -Depth 10
+            [System.IO.File]::WriteAllText(
+              (Join-Path (Get-Location) "artifacts/agent-task.json"),
+              $json,
+              [System.Text.UTF8Encoding]::new($false)
+            )
+            node scripts/generate-agent-plan.mjs
+            if ($LASTEXITCODE -ne 0) { throw "Local Ollama plan generation smoke test failed." }
+
+            $plan = Get-Content "artifacts/agent-plan.json" -Raw | ConvertFrom-Json
+            if ($plan.ai_execution_enabled -ne $false) { throw "Plan must keep AI code execution disabled." }
+            if ($plan.tasks.Count -lt 1 -or $plan.tasks.Count -gt 12) { throw "Plan task count is outside the allowed range." }
+            foreach ($planTask in $plan.tasks) {
+              foreach ($approvedPath in $planTask.allowed_paths) {
+                if ($approvedPath -ne "docs/agent-pipeline-smoke-test.md") {
+                  throw "Plan contains a path outside the synthetic task allowlist."
+                }
+              }
+            }
+            Write-Host "PASS: local model generated a validated plan without modifying repository files."
+          } finally {
+            if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
+          }
+
       - name: Verify disposable container isolation
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
