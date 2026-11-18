@@ -109,3 +109,14 @@ This branch contains documentation, tests, and a reviewed timestamped SQL migrat
 - Current review head: 472512a2c60334c7028bfbc5da992c480e4feb7f. GitHub Actions run #547 is queued for this exact head; no CI pass is claimed yet. The newest Vercel Preview for this head is also queued at last check.
 - Previous CI #545 and #546 were cancelled by newer pushes; their partial states are not treated as validation.
 - No linked production Supabase changes were made. AI remains disabled with hard-stop enabled; PR #18 remains draft and unmerged.
+
+
+## Latest exact-head verification — CI #548 (2026-11-18)
+
+- GitHub Actions run #548 (`44221093052`) completed with conclusion `success` for exact review-branch head `d2c96a220511624fddd1d54581d47b5c047463f6`.
+- Both required jobs passed. The build job completed dependency installation, schema safety guard, production dependency audit, AI provider response tests, TypeScript typecheck, ESLint, and Next.js production build.
+- The database job successfully started its disposable local Supabase stack, replayed all migrations, and completed PostgreSQL/RLS pgTAP tests, including the 135 internal-table grant assertions, 12 AI lifecycle RPC security assertions, and eight conversation/project policy-semantic assertions.
+- The exact-commit Vercel Preview deployment `dpl_SzAQ66mJSyhUHCYGuGMHe37GdwfD` is `READY`: https://global-citizen-ai-network-pm8r4u049-acmes-projects-3dfbdf35.vercel.app. This is Preview only, not a production release.
+- Read-only checks against linked production Supabase confirm migration `20261118005042` remains unapplied (`migration_applied=0`), `ai_enabled=false`, `hard_stop_enabled=true`, and both spend caps remain zero. No production writes were performed.
+- PR #18 remains open, Draft, and unmerged. This verification does not authorize production migration application, paid AI activation, or merge.
+- Remaining work before launch: route-level integration and adversarial concurrency tests for idempotency/budget reservation, provider timeout/unknown-outcome recovery, admin reconciliation authorization/state transitions, and end-to-end frontend behavior while AI is disabled or unavailable.
