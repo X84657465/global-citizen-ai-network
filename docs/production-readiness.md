@@ -4,7 +4,7 @@
 
 - Production domain: https://global-citizen-ai-network.vercel.app
 - Vercel Production deployment: READY on commit `0495355900b16f14f4443f508d569b825e3fbbb3`, containing the latest application-code change and migration 0024.
-- Latest main commit: `386b4505254c18fb262e643e0b4dc59211692d3b`; latest application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61`. Production is READY on `0495355900b16f14f4443f508d569b825e3fbbb3`; only documentation/repository housekeeping remains between Production and main.
+- Latest main commit: `c0c4668364d4b6d6b75dde406c67527c1e5f510d`; latest application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61`. Production is READY on `0495355900b16f14f4443f508d569b825e3fbbb3`; only documentation/repository housekeeping remains between Production and main.
 - PR #20 Build and Database CI: PASS; 101 database assertions.
 - PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
 - `GET /`: HTTP 200
