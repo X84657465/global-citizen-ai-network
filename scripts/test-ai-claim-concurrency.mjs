@@ -11,7 +11,7 @@ if (!databaseUrl || process.env.CONFIRM_LOCAL_SUPABASE !== "YES") {
   throw new Error("Refusing to run without LOCAL_SUPABASE_DB_URL and CONFIRM_LOCAL_SUPABASE=YES. Use only a disposable local Supabase database.");
 }
 const parsedUrl = new URL(databaseUrl);
-const allowedHosts = new Set(["localhost", "127.0.0.1", "::1", "host.docker.internal"]);
+const allowedHosts = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 if (!allowedHosts.has(parsedUrl.hostname) || parsedUrl.hostname.endsWith(".supabase.co")) {
   throw new Error("Refusing non-local database host: " + parsedUrl.hostname);
 }
@@ -136,8 +136,8 @@ const requestIds = Array.from({ length: 8 }, () => randomUUID());
 const keyPrefix = "cc-" + owner.replaceAll("-", "").slice(0, 20);
 const cases = [];
 const controlsText = await runSql(
-  "select jsonb_build_object('ai_enabled', ai_enabled, 'monthly_spend_cap', monthly_spend_cap, " +
-  "'per_request_spend_cap', per_request_spend_cap, 'currency', currency, " +
+  "select jsonb_build_object('ai_enabled', ai_enabled, 'monthly_spend_cap', monthly_spend_cap::text, " +
+  "'per_request_spend_cap', per_request_spend_cap::text, 'currency', currency, " +
   "'hard_stop_enabled', hard_stop_enabled)::text from public.platform_ai_controls where id = true;",
   "gcai-setup-" + owner,
 );
@@ -145,8 +145,8 @@ if (!controlsText) throw new Error("platform_ai_controls singleton row is missin
 const oldControls = JSON.parse(controlsText);
 function restoreSql() {
   return "update public.platform_ai_controls set ai_enabled = " + oldControls.ai_enabled +
-    ", monthly_spend_cap = " + oldControls.monthly_spend_cap +
-    ", per_request_spend_cap = " + oldControls.per_request_spend_cap +
+    ", monthly_spend_cap = " + sqlLiteral(oldControls.monthly_spend_cap) + "::numeric" +
+    ", per_request_spend_cap = " + sqlLiteral(oldControls.per_request_spend_cap) + "::numeric" +
     ", currency = " + sqlLiteral(oldControls.currency) +
     ", hard_stop_enabled = " + oldControls.hard_stop_enabled + " where id = true;\n" +
     "delete from public.ai_request_idempotency where owner_id = '" + owner + "'::uuid;\n" +
