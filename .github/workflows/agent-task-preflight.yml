@@ -397,6 +397,7 @@ jobs:
       (github.event_name == 'repository_dispatch' &&
        github.event.action == 'ai-task-next')
     permissions:
+      actions: read
       contents: write
       issues: write
       pull-requests: write
@@ -513,22 +514,14 @@ jobs:
           docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --mount $cacheMount --workdir /workspace --env HOME=/tmp/npm-home --env npm_config_cache=/npm-cache $imageDigest npm ci --ignore-scripts --no-audit --no-fund
           if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation retry failed (exit $LASTEXITCODE)." }
 
-      - name: Test patched candidate offline inside restricted container
+      - name: Run isolated tests with bounded Ollama self-healing (maximum 2 repairs)
         if: >-
           (github.event_name == 'issues' && github.event.action != 'closed') ||
           github.event_name == 'workflow_dispatch' ||
           steps.select-task.outputs.issue_number != ''
+        timeout-minutes: 55
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: |
-          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
-          $scratch = [string]$manifest.scratch_dir
-          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
-          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
-          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
-          $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
-          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
-          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
-          Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+        run: node scripts/run-agent-self-healing-tests.mjs
 
       - name: Create a draft PR after isolated tests pass
         if: >-
@@ -596,6 +589,7 @@ jobs:
             artifacts/agent-task.json
             artifacts/agent-plan.json
             artifacts/agent-patch.json
+            artifacts/agent-self-heal.json
             artifacts/agent-publish.json
           if-no-files-found: warn
           retention-days: 3
