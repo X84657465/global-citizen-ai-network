@@ -161,6 +161,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+      issues: write
       pull-requests: write
     steps:
       - name: Convert validated AI draft to ready and squash merge
@@ -277,6 +278,16 @@ jobs:
               return;
             }
             core.notice("AI task PR #" + pullNumber + " passed build and database CI and was squash-merged.");
+            try {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: Number(marker[1]),
+                state: "closed"
+              });
+            } catch (error) {
+              core.warning("PR merged, but source task Issue could not be closed: " + error.message);
+            }
             await github.rest.repos.createDispatchEvent({
               owner: context.repo.owner,
               repo: context.repo.repo,
