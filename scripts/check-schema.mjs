@@ -54,6 +54,7 @@ const securityHeaderSource = readFileSync("lib/security/headers.ts", "utf8");
 const nextConfigSource = readFileSync("next.config.ts", "utf8");
 const securityHeaderTests = readFileSync("tests/security-headers.test.ts", "utf8");
 const submissionIndexCleanupSql = readFileSync("supabase/migrations/0024_dedupe_active_submission_index.sql", "utf8");
+const publicTableGrantTests = readFileSync("supabase/tests/public_table_grants.test.sql", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -580,3 +581,11 @@ assert.ok(reconciliationInputSource.includes("Number.isFinite") &&
 assert.ok(reconciliationAuthSource.includes("Object.prototype.hasOwnProperty.call") &&
   reconciliationAuthTests.includes("does not accept inherited authorization fields"),
   "Admin profile authorization must reject inherited or malformed role fields");
+
+assert.ok(publicTableGrantTests.includes("select plan(15)") &&
+  publicTableGrantTests.includes("'TRUNCATE'") &&
+  publicTableGrantTests.includes("'REFERENCES'") &&
+  publicTableGrantTests.includes("'TRIGGER'") &&
+  publicTableGrantTests.includes("all internal service-only tables retain row-level security") &&
+  publicTableGrantTests.includes("public sequences are not directly accessible"),
+  "Least-privilege regression tests must cover full table privileges, internal-table RLS, and public sequence grants");
