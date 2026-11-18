@@ -139,3 +139,32 @@ export function summarizeWorkloadCostsByDimension(
     baseline: summarizeWorkloadCosts(group),
   }));
 }
+
+
+export type RequestCostLedgerEntry = {
+  request_id: string | null;
+  amount: number | string;
+  currency: string;
+};
+
+/**
+ * Indexes request-level internal estimates only when every matching ledger row
+ * is denominated in TWD. Mixed or unsupported currencies remain unpriced rather
+ * than being silently added together or mislabeled as New Taiwan dollars.
+ */
+export function indexTwdRequestEstimates(entries: RequestCostLedgerEntry[]): Map<string, number> {
+  const totals = new Map<string, number>();
+  const unsupported = new Set<string>();
+  for (const entry of entries) {
+    if (typeof entry.request_id !== "string" || entry.request_id.length === 0) continue;
+    const currency = typeof entry.currency === "string" ? entry.currency.trim().toUpperCase() : "";
+    const amount = Number(entry.amount);
+    if (currency !== "TWD" || !Number.isFinite(amount) || amount < 0) {
+      unsupported.add(entry.request_id);
+      continue;
+    }
+    totals.set(entry.request_id, (totals.get(entry.request_id) ?? 0) + amount);
+  }
+  for (const requestId of unsupported) totals.delete(requestId);
+  return totals;
+}
