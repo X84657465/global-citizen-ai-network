@@ -7,9 +7,11 @@ on:
     paths:
       - "lib/agent-task-validation.mjs"
       - "lib/agent-patch-validation.mjs"
+      - "lib/agent-plan-validation.mjs"
       - "scripts/prepare-agent-task.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
+      - "tests/agent-plan-validation.test.mjs"
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
   workflow_dispatch:
