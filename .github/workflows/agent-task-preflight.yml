@@ -435,6 +435,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_SKIPPED_ISSUES: ${{ steps.factory-gate.outputs.skipped_issues }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/select-agent-task.mjs
 
@@ -588,6 +589,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: success
+          COMPLETED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-controller.mjs
 
@@ -597,6 +599,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: failure
+          FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number }}
           FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-controller.mjs
