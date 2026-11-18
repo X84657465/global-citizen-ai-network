@@ -8,6 +8,7 @@ const token = process.env.GITHUB_TOKEN ?? "";
 const mode = process.env.AGENT_FACTORY_MODE ?? "check";
 const output = process.env.GITHUB_OUTPUT ?? "";
 if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
+const [owner] = repository.split("/");
 const base = "https://api.github.com/repos/" + repository;
 const localStateDir = join(homedir(), ".global-citizen-ai-network");
 const localStatePath = join(localStateDir, "agent-factory-state.json");
@@ -65,11 +66,11 @@ async function inferFailedIssueNumber() {
     const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
     let body = event.pull_request?.body ?? "";
     if (!body && typeof event.ref === "string") {
-      const branch = event.ref.replace(/^refs\\/heads\\//, "");
+      const branch = event.ref.startsWith("refs/heads/") ? event.ref.slice("refs/heads/".length) : event.ref;
       const pulls = await api("/pulls?state=open&head=" + encodeURIComponent(owner + ":" + branch) + "&per_page=20");
       body = pulls.find((pull) => pull.head?.ref === branch)?.body ?? "";
     }
-    return Number(/<!-- ai-task:(\\d+) -->/.exec(body)?.[1]) || null;
+    return Number(/<!-- ai-task:([0-9]+) -->/.exec(body)?.[1]) || null;
   } catch {
     return null;
   }
