@@ -276,10 +276,29 @@ try {
     parents: [baseCommit],
   });
 
-  await api("/repos/" + repository + "/git/refs", "POST", {
-    ref: "refs/heads/" + branch,
-    sha: commit.sha,
-  });
+  let existingBranch = null;
+  try {
+    existingBranch = await api(
+      "/repos/" + repository + "/git/ref/heads/" + encodeURIComponent(branch),
+    );
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes("HTTP 404")) throw error;
+  }
+
+  if (existingBranch) {
+    const existingCommit = await api(
+      "/repos/" + repository + "/git/commits/" + existingBranch.object.sha,
+    );
+    if (existingCommit.tree?.sha !== tree.sha) {
+      fail("The deterministic task branch already exists with different tree content; refusing to overwrite it.");
+    }
+    console.log("Reusing the existing task branch because its tree matches the validated candidate.");
+  } else {
+    await api("/repos/" + repository + "/git/refs", "POST", {
+      ref: "refs/heads/" + branch,
+      sha: commit.sha,
+    });
+  }
 
   const pull = await api("/repos/" + repository + "/pulls", "POST", {
     title: pullTitle,
