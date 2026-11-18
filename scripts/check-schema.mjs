@@ -40,6 +40,11 @@ const providerlessReplaySql = readFileSync("supabase/migrations/0022_ai_provider
 const aiChatApi = readFileSync("app/api/ai/chat/route.ts", "utf8");
 const idempotencyValidation = readFileSync("lib/ai/idempotency.ts", "utf8");
 const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8");
+const reconciliationInputSource = readFileSync("lib/ai/reconciliation-input.ts", "utf8");
+const reconciliationAuthSource = readFileSync("lib/ai/reconciliation-auth.ts", "utf8");
+const reconciliationInputTests = readFileSync("tests/ai-reconciliation-input.test.ts", "utf8");
+const reconciliationAuthTests = readFileSync("tests/ai-reconciliation-auth.test.ts", "utf8");
+const reconciliationResolveRoute = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
 const reconciliationFormError = readFileSync("lib/ai/reconciliation-form-error.ts", "utf8");
 const reconciliationFormTests = readFileSync("tests/ai-reconciliation-form-error.test.ts", "utf8");
 const reconciliationForm = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
@@ -564,3 +569,14 @@ assert.ok(reconciliationFormError.includes("status === 400 || status === 413") &
   reconciliationFormTests.includes("potentially ambiguous failures") &&
   reconciliationForm.includes("canCorrectReconciliationSubmission(response.status)"),
   "Reconciliation form may unlock only for guaranteed pre-RPC validation/body-size failures and must preserve keys for ambiguous outcomes");
+
+assert.ok(reconciliationResolveRoute.includes("parseReconciliationInput(parsed.value)") &&
+  reconciliationResolveRoute.includes("isActiveAdminProfile(profile)"),
+  "Admin reconciliation route must use the shared, unit-tested validation and active-admin guards");
+assert.ok(reconciliationInputSource.includes("Number.isFinite") &&
+  reconciliationInputSource.includes("MAX_COST_EXCLUSIVE") &&
+  reconciliationInputTests.includes("rejects negative, infinite, and oversized billed costs"),
+  "Reconciliation input validation must reject non-finite and out-of-range costs with regression coverage");
+assert.ok(reconciliationAuthSource.includes("Object.hasOwn") &&
+  reconciliationAuthTests.includes("does not accept inherited authorization fields"),
+  "Admin profile authorization must reject inherited or malformed role fields");
