@@ -147,6 +147,7 @@ jobs:
             $requestBody = @{
               model = $selected.name
               prompt = "Reply with READY only."
+              think = $false
               stream = $false
               keep_alive = "0s"
               options = @{ num_predict = 8; temperature = 0 }
