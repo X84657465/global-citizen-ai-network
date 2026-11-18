@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - codex/ai-runner-foundation
+      - codex/self-healing-agent-queue
     paths:
       - "lib/agent-task-validation.mjs"
       - "lib/agent-patch-validation.mjs"
@@ -14,7 +15,6 @@ on:
       - "scripts/generate-agent-patch.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
       - "scripts/run-agent-self-healing-tests.mjs"
-      - "scripts/publish-agent-patch.mjs"
       - "scripts/publish-agent-patch.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
