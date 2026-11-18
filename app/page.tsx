@@ -6,7 +6,7 @@ import {
   Activity, ArrowDownRight, ArrowUpRight, BrainCircuit, CheckCircle2,
   ChevronRight, CircleDollarSign, Clock3, Cpu, FileSearch, Globe2,
   HandHeart, LayoutDashboard, LockKeyhole, Menu, MessageSquareText,
-  Plus, Search, ShieldCheck, Sparkles, Wallet, X
+  Search, ShieldCheck, Sparkles, Wallet, X
 } from "lucide-react";
 
 type Task = { id: number; title: string; category: string; reward: number; time: string; level: string; status: "可參與" | "審核中" };
