@@ -311,7 +311,7 @@ assert.ok(taskAdminRpcSql.includes("create or replace function public.manage_con
   "Task administration must use a hardened SECURITY DEFINER RPC");
 assert.ok(taskAdminRpcSql.includes("v_profile.role <> 'admin'") && taskAdminRpcSql.includes("v_profile.account_status <> 'active'"),
   "Task administration RPC must independently verify active admin status");
-assert.ok((taskAdminRpcSql.match(/insert into public\\.audit_logs/gi) ?? []).length >= 2
+assert.ok((taskAdminRpcSql.match(/insert into public\.audit_logs/gi) ?? []).length >= 2
   && taskAdminRpcSql.includes("for update"),
   "Task changes and audit events must share a row-locked database transaction");
 assert.ok(taskAdminRpcSql.includes("from public, anon, authenticated")
