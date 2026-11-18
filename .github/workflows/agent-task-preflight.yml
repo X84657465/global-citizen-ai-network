@@ -13,6 +13,7 @@ on:
       - "scripts/generate-agent-plan.mjs"
       - "scripts/generate-agent-patch.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
+      - "scripts/run-agent-self-healing-tests.mjs"
       - "scripts/publish-agent-patch.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
@@ -57,6 +58,8 @@ jobs:
           npm --version
           node --check scripts/select-agent-task.mjs
           if ($LASTEXITCODE -ne 0) { throw "Scheduled task selector syntax check failed." }
+          node --check scripts/run-agent-self-healing-tests.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Self-healing test runner syntax check failed." }
 
       - name: Audit available local isolation capabilities
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
