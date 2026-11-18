@@ -2,6 +2,23 @@ begin;
 
 select plan(141);
 
+-- Verify default ACLs apply to objects created by the migration owner.
+create table public.__default_privilege_probe (id integer);
+create sequence public.__default_privilege_sequence_probe;
+
+select ok(not has_table_privilege('anon', 'public.__default_privilege_probe', 'SELECT'),
+  'new public tables do not grant SELECT to anon');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_probe', 'SELECT'),
+  'new public tables do not grant SELECT to authenticated');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_probe', 'INSERT'),
+  'new public tables do not grant INSERT to anon');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_probe', 'INSERT'),
+  'new public tables do not grant INSERT to authenticated');
+select ok(not has_sequence_privilege('anon', 'public.__default_privilege_sequence_probe', 'USAGE'),
+  'new public sequences do not grant USAGE to anon');
+select ok(not has_sequence_privilege('authenticated', 'public.__default_privilege_sequence_probe', 'USAGE'),
+  'new public sequences do not grant USAGE to authenticated');
+
 -- These operational tables intentionally have no client-facing RLS policies.
 -- Assert RLS remains enabled and no table-level privilege is granted to client roles.
 select ok((select relrowsecurity from pg_class where oid = 'public.ai_budget_reservations'::regclass), 'RLS enabled on ai_budget_reservations');
