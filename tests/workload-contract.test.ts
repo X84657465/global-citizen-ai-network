@@ -48,3 +48,15 @@ test("checks lease audience, binding and short expiry window", () => {
   assert.throws(() => validateWorkLease({ ...lease, audience: "browser" } as unknown as SignedWorkLease, now), /authentication_fields/);
   assert.throws(() => validateWorkLease({ ...lease, expiresAt: "2026-11-18T12:30:00.000Z" }, now), /invalid_window/);
 });
+
+
+test("rejects unknown fields at manifest and nested contract boundaries", () => {
+  assert.throws(() => validateCommunityWorkloadManifest({ ...manifest, command: "run arbitrary code" } as unknown as CommunityWorkloadManifest, now), /unknown_manifest_field/);
+  assert.throws(() => validateCommunityWorkloadManifest({ ...manifest, input: { ...manifest.input, localPath: "C:\\\\Users" } } as unknown as CommunityWorkloadManifest, now), /invalid_public_input/);
+  assert.throws(() => validateCommunityWorkloadManifest({ ...manifest, resources: { ...manifest.resources, environment: { SECRET: "x" } } } as unknown as CommunityWorkloadManifest, now), /resource_envelope/);
+});
+
+test("rejects unknown lease fields and non-string identity values", () => {
+  assert.throws(() => validateWorkLease({ ...lease, command: "execute" } as unknown as SignedWorkLease, now), /unknown_lease_field/);
+  assert.throws(() => validateWorkLease({ ...lease, jobId: 123 } as unknown as SignedWorkLease, now), /invalid_lease_identity/);
+});
