@@ -174,6 +174,33 @@ jobs:
             throw "Local Ollama inference probe failed; model readiness is required for agent planning."
           }
 
+      - name: Smoke-test a bounded local AI task plan
+        env:
+          OLLAMA_MODEL: qwen3:8b
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $task = @{
+            schema_version = 1
+            mode = "preflight_only"
+            ai_execution_enabled = $false
+            repository = $env:GITHUB_REPOSITORY
+            issue = @{ number = 1; title = "Local planner smoke test"; url = ""; author = "local-test" }
+            goal = "Create a bounded, reviewable plan for improving the agent planning documentation and its tests."
+            allowed_paths = @("docs/ai-agent-planning.md", "tests/agent-plan-validation.test.mjs")
+            acceptance_criteria = @("The plan contains ordered tasks.", "Every path belongs to the explicit allowlist.")
+            explicit_exclusions = @("Do not modify application source.", "Do not execute commands or create a pull request.")
+          }
+          New-Item -ItemType Directory -Path artifacts -Force | Out-Null
+          $taskJson = $task | ConvertTo-Json -Depth 8 -Compress
+          [System.IO.File]::WriteAllText((Join-Path (Get-Location) "artifacts/agent-task.json"), $taskJson, [System.Text.UTF8Encoding]::new($false))
+          node scripts/generate-agent-plan.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Local AI task planning smoke test failed." }
+          $plan = Get-Content "artifacts/agent-plan.json" -Raw | ConvertFrom-Json
+          if ($plan.ai_execution_enabled -ne $false -or $plan.execution_mode -ne "validated_plan_only") {
+            throw "Generated plan did not retain the execution-disabled safety state."
+          }
+          Write-Host "PASS: local model produced a validated plan with $($plan.tasks.Count) tasks."
+
       - name: Verify disposable container isolation
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |

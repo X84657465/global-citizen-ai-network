@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The planning layer converts a validated task specification into a bounded, reviewable task graph. It validates a proposed plan; it does not call a model, execute commands, write repository files, or create pull requests.
+The planning layer converts a validated task specification into a bounded, reviewable task graph. The local Ollama planner proposes plan data; the validator checks it. Neither component executes commands, applies patches, writes application source files, or creates pull requests.
 
 ## Plan contract
 
@@ -38,6 +38,12 @@ The implementer can propose patch data only. It receives no repository write cre
 - Patch output must separately pass `validatePatchManifest` before any future isolated application stage.
 - Human review remains mandatory before PR merge, database migration, secret/configuration changes, or production deployment.
 
+## Local model integration
+
+`scripts/generate-agent-plan.mjs` calls only a loopback Ollama endpoint (default `http://127.0.0.1:11434`) and defaults to the locally installed `qwen3:8b` model. It uses a bounded context/output budget, requests structured JSON, disables thinking output, and validates the response with `validateAgentPlan` before writing the plan artifact. Remote model hosts are rejected.
+
+The self-hosted validation workflow performs a local inference smoke test and a bounded planning smoke test. Workflow dispatch validates an owner-authored task issue, generates a plan locally, and uploads the task and plan artifacts.
+
 ## Current status
 
-This contract and validator are a foundation only. No AI provider is invoked and no autonomous execution is enabled.
+Local AI task planning is enabled in the isolated preflight workflow. AI-generated patch application, command execution, automatic repository writes, PR creation, merge, database migration, and production deployment remain disabled.
