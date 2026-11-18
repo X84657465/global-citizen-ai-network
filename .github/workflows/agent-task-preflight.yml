@@ -188,7 +188,7 @@ jobs:
             repository = $env:GITHUB_REPOSITORY
             issue = @{ number = 1; title = "Local planner smoke test"; url = ""; author = "local-test" }
             goal = "Create a bounded, reviewable plan for improving the agent planning documentation and its tests."
-            allowed_paths = @("docs/ai-agent-planning.md", "tests/agent-plan-validation.test.mjs")
+            allowed_paths = @("docs/ai-agent-planning.md")
             acceptance_criteria = @("The plan contains ordered tasks.", "Every path belongs to the explicit allowlist.")
             explicit_exclusions = @("Do not modify application source.", "Do not execute commands or create a pull request.")
           }
@@ -309,6 +309,15 @@ jobs:
       - name: Run ESLint
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm run lint
+
+      - name: Upload local agent proposal artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-preflight-${{ github.run_number }}
+          path: artifacts/*.json
+          if-no-files-found: ignore
+          retention-days: 3
 
   prepare-task:
     name: Validate and plan one task (no code execution)
