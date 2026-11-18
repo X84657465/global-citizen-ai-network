@@ -8,21 +8,21 @@ The project now has an existing Supabase project and is no longer in the pre-pro
 - Project ref: `rtkpdafkpncoluhdihlv`
 - Region: `ap-northeast-1`
 - Database: PostgreSQL 17; Supabase status: `ACTIVE_HEALTHY`
-- Applied migrations: 18; latest version: `20261118005041`
+- Applied migrations: 19; latest version: `20261118045417` (`least_privilege_public_grants`)
 - Public schema: 22 base tables; all 22 have RLS enabled.
-- Vercel project: `global-citizen-ai-network`; latest inspected deployment is a READY preview.
-- Vercel project is not marked live; no production release was performed in this verification.
+- Vercel production domain is verified and has a READY deployment, but the latest Production deployment still runs older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`. Newer `main` commits have not reached Production because Vercel reports the team's `build-rate-limit`.
+- Latest merged main commit after PR #20: `6f2e8cdaad317104b58366a31f6a912f896fa1df`.
 
-These checks establish that the database exists and migrations are recorded as applied. They do **not** prove end-to-end authentication, RLS behavior with real member accounts, provider connectivity, SMTP delivery, or production readiness. The security advisor currently reports RLS-enabled tables without policies for internal tables; this is intentional only if access is denied by grants and server-side service-role operations. Verify actual grants and RPC boundaries before launch.
+These checks establish that the database exists and migrations are recorded as applied. They do **not** prove end-to-end authentication, RLS behavior with real member accounts, provider connectivity, SMTP delivery, or production readiness. Migration 0019 has now been applied to live Supabase. Post-apply catalog checks confirmed 0 direct public-table grants to `anon`, 0 public-schema function EXECUTE grants to `PUBLIC`/`anon`/`authenticated`, and retained service-role access to all 22 public relations and 19 public functions. The 9 RLS-enabled tables without policies are internal service-only tables; their lack of member policies is intentional because browser roles have no direct SQL grants. The security advisor reports only those 9 informational findings; the health advisor returns no findings.
 
 ## 1. Existing Supabase project
 
 Do not create a second project or replay the initial schema blindly. Before any schema change:
 
 1. Confirm the target project ref is `rtkpdafkpncoluhdihlv`.
-2. Compare repository migrations with the applied migration history.
+2. Note the identifier drift: repository migration files use numeric prefixes (`0001`–`0019`), while remote migration history uses timestamp versions. Names align, identifiers do not. Do not run `supabase db push` or `migration repair` against production until this is reconciled and reviewed.
 3. Review the SQL diff and backup/restore posture.
-4. Apply only a reviewed, forward-only migration intended for this existing database.
+4. Apply only a reviewed, forward-only migration to this existing database and record the remote timestamp returned by Supabase.
 5. Re-run Supabase security, performance, and health advisors.
 
 Authentication settings, SMTP, backup retention, and recovery drills still require explicit dashboard verification.
@@ -42,7 +42,7 @@ Server-only values:
 - `AI_PROVIDER=mock`
 - `AI_MONTHLY_SPEND_LIMIT_TWD=0`
 
-The service-role key is not currently required by the app runtime except for explicitly designed trusted operations. Keep it unset until a specific server-only operation requires it. Do not expose it through any `NEXT_PUBLIC_*` variable. The registration screen and API route default to closed; Supabase's own public sign-up setting must also remain disabled.
+The `SUPABASE_SERVICE_ROLE_KEY` environment-variable name is present in Vercel's Preview/Production configuration metadata; its value was not decrypted or exposed. It is used only by explicitly designed trusted server operations. Never expose it through any `NEXT_PUBLIC_*` variable. The registration screen and API route default to closed; Supabase's own public sign-up setting must also remain disabled.
 
 The current verification did not inspect or disclose Vercel environment-variable values. Confirm variable presence and scope in the Vercel dashboard without copying secrets into logs or chat.
 
