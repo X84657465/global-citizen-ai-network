@@ -112,10 +112,7 @@ begin
   -- A new request requires a complete, bounded provider and pricing configuration.
   -- Existing completed/processing keys have already returned above, so replay
   -- remains available when provider configuration is absent or rotated.
-  if p_provider is null or length(trim(p_provider)) < 1 or length(p_provider) > 120
-     or p_model is null or length(trim(p_model)) < 1 or length(p_model) > 160
-     or p_feature is null or length(trim(p_feature)) < 1 or length(p_feature) > 120
-     or p_max_cost_twd is null
+  if p_max_cost_twd is null
      or p_max_cost_twd <= 0
      or p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
      or p_max_cost_twd > 9999999999.99999999
@@ -123,6 +120,13 @@ begin
      or p_preflight_cost_twd < 0
      or p_preflight_cost_twd::text in ('NaN', 'Infinity', '-Infinity')
      or p_preflight_cost_twd > 9999999999.99999999 then
+    return query select 'rejected'::text, 'invalid_idempotency_input'::text, null::uuid, null::jsonb;
+    return;
+  end if;
+
+  if p_provider is null or length(trim(p_provider)) < 1 or length(p_provider) > 120
+     or p_model is null or length(trim(p_model)) < 1 or length(p_model) > 160
+     or p_feature is null or length(trim(p_feature)) < 1 or length(p_feature) > 120 then
     return query select 'rejected'::text, 'provider_config_unavailable'::text, null::uuid, null::jsonb;
     return;
   end if;
