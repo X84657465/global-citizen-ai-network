@@ -48,8 +48,8 @@ const activeIssueNumbers = new Set();
 for (const run of activeRuns) {
   if (run.event !== "issues" || typeof run.display_title !== "string") continue;
   const displayTitle = run.display_title.trim();
-  const numberedTitle = displayTitle.match(/\\bIssue\\s+#?(\\d+)\\b/i) ||
-    displayTitle.match(/^#(\\d+)\\b/);
+  const numberedTitle = displayTitle.match(/\bIssue\s+#?(\d+)\b/i) ||
+    displayTitle.match(/^#(\d+)\b/);
   if (numberedTitle) activeIssueNumbers.add(Number(numberedTitle[1]));
   for (const issue of issues) {
     if (!issue.pull_request && typeof issue.title === "string" &&
