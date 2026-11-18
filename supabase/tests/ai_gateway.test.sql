@@ -339,6 +339,25 @@ begin
     raise exception 'completed idempotency replay required provider configuration';
   end if;
 
+  -- Reusing a completed key with a different payload is a conflict,
+  -- even when the current provider configuration is absent.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, v_conversation, 'Different payload under completed key', 'test-ai-success-001',
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\\n' || 'Different payload under completed key', 'UTF8')), 'hex')::char(64),
+    v_blocked_request, null, null, null, null, null
+  );
+  if v_claim.disposition <> 'conflict'
+     or v_claim.reason <> 'idempotency_key_reused_with_different_payload'
+     or v_claim.claimed_request_id <> v_success_request then
+    raise exception 'completed idempotency key accepted a different payload';
+  end if;
+  if exists (select 1 from public.ai_requests where id = v_blocked_request)
+     or exists (select 1 from public.ai_budget_reservations where request_id = v_blocked_request)
+     or exists (select 1 from public.messages where conversation_id = v_conversation and owner_id = v_owner and content = 'Different payload under completed key') then
+    raise exception 'conflicting idempotency payload created request side effects';
+  end if;
+
   -- A new request with no provider configuration must be rejected before
   -- request, budget, idempotency, or user-message side effects.
   select * into v_claim
