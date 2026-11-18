@@ -47,7 +47,18 @@ export default function AiReconciliationForm({ requestId, provider }: { requestI
         }),
       });
       const data = await response.json() as { error?: string; disposition?: string; reason?: string };
-      if (!response.ok) throw new Error(data.error ?? "核對失敗。");
+      if (!response.ok) {
+        // HTTP 400 is emitted only by request-body parsing or input validation,
+        // both of which happen before the privileged reconciliation RPC. No
+        // idempotency record or ledger mutation can exist, so allow correction.
+        // Keep the key and payload locked for every other failure: those paths
+        // may have reached the database and must be retried byte-for-byte.
+        if (response.status === 400) {
+          setLocked(false);
+          setIdempotencyKey("");
+        }
+        throw new Error(data.error ?? "核對失敗。");
+      }
       setSuccess(data.disposition === "replayed" ? "相同核對已記錄，未重複入帳。" : "核對結果已原子化記錄。");
       router.refresh();
     } catch (reason) {
