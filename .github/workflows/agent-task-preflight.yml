@@ -292,12 +292,10 @@ jobs:
           Write-Host "PASS: host repository remained unchanged; output stayed in isolated scratch directory"
 
       - name: Apply validated patch to a disposable scratch workspace
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/apply-agent-patch-to-scratch.mjs
 
       - name: Install candidate dependencies inside restricted container
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
@@ -309,7 +307,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation failed inside the restricted container." }
 
       - name: Test patched candidate offline inside restricted container
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
@@ -434,10 +431,12 @@ jobs:
         run: node scripts/generate-agent-patch.mjs
 
       - name: Apply validated patch to a disposable scratch workspace
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/apply-agent-patch-to-scratch.mjs
 
       - name: Install candidate dependencies inside restricted container
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
@@ -451,6 +450,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation failed inside the restricted container." }
 
       - name: Test patched candidate offline inside restricted container
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
