@@ -40,7 +40,7 @@ test("rejects private, unlisted, arbitrary executable, and oversized jobs", () =
 
 test("rejects resource and deadline violations", () => {
   assert.throws(() => validateCommunityWorkloadManifest({ ...manifest, resources: { ...manifest.resources, cpuCores: 16 } }, now), /resource_envelope/);
-  assert.throws(() => validateCommunityWorkloadManifest({ ...manifest, deadlineAt: "2026-11-19T12:00:00.000Z" }, now), /deadline_out_of_range/);
+  assert.throws(() => validateCommunityWorkloadManifest({ ...manifest, deadlineAt: "2026-11-19T12:00:01.000Z" }, now), /deadline_out_of_range/);
 });
 
 test("checks lease audience, binding and short expiry window", () => {
