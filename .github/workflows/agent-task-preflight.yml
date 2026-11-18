@@ -363,7 +363,7 @@ jobs:
         run: npm run lint
 
       - name: Dispatch the next queued task after draft PR publication
-        if: success() && steps.select-task.outputs.issue_number != '' || success() && github.event_name != 'schedule' && github.event_name != 'repository_dispatch' && github.event_name != 'issues' || success() && github.event_name == 'issues' && github.event.action != 'closed'
+        if: success()
         uses: actions/github-script@v7
         with:
           script: |
@@ -493,12 +493,14 @@ jobs:
           restore-keys: |
             agent-npm-${{ runner.os }}-
 
-      - name: Install candidate dependencies inside restricted container
+      - name: Install candidate dependencies inside restricted container (attempt 1)
+        id: install-first
         if: >-
           (github.event_name == 'issues' && github.event.action != 'closed') ||
           github.event_name == 'workflow_dispatch' ||
           steps.select-task.outputs.issue_number != ''
         timeout-minutes: 15
+        continue-on-error: true
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
@@ -509,26 +511,34 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             docker pull $imageDigest
             if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned candidate test image." }
-          } else {
-            Write-Host "Using the pinned Node image already cached by the Docker daemon."
           }
           $workspaceMount = "type=bind,source=$scratch,target=/workspace"
           $npmCache = Join-Path $env:RUNNER_TEMP "agent-npm-cache"
           New-Item -ItemType Directory -Path $npmCache -Force | Out-Null
           $cacheMount = "type=bind,source=$npmCache,target=/npm-cache"
-          $attempt = 0
-          do {
-            $attempt++
-            Write-Host "Candidate dependency installation attempt $attempt of 2."
-            docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --mount $cacheMount --workdir /workspace --env HOME=/tmp/npm-home --env npm_config_cache=/npm-cache $imageDigest npm ci --ignore-scripts --no-audit --no-fund
-            $installExit = $LASTEXITCODE
-            if ($installExit -eq 0) { break }
-            if ($attempt -lt 2) {
-              Write-Warning "Dependency installation failed (exit $installExit); retrying once with the same persistent npm cache."
-              Start-Sleep -Seconds 5
-            }
-          } while ($attempt -lt 2)
-          if ($installExit -ne 0) { throw "Candidate dependency installation failed twice inside the restricted container (last exit $installExit)." }
+          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --mount $cacheMount --workdir /workspace --env HOME=/tmp/npm-home --env npm_config_cache=/npm-cache $imageDigest npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation attempt 1 failed (exit $LASTEXITCODE)." }
+
+      - name: Retry candidate dependency installation once
+        if: >-
+          steps.install-first.outcome == 'failure' &&
+          ((github.event_name == 'issues' && github.event.action != 'closed') ||
+           github.event_name == 'workflow_dispatch' ||
+           steps.select-task.outputs.issue_number != '')
+        timeout-minutes: 15
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          Write-Warning "The first 15-minute dependency-install attempt failed or timed out; retrying once."
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          $npmCache = Join-Path $env:RUNNER_TEMP "agent-npm-cache"
+          New-Item -ItemType Directory -Path $npmCache -Force | Out-Null
+          $cacheMount = "type=bind,source=$npmCache,target=/npm-cache"
+          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --mount $cacheMount --workdir /workspace --env HOME=/tmp/npm-home --env npm_config_cache=/npm-cache $imageDigest npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation retry failed (exit $LASTEXITCODE)." }
 
       - name: Test patched candidate offline inside restricted container
         if: >-
