@@ -1,4 +1,4 @@
-name: CI
+name: CI # Triggered on the Windows self-hosted runner
 
 concurrency:
   group: global-citizen-ai-network-${{ github.event.pull_request.number || github.ref }}
