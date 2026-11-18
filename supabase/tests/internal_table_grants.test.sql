@@ -1,6 +1,6 @@
 begin;
 
-select plan(135);
+select plan(141);
 
 -- These operational tables intentionally have no client-facing RLS policies.
 -- Assert RLS remains enabled and no table-level privilege is granted to client roles.
