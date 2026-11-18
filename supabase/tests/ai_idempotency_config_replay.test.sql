@@ -56,7 +56,7 @@ select ok(
 );
 
 select ok(
-  position('p_conversation_id::text || e''\\n'' || p_prompt' in lower(pg_get_functiondef('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)'::regprocedure))) > 0
+  position('p_conversation_id::text || e''\n'' || p_prompt' in lower(pg_get_functiondef('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)'::regprocedure))) > 0
   and position('where c.id = p_conversation_id and c.owner_id = p_owner_id' in lower(pg_get_functiondef('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)'::regprocedure))) > 0,
   'request hash is bound to the member-owned conversation and exact prompt'
 );
