@@ -2,7 +2,9 @@
 
 ## Current migration status
 
-The SQL files under supabase/migrations are intended for a fresh Supabase project. They have been reviewed and guarded by static CI checks, but have not been executed against a live Supabase/PostgreSQL instance. Do not describe the database as deployed or integration-tested until the migrations and the checks below have actually run.
+This document began as a pre-provisioning checklist. As of 2026-11-18, the linked Supabase project `global-citizen-ai-network` (project ref `rtkpdafkpncoluhdihlv`, region `ap-northeast-1`) reports the initial schema and subsequent migrations through `service_role_ai_reconciliation` as applied. The observed migration history includes the AI chat settlement/reconciliation, human-queue binding, single-unresolved-request, audited resolution, conversation ownership/locking, and service-role reconciliation changes.
+
+This is an environment observation, not a production-readiness certification. The database is reachable and reports healthy, but end-to-end authorization, concurrency, provider, billing, recovery, and user-journey tests have not been established by this audit. Keep AI generation disabled until the required verification below is completed and the application deployment, secrets, and operational controls are reviewed together.
 
 ## Immutable ledger and deletion policy
 
