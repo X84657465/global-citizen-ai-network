@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
-import { access, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { randomInt, randomUUID } from "node:crypto";
+import process from "node:process";
 
 const databaseUrl = process.env.LOCAL_SUPABASE_DB_URL;
 if (!databaseUrl || process.env.CONFIRM_LOCAL_SUPABASE !== "YES") {
@@ -15,9 +13,9 @@ if (!allowedHosts.has(parsedUrl.hostname) || parsedUrl.hostname.endsWith(".supab
   throw new Error("Refusing non-local database host: " + parsedUrl.hostname);
 }
 
-function startPsql(args, appName) {
-  return spawn("psql", ["-X", "-q", "-v", "ON_ERROR_STOP=1", "-At", "-d", databaseUrl, ...args], {
-    env: { ...process.env, ...(appName ? { PGAPPNAME: appName } : {}) },
+function startPsql(appName) {
+  return spawn("psql", ["-X", "-q", "-v", "ON_ERROR_STOP=1", "-At", "-d", databaseUrl], {
+    env: { ...process.env, PGAPPNAME: appName },
     stdio: ["pipe", "pipe", "pipe"],
   });
 }
@@ -34,7 +32,7 @@ function collect(child) {
   });
 }
 function runSql(sql, appName) {
-  const child = startPsql([], appName);
+  const child = startPsql(appName);
   const result = collect(child);
   child.stdin.end(sql);
   return result;
@@ -54,13 +52,16 @@ function claimSql(input) {
     "'" + input.request + "'::uuid,\n" +
     "'local-concurrency-test', 'fixture-model', 'chat', 0.01, 0.001\n);";
 }
-async function waitForFile(path, timeoutMs = 15000) {
+async function waitForOutput(child, marker, timeoutMs = 15000) {
+  let output = "";
+  child.stdout.setEncoding("utf8").on("data", (chunk) => (output += chunk));
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    try { await access(path); return; } catch {}
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (output.includes(marker)) return;
+    if (child.exitCode !== null) throw new Error("psql exited before emitting marker " + marker);
+    await new Promise((resolve) => setTimeout(resolve, 25));
   }
-  throw new Error("Timed out waiting for transaction marker: " + path);
+  throw new Error("Timed out waiting for psql marker: " + marker);
 }
 async function waitUntilBlocked(appName, timeoutMs = 15000) {
   const deadline = Date.now() + timeoutMs;
@@ -74,57 +75,56 @@ async function waitUntilBlocked(appName, timeoutMs = 15000) {
     if (result.stdout.trim() === "Lock") return;
     await new Promise((resolve) => setTimeout(resolve, 75));
   }
-  throw new Error("Second PostgreSQL session never waited on a lock: " + appName);
+  throw new Error("PostgreSQL session never waited on a lock: " + appName);
 }
 async function concurrentPair(input) {
-  const dir = await mkdtemp(join(tmpdir(), "gcai-ai-claim-"));
-  const marker = join(dir, "first-claim-ready");
-  const gate = join(dir, "release-first-transaction");
   const appName = "gcai-claim-" + randomUUID();
-  const firstSql = [
-    "begin;",
-    claimSql({ owner: input.owner, conversation: input.firstConversation, prompt: input.firstPrompt, key: input.firstKey, request: input.firstRequest }),
-    "\\! touch '" + marker + "'",
-    "\\! while [ ! -f '" + gate + "' ]; do sleep 0.05; done",
-    input.rollbackFirst ? "rollback;" : "commit;",
-  ].join("\n");
-  const secondSql = claimSql({
-    owner: input.owner, conversation: input.secondConversation, prompt: input.secondPrompt,
-    key: input.secondKey, request: input.secondRequest,
-  });
+  const gateKey = randomInt(1000000, 2147483647);
+  const gateChild = startPsql(appName + "-gate");
+  const gateResultPromise = collect(gateChild);
+  gateChild.stdin.write("select pg_advisory_lock(" + gateKey + ");\nselect 'gate-held';\n");
   let firstChild;
   let secondChild;
   let firstResultPromise;
   let secondResultPromise;
   try {
-    const firstFile = join(dir, "first.sql");
-    await writeFile(firstFile, firstSql, "utf8");
-    firstChild = startPsql(["-f", firstFile], appName + "-first");
+    await waitForOutput(gateChild, "gate-held");
+    const firstSql = [
+      "begin;",
+      claimSql({ owner: input.owner, conversation: input.firstConversation, prompt: input.firstPrompt, key: input.firstKey, request: input.firstRequest }),
+      "select pg_advisory_xact_lock(" + gateKey + ");",
+      input.rollbackFirst ? "rollback;" : "commit;",
+    ].join("\n");
+    firstChild = startPsql(appName + "-first");
     firstResultPromise = collect(firstChild);
-    await waitForFile(marker);
-    secondChild = startPsql([], appName + "-second");
+    firstChild.stdin.end(firstSql);
+    await waitUntilBlocked(appName + "-first");
+
+    secondChild = startPsql(appName + "-second");
     secondResultPromise = collect(secondChild);
-    secondChild.stdin.end(secondSql);
+    secondChild.stdin.end(claimSql({
+      owner: input.owner, conversation: input.secondConversation, prompt: input.secondPrompt,
+      key: input.secondKey, request: input.secondRequest,
+    }));
     await waitUntilBlocked(appName + "-second");
-    await writeFile(gate, "release", "utf8");
+
+    gateChild.stdin.write("select pg_advisory_unlock(" + gateKey + ");\n\\q\n");
+    gateChild.stdin.end();
+    await gateResultPromise;
     const results = await Promise.all([firstResultPromise, secondResultPromise]);
     return { firstResult: results[0], secondResult: results[1] };
   } finally {
-    try { await writeFile(gate, "release", "utf8"); } catch {}
+    if (gateChild.exitCode === null) {
+      try {
+        gateChild.stdin.write("select pg_advisory_unlock(" + gateKey + ");\n\\q\n");
+        gateChild.stdin.end();
+      } catch {
+        gateChild.kill("SIGTERM");
+      }
+    }
     if (firstChild && firstChild.exitCode === null) firstChild.kill("SIGTERM");
     if (secondChild && secondChild.exitCode === null) secondChild.kill("SIGTERM");
-    await rm(dir, { recursive: true, force: true });
   }
-}
-
-
-async function resolveFixtureRequest() {
-  await runSql(
-    "update public.ai_budget_reservations set status = 'released', settled_at = now() where owner_id = '" + owner + "'::uuid and status = 'reserved';\n" +
-    "update public.ai_requests set status = 'failed', completed_at = now() where owner_id = '" + owner + "'::uuid and status in ('queued', 'running');\n" +
-    "update public.ai_request_idempotency set state = 'failed', error_code = 'local_concurrency_fixture_resolved', updated_at = now(), expires_at = now() + interval '24 hours' where owner_id = '" + owner + "'::uuid and state = 'processing';",
-    "gcai-resolve-" + owner,
-  );
 }
 
 const owner = randomUUID();
@@ -155,6 +155,14 @@ function restoreSql() {
     "delete from public.ai_user_limits where owner_id = '" + owner + "'::uuid;\n" +
     "delete from public.conversations where owner_id = '" + owner + "'::uuid;\n" +
     "delete from auth.users where id = '" + owner + "'::uuid;";
+}
+async function resolveFixtureRequest() {
+  await runSql(
+    "update public.ai_budget_reservations set status = 'released', settled_at = now() where owner_id = '" + owner + "'::uuid and status = 'reserved';\n" +
+    "update public.ai_requests set status = 'failed', completed_at = now() where owner_id = '" + owner + "'::uuid and status in ('queued', 'running');\n" +
+    "update public.ai_request_idempotency set state = 'failed', error_code = 'local_concurrency_fixture_resolved', updated_at = now(), expires_at = now() + interval '24 hours' where owner_id = '" + owner + "'::uuid and state = 'processing';",
+    "gcai-resolve-" + owner,
+  );
 }
 try {
   await runSql(
