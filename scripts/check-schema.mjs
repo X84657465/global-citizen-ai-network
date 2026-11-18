@@ -159,6 +159,9 @@ assert.ok(aiHistory.includes("totalCharacters + item.content.length > maxTotalCh
 
 const atomicAiSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
+const providerResponseTests = readFileSync("tests/ai-provider-response.test.ts", "utf8");
+const aiCostTests = readFileSync("tests/ai-cost.test.ts", "utf8");
+const aiReconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
 const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
 const claimPosition = aiGateway.indexOf('admin.rpc("claim_ai_request"');
@@ -423,7 +426,7 @@ assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity',
 const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reconciliation_resolution.sql", "utf8") + "\n" + readFileSync("supabase/migrations/0018_service_role_ai_reconciliation.sql", "utf8");
 const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
 const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
-const reconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
+
 const reconciliationOperationsPage = readFileSync("app/admin/ai-operations/page.tsx", "utf8");
 assert.ok(reconciliationSql.includes("where id = p_actor_id"),
   "Reconciliation RPC must verify the supplied actor against the authoritative profile row");
@@ -447,7 +450,7 @@ assert.ok(reconciliationResolveApi.includes("isActiveAdminProfile(profile)"),
   "Admin resolution API must enforce active-admin authorization through the tested shared guard");
 assert.ok(reconciliationUi.includes("crypto.randomUUID()") && reconciliationUi.includes("使用相同資料重試"),
   "Admin resolution UI must preserve an idempotency key for safe retries");
-assert.ok(reconciliationTests.includes("authoritative profile row instead of trusting the supplied ID"),
+assert.ok(aiReconciliationTests.includes("authoritative profile row instead of trusting the supplied ID"),
   "Database tests must verify the RPC checks the actor against the authoritative profile");
 
 assert.ok(reconciliationOperationsPage.includes('.from("ai_reconciliation_events")') &&
@@ -589,3 +592,15 @@ assert.ok(publicTableGrantTests.includes("select plan(15)") &&
   publicTableGrantTests.includes("all internal service-only tables retain row-level security") &&
   publicTableGrantTests.includes("public sequences are not directly accessible"),
   "Least-privilege regression tests must cover full table privileges, internal-table RLS, and public sequence grants");
+
+assert.ok(providerResponse.includes("async function cancelProviderBody") &&
+  providerResponseTests.includes("cancels provider bodies rejected by invalid or oversized declared content-length"),
+  "Rejected provider response bodies must be canceled and covered by regression tests");
+assert.ok(aiCostTests.includes("estimates input and output token costs") &&
+  aiCostTests.includes("runtime config rejects missing or non-positive pricing"),
+  "AI cost estimation and paid-provider pricing configuration must retain unit coverage");
+assert.ok(aiReconciliationTests.includes("select plan(14)") &&
+  aiReconciliationTests.includes("same-key same-payload retries replay while changed payloads conflict") &&
+  aiReconciliationTests.includes("conclusive billed and not-billed decisions settle or release the held reservation") &&
+  aiReconciliationTests.includes("every resolution is audited and evidence events remain immutable"),
+  "AI reconciliation tests must cover idempotency, settlement, and immutable audit invariants");
