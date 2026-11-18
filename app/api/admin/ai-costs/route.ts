@@ -85,10 +85,10 @@ export async function GET() {
       const estimate = estimateByRequest.get(row.id);
       return {
         workloadClass: "ai:" + row.feature + ":" + row.provider + "/" + row.model,
-        executionTarget: "trusted_cloud",
-        outcome: row.status === "succeeded" ? "accepted" : "failed",
+        executionTarget: "trusted_cloud" as const,
+        outcome: row.status === "succeeded" ? "accepted" as const : "failed" as const,
         costTwd: estimate ?? null,
-        costEvidence: estimate === undefined ? null : "internal_estimate",
+        costEvidence: estimate === undefined ? null : "internal_estimate" as const,
         latencyMs: row.latency_ms,
         attempts: Math.max(1, Number(row.retry_count ?? 0) + 1),
       };
