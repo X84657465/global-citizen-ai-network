@@ -74,6 +74,7 @@ The initial interface is a prototype. Demo task data is illustrative, not paid w
 - [Authentication implementation](docs/authentication.md)
 - [Application API reference](docs/api.md)
 - [AI budget overrun hard-stop](docs/ai-budget-overrun-hard-stop.md)
+- [Citizen Cloud Network architecture and economics](docs/citizen-cloud-network.md)
 
 ## Contributions
 
