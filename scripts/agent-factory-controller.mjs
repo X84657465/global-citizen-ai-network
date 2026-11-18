@@ -22,7 +22,16 @@ async function api(path, options = {}) {
   }
   return data;
 }
-const listIssues = (state) => api("/issues?state=" + state + "&per_page=100&sort=created&direction=asc");
+async function listIssues(state) {
+  const collected = [];
+  for (let page = 1; page <= 10; page += 1) {
+    const batch = await api("/issues?state=" + state + "&per_page=100&page=" + page + "&sort=created&direction=asc");
+    if (!Array.isArray(batch)) throw new Error("GitHub issue listing returned an unexpected response.");
+    collected.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return collected;
+}
 const isStateIssue = (issue) => !issue.pull_request && issue.title === "[AI Factory State] Durable scheduler and circuit-breaker state";
 function readState(issue) {
   const match = issue?.body?.match(/<!-- agent-factory-state:([A-Za-z0-9+/=]+) -->/);
