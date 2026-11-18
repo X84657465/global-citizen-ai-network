@@ -15,6 +15,7 @@ on:
       - "scripts/apply-agent-patch-to-scratch.mjs"
       - "scripts/run-agent-self-healing-tests.mjs"
       - "scripts/publish-agent-patch.mjs"
+      - "scripts/publish-agent-patch.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
       - "tests/agent-plan-validation.test.mjs"
@@ -60,6 +61,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Scheduled task selector syntax check failed." }
           node --check scripts/run-agent-self-healing-tests.mjs
           if ($LASTEXITCODE -ne 0) { throw "Self-healing test runner syntax check failed." }
+          node --check scripts/publish-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Draft PR publisher syntax check failed." }
 
       - name: Audit available local isolation capabilities
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
