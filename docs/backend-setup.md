@@ -8,10 +8,10 @@ The project now has an existing Supabase project and is no longer in the pre-pro
 - Project ref: `rtkpdafkpncoluhdihlv`
 - Region: `ap-northeast-1`
 - Database: PostgreSQL 17; Supabase status: `ACTIVE_HEALTHY`
-- Applied migrations: 21; latest version: `20261118050801` (`atomic_contribution_task_admin`); repository migration 0022 is CI-tested but pending live apply
+- Applied migrations: 23; latest version: `20261118060607` (`single_active_task_submission`)
 - Public schema: 22 base tables; all 22 have RLS enabled.
 - Vercel production domain is verified and has a READY deployment, but the latest Production deployment still runs older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`. Newer `main` commits have not reached Production because the Vercel Hobby team hit the 100 deployments/day API limit (`api-deployments-free-per-day`).
-- Latest main and application-code commit: `6b8642848ef6b6e24df06cb078f03fb0315df36c` (AI completed-request replay when provider configuration is absent). This code has passed CI but is not yet deployed to Production.
+- Latest main and application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61` (one active contribution submission per member/task). The latest code and database migrations have passed CI; Production still runs the older Vercel deployment.
 
 These checks establish that the database exists and migrations are recorded as applied. They do **not** prove end-to-end authentication, RLS behavior with real member accounts, provider connectivity, SMTP delivery, or production readiness. Migration 0019 has now been applied to live Supabase. Post-apply catalog checks confirmed 0 direct public-table grants to `anon`, 0 public-schema function EXECUTE grants to `PUBLIC`/`anon`/`authenticated`, and retained service-role access to all 22 public relations and 20 public functions. The 9 RLS-enabled tables without policies are internal service-only tables; their lack of member policies is intentional because browser roles have no direct SQL grants. The security advisor reports only those 9 informational findings; the health advisor returns no findings. Migration 0020 added all 17 missing FK indexes and removed both duplicate permissive SELECT-policy findings. The performance advisor now reports 36 unused indexes, including the 17 new indexes on currently empty/low-traffic tables; do not remove them without workload evidence.
 
@@ -20,7 +20,7 @@ These checks establish that the database exists and migrations are recorded as a
 Do not create a second project or replay the initial schema blindly. Before any schema change:
 
 1. Confirm the target project ref is `rtkpdafkpncoluhdihlv`.
-2. Note the identifier drift: repository migration files use numeric prefixes (`0001`–`0022`), while remote migration history uses timestamp versions. Names align, identifiers do not. The 21-entry mapping for migrations already applied live is in `docs/migration-history-map.md`. Migration 0022 is tested in CI but not applied or mapped remotely. Do not run `supabase db push` or `migration repair` against production until a formal reconciliation is reviewed.
+2. Note the identifier drift: repository migration files use numeric prefixes (`0001`–`0023`), while remote migration history uses timestamp versions. Names align, identifiers do not. All 23 migrations are applied live and mapped in `docs/migration-history-map.md`. Do not run `supabase db push` or `migration repair` against production.
 3. Review the SQL diff and backup/restore posture.
 4. Apply only a reviewed, forward-only migration to this existing database and record the remote timestamp returned by Supabase.
 5. Re-run Supabase security, performance, and health advisors.
@@ -72,4 +72,6 @@ The UI flag is not a security boundary. Keep Supabase dashboard sign-ups disable
 Migration 0021 adds the atomic contribution-task administration RPC. It is SECURITY DEFINER with an empty search path, verifies the actor is an active admin, serializes status transitions with row locks, and writes each audit event in the same transaction as the task change. Live catalog verification confirms only `service_role` can execute this RPC; effective public-schema function access remains 0 for `anon` and `authenticated`.
 
 
-Migration 0022 (`ai_providerless_completed_replay`) is pending live apply. PR #30 Build and Database CI passed with 40 unit tests and 114 pgTAP assertions. It permits replay of an already completed response under the same idempotency key and payload hash when provider config is missing; new billable requests remain blocked before side effects. The live Supabase migration history remains at 21 applied migrations.
+Migration 0022 (`ai_providerless_completed_replay`) is applied live as `20261118060600`. It permits replay of an already completed response under the same idempotency key and payload hash when provider config is missing; new billable requests remain blocked before side effects.
+
+Migration 0023 (`single_active_task_submission`) is applied live as `20261118060607`. It enforces one active submission per member/task and prevents resubmission during an unresolved appeal. Rejected submissions can be retried after rejection/appeal closure.
