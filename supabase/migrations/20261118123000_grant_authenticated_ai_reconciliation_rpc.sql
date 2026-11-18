@@ -194,7 +194,7 @@ begin
 end;
 $$;
 
-revoke all on function public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric) from public, anon, service_role;
+revoke all on function public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric) from public, anon, authenticated, service_role;
 grant execute on function public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric) to authenticated;
 
 comment on function public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric) is
