@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { strict as assert } from "node:assert";
 
-const readText = (path) => readText(path).replace(/\\r\\n/g, "\\n");
+const readText = (path) => readFileSync(path, "utf8").replace(/\r\n/g, "\n");
 
 const sql = readText("supabase/migrations/20261118003031_initial_schema.sql");
 const statusSql = readText("supabase/migrations/20261118003035_member_status_rls.sql");
