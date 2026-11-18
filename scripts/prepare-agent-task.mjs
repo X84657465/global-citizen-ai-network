@@ -10,10 +10,10 @@ const issueNumber = process.env.ISSUE_NUMBER ?? "";
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
 
-if (!/^\\d{1,8}$/.test(issueNumber) || Number(issueNumber) < 1) {
+if (!/^\d{1,8}$/.test(issueNumber) || Number(issueNumber) < 1) {
   fail("issue_number must be a positive integer.");
 }
-if (!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repository)) {
+if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
   fail("GITHUB_REPOSITORY is missing or invalid.");
 }
 if (!token) fail("GITHUB_TOKEN is unavailable.");
@@ -41,7 +41,7 @@ try {
 
 let task;
 try {
-  task = validateAndBuildTask(issue, repository);
+writeFileSync("artifacts/agent-task.json", `${JSON.stringify(task, null, 2)}\n`, "utf8");
 } catch (error) {
   fail(error instanceof Error ? error.message : "Unknown validation error.");
 }
