@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { summarizeWorkloadCostsByDimension, type WorkloadObservation } from "@/lib/compute/cost-metrics";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,6 +15,9 @@ type RequestRow = {
   input_tokens: number | null; output_tokens: number | null; cached_tokens: number | null;
   provider_billed_cost: number | string | null; provider_billed_currency: string | null;
   created_at: string;
+  feature: string;
+  latency_ms: number | null;
+  retry_count: number;
 };
 type InvoiceRow = {
   provider: string; billing_period_start: string; billing_period_end: string;
@@ -44,7 +48,7 @@ export async function GET() {
       .select("cost_category,amount,currency,amount_kind,occurred_at,calculation_method")
       .order("occurred_at", { ascending: false }).limit(500),
     admin.from("ai_requests")
-      .select("id,provider,model,status,input_tokens,output_tokens,cached_tokens,provider_billed_cost,provider_billed_currency,created_at")
+      .select("id,provider,model,feature,status,input_tokens,output_tokens,cached_tokens,provider_billed_cost,provider_billed_currency,created_at,latency_ms,retry_count")
       .order("created_at", { ascending: false }).limit(500),
     admin.from("provider_invoice_imports")
       .select("provider,billing_period_start,billing_period_end,currency,invoice_total,reconciliation_status,created_at")
@@ -75,6 +79,21 @@ export async function GET() {
     if (row.request_id) add(estimateByRequest, row.request_id, Number(row.amount));
   }
 
+  const computeObservations: WorkloadObservation[] = requests
+    .filter(row => row.status === "succeeded" || row.status === "failed")
+    .map(row => {
+      const estimate = estimateByRequest.get(row.id);
+      return {
+        workloadClass: "ai:" + row.feature + ":" + row.provider + "/" + row.model,
+        executionTarget: "trusted_cloud",
+        outcome: row.status === "succeeded" ? "accepted" : "failed",
+        costTwd: estimate ?? null,
+        costEvidence: estimate === undefined ? null : "internal_estimate",
+        latencyMs: row.latency_ms,
+        attempts: Math.max(1, Number(row.retry_count ?? 0) + 1),
+      };
+    });
+  const computeCostBaselines = summarizeWorkloadCostsByDimension(computeObservations);
   const byKindCurrency = new Map<string, number>();
   const byCategory = new Map<string, number>();
   const byProvider = new Map<string, { requests: number; inputTokens: number; outputTokens: number; estimatedCost: number; unpricedRequests: number }>();
@@ -113,6 +132,7 @@ export async function GET() {
       const [category, currency] = key.split("|"); return { category, currency, amount: rounded(amount) };
     }),
     providerBilledByCurrency: [...billed].map(([currency, amount]) => ({ currency, amount: rounded(amount) })),
+    computeCostBaselines,
     providerModels: [...byProvider].map(([key, group]) => {
       const [provider, model] = key.split("|"); return { provider, model, requests: group.requests, inputTokens: group.inputTokens, outputTokens: group.outputTokens, estimatedCost: rounded(group.estimatedCost), unpricedRequests: group.unpricedRequests };
     }),
