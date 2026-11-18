@@ -17,12 +17,12 @@
 - Region: `ap-northeast-1` (Tokyo)
 - Project status: `ACTIVE_HEALTHY`
 - Database engine: PostgreSQL 17
-- Migrations applied: 19 (latest: `20261118045417`, `least_privilege_public_grants`)
+- Migrations applied: 20 (latest: `20261118045832`, `foreign_key_indexes_and_policy_split`)
 - Public tables: 22
 - Public tables with RLS enabled: 22
 - All 22 public base tables have RLS enabled.
 - After migration 0019: zero direct public-table grants to `anon`; zero public-schema function EXECUTE grants to `PUBLIC`, `anon`, or `authenticated`; service-role access retained for all 22 public relations and 19 public functions.
-- The health advisor returns no findings. Security advisor's 9 remaining RLS-without-policy findings are internal service-only tables. Performance advisor's 17 missing FK indexes and 2 duplicate SELECT policy findings are addressed by PR #22; the combined CI run passed, but migration 0020 is not yet applied live.
+- The health advisor returns no findings. Security advisor's 9 remaining RLS-without-policy findings are internal service-only tables. PR #22 migration 0020 is now applied live as `20261118045832`: the 17 unindexed FK and 2 duplicate permissive SELECT-policy findings are gone. Performance advisor now reports 36 unused indexes (including the 17 newly added FK indexes; current data volume is too low to exercise them).
 
 ## Preview verification
 
