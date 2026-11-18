@@ -2,7 +2,7 @@
 
 Last verified: 2026-11-18. Source: live Supabase `list_migrations` plus repository `supabase/migrations` filenames.
 
-The repository uses sequential numeric filename prefixes (`0001`–`0020`). The existing live Supabase history was provisioned through timestamp-versioned migrations. Names align, but the version identifiers do not. This map is an operational cross-reference, not a CLI migration repair.
+The repository uses sequential numeric filename prefixes (`0001`–`0021`). The existing live Supabase history was provisioned through timestamp-versioned migrations. Names align, but the version identifiers do not. This map is an operational cross-reference, not a CLI migration repair.
 
 | Repository file | Live version | Live migration name |
 |---|---:|---|
@@ -27,10 +27,11 @@ The repository uses sequential numeric filename prefixes (`0001`–`0020`). The 
 | `0019_least_privilege_public_grants.sql` | `20261118045417` | `least_privilege_public_grants` |
 | `0020_foreign_key_indexes_and_policy_split.sql` | `20261118045832` | `foreign_key_indexes_and_policy_split` |
 
+| `0021_atomic_contribution_task_admin.sql` | `20261118050801` | `atomic_contribution_task_admin` |
+
 ## Production safety rule
 
 - Do not run `supabase db push`, `supabase migration repair`, or a bulk migration replay against the live project while local numeric versions and remote timestamp versions differ.
 - Continue using reviewed, forward-only migrations. Record the remote timestamp returned by Supabase and update this map in the same change.
 - CI applies the repository's numeric migration files to a disposable local Supabase instance; this verifies SQL behavior but does not reconcile remote version identifiers.
 - Never replay `0001_initial_schema.sql` against the existing populated project.
-| `0021_atomic_contribution_task_admin.sql` | `20261118050801` | `atomic_contribution_task_admin` |
