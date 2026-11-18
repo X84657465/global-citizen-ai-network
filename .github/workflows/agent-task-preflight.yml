@@ -9,7 +9,9 @@ on:
       - "lib/agent-patch-validation.mjs"
       - "lib/agent-plan-validation.mjs"
       - "scripts/generate-agent-plan.mjs"
+      - "scripts/generate-agent-patch.mjs"
       - "tests/agent-plan-generation.test.mjs"
+      - "tests/agent-patch-generation.test.mjs"
       - "scripts/prepare-agent-task.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
@@ -200,6 +202,19 @@ jobs:
             throw "Generated plan did not retain the execution-disabled safety state."
           }
           Write-Host "PASS: local model produced a validated plan with $($plan.tasks.Count) tasks."
+
+      - name: Smoke-test a bounded local patch proposal
+        env:
+          OLLAMA_MODEL: qwen3:8b
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          node scripts/generate-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Local AI patch proposal smoke test failed." }
+          $patch = Get-Content "artifacts/agent-patch.json" -Raw | ConvertFrom-Json
+          if ($patch.files.Count -lt 1 -or $patch.files.Count -gt 3 -or $patch.safety.task_path_allowlist_enforced -ne $true) {
+            throw "Generated patch did not pass the bounded patch safety contract."
+          }
+          Write-Host "PASS: local model produced a validated data-only patch for $($patch.files.Count) files."
 
       - name: Verify disposable container isolation
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}

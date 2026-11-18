@@ -47,3 +47,10 @@ The self-hosted validation workflow performs a local inference smoke test and a 
 ## Current status
 
 Local AI task planning is enabled in the isolated preflight workflow. AI-generated patch application, command execution, automatic repository writes, PR creation, merge, database migration, and production deployment remain disabled.
+
+
+## Local patch proposal
+
+`scripts/generate-agent-patch.mjs` reads only paths named by validated implementer tasks and only when those paths are present in the original task allowlist. It limits proposals to three files, 8 KiB per source file, and 12 KiB of combined source context. The local model returns a structured patch manifest, which must pass `validatePatchManifest` against the task allowlist and the existing-file inventory.
+
+The patch is written as an artifact only. This stage does not apply the patch, run generated code, execute shell commands, create a branch, or create a pull request.
