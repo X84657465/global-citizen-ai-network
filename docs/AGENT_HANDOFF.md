@@ -2,11 +2,11 @@
 
 > Single source of truth for the next development session. Update this file at the end of every development round, after opening/updating a PR, and after any scheduling or runner change. Record verified GitHub state only; never infer a green CI, online Runner, successful task, or merge.
 
-**Last verified:** 2026-11-19 19:56 UTC  
+**Last verified:** 2026-11-19 19:57 UTC  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
 **Current main commit:** `bbb4d9d6504015ed10edf784993e77aaedc6cd0f`  
-**Factory PR head:** `197a1bb2f687b085833a7f10d3a51091f8ef726e`
+**Factory PR head:** `d6a590a276dfbd88a1acb468e2d0205c4ccb0e4c`
 
 ## 目前系統狀態
 
@@ -28,7 +28,7 @@
 
 ## 當前阻塞與待辦
 
-1. **PR #99 CI is not yet green.** Latest useful validation is PR run #44385185298 on commit `a151af8`: it is assigned to `DESKTOP-S2S4BM9`; unit tests, dependency audits, TypeScript, lint, and production build have passed. Setup-node cleanup is still in progress and database tests are queued. Commits `dfa54b3` and `197a1bb` after that run only change cross-workflow concurrency and CI trigger scheduling; runs #44385218789 and #44385225050 are queued for those revisions. The previous 101-test run had three assertion-only failures; the fixes are committed in PR #99 at `c7db5ed` and `82afb74`. A subsequent run on `a151af8` passed unit tests and both dependency audits; TypeScript and database validation are still pending. Later commits `dfa54b3` and `197a1bb` only alter workflow concurrency/trigger behavior. Wait for the current run before any further push to avoid cancellation.
+1. **PR #99 CI is not yet green.** Latest useful validation is PR run #44385185298 on commit `a151af8`: assigned to `DESKTOP-S2S4BM9`; unit tests, dependency audits, TypeScript, lint, and production build passed. The job is stalled in setup-node post cleanup, so database tests never started. Latest PR #99 run #44385744040 is queued on commit `d6a590a`, which removes npm caching. Commits `dfa54b3` and `197a1bb` after that run only change cross-workflow concurrency and CI trigger scheduling; runs #44385218789 and #44385225050 are queued for those revisions. The previous 101-test run had three assertion-only failures; the fixes are committed in PR #99 at `c7db5ed` and `82afb74`. A subsequent run on `a151af8` passed unit tests and both dependency audits; TypeScript and database validation are still pending. Later commits `dfa54b3` and `197a1bb` only alter workflow concurrency/trigger behavior. Wait for the current run before any further push to avoid cancellation.
 2. Confirm the current database job completes PostgreSQL/RLS tests and the queued build job is subsequently assigned. Runner assignment is verified, but the full CI pass is not yet verified.
 3. Review PR #99 end-to-end before merge: verify durable remote/local cooldown consistency, per-Issue skip after three attempts, planner deduplication, and queue handoff after failures. Confirm that workflow concurrency prevents simultaneous task workers; the five-minute cron is a polling trigger, not a guarantee of a fresh Runner every five minutes.
 4. **Next queued task: Issue #17** — `[AI Task] Remediate high-severity development dependency audit findings`. The current selector priority places #17 first, followed by #3 and #71. Recheck open Issues and linked PRs before dispatch; do not rely on this cached order if repository state changes.
