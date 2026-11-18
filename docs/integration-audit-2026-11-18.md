@@ -63,3 +63,10 @@ The latest production deployment is marked `READY`; that status alone does not p
 ## Safety boundary
 
 This branch contains documentation, tests, and a reviewed timestamped SQL migration. The migration has NOT been applied to the linked Supabase project. No production grants, schema, data, secrets, or AI controls were changed, and no production deployment was triggered. Vercel Preview builds may run automatically from the review branch.
+
+
+## Follow-up: AI request validation and performance evidence
+
+- Extracted the AI Chat `Idempotency-Key` format/length check into `lib/ai/idempotency.ts`; the route now calls the shared validator and `tests/ai-idempotency.test.ts` covers null/undefined, min/max lengths, whitespace, disallowed characters, and accepted punctuation. The test is included in `npm run test:unit`.
+- A fresh read-only FK/index comparison confirmed the advisor's 17 unindexed-FK findings. Examples include `ai_cost_ledger.owner_id`, `ai_reconciliation_events.actor_id`, `ai_requests.conversation_id`, `ai_requests.project_id`, `messages.owner_id`, `reward_ledger.created_by`, and `task_reviews.reviewer_id`. No index migration is proposed yet: the advisor simultaneously reports 19 unused indexes, so adding/removing indexes without workload, query-plan, and retention analysis would be speculative.
+- The CI run associated with the prior head has completed unit tests, TypeScript type check, and lint successfully; production build and local Supabase migration replay / pgTAP are still running. The subsequent idempotency-helper commits require their own CI run before merge.
