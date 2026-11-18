@@ -38,6 +38,20 @@ test("rejects a streamed provider response after it crosses the byte limit", asy
   );
 });
 
+test("classifies a provider body stream failure as an uncertain read outcome", async () => {
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode("{"));
+      controller.error(new Error("upstream stream interrupted"));
+    },
+  });
+  const response = new Response(body);
+  await assert.rejects(
+    readProviderJson(response),
+    (error) => error instanceof ProviderResponseError && error.code === "provider_body_read_failed",
+  );
+});
+
 test("rejects malformed JSON instead of treating it as an empty response", async () => {
   const response = new Response("{not-json");
   await assert.rejects(
