@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Verify runner identity
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           Write-Host "Runner name: $env:RUNNER_NAME"
           Write-Host "Runner OS: $env:RUNNER_OS"
@@ -34,7 +34,7 @@ jobs:
           if ($env:RUNNER_ARCH -ne "X64") { throw "Expected X64 runner" }
 
       - name: Verify Node.js and npm
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           node --version
           if ($LASTEXITCODE -ne 0) { throw "Node.js is not available on PATH" }
@@ -42,7 +42,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "npm is not available on PATH" }
 
       - name: Verify checked-out repository
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           Write-Host "Workspace: $env:GITHUB_WORKSPACE"
           if (-not (Test-Path "$env:GITHUB_WORKSPACE\package.json")) {
