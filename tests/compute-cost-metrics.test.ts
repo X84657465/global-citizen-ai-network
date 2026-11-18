@@ -32,7 +32,7 @@ test("reports acceptance, failure and retry rates", () => {
 
 test("reports median and p95 latency for accepted jobs only", () => {
   const result = summarizeWorkloadCosts(sample);
-  assert.equal(result.medianAcceptedLatencyMs, 200);
+  assert.equal(result.medianAcceptedLatencyMs, 150);
   assert.equal(result.p95AcceptedLatencyMs, 200);
 });
 
@@ -48,7 +48,7 @@ test("tracks unpriced jobs without pretending they cost zero", () => {
     { ...sample[0], costTwd: null, costEvidence: null },
   ]);
   assert.equal(result.unpricedJobs, 1);
-  assert.equal(result.invoiceCostPerAcceptedResultTwd, 0);
+  assert.equal(result.invoiceCostPerAcceptedResultTwd, null);
 });
 
 test("handles empty observations", () => {
@@ -76,4 +76,18 @@ test("rejects evidence labels without a cost amount", () => {
 
 test("rejects amounts without explicit evidence source", () => {
   assert.throws(() => summarizeWorkloadCosts([{ ...sample[0], costEvidence: null }]), /missing_cost_evidence/);
+});
+
+test("rejects unsupported runtime execution targets and outcomes", () => {
+  assert.throws(() => summarizeWorkloadCosts([{ ...sample[0], executionTarget: "unknown" as never }]), /invalid_execution_target/);
+  assert.throws(() => summarizeWorkloadCosts([{ ...sample[0], outcome: "pending" as never }]), /invalid_outcome/);
+});
+
+test("p95 uses nearest-rank percentile", () => {
+  const observations = Array.from({ length: 20 }, (_, index) => ({
+    ...sample[0],
+    latencyMs: (index + 1) * 100,
+  }));
+  const result = summarizeWorkloadCosts(observations);
+  assert.equal(result.p95AcceptedLatencyMs, 2000);
 });
