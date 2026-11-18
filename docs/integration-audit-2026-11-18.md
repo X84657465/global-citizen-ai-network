@@ -91,3 +91,12 @@ This branch contains documentation, tests, and a reviewed timestamped SQL migrat
 - Added the HTTP body parser suite to `npm run test:unit`; the tests run without credentials or external services.
 - GitHub Actions run #540 was triggered for exact head `0f8b8a6a4bc03bb5d6228b14915b6018bcdf43b0`. Results are pending; do not treat the tests as CI-verified until that run completes.
 - This work changes only the review branch. No linked production database, provider settings, or production deployment was modified.
+
+
+## Follow-up: administrator reconciliation input validation
+
+- Extracted reconciliation request validation into `lib/ai/reconciliation-input.ts`, keeping the route's authenticated active-admin check and privileged RPC boundary intact.
+- Added `tests/ai-reconciliation-input.test.ts` covering identifier/decision/evidence validation, billed-cost bounds, ISO currency format, and rejection of cost metadata for non-billed decisions.
+- Added the new suite to `npm run test:unit`.
+- CI run #542 was observed for an intermediate commit; the latest PR head has advanced since then and requires its own completed CI run before validation can be claimed.
+- No production database, secrets, provider settings, or production deployment were changed.
