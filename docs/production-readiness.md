@@ -55,3 +55,17 @@
 - PR #34 single active contribution submission: Build and Database CI PASS (47 unit tests; 125 pgTAP assertions). Migration 0023 is applied live as `20261118060607`.
 
 - PR #36 index cleanup: migration 0024 applied live as `20261118061217`; exactly one canonical active-submission partial unique index remains. Performance Advisor: 35 unused indexes, 0 duplicate-index findings.
+
+## Baseline browser security headers
+
+The application applies the following response headers globally through `next.config.ts`:
+
+- `X-Content-Type-Options: nosniff` — prevent MIME-type sniffing.
+- `X-Frame-Options: DENY` — prevent framing and common clickjacking attacks.
+- `Referrer-Policy: strict-origin-when-cross-origin` — limit cross-origin referrer detail.
+- `Permissions-Policy` disables camera, microphone, and geolocation because the current application does not require them.
+- `X-Permitted-Cross-Domain-Policies: none`.
+- `Cross-Origin-Opener-Policy: same-origin-allow-popups` to isolate the top-level browsing context while retaining compatibility with future popup-based auth flows.
+
+A strict Content Security Policy is intentionally deferred. Next.js App Router streaming and inline bootstrap scripts require a nonce-aware CSP design; adding a broad `unsafe-inline` policy would create a false sense of protection. Cross-Origin-Resource-Policy is also deferred until all intentional external asset origins are inventoried. Vercel currently supplies HSTS; verify it remains present after deployment.
+
