@@ -265,7 +265,7 @@ jobs:
         run: npm run lint
 
   prepare-task:
-    name: Validate and package one task (no AI execution)
+    name: Validate and plan one task (no code execution)
     if: github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
@@ -291,6 +291,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ai-agent-task-${{ inputs.issue_number }}
-          path: |\n            artifacts/agent-task.json\n            artifacts/agent-plan.json
+          path: |
+            artifacts/agent-task.json
+            artifacts/agent-plan.json
           if-no-files-found: error
           retention-days: 3
