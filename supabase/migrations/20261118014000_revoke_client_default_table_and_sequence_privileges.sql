@@ -6,3 +6,11 @@ alter default privileges for role postgres in schema public
 
 alter default privileges for role postgres in schema public
   revoke all on sequences from anon, authenticated;
+
+-- Supabase may also create public objects as supabase_admin. Cover that
+-- owner explicitly so its default ACLs cannot re-grant client access.
+alter default privileges for role supabase_admin in schema public
+  revoke all on tables from anon, authenticated;
+
+alter default privileges for role supabase_admin in schema public
+  revoke all on sequences from anon, authenticated;

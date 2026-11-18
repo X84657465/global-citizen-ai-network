@@ -1,10 +1,16 @@
 begin;
 
-select plan(155);
+select plan(175);
 
 -- Verify default ACLs apply to objects created by the migration owner.
 create table public.__default_privilege_probe (id integer);
 create sequence public.__default_privilege_sequence_probe;
+
+-- Verify the same policy for objects created by Supabase's secondary owner role.
+set local role supabase_admin;
+create table public.__default_privilege_admin_probe (id integer);
+create sequence public.__default_privilege_admin_sequence_probe;
+reset role;
 
 select ok(not has_table_privilege('anon', 'public.__default_privilege_probe', 'SELECT'),
   'new public tables do not grant SELECT to anon');
@@ -46,6 +52,46 @@ select ok(not has_sequence_privilege('anon', 'public.__default_privilege_sequenc
   'new public sequences do not grant UPDATE to anon');
 select ok(not has_sequence_privilege('authenticated', 'public.__default_privilege_sequence_probe', 'UPDATE'),
   'new public sequences do not grant UPDATE to authenticated');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_admin_probe', 'SELECT'),
+  'supabase_admin-created tables do not grant SELECT to anon');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_admin_probe', 'INSERT'),
+  'supabase_admin-created tables do not grant INSERT to anon');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_admin_probe', 'UPDATE'),
+  'supabase_admin-created tables do not grant UPDATE to anon');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_admin_probe', 'DELETE'),
+  'supabase_admin-created tables do not grant DELETE to anon');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_admin_probe', 'TRUNCATE'),
+  'supabase_admin-created tables do not grant TRUNCATE to anon');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_admin_probe', 'REFERENCES'),
+  'supabase_admin-created tables do not grant REFERENCES to anon');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_admin_probe', 'TRIGGER'),
+  'supabase_admin-created tables do not grant TRIGGER to anon');
+select ok(not has_sequence_privilege('anon', 'public.__default_privilege_admin_sequence_probe', 'USAGE'),
+  'supabase_admin-created sequences do not grant USAGE to anon');
+select ok(not has_sequence_privilege('anon', 'public.__default_privilege_admin_sequence_probe', 'SELECT'),
+  'supabase_admin-created sequences do not grant SELECT to anon');
+select ok(not has_sequence_privilege('anon', 'public.__default_privilege_admin_sequence_probe', 'UPDATE'),
+  'supabase_admin-created sequences do not grant UPDATE to anon');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_admin_probe', 'SELECT'),
+  'supabase_admin-created tables do not grant SELECT to authenticated');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_admin_probe', 'INSERT'),
+  'supabase_admin-created tables do not grant INSERT to authenticated');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_admin_probe', 'UPDATE'),
+  'supabase_admin-created tables do not grant UPDATE to authenticated');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_admin_probe', 'DELETE'),
+  'supabase_admin-created tables do not grant DELETE to authenticated');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_admin_probe', 'TRUNCATE'),
+  'supabase_admin-created tables do not grant TRUNCATE to authenticated');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_admin_probe', 'REFERENCES'),
+  'supabase_admin-created tables do not grant REFERENCES to authenticated');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_admin_probe', 'TRIGGER'),
+  'supabase_admin-created tables do not grant TRIGGER to authenticated');
+select ok(not has_sequence_privilege('authenticated', 'public.__default_privilege_admin_sequence_probe', 'USAGE'),
+  'supabase_admin-created sequences do not grant USAGE to authenticated');
+select ok(not has_sequence_privilege('authenticated', 'public.__default_privilege_admin_sequence_probe', 'SELECT'),
+  'supabase_admin-created sequences do not grant SELECT to authenticated');
+select ok(not has_sequence_privilege('authenticated', 'public.__default_privilege_admin_sequence_probe', 'UPDATE'),
+  'supabase_admin-created sequences do not grant UPDATE to authenticated');
 
 -- These operational tables intentionally have no client-facing RLS policies.
 -- Assert RLS remains enabled and no table-level privilege is granted to client roles.
