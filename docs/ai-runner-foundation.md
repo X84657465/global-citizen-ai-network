@@ -80,3 +80,11 @@ A separate pure validation module now defines the handoff contract for future mo
 - Maximum 20 files, 64 KiB per file and 256 KiB total.
 - Rejects traversal, absolute paths, hidden/protected roots, duplicate paths, binary/NUL content, and unexpected JSON fields.
 - This validates patch data only; it does not apply the patch or execute generated code.
+
+
+Latest patch-contract verification run: https://github.com/X84657465/global-citizen-ai-network/actions/runs/44337947322
+
+- 88 unit tests passed, 0 failed.
+- TypeScript validation passed.
+- ESLint passed.
+- Docker sandbox and read-only workspace/output mount checks passed.
