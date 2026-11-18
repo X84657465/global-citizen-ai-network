@@ -21,7 +21,9 @@ on:
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
   issues:
-    types: [opened, edited, closed]
+    # Queue wake-up only: edits and closures must not launch expensive local Ollama/Docker work.
+    # The selector reads the durable open-issue backlog; schedule and repository_dispatch handle continuation.
+    types: [opened, reopened]
   repository_dispatch:
     types: [ai-task-next]
   schedule:
