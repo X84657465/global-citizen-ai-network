@@ -51,7 +51,7 @@ docs/                Product, architecture, security, and data specifications
 Requirements: Node.js 22.13+ and npm.
 
 ```bash
-npm install
+npm ci
 cp .env.example .env.local
 npm run dev
 ```
