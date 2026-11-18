@@ -40,6 +40,8 @@ const providerlessReplaySql = readFileSync("supabase/migrations/0022_ai_provider
 const aiChatApi = readFileSync("app/api/ai/chat/route.ts", "utf8");
 const idempotencyValidation = readFileSync("lib/ai/idempotency.ts", "utf8");
 const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8");
+const singleActiveSubmissionSql = readFileSync("supabase/migrations/0023_single_active_task_submission.sql", "utf8");
+const singleActiveSubmissionTests = readFileSync("supabase/tests/task_submission_uniqueness.test.sql", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -523,3 +525,14 @@ assert.ok(idempotencyValidation.includes("value.length >= 8") &&
 assert.ok(aiGatewayTests.includes("completed idempotency replay required provider configuration") &&
   aiGatewayTests.includes("new AI request was not rejected when provider configuration was missing"),
   "Database tests must cover providerless completed replay and fail-closed new requests");
+
+assert.ok(singleActiveSubmissionSql.includes("task_submissions_one_active_per_task_contributor_idx") &&
+  singleActiveSubmissionSql.includes("'submitted', 'under_review', 'accepted', 'appealed'"),
+  "Task submissions must have a partial unique index for active member/task pairs");
+assert.ok(singleActiveSubmissionSql.includes("pg_advisory_xact_lock") &&
+  singleActiveSubmissionSql.includes("task has an unresolved appeal") &&
+  singleActiveSubmissionSql.includes("another active submission exists for this task"),
+  "Submission and appeal triggers must serialize member/task operations and block conflicting open appeals");
+assert.ok(singleActiveSubmissionTests.includes("rejected submissions are excluded") &&
+  singleActiveSubmissionTests.includes("pending appeal blocks new submission"),
+  "Database tests must cover rejection retries and unresolved appeal blocking");
