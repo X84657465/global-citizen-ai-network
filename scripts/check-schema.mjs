@@ -387,6 +387,7 @@ assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity',
 
 const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reconciliation_resolution.sql", "utf8") + "\n" + readFileSync("supabase/migrations/0018_service_role_ai_reconciliation.sql", "utf8");
 const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
+const reconciliationAuth = readFileSync("lib/ai/reconciliation-auth.ts", "utf8");
 const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
 const reconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
 const reconciliationOperationsPage = readFileSync("app/admin/ai-operations/page.tsx", "utf8");
@@ -408,7 +409,9 @@ assert.ok(reconciliationSql.includes("from public, anon, authenticated") && reco
   "Reconciliation RPC must be callable only through the server service role");
 assert.ok(reconciliationResolveApi.includes("createAdminClient()") && reconciliationResolveApi.includes("adminSupabase.rpc(\"resolve_ai_reconciliation\""),
   "Admin resolution API must call the privileged RPC through a server-only service-role client");
-assert.ok(reconciliationResolveApi.includes("profile?.role !== \"admin\"") && reconciliationResolveApi.includes("profile.account_status !== \"active\""),
+assert.ok(reconciliationResolveApi.includes("isActiveAdminProfile(profile)") &&
+  reconciliationAuth.includes('candidate.role === "admin"') &&
+  reconciliationAuth.includes('candidate.account_status === "active"'),
   "Admin resolution API must enforce active-admin authorization");
 assert.ok(reconciliationUi.includes("crypto.randomUUID()") && reconciliationUi.includes("使用相同資料重試"),
   "Admin resolution UI must preserve an idempotency key for safe retries");
