@@ -17,7 +17,7 @@ if (!allowedHosts.has(parsedUrl.hostname) || parsedUrl.hostname.endsWith(".supab
 }
 
 function startPsql(args, appName) {
-  return spawn("psql", ["-X", "-v", "ON_ERROR_STOP=1", "-At", "-d", databaseUrl, ...args], {
+  return spawn("psql", ["-X", "-q", "-v", "ON_ERROR_STOP=1", "-At", "-d", databaseUrl, ...args], {
     env: { ...process.env, ...(appName ? { PGAPPNAME: appName } : {}) },
     stdio: ["pipe", "pipe", "pipe"],
   });
