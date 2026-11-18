@@ -365,6 +365,56 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm run lint
 
+      - name: Persist failed task attempt and continue the queue
+        if: >-
+          failure() &&
+          ((github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+           steps.select-task.outputs.issue_number != '')
+        uses: actions/github-script@v7
+        env:
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+        with:
+          script: |
+            const issueNumber = Number(process.env.ISSUE_NUMBER);
+            if (!Number.isInteger(issueNumber) || issueNumber < 1) {
+              core.warning('No selected issue number; failure cannot be attached to a task.');
+              return;
+            }
+            const { owner, repo } = context.repo;
+            const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number: issueNumber });
+            const currentLabels = issue.labels.map((label) => label.name);
+            const retryLabel = 'ai-task-retry-1';
+            const skippedLabel = 'ai-task-skipped';
+            const ensureLabel = async (name, color, description) => {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({ owner, repo, name, color, description });
+              }
+            };
+            await ensureLabel(retryLabel, 'D97706', 'One bounded retry remains for this AI task.');
+            await ensureLabel(skippedLabel, 'B91C1C', 'Two attempts failed; task is skipped until manually reviewed.');
+            const isSecondFailure = currentLabels.includes(retryLabel);
+            if (isSecondFailure) {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels: [skippedLabel] });
+              await github.rest.issues.removeLabel({ owner, repo, issue_number: issueNumber, name: retryLabel }).catch(() => {});
+            } else {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels: [retryLabel] });
+            }
+            const status = isSecondFailure
+              ? '已連續失敗兩次，已標記 ai-task-skipped，停止自動重試，等待人工檢查。'
+              : '首次執行失敗，已持久化標記 ai-task-retry-1；先處理其他有效任務，之後再自動重試一次。';
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: issueNumber,
+              body: '自動任務佇列紀錄：' + status + '\\n\\n本次錯誤不會自動合併或部署。'
+            });
+            await github.rest.repos.createDispatchEvent({
+              owner, repo, event_type: 'ai-task-next',
+              client_payload: { source_issue: issueNumber, outcome: isSecondFailure ? 'skipped' : 'retry_pending' }
+            });
+            core.info('Persisted task failure state and dispatched the next queue cycle.');
+      
       - name: Clean disposable scratch workspace
         if: always()
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
