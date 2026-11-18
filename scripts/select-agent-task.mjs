@@ -44,7 +44,9 @@ for (const pull of pulls) {
 const ready = issues.filter((issue) =>
   !issue.pull_request &&
   issue.state === "open" &&
-  issue.user?.login?.toLowerCase() === owner &&
+  (issue.user?.login?.toLowerCase() === owner ||
+   (issue.user?.login?.toLowerCase() === "github-actions[bot]" &&
+    typeof issue.body === "string" && issue.body.includes("<!-- ai-task-generated-by-planner -->"))) &&
   typeof issue.title === "string" && issue.title.startsWith("[AI Task]") &&
   !alreadyPublished.has(issue.number)
 ).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
