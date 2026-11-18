@@ -46,11 +46,11 @@ function section(name) {
 }
 
 function bulletLines(value, label, maxItems) {
-  const lines = value
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => line.replace(/^[-*]\s+/, ""));
+  const rawLines = value.split("\n").map((line) => line.trim()).filter(Boolean);
+  if (rawLines.some((line) => !/^[-*]\s+/.test(line))) {
+    fail(`${label} must use bullet-list items only.`);
+  }
+  const lines = rawLines.map((line) => line.replace(/^[-*]\s+/, ""));
   if (lines.length === 0 || lines.length > maxItems) {
     fail(`${label} must contain between 1 and ${maxItems} bullet items.`);
   }
