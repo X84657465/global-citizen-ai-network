@@ -8,8 +8,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-
-
 function noStore(body: Record<string, unknown>, status: number) {
   return NextResponse.json(body, {
     status,
