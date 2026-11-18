@@ -1,6 +1,6 @@
 begin;
 
-select plan(13);
+select plan(15);
 
 select ok(
   not exists (
@@ -14,6 +14,9 @@ select ok(
         or has_table_privilege('anon', c.oid, 'INSERT')
         or has_table_privilege('anon', c.oid, 'UPDATE')
         or has_table_privilege('anon', c.oid, 'DELETE')
+        or has_table_privilege('anon', c.oid, 'TRUNCATE')
+        or has_table_privilege('anon', c.oid, 'REFERENCES')
+        or has_table_privilege('anon', c.oid, 'TRIGGER')
       )
   ),
   'anonymous API role has no direct access to public-schema relations'
@@ -37,6 +40,9 @@ select ok(
        or has_table_privilege('authenticated', format('public.%I', table_name), 'INSERT')
        or has_table_privilege('authenticated', format('public.%I', table_name), 'UPDATE')
        or has_table_privilege('authenticated', format('public.%I', table_name), 'DELETE')
+       or has_table_privilege('authenticated', format('public.%I', table_name), 'TRUNCATE')
+       or has_table_privilege('authenticated', format('public.%I', table_name), 'REFERENCES')
+       or has_table_privilege('authenticated', format('public.%I', table_name), 'TRIGGER')
   ),
   'internal controls, reconciliation, audit, and idempotency tables are service-only'
 );
@@ -158,6 +164,49 @@ select ok(
       and acl.privilege_type = 'EXECUTE'
   ),
   'future public functions created by the application migration role are not executable by API roles by default'
+);
+
+select ok(
+  not exists (
+    select 1
+    from unnest(array[
+      'ai_budget_reservations',
+      'ai_reconciliation_events',
+      'ai_request_idempotency',
+      'ai_request_rate_limits',
+      'audit_logs',
+      'platform_ai_controls',
+      'provider_invoice_imports',
+      'task_review_idempotency',
+      'task_appeal_review_idempotency'
+    ]) as t(table_name)
+    where not coalesce((
+      select c.relrowsecurity
+      from pg_class c
+      join pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public' and c.relname = table_name
+    ), false)
+  ),
+  'all internal service-only tables retain row-level security'
+);
+
+select ok(
+  not exists (
+    select 1
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relkind = 'S'
+      and (
+        has_sequence_privilege('anon', c.oid, 'USAGE')
+        or has_sequence_privilege('anon', c.oid, 'SELECT')
+        or has_sequence_privilege('anon', c.oid, 'UPDATE')
+        or has_sequence_privilege('authenticated', c.oid, 'USAGE')
+        or has_sequence_privilege('authenticated', c.oid, 'SELECT')
+        or has_sequence_privilege('authenticated', c.oid, 'UPDATE')
+      )
+  ),
+  'public sequences are not directly accessible to anon or authenticated roles'
 );
 
 select * from finish();
