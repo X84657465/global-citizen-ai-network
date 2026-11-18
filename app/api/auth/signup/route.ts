@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { readJsonBody } from "@/lib/http/read-json-body";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,17 +15,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const contentLength = Number(request.headers.get("content-length") ?? "0");
-  if (contentLength > 4096) {
-    return NextResponse.json({ error: "註冊資料超過允許大小。" }, { status: 413 });
+  const parsed = await readJsonBody(request, 4096);
+  if (!parsed.ok) {
+    return NextResponse.json(
+      { error: parsed.status === 413 ? "註冊資料超過允許大小。" : "請提供有效的註冊資料。" },
+      { status: parsed.status, headers: { "Cache-Control": "no-store" } }
+    );
   }
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "請提供有效的註冊資料。" }, { status: 400 });
-  }
+  const body = parsed.value;
 
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return NextResponse.json({ error: "請提供有效的註冊資料。" }, { status: 400 });
