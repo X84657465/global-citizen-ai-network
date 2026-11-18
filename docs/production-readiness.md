@@ -3,8 +3,10 @@
 ## Verified deployment (last checked 2026-11-18)
 
 - Production domain: https://global-citizen-ai-network.vercel.app
-- Vercel production deployment: READY
-- GitHub main CI for commit `c02b95867a2ed96085c7014ff02c9819438caad8`: success
+- Vercel production deployment: READY on older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`.
+- Latest merged main commit: `6f2e8cdaad317104b58366a31f6a912f896fa1df`; newer commits have not reached Production because Vercel reports `build-rate-limit`.
+- PR #20 Build and Database CI: PASS; 101 database assertions.
+- PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
 - `GET /`: HTTP 200
 - `GET /api/health`: HTTP 200
 - The health endpoint reports environment-variable presence only. It does not prove that the database or AI provider can authenticate.
@@ -15,19 +17,19 @@
 - Region: `ap-northeast-1` (Tokyo)
 - Project status: `ACTIVE_HEALTHY`
 - Database engine: PostgreSQL 17
-- Migrations applied: 18 (latest: `20261118005041`)
+- Migrations applied: 19 (latest: `20261118045417`, `least_privilege_public_grants`)
 - Public tables: 22
 - Public tables with RLS enabled: 22
-- A read-only SQL query against the live database succeeded.
-- A live catalog audit confirmed all 22 public base tables have RLS enabled.
-- The current Supabase health advisor returned no findings. Security/performance advisors still report informational items; see `docs/database-safety.md`.
+- All 22 public base tables have RLS enabled.
+- After migration 0019: zero direct public-table grants to `anon`; zero public-schema function EXECUTE grants to `PUBLIC`, `anon`, or `authenticated`; service-role access retained for all 22 public relations and 19 public functions.
+- The health advisor returns no findings. Security advisor's 9 remaining RLS-without-policy findings are internal service-only tables. Performance advisor's 17 missing FK indexes and 2 duplicate SELECT policy findings are addressed by PR #22; the combined CI run passed, but migration 0020 is not yet applied live.
 
 ## Preview verification
 
 - Documentation-only Preview for PR #19 built successfully on 2026-11-18.
 - The Preview build compiled Next.js, completed TypeScript validation, generated static pages, and deployed successfully.
-- Two non-blocking ESLint unused-import warnings remain in `app/admin/contributions/page.tsx` and `app/page.tsx`.
-- This Preview does not modify the Production deployment or prove authenticated end-to-end workflows.
+- The two unused-import warnings found in the earlier Preview were removed in PR #21; subsequent GitHub Build CI passed.
+- This Preview does not modify the Production deployment or prove authenticated end-to-end workflows. The most recent PR #22 preview attempt is subject to the team's Vercel build-rate limit.
 
 ## Remaining operator configuration
 
