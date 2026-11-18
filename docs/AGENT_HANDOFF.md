@@ -2,10 +2,11 @@
 
 > Single source of truth for the next development session. Update this file at the end of every development round, after opening/updating a PR, and after any scheduling or runner change. Record verified GitHub state only; never infer a green CI, online Runner, successful task, or merge.
 
-**Last verified:** 2026-11-19 (UTC)  
+**Last verified:** 2026-11-19 19:53 UTC  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Current main commit:** `bbb4d9d6504015ed10edf784993e77aaedc6cd0f`
+**Current main commit:** `bbb4d9d6504015ed10edf784993e77aaedc6cd0f`  
+**Factory PR head:** `fac5b8845a0977bb04735ba3a37f0ef3c6fbd3df`
 
 ## 目前系統狀態
 
@@ -27,9 +28,9 @@
 
 ## 當前阻塞與待辦
 
-1. **PR #99 CI is not green.** Latest observed run #44384143058 was pending, with both jobs queued. A prior completed unit-test log reported three failing assertions; fix the tests/implementation mismatch and rerun once, avoiding rapid push bursts that cancel prior runs.
-2. Confirm the self-hosted Windows Runner is actually online and receives the `self-hosted, Windows, X64` job. Do not describe it as healthy until a job is assigned and completes.
-3. Review PR #99 end-to-end before merge: verify the five-minute schedule, persisted cooldown state, per-Issue retry/skip behavior, planner deduplication and finite task templates, and ensure only one task worker runs at a time.
+1. **PR #99 CI is currently running and not yet green.** Latest run #44384945090 is executing on `DESKTOP-S2S4BM9`; Supabase startup/migration application is in progress and the build job is queued. The previous 101-test run had three assertion-only failures; fixes are committed in PR #99 at `c7db5ed`, `82afb74`, `a9d9924`, and `fac5b88`. Wait for the current run before any further push to avoid cancellation.
+2. Confirm the current database job completes PostgreSQL/RLS tests and the queued build job is subsequently assigned. Runner assignment is verified, but the full CI pass is not yet verified.
+3. Review PR #99 end-to-end before merge: verify durable remote/local cooldown consistency, per-Issue skip after three attempts, planner deduplication, and queue handoff after failures. Confirm that workflow concurrency prevents simultaneous task workers; the five-minute cron is a polling trigger, not a guarantee of a fresh Runner every five minutes.
 4. **Next queued task: Issue #17** — `[AI Task] Remediate high-severity development dependency audit findings`. The current selector priority places #17 first, followed by #3 and #71. Recheck open Issues and linked PRs before dispatch; do not rely on this cached order if repository state changes.
 5. There are 25 open `[AI Task]` Issues in the latest inspected search. Validate each task body and ensure closed/unmerged PRs do not permanently suppress their source Issues.
 6. CI build and database jobs currently use GitHub-hosted `ubuntu-latest`; the Windows self-hosted Runner is used by the preflight workflow. Treat these as separate execution paths.
