@@ -137,7 +137,8 @@ jobs:
           setTimeout(() => finish(true, "PASS: outbound network is blocked"), 2000);
           '@
 
-          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 256m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=32m,uid=1000,gid=1000 node:22-alpine node -e $sandboxCode
+          $encodedSandboxCode = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($sandboxCode))
+          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 256m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=32m,uid=1000,gid=1000 $imageDigest node -e "eval(Buffer.from('$encodedSandboxCode','base64').toString())"
           if ($LASTEXITCODE -ne 0) { throw "Disposable container isolation test failed" }
 
       - name: Install locked dependencies without lifecycle scripts
