@@ -24,6 +24,7 @@ The scheduler turns the validated task workflow into a bounded queue worker. It 
 - Candidate patches remain constrained by the task allowlist and validated plan/patch schemas.
 - Candidate tests run in the disposable restricted container.
 - Successful output is a Draft PR only. No automatic merge, production deployment, production database access, or secret changes are enabled.
+- Repository setting prerequisite: under **Settings → Actions → General → Workflow permissions**, enable **Allow GitHub Actions to create and approve pull requests**. Without this repository-level permission, the publisher receives HTTP 403 even when the workflow job has `pull-requests: write`; the task can pass isolated tests but cannot publish its Draft PR or dispatch the next queue cycle.
 
 ## Activation requirements
 
