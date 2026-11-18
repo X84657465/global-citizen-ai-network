@@ -69,6 +69,7 @@ const card: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", b
 export default function WorkspaceClient() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
+  const [projectsUnavailable, setProjectsUnavailable] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [updatingConversationId, setUpdatingConversationId] = useState("");
   const [conversationId, setConversationId] = useState("");
@@ -94,7 +95,7 @@ export default function WorkspaceClient() {
         const data = await conversationResponse.json() as { conversations?: Conversation[] } & ApiError;
         const projectData = projectResponse.ok
           ? await projectResponse.json() as { projects?: ProjectOption[] }
-          : { projects: [] as ProjectOption[] };
+          : null;
         const pendingData = await pendingResponse.json() as {
           pending?: { conversationId: string; idempotencyKey: string; content: string; status: string } | null;
           unresolved?: boolean;
@@ -103,7 +104,8 @@ export default function WorkspaceClient() {
         if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
         if (!cancelled) {
           setConversations(data.conversations ?? []);
-          setProjects((projectData.projects ?? []).filter(project => !project.archived_at));
+          setProjects((projectData?.projects ?? []).filter(project => !project.archived_at));
+          setProjectsUnavailable(!projectResponse.ok);
           const recovered = pendingData.pending;
           if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
@@ -313,6 +315,23 @@ export default function WorkspaceClient() {
           </section>
 
           <aside style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ ...card, padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                <strong style={{ fontSize: 13 }}>我的專案</strong>
+                <Link href="/projects" style={{ color: "#315d91", fontSize: 11, textDecoration: "none", fontWeight: 700 }}>管理專案 →</Link>
+              </div>
+              {projectsUnavailable ? <p role="status" style={{ color: "#8793a5", fontSize: 12, lineHeight: 1.7, margin: "12px 0 0" }}>目前無法載入專案清單，請前往專案管理頁重新查看。</p> : projects.length === 0 ? <div role="status" style={{ marginTop: 12, padding: 12, border: "1px dashed #dce3ec", borderRadius: 9, background: "#fafbfd" }}>
+                <strong style={{ display: "block", color: "#34445c", fontSize: 12 }}>還沒有建立專案</strong>
+                <p style={{ color: "#8793a5", fontSize: 11, lineHeight: 1.7, margin: "6px 0 10px" }}>建立專案後，可以將相關對話整理在一起，之後更容易接續研究與工作。</p>
+                <Link href="/projects" style={{ display: "inline-flex", color: "#315d91", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>建立第一個專案 →</Link>
+              </div> : <nav aria-label="我的專案" style={{ display: "grid", gap: 7, marginTop: 12 }}>
+                {projects.map(project => <Link key={project.id} href="/projects" aria-label={`管理專案：${project.title}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "9px 10px", border: "1px solid #edf1f5", borderRadius: 8, color: "#34445c", textDecoration: "none", fontSize: 11 }}>
+                  <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{project.title}</span>
+                  <span style={{ flex: "none", color: "#7186b8", fontSize: 10 }}>開啟管理 →</span>
+                </Link>)}
+              </nav>}
+            </div>
+
             <div style={{ ...card, padding: 16 }}>
               <strong style={{ fontSize: 13 }}>對話紀錄</strong>
               <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
