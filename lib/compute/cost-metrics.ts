@@ -38,6 +38,15 @@ function percentileNearestRank(values: number[], percentile: number): number | n
   return sorted[Math.max(0, Math.ceil(percentile * sorted.length) - 1)];
 }
 
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[middle - 1] + sorted[middle]) / 2
+    : sorted[middle];
+}
+
 /**
  * Computes a baseline from one observation per logical workload/job.
  * Invoice-backed and internally estimated costs remain separate and are never
@@ -56,6 +65,8 @@ export function summarizeWorkloadCosts(observations: WorkloadObservation[]): Cos
 
   for (const observation of observations) {
     if (!observation.workloadClass.trim()) throw new Error("invalid_workload_class");
+    if (!["local_device", "trusted_cloud", "community_node"].includes(observation.executionTarget)) throw new Error("invalid_execution_target");
+    if (observation.outcome !== "accepted" && observation.outcome !== "failed") throw new Error("invalid_outcome");
     assertFiniteNonNegative(observation.latencyMs, "latency");
     if (!Number.isInteger(observation.attempts) || observation.attempts < 1) {
       throw new Error("invalid_attempts");
@@ -91,12 +102,12 @@ export function summarizeWorkloadCosts(observations: WorkloadObservation[]): Cos
     totalAttempts,
     retryAttempts,
     retryRate: safeDivide(retryAttempts, totalAttempts),
-    medianAcceptedLatencyMs: percentileNearestRank(acceptedLatencies, 0.5),
+    medianAcceptedLatencyMs: median(acceptedLatencies),
     p95AcceptedLatencyMs: percentileNearestRank(acceptedLatencies, 0.95),
     invoiceCostTwd,
     estimatedCostTwd,
     unpricedJobs,
-    invoiceCostPerAcceptedResultTwd: acceptedJobs === 0 ? null : invoiceCostTwd / acceptedJobs,
-    estimatedCostPerAcceptedResultTwd: acceptedJobs === 0 ? null : estimatedCostTwd / acceptedJobs,
+    invoiceCostPerAcceptedResultTwd: acceptedJobs === 0 || unpricedJobs > 0 ? null : invoiceCostTwd / acceptedJobs,
+    estimatedCostPerAcceptedResultTwd: acceptedJobs === 0 || unpricedJobs > 0 ? null : estimatedCostTwd / acceptedJobs,
   };
 }
