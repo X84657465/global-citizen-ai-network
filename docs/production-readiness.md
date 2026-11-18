@@ -4,7 +4,7 @@
 
 - Production domain: https://global-citizen-ai-network.vercel.app
 - Vercel Production deployment: READY, deployment `dpl_FfqBcDe16YUBxCtkjaDb94GRaqV2`, commit `0495355900b16f14f4443f508d569b825e3fbbb3`.
-- Latest main commit and application-code commit: `5065b9987df661451d35ed028544f1a47699c4d3`. Production remains READY on `0495355900b16f14f4443f508d569b825e3fbbb3`, which contains application commit `7a2e4d990fdfa5290484ffcae647dcc802a64f61` and migration 0024. Main has since added global response security headers and a reconciliation-form correction path; these code changes are not yet deployed. Vercel has rejected new deployments with the Hobby `api-deployments-free-per-day` quota.
+- Latest main commit verified on 2026-11-18: `9999b7b73cf7440a93563ad85db1d48e7a124ac8` (PR #53 migration-history alignment). Production remains READY on `0495355900b16f14f4443f508d569b825e3fbbb3`; it does not contain the latest main changes. The latest Vercel deployment listing did not show a deployment for `9999b7b`. Earlier deployment attempts were rejected by the Hobby `api-deployments-free-per-day` quota; check quota availability before retrying.
 - PR #20 Build and Database CI: PASS; 101 database assertions.
 - PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
 - `GET /`: HTTP 200
@@ -18,7 +18,7 @@
 - Region: `ap-northeast-1` (Tokyo)
 - Project status: `ACTIVE_HEALTHY`
 - Database engine: PostgreSQL 17
-- Migrations applied: 24 (latest: `20261118061217`, `dedupe_active_submission_index`).
+- Migrations applied: 24 (latest applied version: `20261118061217`, `dedupe_active_submission_index`). PR #53 aligned all 24 repository migration filenames with the exact 14-digit versions already recorded by Production; SQL contents were unchanged and no Production migration was executed.
 - Public tables: 22
 - Public tables with RLS enabled: 22
 - All 22 public base tables have RLS enabled.
@@ -43,6 +43,7 @@
 ## AI and cost controls
 
 - AI provider remains `mock`.
+- PR #51 hardened provider response parsing and cleanup; it is merged into `main` but is not yet confirmed deployed to Production.
 - No paid AI provider credentials are configured.
 - Do not enable production AI until provider credentials, per-request limits, monthly budget caps, uncertain-outcome reconciliation, and billing verification have been tested.
 - Keep public registration disabled until privacy, terms, support, retention, deletion, email verification, CAPTCHA, and abuse controls are ready.
@@ -69,3 +70,10 @@ Main now applies the following response headers globally through `next.config.ts
 
 A strict Content Security Policy is intentionally deferred. Next.js App Router streaming and inline bootstrap scripts require a nonce-aware CSP design; adding a broad `unsafe-inline` policy would create a false sense of protection. Cross-Origin-Resource-Policy is also deferred until all intentional external asset origins are inventoried. Vercel currently supplies HSTS on the live deployment; verify it remains present after the next deployment.
 
+
+
+## Current CI observation (2026-11-18)
+
+- PR #53 Build and Database CI passed on commit `61dd6e6b07da71c99eb03f4cdd63a9a8e1f5b0d5` before merge.
+- After PR #53 merged, GitHub Actions jobs for the subsequent `main` push terminated before any steps were created. The workflow-job API reported `runner_id: 0`, an empty runner name, and no steps; job logs were unavailable. This is consistent with runner allocation/infrastructure failure, but the exact cause has not been confirmed.
+- PR #54 proposes reducing duplicate branch-push and pull-request CI runs. It remains Draft pending successful runner allocation and CI validation. Do not interpret these runner-start failures as application test results.
