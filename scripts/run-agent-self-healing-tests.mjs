@@ -37,39 +37,92 @@ function readJson(path, label) {
 function safeOutput(result) {
   const stdout = typeof result.stdout === "string" ? result.stdout : "";
   const stderr = typeof result.stderr === "string" ? result.stderr : "";
-  return (stdout + "\n" + stderr).trim().slice(-24000);
+  const error = result.error instanceof Error ? result.error.message : "";
+  return [stdout, stderr, error].filter(Boolean).join("\\n").trim().slice(-24000);
+}
+
+function classifyFailure(output, stage, status) {
+  const text = String(output ?? "");
+  const ts1005 = /\\bTS1005\\b|error TS1005\\s*:/i.test(text);
+  const syntaxTruncation = ts1005 && /(?:'\\}' expected|'}' expected|expected\\s*[,;)}\\]]|unterminated|unexpected end|end of file)/i.test(text);
+  const typescriptSyntax = /\\bTS1\\d{3}\\b|\\bSyntaxError\\b/i.test(text);
+  const category = syntaxTruncation
+    ? "typescript_ts1005_possible_truncation"
+    : ts1005
+      ? "typescript_ts1005"
+      : typescriptSyntax
+        ? "typescript_or_javascript_syntax"
+        : stage === "unit"
+          ? "unit_test_failure"
+          : stage === "typecheck"
+            ? "typescript_typecheck_failure"
+            : stage === "lint"
+              ? "lint_failure"
+              : "container_or_command_failure";
+  const locations = [...text.matchAll(/([^\\s()]+\\.(?:tsx?|jsx?)\\(\\d+,\\d+\\):?)/g)]
+    .slice(0, 10)
+    .map((match) => match[1]);
+  return {
+    category,
+    stage,
+    exit_code: status ?? null,
+    ts1005_detected: ts1005,
+    possible_truncated_syntax: syntaxTruncation,
+    source_locations: [...new Set(locations)],
+    summary: text.slice(-6000),
+  };
 }
 
 function runChecks(scratch) {
   const mount = "type=bind,source=" + scratch + ",target=/workspace";
-  const command = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint";
-  const args = [
-    "run", "--rm", "--pull", "never",
-    "--network", "none",
-    "--read-only",
-    "--cap-drop", "ALL",
-    "--security-opt", "no-new-privileges",
-    "--pids-limit", "128",
-    "--memory", "3g",
-    "--cpus", "2",
-    "--user", "1000:1000",
-    "--tmpfs", "/tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000",
-    "--mount", mount,
-    "--workdir", "/workspace",
-    "--env", "HOME=/tmp/test-home",
-    IMAGE,
-    "sh", "-lc", command,
+  const stages = [
+    { name: "unit", command: "npm run test:unit" },
+    { name: "typecheck", command: "npx --no-install tsc --noEmit" },
+    { name: "lint", command: "npm run lint" },
   ];
-  const result = spawnSync("docker", args, {
-    encoding: "utf8",
-    maxBuffer: 8 * 1024 * 1024,
-    timeout: 20 * 60 * 1000,
-    windowsHide: true,
-  });
-  if (result.error) {
-    return { ok: false, output: safeOutput(result) + "\n" + result.error.message, status: result.status };
+  const outputs = [];
+  for (const stage of stages) {
+    const args = [
+      "run", "--rm", "--pull", "never",
+      "--network", "none",
+      "--read-only",
+      "--cap-drop", "ALL",
+      "--security-opt", "no-new-privileges",
+      "--pids-limit", "128",
+      "--memory", "3g",
+      "--cpus", "2",
+      "--user", "1000:1000",
+      "--tmpfs", "/tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000",
+      "--mount", mount,
+      "--workdir", "/workspace",
+      "--env", "HOME=/tmp/test-home",
+      IMAGE,
+      "sh", "-lc", stage.command,
+    ];
+    const result = spawnSync("docker", args, {
+      encoding: "utf8",
+      maxBuffer: 8 * 1024 * 1024,
+      timeout: 20 * 60 * 1000,
+      windowsHide: true,
+    });
+    const output = safeOutput(result);
+    outputs.push("=== " + stage.name + " ===\\n" + output);
+    if (result.error || result.status !== 0) {
+      const combined = outputs.join("\\n");
+      return {
+        ok: false,
+        output: combined.slice(-24000),
+        status: result.status,
+        diagnostic: classifyFailure(combined, stage.name, result.status),
+      };
+    }
   }
-  return { ok: result.status === 0, output: safeOutput(result), status: result.status };
+  return {
+    ok: true,
+    output: outputs.join("\\n").slice(-24000),
+    status: 0,
+    diagnostic: null,
+  };
 }
 
 async function getLocalModel() {
@@ -90,7 +143,7 @@ async function getLocalModel() {
   return { baseUrl, model: models[0].name };
 }
 
-async function askForRepair(task, currentPatch, scratch, failureOutput, modelInfo, repairNumber) {
+async function askForRepair(task, currentPatch, scratch, failureOutput, diagnostic, modelInfo, repairNumber) {
   const root = realpathSync(scratch);
   let totalBytes = 0;
   const sourceFiles = currentPatch.files.map((file) => {
@@ -162,6 +215,7 @@ async function askForRepair(task, currentPatch, scratch, failureOutput, modelInf
       allowed_paths: task.allowed_paths,
     },
     failure_output: failureOutput,
+    failure_diagnostic: diagnostic,
     current_patch: sourceFiles,
     required_result: "Return a complete corrected patch for exactly the current_patch paths.",
   };
@@ -251,6 +305,7 @@ for (let repair = 0; repair <= MAX_REPAIRS; repair += 1) {
     passed: check.ok,
     exit_code: check.status,
     output_tail: check.output.slice(-12000),
+    diagnostic: check.diagnostic,
   });
   if (check.ok) {
     writeFileSync("artifacts/agent-patch.json", JSON.stringify(currentPatch, null, 2) + "\n", "utf8");
@@ -280,10 +335,10 @@ for (let repair = 0; repair <= MAX_REPAIRS; repair += 1) {
     });
   }
 
-  console.error("Candidate validation failed; starting bounded model repair " + (repair + 1) + "/" + MAX_REPAIRS + ".");
+  console.error("Candidate validation failed (" + (check.diagnostic?.category ?? "unknown") + "); starting bounded model repair " + (repair + 1) + "/" + MAX_REPAIRS + ".");
   try {
     modelInfo ??= await getLocalModel();
-    const repaired = await askForRepair(task, currentPatch, scratch, check.output, modelInfo, repair + 1);
+    const repaired = await askForRepair(task, currentPatch, scratch, check.output, check.diagnostic, modelInfo, repair + 1);
     const root = realpathSync(scratch);
     for (const file of repaired.files) {
       const absolute = resolve(root, file.path);
