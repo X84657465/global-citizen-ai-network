@@ -4,7 +4,7 @@
 
 - Production domain: https://global-citizen-ai-network.vercel.app
 - Vercel Production deployment: READY, deployment `dpl_FfqBcDe16YUBxCtkjaDb94GRaqV2`, commit `0495355900b16f14f4443f508d569b825e3fbbb3`.
-- Latest main commit: `c0c4668364d4b6d6b75dde406c67527c1e5f510d`; latest application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61`. Production contains the latest application code and migration 0024. The remaining main-vs-Production delta is documentation and repository test/schema-guard housekeeping. Preview deployment attempts are still rate-limited by the Vercel Hobby 100 deployments/day cap.
+- Latest main commit and application-code commit: `5065b9987df661451d35ed028544f1a47699c4d3`. Production remains READY on `0495355900b16f14f4443f508d569b825e3fbbb3`, which contains application commit `7a2e4d990fdfa5290484ffcae647dcc802a64f61` and migration 0024. Main has since added global response security headers and a reconciliation-form correction path; these code changes are not yet deployed. Vercel has rejected new deployments with the Hobby `api-deployments-free-per-day` quota.
 - PR #20 Build and Database CI: PASS; 101 database assertions.
 - PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
 - `GET /`: HTTP 200
@@ -58,7 +58,7 @@
 
 ## Baseline browser security headers
 
-The application applies the following response headers globally through `next.config.ts`:
+Main now applies the following response headers globally through `next.config.ts`. These headers are merged in PR #42, but are **not yet active in Production** because the current READY deployment predates that change. Verify them on the live domain after a new Production deployment:
 
 - `X-Content-Type-Options: nosniff` — prevent MIME-type sniffing.
 - `X-Frame-Options: DENY` — prevent framing and common clickjacking attacks.
@@ -67,5 +67,5 @@ The application applies the following response headers globally through `next.co
 - `X-Permitted-Cross-Domain-Policies: none`.
 - `Cross-Origin-Opener-Policy: same-origin-allow-popups` to isolate the top-level browsing context while retaining compatibility with future popup-based auth flows.
 
-A strict Content Security Policy is intentionally deferred. Next.js App Router streaming and inline bootstrap scripts require a nonce-aware CSP design; adding a broad `unsafe-inline` policy would create a false sense of protection. Cross-Origin-Resource-Policy is also deferred until all intentional external asset origins are inventoried. Vercel currently supplies HSTS; verify it remains present after deployment.
+A strict Content Security Policy is intentionally deferred. Next.js App Router streaming and inline bootstrap scripts require a nonce-aware CSP design; adding a broad `unsafe-inline` policy would create a false sense of protection. Cross-Origin-Resource-Policy is also deferred until all intentional external asset origins are inventoried. Vercel currently supplies HSTS on the live deployment; verify it remains present after the next deployment.
 
