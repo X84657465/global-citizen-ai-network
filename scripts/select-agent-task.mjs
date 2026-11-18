@@ -8,7 +8,10 @@ const fail = (message) => {
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
 const output = process.env.GITHUB_OUTPUT ?? "";
-if (!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repository)) fail("GITHUB_REPOSITORY is missing or invalid.");
+const repositoryParts = repository.split("/");
+if (repositoryParts.length !== 2 || !repositoryParts.every((part) => /^[A-Za-z0-9_.-]+$/.test(part))) {
+  fail("GITHUB_REPOSITORY is missing or invalid.");
+}
 if (!token) fail("GITHUB_TOKEN is unavailable.");
 if (!output) fail("GITHUB_OUTPUT is unavailable.");
 
@@ -25,7 +28,7 @@ let issues;
 try { issues = await response.json(); } catch { fail("GitHub issue queue response was not valid JSON."); }
 if (!Array.isArray(issues)) fail("GitHub issue queue response has an unexpected shape.");
 
-const owner = repository.split("/")[0].toLowerCase();
+const owner = repositoryParts[0].toLowerCase();
 const ready = issues.filter((issue) =>
   !issue.pull_request &&
   issue.state === "open" &&
@@ -36,9 +39,9 @@ const ready = issues.filter((issue) =>
 
 const selected = ready[0];
 if (!selected) {
-  appendFileSync(output, "issue_number=\\n", "utf8");
+  appendFileSync(output, "issue_number=\n", "utf8");
   console.log("Queue empty: no open owner-authored [AI Task] issue has the ai-task-ready label.");
 } else {
-  appendFileSync(output, "issue_number=" + selected.number + "\\n", "utf8");
+  appendFileSync(output, "issue_number=" + selected.number + "\n", "utf8");
   console.log("Selected one queued task: issue #" + selected.number + ". Remaining queued tasks will be handled by later scheduled cycles.");
 }
