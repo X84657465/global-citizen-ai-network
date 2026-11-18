@@ -22,3 +22,8 @@ test("rejects missing, malformed, and array profile values", () => {
     assert.equal(isActiveAdminProfile(profile), false);
   }
 });
+
+test("does not accept inherited authorization fields", () => {
+  const inheritedProfile = Object.create({ role: "admin", account_status: "active" });
+  assert.equal(isActiveAdminProfile(inheritedProfile), false);
+});
