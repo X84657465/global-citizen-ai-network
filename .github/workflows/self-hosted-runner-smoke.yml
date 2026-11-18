@@ -1,0 +1,52 @@
+name: Self-hosted Runner Smoke Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/self-hosted-runner-smoke.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: self-hosted-runner-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    name: Windows runner connectivity and toolchain
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify runner identity
+        shell: powershell
+        run: |
+          Write-Host "Runner name: $env:RUNNER_NAME"
+          Write-Host "Runner OS: $env:RUNNER_OS"
+          Write-Host "Runner architecture: $env:RUNNER_ARCH"
+          if ($env:RUNNER_OS -ne "Windows") { throw "Expected Windows runner" }
+          if ($env:RUNNER_ARCH -ne "X64") { throw "Expected X64 runner" }
+
+      - name: Verify Node.js and npm
+        shell: powershell
+        run: |
+          node --version
+          if ($LASTEXITCODE -ne 0) { throw "Node.js is not available on PATH" }
+          npm --version
+          if ($LASTEXITCODE -ne 0) { throw "npm is not available on PATH" }
+
+      - name: Verify checked-out repository
+        shell: powershell
+        run: |
+          Write-Host "Workspace: $env:GITHUB_WORKSPACE"
+          if (-not (Test-Path "$env:GITHUB_WORKSPACE\package.json")) {
+            throw "Repository package.json was not found in the workspace"
+          }
+          git status --short
+          Write-Host "Read-only smoke test completed."
