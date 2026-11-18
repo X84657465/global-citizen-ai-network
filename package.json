@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:unit": "node --experimental-strip-types --test tests/ai-provider-response.test.ts tests/ai-pending-retry.test.ts tests/ai-pending-recovery.test.ts tests/ai-config.test.ts tests/ai-history.test.ts tests/contribution-task-validation.test.ts tests/ai-idempotency.test.ts tests/http-read-json-body.test.ts tests/security-headers.test.ts tests/ai-reconciliation-form-error.test.ts tests/ai-reconciliation-input.test.ts tests/ai-reconciliation-auth.test.ts tests/ai-cost.test.ts",
+    "test:unit": "node --experimental-strip-types --test tests/ai-provider-response.test.ts tests/ai-pending-retry.test.ts tests/ai-pending-recovery.test.ts tests/ai-config.test.ts tests/ai-history.test.ts tests/contribution-task-validation.test.ts tests/ai-idempotency.test.ts tests/http-read-json-body.test.ts tests/security-headers.test.ts tests/ai-reconciliation-form-error.test.ts tests/ai-reconciliation-input.test.ts tests/ai-reconciliation-auth.test.ts tests/ai-cost.test.ts tests/compute-cost-router.test.ts tests/compute-cost-metrics.test.ts",
     "test:compute-cost-router": "node --experimental-strip-types --test tests/compute-cost-router.test.ts tests/compute-cost-metrics.test.ts"
   },
   "dependencies": {
