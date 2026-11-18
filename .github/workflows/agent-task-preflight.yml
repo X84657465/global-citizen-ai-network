@@ -11,6 +11,9 @@ on:
       - "lib/agent-plan-validation.mjs"
       - "scripts/prepare-agent-task.mjs"
       - "scripts/select-agent-task.mjs"
+      - "scripts/agent-factory-controller.mjs"
+      - "lib/agent-factory-policy.mjs"
+      - "tests/agent-factory-policy.test.mjs"
       - "scripts/generate-agent-plan.mjs"
       - "scripts/generate-agent-patch.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
@@ -25,7 +28,7 @@ on:
   repository_dispatch:
     types: [ai-task-next]
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       issue_number:
@@ -406,8 +409,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select one queued task for every queue trigger
-        id: select-task
+      - name: Check durable circuit-breaker cooldown
+        id: factory-gate
         if: >-
           github.event_name == 'schedule' ||
           github.event_name == 'repository_dispatch' ||
@@ -415,8 +418,50 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_OUTPUT: ${{ github.output }}
+          AGENT_FACTORY_MODE: check
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-controller.mjs
+      - name: Select one queued task for every queue trigger
+        id: select-task
+        if: >-
+          github.event_name == 'schedule' ||
+          github.event_name == 'repository_dispatch' ||
+          github.event_name == 'issues') &&
+          steps.factory-gate.outputs.cooldown_active != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/select-agent-task.mjs
+
+      - name: Generate one bounded roadmap task when the queue is truly empty
+        id: create-roadmap-task
+        if: >-
+          (github.event_name == 'schedule' ||
+           github.event_name == 'repository_dispatch' ||
+           github.event_name == 'issues') &&
+          steps.factory-gate.outputs.cooldown_active != 'true' &&
+          steps.select-task.outputs.issue_number == ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_OUTPUT: ${{ github.output }}
+          AGENT_FACTORY_MODE: plan
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-controller.mjs
+
+      - name: Dispatch the newly planned roadmap task
+        if: steps.create-roadmap-task.outputs.created_issue_number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'ai-task-next',
+              client_payload: { source_issue: Number('${{ steps.create-roadmap-task.outputs.created_issue_number }}'), outcome: 'planner_created' }
+            });
 
       - name: Validate task and create a safe handoff bundle
         if: >-
@@ -534,6 +579,25 @@ jobs:
           CANDIDATE_TESTS_PASSED: "true"
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/publish-agent-patch.mjs
+
+      - name: Reset circuit breaker after successful task publication
+        if: success() && steps.select-task.outputs.issue_number != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: success
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-controller.mjs
+
+      - name: Record failed task and activate cooldown after three consecutive failures
+        if: failure() && steps.select-task.outputs.issue_number != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: failure
+          FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-controller.mjs
 
       - name: Dispatch the next queued task after draft PR publication
         if: success()
