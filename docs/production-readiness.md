@@ -20,6 +20,7 @@
 - Public tables with RLS enabled: 22
 - Read-only live catalog verification on 2026-11-18: all 22 public tables have RLS enabled; all 9 internal service-only tables have zero direct table privileges for `anon` and `authenticated` across SELECT/INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER.
 - The 9 RLS-enabled internal tables intentionally have no browser-facing policies; access is restricted to trusted server-side operations. The security advisor reports these as informational findings, not as a reason to add permissive policies.
+- A second read-only ACL query confirmed the `postgres` defaults in `public` grant table/sequence/function privileges only to `postgres` and `service_role`; public functions with browser-role EXECUTE and public sequences with browser-role privileges both count zero.
 - Do not alter Supabase-managed `supabase_admin` default privileges through project migrations. CI proved the migration role cannot change them; keep application schema migrations under `postgres`.
 - A read-only SQL query against the live database succeeded.
 
