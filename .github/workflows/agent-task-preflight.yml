@@ -10,6 +10,7 @@ on:
       - "lib/agent-plan-validation.mjs"
       - "scripts/prepare-agent-task.mjs"
       - "scripts/generate-agent-plan.mjs"
+      - "scripts/generate-agent-patch.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
       - "tests/agent-plan-validation.test.mjs"
@@ -182,14 +183,14 @@ jobs:
               schema_version = 1
               mode = "preflight_only"
               ai_execution_enabled = $false
-              goal = "Produce a safe, read-only implementation plan for a small documentation-only smoke test."
+              goal = "Prepare a minimal new documentation page describing the safe local AI task pipeline and its approval boundaries."
               allowed_paths = @("docs/agent-pipeline-smoke-test.md")
               acceptance_criteria = @(
                 "The plan is valid JSON and passes the agent plan validator.",
                 "Every proposed file path stays within the one approved documentation path."
               )
               explicit_exclusions = @(
-                "Do not modify repository files.",
+                "Do not apply the proposed patch to repository files.",
                 "Do not execute commands or deploy."
               )
             }
@@ -201,6 +202,17 @@ jobs:
             )
             node scripts/generate-agent-plan.mjs
             if ($LASTEXITCODE -ne 0) { throw "Local Ollama plan generation smoke test failed." }
+
+            node scripts/generate-agent-patch.mjs
+            if ($LASTEXITCODE -ne 0) { throw "Local Ollama patch proposal smoke test failed." }
+            if (-not (Test-Path "artifacts/agent-patch.json")) {
+              throw "The synthetic task did not produce a validated patch proposal."
+            }
+
+            $patch = Get-Content "artifacts/agent-patch.json" -Raw | ConvertFrom-Json
+            if ($patch.files.Count -lt 1 -or $patch.files.Count -gt 20) {
+              throw "Patch proposal file count is outside the allowed range."
+            }
 
             $plan = Get-Content "artifacts/agent-plan.json" -Raw | ConvertFrom-Json
             if ($plan.ai_execution_enabled -ne $false) { throw "Plan must keep AI code execution disabled." }
@@ -336,6 +348,10 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-plan.mjs
 
+      - name: Generate and validate a bounded patch proposal
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/generate-agent-patch.mjs
+
       - name: Upload validated task and plan
         uses: actions/upload-artifact@v4
         with:
@@ -343,5 +359,6 @@ jobs:
           path: |
             artifacts/agent-task.json
             artifacts/agent-plan.json
-          if-no-files-found: error
+            artifacts/agent-patch.json
+          if-no-files-found: warn
           retention-days: 3
