@@ -33,3 +33,4 @@ The repository uses sequential numeric filename prefixes (`0001`–`0020`). The 
 - Continue using reviewed, forward-only migrations. Record the remote timestamp returned by Supabase and update this map in the same change.
 - CI applies the repository's numeric migration files to a disposable local Supabase instance; this verifies SQL behavior but does not reconcile remote version identifiers.
 - Never replay `0001_initial_schema.sql` against the existing populated project.
+| `0021_atomic_contribution_task_admin.sql` | `20261118050801` | `atomic_contribution_task_admin` |

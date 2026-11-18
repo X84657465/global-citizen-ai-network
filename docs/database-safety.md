@@ -2,7 +2,7 @@
 
 ## Verified live database status — 2026-11-18
 
-The existing Supabase project `rtkpdafkpncoluhdihlv` is `ACTIVE_HEALTHY` (PostgreSQL 17, `ap-northeast-1`). Supabase reports 20 applied migrations, latest version `20261118045832` (`foreign_key_indexes_and_policy_split`). A read-only catalog check found 22 public base tables and confirmed RLS is enabled on all 22.
+The existing Supabase project `rtkpdafkpncoluhdihlv` is `ACTIVE_HEALTHY` (PostgreSQL 17, `ap-northeast-1`). Supabase reports 21 applied migrations, latest version `20261118050801` (`atomic_contribution_task_admin`). A read-only catalog check found 22 public base tables and confirmed RLS is enabled on all 22.
 
 This supersedes the earlier bootstrap note that migrations had not yet been executed. It does **not** mean the full application has passed integration testing: two-user ownership tests, privileged-role tests, concurrent budget tests, ledger immutability tests, provider reconciliation, and restore drills remain to be demonstrated. Never replay the initial schema against this populated project.
 
@@ -35,7 +35,7 @@ The status-check helpers live in a non-exposed schema and are callable by authen
 
 Run these checks in a disposable environment and then verify the relevant controls against the existing project without altering real member data:
 
-1. Reconcile migration identifiers before using Supabase CLI against production: repository files use sequential prefixes (`0001`–`0020`), while the live migration history uses timestamp versions. Migration names align, but version identifiers do not; do not run `supabase db push` or `migration repair` against live until this mismatch has a reviewed reconciliation plan. The exact 20-file-to-remote-version mapping is recorded in `docs/migration-history-map.md`. Apply only reviewed forward migrations and record the returned remote timestamp.
+1. Reconcile migration identifiers before using Supabase CLI against production: repository files use sequential prefixes (`0001`–`0021`), while the live migration history uses timestamp versions. Migration names align, but version identifiers do not; do not run `supabase db push` or `migration repair` against live until this mismatch has a reviewed reconciliation plan. The exact 21-file-to-remote-version mapping is recorded in `docs/migration-history-map.md`. Apply only reviewed forward migrations and record the returned remote timestamp.
 2. Create two test users. Verify each can read and modify only their own profile/workspace.
 3. Verify a user cannot assign themselves admin/reviewer, change account_status, insert assistant/system messages, or read another user's requests or ledgers.
 4. Verify a user cannot attach a conversation to another user's project.
@@ -84,3 +84,8 @@ The managed `supabase_admin` default ACL is platform-owned and cannot be altered
 ## Database performance follow-up — 2026-11-18
 
 A read-only Supabase advisor/catalog review identified 17 foreign keys without a covering index and duplicate permissive SELECT evaluation on `projects` and `conversations`. PR #22 contains migration `0020_foreign_key_indexes_and_policy_split.sql` with one index for each reported FK and separate INSERT/UPDATE/DELETE policies. Its combined migration 0019+0020 CI run passed 104 database assertions. Migration 0020 was applied to live Supabase as version `20261118045832`. Post-apply catalog checks confirmed all 17 named indexes exist, `projects` and `conversations` each have exactly one authenticated SELECT policy and three command-specific write policies, and the performance advisor no longer reports unindexed foreign keys or multiple permissive policies. It now reports 36 unused indexes, including the 17 new FK indexes; the affected tables currently have zero or negligible rows, so these indexes have not yet been exercised. Do not drop them without workload evidence.
+
+
+## Atomic contribution-task administration — migration 0021
+
+Migration `0021_atomic_contribution_task_admin.sql` was merged in PR #24 and applied to live Supabase as version `20261118050801`. It adds `public.manage_contribution_task`, a SECURITY DEFINER RPC with an empty search path. The function rechecks that the actor is an active admin, locks the profile and task rows, and commits task create/publish/pause/close changes together with their audit event. Post-apply checks confirm `service_role` can execute it while `anon` and `authenticated` cannot. Effective public-schema function grants now show 20 service-role-executable functions and zero browser-role-executable functions.

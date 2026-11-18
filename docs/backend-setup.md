@@ -8,19 +8,19 @@ The project now has an existing Supabase project and is no longer in the pre-pro
 - Project ref: `rtkpdafkpncoluhdihlv`
 - Region: `ap-northeast-1`
 - Database: PostgreSQL 17; Supabase status: `ACTIVE_HEALTHY`
-- Applied migrations: 20; latest version: `20261118045832` (`foreign_key_indexes_and_policy_split`)
+- Applied migrations: 21; latest version: `20261118050801` (`atomic_contribution_task_admin`)
 - Public schema: 22 base tables; all 22 have RLS enabled.
 - Vercel production domain is verified and has a READY deployment, but the latest Production deployment still runs older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`. Newer `main` commits have not reached Production because Vercel reports the team's `build-rate-limit`.
 - Latest merged main commit after PR #20: `6f2e8cdaad317104b58366a31f6a912f896fa1df`.
 
-These checks establish that the database exists and migrations are recorded as applied. They do **not** prove end-to-end authentication, RLS behavior with real member accounts, provider connectivity, SMTP delivery, or production readiness. Migration 0019 has now been applied to live Supabase. Post-apply catalog checks confirmed 0 direct public-table grants to `anon`, 0 public-schema function EXECUTE grants to `PUBLIC`/`anon`/`authenticated`, and retained service-role access to all 22 public relations and 19 public functions. The 9 RLS-enabled tables without policies are internal service-only tables; their lack of member policies is intentional because browser roles have no direct SQL grants. The security advisor reports only those 9 informational findings; the health advisor returns no findings. Migration 0020 added all 17 missing FK indexes and removed both duplicate permissive SELECT-policy findings. The performance advisor now reports 36 unused indexes, including the 17 new indexes on currently empty/low-traffic tables; do not remove them without workload evidence.
+These checks establish that the database exists and migrations are recorded as applied. They do **not** prove end-to-end authentication, RLS behavior with real member accounts, provider connectivity, SMTP delivery, or production readiness. Migration 0019 has now been applied to live Supabase. Post-apply catalog checks confirmed 0 direct public-table grants to `anon`, 0 public-schema function EXECUTE grants to `PUBLIC`/`anon`/`authenticated`, and retained service-role access to all 22 public relations and 20 public functions. The 9 RLS-enabled tables without policies are internal service-only tables; their lack of member policies is intentional because browser roles have no direct SQL grants. The security advisor reports only those 9 informational findings; the health advisor returns no findings. Migration 0020 added all 17 missing FK indexes and removed both duplicate permissive SELECT-policy findings. The performance advisor now reports 36 unused indexes, including the 17 new indexes on currently empty/low-traffic tables; do not remove them without workload evidence.
 
 ## 1. Existing Supabase project
 
 Do not create a second project or replay the initial schema blindly. Before any schema change:
 
 1. Confirm the target project ref is `rtkpdafkpncoluhdihlv`.
-2. Note the identifier drift: repository migration files use numeric prefixes (`0001`–`0020`), while remote migration history uses timestamp versions. Names align, identifiers do not. The 20-entry mapping is in `docs/migration-history-map.md`. Do not run `supabase db push` or `migration repair` against production until a formal reconciliation is reviewed.
+2. Note the identifier drift: repository migration files use numeric prefixes (`0001`–`0021`), while remote migration history uses timestamp versions. Names align, identifiers do not. The 21-entry mapping is in `docs/migration-history-map.md`. Do not run `supabase db push` or `migration repair` against production until a formal reconciliation is reviewed.
 3. Review the SQL diff and backup/restore posture.
 4. Apply only a reviewed, forward-only migration to this existing database and record the remote timestamp returned by Supabase.
 5. Re-run Supabase security, performance, and health advisors.
@@ -67,3 +67,6 @@ The UI flag is not a security boundary. Keep Supabase dashboard sign-ups disable
 - Complete privacy notice, terms, retention, export, deletion, support contact, and incident response.
 - Run restore drills and an independent security review.
 - Keep AI calls in mock mode until per-user quotas, monthly caps, supplier billing alerts, and a kill switch are tested.
+
+
+Migration 0021 adds the atomic contribution-task administration RPC. It is SECURITY DEFINER with an empty search path, verifies the actor is an active admin, serializes status transitions with row locks, and writes each audit event in the same transaction as the task change. Live catalog verification confirms only `service_role` can execute this RPC; effective public-schema function access remains 0 for `anon` and `authenticated`.
