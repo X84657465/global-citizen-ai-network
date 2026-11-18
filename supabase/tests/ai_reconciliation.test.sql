@@ -1,6 +1,6 @@
 begin;
 
-select plan(14);
+select plan(15);
 
 select ok(
   to_regprocedure('public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)') is not null,
@@ -26,21 +26,41 @@ select ok(
 );
 
 select ok(
-  not has_function_privilege('authenticated', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
-  'authenticated callers cannot invoke the privileged reconciliation RPC directly'
-);
-
-select ok(
-  has_function_privilege('service_role', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE')
+  has_function_privilege('authenticated', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE')
   and not has_function_privilege('anon', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
-  'only the server service role can invoke reconciliation'
+  'authenticated callers can invoke the JWT-bound reconciliation RPC while anon cannot'
 );
 
 select ok(
-  position('where id = p_actor_id' in lower(pg_get_functiondef(
+  not has_function_privilege('service_role', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE')
+  and not has_function_privilege('anon', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
+  'only authenticated JWT callers can invoke reconciliation; service_role and anon cannot'
+);
+
+select ok(
+  position('auth.uid() is null or auth.uid() is distinct from p_actor_id' in lower(pg_get_functiondef(
+    'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)'::regprocedure
+  ))) > 0
+  and position('where id = auth.uid()' in lower(pg_get_functiondef(
     'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)'::regprocedure
   ))) > 0,
-  'RPC verifies the actor against the authoritative profile row instead of trusting the supplied ID'
+  'RPC binds the supplied actor to auth.uid() and loads the admin profile from the JWT identity'
+);
+
+
+-- A signed-in non-admin cannot spoof an administrator's actor UUID.
+select set_config('request.jwt.claim.sub', '50000000-0000-4000-8000-000000000001', true);
+select is(
+  (select reason from public.resolve_ai_reconciliation(
+    '50000000-0000-4000-8000-000000000002'::uuid,
+    '52000000-0000-4000-8000-000000000001'::uuid,
+    '53000000-0000-4000-8000-000000000001'::uuid,
+    'inconclusive', 'openai-compatible', 'evidence-ref-0001',
+    'A sufficiently detailed rationale for identity spoofing regression.',
+    null, null, null
+  )),
+  'actor_identity_mismatch',
+  'authenticated caller cannot impersonate a different admin actor ID'
 );
 
 select ok(
