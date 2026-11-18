@@ -9,6 +9,7 @@ import {
 } from "@/lib/ai/provider-response";
 import { shouldPreservePendingRequestKey } from "@/lib/ai/pending-retry";
 import { hashPendingPrompt } from "@/lib/ai/pending-recovery";
+import { isValidIdempotencyKey } from "@/lib/ai/idempotency";
 import { buildAiProviderMessages } from "@/lib/ai/history";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient();
   const idempotencyKey = request.headers.get("Idempotency-Key")?.trim() ?? "";
-  if (idempotencyKey.length < 8 || idempotencyKey.length > 128 || !/^[A-Za-z0-9._:-]+$/.test(idempotencyKey)) {
+  if (!isValidIdempotencyKey(idempotencyKey)) {
     return NextResponse.json({ error: "請提供有效的 Idempotency-Key（8–128 個英數字或 . _ : -）。" }, { status: 400 });
   }
 
