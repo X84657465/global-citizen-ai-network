@@ -1,12 +1,12 @@
 name: CI
 
 concurrency:
-  group: global-citizen-ai-network-${{ github.head_ref || github.ref }}
+  group: global-citizen-ai-network-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 on:
   push:
-    branches: [main, "codex/**"]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -30,7 +30,6 @@ jobs:
         run: |
           node --version
           npm --version
-          docker version
       - name: Migration filename safety guard
         run: node scripts/check-migration-versions.mjs
       - name: Install dependencies
@@ -70,8 +69,13 @@ jobs:
         run: |
           docker info
           if ($LASTEXITCODE -ne 0) { throw "Docker Desktop is not available to the self-hosted runner." }
-      - name: Initialize local Supabase config
-        run: supabase init
+      - name: Initialize local Supabase config when absent
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "supabase/config.toml")) {
+            supabase init
+            if ($LASTEXITCODE -ne 0) { throw "Supabase CLI initialization failed." }
+          }
       - name: Start local Supabase services and apply migrations
         run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
       - name: Run PostgreSQL and RLS tests
