@@ -1,6 +1,6 @@
 # Production readiness and integration handoff
 
-## Verified deployment
+## Verified deployment (last checked 2026-11-18)
 
 - Production domain: https://global-citizen-ai-network.vercel.app
 - Vercel production deployment: READY
@@ -15,10 +15,19 @@
 - Region: `ap-northeast-1` (Tokyo)
 - Project status: `ACTIVE_HEALTHY`
 - Database engine: PostgreSQL 17
-- Migrations applied: 17
+- Migrations applied: 18 (latest: `20261118005041`)
 - Public tables: 22
 - Public tables with RLS enabled: 22
 - A read-only SQL query against the live database succeeded.
+- A live catalog audit confirmed all 22 public base tables have RLS enabled.
+- The current Supabase health advisor returned no findings. Security/performance advisors still report informational items; see `docs/database-safety.md`.
+
+## Preview verification
+
+- Documentation-only Preview for PR #19 built successfully on 2026-11-18.
+- The Preview build compiled Next.js, completed TypeScript validation, generated static pages, and deployed successfully.
+- Two non-blocking ESLint unused-import warnings remain in `app/admin/contributions/page.tsx` and `app/page.tsx`.
+- This Preview does not modify the Production deployment or prove authenticated end-to-end workflows.
 
 ## Remaining operator configuration
 
