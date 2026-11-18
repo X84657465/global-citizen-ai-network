@@ -193,12 +193,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 1
 
-      - name: Clean synthetic AI artifacts
-        if: always()
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: |
-          if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
-
       - name: Verify disposable container isolation
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
@@ -337,6 +331,12 @@ jobs:
               Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
             }
           }
+
+      - name: Clean synthetic AI artifacts
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
 
   prepare-task:
     name: Validate task and generate read-only AI plan
