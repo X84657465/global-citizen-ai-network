@@ -148,7 +148,7 @@ if (mode === "check") {
 }
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
-  const retryAfter = /Retry-After=(\\d+)/i.exec(message);
+  const retryAfter = /Retry-After=(\d+)/i.exec(message);
   const retrySeconds = retryAfter ? Number(retryAfter[1]) : 15 * 60;
   const reset = {
     consecutive_failures: Math.max(3, Number(localState.consecutive_failures) || 0),
