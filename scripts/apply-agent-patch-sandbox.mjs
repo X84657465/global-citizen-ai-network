@@ -144,8 +144,6 @@ async function main() {
   mkdirSync("/tmp/home", { recursive: true });
   mkdirSync("/tmp/npm-cache", { recursive: true });
   runCheck("unit tests", "npm", ["run", "test:unit"]);
-  runCheck("TypeScript", process.execPath, ["node_modules/typescript/bin/tsc", "--noEmit"]);
-  runCheck("ESLint", "npm", ["run", "lint"]);
 
   for (const [path, before] of sourceHashes) {
     const source = resolve(inputRoot, path);

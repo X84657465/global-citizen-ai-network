@@ -20,8 +20,10 @@ test("sandbox applies patch only to a scratch copy and preserves source hashes",
 
 test("sandbox executes only fixed test commands inside its isolated container", () => {
   assert.ok(script.includes('runCheck("unit tests", "npm", ["run", "test:unit"])'));
-  assert.ok(script.includes('runCheck("TypeScript", process.execPath'));
-  assert.ok(script.includes('runCheck("ESLint", "npm", ["run", "lint"])'));
+  assert.ok(!script.includes('runCheck("TypeScript"'));
+  assert.ok(!script.includes('runCheck("ESLint"'));
+  assert.ok(runner.includes("npx --no-install tsc --noEmit"));
+  assert.ok(runner.includes("npm run lint"));
   assert.ok(!script.includes("eval("));
   assert.ok(!script.includes("new Function"));
   assert.ok(!script.includes("execSync"));

@@ -60,6 +60,6 @@ The patch is written as an artifact only. This stage does not apply the patch, r
 
 A validated patch can be applied only to a disposable Docker scratch copy. The container receives the repository as a read-only mount, dependencies as a read-only mount, and a separate writable output mount. It has no network, a read-only root filesystem, dropped Linux capabilities, no-new-privileges, a 3 GiB memory ceiling, and two CPU cores.
 
-The sandbox revalidates the task, plan, patch allowlist, and existing-file state before applying patch content to the scratch copy. It then runs the unit suite, TypeScript, and ESLint using fixed commands. It records hashes of source files before and after validation to confirm the original checkout did not change. The scratch copy is discarded after the result artifact is written.
+The sandbox revalidates the task, plan, patch allowlist, and existing-file state before applying patch content to the scratch copy. It then runs the unit suite inside the network-isolated container using a fixed command. TypeScript and ESLint run against a second disposable Windows scratch copy because the self-hosted runner's locked dependencies include Windows-specific packages; this avoids cross-platform native/type-resolution differences. It records hashes of source files before and after validation to confirm the original checkout did not change. The scratch copy is discarded after the result artifact is written.
 
 This remains a validation stage only. It does not commit, push, create a pull request, merge, or deploy.
