@@ -67,6 +67,8 @@ async function inferFailedIssueNumber() {
   if (Number.isInteger(explicit) && explicit > 0) return explicit;
   try {
     const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+    const dispatchedIssue = Number(event.inputs?.issue_number ?? event.issue?.number ?? 0);
+    if (Number.isInteger(dispatchedIssue) && dispatchedIssue > 0) return dispatchedIssue;
     let body = event.pull_request?.body ?? "";
     if (!body && typeof event.ref === "string") {
       const branch = event.ref.startsWith("refs/heads/") ? event.ref.slice("refs/heads/".length) : event.ref;
