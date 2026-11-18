@@ -111,7 +111,7 @@ const requestBody = {
   format: planSchema,
   think: false,
   stream: false,
-  keep_alive: "0s",
+  keep_alive: "60s",
   options: { temperature: 0, num_predict: 4096 }
 };
 
