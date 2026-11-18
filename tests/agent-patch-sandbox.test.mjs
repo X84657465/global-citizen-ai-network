@@ -24,6 +24,7 @@ test("sandbox executes only fixed test commands inside its isolated container", 
   assert.ok(!script.includes('runCheck("ESLint"'));
   assert.ok(runner.includes("npx --no-install tsc --noEmit"));
   assert.ok(runner.includes("npm run lint"));
+  assert.ok(runner.includes("rmdir"));
   assert.ok(!script.includes("eval("));
   assert.ok(!script.includes("new Function"));
   assert.ok(!script.includes("execSync"));

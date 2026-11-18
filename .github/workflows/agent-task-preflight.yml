@@ -359,9 +359,9 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm ci --ignore-scripts --no-audit --no-fund
 
-      - name: Apply validated patch and run checks in disposable Docker
+      - name: Apply patch in Docker scratch and validate patched copy
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: .\\scripts\\run-agent-sandbox.ps1
+        run: .\scripts\run-agent-sandbox.ps1
 
       - name: Upload task, plan, patch, and sandbox bundles
         uses: actions/upload-artifact@v4

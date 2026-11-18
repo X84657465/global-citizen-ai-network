@@ -157,7 +157,7 @@ async function main() {
   result.scratch_only = true;
   result.plan_task_count = validatedPlan.tasks.length;
   writeFileSync(resultPath, JSON.stringify(result, null, 2) + "\n", "utf8");
-  console.log("PASS: patch applied only to scratch copy; unit tests, TypeScript, and ESLint passed in network-isolated Docker.");
+  console.log("PASS: validated patch was applied only to the disposable scratch copy; unit tests passed in network-isolated Docker.");
 }
 
 main().catch((error) => {

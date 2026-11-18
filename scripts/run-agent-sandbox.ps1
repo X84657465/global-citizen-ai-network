@@ -120,5 +120,7 @@ try {
   throw
 } finally {
   if (Test-Path $projectDir) { Remove-Item $projectDir -Recurse -Force }
+  $hostNodeModules = Join-Path $hostProjectDir "node_modules"
+  if (Test-Path $hostNodeModules) { & cmd.exe /c ('rmdir "' + $hostNodeModules + '"') | Out-Null }
   if (Test-Path $hostProjectDir) { Remove-Item $hostProjectDir -Recurse -Force }
 }
