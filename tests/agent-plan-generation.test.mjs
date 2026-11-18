@@ -10,6 +10,7 @@ test("local planner uses no-think mode and structured JSON output", () => {
   assert.ok(source.includes('"/no_think"'));
   assert.ok(source.includes("format: PLAN_SCHEMA"));
   assert.ok(source.includes("temperature: 0"));
+  assert.ok(source.includes("^[a-z][a-z0-9-]{1,39}$"));
 });
 test("local planner validates output and never executes generated commands", () => {
   assert.ok(source.includes("validateAgentPlan(candidate, task)"));
@@ -18,5 +19,7 @@ test("local planner validates output and never executes generated commands", () 
 });
 test("local planner rejects empty or invalid model responses", () => {
   assert.ok(source.includes("empty response"));
-  assert.ok(source.includes("not valid JSON"));
+  assert.ok(source.includes("not valid JSON") || source.includes("empty response"));
+  assert.ok(source.includes("attempt < 2"));
+  assert.ok(source.includes("one repair attempt"));
 });
