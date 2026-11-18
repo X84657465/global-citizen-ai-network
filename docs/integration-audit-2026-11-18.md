@@ -32,9 +32,9 @@ The inspected RPC definitions validate finite monetary values, bind requests to 
 
 ## Additional security-advisor finding
 
-A Supabase security-advisor pass returned nine `rls_enabled_no_policy` informational findings. The follow-up grant inspection confirms that several internal tables have RLS enabled with zero policies, which blocks row access through normal client roles, but it also shows unnecessary table-level grants to `anon` and/or `authenticated` on `audit_logs`, `platform_ai_controls`, and `provider_invoice_imports`. The AI budget/idempotency/rate-limit internals are limited to `postgres` and `service_role` in the inspected grant output. The no-policy state is not itself a data leak, but the extra client-role grants are avoidable attack surface and should be revoked in a reviewed migration. No production grants were changed during this audit.
+A Supabase security-advisor pass returned nine `rls_enabled_no_policy` informational findings. A full public-schema inventory confirms all nine affected tables have RLS enabled and zero policies. The no-policy state blocks row access through ordinary client roles, but it does not replace least-privilege table grants. Exact role-grant inspection found unnecessary privileges for both `anon` and `authenticated` only on `audit_logs`, `platform_ai_controls`, and `provider_invoice_imports`; the other six no-policy internal tables had no such client-role grants in the inspected result. The extra grants are avoidable attack surface and are addressed by a reviewed migration. No production grants were changed during this audit.
 
-The security advisor output should not be treated as a pass until those grants are removed or the intended access model is explicitly documented and tested. The follow-up grant query confirmed all seven table privileges were granted to both `anon` and `authenticated` on each of the three tables; `postgres` and `service_role` grants were also present and are deliberately preserved.
+The security advisor output should not be treated as a pass until the reviewed migration is applied and the post-migration assertion passes. The follow-up grant query confirmed all seven table privileges were granted to both `anon` and `authenticated` on each of the three affected tables; `postgres` and `service_role` grants are deliberately preserved. A performance-advisor pass also reported 17 unindexed foreign keys and 2 multiple-permissive-policy warnings; index changes are deferred until query patterns and workload justify them, rather than adding speculative indexes.
 
 ## Application observations
 
@@ -47,12 +47,12 @@ The latest production deployment is marked `READY`; that status alone does not p
 - Created `work/integration-audit` from `main`.
 - Updated `docs/database-safety.md` so its migration status no longer incorrectly claims that the linked database has never had migrations applied.
 - Added this evidence-based audit record.
-- Added migration `0019_revoke_client_access_to_internal_tables.sql` and a read-only post-migration assertion at `tests/database/internal-table-grants.sql`. These are committed to the review branch only; they have not been applied to the linked Supabase project.
+- Added timestamped migration `20261118005042_revoke_client_access_to_internal_tables.sql` and a read-only post-migration assertion at `tests/database/internal-table-grants.sql`, covering all nine internal tables. These are committed to the review branch only; they have not been applied to the linked Supabase project.
 
 ## Blocking verification before enabling AI or public launch
 
 1. Run the repository's lint, unit, and production build checks from a clean checkout.
-2. Run the database migration replay on a disposable Supabase project, not the linked environment.
+2. Run the database migration replay on a disposable Supabase project, not the linked environment; confirm the timestamped migration ordering.
 3. Add automated integration tests for RLS isolation, cross-member conversation access, role escalation, idempotency replay/conflict, cross-conversation unresolved-request locking, and concurrent budget reservations.
 4. Test known provider rejection, timeout/unknown outcome, partial usage, malformed provider payload, completion RPC failure, and reconciliation decisions.
 5. Verify the admin reconciliation API requires an authenticated active admin and that the service-role secret never reaches client bundles or logs.
@@ -62,4 +62,4 @@ The latest production deployment is marked `READY`; that status alone does not p
 
 ## Safety boundary
 
-This branch contains documentation, tests, and a reviewed SQL migration. The migration has NOT been applied to the linked Supabase project. No production grants, schema, data, secrets, or AI controls were changed, and no production deployment was triggered. Vercel Preview builds may run automatically from the review branch.
+This branch contains documentation, tests, and a reviewed timestamped SQL migration. The migration has NOT been applied to the linked Supabase project. No production grants, schema, data, secrets, or AI controls were changed, and no production deployment was triggered. Vercel Preview builds may run automatically from the review branch.
