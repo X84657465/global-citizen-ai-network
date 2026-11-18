@@ -3,13 +3,14 @@
 ## Verified deployment (last checked 2026-11-18)
 
 - Production domain: https://global-citizen-ai-network.vercel.app
-- Vercel production deployment: READY on older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`.
-- Latest main commit: `386b4505254c18fb262e643e0b4dc59211692d3b` (deduplicate the active-submission index). Latest application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61` (one active contribution submission per member/task). The latest code and migrations have passed CI but have not reached Production. The Vercel Hobby team has hit its 100 deployments/day API limit (`api-deployments-free-per-day`).
+- Vercel Production deployment: READY, deployment `dpl_FfqBcDe16YUBxCtkjaDb94GRaqV2`, commit `0495355900b16f14f4443f508d569b825e3fbbb3`.
+- Latest main commit: `c0c4668364d4b6d6b75dde406c67527c1e5f510d`; latest application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61`. Production contains the latest application code and migration 0024. The remaining main-vs-Production delta is documentation and repository test/schema-guard housekeeping. Preview deployment attempts are still rate-limited by the Vercel Hobby 100 deployments/day cap.
 - PR #20 Build and Database CI: PASS; 101 database assertions.
 - PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
 - `GET /`: HTTP 200
-- `GET /api/health`: HTTP 200
-- The health endpoint reports environment-variable presence only. It does not prove that the database or AI provider can authenticate.
+- `GET /api/health`: HTTP 200; `GET /login`: HTTP 200.
+- Latest 24-hour Vercel Runtime Errors query returned no error clusters. Recent production logs contain no error/fatal records.
+- The health endpoint reports environment-variable presence only. It does not prove that the database or AI provider can authenticate. AI provider remains `mock`.
 
 ## Verified Supabase state
 
