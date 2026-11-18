@@ -3,7 +3,7 @@
 ## Verified deployment (last checked 2026-11-18)
 
 - Production domain: https://global-citizen-ai-network.vercel.app
-- Vercel production deployment: READY on older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`.
+- Vercel Production deployment: READY on commit `0495355900b16f14f4443f508d569b825e3fbbb3`, containing the latest application-code change and migration 0024.
 - Latest main commit: `386b4505254c18fb262e643e0b4dc59211692d3b` (deduplicate the active-submission index). Latest application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61` (one active contribution submission per member/task). The latest code and migrations have passed CI but have not reached Production. The Vercel Hobby team has hit its 100 deployments/day API limit (`api-deployments-free-per-day`).
 - PR #20 Build and Database CI: PASS; 101 database assertions.
 - PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
