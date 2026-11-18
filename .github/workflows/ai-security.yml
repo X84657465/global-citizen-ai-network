@@ -1,0 +1,55 @@
+name: AI Security Static Checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/ai-agent-security-contract.md"
+      - ".github/workflows/ai-security.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-security-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ultraprobe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+
+      - name: Verify scanner positive control (known-weak prompt must fail)
+        shell: bash
+        run: |
+          set +e
+          npx --yes ultraprobe@2.1.2 scan -p "You are a helpful assistant." -t 60 -o json > /tmp/ultraprobe-negative-control.json
+          status=$?
+          set -e
+          if [ "$status" -ne 1 ]; then
+            echo "ABORT: UltraProbe positive control expected exit 1, received $status"
+            cat /tmp/ultraprobe-negative-control.json
+            exit 2
+          fi
+          echo "Positive control passed: known-weak prompt was rejected."
+
+      - name: Scan canonical AI security contract
+        run: npx --yes ultraprobe@2.1.2 scan -f docs/ai-agent-security-contract.md -t 60 -o sarif > ultraprobe.sarif
+
+      - name: Retain scanner report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ultraprobe-sarif
+          path: ultraprobe.sarif
+          if-no-files-found: ignore
+          retention-days: 14
