@@ -88,3 +88,8 @@ Latest patch-contract verification run: https://github.com/X84657465/global-citi
 - TypeScript validation passed.
 - ESLint passed.
 - Docker sandbox and read-only workspace/output mount checks passed.
+
+
+## Local model availability audit
+
+The Windows runner confirmed that the Ollama CLI is installed and the local API at `127.0.0.1:11434` responds. The installed model list currently includes `qwen3:8b` and `qwen3.6:latest`. This confirms local inference is available as a zero-cloud-API-cost candidate, but does not yet prove that either model completes a generation request reliably. A bounded local inference probe is queued for the next available runner session; no model was downloaded.
