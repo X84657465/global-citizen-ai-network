@@ -85,6 +85,15 @@ if (mode === "check") {
   state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.", Date.now(), Number(process.env.FAILED_ISSUE_NUMBER) || null);
   saveLocalState(state);
   await persistState(allIssues, state);
+  const failedIssueNumber = Number(process.env.FAILED_ISSUE_NUMBER) || null;
+  if (failedIssueNumber && (state.skipped_issue_numbers ?? []).includes(failedIssueNumber)) {
+    await api("/issues/" + failedIssueNumber + "/comments", {
+      method: "POST",
+      body: JSON.stringify({
+        body: "<!-- ai-task-skipped -->\\nThis task has failed three consecutive automated attempts and was moved to the skipped queue. The factory will continue with other eligible tasks. Review the linked Actions runs before manually reopening or editing this task."
+      }),
+    });
+  }
   console.log("Recorded consecutive failure " + state.consecutive_failures + "/3. " + (state.cooldown_until ? "Cooldown until " + state.cooldown_until : "Next failure triggers 15 minutes of cooldown."));
 } else if (mode === "success") {
   const reset = successState(Date.now(), state, Number(process.env.COMPLETED_ISSUE_NUMBER) || null);
