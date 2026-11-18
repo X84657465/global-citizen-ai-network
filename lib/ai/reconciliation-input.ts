@@ -18,13 +18,19 @@ export type ReconciliationInput = {
 type RawReconciliationInput = Record<string, unknown>;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const MAX_COST = 9999999999.99999999;
+const MAX_COST_EXCLUSIVE = 10_000_000_000;
+
+function isReconciliationDecision(value: unknown): value is ReconciliationDecision {
+  return value === "confirmed_billed" ||
+    value === "confirmed_not_billed" ||
+    value === "inconclusive";
+}
 
 function validCost(value: unknown): value is number {
   return typeof value === "number" &&
     Number.isFinite(value) &&
     value >= 0 &&
-    value <= MAX_COST;
+    value < MAX_COST_EXCLUSIVE;
 }
 
 export function parseReconciliationInput(
@@ -46,7 +52,7 @@ export function parseReconciliationInput(
   const normalizedCost = input.normalizedCostTwd;
 
   if (!UUID_PATTERN.test(requestId) || !UUID_PATTERN.test(idempotencyKey) ||
-      !["confirmed_billed", "confirmed_not_billed", "inconclusive"].includes(String(decision)) ||
+      !isReconciliationDecision(decision) ||
       provider.length < 1 || provider.length > 120 ||
       evidenceReference.length < 8 || evidenceReference.length > 500 ||
       rationale.length < 20 || rationale.length > 2000) {
