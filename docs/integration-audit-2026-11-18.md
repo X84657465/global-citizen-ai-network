@@ -29,6 +29,13 @@ The public schema exposes 19 RLS policies in the audit query. The observed AI re
 
 The inspected RPC definitions validate finite monetary values, bind requests to the originating member-owned conversation, enforce one unresolved request per member, and make reconciliation service-role-only with an active-admin check inside the database function. These are static observations of deployed definitions, not proof that all adversarial cases pass.
 
+
+## Additional security-advisor finding
+
+A Supabase security-advisor pass returned nine `rls_enabled_no_policy` informational findings. The follow-up grant inspection confirms that several internal tables have RLS enabled with zero policies, which blocks row access through normal client roles, but it also shows unnecessary table-level grants to `anon` and/or `authenticated` on `audit_logs`, `platform_ai_controls`, and `provider_invoice_imports`. The AI budget/idempotency/rate-limit internals are limited to `postgres` and `service_role` in the inspected grant output. The no-policy state is not itself a data leak, but the extra client-role grants are avoidable attack surface and should be revoked in a reviewed migration. No production grants were changed during this audit.
+
+The security advisor output should not be treated as a pass until those grants are removed or the intended access model is explicitly documented and tested.
+
 ## Application observations
 
 The current `main` branch contains the Next.js AI chat route at `app/api/ai/chat/route.ts`. It authenticates the member, verifies conversation access, requires a server-side service-role key, validates an idempotency key, calculates a finite preflight estimate, claims the request through `claim_ai_request`, and finalizes through `complete_ai_chat_request`. Unknown provider outcomes are routed to manual reconciliation rather than automatically retried.
