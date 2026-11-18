@@ -9,6 +9,7 @@ import {
 } from "@/lib/ai/provider-response";
 import { shouldPreservePendingRequestKey } from "@/lib/ai/pending-retry";
 import { hashPendingPrompt } from "@/lib/ai/pending-recovery";
+import { isValidIdempotencyKey } from "@/lib/ai/idempotency";
 import { buildAiProviderMessages } from "@/lib/ai/history";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
@@ -27,13 +28,10 @@ export async function POST(request: NextRequest) {
   const auth = await getAuthenticatedClient();
   if (!auth) return NextResponse.json({ error: "請先登入或完成資料庫設定。" }, { status: 401 });
 
+  // A completed idempotent replay does not need a live provider configuration.
+  // The database claim RPC returns cached/processing keys before validating
+  // configuration for a genuinely new billable request.
   const config = getAiRuntimeConfig();
-  if (!config) {
-    return NextResponse.json(
-      { error: "AI 服務尚未完成安全設定，目前不會發出任何付費 AI 請求。" },
-      { status: 503 },
-    );
-  }
 
   const parsed = await readJsonBody(request, 32768);
   if (!parsed.ok) {
@@ -72,8 +70,8 @@ export async function POST(request: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const idempotencyKey = request.headers.get("Idempotency-Key")?.trim() ?? "";
-  if (idempotencyKey.length < 8 || idempotencyKey.length > 128 || !/^[A-Za-z0-9._:-]+$/.test(idempotencyKey)) {
+  const idempotencyKey = request.headers.get("Idempotency-Key") ?? "";
+  if (!isValidIdempotencyKey(idempotencyKey)) {
     return NextResponse.json({ error: "請提供有效的 Idempotency-Key（8–128 個英數字或 . _ : -）。" }, { status: 400 });
   }
 
@@ -85,8 +83,10 @@ export async function POST(request: NextRequest) {
   // Calculate preflight before side effects. The RPC checks this only after
   // returning any existing completed/processing idempotency record, so safe
   // replays remain available even if pricing configuration later changes.
-  const worstCaseCost = estimateCostTwd(historyCharacters + 1200, 1200, config);
-  if (!Number.isFinite(worstCaseCost) || worstCaseCost < 0) {
+  const worstCaseCost = config
+    ? estimateCostTwd(historyCharacters + 1200, 1200, config)
+    : null;
+  if (config && (worstCaseCost === null || !Number.isFinite(worstCaseCost) || worstCaseCost < 0)) {
     return NextResponse.json({ error: "無法安全估算本次請求成本，請稍後再試。", retryWithSameKey: false }, { status: 400 });
   }
 
@@ -100,9 +100,9 @@ export async function POST(request: NextRequest) {
     p_request_hash: requestHash,
     p_request_id: requestId,
     p_provider: "openai-compatible",
-    p_model: config.model,
+    p_model: config?.model ?? null,
     p_feature: "chat",
-    p_max_cost_twd: config.maxRequestCostTwd,
+    p_max_cost_twd: config?.maxRequestCostTwd ?? null,
     p_preflight_cost_twd: worstCaseCost,
   }).single();
   const claim = claimData as {
@@ -128,11 +128,15 @@ export async function POST(request: NextRequest) {
     }, { status: 409, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
   }
   if (claim.disposition !== "claimed" || claim.claimed_request_id !== requestId) {
-    const status = claim.reason === "preflight_cost_exceeds_reservation"
-      ? 413
-      : claim.disposition === "conflict" ? 409 : claim.disposition === "failed" ? 502 : 429;
-    const error = claim.reason === "preflight_cost_exceeds_reservation"
-      ? "本次內容超過單次預算上限，請縮短內容後再試。"
+    const status = claim.reason === "provider_config_unavailable"
+      ? 503
+      : claim.reason === "preflight_cost_exceeds_reservation"
+        ? 413
+        : claim.disposition === "conflict" ? 409 : claim.disposition === "failed" ? 502 : 429;
+    const error = claim.reason === "provider_config_unavailable"
+      ? "AI 服務尚未完成安全設定，目前不會發出任何付費 AI 請求。"
+      : claim.reason === "preflight_cost_exceeds_reservation"
+        ? "本次內容超過單次預算上限，請縮短內容後再試。"
       : claim.disposition === "conflict"
         ? "此冪等鍵已綁定不同內容，原請求狀態尚未確認。請恢復原始訊息並沿用原鍵，不要改用新鍵重送。"
         : claim.reason === "platform_ai_disabled"
@@ -144,6 +148,11 @@ export async function POST(request: NextRequest) {
         ? false
         : shouldPreservePendingRequestKey(claim.disposition),
     }, { status });
+  }
+
+  // Defensive guard: the database must never grant a new claim without config.
+  if (!config) {
+    return NextResponse.json({ error: "AI 服務尚未完成安全設定，目前不會發出任何付費 AI 請求。", retryWithSameKey: false }, { status: 503 });
   }
 
   const failRequest = async (code: string) => {
