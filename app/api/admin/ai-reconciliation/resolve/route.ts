@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -77,10 +78,16 @@ export async function POST(request: NextRequest) {
     return noStore({ error: "只有已確認扣款的決策可以提供成本欄位。" }, 400);
   }
 
-  // Use the authenticated session client, not service-role credentials. The
-  // SECURITY DEFINER RPC independently verifies auth.uid() and active-admin
-  // status before it can mutate any financial or request state.
-  const { data, error } = await auth.supabase.rpc("resolve_ai_reconciliation", {
+  // Keep the privileged RPC behind the server-only service client. The
+  // authenticated session was checked above, and the database independently
+  // verifies that this actor is still an active admin before any mutation.
+  let adminSupabase;
+  try {
+    adminSupabase = createAdminClient();
+  } catch {
+    return noStore({ error: "核帳服務尚未完成伺服器端金鑰設定。" }, 503);
+  }
+  const { data, error } = await adminSupabase.rpc("resolve_ai_reconciliation", {
     p_actor_id: auth.user.id,
     p_request_id: requestId,
     p_idempotency_key: idempotencyKey,
