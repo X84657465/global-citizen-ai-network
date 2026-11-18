@@ -9,5 +9,10 @@ alter default privileges for role supabase_admin in schema public
 alter default privileges for role supabase_admin in schema public
   revoke all on sequences from anon, authenticated;
 
+-- PUBLIC's built-in default function EXECUTE is global, so revoke it globally.
+alter default privileges for role supabase_admin
+  revoke execute on functions from public;
+
+-- Browser-role grants are managed in the public schema's per-schema defaults.
 alter default privileges for role supabase_admin in schema public
-  revoke execute on functions from public, anon, authenticated;
+  revoke execute on functions from anon, authenticated;
