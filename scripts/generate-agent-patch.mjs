@@ -1,12 +1,13 @@
 import {
   existsSync,
   readFileSync,
-  statSync,
+  lstatSync,
+  realpathSync,
   mkdirSync,
   writeFileSync,
 } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { resolve, sep } from "node:path";
+import { dirname, resolve, sep } from "node:path";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 const fail = (message) => {
@@ -36,9 +37,9 @@ if (plan?.execution_mode !== "validated_plan_only" || plan?.ai_execution_enabled
 const plannedPaths = new Set(
   plan.tasks
     .filter((item) => item.action === "propose_patch" && item.role === "implementer")
-    .flatMap((item) => item.allowed_paths),
+    .flatMap((item) => item.allowed_paths.map((path) => String(path).toLowerCase())),
 );
-const patchablePaths = task.allowed_paths.filter((path) => plannedPaths.has(path));
+const patchablePaths = task.allowed_paths.filter((path) => plannedPaths.has(path.toLowerCase()));
 if (patchablePaths.length === 0) {
   console.log("No implementer patch task was approved by the plan; patch generation skipped.");
   process.exit(0);
@@ -56,6 +57,12 @@ try {
 const existingSet = new Set(trackedPaths.map((path) => path.toLowerCase()));
 const existingPaths = [...trackedPaths];
 const root = process.cwd();
+let realRoot;
+try {
+  realRoot = realpathSync(root);
+} catch {
+  fail("Unable to resolve the repository root.");
+}
 const fileContext = [];
 let contextBytes = 0;
 
@@ -65,10 +72,26 @@ for (const relativePath of patchablePaths) {
     fail("A planned path resolved outside the repository.");
   }
 
+  let realParent;
+  try {
+    realParent = realpathSync(dirname(absolutePath));
+  } catch {
+    fail("A planned path must have an existing parent directory.");
+  }
+  if (realParent !== realRoot && !realParent.startsWith(realRoot + sep)) {
+    fail("A planned path parent resolves outside the repository.");
+  }
+
   const exists = existsSync(absolutePath);
   const operation = exists ? "modify" : "add";
   if (exists) {
-    if (!statSync(absolutePath).isFile()) fail("A planned path is not a regular file.");
+    const entry = lstatSync(absolutePath);
+    if (entry.isSymbolicLink()) fail("Symbolic links are not eligible for AI patching.");
+    if (!entry.isFile()) fail("A planned path is not a regular file.");
+    const realFile = realpathSync(absolutePath);
+    if (realFile !== realRoot && !realFile.startsWith(realRoot + sep)) {
+      fail("A planned file resolves outside the repository.");
+    }
     const content = readFileSync(absolutePath);
     if (content.includes(0)) fail("Binary files are not eligible for AI patching.");
     if (content.byteLength > 64 * 1024) fail("An existing file exceeds the 64 KiB context limit.");
