@@ -1,6 +1,14 @@
 name: AI Agent Task Preflight
 
 on:
+  push:
+    branches:
+      - codex/ai-runner-foundation
+    paths:
+      - "lib/agent-task-validation.mjs"
+      - "scripts/prepare-agent-task.mjs"
+      - "tests/agent-task-validation.test.mjs"
+      - ".github/workflows/agent-task-preflight.yml"
   workflow_dispatch:
     inputs:
       issue_number:
@@ -17,26 +25,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  prepare-task:
-    name: Validate and package one task (no AI execution)
-    runs-on: ubuntu-latest
+  validation-tests:
+    name: Task validation security tests
+    if: github.event_name == 'push'
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
+      - name: Run task validation tests
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node --test tests/agent-task-validation.test.mjs
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "22.13.0"
-
+  prepare-task:
+    name: Validate and package one task (no AI execution)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Validate task and create a safe handoff bundle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           ISSUE_NUMBER: ${{ inputs.issue_number }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/prepare-agent-task.mjs
-
       - name: Upload task bundle
         uses: actions/upload-artifact@v4
         with:
