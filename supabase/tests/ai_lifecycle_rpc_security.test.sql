@@ -16,7 +16,6 @@ with required(function_name) as (
     'mark_ai_request_reconciliation_required',
     'release_ai_budget',
     'reserve_ai_budget',
-    'resolve_ai_reconciliation'
   ]::text[])
 ),
 actual as (
@@ -28,7 +27,7 @@ actual as (
 )
 select ok(
   not exists (select 1 from actual where oid is null),
-  'all 13 AI lifecycle RPCs exist in the public schema'
+  'all 12 service-role AI lifecycle RPCs exist in the public schema'
 );
 
 with required(function_name) as (
