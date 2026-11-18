@@ -3,11 +3,11 @@ name: AI Agent Task Preflight
 on:
   push:
     branches:
-      - codex/ai-runner-foundation
+      - "codex/**"
     paths:
       - "lib/agent-task-validation.mjs"
       - "lib/agent-patch-validation.mjs"
-      - "lib/agent-plan-validation.mjs"
+      - "lib/agent-plan-validation.mjs"\n      - "scripts/generate-agent-plan.mjs"\n      - "tests/agent-plan-generation.test.mjs"
       - "scripts/prepare-agent-task.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
@@ -165,7 +165,7 @@ jobs:
             Write-Host "Response preview: $($result.response.Substring(0, [math]::Min(100, $result.response.Length)))"
           } catch {
             Write-Host "Local Ollama inference probe failed: $($_.Exception.Message)"
-            Write-Host "This does not affect the read-only validation workflow."
+            throw "Local Ollama inference probe failed; model readiness is required for agent planning."
           }
 
       - name: Verify disposable container isolation
@@ -283,6 +283,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ai-agent-task-${{ inputs.issue_number }}
-          path: artifacts/agent-task.json
+          path: |\n            artifacts/agent-task.json\n            artifacts/agent-plan.json
           if-no-files-found: error
           retention-days: 3
