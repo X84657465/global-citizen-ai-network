@@ -81,3 +81,5 @@ This branch contains documentation, tests, and a reviewed timestamped SQL migrat
 - Expanded provider-response unit coverage for malformed Content-Length, empty bodies, invalid UTF-8, malformed usage details, empty answers, and oversized provider request IDs.
 - Added `supabase/tests/ai_request_rpc_security.test.sql` with 12 pgTAP assertions covering SECURITY DEFINER, empty search_path, and least-privilege EXECUTE grants for the four lifecycle RPCs. This test has been committed to the review branch and awaits a fresh CI run.
 - The new route/test/SQL changes are committed to `work/integration-audit`; no linked production database writes, production migrations, paid provider calls, or production deployment were performed.
+
+- Added `supabase/tests/conversation_project_policy_semantics.test.sql` with eight pgTAP assertions to lock the intended owner-scoped SELECT versus active-member write distinction for conversations/projects, including project ownership checks on conversation writes. This protects the rationale for retaining the two advisor overlap warnings without weakening RLS semantics.
