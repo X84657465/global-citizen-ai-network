@@ -35,7 +35,7 @@ The status-check helpers live in a non-exposed schema and are callable by authen
 
 Run these checks in a disposable environment and then verify the relevant controls against the existing project without altering real member data:
 
-1. Reconcile migration identifiers before using Supabase CLI against production: repository files use sequential prefixes (`0001`–`0021`), while the live migration history uses timestamp versions. Migration names align, but version identifiers do not; do not run `supabase db push` or `migration repair` against live until this mismatch has a reviewed reconciliation plan. The exact 21-file-to-remote-version mapping is recorded in `docs/migration-history-map.md`. Apply only reviewed forward migrations and record the returned remote timestamp.
+1. Reconcile migration identifiers before using Supabase CLI against production: repository files currently use sequential prefixes (`0001`–`0022`), while the live migration history uses timestamp versions. The live project has 21 applied migrations; migration 0022 is CI-tested but has not been applied. The exact mapping for the 21 applied files is recorded in `docs/migration-history-map.md`; migration 0022 must not be added to that map until a controlled live apply returns its remote timestamp. Do not run `supabase db push` or `migration repair` against live.
 2. Create two test users. Verify each can read and modify only their own profile/workspace.
 3. Verify a user cannot assign themselves admin/reviewer, change account_status, insert assistant/system messages, or read another user's requests or ledgers.
 4. Verify a user cannot attach a conversation to another user's project.
@@ -89,3 +89,8 @@ A read-only Supabase advisor/catalog review identified 17 foreign keys without a
 ## Atomic contribution-task administration — migration 0021
 
 Migration `0021_atomic_contribution_task_admin.sql` was merged in PR #24 and applied to live Supabase as version `20261118050801`. It adds `public.manage_contribution_task`, a SECURITY DEFINER RPC with an empty search path. The function rechecks that the actor is an active admin, locks the profile and task rows, and commits task create/publish/pause/close changes together with their audit event. Post-apply checks confirm `service_role` can execute it while `anon` and `authenticated` cannot. Effective public-schema function grants now show 20 service-role-executable functions and zero browser-role-executable functions.
+
+
+## AI completed-request replay — migration 0022 pending live apply
+
+PR #30 adds `0022_ai_providerless_completed_replay.sql`. It changes the claim RPC so an existing completed idempotency key with the same owner, conversation, and payload hash can return its cached response even when provider credentials or pricing configuration are absent. New requests still fail closed with `provider_config_unavailable` before rate-limit consumption, budget reservation, or prompt persistence. Exact-head Build and Database CI passed (40 unit tests and 114 pgTAP assertions), but migration 0022 has **not** been applied to live Supabase. The live database therefore remains at 21 migrations, latest `20261118050801`; do not infer that the new replay behavior is active in Production.
