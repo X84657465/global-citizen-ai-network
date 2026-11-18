@@ -6,7 +6,7 @@ export type WorkloadObservation = {
   outcome: "accepted" | "failed";
   costTwd: number | null;
   costEvidence: CostEvidence | null;
-  latencyMs: number;
+  latencyMs: number | null;
   attempts: number;
 };
 
@@ -21,6 +21,7 @@ export type CostBaseline = {
   retryRate: number;
   medianAcceptedLatencyMs: number | null;
   p95AcceptedLatencyMs: number | null;
+  unmeasuredAcceptedLatencyJobs: number;
   invoiceCostTwd: number;
   estimatedCostTwd: number;
   unpricedJobs: number;
@@ -62,12 +63,13 @@ export function summarizeWorkloadCosts(observations: WorkloadObservation[]): Cos
   let estimatedCostTwd = 0;
   let unpricedJobs = 0;
   const acceptedLatencies: number[] = [];
+  let unmeasuredAcceptedLatencyJobs = 0;
 
   for (const observation of observations) {
     if (!observation.workloadClass.trim()) throw new Error("invalid_workload_class");
     if (!["local_device", "trusted_cloud", "community_node"].includes(observation.executionTarget)) throw new Error("invalid_execution_target");
     if (observation.outcome !== "accepted" && observation.outcome !== "failed") throw new Error("invalid_outcome");
-    assertFiniteNonNegative(observation.latencyMs, "latency");
+    if (observation.latencyMs !== null) assertFiniteNonNegative(observation.latencyMs, "latency");
     if (!Number.isInteger(observation.attempts) || observation.attempts < 1) {
       throw new Error("invalid_attempts");
     }
@@ -85,7 +87,8 @@ export function summarizeWorkloadCosts(observations: WorkloadObservation[]): Cos
     retryAttempts += observation.attempts - 1;
     if (observation.outcome === "accepted") {
       acceptedJobs += 1;
-      acceptedLatencies.push(observation.latencyMs);
+      if (observation.latencyMs === null) unmeasuredAcceptedLatencyJobs += 1;
+      else acceptedLatencies.push(observation.latencyMs);
     } else {
       failedJobs += 1;
     }
@@ -104,6 +107,7 @@ export function summarizeWorkloadCosts(observations: WorkloadObservation[]): Cos
     retryRate: safeDivide(retryAttempts, totalAttempts),
     medianAcceptedLatencyMs: median(acceptedLatencies),
     p95AcceptedLatencyMs: percentileNearestRank(acceptedLatencies, 0.95),
+    unmeasuredAcceptedLatencyJobs,
     invoiceCostTwd,
     estimatedCostTwd,
     unpricedJobs,
