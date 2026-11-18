@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { canCorrectReconciliationSubmission } from "@/lib/ai/reconciliation-form-error";
 
 type Decision = "confirmed_billed" | "confirmed_not_billed" | "inconclusive";
 
@@ -47,7 +48,17 @@ export default function AiReconciliationForm({ requestId, provider }: { requestI
         }),
       });
       const data = await response.json() as { error?: string; disposition?: string; reason?: string };
-      if (!response.ok) throw new Error(data.error ?? "核對失敗。");
+      if (!response.ok) {
+        // 400/413 are guaranteed to occur before the privileged RPC. No
+        // idempotency record or ledger mutation can exist, so allow correction.
+        // Keep the key and payload locked for every other failure: those paths
+        // may have reached the database and must be retried byte-for-byte.
+        if (canCorrectReconciliationSubmission(response.status)) {
+          setLocked(false);
+          setIdempotencyKey("");
+        }
+        throw new Error(data.error ?? "核對失敗。");
+      }
       setSuccess(data.disposition === "replayed" ? "相同核對已記錄，未重複入帳。" : "核對結果已原子化記錄。");
       router.refresh();
     } catch (reason) {
