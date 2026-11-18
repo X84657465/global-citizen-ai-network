@@ -146,3 +146,13 @@ jobs:
               return;
             }
             core.info('CI passed; Draft PR was marked ready and merged: ' + data.sha);
+            await github.rest.repos.createDispatchEvent({
+              owner,
+              repo,
+              event_type: 'ai-task-next',
+              client_payload: {
+                source_pull_request: pr.number,
+                outcome: 'ci_verified_merge'
+              }
+            });
+            core.info('Triggered the persistent local AI task queue after the verified merge.');
