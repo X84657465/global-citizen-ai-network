@@ -124,6 +124,11 @@ jobs:
               });
               pr = matches.find((candidate) => candidate.head.ref === branch);
             }
+            const testedSha = context.payload.pull_request?.head?.sha || context.sha;
+            if (pr && pr.head.sha !== testedSha) {
+              core.notice('A newer PR head exists than the commit tested by this CI run; refusing to merge an untested commit.');
+              return;
+            }
             if (!pr || pr.user.login !== owner || !pr.head.ref.startsWith('codex/')) {
               core.notice('No owner-authored codex PR is associated with this successful CI run.');
               return;
