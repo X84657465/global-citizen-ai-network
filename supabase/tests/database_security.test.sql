@@ -301,8 +301,8 @@ begin
     raise exception 'appeal review did not preserve snapshot or idempotency';
   end if;
 
-  -- Give the authenticated-RLS tests a separate contributor so the existing
-  -- one-active-submission-per-user invariant remains intact.
+  -- Give the authenticated-RLS tests a separate contributor and task so
+  -- the active submission and rejected-appeal fixtures do not overlap.
   insert into public.task_submissions (
     id, task_id, contributor_id, content
   ) values (
@@ -331,7 +331,7 @@ insert into public.task_submissions (
   reward_amount_snapshot, reward_currency_snapshot, reward_snapshot_source
 ) values (
   '30000000-0000-4000-8000-000000000003',
-  '20000000-0000-4000-8000-000000000001',
+  '20000000-0000-4000-8000-000000000002',
   '10000000-0000-4000-8000-000000000003',
   'Authenticated contributor submission exercising the owner insert policy.',
   'accepted', '2000-01-01T00:00:00Z',
