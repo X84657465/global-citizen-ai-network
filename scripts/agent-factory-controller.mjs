@@ -90,7 +90,7 @@ if (mode === "check") {
     await api("/issues/" + failedIssueNumber + "/comments", {
       method: "POST",
       body: JSON.stringify({
-        body: "<!-- ai-task-skipped -->\\nThis task has failed three consecutive automated attempts and was moved to the skipped queue. The factory will continue with other eligible tasks. Review the linked Actions runs before manually reopening or editing this task."
+        body: "<!-- ai-task-skipped -->\nThis task has failed three consecutive automated attempts and was moved to the skipped queue. The factory will continue with other eligible tasks. Review the linked Actions runs before manually reopening or editing this task."
       }),
     });
   }
