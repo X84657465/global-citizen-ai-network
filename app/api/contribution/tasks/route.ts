@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     return NextResponse.json(
-      { error: "提交未完成，可能已有尚未結案的同任務提交，或帳戶目前沒有提交權限。" },
+      { error: "提交未完成，可能是任務已截止、同一任務已有尚未結案的提交或申訴，或帳戶目前沒有提交權限。" },
       { status: 409 },
     );
   }
