@@ -330,7 +330,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001',
-    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\\n' || 'Atomic original user prompt', 'UTF8')), 'hex')::char(64),
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Atomic original user prompt', 'UTF8')), 'hex')::char(64),
     '52000000-0000-4000-8000-000000000012',
     null, null, null, null, null
   );
@@ -344,7 +344,7 @@ begin
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Provider config missing prompt', 'test-ai-no-config-001',
-    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\\n' || 'Provider config missing prompt', 'UTF8')), 'hex')::char(64),
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Provider config missing prompt', 'UTF8')), 'hex')::char(64),
     '52000000-0000-4000-8000-000000000013',
     null, null, null, null, null
   );
