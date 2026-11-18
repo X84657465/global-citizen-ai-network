@@ -426,7 +426,7 @@ assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity',
 const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reconciliation_resolution.sql", "utf8") + "\n" + readFileSync("supabase/migrations/0018_service_role_ai_reconciliation.sql", "utf8");
 const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
 const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
-const reconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
+
 const reconciliationOperationsPage = readFileSync("app/admin/ai-operations/page.tsx", "utf8");
 assert.ok(reconciliationSql.includes("where id = p_actor_id"),
   "Reconciliation RPC must verify the supplied actor against the authoritative profile row");
