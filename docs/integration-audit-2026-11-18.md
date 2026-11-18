@@ -83,3 +83,11 @@ This branch contains documentation, tests, and a reviewed timestamped SQL migrat
 - The new route/test/SQL changes are committed to `work/integration-audit`; no linked production database writes, production migrations, paid provider calls, or production deployment were performed.
 
 - Added `supabase/tests/conversation_project_policy_semantics.test.sql` with eight pgTAP assertions to lock the intended owner-scoped SELECT versus active-member write distinction for conversations/projects, including project ownership checks on conversation writes. This protects the rationale for retaining the two advisor overlap warnings without weakening RLS semantics.
+
+
+## Follow-up: bounded HTTP JSON body validation
+
+- Added `tests/http-read-json-body.test.ts` with six regression cases for valid JSON, malformed/fractional/negative/unsafe Content-Length, declared oversize bodies, streamed oversize bodies without Content-Length, invalid UTF-8, malformed JSON, and absent bodies.
+- Added the HTTP body parser suite to `npm run test:unit`; the tests run without credentials or external services.
+- GitHub Actions run #540 was triggered for exact head `0f8b8a6a4bc03bb5d6228b14915b6018bcdf43b0`. Results are pending; do not treat the tests as CI-verified until that run completes.
+- This work changes only the review branch. No linked production database, provider settings, or production deployment was modified.
