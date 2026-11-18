@@ -40,6 +40,9 @@ const providerlessReplaySql = readFileSync("supabase/migrations/0022_ai_provider
 const aiChatApi = readFileSync("app/api/ai/chat/route.ts", "utf8");
 const idempotencyValidation = readFileSync("lib/ai/idempotency.ts", "utf8");
 const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8");
+const reconciliationFormError = readFileSync("lib/ai/reconciliation-form-error.ts", "utf8");
+const reconciliationFormTests = readFileSync("tests/ai-reconciliation-form-error.test.ts", "utf8");
+const reconciliationForm = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
 const singleActiveSubmissionSql = readFileSync("supabase/migrations/0023_single_active_task_submission.sql", "utf8");
 const singleActiveSubmissionTests = readFileSync("supabase/tests/task_submission_uniqueness.test.sql", "utf8");
 const securityHeaderSource = readFileSync("lib/security/headers.ts", "utf8");
@@ -556,3 +559,8 @@ for (const header of ["X-Content-Type-Options", "X-Frame-Options", "Referrer-Pol
 assert.ok(securityHeaderTests.includes("brittle CSP") &&
   securityHeaderTests.includes("cross-origin resource restriction"),
   "Security header tests must document CSP nonce and CORP deferrals");
+
+assert.ok(reconciliationFormError.includes("status === 400 || status === 413") &&
+  reconciliationFormTests.includes("potentially ambiguous failures") &&
+  reconciliationForm.includes("canCorrectReconciliationSubmission(response.status)"),
+  "Reconciliation form may unlock only for guaranteed pre-RPC validation/body-size failures and must preserve keys for ambiguous outcomes");
