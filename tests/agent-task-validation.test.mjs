@@ -48,7 +48,7 @@ test("rejects pull requests and closed issues", () => {
 test("rejects tasks authored by anyone other than the repository owner", () => {
   assert.throws(
     () => validateAndBuildTask(validIssue({ user: { login: "someone-else" } }), "X84657465/global-citizen-ai-network"),
-    /repository owner/,
+    /repository-owner tasks/,
   );
 });
 
