@@ -35,6 +35,7 @@ const aiCostsApi = readFileSync("app/api/admin/ai-costs/route.ts", "utf8");
 const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx", "utf8");
 const adminTasksApi = readFileSync("app/api/admin/contribution/tasks/route.ts", "utf8");
 const taskAdminClient = readFileSync("app/admin/contribution-tasks/tasks-client.tsx", "utf8");
+const defaultPrivilegeMigration = readFileSync("supabase/migrations/20261118014000_revoke_client_default_table_and_sequence_privileges.sql", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -485,3 +486,8 @@ assert.ok(projectOwnershipLockSql.includes("for share") && !projectOwnershipLock
   "Project ownership trigger must take a row lock that conflicts with concurrent archived_at updates");
 assert.ok(projectOwnershipTests.includes("project row lock conflicts with concurrent archive updates"),
   "Database tests must verify the stronger project row-lock mode");
+
+
+assert.ok(defaultPrivilegeMigration.includes("alter default privileges for role postgres in schema public") &&
+  !defaultPrivilegeMigration.includes("supabase_admin"),
+  "Default privilege migration must alter only project-owned postgres defaults, never Supabase-managed roles");
