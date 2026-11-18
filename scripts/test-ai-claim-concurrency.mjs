@@ -118,6 +118,16 @@ async function concurrentPair(input) {
   }
 }
 
+
+async function resolveFixtureRequest() {
+  await runSql(
+    "update public.ai_budget_reservations set status = 'released', settled_at = now() where owner_id = '" + owner + "'::uuid and status = 'reserved';\n" +
+    "update public.ai_requests set status = 'failed', completed_at = now() where owner_id = '" + owner + "'::uuid and status in ('queued', 'running');\n" +
+    "update public.ai_request_idempotency set state = 'failed', error_code = 'local_concurrency_fixture_resolved', updated_at = now(), expires_at = now() + interval '24 hours' where owner_id = '" + owner + "'::uuid and state = 'processing';",
+    "gcai-resolve-" + owner,
+  );
+}
+
 const owner = randomUUID();
 const conversationA = randomUUID();
 const conversationB = randomUUID();
@@ -170,6 +180,7 @@ try {
     throw new Error("Cross-conversation race failed: " + JSON.stringify(cross));
   }
   cases.push("same member / different conversations: second claim waits and is rejected as unresolved");
+  await resolveFixtureRequest();
 
   const samePrompt = "same idempotency payload";
   const sameKey = keyPrefix + "-same";
@@ -183,6 +194,7 @@ try {
     throw new Error("Same-key/same-payload race failed: " + JSON.stringify(same));
   }
   cases.push("same idempotency key / same payload: second session observes the first request");
+  await resolveFixtureRequest();
 
   const diffKey = keyPrefix + "-different";
   const diff = await concurrentPair({
@@ -195,6 +207,7 @@ try {
     throw new Error("Same-key/different-payload race failed: " + JSON.stringify(diff));
   }
   cases.push("same idempotency key / different payload: second session receives conflict");
+  await resolveFixtureRequest();
 
   const rollbackKey = keyPrefix + "-rollback";
   const retry = await concurrentPair({
@@ -207,6 +220,7 @@ try {
     throw new Error("Rollback/retry race failed: " + JSON.stringify(retry));
   }
   cases.push("first transaction rollback: waiting second session successfully claims");
+  await resolveFixtureRequest();
 
   const integrity = await runSql(
     "select (select count(*) from public.ai_requests where owner_id = '" + owner + "'::uuid) || ':' || " +
