@@ -325,6 +325,39 @@ begin
     raise exception 'completed idempotency replay duplicated the original user prompt';
   end if;
 
+  -- A completed request must replay even after provider credentials and pricing
+  -- have been removed. No provider call or new reservation is needed.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, v_conversation, 'Atomic original user prompt', 'test-ai-success-001',
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\\n' || 'Atomic original user prompt', 'UTF8')), 'hex')::char(64),
+    '52000000-0000-4000-8000-000000000012',
+    null, null, null, null, null
+  );
+  if v_claim.disposition <> 'completed'
+     or v_claim.cached_response->>'answer' <> 'Atomic assistant response' then
+    raise exception 'completed idempotency replay required provider configuration';
+  end if;
+
+  -- A new request with no provider configuration must be rejected before
+  -- request, budget, idempotency, or user-message side effects.
+  select * into v_claim
+  from public.claim_ai_request(
+    v_owner, v_conversation, 'Provider config missing prompt', 'test-ai-no-config-001',
+    pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\\n' || 'Provider config missing prompt', 'UTF8')), 'hex')::char(64),
+    '52000000-0000-4000-8000-000000000013',
+    null, null, null, null, null
+  );
+  if v_claim.disposition <> 'rejected' or v_claim.reason <> 'provider_config_unavailable' then
+    raise exception 'new AI request was not rejected when provider configuration was missing';
+  end if;
+  if exists (select 1 from public.ai_requests where id = '52000000-0000-4000-8000-000000000013')
+     or exists (select 1 from public.ai_budget_reservations where request_id = '52000000-0000-4000-8000-000000000013')
+     or exists (select 1 from public.ai_request_idempotency where owner_id = v_owner and idempotency_key = 'test-ai-no-config-001')
+     or exists (select 1 from public.messages where conversation_id = v_conversation and owner_id = v_owner and content = 'Provider config missing prompt') then
+    raise exception 'missing provider configuration created AI request side effects';
+  end if;
+
   select * into v_claim
   from public.claim_ai_request(
     v_owner, v_conversation, 'Known failure original prompt', 'test-ai-failure-001', pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v_conversation::text || E'\n' || 'Known failure original prompt', 'UTF8')), 'hex')::char(64), v_failed_request,
