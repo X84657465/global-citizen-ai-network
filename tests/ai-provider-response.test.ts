@@ -204,3 +204,31 @@ test("rejects malformed usage objects and cached token values", () => {
     );
   }
 });
+
+
+test("cancels provider bodies rejected by invalid or oversized declared content-length", async () => {
+  for (const [contentLength, expectedCode] of [
+    ["-1", "invalid_content_length"],
+    ["not-a-number", "invalid_content_length"],
+    ["1000", "response_too_large"],
+  ] as const) {
+    let canceled = false;
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode("{}"));
+      },
+      cancel() {
+        canceled = true;
+      },
+    });
+    const response = new Response(body, {
+      headers: { "content-length": contentLength },
+    });
+
+    await assert.rejects(
+      readProviderJson(response, 32),
+      (error) => error instanceof ProviderResponseError && error.code === expectedCode,
+    );
+    assert.equal(canceled, true, `body should be canceled for Content-Length ${contentLength}`);
+  }
+});
