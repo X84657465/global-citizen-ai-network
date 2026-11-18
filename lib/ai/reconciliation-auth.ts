@@ -8,5 +8,8 @@ export function isActiveAdminProfile(profile: unknown): boolean {
     account_status?: unknown;
   };
 
-  return candidate.role === "admin" && candidate.account_status === "active";
+  return Object.hasOwn(candidate, "role") &&
+    Object.hasOwn(candidate, "account_status") &&
+    candidate.role === "admin" &&
+    candidate.account_status === "active";
 }
