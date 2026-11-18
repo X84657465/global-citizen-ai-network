@@ -48,19 +48,19 @@ if (!definition.includes("pg_catalog.hashtextextended(p_owner_id::text, 0)")) {
 const requiredSqlInvariants = [
   [
     "platform controls row is locked",
-    /from public\\.platform_ai_controls\\s+where id = true\\s+for update;/i,
+    /from public\.platform_ai_controls\s+where id = true\s+for update;/i,
   ],
   [
     "idempotency row is locked",
-    /where i\\.owner_id = p_owner_id\\s+and i\\.idempotency_key = p_idempotency_key\\s+for update;/i,
+    /where i\.owner_id = p_owner_id\s+and i\.idempotency_key = p_idempotency_key\s+for update;/i,
   ],
   [
     "unresolved reservation is scoped to the member",
-    /where r\\.owner_id = p_owner_id\\s+and r\\.status in \\('queued','running'\\)\\s+and b\\.status = 'reserved'\\s+and i\\.state = 'processing'/i,
+    /where r\.owner_id = p_owner_id\s+and r\.status in \('queued','running'\)\s+and b\.status = 'reserved'\s+and i\.state = 'processing'/i,
   ],
   [
     "original prompt is persisted with its owner and conversation",
-    /values\\s*\\(\\s*p_conversation_id,\\s*p_owner_id,\\s*'user',\\s*p_prompt\\s*\\)/i,
+    /values\s*\(\s*p_conversation_id,\s*p_owner_id,\s*'user',\s*p_prompt\s*\)/i,
   ],
 ];
 
