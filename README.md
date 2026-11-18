@@ -65,6 +65,7 @@ The initial interface is a prototype. Demo task data is illustrative, not paid w
 - [Engineering governance and verification standard](docs/engineering-governance.md)
 - [AI agent security contract](docs/ai-agent-security-contract.md)
 - [Agent and CI cost ledger](docs/agent-cost-ledger.md)
+- [Observability integration and PostHog privacy gates](docs/observability-integration.md)
 
 - [Product scope and phased roadmap](docs/product-scope.md)
 - [Architecture](docs/architecture.md)
