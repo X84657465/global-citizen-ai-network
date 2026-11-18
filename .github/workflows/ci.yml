@@ -150,7 +150,7 @@ jobs:
               pull_number: pullNumber
             });
 
-            const marker = /<!-- ai-task:(\\d+) -->/.exec(pull.body || "");
+            const marker = /<!-- ai-task:(\d+) -->/.exec(pull.body || "");
             if (!marker ||
                 !pull.head.ref.startsWith("ai-task/issue-") ||
                 pull.head.repo?.full_name !== context.payload.repository.full_name ||
@@ -167,14 +167,14 @@ jobs:
             });
 
             const destructivePatterns = [
-              /\\bDROP\\s+TABLE\\b/i,
-              /\\bDROP\\s+SCHEMA\\b/i,
-              /\\bTRUNCATE(?:\\s+TABLE)?\\b/i,
-              /\\bALTER\\s+TABLE\\b[\\s\\S]{0,500}?\\bDROP\\s+COLUMN\\b/i
+              /\bDROP\s+TABLE\b/i,
+              /\bDROP\s+SCHEMA\b/i,
+              /\bTRUNCATE(?:\s+TABLE)?\b/i,
+              /\bALTER\s+TABLE\b[\s\S]{0,500}?\bDROP\s+COLUMN\b/i
             ];
             const blockers = [];
             for (const file of files) {
-              const isSql = /\\.sql$/i.test(file.filename) ||
+              const isSql = /\.sql$/i.test(file.filename) ||
                 file.filename.startsWith("supabase/migrations/");
               if (!isSql) continue;
               if (file.status === "removed") {
@@ -209,7 +209,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pullNumber,
-                body: "Automatic merge was blocked because this PR deletes a SQL/migration file or contains a destructive database operation. Human review is required before merging.\\n\\n" + blockers.map((item) => "- " + item).join("\\n")
+                body: "Automatic merge was blocked because this PR deletes a SQL/migration file or contains a destructive database operation. Human review is required before merging.\n\\n" + blockers.map((item) => "- " + item).join("\\n")
               });
               return;
             }
