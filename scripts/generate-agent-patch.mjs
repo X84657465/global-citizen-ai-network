@@ -147,7 +147,7 @@ const patchSchema = {
         properties: {
           path: { type: "string", minLength: 1, maxLength: 240 },
           operation: { type: "string", enum: ["add", "modify"] },
-          content: { type: "string", minLength: 1, maxLength: 65536 }
+          content: { type: "string", minLength: 1 }
         }
       }
     }
@@ -185,8 +185,8 @@ try {
       format: patchSchema,
       think: false,
       stream: false,
-      keep_alive: "0s",
-      options: { temperature: 0, num_predict: 4096 }
+      keep_alive: "60s",
+      options: { temperature: 0, num_predict: 2048 }
     }),
     signal: AbortSignal.timeout(240000)
   });
