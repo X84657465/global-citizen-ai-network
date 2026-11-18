@@ -255,7 +255,7 @@ try {
       pull_request_number: existingPull.number,
       pull_request_url: existingPull.html_url,
       no_duplicate_created: true,
-      automatic_merge: false,
+      automatic_merge_policy: "ci_gated_squash",
       production_deployment: false,
     });
     console.log("An open PR already exists for this task: " + existingPull.html_url);
@@ -322,7 +322,7 @@ try {
     base_commit: baseCommit,
     commit_sha: commit.sha,
     changed_files: validatedPatch.files.map((file) => file.path),
-    automatic_merge: false,
+    automatic_merge_policy: "ci_gated_squash",
     production_deployment: false,
   });
   console.log("Created draft PR after successful isolated validation: " + pull.html_url);
