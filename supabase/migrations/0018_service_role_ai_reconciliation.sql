@@ -1,62 +1,7 @@
--- Tighten AI reconciliation to a server-only RPC boundary.
--- The API validates the signed-in admin session; the SECURITY DEFINER function
--- independently re-checks the actor's current active-admin profile.
--- Audited, operator-driven resolution for uncertain AI provider outcomes.
--- This migration never retries a provider request. It records evidence review
--- and resolves the held reservation atomically only for conclusive outcomes.
-
-create table public.ai_reconciliation_events (
-  id uuid primary key default gen_random_uuid(),
-  request_id uuid not null references public.ai_requests(id) on delete restrict,
-  actor_id uuid not null references public.profiles(id) on delete restrict,
-  idempotency_key uuid not null,
-  decision text not null check (decision in ('confirmed_billed', 'confirmed_not_billed', 'inconclusive')),
-  provider text not null check (char_length(provider) between 1 and 120),
-  evidence_reference text not null check (char_length(evidence_reference) between 8 and 500),
-  rationale text not null check (char_length(rationale) between 20 and 2000),
-  provider_billed_cost numeric(18,8),
-  provider_billed_currency char(3),
-  normalized_cost_twd numeric(18,8),
-  payload_hash char(64) not null check (payload_hash ~ '^[0-9a-f]{64}$'),
-  created_at timestamptz not null default now(),
-  unique (request_id, idempotency_key),
-  check (
-    (decision = 'confirmed_billed'
-      and provider_billed_cost is not null and provider_billed_cost >= 0
-      and provider_billed_currency is not null
-      and provider_billed_currency::text ~ '^[A-Z]{3}$'
-      and normalized_cost_twd is not null and normalized_cost_twd >= 0)
-    or
-    (decision in ('confirmed_not_billed', 'inconclusive')
-      and provider_billed_cost is null
-      and provider_billed_currency is null
-      and normalized_cost_twd is null)
-  )
-);
-
-alter table public.ai_reconciliation_events enable row level security;
-revoke all on public.ai_reconciliation_events from public, anon, authenticated;
-grant select, insert on public.ai_reconciliation_events to service_role;
-revoke update, delete, truncate on public.ai_reconciliation_events from service_role;
-
-create or replace function public.prevent_ai_reconciliation_event_mutation()
-returns trigger
-language plpgsql
-set search_path = ''
-as $trigger$
-begin
-  raise exception 'AI reconciliation evidence events are immutable';
-end;
-$trigger$;
-
-revoke all on function public.prevent_ai_reconciliation_event_mutation() from public, anon, authenticated, service_role;
-
-create trigger ai_reconciliation_events_immutable
-before update or delete on public.ai_reconciliation_events
-for each row execute function public.prevent_ai_reconciliation_event_mutation();
-
-create index ai_reconciliation_events_request_created_idx
-  on public.ai_reconciliation_events (request_id, created_at desc);
+-- Restrict the audited reconciliation RPC to the server-only service role.
+-- The event table, immutable trigger, and index were created by migration 0015.
+-- The API authenticates the member session; this function re-checks the actor's
+-- current active-admin profile before any mutation.
 
 create or replace function public.resolve_ai_reconciliation(
   p_actor_id uuid,
