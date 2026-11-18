@@ -100,3 +100,12 @@ This branch contains documentation, tests, and a reviewed timestamped SQL migrat
 - Added the new suite to `npm run test:unit`.
 - CI run #542 was observed for an intermediate commit; the latest PR head has advanced since then and requires its own completed CI run before validation can be claimed.
 - No production database, secrets, provider settings, or production deployment were changed.
+
+## Follow-up: reconciliation and streamed-request CI fixes
+- The exact-head CI #544 exposed two test defects: the billed-cost upper-bound assertion exercised a floating-point boundary that was rounded to the same IEEE-754 number, and the streamed Request fixture did not reliably apply Node/Undici's required duplex: half option.
+- Tightened reconciliation parsing with a typed decision guard and a finite exclusive numeric upper bound (cost < 10,000,000,000). Added a regression case above the boundary.
+- Updated the streamed Request test fixture to always set duplex: half and explicitly type the Node-specific RequestInit extension.
+- Vercel build logs for commit 84c1eda independently confirmed a TypeScript error where an unknown decision was returned as ReconciliationDecision; this was fixed by the type guard in commit 848fde3. A later Preview for commit 8e3ab4b reached READY, confirming that particular compile failure is resolved.
+- Current review head: 472512a2c60334c7028bfbc5da992c480e4feb7f. GitHub Actions run #547 is queued for this exact head; no CI pass is claimed yet. The newest Vercel Preview for this head is also queued at last check.
+- Previous CI #545 and #546 were cancelled by newer pushes; their partial states are not treated as validation.
+- No linked production Supabase changes were made. AI remains disabled with hard-stop enabled; PR #18 remains draft and unmerged.
