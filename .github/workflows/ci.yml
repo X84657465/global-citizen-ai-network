@@ -26,7 +26,7 @@ jobs:
           node-version: "22.13.0"
           cache: npm
       - name: Verify Windows runner toolchain
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           node --version
           npm --version
@@ -60,10 +60,21 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
-      - name: Set up Supabase CLI
-        uses: supabase/setup-cli@v3
-        with:
-          version: v2.stable
+      - name: Install pinned Supabase CLI without symlink-dependent setup actions
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $version = "3.2.0"
+          $archive = Join-Path $env:RUNNER_TEMP "supabase-cli-$version.zip"
+          $installDir = Join-Path $env:RUNNER_TEMP "supabase-cli-$version"
+          if (Test-Path $installDir) { Remove-Item $installDir -Recurse -Force }
+          New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+          Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/supabase/cli/releases/download/v$version/supabase_$($version)_windows_amd64.zip" -OutFile $archive
+          Expand-Archive -LiteralPath $archive -DestinationPath $installDir -Force
+          $cli = Get-ChildItem -LiteralPath $installDir -Filter "supabase.exe" -Recurse | Select-Object -First 1
+          if (-not $cli) { throw "Supabase CLI executable was not found in the pinned release archive." }
+          Add-Content -LiteralPath $env:GITHUB_PATH -Value $cli.DirectoryName
+          & $cli.FullName --version
+          if ($LASTEXITCODE -ne 0) { throw "Supabase CLI installation verification failed." }
       - name: Verify Docker Desktop is ready
         shell: powershell
         run: |
