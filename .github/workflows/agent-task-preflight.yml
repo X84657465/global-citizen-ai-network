@@ -12,6 +12,7 @@ on:
       - "scripts/generate-agent-plan.mjs"
       - "scripts/generate-agent-patch.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
+      - "scripts/publish-agent-patch.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
       - "tests/agent-plan-validation.test.mjs"
@@ -128,6 +129,20 @@ jobs:
             schema_version = 1
             mode = "preflight_only"
             ai_execution_enabled = $false
+            repository = $env:GITHUB_REPOSITORY
+            issue = @{
+              number = 999999
+              title = "[AI Task] Synthetic publication dry run"
+              author = ($env:GITHUB_REPOSITORY.Split('/')[0])
+              url = "https://github.com/$($env:GITHUB_REPOSITORY)/issues/999999"
+            }
+            safety = @{
+              issue_content_is_untrusted_data = $true
+              repository_code_was_not_executed = $true
+              files_were_not_modified = $true
+              pull_request_was_not_created = $true
+              production_database_or_deployment_touched = $false
+            }
             goal = "Prepare a minimal new documentation page describing the safe local AI task pipeline and its approval boundaries."
             allowed_paths = @("docs/agent-pipeline-smoke-test.md")
             acceptance_criteria = @(
@@ -299,6 +314,31 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
           Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
 
+      - name: Validate draft PR publisher without API writes
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: "999999"
+          CANDIDATE_TESTS_PASSED: "true"
+          PUBLISH_AGENT_DRY_RUN: "true"
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          node scripts/publish-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Draft PR publisher dry-run failed." }
+          $result = Get-Content "artifacts/agent-publish.json" -Raw | ConvertFrom-Json
+          if ($result.state -ne "dry_run" -or $result.no_api_writes -ne $true -or
+              $result.automatic_merge -ne $false -or $result.production_deployment -ne $false) {
+            throw "Draft PR publisher dry-run did not preserve safety boundaries."
+          }
+
+      - name: Preserve synthetic publication dry-run result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-publish-dry-run-${{ github.run_id }}
+          path: artifacts/agent-publish.json
+          if-no-files-found: warn
+          retention-days: 1
+
       - name: Install locked dependencies without lifecycle scripts
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm ci --ignore-scripts --no-audit --no-fund
@@ -341,10 +381,15 @@ jobs:
   prepare-task:
     name: Validate task and generate read-only AI plan
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.actor == github.repository_owner) ||
       (github.event_name == 'issues' &&
        github.event.issue.user.login == github.repository_owner &&
        startsWith(github.event.issue.title, '[AI Task]'))
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 15
     steps:
@@ -397,6 +442,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
           Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
 
+      - name: Create a draft PR after isolated tests pass
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          CANDIDATE_TESTS_PASSED: "true"
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/publish-agent-patch.mjs
+
       - name: Clean disposable scratch workspace
         if: always()
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
@@ -418,10 +472,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ai-agent-task-${{ inputs.issue_number }}
+          name: ai-agent-task-${{ github.event.issue.number || inputs.issue_number }}
           path: |
             artifacts/agent-task.json
             artifacts/agent-plan.json
             artifacts/agent-patch.json
+            artifacts/agent-publish.json
           if-no-files-found: warn
           retention-days: 3
