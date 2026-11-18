@@ -301,13 +301,13 @@ begin
     raise exception 'appeal review did not preserve snapshot or idempotency';
   end if;
 
-  -- Give the authenticated-RLS tests a separate contributor so the existing
-  -- one-active-submission-per-user invariant remains intact.
+  -- Give the authenticated-RLS tests a separate contributor and task so
+  -- the active submission and rejected-appeal fixtures do not overlap.
   insert into public.task_submissions (
     id, task_id, contributor_id, content
   ) values (
     '30000000-0000-4000-8000-000000000004',
-    '20000000-0000-4000-8000-000000000001',
+    '20000000-0000-4000-8000-000000000002',
     '10000000-0000-4000-8000-000000000003',
     'A rejected submission reserved for authenticated appeal RLS testing.'
   );
