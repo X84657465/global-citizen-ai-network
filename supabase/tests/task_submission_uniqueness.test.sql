@@ -1,6 +1,6 @@
 begin;
 
-select plan(9);
+select plan(6);
 
 select ok(
   exists (
@@ -27,6 +27,12 @@ select ok(
   position('pg_advisory_xact_lock' in pg_get_functiondef('private.prepare_task_appeal_insert()'::regprocedure)) > 0
   and position('another active submission exists' in pg_get_functiondef('private.prepare_task_appeal_insert()'::regprocedure)) > 0,
   'appeal insert trigger shares the member/task lock and rejects conflicting active submissions'
+);
+
+select ok(
+  not (select pg_get_expr(indpred, indrelid) like '%rejected%'
+       from pg_index where indexrelid = 'public.task_submissions_one_active_per_task_contributor_idx'::regclass),
+  'rejected submissions are excluded so members can resubmit after rejection'
 );
 
 do $fixture$
