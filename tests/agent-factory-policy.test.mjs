@@ -6,16 +6,20 @@ test("third consecutive failure activates a fifteen-minute cooldown", () => {
   const now = Date.parse("2026-11-19T00:00:00.000Z");
   const first = nextFailureState({}, "first", now);
   const second = nextFailureState(first, "second", now + 1000);
-  const third = nextFailureState(second, "third", now + 2000);
+  const third = nextFailureState(second, "third", now + 2000, 123);
   assert.equal(FAILURE_THRESHOLD, 3);
   assert.equal(third.consecutive_failures, 3);
+  assert.equal(third.task_failures["123"], 1);
+  const secondTaskFailure = nextFailureState(third, "again", now + 3000, 123);
+  const thirdTaskFailure = nextFailureState(secondTaskFailure, "again", now + 4000, 123);
+  assert.deepEqual(thirdTaskFailure.skipped_issue_numbers, [123]);
   assert.equal(Date.parse(third.cooldown_until), now + 2000 + COOLDOWN_MS);
   assert.equal(cooldownActive(third, now + 3000), true);
   assert.equal(cooldownActive(third, now + 2000 + COOLDOWN_MS + 1), false);
 });
 
 test("success resets failure count and cooldown", () => {
-  assert.deepEqual(successState(1234), { consecutive_failures: 0, cooldown_until: null, last_failure_at: null, last_error: null, updated_at: new Date(1234).toISOString() });
+  assert.deepEqual(successState(1234), { consecutive_failures: 0, cooldown_until: null, task_failures: {}, skipped_issue_numbers: [], last_failure_at: null, last_error: null, updated_at: new Date(1234).toISOString() });
 });
 
 test("planner emits finite deduplicated four-section Runner tasks", () => {
