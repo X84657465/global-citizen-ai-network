@@ -11,15 +11,21 @@ test("patch proposal reads only task-approved files and restricts local source c
   assert.ok(source.includes("MAX_TOTAL_SOURCE_BYTES = 12 * 1024"));
 });
 
-test("patch proposal uses loopback Ollama and structured output", () => {
+test("patch proposal is restricted to local Ollama and structured output", () => {
   assert.ok(source.includes("Only a loopback Ollama endpoint is permitted"));
-  assert.ok(source.includes("format: PATCH_SCHEMA(paths)"));
+  assert.ok(source.includes("format: patchSchema(paths)"));
   assert.ok(source.includes("think: false"));
 });
 
 test("patch output is validated against exact task paths and existing-file state", () => {
   assert.ok(source.includes("validatePatchManifest(candidate, task, existingPaths)"));
   assert.ok(source.includes("Patch path is not present in the original task allowlist."));
+});
+
+test("patch proposal blocks symlinks and sensitive source content", () => {
+  assert.ok(source.includes("assertNoSymlinkSegments(path)"));
+  assert.ok(source.includes("containsSensitiveMaterial(content)"));
+  assert.ok(source.includes("refusing to send it to the local model"));
 });
 
 test("patch proposal is data-only and never executes or applies model output", () => {
