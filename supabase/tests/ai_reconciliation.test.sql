@@ -1,6 +1,6 @@
 begin;
 
-select plan(8);
+select plan(9);
 
 select ok(
   to_regprocedure('public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)') is not null,
@@ -26,35 +26,22 @@ select ok(
 );
 
 select ok(
-  has_function_privilege('authenticated', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
-  'authenticated callers can invoke the RPC subject to its in-function admin check'
+  not has_function_privilege('authenticated', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
+  'authenticated callers cannot invoke the privileged reconciliation RPC directly'
 );
 
 select ok(
-  not has_function_privilege('anon', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
-  'anonymous and public callers cannot invoke reconciliation'
+  has_function_privilege('service_role', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE')
+  and not has_function_privilege('anon', 'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)', 'EXECUTE'),
+  'only the server service role can invoke reconciliation'
 );
 
-set local role authenticated;
-select set_config('request.jwt.claim.sub', '', true);
-
-select is(
-  (select disposition
-   from public.resolve_ai_reconciliation(
-     '50000000-0000-4000-8000-000000000001',
-     '52000000-0000-4000-8000-000000000001',
-     '53000000-0000-4000-8000-000000000001',
-     'inconclusive',
-     'openai-compatible',
-     'provider-console-case-001',
-     'Provider dashboard does not yet show a final billing outcome.',
-     null, null, null
-   )),
-  'rejected',
-  'RPC rejects a caller that supplies an actor ID without an authenticated identity'
+select ok(
+  position('where id = p_actor_id' in lower(pg_get_functiondef(
+    'public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)'::regprocedure
+  ))) > 0,
+  'RPC verifies the actor against the authoritative profile row instead of trusting the supplied ID'
 );
-
-reset role;
 
 select ok(
   exists (
