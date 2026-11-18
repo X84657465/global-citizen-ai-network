@@ -362,33 +362,6 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm run lint
 
-      - name: Dispatch the next queued task after draft PR publication
-        if: success()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = 'artifacts/agent-publish.json';
-            if (!fs.existsSync(path)) {
-              core.info('No publication result; queue handoff is not dispatched.');
-              return;
-            }
-            const result = JSON.parse(fs.readFileSync(path, 'utf8'));
-            if (!['draft_pr_created', 'existing_open_pr'].includes(result.state)) {
-              core.info('No completed draft PR publication; queue handoff is not dispatched.');
-              return;
-            }
-            await github.rest.repos.createDispatchEvent({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              event_type: 'ai-task-next',
-              client_payload: {
-                source_issue: result.issue_number,
-                source_pull_request: result.pull_request_number || null
-              }
-            });
-            core.info('Dispatched the next queue cycle.');
-
       - name: Clean disposable scratch workspace
         if: always()
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
@@ -569,6 +542,33 @@ jobs:
           CANDIDATE_TESTS_PASSED: "true"
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/publish-agent-patch.mjs
+
+      - name: Dispatch the next queued task after draft PR publication
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'artifacts/agent-publish.json';
+            if (!fs.existsSync(path)) {
+              core.info('No publication result; queue handoff is not dispatched.');
+              return;
+            }
+            const result = JSON.parse(fs.readFileSync(path, 'utf8'));
+            if (!['draft_pr_created', 'existing_open_pr'].includes(result.state)) {
+              core.info('No completed draft PR publication; queue handoff is not dispatched.');
+              return;
+            }
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'ai-task-next',
+              client_payload: {
+                source_issue: result.issue_number,
+                source_pull_request: result.pull_request_number || null
+              }
+            });
+            core.info('Dispatched the next queue cycle.');
 
       - name: Clean disposable scratch workspace
         if: always()
