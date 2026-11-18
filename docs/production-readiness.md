@@ -15,9 +15,12 @@
 - Region: `ap-northeast-1` (Tokyo)
 - Project status: `ACTIVE_HEALTHY`
 - Database engine: PostgreSQL 17
-- Migrations applied: 17
+- Migrations applied: 24 (verified from the linked project's migration history on 2026-11-18)
 - Public tables: 22
 - Public tables with RLS enabled: 22
+- Read-only live catalog verification on 2026-11-18: all 22 public tables have RLS enabled; all 9 internal service-only tables have zero direct table privileges for `anon` and `authenticated` across SELECT/INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER.
+- The 9 RLS-enabled internal tables intentionally have no browser-facing policies; access is restricted to trusted server-side operations. The security advisor reports these as informational findings, not as a reason to add permissive policies.
+- Do not alter Supabase-managed `supabase_admin` default privileges through project migrations. CI proved the migration role cannot change them; keep application schema migrations under `postgres`.
 - A read-only SQL query against the live database succeeded.
 
 ## Remaining operator configuration
