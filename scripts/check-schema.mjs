@@ -577,6 +577,6 @@ assert.ok(reconciliationInputSource.includes("Number.isFinite") &&
   reconciliationInputSource.includes("MAX_COST_EXCLUSIVE") &&
   reconciliationInputTests.includes("rejects negative, infinite, and oversized billed costs"),
   "Reconciliation input validation must reject non-finite and out-of-range costs with regression coverage");
-assert.ok(reconciliationAuthSource.includes("Object.hasOwn") &&
+assert.ok(reconciliationAuthSource.includes("Object.prototype.hasOwnProperty.call") &&
   reconciliationAuthTests.includes("does not accept inherited authorization fields"),
   "Admin profile authorization must reject inherited or malformed role fields");
