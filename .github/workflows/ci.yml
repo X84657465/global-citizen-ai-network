@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+      - name: Migration filename safety guard
+        run: node scripts/check-migration-versions.mjs
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
