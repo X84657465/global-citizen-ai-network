@@ -8,6 +8,7 @@ on:
       - "lib/agent-task-validation.mjs"
       - "scripts/prepare-agent-task.mjs"
       - "tests/agent-task-validation.test.mjs"
+      - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
   workflow_dispatch:
     inputs:
@@ -26,16 +27,35 @@ concurrency:
 
 jobs:
   validation-tests:
-    name: Task validation security tests
+    name: Windows self-hosted project validation
     if: github.event_name == 'push'
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 5
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Run task validation tests
+
+      - name: Verify toolchain
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node --test tests/agent-task-validation.test.mjs
+        run: |
+          node --version
+          npm --version
+
+      - name: Install locked dependencies without lifecycle scripts
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Run complete unit test suite
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npm run test:unit
+
+      - name: Run TypeScript validation
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npx --no-install tsc --noEmit
+
+      - name: Run ESLint
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npm run lint
 
   prepare-task:
     name: Validate and package one task (no AI execution)
@@ -45,6 +65,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Validate task and create a safe handoff bundle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,6 +73,7 @@ jobs:
           ISSUE_NUMBER: ${{ inputs.issue_number }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/prepare-agent-task.mjs
+
       - name: Upload task bundle
         uses: actions/upload-artifact@v4
         with:
