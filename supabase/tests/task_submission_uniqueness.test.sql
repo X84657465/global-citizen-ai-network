@@ -7,7 +7,7 @@ select ok(
     select 1
     from pg_index i
     join pg_class c on c.oid = i.indexrelid
-    where c.oid = 'public.task_submissions_one_active_per_task_contributor_idx'::regclass
+    where c.oid = 'public.task_submissions_one_active_per_user'::regclass
       and i.indisunique
       and pg_get_expr(i.indpred, i.indrelid) like '%submitted%'
       and pg_get_expr(i.indpred, i.indrelid) like '%under_review%'
@@ -31,7 +31,7 @@ select ok(
 
 select ok(
   not (select pg_get_expr(indpred, indrelid) like '%rejected%'
-       from pg_index where indexrelid = 'public.task_submissions_one_active_per_task_contributor_idx'::regclass),
+       from pg_index where indexrelid = 'public.task_submissions_one_active_per_user'::regclass),
   'rejected submissions are excluded so members can resubmit after rejection'
 );
 
