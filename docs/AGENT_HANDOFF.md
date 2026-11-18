@@ -12,9 +12,9 @@
 
 | Component | Verified state |
 |---|---|
-| Windows self-hosted Runner | Workflow targets `[self-hosted, Windows, X64]`. Latest observed preflight/CI jobs were queued without an assigned runner name; online/idle status is **not verified**. |
-| CI build/database | `.github/workflows/ci.yml` currently targets `ubuntu-latest` for both build and Supabase database jobs. Previous runs failed; the most recent inspected unit-test log showed three failing assertions (factory success-state expectation, planner task expectation, and owner-authored-task expectation). |
-| Local task worker | `.github/workflows/agent-task-preflight.yml` on `main` still schedules every 30 minutes. |
+| Windows self-hosted Runner | **Verified online and assigned**: CI Run #44384945090 job #135086889010 was assigned to `DESKTOP-S2S4BM9` with labels `self-hosted, Windows, X64`; Supabase CLI installation and local config initialization passed, and Supabase startup was in progress at last check. |
+| CI build/database | On `main`, both jobs still target `ubuntu-latest`. In PR #99, both target the Windows self-hosted Runner and use `powershell`; the redundant `docker info` probe has been removed. Run #44384945090: database job #135086889010 is running on `DESKTOP-S2S4BM9`, build job #135086889563 is queued for the same Runner. |
+| Local task worker | `main` remains on a 30-minute schedule. PR #99 changes it to every 5 minutes. |
 | Five-minute unattended loop | Proposed in PR #99 only; **not active on main**. |
 | Circuit breaker / cooldown / planner | Proposed in PR #99 only; **not active on main**. |
 | Production safety | No automatic merge or production deployment is enabled on main. Keep validation and review gates intact. |
@@ -24,7 +24,7 @@
 - PR #98 — closed without merge. Its issue-trigger reduction was not integrated into `main`.
 - PR #80 — closed without merge; its branch was stale and based on an older main commit.
 - No new factory PR has been verified as merged in this handoff update.
-- PR #99 — `[Automation] Add unattended five-minute AI task factory`; open Draft PR, not merged: https://github.com/X84657465/global-citizen-ai-network/pull/99
+- PR #99 — `[Automation] Add unattended five-minute AI task factory`; open Draft PR, not merged: https://github.com/X84657465/global-citizen-ai-network/pull/99. Latest branch includes fixes for three unit-test assertions, removal of the redundant Docker probe, and numeric `Retry-After` parsing.
 
 ## 當前阻塞與待辦
 
@@ -33,7 +33,7 @@
 3. Review PR #99 end-to-end before merge: verify durable remote/local cooldown consistency, per-Issue skip after three attempts, planner deduplication, and queue handoff after failures. Confirm that workflow concurrency prevents simultaneous task workers; the five-minute cron is a polling trigger, not a guarantee of a fresh Runner every five minutes.
 4. **Next queued task: Issue #17** — `[AI Task] Remediate high-severity development dependency audit findings`. The current selector priority places #17 first, followed by #3 and #71. Recheck open Issues and linked PRs before dispatch; do not rely on this cached order if repository state changes.
 5. There are 25 open `[AI Task]` Issues in the latest inspected search. Validate each task body and ensure closed/unmerged PRs do not permanently suppress their source Issues.
-6. CI build and database jobs currently use GitHub-hosted `ubuntu-latest`; the Windows self-hosted Runner is used by the preflight workflow. Treat these as separate execution paths.
+6. On `main`, CI still uses GitHub-hosted `ubuntu-latest`; PR #99 proposes moving CI build and database jobs to the Windows self-hosted Runner. Treat PR branch configuration as proposed until merged.
 
 ## 無縫交接規則
 
