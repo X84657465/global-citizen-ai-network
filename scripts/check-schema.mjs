@@ -1,17 +1,17 @@
 import { readFileSync } from "node:fs";
 import { strict as assert } from "node:assert";
 
-const sql = readFileSync("supabase/migrations/0001_initial_schema.sql", "utf8");
-const statusSql = readFileSync("supabase/migrations/0002_member_status_rls.sql", "utf8");
-const budgetSql = readFileSync("supabase/migrations/0003_atomic_ai_budget_reservations.sql", "utf8");
-const rewardSnapshotSql = readFileSync("supabase/migrations/0010_immutable_contribution_reward_snapshots.sql", "utf8");
-const submissionLifecycleSql = readFileSync("supabase/migrations/0011_submission_appeal_lifecycle_hardening.sql", "utf8");
-const hardStopSql = readFileSync("supabase/migrations/0004_ai_budget_overrun_hard_stop.sql", "utf8");
-const idempotencySql = readFileSync("supabase/migrations/0005_ai_request_idempotency.sql", "utf8");
-const rateLimitSql = readFileSync("supabase/migrations/0006_ai_request_rate_limits.sql", "utf8");
-const singlePendingSql = readFileSync("supabase/migrations/0014_single_unresolved_ai_request_per_member.sql", "utf8");
-const contributionReviewSql = readFileSync("supabase/migrations/0008_atomic_contribution_review.sql", "utf8");
-const appealReviewSql = readFileSync("supabase/migrations/0009_atomic_appeal_review.sql", "utf8");
+const sql = readFileSync("supabase/migrations/20261118003031_initial_schema.sql", "utf8");
+const statusSql = readFileSync("supabase/migrations/20261118003035_member_status_rls.sql", "utf8");
+const budgetSql = readFileSync("supabase/migrations/20261118003039_atomic_ai_budget_reservations.sql", "utf8");
+const rewardSnapshotSql = readFileSync("supabase/migrations/20261118003109_immutable_contribution_reward_snapshots.sql", "utf8");
+const submissionLifecycleSql = readFileSync("supabase/migrations/20261118003121_submission_appeal_lifecycle_hardening.sql", "utf8");
+const hardStopSql = readFileSync("supabase/migrations/20261118003043_ai_budget_overrun_hard_stop.sql", "utf8");
+const idempotencySql = readFileSync("supabase/migrations/20261118003047_ai_request_idempotency.sql", "utf8");
+const rateLimitSql = readFileSync("supabase/migrations/20261118003051_ai_request_rate_limits.sql", "utf8");
+const singlePendingSql = readFileSync("supabase/migrations/20261118003135_single_unresolved_ai_request_per_member.sql", "utf8");
+const contributionReviewSql = readFileSync("supabase/migrations/20261118003059_atomic_contribution_review.sql", "utf8");
+const appealReviewSql = readFileSync("supabase/migrations/20261118003104_atomic_appeal_review.sql", "utf8");
 const appealReviewApi = readFileSync("app/api/admin/contribution/appeals/route.ts", "utf8");
 const appealReviewClient = readFileSync("app/admin/appeals/appeal-review-client.tsx", "utf8");
 const reviewApi = readFileSync("app/api/admin/contribution/reviews/route.ts", "utf8");
@@ -137,7 +137,7 @@ assert.ok(aiGateway.includes('buildAiProviderMessages'), "AI gateway must use th
 assert.ok(aiHistory.includes('item.role !== "assistant" && item.role !== "user"'), "Provider history builder must exclude system/tool and unknown roles");
 assert.ok(aiHistory.includes("totalCharacters + item.content.length > maxTotalCharacters"), "Provider history builder must enforce an aggregate character ceiling");
 
-const atomicAiSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
+const atomicAiSql = readFileSync("supabase/migrations/20261118003125_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
 const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
@@ -248,7 +248,7 @@ assert.ok(workspaceClient.includes("pendingRecoveryBlocked") && workspaceClient.
 assert.ok(workspaceClient.includes("另一個對話的 AI 請求尚未確認"), "Workspace must explain why a second request is blocked");
 
 
-const retentionSql = readFileSync("supabase/migrations/0007_ai_operational_retention.sql", "utf8");
+const retentionSql = readFileSync("supabase/migrations/20261118003055_ai_operational_retention.sql", "utf8");
 assert.ok(retentionSql.includes("cleanup_expired_ai_operational_records"));
 assert.ok(retentionSql.includes("state in ('completed', 'failed')"), "Cleanup must never delete processing idempotency rows");
 assert.ok(retentionSql.includes("interval '48 hours'"), "Rate-limit cleanup must retain recent windows");
@@ -307,7 +307,7 @@ assert.ok(taskAdminClient.includes('"建立草稿"'), "Task admin UI must create
 
 console.log("Contribution operations guard passed: task authoring, controlled publication, reviewer approval, and member ledger access.");
 
-const reconciliationQueueSql = readFileSync("supabase/migrations/0013_bound_ai_reconciliation_queue.sql", "utf8");
+const reconciliationQueueSql = readFileSync("supabase/migrations/20261118003129_bound_ai_reconciliation_queue.sql", "utf8");
 const reconciliationApi = readFileSync("app/api/admin/ai-reconciliation/route.ts", "utf8");
 assert.ok(aiGateway.includes('redirect: "error"'), "AI provider calls must reject unexpected redirects");
 assert.ok(reconciliationQueueSql.includes("limit 100;"), "Admin reconciliation query must have a hard result bound");
@@ -371,7 +371,7 @@ assert.ok(submissionLifecycleSql.includes("t.status = 'published'") && submissio
 assert.ok(submissionLifecycleSql.includes("for update") && submissionLifecycleSql.includes("v_contributor_id is distinct from new.appellant_id"),
   "Appeal creation must lock the rejected submission and verify its owner");
 
-const aiCompletionSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
+const aiCompletionSql = readFileSync("supabase/migrations/20261118003125_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 assert.ok(aiCompletionSql.includes("v_request.conversation_id is distinct from p_conversation_id"),
   "AI completion must remain bound to the conversation persisted during the atomic claim");
 assert.ok(aiCompletionSql.includes("p_estimated_cost_twd > 9999999999.99999999"),
@@ -385,7 +385,7 @@ assert.ok(singlePendingSql.includes("p_preflight_cost_twd > 9999999999.99999999"
 assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
   "AI claim must reject non-finite reservation ceilings");
 
-const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reconciliation_resolution.sql", "utf8") + "\n" + readFileSync("supabase/migrations/0018_service_role_ai_reconciliation.sql", "utf8");
+const reconciliationSql = readFileSync("supabase/migrations/20261118003138_audited_ai_reconciliation_resolution.sql", "utf8") + "\n" + readFileSync("supabase/migrations/20261118005041_service_role_ai_reconciliation.sql", "utf8");
 const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
 const reconciliationAuth = readFileSync("lib/ai/reconciliation-auth.ts", "utf8");
 const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
@@ -453,7 +453,7 @@ assert.ok(projectLinkedWorkspaceClient.includes('fetch("/api/projects", { cache:
   "Workspace must load active projects and persist the selected project on new conversations");
 assert.ok(projectLinkedWorkspaceClient.includes("新對話歸屬專案") && projectLinkedWorkspaceClient.includes("未分類對話"),
   "Workspace must expose project assignment and identify unclassified conversations");
-const projectOwnershipSql = readFileSync("supabase/migrations/0016_conversation_project_ownership.sql", "utf8");
+const projectOwnershipSql = readFileSync("supabase/migrations/20261118003142_conversation_project_ownership.sql", "utf8");
 const projectOwnershipTests = readFileSync("supabase/tests/project_conversation_security.test.sql", "utf8");
 assert.ok(projectOwnershipSql.includes("v_project_owner is distinct from new.owner_id") &&
   projectOwnershipSql.includes("v_archived_at is not null"),
@@ -480,7 +480,7 @@ assert.ok(projectLinkedWorkspaceClient.includes('method: "PATCH"') &&
   projectLinkedWorkspaceClient.includes("assignConversationProject"),
   "Workspace must allow existing conversations to be reassigned or unassigned from active projects");
 
-const projectOwnershipLockSql = readFileSync("supabase/migrations/0017_conversation_project_locking.sql", "utf8");
+const projectOwnershipLockSql = readFileSync("supabase/migrations/20261118003146_conversation_project_locking.sql", "utf8");
 assert.ok(projectOwnershipLockSql.includes("for share") && !projectOwnershipLockSql.includes("for key share"),
   "Project ownership trigger must take a row lock that conflicts with concurrent archived_at updates");
 assert.ok(projectOwnershipTests.includes("project row lock conflicts with concurrent archive updates"),
