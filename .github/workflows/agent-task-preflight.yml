@@ -9,11 +9,14 @@ on:
       - "lib/agent-patch-validation.mjs"
       - "lib/agent-plan-validation.mjs"
       - "scripts/prepare-agent-task.mjs"
+      - "scripts/generate-agent-plan.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
       - "tests/agent-plan-validation.test.mjs"
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
+  issues:
+    types: [opened, edited]
   workflow_dispatch:
     inputs:
       issue_number:
@@ -263,10 +266,14 @@ jobs:
         run: npm run lint
 
   prepare-task:
-    name: Validate and package one task (no AI execution)
-    if: github.event_name == 'workflow_dispatch'
+    name: Validate task and generate read-only AI plan
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' &&
+       github.event.issue.user.login == github.repository_owner &&
+       startsWith(github.event.issue.title, '[AI Task]'))
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -275,7 +282,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/prepare-agent-task.mjs
 
