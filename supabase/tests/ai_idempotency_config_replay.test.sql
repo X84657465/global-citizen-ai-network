@@ -1,6 +1,6 @@
 begin;
 
-select plan(10);
+select plan(12);
 
 select ok(
   to_regprocedure('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)') is not null,
@@ -65,6 +65,33 @@ select ok(
   position('insert into public.messages' in lower(pg_get_functiondef('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)'::regprocedure)))
     < position('insert into public.ai_request_idempotency' in lower(pg_get_functiondef('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)'::regprocedure))),
   'original user prompt and idempotency mapping are persisted atomically in the claim transaction'
+);
+
+
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.ai_request_idempotency'::regclass
+      and contype = 'u'
+      and pg_get_constraintdef(oid) ilike 'UNIQUE (owner_id, idempotency_key)'
+  ),
+  'the database enforces one idempotency key per member'
+);
+
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.ai_request_idempotency'::regclass
+      and contype = 'u'
+      and pg_get_constraintdef(oid) ilike 'UNIQUE (request_id)'
+  )
+  and exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.ai_budget_reservations'::regclass
+      and contype = 'u'
+      and pg_get_constraintdef(oid) ilike 'UNIQUE (request_id)'
+  ),
+  'each request can have only one idempotency mapping and one budget reservation'
 );
 
 select * from finish();
