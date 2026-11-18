@@ -81,6 +81,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Supabase CLI initialization failed." }
           }
       - name: Start local Supabase services and apply migrations
+        id: supabase-start
         run: |
           supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
           if ($LASTEXITCODE -ne 0) { throw "Local Supabase services failed to start or migrations failed." }
@@ -89,5 +90,28 @@ jobs:
           supabase test db
           if ($LASTEXITCODE -ne 0) { throw "PostgreSQL or RLS tests failed." }
       - name: Stop Supabase services
-        if: always()
+        if: always() && steps.supabase-start.outcome == 'success'
         run: supabase stop --no-backup
+
+  circuit-breaker:
+    name: Persist CI failures in the factory circuit breaker
+    if: always() && (needs.build.result == 'failure' || needs.database.result == 'failure')
+    needs: [build, database]
+    runs-on: [self-hosted, Windows, X64]
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+      - name: Record one failure for this CI run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: failure
+          FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database job logs."
+        run: node scripts/agent-factory-controller.mjs
