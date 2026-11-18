@@ -595,7 +595,8 @@ assert.ok(publicTableGrantTests.includes("select plan(15)") &&
 assert.ok(supabaseAdminDefaultsSql.includes("alter default privileges for role supabase_admin in schema public") &&
   supabaseAdminDefaultsSql.includes("revoke all on tables from anon, authenticated") &&
   supabaseAdminDefaultsSql.includes("revoke all on sequences from anon, authenticated") &&
-  supabaseAdminDefaultsSql.includes("revoke execute on functions from public, anon, authenticated"),
+  supabaseAdminDefaultsSql.includes("revoke execute on functions from public") &&
+  supabaseAdminDefaultsSql.includes("revoke execute on functions from anon, authenticated"),
   "Supabase-managed public object defaults must not grant browser or PUBLIC access");
 assert.ok(supabaseAdminDefaultsTests.includes("set local role supabase_admin") &&
   supabaseAdminDefaultsTests.includes("service_role retains its managed default sequence and function access"),
