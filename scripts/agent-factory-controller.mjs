@@ -102,11 +102,16 @@ if (mode === "check") {
   console.log("Successful task publication recorded; circuit breaker reset.");
 } else if (mode === "plan") {
   const openIssues = await listIssues("open");
-  const openPulls = await api("/pulls?state=open&per_page=100");
+  const allPulls = await api("/pulls?state=all&per_page=100");
   const skipped = new Set(state.skipped_issue_numbers ?? []);
+  const taskPulls = allPulls.map((pull) => ({
+    pull,
+    issueNumber: Number(/<!-- ai-task:(\d+) -->/.exec(pull.body || "")?.[1]) || null,
+  })).filter((entry) => entry.issueNumber);
+  const completedByMerge = new Set(taskPulls.filter((entry) => entry.pull.merged === true).map((entry) => entry.issueNumber));
+  const activeTaskPull = taskPulls.some((entry) => entry.pull.state === "open");
   const openTasks = openIssues.filter((issue) => !issue.pull_request && issue.title?.startsWith("[AI Task]"));
-  const pendingTasks = openTasks.filter((issue) => !skipped.has(issue.number));
-  const activeTaskPull = openPulls.some((pull) => /<!-- ai-task:\d+ -->/.test(pull.body || ""));
+  const pendingTasks = openTasks.filter((issue) => !skipped.has(issue.number) && !completedByMerge.has(issue.number));
   if (pendingTasks.length || activeTaskPull) {
     writeOutput("created_issue_number", "");
     console.log("Planner idle: open task Issues or an active task PR still exist.");
