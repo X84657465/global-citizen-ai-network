@@ -42,6 +42,7 @@ const idempotencyValidation = readFileSync("lib/ai/idempotency.ts", "utf8");
 const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8");
 const singleActiveSubmissionSql = readFileSync("supabase/migrations/0023_single_active_task_submission.sql", "utf8");
 const singleActiveSubmissionTests = readFileSync("supabase/tests/task_submission_uniqueness.test.sql", "utf8");
+const submissionIndexCleanupSql = readFileSync("supabase/migrations/0024_dedupe_active_submission_index.sql", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -536,3 +537,9 @@ assert.ok(singleActiveSubmissionSql.includes("pg_advisory_xact_lock") &&
 assert.ok(singleActiveSubmissionTests.includes("rejected submissions are excluded") &&
   singleActiveSubmissionTests.includes("new submission was allowed while appeal was open"),
   "Database tests must cover rejection retries and unresolved appeal blocking");
+
+assert.ok(submissionIndexCleanupSql.includes("drop index if exists public.task_submissions_one_active_per_task_contributor_idx") &&
+  submissionIndexCleanupSql.includes("create unique index if not exists task_submissions_one_active_per_user"),
+  "Active task submission hardening must converge to one canonical partial unique index");
+assert.ok(singleActiveSubmissionTests.includes("task_submissions_one_active_per_user"),
+  "Database regression tests must verify the canonical active submission index name");
