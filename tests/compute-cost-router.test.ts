@@ -66,3 +66,23 @@ test("rejects negative or non-finite quotes", () => {
 test("rejects duplicate quotes for the same execution target", () => {
   assert.throws(() => chooseExecutionTarget(publicWorkload, [quotes[0], quotes[0]]), /duplicate_execution_quote/);
 });
+
+test("secret-bearing workloads cannot use local or community execution", () => {
+  const result = chooseExecutionTarget({ ...publicWorkload, requiresSecrets: true }, quotes);
+  assert.equal(result.target, "trusted_cloud");
+});
+
+test("does not silently fall back when no safe target is available", () => {
+  assert.throws(() => chooseExecutionTarget(
+    { ...publicWorkload, workloadClass: "private_user_data", userAllowsLocal: false, trustedCloudAvailable: false },
+    quotes.map(q => ({ ...q, available: q.target !== "trusted_cloud" })),
+  ), /no_safe_execution_target/);
+});
+
+test("breaks equal-cost ties using lower estimated latency", () => {
+  const result = chooseExecutionTarget(publicWorkload, [
+    { target: "trusted_cloud", estimatedCostTwd: 2, estimatedLatencyMs: 900, available: true },
+    { target: "local_device", estimatedCostTwd: 2, estimatedLatencyMs: 500, available: true },
+  ]);
+  assert.equal(result.target, "local_device");
+});
