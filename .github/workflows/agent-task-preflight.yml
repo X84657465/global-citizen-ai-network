@@ -62,6 +62,27 @@ jobs:
             Write-Host "WSL: not found"
           }
 
+          $ollama = Get-Command ollama.exe -ErrorAction SilentlyContinue
+          if ($ollama) {
+            Write-Host "Ollama CLI: installed"
+            ollama.exe --version
+          } else {
+            Write-Host "Ollama CLI: not found on PATH"
+          }
+
+          try {
+            $ollamaTags = Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -TimeoutSec 3 -ErrorAction Stop
+            $modelNames = @($ollamaTags.models | ForEach-Object { $_.name })
+            if ($modelNames.Count -gt 0) {
+              Write-Host "Local Ollama API: available"
+              Write-Host "Local models: $($modelNames -join ', ')"
+            } else {
+              Write-Host "Local Ollama API: available; no models listed"
+            }
+          } catch {
+            Write-Host "Local Ollama API: not responding on 127.0.0.1:11434"
+          }
+
           $docker = Get-Command docker.exe -ErrorAction SilentlyContinue
           if ($docker) {
             Write-Host "Docker CLI: installed"
