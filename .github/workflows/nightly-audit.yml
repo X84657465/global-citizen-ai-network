@@ -1,0 +1,111 @@
+name: Nightly Read-Only Audit
+
+on:
+  schedule:
+    - cron: "0 16 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: global-citizen-ai-network-nightly-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Read-only code and test audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Install locked dependencies
+        id: install
+        continue-on-error: true
+        run: npm ci
+
+      - name: Migration filename safety guard
+        id: migration_guard
+        continue-on-error: true
+        run: node scripts/check-migration-versions.mjs
+
+      - name: Schema safety guard
+        id: schema_guard
+        continue-on-error: true
+        run: node scripts/check-schema.mjs
+
+      - name: Unit tests
+        id: unit_tests
+        continue-on-error: true
+        run: npm run test:unit
+
+      - name: Type check
+        id: type_check
+        continue-on-error: true
+        run: npx tsc --noEmit
+
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Write audit report
+        if: always()
+        env:
+          INSTALL: ${{ steps.install.outcome }}
+          MIGRATION_GUARD: ${{ steps.migration_guard.outcome }}
+          SCHEMA_GUARD: ${{ steps.schema_guard.outcome }}
+          UNIT_TESTS: ${{ steps.unit_tests.outcome }}
+          TYPE_CHECK: ${{ steps.type_check.outcome }}
+          LINT: ${{ steps.lint.outcome }}
+        run: |
+          {
+            echo "# Nightly Read-Only Audit"
+            echo
+            echo "- Run: ${{ github.run_number }}"
+            echo "- Branch: ${{ github.ref_name }}"
+            echo "- Commit: ${{ github.sha }}"
+            echo
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Dependency installation | $INSTALL |"
+            echo "| Migration filename guard | $MIGRATION_GUARD |"
+            echo "| Schema safety guard | $SCHEMA_GUARD |"
+            echo "| Unit tests | $UNIT_TESTS |"
+            echo "| Type check | $TYPE_CHECK |"
+            echo "| Lint | $LINT |"
+          } | tee audit-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-audit-report-${{ github.run_number }}
+          path: audit-summary.md
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Fail audit if any check failed
+        if: always()
+        env:
+          INSTALL: ${{ steps.install.outcome }}
+          MIGRATION_GUARD: ${{ steps.migration_guard.outcome }}
+          SCHEMA_GUARD: ${{ steps.schema_guard.outcome }}
+          UNIT_TESTS: ${{ steps.unit_tests.outcome }}
+          TYPE_CHECK: ${{ steps.type_check.outcome }}
+          LINT: ${{ steps.lint.outcome }}
+        run: |
+          for result in "$INSTALL" "$MIGRATION_GUARD" "$SCHEMA_GUARD" "$UNIT_TESTS" "$TYPE_CHECK" "$LINT"; do
+            if [ "$result" != "success" ]; then
+              echo "Nightly audit failed or was skipped: $result"
+              exit 1
+            fi
+          done
