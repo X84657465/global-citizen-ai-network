@@ -34,7 +34,7 @@ The inspected RPC definitions validate finite monetary values, bind requests to 
 
 A Supabase security-advisor pass returned nine `rls_enabled_no_policy` informational findings. The follow-up grant inspection confirms that several internal tables have RLS enabled with zero policies, which blocks row access through normal client roles, but it also shows unnecessary table-level grants to `anon` and/or `authenticated` on `audit_logs`, `platform_ai_controls`, and `provider_invoice_imports`. The AI budget/idempotency/rate-limit internals are limited to `postgres` and `service_role` in the inspected grant output. The no-policy state is not itself a data leak, but the extra client-role grants are avoidable attack surface and should be revoked in a reviewed migration. No production grants were changed during this audit.
 
-The security advisor output should not be treated as a pass until those grants are removed or the intended access model is explicitly documented and tested.
+The security advisor output should not be treated as a pass until those grants are removed or the intended access model is explicitly documented and tested. The follow-up grant query confirmed all seven table privileges were granted to both `anon` and `authenticated` on each of the three tables; `postgres` and `service_role` grants were also present and are deliberately preserved.
 
 ## Application observations
 
@@ -47,6 +47,7 @@ The latest production deployment is marked `READY`; that status alone does not p
 - Created `work/integration-audit` from `main`.
 - Updated `docs/database-safety.md` so its migration status no longer incorrectly claims that the linked database has never had migrations applied.
 - Added this evidence-based audit record.
+- Added migration `0019_revoke_client_access_to_internal_tables.sql` and a read-only post-migration assertion at `tests/database/internal-table-grants.sql`. These are committed to the review branch only; they have not been applied to the linked Supabase project.
 
 ## Blocking verification before enabling AI or public launch
 
@@ -61,4 +62,4 @@ The latest production deployment is marked `READY`; that status alone does not p
 
 ## Safety boundary
 
-This branch contains documentation changes only. No live Supabase migration was applied, no production data was modified, no secrets were retrieved, and no production deployment was triggered.
+This branch contains documentation, tests, and a reviewed SQL migration. The migration has NOT been applied to the linked Supabase project. No production grants, schema, data, secrets, or AI controls were changed, and no production deployment was triggered. Vercel Preview builds may run automatically from the review branch.
