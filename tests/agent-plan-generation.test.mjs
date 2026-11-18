@@ -11,6 +11,9 @@ test("local planner uses no-think mode and structured JSON output", () => {
   assert.ok(source.includes("format: PLAN_SCHEMA"));
   assert.ok(source.includes("temperature: 0"));
   assert.ok(source.includes("^[a-z][a-z0-9-]{1,39}$"));
+  assert.ok(source.includes("planner may use inspect or report only"));
+  assert.ok(source.includes("implementer may use inspect or propose_patch only"));
+  assert.ok(source.includes("allOf: ["));
 });
 test("local planner validates output and never executes generated commands", () => {
   assert.ok(source.includes("validateAgentPlan(candidate, task)"));
