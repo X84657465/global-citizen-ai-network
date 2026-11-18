@@ -66,7 +66,7 @@ async function waitUntilBlocked(appName, timeoutMs = 15000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     const result = spawnSync("psql", [
-      "-X", "-v", "ON_ERROR_STOP=1", "-At", "-d", databaseUrl,
+      "-X", "-q", "-v", "ON_ERROR_STOP=1", "-At", "-d", databaseUrl,
       "-c", "select coalesce(wait_event_type, '') from pg_stat_activity where application_name = " +
         sqlLiteral(appName) + " and state = 'active'",
     ], { encoding: "utf8" });
