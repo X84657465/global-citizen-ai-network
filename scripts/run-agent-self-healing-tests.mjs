@@ -38,14 +38,14 @@ function safeOutput(result) {
   const stdout = typeof result.stdout === "string" ? result.stdout : "";
   const stderr = typeof result.stderr === "string" ? result.stderr : "";
   const error = result.error instanceof Error ? result.error.message : "";
-  return [stdout, stderr, error].filter(Boolean).join("\\n").trim().slice(-24000);
+  return [stdout, stderr, error].filter(Boolean).join("\n").trim().slice(-24000);
 }
 
 function classifyFailure(output, stage, status) {
   const text = String(output ?? "");
-  const ts1005 = /\\bTS1005\\b|error TS1005\\s*:/i.test(text);
-  const syntaxTruncation = ts1005 && /(?:'\\}' expected|'}' expected|expected\\s*[,;)}\\]]|unterminated|unexpected end|end of file)/i.test(text);
-  const typescriptSyntax = /\\bTS1\\d{3}\\b|\\bSyntaxError\\b/i.test(text);
+  const ts1005 = /\bTS1005\b|error TS1005\s*:/i.test(text);
+  const syntaxTruncation = ts1005 && /(?:'\}' expected|'}' expected|expected\s*[,;)}\]]|unterminated|unexpected end|end of file)/i.test(text);
+  const typescriptSyntax = /\bTS1\d{3}\b|\bSyntaxError\b/i.test(text);
   const category = syntaxTruncation
     ? "typescript_ts1005_possible_truncation"
     : ts1005
@@ -59,7 +59,7 @@ function classifyFailure(output, stage, status) {
             : stage === "lint"
               ? "lint_failure"
               : "container_or_command_failure";
-  const locations = [...text.matchAll(/([^\\s()]+\\.(?:tsx?|jsx?)\\(\\d+,\\d+\\):?)/g)]
+  const locations = [...text.matchAll(/([^\s()]+\.(?:tsx?|jsx?)\(\d+,\d+\):?)/g)]
     .slice(0, 10)
     .map((match) => match[1]);
   return {
@@ -106,9 +106,9 @@ function runChecks(scratch) {
       windowsHide: true,
     });
     const output = safeOutput(result);
-    outputs.push("=== " + stage.name + " ===\\n" + output);
+    outputs.push("=== " + stage.name + " ===\n" + output);
     if (result.error || result.status !== 0) {
-      const combined = outputs.join("\\n");
+      const combined = outputs.join("\n");
       return {
         ok: false,
         output: combined.slice(-24000),
@@ -119,7 +119,7 @@ function runChecks(scratch) {
   }
   return {
     ok: true,
-    output: outputs.join("\\n").slice(-24000),
+    output: outputs.join("\n").slice(-24000),
     status: 0,
     diagnostic: null,
   };
