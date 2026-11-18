@@ -145,17 +145,17 @@ jobs:
 
             $requestBody = @{
               model = $selected.name
-              prompt = "/no_think Reply with READY only."
+              prompt = "/no_think Reply with READY only."\n              think = $false
               stream = $false
               keep_alive = "0s"
-              options = @{ num_predict = 8; temperature = 0 }
+              options = @{ num_predict = 128; temperature = 0 }
             } | ConvertTo-Json -Depth 5 -Compress
 
             $timer = [System.Diagnostics.Stopwatch]::StartNew()
             $result = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:11434/api/generate" -Body $requestBody -ContentType "application/json" -TimeoutSec 180
             $timer.Stop()
 
-            if (-not $result.response) { throw "Local model returned an empty response." }
+            Write-Host "Model response characters: $($result.response.Length)"\n            Write-Host "Model thinking characters: $($result.thinking.Length)"\n            Write-Host "Model generated tokens: $($result.eval_count)"\n            if (-not $result.response) { throw "Local model returned an empty response (thinking chars: $($result.thinking.Length), generated tokens: $($result.eval_count))." }
             $tokensPerSecond = 0
             if ($result.eval_duration -gt 0) {
               $tokensPerSecond = [math]::Round(($result.eval_count / ($result.eval_duration / 1000000000)), 2)
