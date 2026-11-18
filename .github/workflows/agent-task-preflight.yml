@@ -178,56 +178,80 @@ jobs:
         run: |
           if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
           New-Item -ItemType Directory -Path "artifacts" -Force | Out-Null
-          try {
-            $task = @{
-              schema_version = 1
-              mode = "preflight_only"
-              ai_execution_enabled = $false
-              goal = "Prepare a minimal new documentation page describing the safe local AI task pipeline and its approval boundaries."
-              allowed_paths = @("docs/agent-pipeline-smoke-test.md")
-              acceptance_criteria = @(
-                "The plan is valid JSON and passes the agent plan validator.",
-                "Every proposed file path stays within the one approved documentation path."
-              )
-              explicit_exclusions = @(
-                "Do not apply the proposed patch to repository files.",
-                "Do not execute commands or deploy."
-              )
-            }
-            $json = $task | ConvertTo-Json -Depth 10
-            [System.IO.File]::WriteAllText(
-              (Join-Path (Get-Location) "artifacts/agent-task.json"),
-              $json,
-              [System.Text.UTF8Encoding]::new($false)
+          $task = @{
+            schema_version = 1
+            mode = "preflight_only"
+            ai_execution_enabled = $false
+            goal = "Prepare a minimal new documentation page describing the safe local AI task pipeline and its approval boundaries."
+            allowed_paths = @("docs/agent-pipeline-smoke-test.md")
+            acceptance_criteria = @(
+              "The plan is valid JSON and passes the agent plan validator.",
+              "The documentation patch is bounded to the one approved path."
             )
-            node scripts/generate-agent-plan.mjs
-            if ($LASTEXITCODE -ne 0) { throw "Local Ollama plan generation smoke test failed." }
+            explicit_exclusions = @(
+              "Do not apply the proposed patch to repository files.",
+              "Do not execute commands or deploy."
+            )
+          }
+          $json = $task | ConvertTo-Json -Depth 10
+          [System.IO.File]::WriteAllText(
+            (Join-Path (Get-Location) "artifacts/agent-task.json"),
+            $json,
+            [System.Text.UTF8Encoding]::new($false)
+          )
+          node scripts/generate-agent-plan.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Local Ollama plan generation smoke test failed." }
 
-            node scripts/generate-agent-patch.mjs
-            if ($LASTEXITCODE -ne 0) { throw "Local Ollama patch proposal smoke test failed." }
-            if (-not (Test-Path "artifacts/agent-patch.json")) {
-              throw "The synthetic task did not produce a validated patch proposal."
-            }
-
-            $patch = Get-Content "artifacts/agent-patch.json" -Raw | ConvertFrom-Json
-            if ($patch.files.Count -lt 1 -or $patch.files.Count -gt 20) {
-              throw "Patch proposal file count is outside the allowed range."
-            }
-
-            $plan = Get-Content "artifacts/agent-plan.json" -Raw | ConvertFrom-Json
-            if ($plan.ai_execution_enabled -ne $false) { throw "Plan must keep AI code execution disabled." }
-            if ($plan.tasks.Count -lt 1 -or $plan.tasks.Count -gt 12) { throw "Plan task count is outside the allowed range." }
-            foreach ($planTask in $plan.tasks) {
-              foreach ($approvedPath in $planTask.allowed_paths) {
-                if ($approvedPath -ne "docs/agent-pipeline-smoke-test.md") {
-                  throw "Plan contains a path outside the synthetic task allowlist."
-                }
+          $plan = Get-Content "artifacts/agent-plan.json" -Raw | ConvertFrom-Json
+          if ($plan.ai_execution_enabled -ne $false) { throw "Plan must keep AI code execution disabled." }
+          if ($plan.tasks.Count -lt 1 -or $plan.tasks.Count -gt 12) { throw "Plan task count is outside the allowed range." }
+          $implementerTasks = @($plan.tasks | Where-Object { $_.role -eq "implementer" -and $_.action -eq "propose_patch" })
+          if ($implementerTasks.Count -ne 1) { throw "Plan must contain exactly one bounded implementer patch task." }
+          foreach ($planTask in $plan.tasks) {
+            foreach ($approvedPath in $planTask.allowed_paths) {
+              if ($approvedPath -ne "docs/agent-pipeline-smoke-test.md") {
+                throw "Plan contains a path outside the synthetic task allowlist."
               }
             }
-            Write-Host "PASS: local model generated a validated plan without modifying repository files."
-          } finally {
-            if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
           }
+          Write-Host "PASS: local model generated a validated read-only plan."
+
+      - name: Smoke-test local Ollama patch proposal
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          node scripts/generate-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Local Ollama patch proposal smoke test failed." }
+          if (-not (Test-Path "artifacts/agent-patch.json")) {
+            throw "The synthetic task did not produce a validated patch proposal."
+          }
+          $patch = Get-Content "artifacts/agent-patch.json" -Raw | ConvertFrom-Json
+          if ($patch.files.Count -lt 1 -or $patch.files.Count -gt 20) {
+            throw "Patch proposal file count is outside the allowed range."
+          }
+          foreach ($file in $patch.files) {
+            if ($file.path -ne "docs/agent-pipeline-smoke-test.md") {
+              throw "Patch proposal contains a path outside the synthetic task allowlist."
+            }
+          }
+          Write-Host "PASS: local model generated a validated patch manifest without applying it."
+
+      - name: Preserve synthetic AI artifacts for diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-synthetic-${{ github.run_id }}
+          path: |
+            artifacts/agent-task.json
+            artifacts/agent-plan.json
+            artifacts/agent-patch.json
+          if-no-files-found: warn
+          retention-days: 1
+
+      - name: Clean synthetic AI artifacts
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
 
       - name: Verify disposable container isolation
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
@@ -331,7 +355,7 @@ jobs:
        github.event.issue.user.login == github.repository_owner &&
        startsWith(github.event.issue.title, '[AI Task]'))
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
