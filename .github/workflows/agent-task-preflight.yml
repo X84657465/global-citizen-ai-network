@@ -11,6 +11,7 @@ on:
       - "scripts/prepare-agent-task.mjs"
       - "scripts/generate-agent-plan.mjs"
       - "scripts/generate-agent-patch.mjs"
+      - "scripts/apply-agent-patch-to-scratch.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
       - "tests/agent-plan-validation.test.mjs"
@@ -276,6 +277,34 @@ jobs:
           Remove-Item $outputDir -Recurse -Force
           Write-Host "PASS: host repository remained unchanged; output stayed in isolated scratch directory"
 
+      - name: Apply validated patch to a disposable scratch workspace
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/apply-agent-patch-to-scratch.mjs
+
+      - name: Install candidate dependencies inside restricted container
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/npm-home $imageDigest npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation failed inside the restricted container." }
+
+      - name: Test patched candidate offline inside restricted container
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
+          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
+          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
+          Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+
       - name: Install locked dependencies without lifecycle scripts
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm ci --ignore-scripts --no-audit --no-fund
@@ -291,6 +320,23 @@ jobs:
       - name: Run ESLint
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm run lint
+
+      - name: Clean disposable scratch workspace
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifestPath = "artifacts/agent-scratch.json"
+          if (Test-Path $manifestPath) {
+            try {
+              $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+              $scratch = [string]$manifest.scratch_dir
+              if ($scratch -and (Test-Path $scratch -PathType Container)) {
+                Remove-Item -LiteralPath $scratch -Recurse -Force
+              }
+            } finally {
+              Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
+            }
+          }
 
   prepare-task:
     name: Validate task and generate read-only AI plan
@@ -321,7 +367,55 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-patch.mjs
 
-      - name: Upload validated task and plan
+      - name: Apply validated patch to a disposable scratch workspace
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/apply-agent-patch-to-scratch.mjs
+
+      - name: Install candidate dependencies inside restricted container
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          docker pull $imageDigest
+          if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned candidate test image." }
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/npm-home $imageDigest npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation failed inside the restricted container." }
+
+      - name: Test patched candidate offline inside restricted container
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
+          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
+          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
+          Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+
+      - name: Clean disposable scratch workspace
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifestPath = "artifacts/agent-scratch.json"
+          if (Test-Path $manifestPath) {
+            try {
+              $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+              $scratch = [string]$manifest.scratch_dir
+              if ($scratch -and (Test-Path $scratch -PathType Container)) {
+                Remove-Item -LiteralPath $scratch -Recurse -Force
+              }
+            } finally {
+              Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
+            }
+          }
+
+      - name: Upload validated task, plan, and patch proposal
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ai-agent-task-${{ inputs.issue_number }}
