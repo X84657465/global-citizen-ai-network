@@ -111,3 +111,27 @@ export function summarizeWorkloadCosts(observations: WorkloadObservation[]): Cos
     estimatedCostPerAcceptedResultTwd: acceptedJobs === 0 || unpricedJobs > 0 ? null : estimatedCostTwd / acceptedJobs,
   };
 }
+
+export type WorkloadCostGroup = {
+  workloadClass: string;
+  executionTarget: WorkloadObservation["executionTarget"];
+  baseline: CostBaseline;
+};
+
+/** Produces independent cost baselines by workload class and execution target. */
+export function summarizeWorkloadCostsByDimension(
+  observations: WorkloadObservation[],
+): WorkloadCostGroup[] {
+  const groups = new Map<string, WorkloadObservation[]>();
+  for (const observation of observations) {
+    const key = JSON.stringify([observation.workloadClass, observation.executionTarget]);
+    const group = groups.get(key) ?? [];
+    group.push(observation);
+    groups.set(key, group);
+  }
+  return [...groups.values()].map(group => ({
+    workloadClass: group[0].workloadClass,
+    executionTarget: group[0].executionTarget,
+    baseline: summarizeWorkloadCosts(group),
+  }));
+}
