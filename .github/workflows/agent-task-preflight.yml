@@ -3,6 +3,7 @@ name: AI Agent Task Preflight
 on:
   push:
     branches:
+      - main
       - codex/ai-runner-foundation
     paths:
       - "lib/agent-task-validation.mjs"
@@ -405,7 +406,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select one queued task (scheduled and handoff runs)
+      - name: Select one queued task for every queue trigger
         id: select-task
         if: >-
           github.event_name == 'schedule' ||
