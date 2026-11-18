@@ -1,6 +1,6 @@
 begin;
 
-select plan(9);
+select plan(8);
 
 select ok(
   to_regprocedure('public.resolve_ai_reconciliation(uuid,uuid,uuid,text,text,text,text,numeric,char,numeric)') is not null,
