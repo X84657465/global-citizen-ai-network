@@ -385,13 +385,13 @@ assert.ok(singlePendingSql.includes("p_preflight_cost_twd > 9999999999.99999999"
 assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
   "AI claim must reject non-finite reservation ceilings");
 
-const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reconciliation_resolution.sql", "utf8");
+const reconciliationSql = readFileSync("supabase/migrations/0015_audited_ai_reconciliation_resolution.sql", "utf8") + "\n" + readFileSync("supabase/migrations/0018_service_role_ai_reconciliation.sql", "utf8");
 const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
 const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
 const reconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
 const reconciliationOperationsPage = readFileSync("app/admin/ai-operations/page.tsx", "utf8");
-assert.ok(reconciliationSql.includes("auth.uid() is distinct from p_actor_id"),
-  "Reconciliation RPC must bind the claimed actor ID to the authenticated session");
+assert.ok(reconciliationSql.includes("where id = p_actor_id"),
+  "Reconciliation RPC must verify the supplied actor against the authoritative profile row");
 assert.ok(reconciliationSql.includes("v_profile.role <> 'admin'") && reconciliationSql.includes("v_profile.account_status <> 'active'"),
   "Reconciliation RPC must independently require an active admin");
 assert.ok(reconciliationSql.includes("create trigger ai_reconciliation_events_immutable"),
@@ -404,16 +404,16 @@ assert.ok(reconciliationSql.includes("inconclusive deliberately leaves request, 
   "Inconclusive review must preserve the unresolved request and reservation");
 assert.ok(reconciliationSql.includes("provider_billed_delivery_unavailable"),
   "Confirmed billing must not fabricate or deliver an unavailable assistant response");
-assert.ok(reconciliationSql.includes("from public, anon, authenticated") && reconciliationSql.includes("to authenticated"),
-  "Reconciliation RPC must be callable only through an authenticated session");
+assert.ok(reconciliationSql.includes("from public, anon, authenticated") && reconciliationSql.includes("to service_role"),
+  "Reconciliation RPC must be callable only through the server service role");
 assert.ok(reconciliationResolveApi.includes("createAdminClient()") && reconciliationResolveApi.includes("adminSupabase.rpc(\"resolve_ai_reconciliation\""),
   "Admin resolution API must call the privileged RPC through a server-only service-role client");
 assert.ok(reconciliationResolveApi.includes("profile?.role !== \"admin\"") && reconciliationResolveApi.includes("profile.account_status !== \"active\""),
   "Admin resolution API must enforce active-admin authorization");
 assert.ok(reconciliationUi.includes("crypto.randomUUID()") && reconciliationUi.includes("使用相同資料重試"),
   "Admin resolution UI must preserve an idempotency key for safe retries");
-assert.ok(reconciliationTests.includes("actor ID without an authenticated identity"),
-  "Database tests must cover forged actor identity");
+assert.ok(reconciliationTests.includes("authoritative profile row instead of trusting the supplied ID"),
+  "Database tests must verify the RPC checks the actor against the authoritative profile");
 
 assert.ok(reconciliationOperationsPage.includes('.from("ai_reconciliation_events")') &&
   reconciliationOperationsPage.includes('.order("created_at", { ascending: false })') &&
