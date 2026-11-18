@@ -35,6 +35,7 @@ const aiCostsApi = readFileSync("app/api/admin/ai-costs/route.ts", "utf8");
 const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx", "utf8");
 const adminTasksApi = readFileSync("app/api/admin/contribution/tasks/route.ts", "utf8");
 const taskAdminClient = readFileSync("app/admin/contribution-tasks/tasks-client.tsx", "utf8");
+const taskAdminRpcSql = readFileSync("supabase/migrations/0021_atomic_contribution_task_admin.sql", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -298,10 +299,25 @@ console.log("Contribution review guard passed: idempotent review, immutable ledg
 
 
 assert.ok(adminTasksApi.includes('getOperator(false)'), "Task creation and status changes must be admin-only");
-assert.ok(adminTasksApi.includes('status: "draft"'), "New contribution tasks must start as drafts");
-assert.ok(adminTasksApi.includes('["publish", "pause", "close"]'), "Task lifecycle actions must be allowlisted");
+assert.ok(adminTasksApi.includes('manage_contribution_task') && adminTasksApi.includes('p_action: "create"'),
+  "Task mutations must use the atomic server-side task administration RPC");
+assert.ok(adminTasksApi.includes('action !== "publish"') && adminTasksApi.includes('action !== "pause"') && adminTasksApi.includes('action !== "close"'),
+  "Task lifecycle actions must be allowlisted");
 assert.ok(adminTasksApi.includes('acceptanceCriteria'), "Task creation must require explicit acceptance criteria");
-assert.ok(adminTasksApi.includes('reward_currency: "TWD"'), "MVP contribution task rewards must use explicit TWD currency");
+assert.ok(!adminTasksApi.includes('.from("audit_logs")') && !adminTasksApi.includes('.from("contribution_tasks").insert'),
+  "Task mutations and audit events must not be split across independent API writes");
+assert.ok(taskAdminRpcSql.includes("create or replace function public.manage_contribution_task")
+  && taskAdminRpcSql.includes("security definer") && taskAdminRpcSql.includes("set search_path = ''"),
+  "Task administration must use a hardened SECURITY DEFINER RPC");
+assert.ok(taskAdminRpcSql.includes("v_profile.role <> 'admin'") && taskAdminRpcSql.includes("v_profile.account_status <> 'active'"),
+  "Task administration RPC must independently verify active admin status");
+assert.ok((taskAdminRpcSql.match(/insert into public\.audit_logs/gi) ?? []).length >= 2
+  && taskAdminRpcSql.includes("for update"),
+  "Task changes and audit events must share a row-locked database transaction");
+assert.ok(taskAdminRpcSql.includes("from public, anon, authenticated")
+  && taskAdminRpcSql.includes("to service_role;")
+  && taskAdminRpcSql.includes("'TWD', 'draft'"),
+  "Task RPC must be service-role only and create TWD draft tasks");
 assert.ok(taskAdminClient.includes('"/api/admin/contribution/tasks"'), "Task admin UI must use authenticated server API");
 assert.ok(taskAdminClient.includes('"建立草稿"'), "Task admin UI must create drafts before publication");
 

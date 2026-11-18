@@ -57,25 +57,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "請檢查標題、任務說明、分類、驗收條件、報酬金額及截止時間。" }, { status: 400 });
   }
 
-  const { data, error } = await context.admin.from("contribution_tasks").insert({
-    created_by: context.auth.user.id,
-    title,
-    description,
-    category,
-    acceptance_criteria: criteria.map(item => (item as string).trim()),
-    reward_amount: reward,
-    reward_currency: "TWD",
-    status: "draft",
-    closes_at: closesAt,
-  }).select("id,title,status,created_at").single();
-
-  if (error) return NextResponse.json({ error: "任務建立失敗，請檢查資料庫 Migration 與欄位設定。" }, { status: 503 });
-  await context.admin.from("audit_logs").insert({
-    actor_id: context.auth.user.id, action: "contribution_task_created",
-    resource_type: "contribution_task", resource_id: data.id, outcome: "allowed",
-    metadata: { initial_status: "draft", reward_currency: "TWD" },
+  const { data, error } = await context.admin.rpc("manage_contribution_task", {
+    p_actor_id: context.auth.user.id,
+    p_action: "create",
+    p_task_id: null,
+    p_title: title,
+    p_description: description,
+    p_category: category,
+    p_acceptance_criteria: criteria.map(item => (item as string).trim()),
+    p_reward_amount: reward,
+    p_closes_at: closesAt,
   });
-  return NextResponse.json({ task: data }, { status: 201, headers: { "Cache-Control": "no-store" } });
+  if (error) {
+    const status = error.code === "42501" ? 403 : error.code === "22023" ? 400 : 503;
+    return NextResponse.json({ error: "任務建立失敗，請確認管理員權限及任務欄位。" }, { status });
+  }
+  const task = Array.isArray(data) ? data[0] : null;
+  if (!task) return NextResponse.json({ error: "資料庫未回傳建立結果。" }, { status: 503 });
+  return NextResponse.json({
+    task: { id: task.task_id, title: task.title, status: task.status, created_at: task.created_at },
+  }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }
 
 export async function PATCH(request: NextRequest) {
@@ -88,42 +89,28 @@ export async function PATCH(request: NextRequest) {
   const body = parsed.value as { taskId?: unknown; action?: unknown };
   const taskId = typeof body.taskId === "string" ? body.taskId : "";
   const action = body.action;
-  if (!isUuid(taskId) || !["publish", "pause", "close"].includes(String(action))) {
+  if (!isUuid(taskId) || (action !== "publish" && action !== "pause" && action !== "close")) {
     return NextResponse.json({ error: "任務識別碼或操作類型錯誤。" }, { status: 400 });
   }
 
-  const { data: task, error: readError } = await context.admin.from("contribution_tasks")
-    .select("id,title,description,category,acceptance_criteria,reward_amount,status,closes_at")
-    .eq("id", taskId).maybeSingle();
-  if (readError || !task) return NextResponse.json({ error: "找不到這項任務。" }, { status: 404 });
-
-  let nextStatus: "published" | "paused" | "closed";
-  if (action === "publish") {
-    const criteria = Array.isArray(task.acceptance_criteria) ? task.acceptance_criteria : [];
-    if (!["draft", "paused"].includes(task.status) || task.title.trim().length < 3 ||
-        task.description.trim().length < 20 || task.category.trim().length < 2 || criteria.length === 0 ||
-        (task.closes_at && new Date(task.closes_at).getTime() <= Date.now())) {
-      return NextResponse.json({ error: "任務資料不完整、已截止，或目前狀態不可發布。" }, { status: 409 });
-    }
-    nextStatus = "published";
-  } else if (action === "pause") {
-    if (task.status !== "published") return NextResponse.json({ error: "只有已發布任務可以暫停。" }, { status: 409 });
-    nextStatus = "paused";
-  } else {
-    if (!["published", "paused", "draft"].includes(task.status)) return NextResponse.json({ error: "目前狀態不可關閉。" }, { status: 409 });
-    nextStatus = "closed";
-  }
-
-  const { data, error } = await context.admin.from("contribution_tasks").update({
-    status: nextStatus,
-    ...(action === "publish" ? { published_at: new Date().toISOString() } : {}),
-  }).eq("id", taskId).select("id,title,status,published_at").single();
-
-  if (error) return NextResponse.json({ error: "任務狀態更新失敗。" }, { status: 503 });
-  await context.admin.from("audit_logs").insert({
-    actor_id: context.auth.user.id, action: "contribution_task_" + action,
-    resource_type: "contribution_task", resource_id: taskId, outcome: "allowed",
-    metadata: { from_status: task.status, to_status: nextStatus },
+  const { data, error } = await context.admin.rpc("manage_contribution_task", {
+    p_actor_id: context.auth.user.id,
+    p_action: action,
+    p_task_id: taskId,
+    p_title: null,
+    p_description: null,
+    p_category: null,
+    p_acceptance_criteria: null,
+    p_reward_amount: null,
+    p_closes_at: null,
   });
-  return NextResponse.json({ task: data }, { headers: { "Cache-Control": "no-store" } });
+  if (error) {
+    const status = error.code === "42501" ? 403 : error.code === "P0002" ? 404 : error.code === "22023" ? 409 : 503;
+    return NextResponse.json({ error: "任務狀態更新失敗，請重新整理確認目前狀態。" }, { status });
+  }
+  const task = Array.isArray(data) ? data[0] : null;
+  if (!task) return NextResponse.json({ error: "資料庫未回傳更新結果。" }, { status: 503 });
+  return NextResponse.json({
+    task: { id: task.task_id, title: task.title, status: task.status, published_at: task.published_at },
+  }, { headers: { "Cache-Control": "no-store" } });
 }
