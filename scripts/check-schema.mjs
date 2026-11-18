@@ -43,6 +43,7 @@ const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8"
 const singleActiveSubmissionSql = readFileSync("supabase/migrations/0023_single_active_task_submission.sql", "utf8");
 const singleActiveSubmissionTests = readFileSync("supabase/tests/task_submission_uniqueness.test.sql", "utf8");
 const submissionIndexCleanupSql = readFileSync("supabase/migrations/0024_dedupe_active_submission_index.sql", "utf8");
+const nextConfig = readFileSync("next.config.ts", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -543,3 +544,19 @@ assert.ok(submissionIndexCleanupSql.includes("drop index if exists public.task_s
   "Active task submission hardening must converge to one canonical partial unique index");
 assert.ok(singleActiveSubmissionTests.includes("task_submissions_one_active_per_user"),
   "Database regression tests must verify the canonical active submission index name");
+
+assert.ok(nextConfig.includes('key: "Strict-Transport-Security"') &&
+  nextConfig.includes("max-age=63072000; includeSubDomains"),
+  "Production responses must enable HSTS for HTTPS-only transport");
+assert.ok(nextConfig.includes('key: "X-Content-Type-Options"') &&
+  nextConfig.includes('value: "nosniff"'),
+  "Production responses must disable MIME type sniffing");
+assert.ok(nextConfig.includes('key: "X-Frame-Options"') &&
+  nextConfig.includes('value: "DENY"'),
+  "Production pages must deny framing to mitigate clickjacking");
+assert.ok(nextConfig.includes('key: "Referrer-Policy"') &&
+  nextConfig.includes("strict-origin-when-cross-origin"),
+  "Production responses must limit cross-origin referrer disclosure");
+assert.ok(nextConfig.includes('key: "Permissions-Policy"') &&
+  nextConfig.includes("camera=(), geolocation=()"),
+  "Unused camera and geolocation browser capabilities must be disabled");
