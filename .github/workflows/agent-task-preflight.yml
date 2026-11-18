@@ -24,7 +24,7 @@ on:
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
   issues:
-    types: [opened, edited, closed]
+    types: [opened, reopened]
   repository_dispatch:
     types: [ai-task-next]
   schedule:
@@ -418,16 +418,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_OUTPUT: ${{ github.output }}
           AGENT_FACTORY_MODE: check
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-controller.mjs
       - name: Select one queued task for every queue trigger
         id: select-task
         if: >-
-          github.event_name == 'schedule' ||
-          github.event_name == 'repository_dispatch' ||
-          github.event_name == 'issues') &&
+          (github.event_name == 'schedule' ||
+           github.event_name == 'repository_dispatch' ||
+           github.event_name == 'issues') &&
           steps.factory-gate.outputs.cooldown_active != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
