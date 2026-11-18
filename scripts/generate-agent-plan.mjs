@@ -68,11 +68,46 @@ const systemPrompt = [
   "Do not expand scope beyond the supplied goal, allowed paths, acceptance criteria, or explicit exclusions."
 ].join(" ");
 
+const planSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["schema_version", "tasks"],
+  properties: {
+    schema_version: { type: "integer", const: 1 },
+    tasks: {
+      type: "array",
+      minItems: 1,
+      maxItems: 12,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "title", "role", "action", "depends_on", "allowed_paths", "acceptance_criteria", "max_output_bytes"],
+        properties: {
+          id: { type: "string", pattern: "^[a-z][a-z0-9-]{1,39}$" },
+          title: { type: "string", minLength: 1, maxLength: 120 },
+          role: { type: "string", enum: ["planner", "implementer", "tester", "reviewer"] },
+          action: { type: "string", enum: ["inspect", "propose_patch", "validate_patch", "report"] },
+          depends_on: { type: "array", maxItems: 12, items: { type: "string" } },
+          allowed_paths: { type: "array", maxItems: 20, items: { type: "string" } },
+          acceptance_criteria: {
+            type: "array",
+            minItems: 1,
+            maxItems: 8,
+            items: { type: "string", minLength: 1, maxLength: 300 }
+          },
+          max_output_bytes: { type: "integer", minimum: 1, maximum: 65536 }
+        }
+      }
+    }
+  }
+};
+
 const requestBody = {
   model,
   system: systemPrompt,
   prompt: JSON.stringify(planningInput),
-  format: "json",
+  format: planSchema,
+  think: false,
   stream: false,
   keep_alive: "0s",
   options: { temperature: 0, num_predict: 4096 }
