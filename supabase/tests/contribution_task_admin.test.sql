@@ -1,5 +1,5 @@
 begin;
-select plan(8);
+select plan(10);
 
 select ok(
   to_regprocedure('public.manage_contribution_task(uuid,text,uuid,text,text,text,jsonb,numeric,timestamptz)') is not null,
@@ -103,6 +103,45 @@ begin
     v_rejected := true;
   end;
   if not v_rejected then raise exception 'invalid acceptance criteria were accepted'; end if;
+
+  select * into v_created
+  from public.manage_contribution_task(
+    v_admin,'create',null,'Audit rollback task',
+    'The task must remain published if its audit insert fails.',
+    'quality','["Check the audit transaction"]'::jsonb,100,null
+  );
+  perform * from public.manage_contribution_task(v_admin,'publish',v_created.task_id);
+
+  create or replace function public.test_reject_contribution_task_pause_audit()
+  returns trigger
+  language plpgsql
+  as $trigger$
+  begin
+    if new.action = 'contribution_task_pause' then
+      raise exception 'forced_audit_failure' using errcode = 'P0001';
+    end if;
+    return new;
+  end;
+  $trigger$;
+
+  create trigger test_reject_contribution_task_pause_audit
+  before insert on public.audit_logs
+  for each row execute function public.test_reject_contribution_task_pause_audit();
+
+  v_rejected := false;
+  begin
+    perform * from public.manage_contribution_task(v_admin,'pause',v_created.task_id);
+  exception when others then
+    v_rejected := true;
+  end;
+
+  drop trigger test_reject_contribution_task_pause_audit on public.audit_logs;
+  drop function public.test_reject_contribution_task_pause_audit();
+
+  if not v_rejected then raise exception 'task mutation succeeded despite forced audit failure'; end if;
+  if (select status from public.contribution_tasks where id=v_created.task_id) <> 'published' then
+    raise exception 'task state was not rolled back after audit failure';
+  end if;
 end;
 $fixture$;
 
@@ -137,6 +176,17 @@ select ok(
   not exists (select 1 from public.contribution_tasks
     where title in ('Reviewer cannot create task','Suspended admin cannot create','Invalid criteria task')),
   'unauthorized and invalid task creations leave no task rows'
+);
+
+select ok(
+  (select status='published' from public.contribution_tasks where title='Audit rollback task'),
+  'task status rolls back when the paired audit insert fails'
+);
+select ok(
+  (select count(*)=2 from public.audit_logs
+   where resource_id=(select id from public.contribution_tasks where title='Audit rollback task')
+     and action in ('contribution_task_created','contribution_task_publish')),
+  'failed audit insertion leaves no partial pause audit event'
 );
 
 select * from finish();
