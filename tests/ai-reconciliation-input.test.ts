@@ -43,7 +43,7 @@ test("rejects malformed identifiers, decisions, and incomplete evidence", () => 
 });
 
 test("rejects negative, infinite, and oversized billed costs", () => {
-  for (const providerBilledCost of [-0.01, Number.POSITIVE_INFINITY, 10000000000]) {
+  for (const providerBilledCost of [-0.01, Number.POSITIVE_INFINITY, 10000000000, 10000000000.001]) {
     assert.equal(parseReconciliationInput({
       ...validBase,
       decision: "confirmed_billed",
