@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { canCorrectReconciliationSubmission } from "@/lib/ai/reconciliation-form-error";
 
 type Decision = "confirmed_billed" | "confirmed_not_billed" | "inconclusive";
 
@@ -53,7 +54,7 @@ export default function AiReconciliationForm({ requestId, provider }: { requestI
         // idempotency record or ledger mutation can exist, so allow correction.
         // Keep the key and payload locked for every other failure: those paths
         // may have reached the database and must be retried byte-for-byte.
-        if (response.status === 400) {
+        if (canCorrectReconciliationSubmission(response.status)) {
           setLocked(false);
           setIdempotencyKey("");
         }
