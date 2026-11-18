@@ -66,3 +66,17 @@ Migration 0007 adds two service-role-only operations:
 A stale request is an incident requiring provider-side reconciliation. Do not automatically retry, settle, release, or mark it failed based only on age: the provider may have completed and billed the request even if the application did not receive its response. An operator must inspect provider request/logs and invoice evidence first.
 
 The migration does not enable `pg_cron` and does not schedule a cleanup job. Deliberately enable Cron in the Dashboard only after the cleanup function has been tested manually, then schedule it through Supabase Cron.
+
+## Public API role grants — least privilege
+
+Migration `0019_least_privilege_public_grants.sql` adds defense in depth beyond RLS:
+
+- The `anon` role receives no direct table, sequence, or public-function execution privileges in the public schema.
+- The `authenticated` role receives only the table operations required by member-facing flows: own-profile read/update; owned project/conversation CRUD; message read/append; published task read; submission/appeal read/insert; review read; and read-only member usage/ledger views.
+- AI controls, budget reservations, idempotency state, provider invoice imports, audit logs, reconciliation evidence, and review idempotency tables remain server-only.
+- Existing `service_role` grants are retained for trusted server operations.
+- Default table and sequence privileges for the application migration owner (`postgres`) are revoked for `anon` and `authenticated`; default function execution is revoked for `PUBLIC`, `anon`, and `authenticated`, so future application objects require explicit grants and RLS review.
+
+The live catalog audit on 2026-11-18 found permissive default table grants for `anon` and `authenticated` on current public tables, inherited `PUBLIC` function execution on trigger functions, and permissive defaults for future tables/functions created by `postgres`. RLS policies already denied unauthorized row access, but broad SQL grants were unnecessary and weakened defense in depth. The migration is proposed in a review branch and must pass local Supabase database tests before it is applied to the existing live project.
+
+The managed `supabase_admin` default ACL is platform-owned and cannot be altered by the project migration role. Application schema migrations must continue to run as `postgres`; do not create application tables as `supabase_admin`.
