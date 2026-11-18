@@ -49,6 +49,21 @@ const ready = issues.filter((issue) =>
   !alreadyPublished.has(issue.number)
 ).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
 
+// Stable priority order: security and MVP release gates first, then Phase 2,
+ // Phase 3 distributed-compute research, and finally Phase 4 governance/reporting.
+ // Unknown future tasks remain eligible after the explicitly ranked backlog.
+const priorityOrder = [
+  17, 3, 71, 94, 81, 97, 95, 72, 73, 74, 75, 96, 76, 86, 82, 83, 84, 85,
+  87, 88, 89, 90, 92, 91, 93,
+];
+const priorityRank = new Map(priorityOrder.map((issueNumber, index) => [issueNumber, index]));
+ready.sort((a, b) => {
+  const rankA = priorityRank.get(a.number) ?? Number.MAX_SAFE_INTEGER;
+  const rankB = priorityRank.get(b.number) ?? Number.MAX_SAFE_INTEGER;
+  if (rankA !== rankB) return rankA - rankB;
+  return a.number - b.number;
+});
+
 const selected = ready[0];
 if (!selected) {
   appendFileSync(output, "issue_number=\n", "utf8");
