@@ -2,18 +2,18 @@
 
 > Single source of truth for the next development session. Update this file at the end of every development round, after opening/updating a PR, and after any scheduling or runner change. Record verified GitHub state only; never infer a green CI, online Runner, successful task, or merge.
 
-**Last verified:** 2026-11-19 19:53 UTC  
+**Last verified:** 2026-11-19 19:54 UTC  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
 **Current main commit:** `bbb4d9d6504015ed10edf784993e77aaedc6cd0f`  
-**Factory PR head:** `fac5b8845a0977bb04735ba3a37f0ef3c6fbd3df`
+**Factory PR head:** `197a1bb2f687b085833a7f10d3a51091f8ef726e`
 
 ## 目前系統狀態
 
 | Component | Verified state |
 |---|---|
 | Windows self-hosted Runner | **Verified online and assigned**: CI Run #44384945090 job #135086889010 was assigned to `DESKTOP-S2S4BM9` with labels `self-hosted, Windows, X64`; Supabase CLI installation and local config initialization passed, and Supabase startup was in progress at last check. |
-| CI build/database | On `main`, both jobs still target `ubuntu-latest`. In PR #99, both target the Windows self-hosted Runner and use `powershell`; the redundant `docker info` probe has been removed. Run #44384945090: database job #135086889010 is running on `DESKTOP-S2S4BM9`, build job #135086889563 is queued for the same Runner. |
+| CI build/database | On `main`, both jobs still target `ubuntu-latest`. In PR #99, both target the Windows self-hosted Runner and use `powershell`; the redundant `docker info` probe has been removed. Run #44384945090 previously assigned database job #135086889010 to `DESKTOP-S2S4BM9` (labels `self-hosted, Windows, X64`); CLI install and config initialization passed, but that run was later cancelled during Supabase startup. Latest run #44385225050 has both jobs queued for the same Runner. |
 | Local task worker | `main` remains on a 30-minute schedule. PR #99 changes it to every 5 minutes. |
 | Five-minute unattended loop | Proposed in PR #99 only; **not active on main**. |
 | Circuit breaker / cooldown / planner | Proposed in PR #99 only; **not active on main**. |
@@ -28,7 +28,7 @@
 
 ## 當前阻塞與待辦
 
-1. **PR #99 CI is currently running and not yet green.** Latest run #44384945090 is executing on `DESKTOP-S2S4BM9`; Supabase startup/migration application is in progress and the build job is queued. The previous 101-test run had three assertion-only failures; fixes are committed in PR #99 at `c7db5ed`, `82afb74`, `a9d9924`, and `fac5b88`. Wait for the current run before any further push to avoid cancellation.
+1. **PR #99 CI is queued and not yet green.** Latest run #44385225050 is queued; the earlier #44384945090 did reach `DESKTOP-S2S4BM9` and passed CLI setup/config initialization, then was cancelled during Supabase startup. The previous 101-test run had three assertion-only failures; fixes are committed in PR #99 at `c7db5ed`, `82afb74`, `a9d9924`, `fac5b88`, `0cd2933`, `e6993ed`, `84ca9b6`, `a151af8`, `dfa54b3`, and `197a1bb`. Wait for the current run before any further push to avoid cancellation.
 2. Confirm the current database job completes PostgreSQL/RLS tests and the queued build job is subsequently assigned. Runner assignment is verified, but the full CI pass is not yet verified.
 3. Review PR #99 end-to-end before merge: verify durable remote/local cooldown consistency, per-Issue skip after three attempts, planner deduplication, and queue handoff after failures. Confirm that workflow concurrency prevents simultaneous task workers; the five-minute cron is a polling trigger, not a guarantee of a fresh Runner every five minutes.
 4. **Next queued task: Issue #17** — `[AI Task] Remediate high-severity development dependency audit findings`. The current selector priority places #17 first, followed by #3 and #71. Recheck open Issues and linked PRs before dispatch; do not rely on this cached order if repository state changes.
