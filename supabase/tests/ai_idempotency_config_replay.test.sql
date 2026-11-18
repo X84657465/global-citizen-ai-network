@@ -1,6 +1,6 @@
 begin;
 
-select plan(5);
+select plan(6);
 
 select ok(
   to_regprocedure('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)') is not null,
@@ -22,6 +22,12 @@ select ok(
   not has_function_privilege('authenticated', 'public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)', 'EXECUTE')
   and has_function_privilege('service_role', 'public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)', 'EXECUTE'),
   'claim RPC remains service-role only'
+);
+
+select ok(
+  position('p_provider is null' in pg_get_functiondef('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)'::regprocedure))
+    < position('p_max_cost_twd is null' in pg_get_functiondef('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)'::regprocedure)),
+  'missing provider identity is classified before null pricing values'
 );
 
 select ok(
