@@ -406,8 +406,8 @@ assert.ok(reconciliationSql.includes("provider_billed_delivery_unavailable"),
   "Confirmed billing must not fabricate or deliver an unavailable assistant response");
 assert.ok(reconciliationSql.includes("from public, anon, authenticated") && reconciliationSql.includes("to authenticated"),
   "Reconciliation RPC must be callable only through an authenticated session");
-assert.ok(reconciliationResolveApi.includes("auth.supabase.rpc(\"resolve_ai_reconciliation\""),
-  "Admin resolution API must call the RPC using the authenticated session, not a service-role client");
+assert.ok(reconciliationResolveApi.includes("createAdminClient()") && reconciliationResolveApi.includes("adminSupabase.rpc(\"resolve_ai_reconciliation\""),
+  "Admin resolution API must call the privileged RPC through a server-only service-role client");
 assert.ok(reconciliationResolveApi.includes("profile?.role !== \"admin\"") && reconciliationResolveApi.includes("profile.account_status !== \"active\""),
   "Admin resolution API must enforce active-admin authorization");
 assert.ok(reconciliationUi.includes("crypto.randomUUID()") && reconciliationUi.includes("使用相同資料重試"),
