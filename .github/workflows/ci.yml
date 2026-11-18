@@ -122,6 +122,50 @@ jobs:
             supabase init
             if ($LASTEXITCODE -ne 0) { throw "Supabase CLI initialization failed." }
           }
+      - name: Allocate isolated Supabase project and free local ports
+        run: |
+          $configPath = "supabase/config.toml"
+          if (-not (Test-Path $configPath)) { throw "Supabase config is missing after initialization." }
+          $config = Get-Content -LiteralPath $configPath -Raw
+          $projectId = "gcan-ci-" + $env:GITHUB_RUN_ID
+          $config = [regex]::Replace($config, '(?m)^project_id\s*=\s*"[^"]*"', "project_id = `"$projectId`"", 1)
+          if ($config -notmatch '(?m)^project_id\s*=') { throw "Supabase project_id setting was not found." }
+
+          function Set-TomlSectionValue([string]$Text, [string]$Section, [string]$Key, [int]$Value) {
+            $pattern = "(?ms)(^\[" + [regex]::Escape($Section) + "\]\s*\r?\n)(.*?)(?=^\[|\z)"
+            $match = [regex]::Match($Text, $pattern)
+            if (-not $match.Success) { throw "Supabase config section [$Section] was not found." }
+            $body = $match.Groups[2].Value
+            $keyPattern = "(?m)^" + [regex]::Escape($Key) + "\s*=\s*\d+\s*$"
+            if (-not [regex]::IsMatch($body, $keyPattern)) { throw "Supabase config key [$Section].$Key was not found." }
+            $body = [regex]::Replace($body, $keyPattern, "$Key = $Value", 1)
+            return $Text.Substring(0, $match.Index) + $match.Groups[1].Value + $body + $Text.Substring($match.Index + $match.Length)
+          }
+
+          function Test-PortAvailable([int]$Port) {
+            $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any, $Port)
+            try { $listener.Start(); return $true }
+            catch { return $false }
+            finally { $listener.Stop() }
+          }
+
+          $basePort = 0
+          for ($attempt = 0; $attempt -lt 500; $attempt++) {
+            $candidate = 55000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 9000)
+            $available = $true
+            foreach ($port in @([int]$candidate, [int]($candidate + 1), [int]($candidate + 2))) {
+              if (-not (Test-PortAvailable $port)) { $available = $false; break }
+            }
+            if ($available) { $basePort = [int]$candidate; break }
+          }
+          if ($basePort -eq 0) { throw "Unable to allocate three consecutive local Supabase ports." }
+
+          $config = Set-TomlSectionValue $config "api" "port" $basePort
+          $config = Set-TomlSectionValue $config "db" "port" ($basePort + 1)
+          $config = Set-TomlSectionValue $config "db" "shadow_port" ($basePort + 2)
+          [System.IO.File]::WriteAllText((Join-Path (Get-Location) $configPath), $config, [System.Text.UTF8Encoding]::new($false))
+          Write-Host "Isolated Supabase project: $projectId"
+          Write-Host "Allocated API/DB/shadow ports: $basePort / $($basePort + 1) / $($basePort + 2)"
       - name: Start local Supabase services and apply migrations
         id: supabase-start
         run: |
