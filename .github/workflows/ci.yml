@@ -95,10 +95,6 @@ jobs:
           Add-Content -LiteralPath $env:GITHUB_PATH -Value $cacheRoot
           & $exe --version
           if ($LASTEXITCODE -ne 0) { throw "Supabase CLI version verification failed." }
-      - name: Verify Docker Desktop is ready
-        run: |
-          docker info
-          if ($LASTEXITCODE -ne 0) { throw "Docker Desktop is not available to the self-hosted runner." }
       - name: Initialize local Supabase config when absent
         run: |
           if (-not (Test-Path "supabase/config.toml")) {
