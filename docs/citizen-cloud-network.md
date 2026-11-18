@@ -196,7 +196,7 @@ All node endpoints require short-lived node credentials, request signing, replay
 
 ### Phase 0 — cost baseline (now; no distributed nodes)
 
-1. Instrument existing AI and application paths by feature, provider/model, region, and accepted result.
+1. Instrument existing AI and application paths by feature, provider/model, execution target, and accepted result. The existing admin AI-cost endpoint now returns bounded, read-only cost baselines grouped by AI feature/provider/model and execution target.
 2. Record actual invoice costs separately from internal estimates.
 3. Add a cost dashboard view for baseline cost per accepted operation.
 4. Benchmark local execution on the user's own device as a private/local mode, without enrolling it as a public worker.
