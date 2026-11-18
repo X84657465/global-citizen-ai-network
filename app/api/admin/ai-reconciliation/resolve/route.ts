@@ -3,7 +3,6 @@ import { parseReconciliationInput } from "@/lib/ai/reconciliation-input";
 import { isActiveAdminProfile } from "@/lib/ai/reconciliation-auth";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,16 +43,11 @@ export async function POST(request: NextRequest) {
     return noStore({ error: message }, 400);
   }
 
-  // Keep the privileged RPC behind the server-only service client. The
-  // authenticated session was checked above, and the database independently
-  // verifies that this actor is still an active admin before any mutation.
-  let adminSupabase;
-  try {
-    adminSupabase = createAdminClient();
-  } catch {
-    return noStore({ error: "核帳服務尚未完成伺服器端金鑰設定。" }, 503);
-  }
-  const { data, error } = await adminSupabase.rpc("resolve_ai_reconciliation", {
+  // Invoke with the caller's authenticated JWT. The database RPC verifies
+  // auth.uid() against p_actor_id and locks/rechecks the active admin profile;
+  // using the service-role client here would make auth.uid() NULL and reject
+  // every legitimate reconciliation attempt.
+  const { data, error } = await auth.supabase.rpc("resolve_ai_reconciliation", {
     p_actor_id: auth.user.id,
     p_request_id: validated.value.requestId,
     p_idempotency_key: validated.value.idempotencyKey,
