@@ -36,6 +36,10 @@ const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx
 const adminTasksApi = readFileSync("app/api/admin/contribution/tasks/route.ts", "utf8");
 const taskAdminClient = readFileSync("app/admin/contribution-tasks/tasks-client.tsx", "utf8");
 const taskAdminRpcSql = readFileSync("supabase/migrations/0021_atomic_contribution_task_admin.sql", "utf8");
+const providerlessReplaySql = readFileSync("supabase/migrations/0022_ai_providerless_completed_replay.sql", "utf8");
+const aiChatApi = readFileSync("app/api/ai/chat/route.ts", "utf8");
+const idempotencyValidation = readFileSync("lib/ai/idempotency.ts", "utf8");
+const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -498,3 +502,24 @@ assert.ok(projectOwnershipLockSql.includes("for share") && !projectOwnershipLock
   "Project ownership trigger must take a row lock that conflicts with concurrent archived_at updates");
 assert.ok(projectOwnershipTests.includes("project row lock conflicts with concurrent archive updates"),
   "Database tests must verify the stronger project row-lock mode");
+
+const replayBranch = providerlessReplaySql.indexOf("if found and (v_existing.state");
+const providerGuard = providerlessReplaySql.indexOf("if p_provider is null");
+assert.ok(replayBranch >= 0 && providerGuard > replayBranch,
+  "Completed and processing idempotency keys must resolve before provider configuration validation");
+assert.ok(providerlessReplaySql.includes("'provider_config_unavailable'") &&
+  providerlessReplaySql.includes("p_max_cost_twd is null"),
+  "New requests without provider/pricing configuration must fail closed before billable side effects");
+assert.ok(aiChatApi.includes("isValidIdempotencyKey(idempotencyKey)") &&
+  aiChatApi.includes("p_model: config?.model ?? null") &&
+  aiChatApi.includes("p_preflight_cost_twd: worstCaseCost"),
+  "AI chat API must validate idempotency keys and pass null provider pricing only for replay-safe claims");
+assert.ok(aiChatApi.indexOf('claim.disposition === "completed"') < aiChatApi.lastIndexOf("if (!config)"),
+  "AI chat API must return a completed replay before the defensive missing-config guard");
+assert.ok(idempotencyValidation.includes("value.length >= 8") &&
+  idempotencyValidation.includes("value.length <= 128") &&
+  idempotencyValidation.includes("/^[A-Za-z0-9._:-]+$/"),
+  "AI idempotency key validator must enforce the documented length and alphabet");
+assert.ok(aiGatewayTests.includes("completed idempotency replay required provider configuration") &&
+  aiGatewayTests.includes("new AI request was not rejected when provider configuration was missing"),
+  "Database tests must cover providerless completed replay and fail-closed new requests");
