@@ -4,7 +4,7 @@
 
 - Production domain: https://global-citizen-ai-network.vercel.app
 - Vercel production deployment: READY on older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`.
-- Latest main and application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61` (one active contribution submission per member/task). It has passed CI but has not reached Production. The Vercel Hobby team has hit its 100 deployments/day API limit (`api-deployments-free-per-day`).
+- Latest main commit: `386b4505254c18fb262e643e0b4dc59211692d3b` (deduplicate the active-submission index). Latest application-code commit: `7a2e4d990fdfa5290484ffcae647dcc802a64f61` (one active contribution submission per member/task). The latest code and migrations have passed CI but have not reached Production. The Vercel Hobby team has hit its 100 deployments/day API limit (`api-deployments-free-per-day`).
 - PR #20 Build and Database CI: PASS; 101 database assertions.
 - PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
 - `GET /`: HTTP 200
@@ -17,12 +17,12 @@
 - Region: `ap-northeast-1` (Tokyo)
 - Project status: `ACTIVE_HEALTHY`
 - Database engine: PostgreSQL 17
-- Migrations applied: 23 (latest: `20261118060607`, `single_active_task_submission`).
+- Migrations applied: 24 (latest: `20261118061217`, `dedupe_active_submission_index`).
 - Public tables: 22
 - Public tables with RLS enabled: 22
 - All 22 public base tables have RLS enabled.
 - After migration 0019: zero direct public-table grants to `anon`; zero public-schema function EXECUTE grants to `PUBLIC`, `anon`, or `authenticated`; service-role access retained for all 22 public relations and 19 public functions.
-- The health advisor returns no findings. Security advisor's 9 remaining RLS-without-policy findings are internal service-only tables. PR #22 migration 0020 is applied live as `20261118045832`: the 17 unindexed FK and 2 duplicate permissive SELECT-policy findings are gone. PR #24 migration 0021 is applied live as `20261118050801`: contribution-task mutations and audit events now commit atomically through a service-role-only RPC with active-admin revalidation. Performance advisor now reports 36 unused indexes (including the 17 newly added FK indexes; current data volume is too low to exercise them). The effective grant audit after migration 0021 confirms 0 browser-role function EXECUTE privileges and 20 service-role-executable public functions.
+- The health advisor returns no findings. Security advisor's 9 remaining RLS-without-policy findings are internal service-only tables. PR #22 migration 0020 is applied live as `20261118045832`: the 17 unindexed FK and 2 duplicate permissive SELECT-policy findings are gone. PR #24 migration 0021 is applied live as `20261118050801`: contribution-task mutations and audit events now commit atomically through a service-role-only RPC with active-admin revalidation. Performance advisor now reports 35 unused indexes (including the 17 newly added FK indexes; current data volume is too low to exercise them). PR #36 removed the duplicate active-submission index; no duplicate-index finding remains. The effective grant audit after migration 0021 confirms 0 browser-role function EXECUTE privileges and 20 service-role-executable public functions.
 
 ## Preview verification
 
@@ -52,3 +52,5 @@
 - PR #30 AI replay change: Build and Database CI PASS (40 unit tests; 114 pgTAP assertions). Migration 0022 is applied live as `20261118060600`.
 - PR #33 signup body hardening: Build and Database CI PASS (47 unit tests; 119 pgTAP assertions); signup remains disabled by default because `ENABLE_PUBLIC_SIGNUP` is not configured.
 - PR #34 single active contribution submission: Build and Database CI PASS (47 unit tests; 125 pgTAP assertions). Migration 0023 is applied live as `20261118060607`.
+
+- PR #36 index cleanup: migration 0024 applied live as `20261118061217`; exactly one canonical active-submission partial unique index remains. Performance Advisor: 35 unused indexes, 0 duplicate-index findings.

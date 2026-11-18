@@ -2,7 +2,7 @@
 
 Last verified: 2026-11-18. Source: live Supabase `list_migrations` plus repository `supabase/migrations` filenames.
 
-The repository uses sequential numeric filename prefixes (`0001`–`0023`). The existing live Supabase history was provisioned through timestamp-versioned migrations. Names align, but the version identifiers do not. This map is an operational cross-reference, not a CLI migration repair.
+The repository uses sequential numeric filename prefixes (`0001`–`0024`). The existing live Supabase history was provisioned through timestamp-versioned migrations. Names align, but the version identifiers do not. This map is an operational cross-reference, not a CLI migration repair.
 
 | Repository file | Live version | Live migration name |
 |---|---:|---|
@@ -30,6 +30,7 @@ The repository uses sequential numeric filename prefixes (`0001`–`0023`). The 
 | `0021_atomic_contribution_task_admin.sql` | `20261118050801` | `atomic_contribution_task_admin` |
 | `0022_ai_providerless_completed_replay.sql` | `20261118060600` | `ai_providerless_completed_replay` |
 | `0023_single_active_task_submission.sql` | `20261118060607` | `single_active_task_submission` |
+| `0024_dedupe_active_submission_index.sql` | `20261118061217` | `dedupe_active_submission_index` |
 
 ## Production safety rule
 
