@@ -9,6 +9,7 @@ on:
       - "lib/agent-patch-validation.mjs"
       - "lib/agent-plan-validation.mjs"
       - "scripts/prepare-agent-task.mjs"
+      - "scripts/select-agent-task.mjs"
       - "scripts/generate-agent-plan.mjs"
       - "scripts/generate-agent-patch.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
@@ -52,6 +53,8 @@ jobs:
         run: |
           node --version
           npm --version
+          node --check scripts/select-agent-task.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Scheduled task selector syntax check failed." }
 
       - name: Audit available local isolation capabilities
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
