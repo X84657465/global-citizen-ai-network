@@ -9,8 +9,14 @@ if (!databaseUrl || process.env.CONFIRM_LOCAL_SUPABASE !== "YES") {
 }
 const parsedUrl = new URL(databaseUrl);
 const allowedHosts = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+if (!["postgres:", "postgresql:"].includes(parsedUrl.protocol)) {
+  throw new Error("LOCAL_SUPABASE_DB_URL must use the PostgreSQL protocol.");
+}
 if (!allowedHosts.has(parsedUrl.hostname) || parsedUrl.hostname.endsWith(".supabase.co")) {
   throw new Error("Refusing non-local database host: " + parsedUrl.hostname);
+}
+if (parsedUrl.port !== "54322" || parsedUrl.pathname !== "/postgres" || parsedUrl.username !== "postgres") {
+  throw new Error("Refusing database target outside the default local Supabase endpoint (postgres@127.0.0.1:54322/postgres).");
 }
 
 function startPsql(appName) {
