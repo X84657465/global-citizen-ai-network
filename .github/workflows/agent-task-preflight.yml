@@ -10,6 +10,9 @@ on:
       - "lib/agent-plan-validation.mjs"
       - "scripts/generate-agent-plan.mjs"
       - "scripts/generate-agent-patch.mjs"
+      - "scripts/apply-agent-patch-sandbox.mjs"
+      - "scripts/run-agent-sandbox.ps1"
+      - "tests/agent-patch-sandbox.test.mjs"
       - "tests/agent-plan-generation.test.mjs"
       - "tests/agent-patch-generation.test.mjs"
       - "scripts/prepare-agent-task.mjs"
@@ -298,6 +301,10 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm ci --ignore-scripts --no-audit --no-fund
 
+      - name: Apply validated patch and run checks in disposable Docker
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: .\\scripts\\run-agent-sandbox.ps1
+
       - name: Run complete unit test suite
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm run test:unit
@@ -323,7 +330,7 @@ jobs:
     name: Validate and plan one task (no code execution)
     if: github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -342,7 +349,21 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-plan.mjs
 
-      - name: Upload task and plan bundles
+      - name: Generate and validate a patch proposal with local Ollama
+        env:
+          OLLAMA_MODEL: qwen3:8b
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/generate-agent-patch.mjs
+
+      - name: Install locked dependencies without lifecycle scripts
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Apply validated patch and run checks in disposable Docker
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: .\\scripts\\run-agent-sandbox.ps1
+
+      - name: Upload task, plan, patch, and sandbox bundles
         uses: actions/upload-artifact@v4
         with:
           name: ai-agent-task-${{ inputs.issue_number }}
