@@ -223,6 +223,16 @@ const api = async (path, method = "GET", payload = undefined) => {
   return data;
 };
 
+const dispatchAiTaskCi = async (pull) => {
+  await api("/dispatches", "POST", {
+    event_type: "ai-task-ci",
+    client_payload: {
+      pull_request_number: pull.number,
+      head_sha: pull.head.sha,
+    },
+  });
+};
+
 try {
   const repoInfo = await api("/repos/" + repository);
   const defaultBranch = repoInfo.default_branch;
@@ -236,6 +246,7 @@ try {
   const openPulls = await api("/repos/" + repository + "/pulls?state=open&per_page=100");
   const existingPull = openPulls.find((pull) => pull.body?.includes("<!-- ai-task:" + issueNumber + " -->"));
   if (existingPull) {
+    await dispatchAiTaskCi(existingPull);
     saveResult({
       schema_version: 1,
       state: "existing_open_pr",
@@ -288,6 +299,8 @@ try {
     body,
     draft: true,
   });
+
+  await dispatchAiTaskCi(pull);
 
   try {
     await api("/repos/" + repository + "/issues/" + issueNumber + "/comments", "POST", {
