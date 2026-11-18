@@ -445,7 +445,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_OUTPUT: ${{ github.output }}
           AGENT_FACTORY_MODE: plan
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-controller.mjs
