@@ -201,6 +201,7 @@ All node endpoints require short-lived node credentials, request signing, replay
 3. Add a cost dashboard view for baseline cost per accepted operation.
 4. Benchmark local execution on the user's own device as a private/local mode, without enrolling it as a public worker.
 5. Define eligible public-data workloads and verification fixtures.
+6. Aggregate cost evidence by workload and execution target, keeping provider invoice amounts separate from internal estimates; report accepted-result cost only when all relevant jobs are priced.
 
 **Exit gate:** at least one workload has repeatable baseline measurements and an independently verifiable output.
 
