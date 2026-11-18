@@ -89,6 +89,57 @@ jobs:
             Write-Host "Windows feature query cmdlet: not available"
           }
 
+      - name: Verify disposable container isolation
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          docker pull node:22-alpine
+          if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned-by-digest test image" }
+
+          $imageDigest = docker image inspect --format '{{index .RepoDigests 0}}' node:22-alpine
+          if (-not $imageDigest) { throw "Could not resolve the test image digest" }
+          Write-Host "Sandbox test image: $imageDigest"
+
+          $sandboxCode = @'
+          const fs = require("node:fs");
+          const net = require("node:net");
+
+          if (typeof process.getuid === "function" && process.getuid() !== 1000) {
+            console.error("Container did not run as the unprivileged node UID");
+            process.exit(13);
+          }
+
+          try {
+            fs.writeFileSync("/etc/agent-sandbox-write-test", "unexpected");
+            console.error("Root filesystem is writable");
+            process.exit(11);
+          } catch (error) {
+            if (!["EROFS", "EACCES"].includes(error.code)) throw error;
+            console.log("PASS: root filesystem is read-only");
+          }
+
+          fs.writeFileSync("/tmp/agent-sandbox-write-test", "temporary");
+          fs.unlinkSync("/tmp/agent-sandbox-write-test");
+          console.log("PASS: bounded temporary filesystem is writable");
+
+          const socket = net.createConnection({ host: "1.1.1.1", port: 443 });
+          let finished = false;
+          const finish = (ok, message) => {
+            if (finished) return;
+            finished = true;
+            socket.destroy();
+            console.log(message);
+            process.exit(ok ? 0 : 12);
+          };
+          socket.setTimeout(1500);
+          socket.on("connect", () => finish(false, "FAIL: network unexpectedly reachable"));
+          socket.on("error", () => finish(true, "PASS: outbound network is blocked"));
+          socket.on("timeout", () => finish(true, "PASS: outbound network is blocked"));
+          setTimeout(() => finish(true, "PASS: outbound network is blocked"), 2000);
+          '@
+
+          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 256m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=32m,uid=1000,gid=1000 node:22-alpine node -e $sandboxCode
+          if ($LASTEXITCODE -ne 0) { throw "Disposable container isolation test failed" }
+
       - name: Install locked dependencies without lifecycle scripts
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm ci --ignore-scripts --no-audit --no-fund
