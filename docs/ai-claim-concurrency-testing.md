@@ -6,7 +6,7 @@ This test exercises the real `public.claim_ai_request` RPC through two independe
 
 - Run only against a disposable local Supabase database.
 - Never use a hosted Supabase URL, staging, or production database.
-- The runner refuses non-loopback hosts and requires an explicit confirmation variable.
+- The runner refuses non-loopback hosts, non-PostgreSQL URLs, and endpoints other than the default local `postgres@127.0.0.1:54322/postgres`; it also requires an explicit confirmation variable.
 - It temporarily changes the singleton `platform_ai_controls` row and restores its prior values in a `finally` cleanup.
 - It creates a random member and two conversations, then removes its fixture records.
 
