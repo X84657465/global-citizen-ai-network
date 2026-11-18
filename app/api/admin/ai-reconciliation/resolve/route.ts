@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { parseReconciliationInput } from "@/lib/ai/reconciliation-input";
+import { isActiveAdminProfile } from "@/lib/ai/reconciliation-auth";
 import { readJsonBody } from "@/lib/http/read-json-body";
 import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (profileError) return noStore({ error: "無法驗證管理員權限。" }, 503);
-  if (profile?.role !== "admin" || profile.account_status !== "active") {
+  if (!isActiveAdminProfile(profile)) {
     return noStore({ error: "只有啟用中的管理員可以核對 AI 請求。" }, 403);
   }
 
