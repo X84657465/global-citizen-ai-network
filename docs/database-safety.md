@@ -2,7 +2,7 @@
 
 ## Verified live database status — 2026-11-18
 
-The existing Supabase project `rtkpdafkpncoluhdihlv` is `ACTIVE_HEALTHY` (PostgreSQL 17, `ap-northeast-1`). Supabase reports 23 applied migrations, latest version `20261118060607` (`single_active_task_submission`). A read-only catalog check found 22 public base tables and confirmed RLS is enabled on all 22.
+The existing Supabase project `rtkpdafkpncoluhdihlv` is `ACTIVE_HEALTHY` (PostgreSQL 17, `ap-northeast-1`). Supabase reports 24 applied migrations, latest version `20261118061217` (`dedupe_active_submission_index`). A read-only catalog check found 22 public base tables and confirmed RLS is enabled on all 22.
 
 This supersedes the earlier bootstrap note that migrations had not yet been executed. It does **not** mean the full application has passed integration testing: two-user ownership tests, privileged-role tests, concurrent budget tests, ledger immutability tests, provider reconciliation, and restore drills remain to be demonstrated. Never replay the initial schema against this populated project.
 
@@ -35,7 +35,7 @@ The status-check helpers live in a non-exposed schema and are callable by authen
 
 Run these checks in a disposable environment and then verify the relevant controls against the existing project without altering real member data:
 
-1. Reconcile migration identifiers before using Supabase CLI against production: repository files currently use sequential prefixes (`0001`–`0023`), while the live migration history uses timestamp versions. All 23 repository migrations are now applied live. The exact mapping is recorded in `docs/migration-history-map.md`. Do not run `supabase db push` or `migration repair` against live.
+1. Reconcile migration identifiers before using Supabase CLI against production: repository files currently use sequential prefixes (`0001`–`0024`), while the live migration history uses timestamp versions. All 24 repository migrations are now applied live. The exact mapping is recorded in `docs/migration-history-map.md`. Do not run `supabase db push` or `migration repair` against live.
 2. Create two test users. Verify each can read and modify only their own profile/workspace.
 3. Verify a user cannot assign themselves admin/reviewer, change account_status, insert assistant/system messages, or read another user's requests or ledgers.
 4. Verify a user cannot attach a conversation to another user's project.
@@ -99,3 +99,8 @@ PR #30 adds `0022_ai_providerless_completed_replay.sql`. It changes the claim RP
 ## Single active task submission — migration 0023 applied live
 
 PR #34 adds a partial unique index on active task submissions per member/task and a shared transaction-scoped advisory lock for submission and appeal creation. Rejected submissions remain eligible for resubmission after any appeal is closed; open appeals block resubmission, and appeals are blocked when a sibling active submission exists. Build and Database CI passed with 47 unit tests and 125 pgTAP assertions. Migration 0023 was applied to live Supabase as `20261118060607`. Live verification confirms the partial unique index is unique with the expected four active states, and both trigger functions are SECURITY DEFINER with an empty search_path and no direct browser-role EXECUTE grants.
+
+
+## Canonical active-submission index — migration 0024 applied live
+
+PR #36 identified that the new active-submission index duplicated an equivalent pre-existing index. Migration 0024 was applied live as `20261118061217`; it removes the duplicate index and retains the canonical `task_submissions_one_active_per_user` partial unique index. Post-apply verification confirms exactly one unique partial index remains for the four active submission states. Supabase Performance Advisor no longer reports a duplicate index; it reports 35 unused indexes, which are retained pending real workload evidence.
