@@ -1,22 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { parseReconciliationInput } from "@/lib/ai/reconciliation-input";
 import { readJsonBody } from "@/lib/http/read-json-body";
-import { getAuthenticatedClient, isUuid } from "@/lib/supabase/authenticated";
+import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-type ResolutionInput = {
-  requestId?: unknown;
-  idempotencyKey?: unknown;
-  decision?: unknown;
-  provider?: unknown;
-  evidenceReference?: unknown;
-  rationale?: unknown;
-  providerBilledCost?: unknown;
-  providerBilledCurrency?: unknown;
-  normalizedCostTwd?: unknown;
-};
 
 function noStore(body: Record<string, unknown>, status: number) {
   return NextResponse.json(body, {
@@ -44,38 +33,14 @@ export async function POST(request: NextRequest) {
   if (!parsed.ok) {
     return noStore({ error: parsed.status === 413 ? "請求內容超過大小限制。" : "請提供有效的 JSON。" }, parsed.status);
   }
-  if (!parsed.value || typeof parsed.value !== "object" || Array.isArray(parsed.value)) {
-    return noStore({ error: "請提供有效的核對資料。" }, 400);
-  }
-
-  const input = parsed.value as ResolutionInput;
-  const requestId = typeof input.requestId === "string" ? input.requestId : "";
-  const idempotencyKey = typeof input.idempotencyKey === "string" ? input.idempotencyKey : "";
-  const decision = input.decision;
-  const provider = typeof input.provider === "string" ? input.provider.trim() : "";
-  const evidenceReference = typeof input.evidenceReference === "string" ? input.evidenceReference.trim() : "";
-  const rationale = typeof input.rationale === "string" ? input.rationale.trim() : "";
-  const billedCost = input.providerBilledCost;
-  const billedCurrency = input.providerBilledCurrency;
-  const normalizedCost = input.normalizedCostTwd;
-
-  if (!isUuid(requestId) || !isUuid(idempotencyKey)
-      || !["confirmed_billed", "confirmed_not_billed", "inconclusive"].includes(String(decision))
-      || provider.length < 1 || provider.length > 120
-      || evidenceReference.length < 8 || evidenceReference.length > 500
-      || rationale.length < 20 || rationale.length > 2000) {
-    return noStore({ error: "核對欄位格式不正確，請檢查請求、決策、證據參照與理由。" }, 400);
-  }
-
-  const isBilled = decision === "confirmed_billed";
-  if (isBilled) {
-    if (typeof billedCost !== "number" || !Number.isFinite(billedCost) || billedCost < 0 || billedCost > 9999999999.99999999
-        || typeof normalizedCost !== "number" || !Number.isFinite(normalizedCost) || normalizedCost < 0 || normalizedCost > 9999999999.99999999
-        || typeof billedCurrency !== "string" || !/^[A-Z]{3}$/.test(billedCurrency)) {
-      return noStore({ error: "已確認扣款時，必須提供有效的供應商金額、幣別及換算後 TWD 成本。" }, 400);
-    }
-  } else if (billedCost !== undefined || billedCurrency !== undefined || normalizedCost !== undefined) {
-    return noStore({ error: "只有已確認扣款的決策可以提供成本欄位。" }, 400);
+  const validated = parseReconciliationInput(parsed.value);
+  if (!validated.ok) {
+    const message = validated.reason === "invalid_billed_cost"
+      ? "已確認扣款時，必須提供有效的供應商金額、幣別及換算後 TWD 成本。"
+      : validated.reason === "cost_not_allowed_for_decision"
+        ? "只有已確認扣款的決策可以提供成本欄位。"
+        : "核對欄位格式不正確，請檢查請求、決策、證據參照與理由。";
+    return noStore({ error: message }, 400);
   }
 
   // Keep the privileged RPC behind the server-only service client. The
@@ -89,15 +54,15 @@ export async function POST(request: NextRequest) {
   }
   const { data, error } = await adminSupabase.rpc("resolve_ai_reconciliation", {
     p_actor_id: auth.user.id,
-    p_request_id: requestId,
-    p_idempotency_key: idempotencyKey,
-    p_decision: decision,
-    p_provider: provider,
-    p_evidence_reference: evidenceReference,
-    p_rationale: rationale,
-    p_provider_billed_cost: isBilled ? billedCost : null,
-    p_provider_billed_currency: isBilled ? billedCurrency : null,
-    p_normalized_cost_twd: isBilled ? normalizedCost : null,
+    p_request_id: validated.value.requestId,
+    p_idempotency_key: validated.value.idempotencyKey,
+    p_decision: validated.value.decision,
+    p_provider: validated.value.provider,
+    p_evidence_reference: validated.value.evidenceReference,
+    p_rationale: validated.value.rationale,
+    p_provider_billed_cost: validated.value.providerBilledCost ?? null,
+    p_provider_billed_currency: validated.value.providerBilledCurrency ?? null,
+    p_normalized_cost_twd: validated.value.normalizedCostTwd ?? null,
   });
 
   if (error) return noStore({ error: "核對未完成，資料庫已拒絕此次操作。請保留相同核對鍵並檢查請求狀態。" }, 409);
