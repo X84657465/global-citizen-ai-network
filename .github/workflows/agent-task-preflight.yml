@@ -41,6 +41,54 @@ jobs:
           node --version
           npm --version
 
+      - name: Audit available local isolation capabilities
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          try {
+            $os = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+            Write-Host "OS: $($os.Caption) | Version: $($os.Version) | Build: $($os.BuildNumber)"
+          } catch {
+            Write-Host "OS metadata query unavailable: $($_.Exception.Message)"
+          }
+
+          $wsl = Get-Command wsl.exe -ErrorAction SilentlyContinue
+          if ($wsl) {
+            Write-Host "WSL: installed"
+            wsl.exe --status
+            if ($LASTEXITCODE -ne 0) { Write-Host "WSL status query returned $LASTEXITCODE" }
+          } else {
+            Write-Host "WSL: not found"
+          }
+
+          $docker = Get-Command docker.exe -ErrorAction SilentlyContinue
+          if ($docker) {
+            Write-Host "Docker CLI: installed"
+            docker.exe --version
+            docker.exe info --format "Server={{.ServerVersion}} OS={{.OperatingSystem}}"
+            if ($LASTEXITCODE -ne 0) { Write-Host "Docker daemon is unavailable (exit $LASTEXITCODE)" }
+          } else {
+            Write-Host "Docker CLI: not found"
+          }
+
+          try {
+            $computer = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+            Write-Host "HypervisorPresent: $($computer.HypervisorPresent)"
+          } catch {
+            Write-Host "Hypervisor status query unavailable"
+          }
+
+          $featureCmd = Get-Command Get-WindowsOptionalFeature -ErrorAction SilentlyContinue
+          if ($featureCmd) {
+            try {
+              $sandbox = Get-WindowsOptionalFeature -Online -FeatureName Containers-DisposableClientVM -ErrorAction Stop
+              Write-Host "Windows Sandbox feature: $($sandbox.State)"
+            } catch {
+              Write-Host "Windows Sandbox feature query unavailable (possibly requires elevation): $($_.Exception.Message)"
+            }
+          } else {
+            Write-Host "Windows feature query cmdlet: not available"
+          }
+
       - name: Install locked dependencies without lifecycle scripts
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: npm ci --ignore-scripts --no-audit --no-fund
