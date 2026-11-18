@@ -92,12 +92,16 @@ jobs:
       - name: Verify disposable container isolation
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
-          docker pull node:22-alpine
-          if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned-by-digest test image" }
-
-          $imageDigest = docker image inspect --format '{{index .RepoDigests 0}}' node:22-alpine
-          if (-not $imageDigest) { throw "Could not resolve the test image digest" }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          docker pull $imageDigest
+          if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned sandbox test image" }
           Write-Host "Sandbox test image: $imageDigest"
+
+          $outputDir = Join-Path $env:RUNNER_TEMP "agent-sandbox-output"
+          if (Test-Path $outputDir) { Remove-Item $outputDir -Recurse -Force }
+          New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
+          $inputMount = "type=bind,source=$env:GITHUB_WORKSPACE,target=/input,readonly"
+          $outputMount = "type=bind,source=$outputDir,target=/output"
 
           $sandboxCode = @'
           const fs = require("node:fs");
@@ -121,6 +125,18 @@ jobs:
           fs.unlinkSync("/tmp/agent-sandbox-write-test");
           console.log("PASS: bounded temporary filesystem is writable");
 
+          try {
+            fs.writeFileSync("/input/.agent-sandbox-readonly-probe", "unexpected");
+            console.error("Repository input mount is writable");
+            process.exit(14);
+          } catch (error) {
+            if (!["EROFS", "EACCES", "EPERM"].includes(error.code)) throw error;
+            console.log("PASS: repository input mount is read-only");
+          }
+
+          fs.writeFileSync("/output/agent-sandbox-output-probe.txt", "sandbox-output-only");
+          console.log("PASS: dedicated output mount is writable");
+
           const socket = net.createConnection({ host: "1.1.1.1", port: 443 });
           let finished = false;
           const finish = (ok, message) => {
@@ -138,8 +154,18 @@ jobs:
           '@
 
           $encodedSandboxCode = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($sandboxCode))
-          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 256m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=32m,uid=1000,gid=1000 $imageDigest node -e "eval(Buffer.from('$encodedSandboxCode','base64').toString())"
+          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 256m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=32m,uid=1000,gid=1000 --mount $inputMount --mount $outputMount $imageDigest node -e "eval(Buffer.from('$encodedSandboxCode','base64').toString())"
           if ($LASTEXITCODE -ne 0) { throw "Disposable container isolation test failed" }
+
+          if (Test-Path (Join-Path $env:GITHUB_WORKSPACE ".agent-sandbox-readonly-probe")) {
+            throw "Sandbox unexpectedly modified the repository input"
+          }
+          $outputProbe = Join-Path $outputDir "agent-sandbox-output-probe.txt"
+          if (-not (Test-Path $outputProbe) -or (Get-Content $outputProbe -Raw) -ne "sandbox-output-only") {
+            throw "Sandbox output did not remain inside the dedicated output directory"
+          }
+          Remove-Item $outputDir -Recurse -Force
+          Write-Host "PASS: host repository remained unchanged; output stayed in isolated scratch directory"
 
       - name: Install locked dependencies without lifecycle scripts
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
