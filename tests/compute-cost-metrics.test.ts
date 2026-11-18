@@ -106,3 +106,29 @@ test("tracks accepted jobs whose latency has not been measured", () => {
   assert.equal(result.unmeasuredAcceptedLatencyJobs, 1);
   assert.equal(result.medianAcceptedLatencyMs, null);
 });
+
+
+test("indexes only TWD request estimates and sums multiple TWD ledger rows", async () => {
+  const { indexTwdRequestEstimates } = await import("../lib/compute/cost-metrics.ts");
+  const result = indexTwdRequestEstimates([
+    { request_id: "twd-1", amount: "1.25", currency: "TWD" },
+    { request_id: "twd-1", amount: 2, currency: " twd " },
+    { request_id: "usd-1", amount: 0.5, currency: "USD" },
+    { request_id: "mixed-1", amount: 5, currency: "TWD" },
+    { request_id: "mixed-1", amount: 0.2, currency: "USD" },
+    { request_id: null, amount: 99, currency: "TWD" },
+  ]);
+  assert.equal(result.get("twd-1"), 3.25);
+  assert.equal(result.has("usd-1"), false);
+  assert.equal(result.has("mixed-1"), false);
+  assert.equal(result.size, 1);
+});
+
+test("keeps invalid request cost rows unpriced instead of treating them as zero", async () => {
+  const { indexTwdRequestEstimates } = await import("../lib/compute/cost-metrics.ts");
+  const result = indexTwdRequestEstimates([
+    { request_id: "invalid-1", amount: "not-a-number", currency: "TWD" },
+    { request_id: "invalid-2", amount: -1, currency: "TWD" },
+  ]);
+  assert.equal(result.size, 0);
+});
