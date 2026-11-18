@@ -82,7 +82,11 @@ try {
 
 let validatedPatch;
 try {
-  validatedPatch = validatePatchManifest(patchCandidate, scopedTask, trackedPaths);
+  validatedPatch = validatePatchManifest(
+    { schema_version: patchCandidate.schema_version, files: patchCandidate.files },
+    scopedTask,
+    trackedPaths,
+  );
 } catch (error) {
   fail(error instanceof Error ? error.message : "Patch manifest revalidation failed.");
 }
