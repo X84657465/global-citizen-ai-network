@@ -442,8 +442,8 @@ assert.ok(reconciliationSql.includes("from public, anon, authenticated") && reco
   "Reconciliation RPC must be callable only through the server service role");
 assert.ok(reconciliationResolveApi.includes("createAdminClient()") && reconciliationResolveApi.includes("adminSupabase.rpc(\"resolve_ai_reconciliation\""),
   "Admin resolution API must call the privileged RPC through a server-only service-role client");
-assert.ok(reconciliationResolveApi.includes("profile?.role !== \"admin\"") && reconciliationResolveApi.includes("profile.account_status !== \"active\""),
-  "Admin resolution API must enforce active-admin authorization");
+assert.ok(reconciliationResolveApi.includes("isActiveAdminProfile(profile)"),
+  "Admin resolution API must enforce active-admin authorization through the tested shared guard");
 assert.ok(reconciliationUi.includes("crypto.randomUUID()") && reconciliationUi.includes("使用相同資料重試"),
   "Admin resolution UI must preserve an idempotency key for safe retries");
 assert.ok(reconciliationTests.includes("authoritative profile row instead of trusting the supplied ID"),
