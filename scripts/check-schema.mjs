@@ -158,6 +158,9 @@ assert.ok(aiHistory.includes("totalCharacters + item.content.length > maxTotalCh
 
 const atomicAiSql = readFileSync("supabase/migrations/0012_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
 const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
+const providerResponseTests = readFileSync("tests/ai-provider-response.test.ts", "utf8");
+const aiCostTests = readFileSync("tests/ai-cost.test.ts", "utf8");
+const reconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
 const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
 const claimPosition = aiGateway.indexOf('admin.rpc("claim_ai_request"');
@@ -580,3 +583,15 @@ assert.ok(reconciliationInputSource.includes("Number.isFinite") &&
 assert.ok(reconciliationAuthSource.includes("Object.prototype.hasOwnProperty.call") &&
   reconciliationAuthTests.includes("does not accept inherited authorization fields"),
   "Admin profile authorization must reject inherited or malformed role fields");
+
+assert.ok(providerResponse.includes("async function cancelProviderBody") &&
+  providerResponseTests.includes("cancels provider bodies rejected by invalid or oversized declared content-length"),
+  "Rejected provider response bodies must be canceled and covered by regression tests");
+assert.ok(aiCostTests.includes("estimates input and output token costs") &&
+  aiCostTests.includes("runtime config rejects missing or non-positive pricing"),
+  "AI cost estimation and paid-provider pricing configuration must retain unit coverage");
+assert.ok(reconciliationTests.includes("select plan(14)") &&
+  reconciliationTests.includes("same-key same-payload retries replay while changed payloads conflict") &&
+  reconciliationTests.includes("conclusive billed and not-billed decisions settle or release the held reservation") &&
+  reconciliationTests.includes("every resolution is audited and evidence events remain immutable"),
+  "AI reconciliation tests must cover idempotency, settlement, and immutable audit invariants");
