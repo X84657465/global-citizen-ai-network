@@ -68,3 +68,15 @@ Latest Windows verification run: https://github.com/X84657465/global-citizen-ai-
 Latest read-only workspace boundary run: https://github.com/X84657465/global-citizen-ai-network/actions/runs/44337526428
 
 The pinned image and all sandbox checks passed, including the read-only repository mount and dedicated output-only mount.
+
+
+## Candidate patch contract
+
+A separate pure validation module now defines the handoff contract for future model-generated changes:
+
+- Exact file allowlist inherited from the validated task issue.
+- Only `add` and `modify` operations; no deletes.
+- Each file must match the expected existence state in the base checkout.
+- Maximum 20 files, 64 KiB per file and 256 KiB total.
+- Rejects traversal, absolute paths, hidden/protected roots, duplicate paths, binary/NUL content, and unexpected JSON fields.
+- This validates patch data only; it does not apply the patch or execute generated code.
