@@ -237,6 +237,23 @@ Add region-aware scheduling, node reputation, multiple workload classes, transpa
 - No global microservice fleet before measured demand.
 - No Production schema changes, node installation, paid provider enablement, or deployment as part of this design proposal.
 
-## 11. Immediate engineering decision
+## 11. Device capability and workload contract (implemented as pure policy modules)
 
-Proceed with **Phase 0 only** in the existing repository. First establish real cost and workload telemetry; then design a small queue/worker boundary. Keep distributed desktop nodes behind a separate future security review. This sequencing can lower costs sooner without prematurely creating a high-risk global compute marketplace.
+The repository now contains two runtime-independent policy modules, with no hardware probing or network access:
+
+- `lib/compute/device-capabilities.ts` normalizes only caller-supplied measurements after explicit consent. Missing CPU, RAM, GPU/VRAM, storage, network, and battery values remain `null`; invalid or implausible values are rejected or treated as unknown. It does not create a device fingerprint.
+- Community execution eligibility is desktop-only, requires opt-in and known CPU/RAM, and enforces conservative concurrency, memory, CPU policy, and optional power thresholds. Browser telemetry is advisory and cannot attest to hardware.
+- `lib/compute/workload-contract.ts` defines an allowlisted public workload manifest, content digest, resource envelope, output schema identifier, deadline, verification strategy, and short-lived audience-bound lease shape.
+- Community manifests reject private/personal data, secrets, unknown task types, arbitrary executable artifacts, oversized inputs/outputs, excessive resources, and long deadlines.
+- Lease validation checks binding fields and expiry shape. Cryptographic signature verification remains a trusted-server responsibility and is not claimed by the pure validator.
+
+**Release gate:** these types and validators are policy scaffolding only. Do not issue leases or run third-party workloads until the desktop agent has signed updates, a disposable sandbox, restricted egress/filesystem access, independent verification, revocation, and security review.
+
+## 12. What not to infer from telemetry
+
+- Browser APIs may hide, round, or omit hardware and network information; null is not zero.
+- GPU vendor/name/VRAM are optional and potentially spoofable; never use them as identity or trust proof.
+- Storage quota and network throughput estimates are advisory and must not authorize access to local files or bandwidth beyond the user's configured caps.
+- Battery and charging status are only scheduling hints. The local agent must enforce thermal and power limits independently.
+- The platform stores coarse, consented capability snapshots only; it does not collect device serials, MAC addresses, installed software lists, file paths, or browser fingerprints.
+
