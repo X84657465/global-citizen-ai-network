@@ -2,7 +2,7 @@
 
 ## Verified live database status — 2026-11-18
 
-The existing Supabase project `rtkpdafkpncoluhdihlv` is `ACTIVE_HEALTHY` (PostgreSQL 17, `ap-northeast-1`). Supabase reports 18 applied migrations, latest version `20261118005041`. A read-only catalog check found 22 public base tables and confirmed RLS is enabled on all 22.
+The existing Supabase project `rtkpdafkpncoluhdihlv` is `ACTIVE_HEALTHY` (PostgreSQL 17, `ap-northeast-1`). Supabase reports 19 applied migrations, latest version `20261118045417` (`least_privilege_public_grants`). A read-only catalog check found 22 public base tables and confirmed RLS is enabled on all 22.
 
 This supersedes the earlier bootstrap note that migrations had not yet been executed. It does **not** mean the full application has passed integration testing: two-user ownership tests, privileged-role tests, concurrent budget tests, ledger immutability tests, provider reconciliation, and restore drills remain to be demonstrated. Never replay the initial schema against this populated project.
 
@@ -35,7 +35,7 @@ The status-check helpers live in a non-exposed schema and are callable by authen
 
 Run these checks in a disposable environment and then verify the relevant controls against the existing project without altering real member data:
 
-1. Confirm all 18 migration versions in the repository match the applied migration history.
+1. Reconcile migration identifiers before using Supabase CLI against production: repository files use sequential prefixes (`0001`–`0019`), while the live migration history uses timestamp versions. Migration names align, but version identifiers do not; do not run `supabase db push` or `migration repair` against live until this mismatch has a reviewed reconciliation plan. Apply only reviewed forward migrations and record the returned remote timestamp.
 2. Create two test users. Verify each can read and modify only their own profile/workspace.
 3. Verify a user cannot assign themselves admin/reviewer, change account_status, insert assistant/system messages, or read another user's requests or ledgers.
 4. Verify a user cannot attach a conversation to another user's project.
@@ -77,6 +77,10 @@ Migration `0019_least_privilege_public_grants.sql` adds defense in depth beyond 
 - Existing `service_role` grants are retained for trusted server operations.
 - Default table and sequence privileges for the application migration owner (`postgres`) are revoked for `anon` and `authenticated`; default function execution is revoked for `PUBLIC`, `anon`, and `authenticated`, so future application objects require explicit grants and RLS review.
 
-The live catalog audit on 2026-11-18 found permissive default table grants for `anon` and `authenticated` on current public tables, inherited `PUBLIC` function execution on trigger functions, and permissive defaults for future tables/functions created by `postgres`. RLS policies already denied unauthorized row access, but broad SQL grants were unnecessary and weakened defense in depth. The migration is proposed in a review branch and must pass local Supabase database tests before it is applied to the existing live project.
+The live catalog audit found broad direct table grants to `anon` and `authenticated` and inherited `PUBLIC` function execution. Migration 0019 was merged to main after CI passed (101 database assertions) and applied to live Supabase as version `20261118045417`. Post-apply read-only checks confirmed zero direct public-table grants for `anon`, zero public-schema function EXECUTE grants for `PUBLIC`/`anon`/`authenticated`, the expected 13 authenticated table grant sets, and retained `service_role` access to all 22 public relations and 19 public functions. The `postgres` default ACL no longer grants tables/sequences/functions to browser roles or PUBLIC. The security advisor now reports only 9 RLS-enabled internal tables without policies; these remain service-role-only by design. The health advisor returns no findings.
 
 The managed `supabase_admin` default ACL is platform-owned and cannot be altered by the project migration role. Application schema migrations must continue to run as `postgres`; do not create application tables as `supabase_admin`.
+
+## Database performance follow-up — 2026-11-18
+
+A read-only Supabase advisor/catalog review identified 17 foreign keys without a covering index and duplicate permissive SELECT evaluation on `projects` and `conversations`. PR #22 contains migration `0020_foreign_key_indexes_and_policy_split.sql` with one index for each reported FK and separate INSERT/UPDATE/DELETE policies. Its combined migration 0019+0020 CI run passed 104 database assertions. The migration is not yet applied to live Supabase. Unused indexes are not dropped: advisor usage counters on a low-traffic/new system are insufficient evidence that an index is unnecessary.
