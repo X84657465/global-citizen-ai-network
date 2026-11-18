@@ -1,0 +1,504 @@
+name: AI Agent Task Preflight
+
+on:
+  push:
+    branches:
+      - codex/ai-runner-foundation
+    paths:
+      - "lib/agent-task-validation.mjs"
+      - "lib/agent-patch-validation.mjs"
+      - "lib/agent-plan-validation.mjs"
+      - "scripts/prepare-agent-task.mjs"
+      - "scripts/select-agent-task.mjs"
+      - "scripts/generate-agent-plan.mjs"
+      - "scripts/generate-agent-patch.mjs"
+      - "scripts/apply-agent-patch-to-scratch.mjs"
+      - "scripts/publish-agent-patch.mjs"
+      - "tests/agent-task-validation.test.mjs"
+      - "tests/agent-patch-validation.test.mjs"
+      - "tests/agent-plan-validation.test.mjs"
+      - "package.json"
+      - ".github/workflows/agent-task-preflight.yml"
+  issues:
+    types: [opened, edited]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Repository issue number containing the approved AI task"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: ai-agent-task-preflight
+  cancel-in-progress: false
+
+jobs:
+  validation-tests:
+    name: Windows self-hosted project validation
+    if: github.event_name == 'push'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify toolchain
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          node --version
+          npm --version
+          node --check scripts/select-agent-task.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Scheduled task selector syntax check failed." }
+
+      - name: Audit available local isolation capabilities
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          try {
+            $os = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+            Write-Host "OS: $($os.Caption) | Version: $($os.Version) | Build: $($os.BuildNumber)"
+          } catch {
+            Write-Host "OS metadata query unavailable: $($_.Exception.Message)"
+          }
+
+          $wsl = Get-Command wsl.exe -ErrorAction SilentlyContinue
+          if ($wsl) {
+            Write-Host "WSL: installed"
+            wsl.exe --status
+            if ($LASTEXITCODE -ne 0) { Write-Host "WSL status query returned $LASTEXITCODE" }
+          } else {
+            Write-Host "WSL: not found"
+          }
+
+          $ollama = Get-Command ollama.exe -ErrorAction SilentlyContinue
+          if ($ollama) {
+            Write-Host "Ollama CLI: installed"
+            ollama.exe --version
+          } else {
+            Write-Host "Ollama CLI: not found on PATH"
+          }
+
+          try {
+            $ollamaTags = Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -TimeoutSec 3 -ErrorAction Stop
+            $modelNames = @($ollamaTags.models | ForEach-Object { $_.name })
+            if ($modelNames.Count -gt 0) {
+              Write-Host "Local Ollama API: available"
+              Write-Host "Local models: $($modelNames -join ', ')"
+            } else {
+              Write-Host "Local Ollama API: available; no models listed"
+            }
+          } catch {
+            Write-Host "Local Ollama API: not responding on 127.0.0.1:11434"
+          }
+
+          $docker = Get-Command docker.exe -ErrorAction SilentlyContinue
+          if ($docker) {
+            Write-Host "Docker CLI: installed"
+            docker.exe --version
+            docker.exe info --format "Server={{.ServerVersion}} OS={{.OperatingSystem}}"
+            if ($LASTEXITCODE -ne 0) { Write-Host "Docker daemon is unavailable (exit $LASTEXITCODE)" }
+          } else {
+            Write-Host "Docker CLI: not found"
+          }
+
+          try {
+            $computer = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+            Write-Host "HypervisorPresent: $($computer.HypervisorPresent)"
+          } catch {
+            Write-Host "Hypervisor status query unavailable"
+          }
+
+          $featureCmd = Get-Command Get-WindowsOptionalFeature -ErrorAction SilentlyContinue
+          if ($featureCmd) {
+            try {
+              $sandbox = Get-WindowsOptionalFeature -Online -FeatureName Containers-DisposableClientVM -ErrorAction Stop
+              Write-Host "Windows Sandbox feature: $($sandbox.State)"
+            } catch {
+              Write-Host "Windows Sandbox feature query unavailable (possibly requires elevation): $($_.Exception.Message)"
+            }
+          } else {
+            Write-Host "Windows feature query cmdlet: not available"
+          }
+
+      - name: Smoke-test local Ollama plan generation with a synthetic task
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
+          New-Item -ItemType Directory -Path "artifacts" -Force | Out-Null
+          $task = @{
+            schema_version = 1
+            mode = "preflight_only"
+            ai_execution_enabled = $false
+            repository = $env:GITHUB_REPOSITORY
+            issue = @{
+              number = 999999
+              title = "[AI Task] Synthetic publication dry run"
+              author = ($env:GITHUB_REPOSITORY.Split('/')[0])
+              url = "https://github.com/$($env:GITHUB_REPOSITORY)/issues/999999"
+            }
+            safety = @{
+              issue_content_is_untrusted_data = $true
+              repository_code_was_not_executed = $true
+              files_were_not_modified = $true
+              pull_request_was_not_created = $true
+              production_database_or_deployment_touched = $false
+            }
+            goal = "Prepare a minimal new documentation page describing the safe local AI task pipeline and its approval boundaries."
+            allowed_paths = @("docs/agent-pipeline-smoke-test.md")
+            acceptance_criteria = @(
+              "The plan is valid JSON and passes the agent plan validator.",
+              "The documentation patch is bounded to the one approved path."
+            )
+            explicit_exclusions = @(
+              "Do not apply the proposed patch to repository files.",
+              "Do not execute commands or deploy."
+            )
+          }
+          $json = $task | ConvertTo-Json -Depth 10
+          [System.IO.File]::WriteAllText(
+            (Join-Path (Get-Location) "artifacts/agent-task.json"),
+            $json,
+            [System.Text.UTF8Encoding]::new($false)
+          )
+          node scripts/generate-agent-plan.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Local Ollama plan generation smoke test failed." }
+
+          $plan = Get-Content "artifacts/agent-plan.json" -Raw | ConvertFrom-Json
+          if ($plan.ai_execution_enabled -ne $false) { throw "Plan must keep AI code execution disabled." }
+          if ($plan.tasks.Count -lt 1 -or $plan.tasks.Count -gt 12) { throw "Plan task count is outside the allowed range." }
+          $implementerTasks = @($plan.tasks | Where-Object { $_.role -eq "implementer" -and $_.action -eq "propose_patch" })
+          if ($implementerTasks.Count -ne 1) { throw "Plan must contain exactly one bounded implementer patch task." }
+          foreach ($planTask in $plan.tasks) {
+            foreach ($approvedPath in $planTask.allowed_paths) {
+              if ($approvedPath -ne "docs/agent-pipeline-smoke-test.md") {
+                throw "Plan contains a path outside the synthetic task allowlist."
+              }
+            }
+          }
+          Write-Host "PASS: local model generated a validated read-only plan."
+
+      - name: Smoke-test local Ollama patch proposal
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          node scripts/generate-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Local Ollama patch proposal smoke test failed." }
+          if (-not (Test-Path "artifacts/agent-patch.json")) {
+            throw "The synthetic task did not produce a validated patch proposal."
+          }
+          $patch = Get-Content "artifacts/agent-patch.json" -Raw | ConvertFrom-Json
+          if ($patch.files.Count -lt 1 -or $patch.files.Count -gt 20) {
+            throw "Patch proposal file count is outside the allowed range."
+          }
+          foreach ($file in $patch.files) {
+            if ($file.path -ne "docs/agent-pipeline-smoke-test.md") {
+              throw "Patch proposal contains a path outside the synthetic task allowlist."
+            }
+          }
+          Write-Host "PASS: local model generated a validated patch manifest without applying it."
+
+      - name: Preserve synthetic AI artifacts for diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-synthetic-${{ github.run_id }}
+          path: |
+            artifacts/agent-task.json
+            artifacts/agent-plan.json
+            artifacts/agent-patch.json
+          if-no-files-found: warn
+          retention-days: 1
+
+      - name: Verify disposable container isolation
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          docker pull $imageDigest
+          if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned sandbox test image" }
+          Write-Host "Sandbox test image: $imageDigest"
+
+          $outputDir = Join-Path $env:RUNNER_TEMP "agent-sandbox-output"
+          if (Test-Path $outputDir) { Remove-Item $outputDir -Recurse -Force }
+          New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
+          $inputMount = "type=bind,source=$env:GITHUB_WORKSPACE,target=/input,readonly"
+          $outputMount = "type=bind,source=$outputDir,target=/output"
+
+          $sandboxCode = @'
+          const fs = require("node:fs");
+          const net = require("node:net");
+
+          if (typeof process.getuid === "function" && process.getuid() !== 1000) {
+            console.error("Container did not run as the unprivileged node UID");
+            process.exit(13);
+          }
+
+          try {
+            fs.writeFileSync("/etc/agent-sandbox-write-test", "unexpected");
+            console.error("Root filesystem is writable");
+            process.exit(11);
+          } catch (error) {
+            if (!["EROFS", "EACCES"].includes(error.code)) throw error;
+            console.log("PASS: root filesystem is read-only");
+          }
+
+          fs.writeFileSync("/tmp/agent-sandbox-write-test", "temporary");
+          fs.unlinkSync("/tmp/agent-sandbox-write-test");
+          console.log("PASS: bounded temporary filesystem is writable");
+
+          try {
+            fs.writeFileSync("/input/.agent-sandbox-readonly-probe", "unexpected");
+            console.error("Repository input mount is writable");
+            process.exit(14);
+          } catch (error) {
+            if (!["EROFS", "EACCES", "EPERM"].includes(error.code)) throw error;
+            console.log("PASS: repository input mount is read-only");
+          }
+
+          fs.writeFileSync("/output/agent-sandbox-output-probe.txt", "sandbox-output-only");
+          console.log("PASS: dedicated output mount is writable");
+
+          const socket = net.createConnection({ host: "1.1.1.1", port: 443 });
+          let finished = false;
+          const finish = (ok, message) => {
+            if (finished) return;
+            finished = true;
+            socket.destroy();
+            console.log(message);
+            process.exit(ok ? 0 : 12);
+          };
+          socket.setTimeout(1500);
+          socket.on("connect", () => finish(false, "FAIL: network unexpectedly reachable"));
+          socket.on("error", () => finish(true, "PASS: outbound network is blocked"));
+          socket.on("timeout", () => finish(true, "PASS: outbound network is blocked"));
+          setTimeout(() => finish(true, "PASS: outbound network is blocked"), 2000);
+          '@
+
+          $encodedSandboxCode = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($sandboxCode))
+          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 256m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=32m,uid=1000,gid=1000 --mount $inputMount --mount $outputMount $imageDigest node -e "eval(Buffer.from('$encodedSandboxCode','base64').toString())"
+          if ($LASTEXITCODE -ne 0) { throw "Disposable container isolation test failed" }
+
+          if (Test-Path (Join-Path $env:GITHUB_WORKSPACE ".agent-sandbox-readonly-probe")) {
+            throw "Sandbox unexpectedly modified the repository input"
+          }
+          $outputProbe = Join-Path $outputDir "agent-sandbox-output-probe.txt"
+          if (-not (Test-Path $outputProbe) -or (Get-Content $outputProbe -Raw) -ne "sandbox-output-only") {
+            throw "Sandbox output did not remain inside the dedicated output directory"
+          }
+          Remove-Item $outputDir -Recurse -Force
+          Write-Host "PASS: host repository remained unchanged; output stayed in isolated scratch directory"
+
+      - name: Apply validated patch to a disposable scratch workspace
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/apply-agent-patch-to-scratch.mjs
+
+      - name: Install candidate dependencies inside restricted container
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/npm-home $imageDigest npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation failed inside the restricted container." }
+
+      - name: Test patched candidate offline inside restricted container
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
+          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
+          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
+          Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+
+      - name: Validate draft PR publisher without API writes
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: "999999"
+          CANDIDATE_TESTS_PASSED: "true"
+          PUBLISH_AGENT_DRY_RUN: "true"
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          node scripts/publish-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Draft PR publisher dry-run failed." }
+          $result = Get-Content "artifacts/agent-publish.json" -Raw | ConvertFrom-Json
+          if ($result.state -ne "dry_run" -or $result.no_api_writes -ne $true -or
+              $result.automatic_merge -ne $false -or $result.production_deployment -ne $false) {
+            throw "Draft PR publisher dry-run did not preserve safety boundaries."
+          }
+
+      - name: Preserve synthetic publication dry-run result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-publish-dry-run-${{ github.run_id }}
+          path: artifacts/agent-publish.json
+          if-no-files-found: warn
+          retention-days: 1
+
+      - name: Install locked dependencies without lifecycle scripts
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Run complete unit test suite
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npm run test:unit
+
+      - name: Run TypeScript validation
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npx --no-install tsc --noEmit
+
+      - name: Run ESLint
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: npm run lint
+
+      - name: Clean disposable scratch workspace
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifestPath = "artifacts/agent-scratch.json"
+          if (Test-Path $manifestPath) {
+            try {
+              $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+              $scratch = [string]$manifest.scratch_dir
+              if ($scratch -and (Test-Path $scratch -PathType Container)) {
+                Remove-Item -LiteralPath $scratch -Recurse -Force
+              }
+            } finally {
+              Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
+            }
+          }
+
+      - name: Clean synthetic AI artifacts
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          if (Test-Path "artifacts") { Remove-Item "artifacts" -Recurse -Force }
+
+  prepare-task:
+    name: Validate task and generate read-only AI plan
+    if: >-
+      (github.event_name == 'workflow_dispatch' &&
+       github.actor == github.repository_owner) ||
+      (github.event_name == 'issues' &&
+       github.event.issue.user.login == github.repository_owner &&
+       startsWith(github.event.issue.title, '[AI Task]')) ||
+      github.event_name == 'schedule'
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select one queued task (scheduled runs only)
+        id: select-task
+        if: github.event_name == 'schedule'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/select-agent-task.mjs
+
+      - name: Validate task and create a safe handoff bundle
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || github.event.issue.number || inputs.issue_number }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/prepare-agent-task.mjs
+
+      - name: Generate and validate a read-only plan with local Ollama
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/generate-agent-plan.mjs
+
+      - name: Generate and validate a bounded patch proposal
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/generate-agent-patch.mjs
+
+      - name: Apply validated patch to a disposable scratch workspace
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/apply-agent-patch-to-scratch.mjs
+
+      - name: Install candidate dependencies inside restricted container
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          docker pull $imageDigest
+          if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned candidate test image." }
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/npm-home $imageDigest npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation failed inside the restricted container." }
+
+      - name: Test patched candidate offline inside restricted container
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
+          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
+          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
+          Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+
+      - name: Create a draft PR after isolated tests pass
+        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || github.event.issue.number || inputs.issue_number }}
+          CANDIDATE_TESTS_PASSED: "true"
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/publish-agent-patch.mjs
+
+      - name: Clean disposable scratch workspace
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $manifestPath = "artifacts/agent-scratch.json"
+          if (Test-Path $manifestPath) {
+            try {
+              $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+              $scratch = [string]$manifest.scratch_dir
+              if ($scratch -and (Test-Path $scratch -PathType Container)) {
+                Remove-Item -LiteralPath $scratch -Recurse -Force
+              }
+            } finally {
+              Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
+            }
+          }
+
+      - name: Upload validated task, plan, and patch proposal
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-task-${{ github.event.issue.number || inputs.issue_number }}
+          path: |
+            artifacts/agent-task.json
+            artifacts/agent-plan.json
+            artifacts/agent-patch.json
+            artifacts/agent-publish.json
+          if-no-files-found: warn
+          retention-days: 3
