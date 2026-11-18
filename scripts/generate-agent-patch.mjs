@@ -186,7 +186,7 @@ try {
       think: false,
       stream: false,
       keep_alive: "60s",
-      options: { temperature: 0, num_predict: 2048 }
+      options: { temperature: 0, num_predict: 6144 }
     }),
     signal: AbortSignal.timeout(240000)
   });
@@ -203,6 +203,12 @@ try {
 if (typeof result.response !== "string" || result.response.length === 0) {
   fail("Local model returned an empty patch proposal.");
 }
+
+if (result.done_reason === "length") {
+  const generated = Number.isInteger(result.eval_count) ? result.eval_count : "unknown";
+  fail("Local model output reached the token limit (" + generated + " generated tokens). Increase the patch output budget or reduce the task scope; incomplete source files are rejected before scratch testing.");
+}
+console.log("Ollama patch response completed; model=" + model + ", done_reason=" + (result.done_reason || "not-reported") + ", eval_count=" + (Number.isInteger(result.eval_count) ? result.eval_count : "not-reported"));
 if (Buffer.byteLength(result.response, "utf8") > 256 * 1024) {
   fail("Local model patch response exceeded the 256 KiB limit.");
 }
