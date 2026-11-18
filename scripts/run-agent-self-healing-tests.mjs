@@ -232,8 +232,11 @@ if (typeof scratch !== "string" || !existsSync(scratch)) fail("Disposable scratc
 
 let currentPatch;
 try {
-  currentPatch = validatePatchManifest(patch, task,
-    spawnSync("git", ["ls-files", "-z"], { encoding: "utf8" }).stdout.split("\0").filter(Boolean));
+  currentPatch = validatePatchManifest(
+    { schema_version: patch.schema_version, files: patch.files },
+    task,
+    spawnSync("git", ["ls-files", "-z"], { encoding: "utf8" }).stdout.split("\0").filter(Boolean),
+  );
 } catch (error) {
   fail(error instanceof Error ? error.message : "Initial patch validation failed.");
 }
