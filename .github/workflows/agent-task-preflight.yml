@@ -7,7 +7,9 @@ on:
     paths:
       - "lib/agent-task-validation.mjs"
       - "lib/agent-patch-validation.mjs"
-      - "lib/agent-plan-validation.mjs"\n      - "scripts/generate-agent-plan.mjs"\n      - "tests/agent-plan-generation.test.mjs"
+      - "lib/agent-plan-validation.mjs"
+      - "scripts/generate-agent-plan.mjs"
+      - "tests/agent-plan-generation.test.mjs"
       - "scripts/prepare-agent-task.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
@@ -143,7 +145,7 @@ jobs:
 
             $requestBody = @{
               model = $selected.name
-              prompt = "Reply with READY only."
+              prompt = "/no_think Reply with READY only."
               stream = $false
               keep_alive = "0s"
               options = @{ num_predict = 8; temperature = 0 }
@@ -266,7 +268,7 @@ jobs:
     name: Validate and package one task (no AI execution)
     if: github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -279,7 +281,13 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/prepare-agent-task.mjs
 
-      - name: Upload task bundle
+      - name: Generate and validate a plan with local Ollama
+        env:
+          OLLAMA_MODEL: qwen3:8b
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/generate-agent-plan.mjs
+
+      - name: Upload task and plan bundles
         uses: actions/upload-artifact@v4
         with:
           name: ai-agent-task-${{ inputs.issue_number }}
