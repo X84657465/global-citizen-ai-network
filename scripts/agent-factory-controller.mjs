@@ -122,6 +122,8 @@ if (mode === "check") {
   const reset = {
     consecutive_failures: Math.max(3, Number(localState.consecutive_failures) || 0),
     cooldown_until: new Date(Date.now() + Math.max(60, retrySeconds) * 1000).toISOString(),
+    task_failures: { ...(localState.task_failures ?? {}) },
+    skipped_issue_numbers: [...(localState.skipped_issue_numbers ?? [])],
     last_failure_at: new Date().toISOString(),
     last_error: message.slice(0, 1200),
     updated_at: new Date().toISOString(),
