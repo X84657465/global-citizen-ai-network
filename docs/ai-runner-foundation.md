@@ -51,7 +51,7 @@ The Windows self-hosted runner reports Windows 11 Pro, Docker Desktop 29.9.3, WS
 - PID, memory and CPU limits;
 - non-root UID 1000;
 - a size-limited, `noexec` temporary filesystem;
-- no host paths, Docker socket, repository secrets or production credentials mounted into the container.
+- only the repository as a read-only input mount and a dedicated temporary output directory as a writable mount; no Docker socket, repository secrets or production credentials are mounted. The host verifies the source checkout stayed unchanged and the output remained inside the dedicated scratch directory.
 
 This is a proof of the configured container boundary, not a complete security certification. Future generated-code execution must occur only inside this disposable boundary, with model access and any GitHub write credential kept outside it.
 
@@ -63,3 +63,8 @@ Latest Windows verification run: https://github.com/X84657465/global-citizen-ai-
 - TypeScript validation: passed.
 - ESLint: passed.
 - The Windows Sandbox optional-feature query could not be completed because it requires elevation; this is not a blocker for the Docker-based proof.
+
+
+Latest read-only workspace boundary run: https://github.com/X84657465/global-citizen-ai-network/actions/runs/44337526428
+
+The pinned image and all sandbox checks passed, including the read-only repository mount and dedicated output-only mount.
