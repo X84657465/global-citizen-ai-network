@@ -51,6 +51,15 @@ function tokenCount(
   return { value, supplied: true };
 }
 
+async function cancelProviderBody(response: Response): Promise<void> {
+  try {
+    await response.body?.cancel();
+  } catch {
+    // A rejected response must not be allowed to leak a still-readable body.
+    // Cancellation is best effort because the upstream may already have closed.
+  }
+}
+
 export async function readProviderJson(
   response: Response,
   maxBytes = MAX_PROVIDER_RESPONSE_BYTES,
@@ -59,9 +68,11 @@ export async function readProviderJson(
   if (declaredLength !== null) {
     const length = Number(declaredLength);
     if (!Number.isSafeInteger(length) || length < 0) {
+      await cancelProviderBody(response);
       throw new ProviderResponseError("invalid_content_length");
     }
     if (length > maxBytes) {
+      await cancelProviderBody(response);
       throw new ProviderResponseError("response_too_large");
     }
   }
