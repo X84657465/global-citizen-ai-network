@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 const migrationPath = resolve(
   process.cwd(),
-  "supabase/migrations/20261118003135_single_unresolved_ai_request_per_member.sql",
+  "supabase/migrations/20261118060600_ai_providerless_completed_replay.sql",
 );
 const source = readFileSync(migrationPath, "utf8");
 const functionStart = source.indexOf("create or replace function public.claim_ai_request(");
