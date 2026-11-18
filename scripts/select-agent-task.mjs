@@ -43,10 +43,10 @@ for (const blocked of queue.blocked) {
 const selected = queue.selected;
 
 if (!selected) {
-  appendFileSync(output, "issue_number=\\n", "utf8");
+  appendFileSync(output, "issue_number=\n", "utf8");
   console.log("Queue empty: no valid eligible task remains. " + queue.blocked.length + " malformed issue(s) were skipped.");
 } else {
-  appendFileSync(output, "issue_number=" + selected.number + "\\n", "utf8");
+  appendFileSync(output, "issue_number=" + selected.number + "\n", "utf8");
   console.log(
     "Selected issue #" + selected.number +
     " from " + queue.eligible_count + " valid queued task(s); " +
