@@ -80,3 +80,7 @@ Migration `0019_least_privilege_public_grants.sql` adds defense in depth beyond 
 The live catalog audit on 2026-11-18 found permissive default table grants for `anon` and `authenticated` on current public tables, inherited `PUBLIC` function execution on trigger functions, and permissive defaults for future tables/functions created by `postgres`. RLS policies already denied unauthorized row access, but broad SQL grants were unnecessary and weakened defense in depth. The migration is proposed in a review branch and must pass local Supabase database tests before it is applied to the existing live project.
 
 The managed `supabase_admin` default ACL is platform-owned and cannot be altered by the project migration role. Application schema migrations must continue to run as `postgres`; do not create application tables as `supabase_admin`.
+
+## Database performance follow-up — 2026-11-18
+
+A read-only Supabase advisor/catalog review identified 17 foreign keys without a covering index and duplicate permissive SELECT evaluation on `projects` and `conversations`. Migration `0020_foreign_key_indexes_and_policy_split.sql` proposes one index for each reported FK and separates write policies into INSERT/UPDATE/DELETE commands so the dedicated SELECT policies remain the only read policies. This is a proposed migration and must pass local PostgreSQL/RLS tests before it is applied to the live database. Unused indexes are not dropped: advisor usage counters on a low-traffic/new system are insufficient evidence that an index is unnecessary.
