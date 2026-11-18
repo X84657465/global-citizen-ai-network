@@ -418,7 +418,8 @@ jobs:
         if: >-
           github.event_name == 'schedule' ||
           github.event_name == 'repository_dispatch' ||
-          github.event_name == 'issues'
+          github.event_name == 'issues' ||
+          github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -468,7 +469,7 @@ jobs:
 
       - name: Validate task and create a safe handoff bundle
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -479,28 +480,28 @@ jobs:
 
       - name: Generate and validate a read-only plan with local Ollama
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-plan.mjs
 
       - name: Generate and validate a bounded patch proposal
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-patch.mjs
 
       - name: Apply validated patch to a disposable scratch workspace
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/apply-agent-patch-to-scratch.mjs
 
       - name: Restore npm cache for isolated candidate installs
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
         uses: actions/cache@v4
         with:
@@ -512,7 +513,7 @@ jobs:
       - name: Install candidate dependencies inside restricted container (attempt 1)
         id: install-first
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
         timeout-minutes: 15
         continue-on-error: true
@@ -557,7 +558,7 @@ jobs:
 
       - name: Test patched candidate offline inside restricted container
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
@@ -573,7 +574,7 @@ jobs:
 
       - name: Create a draft PR after isolated tests pass
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
