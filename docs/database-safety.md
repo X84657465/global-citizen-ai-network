@@ -2,7 +2,7 @@
 
 ## Current migration status
 
-This document began as a pre-provisioning checklist. As of 2026-11-18, the linked Supabase project `global-citizen-ai-network` (project ref `rtkpdafkpncoluhdihlv`, region `ap-northeast-1`) reports the initial schema and subsequent migrations through `service_role_ai_reconciliation` as applied. The observed migration history includes the AI chat settlement/reconciliation, human-queue binding, single-unresolved-request, audited resolution, conversation ownership/locking, and service-role reconciliation changes.
+This document began as a pre-provisioning checklist. As of 2026-11-18, the linked Supabase project `global-citizen-ai-network` (project ref `rtkpdafkpncoluhdihlv`, region `ap-northeast-1`) reports all 24 repository migrations as applied, through `dedupe_active_submission_index` (verified by the Supabase migration-history API on 2026-11-18). The observed history includes AI chat settlement/reconciliation, human-queue binding, single-unresolved-request, audited resolution, conversation ownership/locking, service-role reconciliation, least-privilege public grants, foreign-key/index and policy optimization, atomic contribution-task administration, providerless completed replay, and single-active-submission enforcement.
 
 This is an environment observation, not a production-readiness certification. The database is reachable and reports healthy, but end-to-end authorization, concurrency, provider, billing, recovery, and user-journey tests have not been established by this audit. Keep AI generation disabled until the required verification below is completed and the application deployment, secrets, and operational controls are reviewed together.
 
@@ -35,7 +35,7 @@ The status-check helpers live in a non-exposed schema and are callable by authen
 
 Run these checks on a disposable Supabase project first:
 
-1. Apply all four migrations in order to an empty project and confirm they complete without SQL errors.
+1. Apply every repository migration in version order to an empty disposable project and confirm they complete without SQL errors.
 2. Create two test users. Verify each can read and modify only their own profile/workspace.
 3. Verify a user cannot assign themselves admin/reviewer, change account_status, insert assistant/system messages, or read another user's requests or ledgers.
 4. Verify a user cannot attach a conversation to another user's project.
