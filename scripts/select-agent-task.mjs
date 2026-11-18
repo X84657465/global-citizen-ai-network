@@ -31,7 +31,7 @@ const apiGet = async (path) => {
 
 const [issues, pulls] = await Promise.all([
   apiGet("/issues?state=open&per_page=100&sort=created&direction=asc"),
-  apiGet("/pulls?state=open&per_page=100"),
+  apiGet("/pulls?state=all&per_page=100"),
 ]);
 if (!Array.isArray(issues) || !Array.isArray(pulls)) fail("GitHub queue response has an unexpected shape.");
 
