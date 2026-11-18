@@ -4,7 +4,7 @@
 
 - Production domain: https://global-citizen-ai-network.vercel.app
 - Vercel production deployment: READY on older commit `032efc7b6158de84370fbda0159f57fdd2cd0e67`.
-- Latest merged main commit: `6f2e8cdaad317104b58366a31f6a912f896fa1df`; newer commits have not reached Production because Vercel reports `build-rate-limit`.
+- Latest main commit: `5d03a111ab5dd4663e55520bb237160d9be4cbe1` (documentation update). Latest application-code commit: `bad309eb843e5234e57481a6e6bb003e94b1e5e2` (atomic contribution-task API). Neither has reached Production because Vercel reports `build-rate-limit`.
 - PR #20 Build and Database CI: PASS; 101 database assertions.
 - PR #22 combined migrations 0019+0020 Build and Database CI: PASS; 104 database assertions.
 - `GET /`: HTTP 200
