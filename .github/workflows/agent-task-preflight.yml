@@ -1,0 +1,46 @@
+name: AI Agent Task Preflight
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Repository issue number containing the approved AI task"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: ai-agent-task-preflight
+  cancel-in-progress: false
+
+jobs:
+  prepare-task:
+    name: Validate and package one task (no AI execution)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+
+      - name: Validate task and create a safe handoff bundle
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+        run: node scripts/prepare-agent-task.mjs
+
+      - name: Upload task bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-task-${{ inputs.issue_number }}
+          path: artifacts/agent-task.json
+          if-no-files-found: error
+          retention-days: 3
