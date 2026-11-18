@@ -1,6 +1,6 @@
 begin;
 
-select plan(24);
+select plan(26);
 
 -- Exercise atomic AI completion, known-failure release, and uncertain outcomes.
 select ok(to_regprocedure('public.complete_ai_chat_request(uuid,uuid,uuid,text,text,integer,integer,integer,numeric,text,integer,text,jsonb)') is not null,
@@ -9,6 +9,28 @@ select ok(to_regprocedure('public.fail_ai_chat_request(uuid,uuid,text)') is not 
   'atomic known-failure RPC exists');
 select ok(to_regprocedure('public.mark_ai_request_reconciliation_required(uuid,uuid,text,text)') is not null,
   'uncertain provider outcome reconciliation RPC exists');
+
+-- Structural regression guards: claims must serialize per member before
+-- touching the shared platform controls row. These assertions do not replace
+-- the coordinated two-session integration test documented separately.
+select ok(
+  pg_catalog.strpos(
+    pg_catalog.pg_get_functiondef(
+      pg_catalog.to_regprocedure('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)')
+    ),
+    'pg_advisory_xact_lock'
+  ) > 0,
+  'AI claim uses a transaction-scoped advisory lock'
+);
+select ok(
+  pg_catalog.strpos(
+    pg_catalog.pg_get_functiondef(
+      pg_catalog.to_regprocedure('public.claim_ai_request(uuid,uuid,text,text,char,uuid,text,text,text,numeric,numeric)')
+    ),
+    'hashtextextended(p_owner_id::text, 0)'
+  ) > 0,
+  'AI claim advisory lock is scoped to the member owner id'
+);
 
 select ok(
   not has_function_privilege('authenticated','public.complete_ai_chat_request(uuid,uuid,uuid,text,text,integer,integer,integer,numeric,text,integer,text,jsonb)','EXECUTE')
