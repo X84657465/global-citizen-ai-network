@@ -115,7 +115,8 @@ jobs:
           supabase test db
           if ($LASTEXITCODE -ne 0) { throw "PostgreSQL or RLS tests failed." }
       - name: Stop Supabase services
-        if: always() && steps.supabase-start.outcome == 'success'
+        if: always() && steps.supabase-start.outcome != 'skipped'
+        continue-on-error: true
         run: supabase stop --no-backup
 
   circuit-breaker:
