@@ -72,10 +72,29 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
-      - name: Set up Supabase CLI
-        uses: supabase/setup-cli@v3
-        with:
-          version: v2.stable
+      - name: Install verified Supabase CLI without symlink privileges
+        run: |
+          $version = "3.2.0"
+          $expectedSha256 = "1ca731039b1537ee4cceb9ea757ebcccee109f5eddc39228001a853c1fbe8122"
+          $cacheRoot = Join-Path $env:RUNNER_TOOL_CACHE "supabase-cli/$version/x64"
+          $exe = Join-Path $cacheRoot "supabase.exe"
+          if (-not (Test-Path $exe)) {
+            $archive = Join-Path $env:RUNNER_TEMP "supabase-$version-windows-amd64.zip"
+            $extract = Join-Path $env:RUNNER_TEMP "supabase-$version-extract"
+            Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/supabase/cli/releases/download/v$version/supabase_$($version)_windows_amd64.zip" -OutFile $archive
+            $actualSha256 = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualSha256 -ne $expectedSha256) { throw "Supabase CLI archive SHA-256 verification failed." }
+            if (Test-Path $extract) { Remove-Item $extract -Recurse -Force }
+            New-Item -ItemType Directory -Path $extract -Force | Out-Null
+            Expand-Archive -LiteralPath $archive -DestinationPath $extract -Force
+            $candidate = Get-ChildItem -LiteralPath $extract -Filter "supabase.exe" -Recurse | Select-Object -First 1
+            if (-not $candidate) { throw "Verified Supabase CLI executable was not found in the release archive." }
+            New-Item -ItemType Directory -Path $cacheRoot -Force | Out-Null
+            Copy-Item -LiteralPath $candidate.FullName -Destination $exe -Force
+          }
+          Add-Content -LiteralPath $env:GITHUB_PATH -Value $cacheRoot
+          & $exe --version
+          if ($LASTEXITCODE -ne 0) { throw "Supabase CLI version verification failed." }
       - name: Verify Docker Desktop is ready
         run: |
           docker info
