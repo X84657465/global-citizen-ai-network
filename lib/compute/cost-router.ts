@@ -63,6 +63,16 @@ export function chooseExecutionTarget(
     throw new Error("invalid_or_oversized_workload");
   }
 
+  if (!["public_parallel", "private_user_data", "privileged", "nondeterministic_ai"].includes(profile.workloadClass)) {
+    throw new Error("invalid_workload_class");
+  }
+
+  for (const quote of quotes) {
+    if (!["local_device", "trusted_cloud", "community_node"].includes(quote.target)) {
+      throw new Error("invalid_execution_target");
+    }
+  }
+
   const uniqueTargets = new Set(quotes.map(quote => quote.target));
   if (uniqueTargets.size !== quotes.length) throw new Error("duplicate_execution_quote");
 
