@@ -20,7 +20,9 @@ on:
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
   issues:
-    types: [opened, edited]
+    types: [opened, edited, closed]
+  repository_dispatch:
+    types: [ai-task-next]
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
@@ -391,20 +393,25 @@ jobs:
       (github.event_name == 'issues' &&
        github.event.issue.user.login == github.repository_owner &&
        startsWith(github.event.issue.title, '[AI Task]')) ||
-      github.event_name == 'schedule'
+      github.event_name == 'schedule' ||
+      (github.event_name == 'repository_dispatch' &&
+       github.event.action == 'ai-task-next')
     permissions:
       contents: write
       issues: write
       pull-requests: write
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select one queued task (scheduled runs only)
+      - name: Select one queued task (scheduled and handoff runs)
         id: select-task
-        if: github.event_name == 'schedule'
+        if: >-
+          github.event_name == 'schedule' ||
+          github.event_name == 'repository_dispatch' ||
+          (github.event_name == 'issues' && github.event.action == 'closed')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -412,7 +419,10 @@ jobs:
         run: node scripts/select-agent-task.mjs
 
       - name: Validate task and create a safe handoff bundle
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        if: >-
+          (github.event_name == 'issues' && github.event.action != 'closed') ||
+          github.event_name == 'workflow_dispatch' ||
+          steps.select-task.outputs.issue_number != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -421,36 +431,93 @@ jobs:
         run: node scripts/prepare-agent-task.mjs
 
       - name: Generate and validate a read-only plan with local Ollama
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        if: >-
+          (github.event_name == 'issues' && github.event.action != 'closed') ||
+          github.event_name == 'workflow_dispatch' ||
+          steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-plan.mjs
 
       - name: Generate and validate a bounded patch proposal
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        if: >-
+          (github.event_name == 'issues' && github.event.action != 'closed') ||
+          github.event_name == 'workflow_dispatch' ||
+          steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-patch.mjs
 
       - name: Apply validated patch to a disposable scratch workspace
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        if: >-
+          (github.event_name == 'issues' && github.event.action != 'closed') ||
+          github.event_name == 'workflow_dispatch' ||
+          steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/apply-agent-patch-to-scratch.mjs
 
-      - name: Install candidate dependencies inside restricted container
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+      - name: Restore npm cache for isolated candidate installs
+        if: >-
+          (github.event_name == 'issues' && github.event.action != 'closed') ||
+          github.event_name == 'workflow_dispatch' ||
+          steps.select-task.outputs.issue_number != ''
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/agent-npm-cache
+          key: agent-npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            agent-npm-${{ runner.os }}-
+
+      - name: Install candidate dependencies inside restricted container (attempt 1)
+        id: install-first
+        if: >-
+          (github.event_name == 'issues' && github.event.action != 'closed') ||
+          github.event_name == 'workflow_dispatch' ||
+          steps.select-task.outputs.issue_number != ''
+        timeout-minutes: 15
+        continue-on-error: true
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
           $scratch = [string]$manifest.scratch_dir
           if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
           $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
-          docker pull $imageDigest
-          if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned candidate test image." }
+          docker image inspect $imageDigest *> $null
+          if ($LASTEXITCODE -ne 0) {
+            docker pull $imageDigest
+            if ($LASTEXITCODE -ne 0) { throw "Unable to pull the pinned candidate test image." }
+          }
           $workspaceMount = "type=bind,source=$scratch,target=/workspace"
-          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/npm-home $imageDigest npm ci --ignore-scripts --no-audit --no-fund
-          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation failed inside the restricted container." }
+          $npmCache = Join-Path $env:RUNNER_TEMP "agent-npm-cache"
+          New-Item -ItemType Directory -Path $npmCache -Force | Out-Null
+          $cacheMount = "type=bind,source=$npmCache,target=/npm-cache"
+          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --mount $cacheMount --workdir /workspace --env HOME=/tmp/npm-home --env npm_config_cache=/npm-cache $imageDigest npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation attempt 1 failed (exit $LASTEXITCODE)." }
+
+      - name: Retry candidate dependency installation once
+        if: >-
+          steps.install-first.outcome == 'failure' &&
+          ((github.event_name == 'issues' && github.event.action != 'closed') ||
+           github.event_name == 'workflow_dispatch' ||
+           steps.select-task.outputs.issue_number != '')
+        timeout-minutes: 15
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          Write-Warning "The first 15-minute dependency-install attempt failed or timed out; retrying once."
+          $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
+          $scratch = [string]$manifest.scratch_dir
+          if (-not (Test-Path $scratch -PathType Container)) { throw "Disposable scratch workspace is missing." }
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$scratch,target=/workspace"
+          $npmCache = Join-Path $env:RUNNER_TEMP "agent-npm-cache"
+          New-Item -ItemType Directory -Path $npmCache -Force | Out-Null
+          $cacheMount = "type=bind,source=$npmCache,target=/npm-cache"
+          docker run --rm --pull never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --mount $cacheMount --workdir /workspace --env HOME=/tmp/npm-home --env npm_config_cache=/npm-cache $imageDigest npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation retry failed (exit $LASTEXITCODE)." }
 
       - name: Test patched candidate offline inside restricted container
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        if: >-
+          (github.event_name == 'issues' && github.event.action != 'closed') ||
+          github.event_name == 'workflow_dispatch' ||
+          steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
@@ -464,7 +531,10 @@ jobs:
           Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
 
       - name: Create a draft PR after isolated tests pass
-        if: github.event_name != 'schedule' || steps.select-task.outputs.issue_number != ''
+        if: >-
+          (github.event_name == 'issues' && github.event.action != 'closed') ||
+          github.event_name == 'workflow_dispatch' ||
+          steps.select-task.outputs.issue_number != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -472,6 +542,33 @@ jobs:
           CANDIDATE_TESTS_PASSED: "true"
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/publish-agent-patch.mjs
+
+      - name: Dispatch the next queued task after draft PR publication
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'artifacts/agent-publish.json';
+            if (!fs.existsSync(path)) {
+              core.info('No publication result; queue handoff is not dispatched.');
+              return;
+            }
+            const result = JSON.parse(fs.readFileSync(path, 'utf8'));
+            if (!['draft_pr_created', 'existing_open_pr'].includes(result.state)) {
+              core.info('No completed draft PR publication; queue handoff is not dispatched.');
+              return;
+            }
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'ai-task-next',
+              client_payload: {
+                source_issue: result.issue_number,
+                source_pull_request: result.pull_request_number || null
+              }
+            });
+            core.info('Dispatched the next queue cycle.');
 
       - name: Clean disposable scratch workspace
         if: always()

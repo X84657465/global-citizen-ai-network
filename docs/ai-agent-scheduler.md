@@ -12,15 +12,19 @@ The scheduler turns the validated task workflow into a bounded queue worker. It 
 - Eligible tasks are open issues titled `[AI Task]`, authored by the repository owner, and not already represented by a task PR.
 - Existing task PRs are detected using the `<!-- ai-task:ISSUE_NUMBER -->` marker. This prevents successful tasks from being selected repeatedly.
 - If a task run fails before a PR is created, the issue remains eligible for a later scheduled retry.
+- After a task Draft PR is created, the workflow sends a `repository_dispatch` event (`ai-task-next`) to start the next queue cycle automatically. The same queue-selection path is used when an owner-authored `[AI Task]` issue is closed. Workflow-level concurrency serializes these handoffs so only one queue worker runs at a time.
+- The 30-minute schedule remains a recovery/polling mechanism if a handoff event is missed; it is not the only way to advance the queue.
 - The existing issue template defines the required Goal, Allowed paths, Acceptance criteria, and Explicit exclusions sections.
 
 ## Resource and safety limits
 
-- One task per scheduled cycle; no parallel task execution.
+- One task per queue-worker cycle; no parallel task execution.
+- Candidate dependency installation is limited to 15 minutes per attempt and is retried once. The npm cache is persisted on the self-hosted runner, and the pinned Docker image is reused from the local Docker daemon cache when present.
 - The worker remains on the self-hosted Windows runner and local Ollama; no paid model API is introduced.
 - Candidate patches remain constrained by the task allowlist and validated plan/patch schemas.
 - Candidate tests run in the disposable restricted container.
 - Successful output is a Draft PR only. No automatic merge, production deployment, production database access, or secret changes are enabled.
+- Repository setting prerequisite: under **Settings → Actions → General → Workflow permissions**, enable **Allow GitHub Actions to create and approve pull requests**. Without this repository-level permission, the publisher receives HTTP 403 even when the workflow job has `pull-requests: write`; the task can pass isolated tests but cannot publish its Draft PR or dispatch the next queue cycle.
 
 ## Activation requirements
 
