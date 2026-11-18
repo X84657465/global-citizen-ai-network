@@ -8,7 +8,7 @@ function post(body: BodyInit | null, headers?: HeadersInit) {
     body,
     headers,
     duplex: "half",
-  });
+  } as RequestInit & { duplex: "half" });
 }
 
 test("parses valid JSON within the byte limit", async () => {
