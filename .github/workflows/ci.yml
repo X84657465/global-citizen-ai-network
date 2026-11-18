@@ -1,14 +1,15 @@
 name: CI # Triggered on the Windows self-hosted runner
 
 concurrency:
-  group: global-citizen-ai-network-${{ github.event.pull_request.number || github.ref }}
+  group: global-citizen-ai-network-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 on:
   push:
-    branches: [main]
+    branches: [main, "codex/**"]
   pull_request:
     branches: [main]
+    types: [opened, reopened]
 
 permissions:
   contents: read
@@ -98,9 +99,8 @@ jobs:
   auto-merge:
     name: Mark ready and merge after all CI checks pass
     if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.user.login == github.repository_owner &&
-      startsWith(github.event.pull_request.head.ref, 'codex/')
+      (github.event_name == 'pull_request' && github.event.pull_request.user.login == github.repository_owner && startsWith(github.event.pull_request.head.ref, 'codex/')) ||
+      (github.event_name == 'push' && startsWith(github.ref_name, 'codex/'))
     needs: [build, database]
     runs-on: [self-hosted, Windows, X64]
     permissions:
@@ -111,10 +111,17 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const pr = context.payload.pull_request;
             const { owner, repo } = context.repo;
-            if (pr.user.login !== owner || !pr.head.ref.startsWith('codex/')) {
-              core.notice('PR is outside the authorized auto-merge scope.');
+            let pr = context.payload.pull_request;
+            if (!pr) {
+              const branch = context.ref.replace('refs/heads/', '');
+              const { data: matches } = await github.rest.pulls.list({
+                owner, repo, state: 'open', head: owner + ':' + branch, per_page: 20
+              });
+              pr = matches.find((candidate) => candidate.head.ref === branch);
+            }
+            if (!pr || pr.user.login !== owner || !pr.head.ref.startsWith('codex/')) {
+              core.notice('No owner-authored codex PR is associated with this successful CI run.');
               return;
             }
             if (pr.draft) {
