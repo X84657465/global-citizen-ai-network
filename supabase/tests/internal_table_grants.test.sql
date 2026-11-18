@@ -1,6 +1,6 @@
 begin;
 
-select plan(141);
+select plan(155);
 
 -- Verify default ACLs apply to objects created by the migration owner.
 create table public.__default_privilege_probe (id integer);
@@ -18,6 +18,34 @@ select ok(not has_sequence_privilege('anon', 'public.__default_privilege_sequenc
   'new public sequences do not grant USAGE to anon');
 select ok(not has_sequence_privilege('authenticated', 'public.__default_privilege_sequence_probe', 'USAGE'),
   'new public sequences do not grant USAGE to authenticated');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_probe', 'UPDATE'),
+  'new public tables do not grant UPDATE to anon');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_probe', 'UPDATE'),
+  'new public tables do not grant UPDATE to authenticated');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_probe', 'DELETE'),
+  'new public tables do not grant DELETE to anon');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_probe', 'DELETE'),
+  'new public tables do not grant DELETE to authenticated');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_probe', 'TRUNCATE'),
+  'new public tables do not grant TRUNCATE to anon');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_probe', 'TRUNCATE'),
+  'new public tables do not grant TRUNCATE to authenticated');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_probe', 'REFERENCES'),
+  'new public tables do not grant REFERENCES to anon');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_probe', 'REFERENCES'),
+  'new public tables do not grant REFERENCES to authenticated');
+select ok(not has_table_privilege('anon', 'public.__default_privilege_probe', 'TRIGGER'),
+  'new public tables do not grant TRIGGER to anon');
+select ok(not has_table_privilege('authenticated', 'public.__default_privilege_probe', 'TRIGGER'),
+  'new public tables do not grant TRIGGER to authenticated');
+select ok(not has_sequence_privilege('anon', 'public.__default_privilege_sequence_probe', 'SELECT'),
+  'new public sequences do not grant SELECT to anon');
+select ok(not has_sequence_privilege('authenticated', 'public.__default_privilege_sequence_probe', 'SELECT'),
+  'new public sequences do not grant SELECT to authenticated');
+select ok(not has_sequence_privilege('anon', 'public.__default_privilege_sequence_probe', 'UPDATE'),
+  'new public sequences do not grant UPDATE to anon');
+select ok(not has_sequence_privilege('authenticated', 'public.__default_privilege_sequence_probe', 'UPDATE'),
+  'new public sequences do not grant UPDATE to authenticated');
 
 -- These operational tables intentionally have no client-facing RLS policies.
 -- Assert RLS remains enabled and no table-level privilege is granted to client roles.
