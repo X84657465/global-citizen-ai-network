@@ -3,7 +3,9 @@
 ## Verified deployment
 
 - Production domain: https://global-citizen-ai-network.vercel.app
-- Vercel production deployment: READY
+- Vercel production deployment: READY, currently serving commit `0495355900b16f14f4443f508d569b825e3fbbb3`.
+- GitHub `main` is at `128fb1c6d53e96a4dc099998afa92e20991c6dc7`; a GitHub compare confirms `main` is 9 commits ahead of the deployed Production commit (0 behind). Production is therefore healthy but not current with `main`.
+- Vercel Git integration has rejected additional deployments with `api-deployments-free-per-day` (more than 100 deployments in the daily window). Do not retry Preview/Production deployments until the quota window resets; do not promote an unrelated Preview deployment.
 - GitHub main CI for commit `c02b95867a2ed96085c7014ff02c9819438caad8`: success
 - `GET /`: HTTP 200
 - `GET /api/health`: HTTP 200
