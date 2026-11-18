@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { validateAndBuildTask } from "../lib/agent-task-validation.mjs";
 
 const fail = (message) => {
-  console.error(\`Task preflight rejected: \${message}\`);
+  console.error("Task preflight rejected: " + message);
   process.exit(1);
 };
 
@@ -19,18 +19,18 @@ if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
 if (!token) fail("GITHUB_TOKEN is unavailable.");
 
 const response = await fetch(
-  \`https://api.github.com/repos/\${repository}/issues/\${issueNumber}\`,
+  "https://api.github.com/repos/" + repository + "/issues/" + issueNumber,
   {
     headers: {
       Accept: "application/vnd.github+json",
-      Authorization: \`Bearer \${token}\`,
+      Authorization: "Bearer " + token,
       "X-GitHub-Api-Version": "2022-11-28",
     },
     signal: AbortSignal.timeout(10000),
   },
 );
 
-if (!response.ok) fail(\`GitHub issue lookup returned HTTP \${response.status}.\`);
+if (!response.ok) fail("GitHub issue lookup returned HTTP " + response.status + ".");
 
 let issue;
 try {
@@ -48,9 +48,9 @@ try {
 
 try {
   mkdirSync("artifacts", { recursive: true });
-  writeFileSync("artifacts/agent-task.json", \`\${JSON.stringify(task, null, 2)}\n\`, "utf8");
+  writeFileSync("artifacts/agent-task.json", JSON.stringify(task, null, 2) + "\n", "utf8");
 } catch (error) {
   fail(error instanceof Error ? error.message : "Unable to write the task bundle.");
 }
 
-console.log(\`Prepared read-only task bundle for issue #\${issue.number}. No AI model or code execution was invoked.\`);
+console.log("Prepared read-only task bundle for issue #" + issue.number + ". No AI model or code execution was invoked.");
