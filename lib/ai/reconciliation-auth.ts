@@ -8,8 +8,8 @@ export function isActiveAdminProfile(profile: unknown): boolean {
     account_status?: unknown;
   };
 
-  return Object.hasOwn(candidate, "role") &&
-    Object.hasOwn(candidate, "account_status") &&
+  return Object.prototype.hasOwnProperty.call(candidate, "role") &&
+    Object.prototype.hasOwnProperty.call(candidate, "account_status") &&
     candidate.role === "admin" &&
     candidate.account_status === "active";
 }
