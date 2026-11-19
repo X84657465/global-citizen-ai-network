@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { taskPriority, compareTaskIssues, sortTaskIssues } from "../lib/agent-task-queue.mjs";
+import { taskPriority, compareTaskIssues, sortTaskIssues, isMergedTaskPullRequest } from "../lib/agent-task-queue.mjs";
 
 const issue = (number, created_at, priority = null) => ({
   number, created_at, body: priority ? "## Priority\n" + priority + "\n\n## Goal\n..." : "## Goal\n...",
@@ -35,4 +35,15 @@ test("does not mutate the source queue", () => {
   const sorted = sortTaskIssues(source);
   assert.notEqual(sorted, source);
   assert.equal(source[0].number, 2);
+});
+
+test("recognizes merged task PRs using GitHub merged_at metadata", () => {
+  assert.equal(isMergedTaskPullRequest({ state: "closed", merged_at: "2026-11-19T00:24:22Z" }), true);
+  assert.equal(isMergedTaskPullRequest({ state: "closed", merged_at: null }), false);
+  assert.equal(isMergedTaskPullRequest({ state: "open", merged_at: null }), false);
+});
+
+test("accepts normalized merged boolean while preserving raw GitHub metadata support", () => {
+  assert.equal(isMergedTaskPullRequest({ merged: true }), true);
+  assert.equal(isMergedTaskPullRequest({ merged: false, merged_at: null }), false);
 });
