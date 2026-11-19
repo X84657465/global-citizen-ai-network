@@ -1,7 +1,10 @@
-import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { appendFileSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 
-const fail = (message) => {
+const fail = (message, scope = "system") => {
+  if (scope === "task" && process.env.GITHUB_ENV) {
+    appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
+  }
   console.error("Agent planning failed: " + message);
   process.exit(1);
 };
@@ -135,24 +138,24 @@ try {
   fail("Ollama response was not valid JSON.");
 }
 if (typeof result.response !== "string" || result.response.length === 0) {
-  fail("Local model returned an empty plan.");
+  fail("Local model returned an empty plan.", "task");
 }
 if (Buffer.byteLength(result.response, "utf8") > 64 * 1024) {
-  fail("Local model response exceeded the 64 KiB planning limit.");
+  fail("Local model response exceeded the 64 KiB planning limit.", "task");
 }
 
 let candidate;
 try {
   candidate = JSON.parse(result.response);
 } catch {
-  fail("Local model did not return a valid JSON plan.");
+  fail("Local model did not return a valid JSON plan.", "task");
 }
 
 let validatedPlan;
 try {
   validatedPlan = validateAgentPlan(candidate, task);
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Generated plan failed validation.");
+  fail(error instanceof Error ? error.message : "Generated plan failed validation.", "task");
 }
 
 try {
