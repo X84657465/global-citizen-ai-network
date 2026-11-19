@@ -37,7 +37,7 @@ async function main() {
     console.log("System circuit breaker active until " + result.outputs.cooldown_until);
   }
   if (result.outputs?.lease_recovered) {
-    console.log("Recovered expired worker lease for Issue #" + result.state.tasks[String(result.outputs.issue_number)]?.issue_number);
+    console.log("Recovered expired worker lease for Issue #" + result.outputs.recovered_issue_number);
   }
 }
 
