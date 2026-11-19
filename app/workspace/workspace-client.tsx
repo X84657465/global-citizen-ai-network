@@ -9,6 +9,15 @@ type ProjectOption = { id: string; title: string; archived_at: string | null };
 type Message = { id?: string; role: "user" | "assistant"; content: string; created_at?: string };
 type ApiError = { error?: string; retryWithSameKey?: boolean };
 
+function isUuid(value: unknown): value is string {
+  return typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function isValidTimestamp(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0 && Number.isFinite(Date.parse(value));
+}
+
 function pendingKeyStorageKey(conversationId: string) {
   return `gcan:pending-ai:${conversationId}`;
 }
@@ -97,10 +106,10 @@ export default function WorkspaceClient() {
         if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
         if (!Array.isArray(data.conversations) || !data.conversations.every((item) =>
           Boolean(item) && typeof item === "object" && !Array.isArray(item) &&
-          typeof (item as Conversation).id === "string" &&
-          (typeof (item as Conversation).project_id === "string" || (item as Conversation).project_id === null) &&
-          typeof (item as Conversation).title === "string" &&
-          typeof (item as Conversation).updated_at === "string"
+          isUuid((item as Conversation).id) &&
+          ((item as Conversation).project_id === null || isUuid((item as Conversation).project_id)) &&
+          typeof (item as Conversation).title === "string" && (item as Conversation).title.trim().length > 0 &&
+          isValidTimestamp((item as Conversation).updated_at)
         )) {
           throw new Error("對話資料格式無效，請重新整理或稍後再試。");
         }
@@ -118,9 +127,9 @@ export default function WorkspaceClient() {
                 projectData = {
                   projects: candidateProjects.filter((project): project is ProjectOption =>
                     Boolean(project) && typeof project === "object" &&
-                    typeof (project as ProjectOption).id === "string" &&
-                    typeof (project as ProjectOption).title === "string" &&
-                    ((project as ProjectOption).archived_at === null || typeof (project as ProjectOption).archived_at === "string"),
+                    isUuid((project as ProjectOption).id) &&
+                    typeof (project as ProjectOption).title === "string" && (project as ProjectOption).title.trim().length > 0 &&
+                    ((project as ProjectOption).archived_at === null || isValidTimestamp((project as ProjectOption).archived_at)),
                   ),
                 };
               }
@@ -151,7 +160,7 @@ export default function WorkspaceClient() {
                 const validPendingRecord = pendingRecord === null || (
                   Boolean(pendingRecord) && typeof pendingRecord === "object" &&
                   typeof (pendingRecord as { conversationId?: unknown }).conversationId === "string" &&
-                  /^[0-9a-f-]{36}$/i.test((pendingRecord as { conversationId: string }).conversationId) &&
+                  isUuid((pendingRecord as { conversationId: string }).conversationId) &&
                   typeof (pendingRecord as { idempotencyKey?: unknown }).idempotencyKey === "string" &&
                   /^[A-Za-z0-9._:-]{8,128}$/.test((pendingRecord as { idempotencyKey: string }).idempotencyKey) &&
                   typeof (pendingRecord as { content?: unknown }).content === "string" &&
