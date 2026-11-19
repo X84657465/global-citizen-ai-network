@@ -263,7 +263,7 @@ test("refuses to write an oversized durable state Issue before issuing POST or P
   const state = createInitialFactoryState(1000);
   state.processed_events = Array.from(
     { length: 500 },
-    (_, index) => "oversized-event-" + String(index).padStart(4, "0") + "-" + "x".repeat(180),
+    (_, index) => "oversized-event-" + String(index).padStart(4, "0") + "-" + "x".repeat(160),
   );
   const before = fake.issues.length;
   await assert.rejects(
