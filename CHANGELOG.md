@@ -45,3 +45,13 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Exact-head CI and independent review are required before acceptance.
+
+## 0.2.6 — 2026-11-20
+
+### Changed
+- Replace the obsolete four-track governance model with the five-track A–E operating model.
+- Define Deep Research ownership, evidence responsibilities and cross-track support.
+- Synchronize the repository version and manifest to `0.2.6`.
+
+### Verification
+- Documentation and version metadata updated; exact-head CI and independent review remain required.
