@@ -17,7 +17,7 @@ import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/
 const fail = (message, scope = "system") => {
   if (scope === "task" && process.env.GITHUB_ENV) {
     try {
-      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
     } catch {
       // Preserve the primary validation failure if the workflow environment file is unavailable.
     }
