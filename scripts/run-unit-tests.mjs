@@ -8,7 +8,7 @@ function collectTestFiles(directory) {
     .flatMap((entry) => {
       const path = join(directory, entry);
       if (statSync(path).isDirectory()) return collectTestFiles(path);
-      return /\.test\.(?:mjs|js|ts)$/.test(entry) ? [path.replaceAll("\\\\", "/")] : [];
+      return /\.test\.(?:mjs|js|ts)$/.test(entry) ? [path] : [];
     });
 }
 
