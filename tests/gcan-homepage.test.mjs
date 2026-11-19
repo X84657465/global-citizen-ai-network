@@ -108,3 +108,12 @@ test("workspace rejects malformed UUIDs, blank conversation titles, and invalid 
   assert.match(workspaceClient, /isUuid\(\(item as Conversation\)\.project_id\)/);
 });
 
+
+
+test("public homepage provides a keyboard skip link to the main content", () => {
+  assert.match(homepage, /href="#main-content">跳至主要內容<\\/a>/);
+  assert.match(homepage, /<main className={styles\\.page}>/);
+  assert.match(homepage, /id="main-content" tabIndex={-1}/);
+  assert.match(homeCss, /\\.skipLink:focus-visible/);
+  assert.match(homeCss, /transform: translateY\\(0\\)/);
+});
