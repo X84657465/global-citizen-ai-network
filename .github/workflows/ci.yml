@@ -92,10 +92,10 @@ jobs:
         run: |
           $taskOutcomes = @($env:MIGRATION_GUARD, $env:SCHEMA_GUARD, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
           if ($taskOutcomes -contains "failure") {
-            "scope=task" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task`n", [System.Text.UTF8Encoding]::new($false))
             Write-Host "Build failure is attributable to task validation."
           } else {
-            "scope=system" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
             Write-Host "Build failure occurred before task validation; classify as system/runner failure."
           }
 
@@ -219,10 +219,10 @@ jobs:
           DATABASE_TESTS: ${{ steps.database-tests.outcome }}
         run: |
           if ($env:DATABASE_TESTS -eq "failure") {
-            "scope=task" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task`n", [System.Text.UTF8Encoding]::new($false))
             Write-Host "Database/RLS assertion failure is attributable to the task."
           } else {
-            "scope=system" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
             Write-Host "Supabase startup, migration application, or runner failure is system-scoped."
           }
 
@@ -411,6 +411,5 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: failure
           AGENT_FACTORY_FAILURE_SCOPE: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') && contains(github.event.pull_request.body, '<!-- ai-task:') && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
-          FAILED_ISSUE_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') && contains(github.event.pull_request.body, '<!-- ai-task:') && github.event.pull_request.body || '' }}
           FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database job logs."
         run: node scripts/agent-factory-controller.mjs
