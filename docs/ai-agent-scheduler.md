@@ -13,7 +13,7 @@ The scheduler turns the validated task workflow into a bounded queue worker. It 
 - Existing task PRs are detected using the `<!-- ai-task:ISSUE_NUMBER -->` marker. This prevents successful tasks from being selected repeatedly.
 - If a task run fails before a PR is created, the issue remains eligible for a later scheduled retry.
 - After a task Draft PR is created, the workflow sends a `repository_dispatch` event (`ai-task-next`) to start the next queue cycle automatically. The same queue-selection path is used when an owner-authored `[AI Task]` issue is closed. Workflow-level concurrency serializes these handoffs so only one queue worker runs at a time.
-- The 30-minute schedule remains a recovery/polling mechanism if a handoff event is missed; it is not the only way to advance the queue.
+- The 5-minute schedule remains a recovery/polling mechanism if a handoff event is missed; it is not the only way to advance the queue.
 - The existing issue template defines the required Goal, Allowed paths, Acceptance criteria, and Explicit exclusions sections.
 
 ## Resource and safety limits
@@ -37,7 +37,7 @@ The active scheduler is defined by the workflow on the repository default branch
 
 ## Operational behavior
 
-A 5-minute schedule is a queue polling interval, not a promise that a task completes within 30 minutes. GitHub may delay scheduled events. If the PC is offline, jobs wait for an eligible runner; they do not execute locally while the PC is powered off.
+A 5-minute schedule is a queue polling interval, not a promise that a task completes within 5 minutes. GitHub may delay scheduled events. If the PC is offline, jobs wait for an eligible runner; they do not execute locally while the PC is powered off.
 
 
 ## CI validation event matrix
