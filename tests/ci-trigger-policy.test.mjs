@@ -15,14 +15,18 @@ test("full CI runs on main pushes and pull-request lifecycle events, not codex b
 });
 
 test("CI coalesces pending commits per PR while serializing self-hosted jobs globally", () => {
-  assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-\${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
+  assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
 
-  for (const job of ["build", "database", "circuit-breaker", "circuit-breaker-success"]) {
+  const jobs = ["build", "database", "circuit-breaker", "circuit-breaker-success"];
+  for (let index = 0; index < jobs.length; index += 1) {
+    const job = jobs[index];
     const start = workflow.indexOf("  " + job + ":\n");
     assert.ok(start >= 0, "missing CI job: " + job);
-    const next = workflow.indexOf("\n  ", start + 4);
+    const next = index + 1 < jobs.length
+      ? workflow.indexOf("  " + jobs[index + 1] + ":\n", start + 1)
+      : workflow.length;
     const section = workflow.slice(start, next < 0 ? workflow.length : next);
     assert.ok(section.includes("group: global-citizen-ai-network-self-hosted-runner"), job + " must use the shared Runner group");
     assert.ok(section.includes("queue: max"), job + " must preserve pending Runner jobs");
