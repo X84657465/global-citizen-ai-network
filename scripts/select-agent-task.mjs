@@ -47,7 +47,10 @@ const [issues, pulls] = await Promise.all([
 ]);
 if (!Array.isArray(issues) || !Array.isArray(pulls)) fail("GitHub queue response has an unexpected shape.");
 
-const stateStore = createFactoryStateStore(api, { repository });
+const stateStore = createFactoryStateStore(api, {
+  repository,
+  issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
+});
 const stored = await stateStore.read();
 const factoryState = stored.state;
 if (factoryState.active_task) {
