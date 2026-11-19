@@ -28,3 +28,12 @@
 
 ### Verification
 - Exact-head CI rerun required; no release acceptance implied.
+
+## 0.1.3 — 2026-11-20
+
+### Added
+- Add a regression test that rejects unscoped global element selectors in application CSS Modules.
+- Include the selector contract in the standard unit-test command.
+
+### Verification
+- Exact-head CI required for this commit.
