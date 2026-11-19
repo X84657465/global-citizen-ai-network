@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, feat/github-project-showcase]
     types: [opened, reopened, synchronize]
   repository_dispatch:
     types: [ai-task-ci]
@@ -349,6 +349,18 @@ jobs:
         run: |
           supabase test db
           if ($LASTEXITCODE -ne 0) { throw "PostgreSQL or RLS tests failed." }
+      - name: Run two-member application RLS integration tests
+        id: application-rls-tests
+        run: |
+          $statusLines = supabase status -o env
+          if ($LASTEXITCODE -ne 0) { throw "Unable to read the isolated Supabase environment." }
+          $dbUrlLine = $statusLines | Where-Object { $_ -match '^DB_URL=' } | Select-Object -First 1
+          if (-not $dbUrlLine) { throw "Supabase status did not return DB_URL." }
+          $env:SUPABASE_DB_URL = $dbUrlLine.Substring(7).Trim().Trim('"').Trim("'")
+          if (-not $env:SUPABASE_DB_URL) { throw "The isolated Supabase DB_URL is empty." }
+          if (-not (Get-Command psql -ErrorAction SilentlyContinue)) { throw "psql is required for the two-member RLS integration test." }
+          node --test tests/security/two-member-rls.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Two-member application RLS integration tests failed." }
       - name: Stop Supabase services
         if: always() && steps.supabase-start.outcome != 'skipped'
         continue-on-error: true
