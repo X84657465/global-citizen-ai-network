@@ -345,7 +345,7 @@ test("check mode retries lease recovery after the durable state write fails", as
   const recovered = await controller.run({ AGENT_FACTORY_MODE: "check" });
   assert.equal(recovered.outputs.lease_recovered, true);
   assert.equal(recovered.state.active_task, null);
-  assert.equal(recovered.state.tasks["42"].status, "retry_wait");
+  assert.equal(recovered.state.tasks["42"].status, "queued");
   assert.equal(recovered.state.system.consecutive_failures, 1);
 
   const duplicate = await controller.run({ AGENT_FACTORY_MODE: "check" });
