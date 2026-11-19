@@ -25,3 +25,10 @@
 - Allow dependent five-track pull requests targeting the integration branch to run the full CI workflow.
 
 **Verification:** exact-head CI required.
+
+## 2.0.3
+
+- Classify failures from the two-member application RLS integration test as task-level validation failures, not infrastructure failures.
+- Add a CI policy regression assertion for the application RLS test step and its failure classification.
+
+**Verification:** exact-head CI required.
