@@ -304,9 +304,12 @@ jobs:
             finally { $listener.Stop() }
           }
 
+          # Windows commonly reserves the 49152-65535 dynamic TCP range. Keep
+          # Docker-published Supabase ports below that range to avoid false
+          # positives from a transient TcpListener availability probe.
           $basePort = 0
           for ($attempt = 0; $attempt -lt 500; $attempt++) {
-            $candidate = 55000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 9000)
+            $candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)
             $available = $true
             foreach ($port in @([int]$candidate, [int]($candidate + 1), [int]($candidate + 2))) {
               if (-not (Test-PortAvailable $port)) { $available = $false; break }
