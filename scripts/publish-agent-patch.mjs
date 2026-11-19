@@ -179,7 +179,7 @@ if (dryRun) {
     changed_files: validatedPatch.files.map((file) => file.path),
     no_api_writes: true,
     merge_policy: "human_approval_required",
-      automatic_merge: false,
+    automatic_merge: false,
     production_deployment: false,
   });
   console.log("PASS: publication payload validated in dry-run mode; no GitHub API writes were made.");
@@ -326,7 +326,7 @@ try {
     commit_sha: commit.sha,
     changed_files: validatedPatch.files.map((file) => file.path),
     merge_policy: "human_approval_required",
-      automatic_merge: false,
+    automatic_merge: false,
     production_deployment: false,
   });
   console.log("Created draft PR after successful isolated validation: " + pull.html_url);

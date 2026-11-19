@@ -63,7 +63,6 @@ test("planner emits finite deduplicated four-section Runner tasks", () => {
   assert.equal(nextPlannerTask(titles), null);
 });
 
-
 test("AI task publisher requires explicit human approval and never promises automatic merge", () => {
   const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8");
   assert.ok(publisher.includes('merge_policy: "human_approval_required"'));
