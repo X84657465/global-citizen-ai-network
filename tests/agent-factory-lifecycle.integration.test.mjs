@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createAgentFactoryController } from "../lib/agent-factory-controller.mjs";
 import { createFactoryStateStore, FACTORY_STATE_ISSUE_TITLE } from "../lib/agent-factory-state-store.mjs";
+import { isTaskAlreadyPublished } from "../lib/agent-task-queue.mjs";
 
 const repository = "owner/repo";
 const issueNumber = 42;
@@ -250,4 +251,148 @@ test("durable scheduler survives a 24-hour multi-task lifecycle soak with idempo
   assert.equal(finalState.state.active_task, null);
   assert.equal(finalState.state.processed_events.length, taskCount * 2);
   assert.equal(api.issues.filter((issue) => issue.title === FACTORY_STATE_ISSUE_TITLE).length, 1);
+});
+
+test("candidate failure recovers through backoff and retries the same open PR without duplication", async () => {
+  const api = createFakeGitHubApi();
+  let now = Date.parse("2026-11-19T10:00:00.000Z");
+  const invoke = async (env) => {
+    const store = createFactoryStateStore(api, { repository });
+    const controller = createAgentFactoryController({ store, api, repository, now: () => now });
+    return controller.run(env);
+  };
+  const issue = 42;
+  const pullRequestNumber = 88;
+  const firstRun = "720001";
+  const firstLease = "gcan-" + firstRun + "-1-" + issue;
+  const firstSha = "a".repeat(40);
+
+  await invoke({
+    AGENT_FACTORY_MODE: "reserve",
+    ISSUE_NUMBER: String(issue),
+    GITHUB_RUN_ID: firstRun,
+    GITHUB_RUN_ATTEMPT: "1",
+    GITHUB_SHA: "b".repeat(40),
+    RUNNER_NAME: "retry-integration-runner",
+  });
+  for (const nextState of ["preparing", "planning", "patching", "sandbox_testing", "publishing"]) {
+    await invoke({
+      AGENT_FACTORY_MODE: "transition",
+      ISSUE_NUMBER: String(issue),
+      AGENT_FACTORY_LEASE_ID: firstLease,
+      NEXT_TASK_STATE: nextState,
+    });
+  }
+  await invoke({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: String(issue),
+    AGENT_FACTORY_LEASE_ID: firstLease,
+    NEXT_TASK_STATE: "draft_pr_created",
+    HEAD_SHA: firstSha,
+    PULL_REQUEST_NUMBER: String(pullRequestNumber),
+  });
+  await invoke({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: String(issue),
+    AGENT_FACTORY_LEASE_ID: firstLease,
+    NEXT_TASK_STATE: "awaiting_ci",
+  });
+  await invoke({
+    AGENT_FACTORY_MODE: "candidate-start",
+    ISSUE_NUMBER: String(issue),
+    PULL_REQUEST_NUMBER: String(pullRequestNumber),
+    HEAD_SHA: firstSha,
+    HEAD_REF: "ai-task/issue-42-retry",
+    CI_RUN_ID: "820001",
+    CI_RUN_ATTEMPT: "1",
+  });
+
+  const failure = {
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: String(issue),
+    PULL_REQUEST_NUMBER: String(pullRequestNumber),
+    HEAD_SHA: firstSha,
+    CI_CONCLUSION: "failure",
+    CI_RUN_ID: "820001",
+    CI_RUN_ATTEMPT: "1",
+    FAILURE_SUMMARY: "candidate lint failed",
+  };
+  let result = await invoke(failure);
+  assert.equal(result.state.tasks[String(issue)].status, "candidate_rejected");
+  const retryAt = Date.parse(result.state.tasks[String(issue)].next_attempt_at);
+  assert.ok(retryAt > now);
+
+  const failedVersion = result.state.state_version;
+  const duplicateFailure = await invoke(failure);
+  assert.equal(duplicateFailure.outputs.duplicate, true);
+  assert.equal(duplicateFailure.state.state_version, failedVersion);
+
+  now = retryAt - 1;
+  result = await invoke({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.requeued_tasks, 0);
+  assert.equal(result.state.tasks[String(issue)].status, "candidate_rejected");
+
+  now = retryAt;
+  result = await invoke({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.requeued_tasks, 1);
+  assert.equal(result.state.tasks[String(issue)].status, "queued");
+  assert.equal(isTaskAlreadyPublished(issue, result.state.tasks[String(issue)], new Set([issue]), new Set()), false);
+
+  const secondRun = "720002";
+  const secondLease = "gcan-" + secondRun + "-1-" + issue;
+  const secondSha = "c".repeat(40);
+  await invoke({
+    AGENT_FACTORY_MODE: "reserve",
+    ISSUE_NUMBER: String(issue),
+    GITHUB_RUN_ID: secondRun,
+    GITHUB_RUN_ATTEMPT: "1",
+    GITHUB_SHA: "d".repeat(40),
+    RUNNER_NAME: "retry-integration-runner",
+  });
+  for (const nextState of ["preparing", "planning", "patching", "sandbox_testing", "publishing"]) {
+    await invoke({
+      AGENT_FACTORY_MODE: "transition",
+      ISSUE_NUMBER: String(issue),
+      AGENT_FACTORY_LEASE_ID: secondLease,
+      NEXT_TASK_STATE: nextState,
+    });
+  }
+  await invoke({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: String(issue),
+    AGENT_FACTORY_LEASE_ID: secondLease,
+    NEXT_TASK_STATE: "draft_pr_created",
+    HEAD_SHA: secondSha,
+    PULL_REQUEST_NUMBER: String(pullRequestNumber),
+  });
+  await invoke({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: String(issue),
+    AGENT_FACTORY_LEASE_ID: secondLease,
+    NEXT_TASK_STATE: "awaiting_ci",
+  });
+  await invoke({
+    AGENT_FACTORY_MODE: "candidate-start",
+    ISSUE_NUMBER: String(issue),
+    PULL_REQUEST_NUMBER: String(pullRequestNumber),
+    HEAD_SHA: secondSha,
+    HEAD_REF: "ai-task/issue-42-retry",
+    CI_RUN_ID: "820002",
+    CI_RUN_ATTEMPT: "1",
+  });
+
+  result = await invoke({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: String(issue),
+    PULL_REQUEST_NUMBER: String(pullRequestNumber),
+    HEAD_SHA: secondSha,
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "820002",
+    CI_RUN_ATTEMPT: "1",
+  });
+  assert.equal(result.state.tasks[String(issue)].status, "completed");
+  assert.equal(result.state.tasks[String(issue)].attempts, 2);
+  assert.equal(result.state.tasks[String(issue)].pull_request_number, pullRequestNumber);
+  assert.equal(isTaskAlreadyPublished(issue, result.state.tasks[String(issue)], new Set([issue]), new Set()), true);
+  assert.equal(api.issues.filter((item) => item.title === FACTORY_STATE_ISSUE_TITLE).length, 1);
 });
