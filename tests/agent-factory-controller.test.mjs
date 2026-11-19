@@ -1,0 +1,188 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  createInitialFactoryState,
+  recordCandidateFailure,
+  recordTaskFailure,
+  reserveTask,
+  transitionTask,
+} from "../lib/agent-factory-state-machine.mjs";
+import { createAgentFactoryController } from "../lib/agent-factory-controller.mjs";
+
+function fakeStore(initialState) {
+  let state = initialState;
+  return {
+    async migrate() { return { state, migrated: false }; },
+    async read() { return { state }; },
+    async write(expectedVersion, nextState) {
+      if (state.state_version !== expectedVersion) throw new Error("state version conflict");
+      if (nextState.state_version !== expectedVersion + 1) throw new Error("invalid next state version");
+      state = nextState;
+      return { state };
+    },
+    get state() { return state; },
+  };
+}
+
+const leaseEnv = {
+  AGENT_FACTORY_MODE: "reserve",
+  ISSUE_NUMBER: "42",
+  GITHUB_RUN_ID: "123456",
+  GITHUB_RUN_ATTEMPT: "1",
+  GITHUB_SHA: "a".repeat(40),
+  RUNNER_NAME: "DESKTOP-S2S4BM9",
+};
+
+function awaitingCandidate(now = 1000) {
+  const leaseId = "lease-candidate-42";
+  let state = reserveTask(createInitialFactoryState(now), {
+    issue_number: 42,
+    lease_id: leaseId,
+    lease_owner: "runner",
+    workflow_run_id: "123456",
+    run_attempt: 1,
+    base_sha: "a".repeat(40),
+  }, now);
+  for (const [next, at] of [
+    ["preparing", now + 100],
+    ["planning", now + 200],
+    ["patching", now + 300],
+    ["sandbox_testing", now + 400],
+    ["publishing", now + 500],
+    ["draft_pr_created", now + 600],
+  ]) {
+    state = transitionTask(state, 42, leaseId, next,
+      next === "draft_pr_created" ? { head_sha: "b".repeat(40), pull_request_number: 88 } : {}, at);
+  }
+  state = transitionTask(state, 42, leaseId, "awaiting_ci", {}, now + 700);
+  return state;
+}
+
+test("reserve mode creates one durable lease and safely handles duplicate invocation", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const first = await controller.run(leaseEnv);
+  const second = await controller.run(leaseEnv);
+  assert.equal(first.state.active_task.lease_id, "gcan-123456-1-42");
+  assert.equal(second.state.state_version, first.state.state_version);
+  assert.equal(store.state.active_task.issue_number, 42);
+});
+
+test("transition mode is idempotent for a repeated exact lease transition", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  await controller.run(leaseEnv);
+  const env = {
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: "gcan-123456-1-42",
+    NEXT_TASK_STATE: "preparing",
+  };
+  const first = await controller.run(env);
+  const second = await controller.run(env);
+  assert.equal(first.state.tasks["42"].status, "preparing");
+  assert.equal(second.state.state_version, first.state.state_version);
+});
+
+test("task-scoped failure requires and releases the exact active lease", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  await controller.run(leaseEnv);
+  const result = await controller.run({
+    AGENT_FACTORY_MODE: "failure",
+    AGENT_FACTORY_FAILURE_SCOPE: "task",
+    FAILED_ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: "gcan-123456-1-42",
+    GITHUB_RUN_ID: "123456",
+    GITHUB_RUN_ATTEMPT: "1",
+    AGENT_FACTORY_ERROR_CODE: "PATCH_INVALID",
+    FAILURE_SUMMARY: "invalid patch",
+  });
+  assert.equal(result.outputs.failure_scope, "task");
+  assert.equal(result.state.active_task, null);
+  assert.equal(result.state.tasks["42"].failures, 1);
+  assert.equal(result.state.tasks["42"].status, "retry_wait");
+});
+
+test("candidate failure callback persists rejection then requeues without counting infrastructure failure", async () => {
+  const store = fakeStore(awaitingCandidate());
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const result = await controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    CI_CONCLUSION: "failure",
+    CI_RUN_ID: "555001",
+    CI_RUN_ATTEMPT: "1",
+    FAILURE_SUMMARY: "lint failed",
+  });
+  assert.equal(result.state.tasks["42"].status, "queued");
+  assert.equal(result.state.tasks["42"].candidate_status, "retry_queued");
+  assert.equal(result.state.tasks["42"].candidate_failures, 1);
+  assert.equal(result.state.tasks["42"].failures, 0);
+  assert.equal(result.state.system.consecutive_failures, 0);
+});
+
+test("candidate success completes the exact PR and resets the system breaker", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const result = await controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555002",
+    CI_RUN_ATTEMPT: "1",
+  });
+  assert.equal(result.state.tasks["42"].status, "completed");
+  assert.equal(result.state.system.consecutive_failures, 0);
+});
+
+test("check mode requeues retry-wait tasks only after their backoff expires", async () => {
+  let state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-retry", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40),
+  }, 1000);
+  state = recordTaskFailure(state, 42, "lease-retry", "workflow-run-123456-attempt-1-failure", "PATCH_INVALID", "bad patch", 2000).state;
+  const readyAt = Date.parse(state.tasks["42"].next_attempt_at) + 1;
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => readyAt });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.requeued_tasks, 1);
+  assert.equal(result.state.tasks["42"].status, "queued");
+});
+
+test("check mode recovers an expired lease only after the workflow is confirmed completed", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-expired", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async () => ({ status: "completed", conclusion: "failure" }) },
+  });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.lease_recovered, true);
+  assert.equal(result.state.active_task, null);
+  assert.equal(result.state.system.consecutive_failures, 1);
+});
+
+test("check mode never recovers a lease while its workflow is still running", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-running", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async () => ({ status: "in_progress" }) },
+  });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.equal(result.state.active_task.lease_id, "lease-running");
+});
