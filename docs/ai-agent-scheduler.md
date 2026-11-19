@@ -6,7 +6,7 @@ The scheduler turns the validated task workflow into a bounded queue worker. It 
 
 ## Execution model
 
-- GitHub Actions schedules a queue scan every 30 minutes.
+- GitHub Actions schedules a queue scan every 5 minutes (`*/5 * * * *` in `.github/workflows/agent-task-preflight.yml`). This is a recovery/polling mechanism; GitHub may delay scheduled events and it is not a completion-time guarantee.
 - The worker runs on the Windows self-hosted runner and uses the local Ollama API.
 - Each scheduled cycle selects at most one eligible task, ordered oldest first.
 - Eligible tasks are open issues titled `[AI Task]`, authored by the repository owner, and not already represented by a task PR.
@@ -37,4 +37,4 @@ Until the workflow is merged, this scheduler code is present only in the feature
 
 ## Operational behavior
 
-A 30-minute schedule is a queue polling interval, not a promise that a task completes within 30 minutes. GitHub may delay scheduled events. If the PC is offline, jobs wait for an eligible runner; they do not execute locally while the PC is powered off.
+A 5-minute schedule is a queue polling interval, not a promise that a task completes within 5 minutes. GitHub may delay scheduled events. If the PC is offline, jobs wait for an eligible runner; they do not execute locally while the PC is powered off.
