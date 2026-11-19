@@ -1,4 +1,5 @@
 import { appendFileSync } from "node:fs";
+import { collectGitHubPages } from "../lib/github-pagination.mjs";
 import { taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
 
 const fail = (message) => {
@@ -30,17 +31,10 @@ const apiGet = async (path) => {
   try { return await response.json(); } catch { fail("GitHub queue response was not valid JSON."); }
 };
 
-const apiGetAllPages = async (path) => {
-  const collected = [];
-  for (let page = 1; page <= 10; page += 1) {
-    const separator = path.includes("?") ? "&" : "?";
-    const batch = await apiGet(path + separator + "page=" + page);
-    if (!Array.isArray(batch)) fail("GitHub paginated queue response has an unexpected shape.");
-    collected.push(...batch);
-    if (batch.length < 100) return collected;
-  }
-  fail("GitHub task queue exceeded 1,000 records; refusing incomplete dependency resolution.");
-};
+const apiGetAllPages = (path) => collectGitHubPages((page) => {
+  const separator = path.includes("?") ? "&" : "?";
+  return apiGet(path + separator + "page=" + page);
+});
 
 const [issues, pulls] = await Promise.all([
   apiGetAllPages("/issues?state=all&per_page=100&sort=created&direction=asc"),
