@@ -25,7 +25,7 @@ test("CI never auto-approves or merges AI task pull requests; human approval is 
 
 
 test("new task PRs rely on the pull_request opened event while existing PRs retain explicit CI re-dispatch", () => {
-  const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\\r\\n/g, "\\n");
+  const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
   const existingStart = publisher.indexOf("if (existingPull) {");
   const createStart = publisher.indexOf('const pull = await api("/repos/" + repository + "/pulls", "POST", {');
   assert.ok(existingStart >= 0);
