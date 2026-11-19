@@ -177,5 +177,5 @@ test("verified task CI success clears both that task's quarantine and the global
   assert.equal(reset.cooldown_until, null);
   assert.deepEqual(reset.task_failures, { "121": 1 });
   assert.deepEqual(reset.skipped_issue_numbers, []);
-  assert.equal(reset.last_error, previous.last_error);
+  assert.equal(reset.last_error, null);
 });
