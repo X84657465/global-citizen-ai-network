@@ -340,7 +340,9 @@ test("candidate failure recovers through backoff and retries the same open PR wi
 
   const secondRun = "720002";
   const secondLease = "gcan-" + secondRun + "-1-" + issue;
-  const secondSha = "c".repeat(40);
+  // A retry may reuse the open PR only when the deterministic candidate
+  // branch still resolves to the exact validated head commit.
+  const secondSha = firstSha;
   await invoke({
     AGENT_FACTORY_MODE: "reserve",
     ISSUE_NUMBER: String(issue),
