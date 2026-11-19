@@ -120,10 +120,30 @@ jobs:
           CI_RUN_ID: ${{ github.run_id }}
           CI_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: node scripts/agent-factory-v2-controller.mjs
-      - name: Verify local runner toolchain
+      - name: Verify local runner toolchain, Docker and Ollama
+        env:
+          OLLAMA_BASE_URL: http://127.0.0.1:11434
         run: |
           node --version
+          if ($LASTEXITCODE -ne 0) { throw "Node.js is not available on PATH" }
           npm --version
+          if ($LASTEXITCODE -ne 0) { throw "npm is not available on PATH" }
+
+          docker info --format '{{.ServerVersion}}'
+          if ($LASTEXITCODE -ne 0) { throw "Docker Engine is not available to the self-hosted Runner" }
+
+          $ollamaUrl = $env:OLLAMA_BASE_URL.TrimEnd('/')
+          try {
+            $ollama = Invoke-RestMethod -Uri "$ollamaUrl/api/tags" -TimeoutSec 10 -ErrorAction Stop
+          } catch {
+            throw "Ollama API health check failed at $ollamaUrl/api/tags"
+          }
+          $models = @($ollama.models)
+          if ($models.Count -eq 0) { throw "Ollama is reachable but has no installed models" }
+          foreach ($model in $models) {
+            if (-not $model.name) { throw "Ollama returned a model entry without a name" }
+            Write-Host "Ollama model available: $($model.name)"
+          }
       - name: Migration filename safety guard
         id: migration-guard
         run: node scripts/check-migration-versions.mjs
