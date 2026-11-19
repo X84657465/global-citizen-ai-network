@@ -1,42 +1,34 @@
 {
-  "schema_version": 1,
-  "overall_version": "0.2.4",
+  "schemaVersion": 1,
+  "overall": "0.3.3",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
-      "version": "2.0.1",
-      "status": "development",
-      "responsibility": "Task orchestration, isolated execution, CI, recovery and controlled delivery"
+      "version": "2.0.2",
+      "status": "active"
     },
     "B": {
-      "name": "GCAN Product",
-      "version": "0.1.0",
-      "status": "development",
-      "responsibility": "Public product experience, user workflows and operational feedback"
+      "name": "Global Citizen AI Network",
+      "version": "0.1.1",
+      "status": "active"
     },
     "C": {
-      "name": "Predictive Coding",
-      "version": "0.1.1",
-      "status": "development",
-      "responsibility": "Prediction, observation, error measurement, calibration, drift and reviewed updates"
+      "name": "Predictive Coding（預測編碼）",
+      "version": "0.1.4",
+      "status": "architecture-defined",
+      "responsibility": "Prediction, observation, prediction-error measurement, uncertainty calibration and evidence-based model updates."
     },
     "D": {
       "name": "Deep Neural",
-      "version": "0.2.1",
-      "status": "development",
-      "responsibility": "Evidence-grounded memory, reasoning, evaluation and cross-track learning"
+      "version": "0.2.2",
+      "status": "implementation-candidate"
     },
     "E": {
-      "name": "Deep Research",
+      "name": "Deep Research（深度研究）",
       "version": "0.1.1",
-      "status": "development",
-      "responsibility": "Source retrieval, source verification, counter-evidence and reproducible research reports"
+      "status": "interface-candidate",
+      "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
     }
   },
-  "acceptance_policy": {
-    "exact_head_ci_required": true,
-    "independent_review_required": true,
-    "merge_is_not_release_by_itself": true,
-    "production_changes_require_human_approval": true
-  }
+  "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
 }

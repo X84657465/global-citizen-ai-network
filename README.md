@@ -14,6 +14,8 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
+**Release:** `0.3.0` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+
 </div>
 
 ---
@@ -50,7 +52,13 @@
 </blockquote>
 
 - **目前開發主線：** `feat/agent-factory-v2`
-- **主要工程驗收：** [PR #134（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/134)
+- **Agent Factory V2：** [PR #134（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/134)
+- **GCAN 產品線：** [PR #137（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/137)
+- **GitHub 專案展示線：** [PR #139（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
+- **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
+- **第四線深度神經：** [PR #140（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/140) · [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
+- **第五線深度研究：** [PR #141（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/141) · [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
+- **五線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
 - **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
 
@@ -195,9 +203,11 @@ Agent Factory 的自動化不等於無限制自主部署：
 
 ### 目前驗證紀錄
 
-- [CI Run #44509589985](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44509589985) 已於 **2026-11-19** 成功完成，對應提交：`5c73cca6cb431e845473c3a3cf78d37d63436faf`。
-- 通過項目包含 Windows Self-hosted Runner 工具鏈、Docker／Ollama 可用性、真實有界 Ollama 結構化推論、工作流程政策測試、依賴安全稽核、單元測試、TypeScript、ESLint、生產建置，以及 Supabase migrations、PostgreSQL 與 RLS 測試。
-- 這是該提交的 CI 通過紀錄，不代表已完成 24 小時真實無人值守運行、Runner 重啟復原或完整自動開發生命週期驗收。
+- CI 結果必須以最新候選提交 SHA 對應的 GitHub Actions Run 為準；舊提交曾經通過，不代表目前分支已通過。
+- Agent Factory V2 的 Patch 分批輸出、決策閘門及測試正在持續修正與重新驗證。
+- GCAN 產品線持續驗證單元測試、資料庫整合測試及手機版介面。
+- 尚未宣稱完成 24 小時無人值守運行、Runner 重啟復原或完整端到端自動開發生命週期驗收。
+- [GitHub Actions 全部工作流程](https://github.com/X84657465/global-citizen-ai-network/actions) 可查詢最新狀態。
 
 ---
 
@@ -247,8 +257,8 @@ GCAN 採用分層設計，將使用者介面、領域邏輯、資料庫權限、
 | 貢獻任務、提交與審核流程 | 已有資料庫與 API 實作 |
 | 申訴與貢獻獎勵帳本 | 已有資料庫流程與介面實作 |
 | AI 成本透明度管理 | 已有管理介面與資料分類 |
-| Agent Factory V2 | 已有狀態機、任務執行、候選 PR 與 CI 整合 |
-| Windows Runner／Docker／Ollama | 已通過指定 CI 環境的工具鏈與有界推論檢查 |
+| Agent Factory V2 | 狀態機、任務執行、候選 PR 與 CI 整合持續開發；端到端驗收尚未完成 |
+| Windows Runner／Docker／Ollama | 曾有工具鏈與有界推論通過紀錄；最新任務仍需重新驗證 |
 | 24 小時無人值守實測 | 尚待真實長時間驗收 |
 | Runner 重啟與中斷復原演練 | 尚待完成 |
 | 分散式運算網路 | 長期規劃，尚未對外開放 |
@@ -272,7 +282,8 @@ GCAN 採用分層設計，將使用者介面、領域邏輯、資料庫權限、
 - [x] 有限重試、退避、隔離與事件冪等
 - [x] 候選 PR 精確 SHA 綁定與 CI 回報
 - [x] Patch 雜湊完整性與發布復原邏輯
-- [x] Windows Runner、Docker、Ollama 基礎檢查
+- [x] Windows Runner、Docker、Ollama 基礎檢查（歷史 CI 紀錄）
+- [ ] Patch 產生與隔離測試端到端通過
 - [ ] 真實長時間無人值守運行
 - [ ] Runner 重啟／中斷復原演練
 - [ ] 完整端到端任務生命週期驗收
@@ -366,9 +377,65 @@ http://localhost:3000
 | [後端環境建置清單](docs/backend-setup.md) | 後端服務準備 |
 | [API 文件](docs/api.md) | 應用 API 說明 |
 | [AI 預算超額保護](docs/ai-budget-overrun-hard-stop.md) | AI 預算硬性停止機制 |
-| [Agent Factory 操作手冊](docs/agent-factory-operations-runbook.md) | 自動開發工廠、Runner 與故障處理 |
+| [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 自動開發工廠、Runner 與故障處理 |
 | [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 任務排程與執行機制 |
 | [Claude 獨立審查簡報](docs/claude-review-brief.md) | 架構與安全審查清單 |
+
+
+## 🎬 圖片與影片介紹｜Visual & Video Tour
+
+### GCAN 五線總覽
+
+<p align="center">
+  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN 五線架構圖" width="100%" />
+</p>
+
+五條開發線各自擁有獨立工作台，透過來源追蹤、版本管理、測試與接收線審核互相協作。
+
+### 影片導覽
+
+**GCAN 平台介紹影片：製作規劃中。** 分鏡與旁白稿已列入專案文件；正式影片必須以真實工作台操作畫面錄製，不會使用虛構影片連結或把示範畫面冒充正式功能。
+
+- [影片分鏡與旁白稿](docs/media/gcan-introduction-storyboard.md)
+- [即時 CI 與開發紀錄](https://github.com/X84657465/global-citizen-ai-network/actions)
+
+### 五線工作台與進度
+
+> D、E 兩線以五線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
+
+| 線別 | 工作台 | 最新已知狀態 | 入口 |
+|---|---|---|---|
+| A｜Agent Factory V2 | 工廠控制台 | 已修正 DB-backed RLS 測試分流；新 exact-head CI 待驗證 | [PR #134](https://github.com/X84657465/global-citizen-ai-network/pull/134) |
+| B｜GCAN Product | 全球產品平台 | CI 通過；待獨立驗收 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) |
+| C｜Predictive Coding | 預測分析工作台 | CSS 修復候選；待 exact-head CI | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
+| D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
+| E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
+
+> CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
+
+## 🧠 五線協作與持續學習
+
+本專案採五線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經（Deep Neural）、E 深度研究（Deep Research）。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
+
+所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [五線工程治理規範](docs/engineering-governance.md)。
+
+## 🔄 五線互輔互成｜Predict → Learn → Build → Validate
+
+五線不是五個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
+
+| 線別 | 核心責任 | 支援其他線的方式 |
+|---|---|---|
+| A｜Agent Factory V2 | 自動化工程執行、測試、修復與交付 | 提供可重現的執行能力、CI 證據、故障分類與修復手冊 |
+| B｜Global Citizen AI Network | 真實產品、使用者流程與全球協作場景 | 提供需求、使用回饋、營運限制與真實成效資料 |
+| C｜預測編碼（Predictive Coding） | 預測、觀測、預測誤差、校準與模型更新 | 提供可量測的預測誤差、漂移訊號與改進依據 |
+| D｜深度神經（Deep Neural） | 記憶、推理、知識整合與評估 | 將跨線證據整理為可追溯知識、推理策略及評估建議 |
+| E｜深度研究（Deep Research） | 多來源研究、來源查核、反證與引用報告 | 提供可追溯的研究證據、方法、來源可信度與可執行建議 |
+
+共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋五線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
+
+### 第三線架構
+
+[預測編碼架構文件](docs/predictive-coding-architecture.md)
 
 ## 🤝 Contribution｜參與與貢獻
 
