@@ -269,8 +269,10 @@ test("candidate success requires exact CI run ID and positive run attempt", () =
     () => recordTaskSuccess(state, 42, event("missing-ci-attempt"), { ...evidence, ci_run_attempt: 0 }, 1800),
     /CI run ID/,
   );
+  state.tasks["42"].candidate_failures = 2;
   const result = recordTaskSuccess(state, 42, event("valid-ci-evidence"), evidence, 1900);
   assert.equal(result.state.tasks["42"].status, "completed");
+  assert.equal(result.state.tasks["42"].candidate_failures, 0);
 });
 
 test("candidate failure also requires exact CI run ID and positive run attempt", () => {
@@ -299,4 +301,49 @@ test("candidate failure also requires exact CI run ID and positive run attempt",
   );
   const result = recordCandidateFailure(state, 42, event("valid-failure-evidence"), evidence, "failed", 1900);
   assert.equal(result.state.tasks["42"].status, "candidate_rejected");
+});
+
+
+test("quarantines a task after three distinct candidate CI rejections", () => {
+  let state = createInitialFactoryState(1000);
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    state = reserveTask(state, metadata({
+      lease_id: "lease-candidate-" + attempt,
+      workflow_run_id: "run-candidate-" + attempt,
+      run_attempt: attempt,
+    }), 1000 + attempt * 10_000);
+    const start = 1000 + attempt * 10_000;
+    state = move(state, 42, "preparing", {}, start + 100);
+    state = move(state, 42, "planning", {}, start + 200);
+    state = move(state, 42, "patching", {}, start + 300);
+    state = move(state, 42, "sandbox_testing", {}, start + 400);
+    state = move(state, 42, "publishing", {}, start + 500);
+    const headSha = String(attempt).repeat(40);
+    const pullRequestNumber = 90 + attempt;
+    state = move(state, 42, "draft_pr_created", {
+      head_sha: headSha, pull_request_number: pullRequestNumber,
+    }, start + 600);
+    state = move(state, 42, "awaiting_ci", {}, start + 700);
+
+    const evidence = {
+      head_sha: headSha, pull_request_number: pullRequestNumber,
+      ci_conclusion: "failure", ci_run_id: String(9000 + attempt), ci_run_attempt: 1,
+    };
+    state = recordCandidateFailure(
+      state, 42, event("candidate-rejection-" + attempt), evidence,
+      "candidate validation failed", start + 800,
+    ).state;
+    assert.equal(state.tasks["42"].candidate_failures, attempt);
+    assert.equal(state.tasks["42"].failures, 0);
+
+    if (attempt < 3) {
+      assert.equal(state.tasks["42"].status, "candidate_rejected");
+      assert.equal(state.tasks["42"].quarantined, false);
+      state = requeueTask(state, 42, start + 900);
+    } else {
+      assert.equal(state.tasks["42"].status, "quarantined");
+      assert.equal(state.tasks["42"].quarantined, true);
+      assert.throws(() => requeueTask(state, 42, start + 900), /not eligible/);
+    }
+  }
 });
