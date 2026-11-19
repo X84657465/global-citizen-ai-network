@@ -106,7 +106,9 @@ try {
     console.log(active ? "Circuit breaker active until " + state.cooldown_until + "; no task is started." : "Circuit breaker clear.");
   } else if (mode === "failure") {
     const failedIssueNumber = await inferFailedIssueNumber();
-    state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.", Date.now(), failedIssueNumber);
+    const requestedScope = process.env.AGENT_FACTORY_FAILURE_SCOPE === "task" ? "task" : "system";
+    const failureScope = requestedScope === "task" && failedIssueNumber ? "task" : "system";
+    state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.", Date.now(), failedIssueNumber, failureScope);
     effectiveState = state;
     saveLocalState(state);
     await persistState(allIssues, state);
@@ -118,13 +120,19 @@ try {
         }),
       });
     }
-    console.log("Recorded consecutive failure " + state.consecutive_failures + "/3. " + (state.cooldown_until ? "Cooldown until " + state.cooldown_until : "Next failure triggers 15 minutes of cooldown."));
+    console.log(failureScope === "task"
+      ? "Recorded task-scoped failure for issue #" + failedIssueNumber + " (" + (state.task_failures[String(failedIssueNumber)] ?? 0) + "/" + 3 + "). " + ((state.skipped_issue_numbers ?? []).includes(failedIssueNumber) ? "Task quarantined; other queued tasks remain eligible." : "Global circuit breaker unchanged.")
+      : "Recorded system-scoped failure " + state.consecutive_failures + "/3. " + (state.cooldown_until ? "Cooldown until " + state.cooldown_until : "Next system failure may trigger 15 minutes of cooldown."));
   } else if (mode === "success") {
-    const reset = successState(Date.now(), state, Number(process.env.COMPLETED_ISSUE_NUMBER) || null);
+    const completedIssueNumber = Number(process.env.COMPLETED_ISSUE_NUMBER) || null;
+    const successScope = process.env.AGENT_FACTORY_SUCCESS_SCOPE === "task" && completedIssueNumber ? "task" : "system";
+    const reset = successState(Date.now(), state, completedIssueNumber, successScope);
     effectiveState = reset;
     saveLocalState(reset);
     await persistState(allIssues, reset);
-    console.log("Successful task publication recorded; circuit breaker reset.");
+    console.log(successScope === "task"
+      ? "Successful task publication recorded; only issue #" + completedIssueNumber + " retry state was cleared."
+      : "System-level success recorded; global circuit breaker reset.");
   } else if (mode === "plan") {
     const openIssues = await listIssues("open");
     const allPulls = await api("/pulls?state=all&per_page=100");
