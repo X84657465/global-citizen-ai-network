@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, feat/github-project-showcase]
     types: [opened, reopened, synchronize]
   repository_dispatch:
     types: [ai-task-ci]
