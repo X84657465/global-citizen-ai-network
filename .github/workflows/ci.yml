@@ -320,53 +320,13 @@ jobs:
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max
-    name: Persist CI failures in the factory circuit breaker
+    name: Persist candidate or system CI failures
+    needs: [resolve-candidate, build, database]
     if: >-
       always() &&
-      (needs.build.result == 'failure' || needs.database.result == 'failure') &&
-      (
-        (github.event_name == 'push' &&
-         (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/codex/issue-'))) ||
-        (github.event_name == 'pull_request' &&
-         github.event.pull_request.head.repo.full_name == github.repository &&
-         ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
-           contains(github.event.pull_request.body, '<!-- ai-task:')) ||
-          startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) ||
-        (github.event_name == 'repository_dispatch' &&
-         github.event.action == 'ai-task-ci' &&
-         github.event.client_payload.pull_request_number != '')
-      )
-    needs: [build, database]
-    runs-on: [self-hosted, Windows, X64]
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: read
-    steps:
-      - name: Checkout tested revision
-        uses: actions/checkout@v5
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "22.13.0"
-      - name: Record one failure for this CI run
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: failure
-          AGENT_FACTORY_FAILURE_SCOPE: ${{ ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') && contains(github.event.pull_request.body, '<!-- ai-task:')) || startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) || (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/codex/issue-')) || (github.event_name == 'repository_dispatch' && github.event.action == 'ai-task-ci' && github.event.client_payload.pull_request_number != '')) && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
-          FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database job logs."
-        run: node scripts/agent-factory-controller.mjs
-
-  circuit-breaker-success:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-    name: Reset the global circuit breaker after healthy factory CI
-    needs: [build, database]
-    if: >-
-      needs.build.result == 'success' &&
-      needs.database.result == 'success' &&
+      (needs.resolve-candidate.result == 'failure' ||
+       needs.build.result == 'failure' ||
+       needs.database.result == 'failure') &&
       (
         (github.event_name == 'push' &&
          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/codex/issue-'))) ||
@@ -385,6 +345,8 @@ jobs:
       contents: read
       issues: write
       pull-requests: read
+    env:
+      CI_FAILURE_SCOPE: ${{ (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
     steps:
       - name: Checkout tested revision
         uses: actions/checkout@v5
@@ -392,10 +354,85 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
-      - name: Reset global circuit breaker after verified CI success
+      - name: Record task candidate CI rejection
+        if: needs.resolve-candidate.result == 'success' && needs.resolve-candidate.outputs.is_task_pr == 'true' && env.CI_FAILURE_SCOPE == 'task'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: candidate
+          ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.issue_number }}
+          PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
+          HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          CI_CONCLUSION: failure
+          CI_RUN_ID: ${{ github.run_id }}
+          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
+          FAILURE_SUMMARY: "Candidate CI run ${{ github.run_id }} failed for PR #${{ needs.resolve-candidate.outputs.pull_request_number }}."
+        run: node scripts/agent-factory-v2-controller.mjs
+      - name: Record system CI failure
+        if: needs.resolve-candidate.result == 'failure' || needs.resolve-candidate.outputs.is_task_pr != 'true' || env.CI_FAILURE_SCOPE != 'task'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: failure
+          AGENT_FACTORY_FAILURE_SCOPE: system
+          FAILURE_STAGE: ci
+          FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database and candidate-resolution logs."
+        run: node scripts/agent-factory-v2-controller.mjs
+
+  circuit-breaker-success:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+    name: Persist candidate success or reset system breaker
+    needs: [resolve-candidate, build, database]
+    if: >-
+      needs.resolve-candidate.result == 'success' &&
+      needs.resolve-candidate.outputs.is_current_head == 'true' &&
+      needs.build.result == 'success' &&
+      needs.database.result == 'success' &&
+      (
+        (github.event_name == 'push' &&
+         (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/codex/issue-'))) ||
+        (github.event_name == 'pull_request' &&
+         github.event.pull_request.head.repo.full_name == github.repository &&
+         ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
+           contains(github.event.pull_request.body, '<!-- ai-task:')) ||
+          startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) ||
+        (github.event_name == 'repository_dispatch' &&
+         github.event.action == 'ai-task-ci' &&
+         github.event.client_payload.pull_request_number != '' &&
+         needs.resolve-candidate.outputs.is_task_pr == 'true')
+      )
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+      - name: Record exact candidate CI success
+        if: needs.resolve-candidate.outputs.is_task_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: candidate
+          ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.issue_number }}
+          PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
+          HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          CI_CONCLUSION: success
+          CI_RUN_ID: ${{ github.run_id }}
+          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: node scripts/agent-factory-v2-controller.mjs
+      - name: Reset global breaker after healthy non-task CI
+        if: needs.resolve-candidate.outputs.is_task_pr != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: success
-          AGENT_FACTORY_SUCCESS_SCOPE: task_and_system
-        run: node scripts/agent-factory-controller.mjs
+        run: node scripts/agent-factory-v2-controller.mjs
