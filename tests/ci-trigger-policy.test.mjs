@@ -20,7 +20,7 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
 
-  const jobs = ["build", "database", "circuit-breaker", "circuit-breaker-success"];
+  const jobs = ["resolve-candidate", "build", "database", "circuit-breaker", "circuit-breaker-success"];
   for (let index = 0; index < jobs.length; index += 1) {
     const job = jobs[index];
     const start = workflow.indexOf("  " + job + ":\n");
@@ -68,4 +68,27 @@ test("publisher binds scratch evidence, recovers deterministic branches, and avo
   assert.equal(newPullBlock.includes("dispatchAiTaskCi("), false);
   assert.ok(newPullBlock.includes("item.head?.sha === commitSha"));
   assert.ok(newPullBlock.includes("pull.head?.sha !== commitSha"));
+});
+
+
+test("CI resolves the current task PR and binds candidate outcomes to exact run evidence", () => {
+  assert.ok(workflow.includes("  resolve-candidate:"));
+  assert.ok(workflow.includes("scripts/resolve-agent-task-pr.mjs"));
+  assert.ok(workflow.includes("needs.resolve-candidate.outputs.is_current_head == 'true'"));
+  assert.ok(workflow.includes("AGENT_FACTORY_MODE: candidate-start"));
+  assert.ok(workflow.includes("CI_RUN_ID: ${{ github.run_id }}"));
+  assert.ok(workflow.includes("CI_RUN_ATTEMPT: ${{ github.run_attempt }}"));
+  assert.ok(workflow.includes("AGENT_FACTORY_MODE: candidate"));
+  assert.ok(workflow.includes("CI_CONCLUSION: failure"));
+  assert.ok(workflow.includes("CI_CONCLUSION: success"));
+  assert.ok(workflow.includes("needs.resolve-candidate.outputs.is_task_pr == 'true'"));
+});
+
+test("preflight reserves and releases V2 leases and does not overproduce roadmap tasks", () => {
+  assert.ok(preflight.includes("AGENT_FACTORY_MODE: reserve"));
+  assert.ok(preflight.includes("AGENT_FACTORY_MODE: transition"));
+  assert.ok(preflight.includes("scripts/agent-factory-v2-controller.mjs"));
+  assert.ok(preflight.includes("steps.factory-gate.outputs.pending_tasks == '0'"));
+  assert.ok(preflight.includes("steps.select-task.outputs.open_task_prs == '0'"));
+  assert.ok(preflight.includes("NEXT_TASK_STATE = \"awaiting_ci\""));
 });
