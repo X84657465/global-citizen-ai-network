@@ -63,6 +63,7 @@ Do not delete the Runner's `_work` directory, remove Docker volumes, reset the r
 ## Latest verified evidence (2026-11-19 UTC)
 
 - PR #134 head `7dfa22be7cd2624badfd57b269fd9f2894669017` completed CI run [#44507769727](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44507769727) successfully. The run passed 249/249 unit tests, local Supabase migrations and PostgreSQL/RLS checks, Ollama structured inference, TypeScript, ESLint, production build, and dependency audits (0 reported vulnerabilities).
+- Latest runbook commit `f8afc46c833a67311e93ffd4638981396750a8b0` completed CI run [#44508384407](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44508384407) successfully. Both the Windows build/test/security job and the isolated local Supabase migration plus PostgreSQL/RLS job completed with success. PR #134 remains Draft and unmerged.
 - Windows Runner read-only smoke run [#44507755044](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44507755044) passed on the same development branch, verifying Runner identity, Windows/x64, Node.js/npm, checkout, and workspace presence. This is not a restart/reconnect rehearsal.
 - All workflow Checkout steps disable persisted Git credentials; the policy test enforces the rule.
 - The preflight `prepare-task` job explicitly denies Actions API permissions (`actions: none`) while retaining the repository-content, issue, and pull-request write scopes required by its current publisher/state-update operations.
