@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const homepage = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const homeCss = readFileSync(new URL("../app/home.module.css", import.meta.url), "utf8");
 
 test("public homepage exposes the authenticated workspace and contribution entry points", () => {
   assert.match(homepage, /href="\/workspace"/);
@@ -83,4 +84,13 @@ test("workspace bootstrap validates the essential conversation response before r
   assert.match(workspaceClient, /typeof \(item as Conversation\)\.updated_at === "string"/);
   assert.match(workspaceClient, /對話資料格式無效/);
   assert.match(workspaceClient, /setConversations\(data\.conversations as Conversation\[\]\)/);
+});
+
+
+test("public homepage provides visible keyboard focus and respects reduced-motion preferences", () => {
+  assert.match(homeCss, /:focus-visible/);
+  assert.match(homeCss, /outline: 3px solid/);
+  assert.match(homeCss, /@media \\(prefers-reduced-motion: reduce\\)/);
+  assert.match(homeCss, /transition: none !important/);
+  assert.match(homeCss, /\.pillarCard:hover[\\s\\S]*?transform: none/);
 });
