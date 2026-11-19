@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { taskPriority, compareTaskIssues, sortTaskIssues, isMergedTaskPullRequest } from "../lib/agent-task-queue.mjs";
+import { taskPriority, compareTaskIssues, sortTaskIssues, isMergedTaskPullRequest, isTaskAlreadyPublished } from "../lib/agent-task-queue.mjs";
 
 const issue = (number, created_at, priority = null) => ({
   number, created_at, body: priority ? "## Priority\n" + priority + "\n\n## Goal\n..." : "## Goal\n...",
@@ -46,4 +46,20 @@ test("recognizes merged task PRs using GitHub merged_at metadata", () => {
 test("accepts normalized merged boolean while preserving raw GitHub metadata support", () => {
   assert.equal(isMergedTaskPullRequest({ merged: true }), true);
   assert.equal(isMergedTaskPullRequest({ merged: false, merged_at: null }), false);
+});
+
+
+test("queued retries may reuse an existing open task PR without creating duplicates", () => {
+  const open = new Set([42]);
+  const merged = new Set();
+  assert.equal(isTaskAlreadyPublished(42, { status: "queued", quarantined: false }, open, merged), false);
+  assert.equal(isTaskAlreadyPublished(42, { status: "candidate_rejected", quarantined: false }, open, merged), true);
+  assert.equal(isTaskAlreadyPublished(42, { status: "completed", quarantined: false }, open, merged), true);
+  assert.equal(isTaskAlreadyPublished(42, undefined, open, merged), true);
+});
+
+test("merged task PRs and quarantined tasks remain excluded even when queued metadata is stale", () => {
+  assert.equal(isTaskAlreadyPublished(42, { status: "queued", quarantined: false }, new Set(), new Set([42])), true);
+  assert.equal(isTaskAlreadyPublished(42, { status: "queued", quarantined: true }, new Set([42]), new Set()), true);
+  assert.equal(isTaskAlreadyPublished(42, { status: "queued", quarantined: false }, new Set(), new Set()), false);
 });
