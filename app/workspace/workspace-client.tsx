@@ -101,8 +101,21 @@ export default function WorkspaceClient() {
         // entire workspace or prevent a member from opening saved messages.
         let projectData: { projects?: ProjectOption[] } = { projects: [] };
         if (projectResult.status === "fulfilled" && projectResult.value.ok) {
-          try { projectData = await projectResult.value.json() as { projects?: ProjectOption[] }; }
-          catch { /* Keep the workspace usable without project metadata. */ }
+          try {
+            const parsedProjects: unknown = await projectResult.value.json();
+            if (parsedProjects && typeof parsedProjects === "object" && !Array.isArray(parsedProjects)) {
+              const candidateProjects = (parsedProjects as { projects?: unknown }).projects;
+              if (Array.isArray(candidateProjects)) {
+                projectData = {
+                  projects: candidateProjects.filter((project): project is ProjectOption =>
+                    Boolean(project) && typeof project === "object" &&
+                    typeof (project as ProjectOption).id === "string" &&
+                    typeof (project as ProjectOption).name === "string",
+                  ),
+                };
+              }
+            }
+          } catch { /* Keep the workspace usable without project metadata. */ }
         }
 
         let pendingAvailable = false;
@@ -116,8 +129,11 @@ export default function WorkspaceClient() {
           pendingResponse = pendingResult.value;
           if (pendingResponse.ok) {
             try {
-              pendingData = await pendingResponse.json() as typeof pendingData;
-              pendingAvailable = true;
+              const parsedPending: unknown = await pendingResponse.json();
+              if (parsedPending && typeof parsedPending === "object" && !Array.isArray(parsedPending)) {
+                pendingData = parsedPending as typeof pendingData;
+                pendingAvailable = true;
+              }
             } catch { /* Preserve local idempotency data if server recovery is unavailable. */ }
           }
         }
