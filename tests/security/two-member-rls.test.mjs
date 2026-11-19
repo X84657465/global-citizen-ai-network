@@ -5,6 +5,7 @@ import test from "node:test";
 
 const databaseUrl = process.env.SUPABASE_DB_URL;
 const psql = process.env.PSQL_BIN || "psql";
+const databaseTestOptions = { skip: !databaseUrl && "requires SUPABASE_DB_URL for a disposable local Supabase database" };
 
 function sql(query, { expectFailure = false } = {}) {
   if (!databaseUrl) throw new Error("SUPABASE_DB_URL is required. Use a disposable local Supabase database; never point this test at production.");
@@ -81,7 +82,7 @@ function asMember(userId, query) {
   `;
 }
 
-test("two ordinary members are isolated across profile, workspace, AI, and contribution rows", () => {
+test("two ordinary members are isolated across profile, workspace, AI, and contribution rows", databaseTestOptions, () => {
   const f = fixture();
   const output = sql(`
     ${f.setup}
@@ -99,7 +100,7 @@ test("two ordinary members are isolated across profile, workspace, AI, and contr
   assert.match(output, /1,1,1,1,1,1$/, "member A should only see their own rows in every owner-scoped table");
 });
 
-test("cross-member reads and mutations cannot expose or alter another member's records", () => {
+test("cross-member reads and mutations cannot expose or alter another member's records", databaseTestOptions, () => {
   const f = fixture();
   const output = sql(`
     ${f.setup}
@@ -118,7 +119,7 @@ test("cross-member reads and mutations cannot expose or alter another member's r
   assert.match(output, /0,0,0$/, "cross-member update/read must affect and reveal zero rows");
 });
 
-test("profile role and account-status escalation is rejected by the database trigger", () => {
+test("profile role and account-status escalation is rejected by the database trigger", databaseTestOptions, () => {
   const f = fixture();
   sql(`
     ${f.setup}
@@ -127,7 +128,7 @@ test("profile role and account-status escalation is rejected by the database tri
   `, { expectFailure: true });
 });
 
-test("authenticated members cannot forge assistant or system messages", () => {
+test("authenticated members cannot forge assistant or system messages", databaseTestOptions, () => {
   const f = fixture();
   sql(`
     ${f.setup}
@@ -139,7 +140,7 @@ test("authenticated members cannot forge assistant or system messages", () => {
   `, { expectFailure: true });
 });
 
-test("authenticated members cannot write directly to financial or AI cost ledgers", () => {
+test("authenticated members cannot write directly to financial or AI cost ledgers", databaseTestOptions, () => {
   const f = fixture();
   sql(`
     ${f.setup}
@@ -151,7 +152,7 @@ test("authenticated members cannot write directly to financial or AI cost ledger
   `, { expectFailure: true });
 });
 
-test("suspended and closed accounts cannot read member data; restricted accounts remain read-only", () => {
+test("suspended and closed accounts cannot read member data; restricted accounts remain read-only", databaseTestOptions, () => {
   const f = fixture();
   const output = sql(`
     ${f.setup}
@@ -179,7 +180,7 @@ test("suspended and closed accounts cannot read member data; restricted accounts
   assert.match(output, /closed:0/);
 });
 
-test("client cannot access service-only audit records", () => {
+test("client cannot access service-only audit records", databaseTestOptions, () => {
   const f = fixture();
   sql(`
     ${f.setup}
