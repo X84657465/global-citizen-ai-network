@@ -36,17 +36,21 @@ const [issues, pulls] = await Promise.all([
 if (!Array.isArray(issues) || !Array.isArray(pulls)) fail("GitHub queue response has an unexpected shape.");
 
 const owner = repositoryParts[0].toLowerCase();
+const skippedIssueNumbers = new Set((process.env.AGENT_FACTORY_SKIPPED_ISSUES ?? "").split(",").map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0));
 const alreadyPublished = new Set();
 for (const pull of pulls) {
   const match = typeof pull.body === "string" ? pull.body.match(/<!-- ai-task:(\d+) -->/) : null;
-  if (match) alreadyPublished.add(Number(match[1]));
+  if (match && (pull.state === "open" || pull.merged === true)) alreadyPublished.add(Number(match[1]));
 }
 const ready = issues.filter((issue) =>
   !issue.pull_request &&
   issue.state === "open" &&
-  issue.user?.login?.toLowerCase() === owner &&
+  (issue.user?.login?.toLowerCase() === owner ||
+   (issue.user?.login?.toLowerCase() === "github-actions[bot]" &&
+    typeof issue.body === "string" && issue.body.includes("<!-- ai-task-generated-by-planner -->"))) &&
   typeof issue.title === "string" && issue.title.startsWith("[AI Task]") &&
-  !alreadyPublished.has(issue.number)
+  !alreadyPublished.has(issue.number) &&
+  !skippedIssueNumbers.has(issue.number)
 ).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
 
 // Stable priority order: security and MVP release gates first, then Phase 2,

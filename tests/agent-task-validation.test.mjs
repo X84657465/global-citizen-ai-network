@@ -48,7 +48,7 @@ test("rejects pull requests and closed issues", () => {
 test("rejects tasks authored by anyone other than the repository owner", () => {
   assert.throws(
     () => validateAndBuildTask(validIssue({ user: { login: "someone-else" } }), "X84657465/global-citizen-ai-network"),
-    /repository owner/,
+    /repository-owner tasks/,
   );
 });
 
@@ -96,4 +96,18 @@ test("rejects oversized bodies and malformed repository names", () => {
     /20,000-character/,
   );
   assert.throws(() => validateAndBuildTask(validIssue(), "not-a-repository"), /Repository name/);
+});
+
+test("accepts only explicitly planner-marked automation-authored issues", () => {
+  const generated = validIssue({
+    user: { login: "github-actions[bot]" },
+    body: "<!-- ai-task-generated-by-planner -->\n" + validIssue().body,
+  });
+  const task = validateAndBuildTask(generated, "X84657465/global-citizen-ai-network");
+  assert.equal(task.issue.author, "github-actions[bot]");
+
+  assert.throws(
+    () => validateAndBuildTask(validIssue({ user: { login: "github-actions[bot]" } }), "X84657465/global-citizen-ai-network"),
+    /repository-owner tasks or explicitly planner-generated tasks/,
+  );
 });

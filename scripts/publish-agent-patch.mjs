@@ -154,9 +154,9 @@ const body = [
   "- Unit tests, TypeScript, and ESLint passed in a non-root container with network disabled",
   "",
   "### Safety boundary",
-  "- Draft PR only; no automatic merge",
+  "- Draft PR remains open until the repository CI build and PostgreSQL/RLS tests pass",
   "- No production deployment or production database access",
-  "- Human review and approval are required before merge",
+  "- CI automatically marks the PR ready and squash-merges it after all required jobs pass, unless destructive SQL/database changes require human review",
 ].join("\n");
 
 const resultPath = "artifacts/agent-publish.json";
@@ -177,7 +177,7 @@ if (dryRun) {
     draft: true,
     changed_files: validatedPatch.files.map((file) => file.path),
     no_api_writes: true,
-    automatic_merge: false,
+    automatic_merge_policy: "ci_gated_squash",
     production_deployment: false,
   });
   console.log("PASS: publication payload validated in dry-run mode; no GitHub API writes were made.");
@@ -223,6 +223,16 @@ const api = async (path, method = "GET", payload = undefined) => {
   return data;
 };
 
+const dispatchAiTaskCi = async (pull) => {
+  await api("/dispatches", "POST", {
+    event_type: "ai-task-ci",
+    client_payload: {
+      pull_request_number: pull.number,
+      head_sha: pull.head.sha,
+    },
+  });
+};
+
 try {
   const repoInfo = await api("/repos/" + repository);
   const defaultBranch = repoInfo.default_branch;
@@ -236,6 +246,7 @@ try {
   const openPulls = await api("/repos/" + repository + "/pulls?state=open&per_page=100");
   const existingPull = openPulls.find((pull) => pull.body?.includes("<!-- ai-task:" + issueNumber + " -->"));
   if (existingPull) {
+    await dispatchAiTaskCi(existingPull);
     saveResult({
       schema_version: 1,
       state: "existing_open_pr",
@@ -244,7 +255,7 @@ try {
       pull_request_number: existingPull.number,
       pull_request_url: existingPull.html_url,
       no_duplicate_created: true,
-      automatic_merge: false,
+      automatic_merge_policy: "ci_gated_squash",
       production_deployment: false,
     });
     console.log("An open PR already exists for this task: " + existingPull.html_url);
@@ -289,9 +300,11 @@ try {
     draft: true,
   });
 
+  await dispatchAiTaskCi(pull);
+
   try {
     await api("/repos/" + repository + "/issues/" + issueNumber + "/comments", "POST", {
-      body: "The automated candidate passed isolated tests and a draft pull request is ready for human review: " + pull.html_url + "\n\nNo merge or deployment was performed.",
+      body: "The automated candidate passed isolated tests and a draft pull request is awaiting repository CI; it will be squash-merged automatically if build and PostgreSQL/RLS checks pass and no destructive database operation is detected: " + pull.html_url + "\n\nNo merge or deployment was performed.",
     });
   } catch (error) {
     console.warn("Draft PR was created, but the source issue comment could not be posted: " + error.message);
@@ -309,7 +322,7 @@ try {
     base_commit: baseCommit,
     commit_sha: commit.sha,
     changed_files: validatedPatch.files.map((file) => file.path),
-    automatic_merge: false,
+    automatic_merge_policy: "ci_gated_squash",
     production_deployment: false,
   });
   console.log("Created draft PR after successful isolated validation: " + pull.html_url);

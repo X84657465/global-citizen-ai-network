@@ -1,60 +1,62 @@
 import { readFileSync } from "node:fs";
 import { strict as assert } from "node:assert";
 
-const sql = readFileSync("supabase/migrations/20261118003031_initial_schema.sql", "utf8");
-const statusSql = readFileSync("supabase/migrations/20261118003035_member_status_rls.sql", "utf8");
-const budgetSql = readFileSync("supabase/migrations/20261118003039_atomic_ai_budget_reservations.sql", "utf8");
-const rewardSnapshotSql = readFileSync("supabase/migrations/20261118003109_immutable_contribution_reward_snapshots.sql", "utf8");
-const submissionLifecycleSql = readFileSync("supabase/migrations/20261118003121_submission_appeal_lifecycle_hardening.sql", "utf8");
-const hardStopSql = readFileSync("supabase/migrations/20261118003043_ai_budget_overrun_hard_stop.sql", "utf8");
-const idempotencySql = readFileSync("supabase/migrations/20261118003047_ai_request_idempotency.sql", "utf8");
-const rateLimitSql = readFileSync("supabase/migrations/20261118003051_ai_request_rate_limits.sql", "utf8");
-const singlePendingSql = readFileSync("supabase/migrations/20261118003135_single_unresolved_ai_request_per_member.sql", "utf8");
-const contributionReviewSql = readFileSync("supabase/migrations/20261118003059_atomic_contribution_review.sql", "utf8");
-const appealReviewSql = readFileSync("supabase/migrations/20261118003104_atomic_appeal_review.sql", "utf8");
-const appealReviewApi = readFileSync("app/api/admin/contribution/appeals/route.ts", "utf8");
-const appealReviewClient = readFileSync("app/admin/appeals/appeal-review-client.tsx", "utf8");
-const reviewApi = readFileSync("app/api/admin/contribution/reviews/route.ts", "utf8");
-const memberSummaryApi = readFileSync("app/api/contribution/summary/route.ts", "utf8");
-const appealApi = readFileSync("app/api/contribution/appeals/route.ts", "utf8");
-const memberContributionsClient = readFileSync("app/contributions/member-contributions-client.tsx", "utf8");
-const reviewClient = readFileSync("app/admin/contributions/review-client.tsx", "utf8");
-const env = readFileSync(".env.example", "utf8");
-const page = readFileSync("app/page.tsx", "utf8");
-const bodyReader = readFileSync("lib/http/read-json-body.ts", "utf8");
-const projectApi = readFileSync("app/api/projects/route.ts", "utf8");
-const conversationApi = readFileSync("app/api/conversations/route.ts", "utf8");
-const messageApi = readFileSync("app/api/conversations/[id]/messages/route.ts", "utf8");
-const contributionApi = readFileSync("app/api/contribution/tasks/route.ts", "utf8");
-const workspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
-const aiPendingRecoveryApi = readFileSync("app/api/ai/pending/route.ts", "utf8");
-const pendingRecovery = readFileSync("lib/ai/pending-recovery.ts", "utf8");
-const aiHistory = readFileSync("lib/ai/history.ts", "utf8");
-const adminOpsApi = readFileSync("app/api/admin/ai-operations/route.ts", "utf8");
-const aiCostsApi = readFileSync("app/api/admin/ai-costs/route.ts", "utf8");
-const aiCostsClient = readFileSync("app/admin/ai-costs/cost-dashboard-client.tsx", "utf8");
-const adminTasksApi = readFileSync("app/api/admin/contribution/tasks/route.ts", "utf8");
-const taskAdminClient = readFileSync("app/admin/contribution-tasks/tasks-client.tsx", "utf8");
-const taskAdminRpcSql = readFileSync("supabase/migrations/20261118050801_atomic_contribution_task_admin.sql", "utf8");
-const providerlessReplaySql = readFileSync("supabase/migrations/20261118060600_ai_providerless_completed_replay.sql", "utf8");
-const aiChatApi = readFileSync("app/api/ai/chat/route.ts", "utf8");
-const idempotencyValidation = readFileSync("lib/ai/idempotency.ts", "utf8");
-const aiGatewayTests = readFileSync("supabase/tests/ai_gateway.test.sql", "utf8");
-const reconciliationInputSource = readFileSync("lib/ai/reconciliation-input.ts", "utf8");
-const reconciliationAuthSource = readFileSync("lib/ai/reconciliation-auth.ts", "utf8");
-const reconciliationInputTests = readFileSync("tests/ai-reconciliation-input.test.ts", "utf8");
-const reconciliationAuthTests = readFileSync("tests/ai-reconciliation-auth.test.ts", "utf8");
-const reconciliationResolveRoute = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
-const reconciliationFormError = readFileSync("lib/ai/reconciliation-form-error.ts", "utf8");
-const reconciliationFormTests = readFileSync("tests/ai-reconciliation-form-error.test.ts", "utf8");
-const reconciliationForm = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
-const singleActiveSubmissionSql = readFileSync("supabase/migrations/20261118060607_single_active_task_submission.sql", "utf8");
-const singleActiveSubmissionTests = readFileSync("supabase/tests/task_submission_uniqueness.test.sql", "utf8");
-const securityHeaderSource = readFileSync("lib/security/headers.ts", "utf8");
-const nextConfigSource = readFileSync("next.config.ts", "utf8");
-const securityHeaderTests = readFileSync("tests/security-headers.test.ts", "utf8");
-const submissionIndexCleanupSql = readFileSync("supabase/migrations/20261118061217_dedupe_active_submission_index.sql", "utf8");
-const publicTableGrantTests = readFileSync("supabase/tests/public_table_grants.test.sql", "utf8");
+const readText = (path) => readFileSync(path, "utf8").replace(/\r\n/g, "\n");
+
+const sql = readText("supabase/migrations/20261118003031_initial_schema.sql");
+const statusSql = readText("supabase/migrations/20261118003035_member_status_rls.sql");
+const budgetSql = readText("supabase/migrations/20261118003039_atomic_ai_budget_reservations.sql");
+const rewardSnapshotSql = readText("supabase/migrations/20261118003109_immutable_contribution_reward_snapshots.sql");
+const submissionLifecycleSql = readText("supabase/migrations/20261118003121_submission_appeal_lifecycle_hardening.sql");
+const hardStopSql = readText("supabase/migrations/20261118003043_ai_budget_overrun_hard_stop.sql");
+const idempotencySql = readText("supabase/migrations/20261118003047_ai_request_idempotency.sql");
+const rateLimitSql = readText("supabase/migrations/20261118003051_ai_request_rate_limits.sql");
+const singlePendingSql = readText("supabase/migrations/20261118003135_single_unresolved_ai_request_per_member.sql");
+const contributionReviewSql = readText("supabase/migrations/20261118003059_atomic_contribution_review.sql");
+const appealReviewSql = readText("supabase/migrations/20261118003104_atomic_appeal_review.sql");
+const appealReviewApi = readText("app/api/admin/contribution/appeals/route.ts");
+const appealReviewClient = readText("app/admin/appeals/appeal-review-client.tsx");
+const reviewApi = readText("app/api/admin/contribution/reviews/route.ts");
+const memberSummaryApi = readText("app/api/contribution/summary/route.ts");
+const appealApi = readText("app/api/contribution/appeals/route.ts");
+const memberContributionsClient = readText("app/contributions/member-contributions-client.tsx");
+const reviewClient = readText("app/admin/contributions/review-client.tsx");
+const env = readText(".env.example");
+const page = readText("app/page.tsx");
+const bodyReader = readText("lib/http/read-json-body.ts");
+const projectApi = readText("app/api/projects/route.ts");
+const conversationApi = readText("app/api/conversations/route.ts");
+const messageApi = readText("app/api/conversations/[id]/messages/route.ts");
+const contributionApi = readText("app/api/contribution/tasks/route.ts");
+const workspaceClient = readText("app/workspace/workspace-client.tsx");
+const aiPendingRecoveryApi = readText("app/api/ai/pending/route.ts");
+const pendingRecovery = readText("lib/ai/pending-recovery.ts");
+const aiHistory = readText("lib/ai/history.ts");
+const adminOpsApi = readText("app/api/admin/ai-operations/route.ts");
+const aiCostsApi = readText("app/api/admin/ai-costs/route.ts");
+const aiCostsClient = readText("app/admin/ai-costs/cost-dashboard-client.tsx");
+const adminTasksApi = readText("app/api/admin/contribution/tasks/route.ts");
+const taskAdminClient = readText("app/admin/contribution-tasks/tasks-client.tsx");
+const taskAdminRpcSql = readText("supabase/migrations/20261118050801_atomic_contribution_task_admin.sql");
+const providerlessReplaySql = readText("supabase/migrations/20261118060600_ai_providerless_completed_replay.sql");
+const aiChatApi = readText("app/api/ai/chat/route.ts");
+const idempotencyValidation = readText("lib/ai/idempotency.ts");
+const aiGatewayTests = readText("supabase/tests/ai_gateway.test.sql");
+const reconciliationInputSource = readText("lib/ai/reconciliation-input.ts");
+const reconciliationAuthSource = readText("lib/ai/reconciliation-auth.ts");
+const reconciliationInputTests = readText("tests/ai-reconciliation-input.test.ts");
+const reconciliationAuthTests = readText("tests/ai-reconciliation-auth.test.ts");
+const reconciliationResolveRoute = readText("app/api/admin/ai-reconciliation/resolve/route.ts");
+const reconciliationFormError = readText("lib/ai/reconciliation-form-error.ts");
+const reconciliationFormTests = readText("tests/ai-reconciliation-form-error.test.ts");
+const reconciliationForm = readText("app/admin/ai-operations/ai-reconciliation-form.tsx");
+const singleActiveSubmissionSql = readText("supabase/migrations/20261118060607_single_active_task_submission.sql");
+const singleActiveSubmissionTests = readText("supabase/tests/task_submission_uniqueness.test.sql");
+const securityHeaderSource = readText("lib/security/headers.ts");
+const nextConfigSource = readText("next.config.ts");
+const securityHeaderTests = readText("tests/security-headers.test.ts");
+const submissionIndexCleanupSql = readText("supabase/migrations/20261118061217_dedupe_active_submission_index.sql");
+const publicTableGrantTests = readText("supabase/tests/public_table_grants.test.sql");
 
 const tables = [...sql.matchAll(/create table public[.]([a-z_]+)/gi)].map((m) => m[1]);
 const rls = [...sql.matchAll(/alter table public[.]([a-z_]+) enable row level security;/gi)].map((m) => m[1]);
@@ -152,17 +154,17 @@ for (const forbidden of [
 console.log("Schema guard passed: RLS, immutable ledgers, restricted trigger RPC, account-status gates, atomic AI budget reservations, overrun hard-stop, bounded request parsing, and closed AI/signup defaults.");
 
 
-const aiGateway = readFileSync("app/api/ai/chat/route.ts", "utf8");
+const aiGateway = readText("app/api/ai/chat/route.ts");
 assert.ok(aiGateway.includes('buildAiProviderMessages'), "AI gateway must use the tested provider history builder");
 assert.ok(aiHistory.includes('item.role !== "assistant" && item.role !== "user"'), "Provider history builder must exclude system/tool and unknown roles");
 assert.ok(aiHistory.includes("totalCharacters + item.content.length > maxTotalCharacters"), "Provider history builder must enforce an aggregate character ceiling");
 
-const atomicAiSql = readFileSync("supabase/migrations/20261118003125_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
-const providerResponse = readFileSync("lib/ai/provider-response.ts", "utf8");
-const providerResponseTests = readFileSync("tests/ai-provider-response.test.ts", "utf8");
-const aiCostTests = readFileSync("tests/ai-cost.test.ts", "utf8");
-const aiReconciliationTests = readFileSync("supabase/tests/ai_reconciliation.test.sql", "utf8");
-const aiRuntimeConfig = readFileSync("lib/ai/config.ts", "utf8");
+const atomicAiSql = readText("supabase/migrations/20261118003125_atomic_ai_chat_completion_and_reconciliation.sql");
+const providerResponse = readText("lib/ai/provider-response.ts");
+const providerResponseTests = readText("tests/ai-provider-response.test.ts");
+const aiCostTests = readText("tests/ai-cost.test.ts");
+const aiReconciliationTests = readText("supabase/tests/ai_reconciliation.test.sql");
+const aiRuntimeConfig = readText("lib/ai/config.ts");
 assert.ok(aiGateway.includes('claim_ai_request'), "AI gateway must claim an idempotent request and reserve budget before provider calls");
 const claimPosition = aiGateway.indexOf('admin.rpc("claim_ai_request"');
 const routePreflightPosition = aiGateway.indexOf("const worstCaseCost");
@@ -271,7 +273,7 @@ assert.ok(workspaceClient.includes("pendingRecoveryBlocked") && workspaceClient.
 assert.ok(workspaceClient.includes("另一個對話的 AI 請求尚未確認"), "Workspace must explain why a second request is blocked");
 
 
-const retentionSql = readFileSync("supabase/migrations/20261118003055_ai_operational_retention.sql", "utf8");
+const retentionSql = readText("supabase/migrations/20261118003055_ai_operational_retention.sql");
 assert.ok(retentionSql.includes("cleanup_expired_ai_operational_records"));
 assert.ok(retentionSql.includes("state in ('completed', 'failed')"), "Cleanup must never delete processing idempotency rows");
 assert.ok(retentionSql.includes("interval '48 hours'"), "Rate-limit cleanup must retain recent windows");
@@ -345,8 +347,8 @@ assert.ok(taskAdminClient.includes('"建立草稿"'), "Task admin UI must create
 
 console.log("Contribution operations guard passed: task authoring, controlled publication, reviewer approval, and member ledger access.");
 
-const reconciliationQueueSql = readFileSync("supabase/migrations/20261118003129_bound_ai_reconciliation_queue.sql", "utf8");
-const reconciliationApi = readFileSync("app/api/admin/ai-reconciliation/route.ts", "utf8");
+const reconciliationQueueSql = readText("supabase/migrations/20261118003129_bound_ai_reconciliation_queue.sql");
+const reconciliationApi = readText("app/api/admin/ai-reconciliation/route.ts");
 assert.ok(aiGateway.includes('redirect: "error"'), "AI provider calls must reject unexpected redirects");
 assert.ok(reconciliationQueueSql.includes("limit 100;"), "Admin reconciliation query must have a hard result bound");
 assert.ok(reconciliationQueueSql.includes("ai_requests_stale_queue_idx"), "Stale AI queue must have a partial ordered index");
@@ -409,7 +411,7 @@ assert.ok(submissionLifecycleSql.includes("t.status = 'published'") && submissio
 assert.ok(submissionLifecycleSql.includes("for update") && submissionLifecycleSql.includes("v_contributor_id is distinct from new.appellant_id"),
   "Appeal creation must lock the rejected submission and verify its owner");
 
-const aiCompletionSql = readFileSync("supabase/migrations/20261118003125_atomic_ai_chat_completion_and_reconciliation.sql", "utf8");
+const aiCompletionSql = readText("supabase/migrations/20261118003125_atomic_ai_chat_completion_and_reconciliation.sql");
 assert.ok(aiCompletionSql.includes("v_request.conversation_id is distinct from p_conversation_id"),
   "AI completion must remain bound to the conversation persisted during the atomic claim");
 assert.ok(aiCompletionSql.includes("p_estimated_cost_twd > 9999999999.99999999"),
@@ -423,11 +425,11 @@ assert.ok(singlePendingSql.includes("p_preflight_cost_twd > 9999999999.99999999"
 assert.ok(singlePendingSql.includes("p_max_cost_twd::text in ('NaN', 'Infinity', '-Infinity')"),
   "AI claim must reject non-finite reservation ceilings");
 
-const reconciliationSql = readFileSync("supabase/migrations/20261118003138_audited_ai_reconciliation_resolution.sql", "utf8") + "\n" + readFileSync("supabase/migrations/20261118005041_service_role_ai_reconciliation.sql", "utf8");
-const reconciliationResolveApi = readFileSync("app/api/admin/ai-reconciliation/resolve/route.ts", "utf8");
-const reconciliationUi = readFileSync("app/admin/ai-operations/ai-reconciliation-form.tsx", "utf8");
+const reconciliationSql = readText("supabase/migrations/20261118003138_audited_ai_reconciliation_resolution.sql") + "\n" + readText("supabase/migrations/20261118005041_service_role_ai_reconciliation.sql");
+const reconciliationResolveApi = readText("app/api/admin/ai-reconciliation/resolve/route.ts");
+const reconciliationUi = readText("app/admin/ai-operations/ai-reconciliation-form.tsx");
 
-const reconciliationOperationsPage = readFileSync("app/admin/ai-operations/page.tsx", "utf8");
+const reconciliationOperationsPage = readText("app/admin/ai-operations/page.tsx");
 assert.ok(reconciliationSql.includes("where id = p_actor_id"),
   "Reconciliation RPC must verify the supplied actor against the authoritative profile row");
 assert.ok(reconciliationSql.includes("v_profile.role <> 'admin'") && reconciliationSql.includes("v_profile.account_status <> 'active'"),
@@ -462,25 +464,25 @@ assert.ok(reconciliationOperationsPage.includes("event.evidence_reference") &&
   reconciliationOperationsPage.includes("event.actor_id"),
   "Admin reconciliation history must expose evidence, rationale, and accountable actor metadata");
 
-const projectsApi = readFileSync("app/api/projects/route.ts", "utf8");
-const projectDetailApi = readFileSync("app/api/projects/[id]/route.ts", "utf8");
+const projectsApi = readText("app/api/projects/route.ts");
+const projectDetailApi = readText("app/api/projects/[id]/route.ts");
 assert.ok(projectsApi.includes('request.nextUrl.searchParams.get("includeArchived")'),
   "Project listing must support explicit inclusion of archived records");
 assert.ok(projectsApi.includes('.is("archived_at", null)'),
   "Archived projects must be excluded from the default active-project list");
 assert.ok(projectDetailApi.includes("typeof input.archived !== \"boolean\"") && projectDetailApi.includes("updates.archived_at"),
   "Project archive and restore operations must accept only a boolean state");
-const projectsPage = readFileSync("app/projects/page.tsx", "utf8");
-const projectsClient = readFileSync("app/projects/projects-client.tsx", "utf8");
+const projectsPage = readText("app/projects/page.tsx");
+const projectsClient = readText("app/projects/projects-client.tsx");
 assert.ok(projectsPage.includes("getUser()") && projectsPage.includes("redirect(\"/login\")"),
   "Project management page must require an authenticated member session");
 assert.ok(projectsClient.includes('fetch("/api/projects?includeArchived=true"') && projectsClient.includes('method: "PATCH"'),
   "Project management UI must load archived records and use the owned-project archive API");
 assert.ok(projectsClient.includes("還原專案") && projectsClient.includes("封存專案"),
   "Project management UI must expose both archive and restore actions");
-const conversationsApi = readFileSync("app/api/conversations/route.ts", "utf8");
-const conversationProjectApi = readFileSync("app/api/conversations/[id]/route.ts", "utf8");
-const projectLinkedWorkspaceClient = readFileSync("app/workspace/workspace-client.tsx", "utf8");
+const conversationsApi = readText("app/api/conversations/route.ts");
+const conversationProjectApi = readText("app/api/conversations/[id]/route.ts");
+const projectLinkedWorkspaceClient = readText("app/workspace/workspace-client.tsx");
 assert.ok(conversationsApi.includes('.eq("owner_id", auth.user.id)') && conversationsApi.includes('.is("archived_at", null)'),
   "Conversation creation must reject projects not owned by the member or already archived");
 assert.ok(projectLinkedWorkspaceClient.includes('fetch("/api/projects", { cache: "no-store" })') &&
@@ -488,8 +490,8 @@ assert.ok(projectLinkedWorkspaceClient.includes('fetch("/api/projects", { cache:
   "Workspace must load active projects and persist the selected project on new conversations");
 assert.ok(projectLinkedWorkspaceClient.includes("新對話歸屬專案") && projectLinkedWorkspaceClient.includes("未分類對話"),
   "Workspace must expose project assignment and identify unclassified conversations");
-const projectOwnershipSql = readFileSync("supabase/migrations/20261118003142_conversation_project_ownership.sql", "utf8");
-const projectOwnershipTests = readFileSync("supabase/tests/project_conversation_security.test.sql", "utf8");
+const projectOwnershipSql = readText("supabase/migrations/20261118003142_conversation_project_ownership.sql");
+const projectOwnershipTests = readText("supabase/tests/project_conversation_security.test.sql");
 assert.ok(projectOwnershipSql.includes("v_project_owner is distinct from new.owner_id") &&
   projectOwnershipSql.includes("v_archived_at is not null"),
   "Database trigger must reject cross-owner and archived project links");
@@ -497,7 +499,7 @@ assert.ok(projectOwnershipSql.includes("before insert or update of project_id, o
   "Conversation project ownership must be enforced on inserts and relinking updates");
 assert.ok(projectOwnershipTests.includes("cross-owner and archived project associations are rejected"),
   "Database tests must cover invalid project associations");
-const projectMetadataUi = readFileSync("app/projects/projects-client.tsx", "utf8");
+const projectMetadataUi = readText("app/projects/projects-client.tsx");
 assert.ok(projectMetadataUi.includes("async function saveProject(project: Project)") &&
   projectMetadataUi.includes("JSON.stringify({ title: editTitle, description: editDescription.trim() || null })"),
   "Project management UI must support editing title and description through the authenticated PATCH endpoint");
@@ -515,7 +517,7 @@ assert.ok(projectLinkedWorkspaceClient.includes('method: "PATCH"') &&
   projectLinkedWorkspaceClient.includes("assignConversationProject"),
   "Workspace must allow existing conversations to be reassigned or unassigned from active projects");
 
-const projectOwnershipLockSql = readFileSync("supabase/migrations/20261118003146_conversation_project_locking.sql", "utf8");
+const projectOwnershipLockSql = readText("supabase/migrations/20261118003146_conversation_project_locking.sql");
 assert.ok(projectOwnershipLockSql.includes("for share") && !projectOwnershipLockSql.includes("for key share"),
   "Project ownership trigger must take a row lock that conflicts with concurrent archived_at updates");
 assert.ok(projectOwnershipTests.includes("project row lock conflicts with concurrent archive updates"),
