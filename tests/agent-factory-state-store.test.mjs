@@ -101,3 +101,66 @@ test("uses a supplied state Issue number without scanning the full issue list", 
   assert.equal(result.issue.number, 100);
   assert.equal(store.getStateIssueNumber(), 100);
 });
+
+
+test("recovers an ambiguous state Issue creation after GitHub persisted the Issue but lost the response", async () => {
+  const fake = fakeApi();
+  const originalRequest = fake.client.request;
+  let losePostResponse = true;
+  fake.client.request = async (path, options = {}) => {
+    const result = await originalRequest(path, options);
+    if (path.endsWith("/issues") && options.method === "POST" && losePostResponse) {
+      losePostResponse = false;
+      throw new Error("simulated connection reset after GitHub created the Issue");
+    }
+    return result;
+  };
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const next = recordSystemFailure(
+    createInitialFactoryState(1000),
+    "run-create-ambiguous-1",
+    "API_TIMEOUT",
+    "response lost after persistence",
+    2000,
+  ).state;
+  const result = await store.write(0, next);
+  assert.equal(result.recovered, true);
+  assert.equal(result.issue.number, 100);
+  assert.equal(fake.issues.length, 1);
+  assert.equal((await store.read()).state.state_version, 1);
+});
+
+test("recovers an ambiguous state Issue update after GitHub persisted the PATCH but lost the response", async () => {
+  const fake = fakeApi();
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const initial = recordSystemFailure(
+    createInitialFactoryState(1000),
+    "run-patch-initial-1",
+    "API_TIMEOUT",
+    "initial",
+    2000,
+  ).state;
+  await store.write(0, initial);
+  const originalRequest = fake.client.request;
+  let losePatchResponse = true;
+  fake.client.request = async (path, options = {}) => {
+    const result = await originalRequest(path, options);
+    if (/\\/issues\\/\\d+$/.test(path) && options.method === "PATCH" && losePatchResponse) {
+      losePatchResponse = false;
+      throw new Error("simulated connection reset after GitHub persisted the PATCH");
+    }
+    return result;
+  };
+  const next = recordSystemFailure(
+    initial,
+    "run-patch-ambiguous-2",
+    "API_TIMEOUT",
+    "response lost after update",
+    3000,
+  ).state;
+  const result = await store.write(1, next);
+  assert.equal(result.recovered, true);
+  assert.equal(result.state.state_version, 2);
+  assert.equal((await store.read()).state.state_version, 2);
+  assert.equal(fake.issues.length, 1);
+});
