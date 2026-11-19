@@ -2,11 +2,13 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { apiCooldownUntil, cooldownActive, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
+import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
 
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
 const mode = process.env.AGENT_FACTORY_MODE ?? "check";
 const output = process.env.GITHUB_OUTPUT ?? "";
+const writeOutput = (key, value) => { if (output) appendFileSync(output, key + "=" + String(value) + "\n", "utf8"); };
 if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
 const [owner] = repository.split("/");
 const base = "https://api.github.com/repos/" + repository;
@@ -20,6 +22,13 @@ function saveLocalState(value) {
   writeFileSync(localStatePath, JSON.stringify(value, null, 2) + "\n", "utf8");
 }
 const localState = readLocalState();
+if (mode === "check" && cooldownActive(localState)) {
+  writeOutput("cooldown_active", true);
+  writeOutput("cooldown_until", localState.cooldown_until);
+  writeOutput("skipped_issues", (localState.skipped_issue_numbers ?? []).join(","));
+  console.log("Local circuit breaker active until " + localState.cooldown_until + "; skipped GitHub API calls and task work.");
+  process.exit(0);
+}
 let effectiveState = localState;
 const headers = { Accept: "application/vnd.github+json", Authorization: "Bearer " + token, "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" };
 
@@ -61,7 +70,6 @@ async function persistState(issues, state) {
   await api("/issues/" + existing.number, { method: "PATCH", body: JSON.stringify({ body: stateBody(state) }) });
   return existing;
 }
-const writeOutput = (key, value) => { if (output) appendFileSync(output, key + "=" + String(value) + "\n", "utf8"); };
 async function inferFailedIssueNumber() {
   const explicit = Number(process.env.FAILED_ISSUE_NUMBER);
   if (Number.isInteger(explicit) && explicit > 0) return explicit;
@@ -69,25 +77,34 @@ async function inferFailedIssueNumber() {
     const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
     const dispatchedIssue = Number(event.inputs?.issue_number ?? event.issue?.number ?? 0);
     if (Number.isInteger(dispatchedIssue) && dispatchedIssue > 0) return dispatchedIssue;
+
+    let branch = event.pull_request?.head?.ref ?? "";
     let body = event.pull_request?.body ?? "";
-    if (!body && typeof event.ref === "string") {
-      const branch = event.ref.startsWith("refs/heads/") ? event.ref.slice("refs/heads/".length) : event.ref;
+
+    const dispatchedPullNumber = Number(event.client_payload?.pull_request_number ?? 0);
+    if (Number.isInteger(dispatchedPullNumber) && dispatchedPullNumber > 0) {
+      const pull = await api("/pulls/" + dispatchedPullNumber);
+      branch = pull.head?.ref ?? branch;
+      body = pull.body ?? body;
+    }
+
+    if (!branch && typeof event.ref === "string") {
+      branch = event.ref.startsWith("refs/heads/") ? event.ref.slice("refs/heads/".length) : event.ref;
+    }
+
+    let issueNumber = inferTaskIssueNumber({ branch, body });
+    if (issueNumber) return issueNumber;
+
+    if (!body && branch) {
       const pulls = await api("/pulls?state=open&head=" + encodeURIComponent(owner + ":" + branch) + "&per_page=20");
       body = pulls.find((pull) => pull.head?.ref === branch)?.body ?? "";
+      issueNumber = inferTaskIssueNumber({ branch, body });
     }
-    return Number(/<!-- ai-task:([0-9]+) -->/.exec(body)?.[1]) || null;
+    return issueNumber;
   } catch {
     return null;
   }
 }
-if (mode === "check" && cooldownActive(localState)) {
-  writeOutput("cooldown_active", true);
-  writeOutput("cooldown_until", localState.cooldown_until);
-  writeOutput("skipped_issues", (localState.skipped_issue_numbers ?? []).join(","));
-  console.log("Local circuit breaker active until " + localState.cooldown_until + "; skipped GitHub API calls and task work.");
-  process.exit(0);
-}
-
 try {
   const allIssues = await listIssues("all");
   const stateIssue = allIssues.find(isStateIssue);
@@ -106,7 +123,9 @@ try {
     console.log(active ? "Circuit breaker active until " + state.cooldown_until + "; no task is started." : "Circuit breaker clear.");
   } else if (mode === "failure") {
     const failedIssueNumber = await inferFailedIssueNumber();
-    state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.", Date.now(), failedIssueNumber);
+    const requestedScope = process.env.AGENT_FACTORY_FAILURE_SCOPE === "task" ? "task" : "system";
+    const failureScope = requestedScope === "task" && failedIssueNumber ? "task" : "system";
+    state = nextFailureState(state, process.env.FAILURE_SUMMARY || "Task workflow failed; inspect the Actions run.", Date.now(), failedIssueNumber, failureScope);
     effectiveState = state;
     saveLocalState(state);
     await persistState(allIssues, state);
@@ -118,13 +137,30 @@ try {
         }),
       });
     }
-    console.log("Recorded consecutive failure " + state.consecutive_failures + "/3. " + (state.cooldown_until ? "Cooldown until " + state.cooldown_until : "Next failure triggers 15 minutes of cooldown."));
+    console.log(failureScope === "task"
+      ? "Recorded task-scoped failure for issue #" + failedIssueNumber + " (" + (state.task_failures[String(failedIssueNumber)] ?? 0) + "/" + 3 + "). " + ((state.skipped_issue_numbers ?? []).includes(failedIssueNumber) ? "Task quarantined; other queued tasks remain eligible." : "Global circuit breaker unchanged.")
+      : "Recorded system-scoped failure " + state.consecutive_failures + "/3. " + (state.cooldown_until ? "Cooldown until " + state.cooldown_until : "Next system failure may trigger 15 minutes of cooldown."));
   } else if (mode === "success") {
-    const reset = successState(Date.now(), state, Number(process.env.COMPLETED_ISSUE_NUMBER) || null);
+    const requestedSuccessScope = process.env.AGENT_FACTORY_SUCCESS_SCOPE ?? "system";
+    const explicitCompletedIssueNumber = Number(process.env.COMPLETED_ISSUE_NUMBER) || null;
+    const inferredCompletedIssueNumber = requestedSuccessScope === "task_and_system"
+      ? await inferFailedIssueNumber()
+      : null;
+    const completedIssueNumber = explicitCompletedIssueNumber || inferredCompletedIssueNumber;
+    const successScope = requestedSuccessScope === "task" && completedIssueNumber
+      ? "task"
+      : requestedSuccessScope === "task_and_system" && completedIssueNumber
+        ? "task_and_system"
+        : "system";
+    const reset = successState(Date.now(), state, completedIssueNumber, successScope);
     effectiveState = reset;
     saveLocalState(reset);
     await persistState(allIssues, reset);
-    console.log("Successful task publication recorded; circuit breaker reset.");
+    console.log(successScope === "task"
+      ? "Successful task publication recorded; only issue #" + completedIssueNumber + " retry state was cleared."
+      : successScope === "task_and_system"
+        ? "Verified CI success cleared global cooldown and issue #" + completedIssueNumber + " retry state."
+        : "System-level success recorded; global circuit breaker reset.");
   } else if (mode === "plan") {
     const openIssues = await listIssues("open");
     const allPulls = await api("/pulls?state=all&per_page=100");
