@@ -467,7 +467,11 @@ test("check mode excludes quarantined tasks from the pending planner count", asy
       "candidate test failed",
       attemptNow + 200,
     ).state;
-    if (attempt < 3) state = requeueTask(state, 42, attemptNow + 60_200);
+    if (attempt < 3) state = requeueTask(
+      state,
+      42,
+      attemptNow + 200 + (60_000 * (2 ** (attempt - 1))),
+    );
   }
   assert.equal(state.tasks["42"].quarantined, true);
   const store = fakeStore(state);
