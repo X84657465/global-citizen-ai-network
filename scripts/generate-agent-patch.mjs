@@ -9,6 +9,7 @@ import {
 import { execFileSync } from "node:child_process";
 import { dirname, resolve, sep } from "node:path";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
 
 const fail = (message) => {
   console.error("Agent patch generation failed: " + message);
@@ -173,6 +174,13 @@ if (models.length === 0) fail("No local Ollama model is installed.");
 models.sort((a, b) => (a.size ?? Number.MAX_SAFE_INTEGER) - (b.size ?? Number.MAX_SAFE_INTEGER));
 const model = models[0].name;
 
+const timeoutMs = Number(process.env.OLLAMA_PATCH_TIMEOUT_MS ?? 900000);
+if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 60000 || timeoutMs > 1800000) {
+  fail("OLLAMA_PATCH_TIMEOUT_MS must be between 60000 and 1800000 milliseconds.");
+}
+const outputTokenBudget = Math.min(12288, Math.max(4096, Math.ceil(contextBytes / 3)));
+console.log("Starting streamed Ollama patch generation: model=" + model + ", context_bytes=" + contextBytes + ", output_tokens=" + outputTokenBudget + ", timeout_ms=" + timeoutMs);
+
 let response;
 try {
   response = await fetch(baseUrl + "/api/generate", {
@@ -184,21 +192,28 @@ try {
       prompt: JSON.stringify(planningInput),
       format: patchSchema,
       think: false,
-      stream: false,
+      stream: true,
       keep_alive: "60s",
-      options: { temperature: 0, num_predict: 6144 }
+      options: { temperature: 0, num_predict: outputTokenBudget }
     }),
-    signal: AbortSignal.timeout(240000)
+    signal: AbortSignal.timeout(timeoutMs)
   });
 } catch {
   fail("Local model patch request failed or timed out.");
 }
 if (!response.ok) fail("Ollama patch generation returned HTTP " + response.status + ".");
+let lastProgressAt = Date.now();
 let result;
 try {
-  result = await response.json();
-} catch {
-  fail("Ollama patch response was not valid JSON.");
+  result = await collectOllamaGenerateStream(response.body, (progress) => {
+    const now = Date.now();
+    if (progress.done || now - lastProgressAt >= 30000) {
+      console.log("Ollama patch stream progress: chunks=" + progress.chunk_count + ", response_chars=" + progress.response_characters + ", eval_count=" + (progress.eval_count ?? "pending"));
+      lastProgressAt = now;
+    }
+  });
+} catch (error) {
+  fail("Local model patch stream failed or timed out: " + (error instanceof Error ? error.message : "unknown stream error"));
 }
 if (typeof result.response !== "string" || result.response.length === 0) {
   fail("Local model returned an empty patch proposal.");

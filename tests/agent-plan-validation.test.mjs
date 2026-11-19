@@ -100,3 +100,34 @@ test("rejects plans with too many tasks", () => {
   }));
   rejects(() => validateAgentPlan(plan(tasks), task), /between 1 and 12/);
 });
+
+
+test("collects Ollama NDJSON response fragments across split UTF-8 chunks", async () => {
+  const encoder = new TextEncoder();
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode('{"response":"hello "'));
+      controller.enqueue(encoder.encode(',"done":false}\\r\\n{"response":"世界","done":true,"done_reason":"stop","eval_count":4}\\n'));
+      controller.close();
+    },
+  });
+  const progress = [];
+  const result = await collectOllamaGenerateStream(body, (value) => progress.push(value));
+  assert.equal(result.response, "hello 世界");
+  assert.equal(result.done_reason, "stop");
+  assert.equal(result.eval_count, 4);
+  assert.equal(progress.at(-1).done, true);
+});
+
+test("rejects malformed Ollama stream chunks and streams without completion markers", async () => {
+  const encoder = new TextEncoder();
+  const malformed = new ReadableStream({
+    start(controller) { controller.enqueue(encoder.encode("{not-json}\\n")); controller.close(); },
+  });
+  await assert.rejects(() => collectOllamaGenerateStream(malformed), /invalid NDJSON/);
+
+  const incomplete = new ReadableStream({
+    start(controller) { controller.enqueue(encoder.encode('{"response":"partial","done":false}\\n')); controller.close(); },
+  });
+  await assert.rejects(() => collectOllamaGenerateStream(incomplete), /without a completion marker/);
+});
