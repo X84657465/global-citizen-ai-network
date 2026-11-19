@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { AgentPlanValidationError, validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
+import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 
 const task = {
   schema_version: 1,
@@ -147,4 +149,18 @@ test("rejects invalid and duplicate patch batch paths", () => {
   assert.throws(() => splitPatchPathsIntoBatches([]), /non-empty array/);
   assert.throws(() => splitPatchPathsIntoBatches(["app/a.tsx", "APP/A.TSX"]), /unique/);
   assert.throws(() => splitPatchPathsIntoBatches(["app/a.tsx"], 0), /between 1 and 20/);
+});
+
+
+test("sends only the current batch source files to Ollama", () => {
+  const context = [
+    { path: "app/a.tsx", operation: "modify", content: "A".repeat(100) },
+    { path: "app/b.tsx", operation: "modify", content: "B".repeat(200) },
+    { path: "app/c.tsx", operation: "modify", content: "C".repeat(300) },
+  ];
+  const selected = selectPatchBatchSourceFiles(context, ["app/c.tsx", "app/a.tsx"]);
+  assert.deepEqual(selected.map((file) => file.path), ["app/c.tsx", "app/a.tsx"]);
+  assert.equal(selected.reduce((sum, file) => sum + file.content.length, 0), 400);
+  assert.throws(() => selectPatchBatchSourceFiles(context, ["app/missing.tsx"]), /Missing source context/);
+  assert.throws(() => selectPatchBatchSourceFiles([context[0], context[0]], ["app/a.tsx"]), /unique/);
 });

@@ -10,7 +10,7 @@ import { execFileSync } from "node:child_process";
 import { dirname, resolve, sep } from "node:path";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
-import { splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
+import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 
 const fail = (message) => {
   console.error("Agent patch generation failed: " + message);
@@ -111,7 +111,6 @@ const basePlanningInput = {
   goal: task.goal,
   acceptance_criteria: task.acceptance_criteria,
   explicit_exclusions: task.explicit_exclusions,
-  source_files: fileContext,
 };
 
 const systemPrompt = [
@@ -188,8 +187,8 @@ console.log("Starting streamed Ollama patch generation: model=" + model +
 for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
   const batchPaths = patchBatches[batchIndex];
   const batchPathSet = new Set(batchPaths.map((path) => path.toLowerCase()));
-  const batchSourceBytes = fileContext
-    .filter((file) => batchPathSet.has(file.path.toLowerCase()))
+  const batchSourceFiles = selectPatchBatchSourceFiles(fileContext, batchPaths);
+  const batchSourceBytes = batchSourceFiles
     .reduce((total, file) => total + (file.content === null ? 0 : Buffer.byteLength(file.content, "utf8")), 0);
   const outputTokenBudget = Math.min(16384, Math.max(4096, Math.ceil(batchSourceBytes / 3)));
   const remainingMs = timeoutMs - (Date.now() - generationStartedAt);
@@ -207,6 +206,7 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
 
   const planningInput = {
     ...basePlanningInput,
+    source_files: batchSourceFiles,
     approved_patch_paths: batchPaths,
     implementation_plan: implementationPlan,
     patch_batch: {
