@@ -1,4 +1,5 @@
 import {
+  appendFileSync,
   existsSync,
   readFileSync,
   lstatSync,
@@ -12,7 +13,7 @@ import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 const fail = (message, scope = "system") => {
   if (scope === "task" && process.env.GITHUB_ENV) {
-    appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+    appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
   }
   console.error("Agent patch generation failed: " + message);
   process.exit(1);

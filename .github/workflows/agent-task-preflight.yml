@@ -601,12 +601,11 @@ jobs:
       - name: Classify known task-scoped failures before updating factory state
         if: failure()
         env:
-          PRECLASSIFIED_SCOPE: ${{ env.AGENT_FACTORY_FAILURE_SCOPE }}
           APPLY_SCRATCH_OUTCOME: ${{ steps.apply-scratch.outcome }}
           CANDIDATE_TESTS_OUTCOME: ${{ steps.candidate-tests.outcome }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
-          if ($env:PRECLASSIFIED_SCOPE -eq "task" -or $env:APPLY_SCRATCH_OUTCOME -eq "failure" -or $env:CANDIDATE_TESTS_OUTCOME -eq "failure") {
+          if ($env:AGENT_FACTORY_FAILURE_SCOPE -eq "task" -or $env:APPLY_SCRATCH_OUTCOME -eq "failure" -or $env:CANDIDATE_TESTS_OUTCOME -eq "failure") {
             [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task`n", [System.Text.UTF8Encoding]::new($false))
             Write-Host "Preserved or confirmed task-scoped validation failure."
           } else {

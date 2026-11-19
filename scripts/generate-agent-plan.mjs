@@ -3,7 +3,7 @@ import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 
 const fail = (message, scope = "system") => {
   if (scope === "task" && process.env.GITHUB_ENV) {
-    appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+    appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
   }
   console.error("Agent planning failed: " + message);
   process.exit(1);
