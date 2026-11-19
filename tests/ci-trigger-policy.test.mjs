@@ -22,3 +22,8 @@ test("CI never auto-approves or merges AI task pull requests; human approval is 
   assert.equal(workflow.includes("markPullRequestReadyForReview"), false);
   assert.equal(workflow.includes("github.rest.pulls.merge"), false);
 });
+
+test("Supabase CI allocates Docker-published ports outside the Windows dynamic TCP range", () => {
+  assert.ok(workflow.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)"));
+  assert.equal(workflow.includes("$candidate = 55000 +"), false);
+});
