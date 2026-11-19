@@ -125,6 +125,20 @@ test("transition mode is idempotent for a repeated exact lease transition", asyn
   assert.equal(second.state.state_version, first.state.state_version);
 });
 
+test("failure event identity rejects a missing workflow run attempt", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "failure",
+    GITHUB_RUN_ID: "missing-attempt-run",
+    FAILURE_STAGE: "build",
+  }), /Workflow run attempt must be a positive integer/);
+
+  assert.equal(store.state.state_version, 0);
+  assert.equal(store.writeCount, 0);
+});
+
 test("task-scoped failure requires and releases the exact active lease", async () => {
   const store = fakeStore(createInitialFactoryState(1000));
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
