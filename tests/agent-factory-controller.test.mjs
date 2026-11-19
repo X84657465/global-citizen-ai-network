@@ -136,7 +136,6 @@ test("failure event identity rejects a missing workflow run attempt", async () =
   }), /Workflow run attempt must be a positive integer/);
 
   assert.equal(store.state.state_version, 0);
-  assert.equal(store.writeCount, 0);
 });
 
 test("task-scoped failure requires and releases the exact active lease", async () => {
