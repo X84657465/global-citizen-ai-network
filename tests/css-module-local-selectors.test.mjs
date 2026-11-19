@@ -11,7 +11,7 @@ function findCssModules(directory) {
   });
 }
 
-const forbiddenGlobalTags = /^(?:html|body|main|header|footer|table|thead|tbody|tr|td|th|button|input|select|textarea|a|p|h1|h2|ul|ol|li|section|article|nav)(?:\\b|[#.:\\[>+~])/;
+const forbiddenGlobalTags = /^(?:html|body|main|header|footer|table|thead|tbody|tr|td|th|button|input|select|textarea|a|p|h1|h2|ul|ol|li|section|article|nav)(?:\b|[.#:]|\[|[>+~])/;
 
 test("CSS Modules do not declare unscoped global element selectors", () => {
   const files = findCssModules("app");
@@ -19,7 +19,7 @@ test("CSS Modules do not declare unscoped global element selectors", () => {
 
   for (const file of files) {
     const css = readFileSync(file, "utf8");
-    const selectorBlocks = /(?:^|})\\s*([^{}]+)\\{/g;
+    const selectorBlocks = /(?:^|})\s*([^{}]+)\{/g;
     for (const match of css.matchAll(selectorBlocks)) {
       const selectorGroup = match[1].trim();
       if (!selectorGroup || selectorGroup.startsWith("@")) continue;
