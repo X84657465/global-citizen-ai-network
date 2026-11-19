@@ -6,6 +6,7 @@ import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { scratchPatchEvidenceMatches } from "../lib/agent-scratch-evidence.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { ensureDeterministicBranch } from "../lib/agent-publisher-branch.mjs";
+import { collectGitHubPages } from "../lib/github-pagination.mjs";
 
 const fail = (message) => {
   console.error("Agent PR publishing rejected: " + message);
@@ -115,14 +116,15 @@ if (!scratchPatchEvidenceMatches(scratch.patched_files, validatedPatch.files)) {
   fail("Scratch test evidence does not match the exact validated patch content.");
 }
 
+const canonicalPatchFiles = [...validatedPatch.files].sort((a, b) => a.path.localeCompare(b.path));
 const digest = createHash("sha256")
-  .update(JSON.stringify(validatedPatch.files))
+  .update(JSON.stringify(canonicalPatchFiles))
   .digest("hex")
   .slice(0, 12);
 const branch = "ai-task/issue-" + issueNumber + "-" + digest;
 const safeIssueTitle = task.issue.title.replace(/[\r\n]+/g, " ").trim().slice(0, 120);
 const pullTitle = ("[AI Task #" + issueNumber + "] " + safeIssueTitle).slice(0, 240);
-const changedFiles = validatedPatch.files.map((file) => "- " + file.path + " (" + file.operation + ")").join("\n");
+const changedFiles = canonicalPatchFiles.map((file) => "- " + file.path + " (" + file.operation + ")").join("\n");
 const criteria = task.acceptance_criteria.map((item) => "- " + item).join("\n");
 const body = [
   "<!-- ai-task:" + issueNumber + " -->",
@@ -171,7 +173,7 @@ if (dryRun) {
     branch,
     title: pullTitle,
     draft: true,
-    changed_files: validatedPatch.files.map((file) => file.path),
+    changed_files: canonicalPatchFiles.map((file) => file.path),
     no_api_writes: true,
     merge_policy: "human_approval_required",
     automatic_merge: false,
@@ -216,7 +218,9 @@ try {
     fail("Default branch advanced after candidate tests; rerun the task against the latest base.");
   }
 
-  const openPulls = await api("/repos/" + repository + "/pulls?state=open&per_page=100");
+  const openPulls = await collectGitHubPages((page) =>
+    api("/repos/" + repository + "/pulls?state=open&per_page=100&page=" + page)
+  );
   if (!Array.isArray(openPulls)) fail("GitHub returned an invalid open pull-request list.");
   const matchingPulls = openPulls.filter((pull) => pull.body?.includes("<!-- ai-task:" + issueNumber + " -->"));
   if (matchingPulls.length > 1) fail("Multiple open pull requests exist for this task; refusing ambiguous publication.");
@@ -244,7 +248,7 @@ try {
 
   const baseCommitInfo = await api("/repos/" + repository + "/git/commits/" + baseCommit);
   const blobEntries = [];
-  for (const file of validatedPatch.files) {
+  for (const file of canonicalPatchFiles) {
     const blob = await api("/repos/" + repository + "/git/blobs", "POST", {
       content: file.content,
       encoding: "utf-8",
@@ -307,7 +311,9 @@ try {
     });
     pullCreated = true;
   } catch (createError) {
-    const refreshedPulls = await api("/repos/" + repository + "/pulls?state=open&per_page=100");
+    const refreshedPulls = await collectGitHubPages((page) =>
+      api("/repos/" + repository + "/pulls?state=open&per_page=100&page=" + page)
+    );
     const recovered = Array.isArray(refreshedPulls)
       ? refreshedPulls.find((item) =>
           item.body?.includes("<!-- ai-task:" + issueNumber + " -->") &&
