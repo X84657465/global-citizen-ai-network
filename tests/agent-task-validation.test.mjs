@@ -111,3 +111,14 @@ test("accepts only explicitly planner-marked automation-authored issues", () => 
     /repository-owner tasks or explicitly planner-generated tasks/,
   );
 });
+
+
+test("accepts an optional P0-P3 priority section without weakening required sections", () => {
+  const issue = validIssue({ body: validIssue().body.replace("## Goal", "## Priority\nP0 — security gate\n\n## Goal") });
+  const task = validateAndBuildTask(issue, "X84657465/global-citizen-ai-network");
+  assert.equal(task.priority, "P0 — security gate");
+  const duplicate = validIssue({ body: issue.body + "\n## Priority\nP1" });
+  assert.throws(() => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"), /Duplicate section/);
+  const invalid = validIssue({ body: validIssue().body.replace("## Goal", "## Priority\nUrgent\n\n## Goal") });
+  assert.throws(() => validateAndBuildTask(invalid, "X84657465/global-citizen-ai-network"), /P0-P3/);
+});
