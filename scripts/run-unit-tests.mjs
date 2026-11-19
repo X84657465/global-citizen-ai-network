@@ -12,7 +12,13 @@ function collectTestFiles(directory) {
     });
 }
 
-const testFiles = collectTestFiles("tests").sort();
+const databaseIntegrationTests = new Set(["tests/security/two-member-rls.test.mjs"]);
+const discoveredTestFiles = collectTestFiles("tests").map((path) => path.replaceAll("\\\\", "/")).sort();
+const testFiles = discoveredTestFiles.filter((path) => !databaseIntegrationTests.has(path));
+const deferredDatabaseTests = discoveredTestFiles.filter((path) => databaseIntegrationTests.has(path));
+if (deferredDatabaseTests.length > 0) {
+  console.log("Database-backed integration tests are executed by the isolated Supabase CI job: " + deferredDatabaseTests.join(", "));
+}
 if (testFiles.length === 0) {
   console.error("No unit test files were found under tests/.");
   process.exitCode = 1;
