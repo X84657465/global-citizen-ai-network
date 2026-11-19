@@ -37,3 +37,11 @@
 
 ### Verification
 - Exact-head CI required for this commit.
+
+## 0.1.4 — 2026-11-20
+
+### Fixed
+- Correct the CSS Module selector regression guard so its regular expressions detect actual whitespace and element boundaries.
+
+### Verification
+- Exact-head CI required.
