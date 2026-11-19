@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createFactoryStateStore, FACTORY_STATE_ISSUE_TITLE } from "../lib/agent-factory-state-store.mjs";
+import { createFactoryStateStore, FACTORY_STATE_ISSUE_TITLE, MAX_STATE_ISSUE_BODY_CHARS } from "../lib/agent-factory-state-store.mjs";
 import { createInitialFactoryState, recordSystemFailure } from "../lib/agent-factory-state-machine.mjs";
 
 function fakeApi(initialIssues = []) {
@@ -255,4 +255,21 @@ test("rejects state writes that do not advance exactly one version", async () =>
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
   const state = createInitialFactoryState(1000);
   await assert.rejects(store.write(0, state), /advance exactly one version/);
+});
+
+test("refuses to write an oversized durable state Issue before issuing POST or PATCH", async () => {
+  const fake = fakeApi();
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const state = createInitialFactoryState(1000);
+  state.processed_events = Array.from(
+    { length: 500 },
+    (_, index) => "oversized-event-" + String(index).padStart(4, "0") + "-" + "x".repeat(180),
+  );
+  const before = fake.issues.length;
+  await assert.rejects(
+    store.write(0, state),
+    /exceeds the 60,000-character safety limit; refusing to write/,
+  );
+  assert.equal(fake.issues.length, before);
+  assert.equal(MAX_STATE_ISSUE_BODY_CHARS, 60_000);
 });
