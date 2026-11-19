@@ -122,7 +122,7 @@ test("task-scoped failure requires and releases the exact active lease", async (
   assert.equal(result.state.tasks["42"].status, "retry_wait");
 });
 
-test("candidate failure callback persists rejection then requeues without counting infrastructure failure", async () => {
+test("candidate failure callback persists rejection and delays retry without counting infrastructure failure", async () => {
   const store = fakeStore(awaitingCandidate());
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
   await startCandidate(controller, "555001");
@@ -138,10 +138,11 @@ test("candidate failure callback persists rejection then requeues without counti
   };
   const result = await controller.run(env);
   const duplicate = await controller.run(env);
-  assert.equal(result.state.tasks["42"].status, "queued");
+  assert.equal(result.state.tasks["42"].status, "candidate_rejected");
   assert.equal(duplicate.outputs.duplicate, true);
   assert.equal(duplicate.state.state_version, result.state.state_version);
-  assert.equal(result.state.tasks["42"].candidate_status, "retry_queued");
+  assert.equal(result.state.tasks["42"].candidate_status, "failure");
+  assert.equal(result.state.tasks["42"].next_attempt_at, new Date(63_000).toISOString());
   assert.equal(result.state.tasks["42"].candidate_failures, 1);
   assert.equal(result.state.tasks["42"].failures, 0);
   assert.equal(result.state.system.consecutive_failures, 0);
