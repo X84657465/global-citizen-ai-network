@@ -1,6 +1,6 @@
 # Global Citizen AI Network — Agent Handoff
 
-**Last verified:** 2026-11-19 00:38 UTC  
+**Last verified:** 2026-11-19 00:40 UTC  
 **Main commit:** `e60cc24fc0b4bcf0e68ca5e69942bbf20cb368f0`
 
 ## Current system state
@@ -22,14 +22,14 @@
 
 - **PR #101** — durable handoff file proposal; open and unmerged, based on the pre-factory main SHA. This file is being reintroduced on a branch based on current main.
 - **PR #103 / Issue #17** — development dependency audit evidence and regression guard; open Draft PR. Its recorded CI failure was against the older base SHA `bbb4d9d...`; rerun against current main is required before judging the current revision.
-- **PR #108 / Issue #81** — disposable two-member RLS integration harness; open Draft PR. Run #44428907848: database job passed, build job failed because ESLint found a malformed escaped newline in `tests/security/two-member-rls.test.mjs`. Fixed the line break in commit `e5dedffa7465903fc73d3892be0940fc061f5161`; latest CI Run #44430497190 is queued. Recheck exact-head CI.
+- **PR #108 / Issue #81** — disposable two-member RLS integration harness; open Draft PR. Run #44428907848: database job passed, build job failed because ESLint found a malformed escaped newline in `tests/security/two-member-rls.test.mjs`. Fixed the line break in commit `e5dedffa7465903fc73d3892be0940fc061f5161`; latest CI Run #44430497190 is queued. Recheck exact-head CI. Issue #94 was reformatted into the exact four-section task schema and its write paths were restricted to tests/docs because `supabase` is a protected root.
 - Other open task PRs exist for Issues #3, #71, #72, and #76. Do not dispatch duplicate work for an Issue that already has an active PR.
 
 ## Current blocker discovered
 
 Both `.github/workflows/ci.yml` and `.github/workflows/agent-task-preflight.yml` used the same repository-wide concurrency group with `cancel-in-progress: false`. GitHub concurrency groups retain only one pending run by default; new runs can replace an older pending run. A simultaneous CI push and factory preflight run therefore risked suppressing the factory poll. This is the reason for the current follow-up PR:
 
-- **PR #109:** `codex/isolate-ci-and-agent-queue` gives CI and the agent factory separate concurrency groups. Draft PR #109 is open: https://github.com/X84657465/global-citizen-ai-network/pull/109. The single Windows Runner still serializes actual job execution, while CI events can no longer replace the factory's pending workflow run. Exact-head CI is pending.
+- **PR #109:** `codex/isolate-ci-and-agent-queue` gives CI and the agent factory separate concurrency groups. Draft PR #109 is open: https://github.com/X84657465/global-citizen-ai-network/pull/109. The single Windows Runner still serializes actual job execution, while CI events can no longer replace the factory's pending workflow run. Latest exact-head PR CI Run #44430540512 is pending; earlier intermediate commits were cancelled as expected when newer commits arrived.
 - A regression test is added to `tests/agent-factory-workflow.test.mjs` and included in `npm run test:unit`.
 
 ## Next actions
@@ -37,7 +37,7 @@ Both `.github/workflows/ci.yml` and `.github/workflows/agent-task-preflight.yml`
 1. Validate PR #109 on its exact head SHA; do not merge until build and database CI pass.
 2. Observe at least one successful scheduled run on the post-merge main SHA and verify Runner assignment.
 3. Inspect PR #108 build failure logs; do not assume database success means the full PR passed.
-4. Rebase/revalidate PR #103 against current main and resolve the dependency-audit acceptance criteria accurately; do not claim unresolved upstream advisories are fixed.
+4. Rebase/revalidate PR #103 against current main and resolve the dependency-audit acceptance criteria accurately; do not claim unresolved upstream advisories are fixed. Issue #94 is now schema-valid and can enter the queue after higher-priority active PRs are resolved.
 5. Update this file after each material scheduler, CI, PR, or Runner state change.
 
 ## Continuation instruction
