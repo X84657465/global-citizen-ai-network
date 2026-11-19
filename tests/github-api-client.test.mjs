@@ -59,3 +59,10 @@ test("rejects invalid JSON success responses without retry", async () => {
   await assert.rejects(client.request("/repos/example/repo"), /invalid JSON/);
   assert.equal(calls, 1);
 });
+test("surfaces long rate-limit waits to the controller instead of sleeping through the worker timeout", async () => {
+  let calls = 0; const delays = [];
+  const client = createGitHubApiClient({ now: () => 1_000_000, maxInlineRetryDelayMs: 30_000, fetchImpl: async () => { calls += 1; return response(429, { message: "rate limit" }, { "retry-after": "300" }); }, sleep: async (ms) => delays.push(ms) });
+  await assert.rejects(client.request("/rate_limit"), (error) => error.status === 429 && error.retryAfterMs === 300_000);
+  assert.equal(calls, 1);
+  assert.deepEqual(delays, []);
+});
