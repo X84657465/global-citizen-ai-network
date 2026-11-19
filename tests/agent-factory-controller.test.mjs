@@ -76,6 +76,21 @@ function awaitingCandidate(now = 1000) {
   return state;
 }
 
+test("reserve mode rejects a missing workflow attempt before persisting a lease", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "reserve",
+    ISSUE_NUMBER: "42",
+    GITHUB_RUN_ID: "123456",
+    GITHUB_SHA: "a".repeat(40),
+  }), /Workflow run attempt must be a positive integer/);
+
+  assert.equal(store.state.state_version, 0);
+  assert.equal(store.state.active_task, null);
+});
+
 test("reserve mode creates one durable lease and safely handles duplicate invocation", async () => {
   const store = fakeStore(createInitialFactoryState(1000));
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
