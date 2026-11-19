@@ -1,0 +1,38 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { taskPriority, compareTaskIssues, sortTaskIssues } from "../lib/agent-task-queue.mjs";
+
+const issue = (number, created_at, priority = null) => ({
+  number, created_at, body: priority ? "## Priority\n" + priority + "\n\n## Goal\n..." : "## Goal\n...",
+});
+
+test("reads only explicit P0-P3 priority values", () => {
+  assert.equal(taskPriority(issue(1, "2026-01-01T00:00:00Z", "P0 - release blocker")), "P0");
+  assert.equal(taskPriority(issue(2, "2026-01-01T00:00:00Z", "P3")), "P3");
+  assert.equal(taskPriority(issue(3, "2026-01-01T00:00:00Z", "urgent")), null);
+  assert.equal(taskPriority(issue(4, "2026-01-01T00:00:00Z")), null);
+});
+
+test("sorts by explicit priority then FIFO creation time", () => {
+  const sorted = sortTaskIssues([
+    issue(10, "2026-01-01T00:00:00Z"),
+    issue(11, "2026-01-03T00:00:00Z", "P1"),
+    issue(12, "2026-01-02T00:00:00Z", "P0"),
+    issue(13, "2026-01-01T00:00:00Z", "P1"),
+  ]);
+  assert.deepEqual(sorted.map((item) => item.number), [12, 13, 11, 10]);
+});
+
+test("uses issue number as deterministic tie-break for equal timestamps", () => {
+  const a = issue(22, "2026-01-01T00:00:00Z");
+  const b = issue(21, "2026-01-01T00:00:00Z");
+  assert.ok(compareTaskIssues(b, a) < 0);
+  assert.deepEqual(sortTaskIssues([a, b]).map((item) => item.number), [21, 22]);
+});
+
+test("does not mutate the source queue", () => {
+  const source = [issue(2, "2026-01-02T00:00:00Z"), issue(1, "2026-01-01T00:00:00Z")];
+  const sorted = sortTaskIssues(source);
+  assert.notEqual(sorted, source);
+  assert.equal(source[0].number, 2);
+});
