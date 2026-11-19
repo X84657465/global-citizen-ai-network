@@ -164,7 +164,7 @@ test("persists the complete worker-to-candidate lifecycle across controller rest
   assert.equal(api.issues.filter((issue) => issue.title === FACTORY_STATE_ISSUE_TITLE).length, 1);
 });
 
-test("durable scheduler survives a 24-hour multi-task lifecycle soak with idempotent callbacks", async () => {
+test("durable scheduler completes a 24-task lifecycle simulation with idempotent callbacks", async () => {
   const api = createFakeGitHubApi();
   let now = Date.parse("2026-11-19T10:00:00.000Z");
   const invoke = async (env) => {
