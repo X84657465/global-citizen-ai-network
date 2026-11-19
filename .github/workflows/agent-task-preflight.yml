@@ -487,6 +487,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_SKIPPED_ISSUES: ${{ steps.factory-gate.outputs.skipped_issues }}
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ steps.factory-gate.outputs.state_issue_number }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/select-agent-task.mjs
 
