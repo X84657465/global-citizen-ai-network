@@ -338,3 +338,33 @@ Verified open Draft PRs on 2026-11-19:
 - PR #133: avoid duplicate CI dispatch after creating a new Draft PR; rely on pull_request: opened for new PRs and explicit dispatch only for existing-PR revalidation. Preserve the intent and regression test in the V2 Publisher. Do not merge independently.
 
 No PR is merged as part of this design phase. Rebase/port the approved portions into one V2 implementation branch after the complete state machine and tests are ready.
+## 13. Additional source-code audit findings — confirmed on main
+
+### 13.1 Preserve the existing task validation and dependency controls
+- scripts/select-agent-task.mjs already paginates the complete Issues and PR collections, restricts tasks to owner-authored or explicitly planner-authored Issues, excludes open/merged task PRs, honors quarantined Issue numbers, and checks declared task dependencies.
+- Preserve those protections. Replace only the hard-coded issue-number priorityOrder array. The task validator already supports an optional validated P0-P3 Priority field; V2 ordering should be explicit priority first (P0, P1, P2, P3, then no priority), then created_at ascending, then issue number ascending. This is deterministic FIFO within each explicit priority class. If product policy later requires strict FIFO regardless of priority, remove the optional priority field in the same change rather than silently ignoring it.
+
+### 13.2 Correct the controller's local-state early exit
+- scripts/agent-factory-controller.mjs currently checks local cooldown before any GitHub read and exits successfully. This can hide a newer remote reset or quarantine update.
+- It later chooses local or remote state by updated_at, saves local state before remote persistence, and has no state_version or compare-and-swap. A failed remote PATCH can leave a newer local state that masks the remote state on the next run.
+- V2 must always read the remote state before a state-dependent dispatch decision. Remote read failure must fail closed without writing a new local authoritative state. Local cache must never win over remote state.
+
+### 13.3 Current API cooldown classification is too broad
+- lib/agent-factory-policy.mjs currently returns a default 15-minute cooldown timestamp for essentially any API error, not only 429/secondary rate limits or transient 5xx/network errors. This can turn a 401/403 permission error, 404, validation error, or malformed response into a misleading temporary cooldown.
+- V2 classification must separate: 401/403 permission/configuration (stop and alert; no retry loop), 404/422 or schema errors (permanent/request/task classification according to operation), 429/secondary rate limit (honor Retry-After then x-ratelimit-reset), 5xx/network/timeouts (bounded exponential retry), and unknown errors (fail closed with diagnostic; no automatic repeated write).
+- Retry logic must be HTTP-method aware. Never blindly replay a non-idempotent POST after an ambiguous network timeout.
+
+### 13.4 Task attempt counting is not event-idempotent
+- The current controller increments counters whenever failure mode is invoked. It has no durable processed-event key, workflow run ID/run attempt identity, or duplicate-event guard.
+- V2 must store a unique attempt/event key and apply each state transition at most once. A retry is a new attempt only after the previous attempt has been conclusively classified and closed.
+
+### 13.5 Publisher recovery must verify the existing branch before creating anything
+- scripts/publish-agent-patch.mjs currently looks for an existing open PR marker, then proceeds to create blobs, tree, commit, and a new branch ref. It does not recover a branch that was successfully created before a lost response or worker crash.
+- V2 branch names must be deterministic from the Issue number and task attempt or patch digest. Before creating a branch, fetch the ref. If it exists, verify its commit/tree against the expected candidate digest and reuse it only on an exact match; otherwise stop for reconciliation. Before creating a PR, re-query open PRs by marker and head branch. If PR creation response is ambiguous, query again before retrying.
+
+### 13.6 CI and task worker are currently independent concurrency domains
+- ci.yml uses a PR/ref-scoped workflow concurrency group. agent-task-preflight.yml uses a separate repository-wide workflow concurrency group. These do not serialize each other.
+- The preflight workflow itself contains two self-hosted jobs (validation-tests and prepare-task) which can consume the same physical runner at different times. CI currently has build and database self-hosted jobs plus separate state update jobs.
+- V2 must put every self-hosted job across both workflows behind the exact same job-level runner gate. The single CI job consolidation remains mandatory. Do not rely on a workflow-level group in one workflow to gate another workflow.
+
+These findings are implementation blockers, not optional cleanup. The integrated change must include unit tests for each regression before the new worker is enabled.
