@@ -9,6 +9,8 @@ import {
 import { execFileSync } from "node:child_process";
 import { dirname, resolve, sep } from "node:path";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
+import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 
 const fail = (message) => {
   console.error("Agent patch generation failed: " + message);
@@ -104,15 +106,11 @@ for (const relativePath of patchablePaths) {
   }
 }
 
-const scopedTask = { ...task, allowed_paths: patchablePaths };
-const planningInput = {
+const patchBatches = splitPatchPathsIntoBatches(patchablePaths, 4);
+const basePlanningInput = {
   goal: task.goal,
   acceptance_criteria: task.acceptance_criteria,
   explicit_exclusions: task.explicit_exclusions,
-  approved_patch_paths: patchablePaths,
-  implementation_plan: plan.tasks.filter((item) =>
-    item.action === "propose_patch" && item.role === "implementer"),
-  source_files: fileContext,
 };
 
 const systemPrompt = [
@@ -127,7 +125,8 @@ const systemPrompt = [
   "For add, return the complete new text file content.",
   "Never output shell commands, scripts to run, credentials, secrets, binary data, or deployment instructions.",
   "Do not include Markdown fences or explanations outside JSON.",
-  "Keep changes minimal and satisfy the stated acceptance criteria."
+  "Keep changes minimal and satisfy the stated acceptance criteria.",
+  "Other source files may be read for context but must not be returned unless their path is in approved_patch_paths."
 ].join(" ");
 
 const patchSchema = {
@@ -173,57 +172,147 @@ if (models.length === 0) fail("No local Ollama model is installed.");
 models.sort((a, b) => (a.size ?? Number.MAX_SAFE_INTEGER) - (b.size ?? Number.MAX_SAFE_INTEGER));
 const model = models[0].name;
 
-let response;
-try {
-  response = await fetch(baseUrl + "/api/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      system: systemPrompt,
-      prompt: JSON.stringify(planningInput),
-      format: patchSchema,
-      think: false,
-      stream: false,
-      keep_alive: "60s",
-      options: { temperature: 0, num_predict: 6144 }
-    }),
-    signal: AbortSignal.timeout(240000)
-  });
-} catch {
-  fail("Local model patch request failed or timed out.");
+const timeoutMs = Number(process.env.OLLAMA_PATCH_TIMEOUT_MS ?? 900000);
+if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 60000 || timeoutMs > 1800000) {
+  fail("OLLAMA_PATCH_TIMEOUT_MS must be between 60000 and 1800000 milliseconds.");
 }
-if (!response.ok) fail("Ollama patch generation returned HTTP " + response.status + ".");
-let result;
-try {
-  result = await response.json();
-} catch {
-  fail("Ollama patch response was not valid JSON.");
-}
-if (typeof result.response !== "string" || result.response.length === 0) {
-  fail("Local model returned an empty patch proposal.");
-}
+const generationStartedAt = Date.now();
+const proposedFiles = [];
 
-if (result.done_reason === "length") {
-  const generated = Number.isInteger(result.eval_count) ? result.eval_count : "unknown";
-  fail("Local model output reached the token limit (" + generated + " generated tokens). Increase the patch output budget or reduce the task scope; incomplete source files are rejected before scratch testing.");
-}
-console.log("Ollama patch response completed; model=" + model + ", done_reason=" + (result.done_reason || "not-reported") + ", eval_count=" + (Number.isInteger(result.eval_count) ? result.eval_count : "not-reported"));
-if (Buffer.byteLength(result.response, "utf8") > 256 * 1024) {
-  fail("Local model patch response exceeded the 256 KiB limit.");
-}
-let candidate;
-try {
-  candidate = JSON.parse(result.response);
-} catch {
-  fail("Local model did not return a valid JSON patch manifest.");
+console.log("Starting streamed Ollama patch generation: model=" + model +
+  ", source_context_bytes=" + contextBytes +
+  ", batches=" + patchBatches.length +
+  ", total_timeout_ms=" + timeoutMs);
+
+for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
+  const batchPaths = patchBatches[batchIndex];
+  const batchPathSet = new Set(batchPaths.map((path) => path.toLowerCase()));
+  const batchSourceFiles = selectPatchBatchSourceFiles(fileContext, batchPaths);
+  const batchSourceBytes = batchSourceFiles
+    .reduce((total, file) => total + (file.content === null ? 0 : Buffer.byteLength(file.content, "utf8")), 0);
+  const outputTokenBudget = Math.min(16384, Math.max(4096, Math.ceil(batchSourceBytes / 3)));
+  const remainingMs = timeoutMs - (Date.now() - generationStartedAt);
+  if (remainingMs < 10000) {
+    fail("The total Ollama patch-generation time budget expired before batch " + (batchIndex + 1) + ".");
+  }
+
+  const implementationPlan = plan.tasks
+    .filter((item) => item.action === "propose_patch" && item.role === "implementer")
+    .map((item) => ({
+      ...item,
+      allowed_paths: item.allowed_paths.filter((path) => batchPathSet.has(path.toLowerCase())),
+    }))
+    .filter((item) => item.allowed_paths.length > 0);
+
+  const planningInput = {
+    ...basePlanningInput,
+    source_files: batchSourceFiles,
+    approved_patch_paths: batchPaths,
+    implementation_plan: implementationPlan,
+    patch_batch: {
+      index: batchIndex + 1,
+      total: patchBatches.length,
+      approved_paths: batchPaths,
+    },
+  };
+  const scopedTask = { ...task, allowed_paths: batchPaths };
+
+  console.log("Starting patch batch " + (batchIndex + 1) + "/" + patchBatches.length +
+    ": files=" + batchPaths.length +
+    ", source_bytes=" + batchSourceBytes +
+    ", output_tokens=" + outputTokenBudget +
+    ", remaining_timeout_ms=" + remainingMs);
+
+  let response;
+  try {
+    response = await fetch(baseUrl + "/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        system: systemPrompt,
+        prompt: JSON.stringify(planningInput),
+        format: patchSchema,
+        think: false,
+        stream: true,
+        keep_alive: "60s",
+        options: { temperature: 0, num_predict: outputTokenBudget },
+      }),
+      signal: AbortSignal.timeout(remainingMs),
+    });
+  } catch {
+    fail("Local model patch batch " + (batchIndex + 1) + " failed or the shared generation time budget expired.");
+  }
+  if (!response.ok) fail("Ollama patch batch " + (batchIndex + 1) + " returned HTTP " + response.status + ".");
+
+  let latestProgress = { chunk_count: 0, response_characters: 0, eval_count: null };
+  const heartbeat = setInterval(() => {
+    console.log("Ollama patch batch " + (batchIndex + 1) + "/" + patchBatches.length +
+      " still waiting/working: chunks=" + latestProgress.chunk_count +
+      ", response_chars=" + latestProgress.response_characters +
+      ", eval_count=" + (latestProgress.eval_count ?? "pending"));
+  }, 30000);
+
+  let result;
+  try {
+    result = await collectOllamaGenerateStream(response.body, (progress) => {
+      latestProgress = progress;
+      if (progress.done) {
+        console.log("Ollama patch batch " + (batchIndex + 1) + " stream completed: chunks=" +
+          progress.chunk_count + ", response_chars=" + progress.response_characters +
+          ", eval_count=" + (progress.eval_count ?? "pending"));
+      }
+    });
+  } catch (error) {
+    clearInterval(heartbeat);
+    fail("Local model patch stream failed in batch " + (batchIndex + 1) + ": " +
+      (error instanceof Error ? error.message : "unknown stream error"));
+  }
+  clearInterval(heartbeat);
+
+  if (typeof result.response !== "string" || result.response.length === 0) {
+    fail("Local model returned an empty patch proposal for batch " + (batchIndex + 1) + ".");
+  }
+  if (result.done_reason === "length") {
+    const generated = Number.isInteger(result.eval_count) ? result.eval_count : "unknown";
+    fail("Local model output reached the token limit in batch " + (batchIndex + 1) +
+      " (" + generated + " generated tokens); incomplete source files are rejected before scratch testing.");
+  }
+  if (Buffer.byteLength(result.response, "utf8") > 256 * 1024) {
+    fail("Local model patch batch " + (batchIndex + 1) + " exceeded the 256 KiB response limit.");
+  }
+
+  let candidate;
+  try {
+    candidate = JSON.parse(result.response);
+  } catch {
+    fail("Local model did not return a valid JSON patch manifest for batch " + (batchIndex + 1) + ".");
+  }
+
+  let validatedBatch;
+  try {
+    validatedBatch = validatePatchManifest(candidate, scopedTask, existingPaths);
+  } catch (error) {
+    fail("Patch batch " + (batchIndex + 1) + " failed validation: " +
+      (error instanceof Error ? error.message : "unknown validation error"));
+  }
+
+  proposedFiles.push(...validatedBatch.files);
+  console.log("Validated patch batch " + (batchIndex + 1) + "/" + patchBatches.length +
+    "; cumulative_files=" + proposedFiles.length +
+    "; elapsed_ms=" + (Date.now() - generationStartedAt));
 }
 
 let validatedPatch;
 try {
-  validatedPatch = validatePatchManifest(candidate, scopedTask, existingPaths);
+  validatedPatch = validatePatchManifest(
+    { schema_version: 1, files: proposedFiles },
+    { ...task, allowed_paths: patchablePaths },
+    existingPaths,
+  );
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Generated patch failed validation.");
+  fail("Combined patch failed final validation: " +
+    (error instanceof Error ? error.message : "unknown validation error"));
 }
 
 try {
@@ -234,6 +323,7 @@ try {
 }
 
 console.log("Validated patch proposal generated with local model: " + model);
+console.log("Patch batches: " + patchBatches.length);
 console.log("Proposed files: " + validatedPatch.files.length);
 console.log("Repository files modified: no");
 console.log("Generated commands or code executed: no");
