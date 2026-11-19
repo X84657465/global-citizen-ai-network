@@ -133,3 +133,24 @@
   .footer { flex-wrap: wrap; justify-content: flex-start; padding: 25px 0; }
   .footer > span:last-child { width: 100%; }
 }
+
+/* Keyboard accessibility and motion preferences */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #3475d1;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .headerCta,
+  .primaryButton,
+  .pillarCard {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .headerCta:hover,
+  .primaryButton:hover,
+  .pillarCard:hover {
+    transform: none;
+  }
+}
