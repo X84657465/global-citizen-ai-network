@@ -93,8 +93,17 @@ export default function WorkspaceClient() {
       .then(async ([conversationResult, pendingResult, projectResult]) => {
         if (conversationResult.status === "rejected") throw conversationResult.reason;
         const conversationResponse = conversationResult.value;
-        const data = await conversationResponse.json() as { conversations?: Conversation[] } & ApiError;
+        const data = await conversationResponse.json() as { conversations?: unknown; error?: string };
         if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
+        if (!Array.isArray(data.conversations) || !data.conversations.every((item) =>
+          Boolean(item) && typeof item === "object" && !Array.isArray(item) &&
+          typeof (item as Conversation).id === "string" &&
+          (typeof (item as Conversation).project_id === "string" || (item as Conversation).project_id === null) &&
+          typeof (item as Conversation).title === "string" &&
+          typeof (item as Conversation).updated_at === "string"
+        )) {
+          throw new Error("對話資料格式無效，請重新整理或稍後再試。");
+        }
 
         // Conversation history is essential. Pending recovery and project
         // metadata are optional: transient failures there must not blank the
@@ -159,7 +168,7 @@ export default function WorkspaceClient() {
           }
         }
         if (!cancelled) {
-          setConversations(data.conversations ?? []);
+          setConversations(data.conversations as Conversation[]);
           setProjects((projectData.projects ?? []).filter(project => !project.archived_at));
           const recovered = pendingData.pending;
           if (pendingAvailable && recovered?.conversationId && recovered.idempotencyKey) {
