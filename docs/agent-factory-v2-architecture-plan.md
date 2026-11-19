@@ -368,3 +368,29 @@ No PR is merged as part of this design phase. Rebase/port the approved portions 
 - V2 must put every self-hosted job across both workflows behind the exact same job-level runner gate. The single CI job consolidation remains mandatory. Do not rely on a workflow-level group in one workflow to gate another workflow.
 
 These findings are implementation blockers, not optional cleanup. The integrated change must include unit tests for each regression before the new worker is enabled.
+## 14. Lifecycle correction — worker lease and candidate CI are separate
+
+The worker lease protects only the active task-generation worker. It must not be held until a separate pull_request CI workflow completes, because the original worker run has already ended while CI may still be queued or running.
+
+Required lifecycle:
+1. The worker acquires a lease and progresses through reserved, preparing, planning, patching, sandbox_testing, and publishing.
+2. After the publisher creates or recovers the Draft PR, it records the exact pull_request_number and head_sha.
+3. Transition to awaiting_ci persists candidate metadata and releases the worker lease. The task remains non-complete and is not eligible for another generation attempt while that candidate is pending.
+4. CI reports its conclusion using a unique CI run ID + run attempt + exact head SHA + PR number. The controller accepts success/failure only if the evidence matches the currently pending candidate.
+5. Exact-head CI success marks the task completed. A stale SHA result is marked superseded and must not overwrite the current candidate.
+6. Candidate CI failure is recorded separately from worker-generation retries. It becomes candidate_rejected and remains visible for human review; it does not silently count as a new generation attempt while the existing PR remains open.
+
+Worker lease expiry recovery applies only to a worker that still owns active_task. It must never reclaim an awaiting_ci candidate merely because the generation workflow has completed. CI completion is reconciled by PR identity and head SHA, not by the generation worker's lease.
+
+## 15. V2 implementation branch progress (not yet integrated or runtime-verified)
+
+Implementation branch: feat/agent-factory-v2 (created from main).
+
+Added as isolated, not-yet-integrated modules:
+- lib/agent-factory-state-machine.mjs: versioned state schema, one active worker lease, legal transitions, task/system failure separation, event idempotency, retry backoff, quarantine, lease recovery, and exact-head candidate CI callbacks.
+- tests/agent-factory-state-machine.test.mjs: transition, lease, retry, quarantine, duplicate event, system cooldown, and candidate evidence cases.
+- lib/agent-task-queue.mjs and tests/agent-task-queue.test.mjs: explicit P0-P3 priority then FIFO creation time and issue-number tie-break.
+- scripts/select-agent-task.mjs now uses the queue comparator instead of a hard-coded list of Issue numbers.
+- package.json includes the new unit test files in test:unit.
+
+These changes are committed on the implementation branch only. They have not yet been run in the Windows Runner or integrated with the current controller, Publisher, or workflows. Do not enable the V2 worker until integration and CI evidence are complete.
