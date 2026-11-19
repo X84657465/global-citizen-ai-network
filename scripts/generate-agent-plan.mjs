@@ -1,5 +1,6 @@
 import { appendFileSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+import { evaluateAgentDecision } from "../lib/agent-neural-decision.mjs";
 
 const fail = (message, scope = "system") => {
   if (scope === "task" && process.env.GITHUB_ENV) {
@@ -158,14 +159,20 @@ try {
   fail(error instanceof Error ? error.message : "Generated plan failed validation.", "task");
 }
 
+const decision = evaluateAgentDecision(validatedPlan, task);
+if (decision.decision !== "approve_for_sandbox_validation") {
+  fail("Neuro-symbolic decision gate rejected the plan: " + decision.blockers.join(", "), "task");
+}
+
 try {
   mkdirSync("artifacts", { recursive: true });
   writeFileSync("artifacts/agent-plan.json", JSON.stringify(validatedPlan, null, 2) + "\n", "utf8");
+  writeFileSync("artifacts/agent-decision.json", JSON.stringify(decision, null, 2) + "\n", "utf8");
 } catch {
-  fail("Unable to write the validated plan artifact.");
+  fail("Unable to write the validated plan and decision artifacts.");
 }
-
 console.log("Validated read-only plan generated with local model: " + model);
 console.log("Task count: " + validatedPlan.tasks.length);
+console.log("Neuro-symbolic decision: " + decision.decision + " (" + decision.confidence_score + "/100)");
 console.log("AI code execution: disabled");
 console.log("Repository files modified: no");
