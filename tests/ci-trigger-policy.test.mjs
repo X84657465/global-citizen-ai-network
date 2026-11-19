@@ -10,3 +10,15 @@ test("full CI runs on main pushes and pull-request lifecycle events, not codex b
   assert.ok(workflow.includes("  repository_dispatch:\n    types: [ai-task-ci]\n"));
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
+
+test("CI coalesces pending runs per pull request instead of queueing every superseded commit", () => {
+  assert.ok(workflow.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
+  assert.ok(workflow.includes("cancel-in-progress: false"));
+  assert.equal(workflow.includes("queue: max"), false);
+});
+
+test("CI never auto-approves or merges AI task pull requests; human approval is required", () => {
+  assert.equal(workflow.includes("  auto-merge-ai-task:"), false);
+  assert.equal(workflow.includes("markPullRequestReadyForReview"), false);
+  assert.equal(workflow.includes("github.rest.pulls.merge"), false);
+});
