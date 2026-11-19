@@ -64,3 +64,11 @@ test("workspace bootstrap validates optional API JSON shapes before using projec
   assert.match(workspaceClient, /const parsedPending: unknown = await pendingResponse\.json\(\)/);
   assert.match(workspaceClient, /parsedPending && typeof parsedPending === "object" && !Array\.isArray\(parsedPending\)/);
 });
+
+
+test("workspace accepts pending recovery only when its envelope and original prompt are valid", () => {
+  assert.match(workspaceClient, /typeof candidate\.unresolved === "boolean" && validPendingRecord/);
+  assert.match(workspaceClient, /typeof \(pendingRecord as \{ content\?: unknown \}\)\.content === "string"/);
+  assert.match(workspaceClient, /\[A-Za-z0-9\._:-\]\{8,128\}/);
+  assert.match(workspaceClient, /\["queued", "running"\]\.includes/);
+});
