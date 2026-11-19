@@ -74,7 +74,7 @@ export default function HomePage() {
             結合實用 AI 服務、可驗證的知識貢獻，以及透明的成本與治理機制。
           </p>
           <div className={styles.heroActions}>
-            <Link href="/login" className={styles.primaryButton}>開始探索平台 <ArrowRight size={17} /></Link>
+            <Link href="/workspace" className={styles.primaryButton}>前往 AI 工作空間 <ArrowRight size={17} /></Link>
             <a href="#pillars" className={styles.secondaryButton}>了解平台架構</a>
           </div>
           <div className={styles.heroFootnote}>
