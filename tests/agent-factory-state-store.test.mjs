@@ -61,3 +61,15 @@ test("fails closed when multiple state Issues are present", async () => {
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
   await assert.rejects(store.read(), /Multiple machine-managed/);
 });
+test("migrates the existing Issue #100 V1 payload without losing failure and quarantine counters", async () => {
+  const legacy = { consecutive_failures: 2, cooldown_until: null, task_failures: { "81": 1, "95": 3 }, skipped_issue_numbers: [95], last_error: "old failure", updated_at: "2026-11-19T05:00:00.000Z" };
+  const body = "Machine-managed scheduler state. <!-- agent-factory-state:" + Buffer.from(JSON.stringify(legacy)).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const migrated = await store.read();
+  assert.equal(migrated.state.schema_version, 2);
+  assert.equal(migrated.state.system.consecutive_failures, 2);
+  assert.equal(migrated.state.tasks["81"].failures, 1);
+  assert.equal(migrated.state.tasks["95"].quarantined, true);
+  assert.equal(migrated.state.tasks["95"].status, "quarantined");
+});
