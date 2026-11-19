@@ -51,6 +51,8 @@ jobs:
     steps:
       - name: Checkout resolver
         uses: actions/checkout@v5
+          with:
+            persist-credentials: false
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
@@ -101,6 +103,8 @@ jobs:
     steps:
       - name: Checkout tested revision
         uses: actions/checkout@v5
+          with:
+            persist-credentials: false
         with:
           ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
@@ -233,6 +237,8 @@ jobs:
     steps:
       - name: Checkout tested revision
         uses: actions/checkout@v5
+          with:
+            persist-credentials: false
         with:
           ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
@@ -393,6 +399,8 @@ jobs:
     steps:
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
+          with:
+            persist-credentials: false
         with:
           ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
@@ -471,6 +479,8 @@ jobs:
     steps:
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
+          with:
+            persist-credentials: false
         with:
           ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
