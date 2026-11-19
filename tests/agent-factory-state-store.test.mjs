@@ -208,6 +208,14 @@ test("recovers an ambiguous state Issue update after GitHub persisted the PATCH 
 });
 
 
+test("rejects non-canonical base64 state payloads instead of accepting Buffer's permissive decoding", async () => {
+  const nonCanonicalPayload = Buffer.from(JSON.stringify(createInitialFactoryState())).toString("base64") + "===";
+  const body = "Machine-managed V2 factory state. <!-- agent-factory-state:" + nonCanonicalPayload + " -->";
+  const fake = fakeApi([{ number: 104, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  await assert.rejects(store.read(), /invalid base64 JSON/);
+});
+
 test("fails closed when the state Issue marker is missing or its payload is malformed", async () => {
   const fake = fakeApi([
     { number: 101, title: FACTORY_STATE_ISSUE_TITLE, body: "machine-managed but marker missing" },
