@@ -18,9 +18,11 @@ function createFakeGitHubApi() {
     body: "Deterministic lifecycle integration fixture.",
   }];
   let nextIssueNumber = 100;
+  const workflows = new Map();
 
   return {
     issues,
+    workflows,
     async request(path, options = {}) {
       const url = new URL(path, "https://api.github.com");
       const method = options.method ?? "GET";
@@ -36,6 +38,12 @@ function createFakeGitHubApi() {
         };
         issues.push(created);
         return structuredClone(created);
+      }
+      const workflowMatch = /^\/repos\/owner\/repo\/actions\/runs\/(\d+)$/.exec(url.pathname);
+      if (workflowMatch && method === "GET") {
+        const workflow = workflows.get(workflowMatch[1]);
+        if (!workflow) throw new Error("Workflow run not found.");
+        return structuredClone(workflow);
       }
       const match = /^\/repos\/owner\/repo\/issues\/(\d+)$/.exec(url.pathname);
       if (match) {
@@ -397,4 +405,52 @@ test("candidate failure recovers through backoff and retries the same open PR wi
   assert.equal(result.state.tasks[String(issue)].pull_request_number, pullRequestNumber);
   assert.equal(isTaskAlreadyPublished(issue, result.state.tasks[String(issue)], new Set([issue]), new Set()), true);
   assert.equal(api.issues.filter((item) => item.title === FACTORY_STATE_ISSUE_TITLE).length, 1);
+});
+
+
+test("recovers an expired worker lease only after a restarted controller confirms the exact workflow attempt has stopped", async () => {
+  const api = createFakeGitHubApi();
+  let now = Date.parse("2026-11-19T10:00:00.000Z");
+  const invoke = async (env) => {
+    const store = createFactoryStateStore(api, { repository });
+    const controller = createAgentFactoryController({ store, api, repository, now: () => now });
+    const result = await controller.run(env);
+    now += 100;
+    return result;
+  };
+
+  const reserved = await invoke({
+    AGENT_FACTORY_MODE: "reserve",
+    ISSUE_NUMBER: String(issueNumber),
+    GITHUB_RUN_ID: "700001",
+    GITHUB_RUN_ATTEMPT: "1",
+    GITHUB_SHA: "a".repeat(40),
+    RUNNER_NAME: "integration-runner",
+  });
+  const expiredAt = Date.parse(reserved.state.active_task.lease_expires_at) + 1;
+  now = expiredAt;
+  api.workflows.set("700001", { run_attempt: 1, status: "in_progress" });
+
+  // A restarted controller must not steal a lease while GitHub still reports
+  // that the original workflow attempt is running, even after lease expiry.
+  let result = await invoke({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.equal(result.state.active_task.lease_id, leaseId);
+  assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
+
+  // Once the exact workflow attempt is confirmed completed, a new controller
+  // process can safely release the stale lease and make the task schedulable.
+  api.workflows.set("700001", { run_attempt: 1, status: "completed" });
+  result = await invoke({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.lease_recovered, true);
+  assert.equal(result.outputs.recovered_issue_number, issueNumber);
+  assert.equal(result.state.active_task, null);
+  assert.equal(result.state.tasks[String(issueNumber)].status, "queued");
+  assert.equal(result.state.system.consecutive_failures, 1);
+
+  const recoveredVersion = result.state.state_version;
+  const duplicateCheck = await invoke({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(duplicateCheck.outputs.lease_recovered, false);
+  assert.equal(duplicateCheck.state.state_version, recoveredVersion);
+  assert.equal(duplicateCheck.state.system.consecutive_failures, 1);
 });
