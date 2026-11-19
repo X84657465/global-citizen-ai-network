@@ -90,6 +90,10 @@ test("roadmap planning uses V2 controller and does not invoke the legacy local-s
   assert.equal(preflight.includes("run: node scripts/agent-factory-controller.mjs"), false);
 });
 
+test("preflight passes the durable V2 state Issue ID to the task selector", () => {
+  assert.ok(preflight.includes("AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ steps.factory-gate.outputs.state_issue_number }}"));
+});
+
 test("preflight reserves and releases V2 leases and does not overproduce roadmap tasks", () => {
   assert.ok(preflight.includes("AGENT_FACTORY_MODE: reserve"));
   assert.ok(preflight.includes("AGENT_FACTORY_MODE: transition"));
