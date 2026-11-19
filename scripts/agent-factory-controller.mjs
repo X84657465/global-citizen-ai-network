@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { apiCooldownUntil, cooldownActive, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
 import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
+import { collectGitHubPages } from "../lib/github-pagination.mjs";
 
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
@@ -48,14 +49,12 @@ async function api(path, options = {}) {
   return data;
 }
 async function listIssues(state) {
-  const collected = [];
-  for (let page = 1; page <= 10; page += 1) {
-    const batch = await api("/issues?state=" + state + "&per_page=100&page=" + page + "&sort=created&direction=asc");
-    if (!Array.isArray(batch)) throw new Error("GitHub issue listing returned an unexpected response.");
-    collected.push(...batch);
-    if (batch.length < 100) break;
-  }
-  return collected;
+  return collectGitHubPages((page) =>
+    api("/issues?state=" + state + "&per_page=100&page=" + page + "&sort=created&direction=asc")
+  );
+}
+async function listPulls() {
+  return collectGitHubPages((page) => api("/pulls?state=all&per_page=100&page=" + page));
 }
 const isStateIssue = (issue) => !issue.pull_request && issue.title === "[AI Factory State] Durable scheduler and circuit-breaker state";
 function readState(issue) {
@@ -163,7 +162,7 @@ try {
         : "System-level success recorded; global circuit breaker reset.");
   } else if (mode === "plan") {
     const openIssues = await listIssues("open");
-    const allPulls = await api("/pulls?state=all&per_page=100");
+    const allPulls = await listPulls();
     const skipped = new Set(state.skipped_issue_numbers ?? []);
     const taskPulls = allPulls.map((pull) => ({
       pull,
