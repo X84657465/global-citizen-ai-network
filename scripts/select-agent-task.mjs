@@ -1,7 +1,7 @@
 import { appendFileSync } from "node:fs";
 import { collectGitHubPages } from "../lib/github-pagination.mjs";
 import { taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
-import { sortTaskIssues, isMergedTaskPullRequest } from "../lib/agent-task-queue.mjs";
+import { sortTaskIssues, isMergedTaskPullRequest, isTaskAlreadyPublished } from "../lib/agent-task-queue.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
 
@@ -62,13 +62,11 @@ if (factoryState.active_task) {
 const owner = repositoryParts[0].toLowerCase();
 const taskStateByIssue = factoryState.tasks ?? {};
 const skippedIssueNumbers = new Set((process.env.AGENT_FACTORY_SKIPPED_ISSUES ?? "").split(",").map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0));
-const alreadyPublished = new Set();
 const mergedTaskIssueNumbers = new Set();
 const openTaskPrNumbers = new Set();
 const issuesByNumber = new Map(issues.filter((issue) => !issue.pull_request).map((issue) => [issue.number, issue]));
 for (const pull of pulls) {
   const match = typeof pull.body === "string" ? pull.body.match(/<!-- ai-task:(\d+) -->/) : null;
-  if (match && (pull.state === "open" || isMergedTaskPullRequest(pull))) alreadyPublished.add(Number(match[1]));
   if (match && pull.state === "open") openTaskPrNumbers.add(Number(match[1]));
   if (match && isMergedTaskPullRequest(pull)) mergedTaskIssueNumbers.add(Number(match[1]));
 }
@@ -79,7 +77,12 @@ const ready = issues.filter((issue) =>
    (issue.user?.login?.toLowerCase() === "github-actions[bot]" &&
     typeof issue.body === "string" && issue.body.includes("<!-- ai-task-generated-by-planner -->"))) &&
   typeof issue.title === "string" && issue.title.startsWith("[AI Task]") &&
-  !alreadyPublished.has(issue.number) &&
+  !isTaskAlreadyPublished(
+    issue.number,
+    taskStateByIssue[String(issue.number)],
+    openTaskPrNumbers,
+    mergedTaskIssueNumbers,
+  ) &&
   !skippedIssueNumbers.has(issue.number) &&
   (!taskStateByIssue[String(issue.number)] ||
    (taskStateByIssue[String(issue.number)].status === "queued" && !taskStateByIssue[String(issue.number)].quarantined))
