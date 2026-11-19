@@ -107,7 +107,7 @@ test("collects Ollama NDJSON response fragments across split UTF-8 chunks", asyn
   const body = new ReadableStream({
     start(controller) {
       controller.enqueue(encoder.encode('{"response":"hello "'));
-      controller.enqueue(encoder.encode(',"done":false}\\r\\n{"response":"世界","done":true,"done_reason":"stop","eval_count":4}\\n'));
+      controller.enqueue(encoder.encode(',"done":false}\r\n{"response":"世界","done":true,"done_reason":"stop","eval_count":4}\n'));
       controller.close();
     },
   });
@@ -122,12 +122,12 @@ test("collects Ollama NDJSON response fragments across split UTF-8 chunks", asyn
 test("rejects malformed Ollama stream chunks and streams without completion markers", async () => {
   const encoder = new TextEncoder();
   const malformed = new ReadableStream({
-    start(controller) { controller.enqueue(encoder.encode("{not-json}\\n")); controller.close(); },
+    start(controller) { controller.enqueue(encoder.encode("{not-json}\n")); controller.close(); },
   });
   await assert.rejects(() => collectOllamaGenerateStream(malformed), /invalid NDJSON/);
 
   const incomplete = new ReadableStream({
-    start(controller) { controller.enqueue(encoder.encode('{"response":"partial","done":false}\\n')); controller.close(); },
+    start(controller) { controller.enqueue(encoder.encode('{"response":"partial","done":false}\n')); controller.close(); },
   });
   await assert.rejects(() => collectOllamaGenerateStream(incomplete), /without a completion marker/);
 });
