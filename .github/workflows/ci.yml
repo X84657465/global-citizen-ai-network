@@ -24,6 +24,9 @@ defaults:
 
 jobs:
   build:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
     name: Build, unit tests, type check, lint and production build
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
@@ -103,6 +106,9 @@ jobs:
           }
 
   database:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
     name: Local Supabase migrations, PostgreSQL and RLS tests
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
@@ -231,6 +237,9 @@ jobs:
 
 
   circuit-breaker:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
     name: Persist CI failures in the factory circuit breaker
     if: >-
       always() &&
@@ -270,6 +279,9 @@ jobs:
         run: node scripts/agent-factory-controller.mjs
 
   circuit-breaker-success:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
     name: Reset the global circuit breaker after healthy factory CI
     needs: [build, database]
     if: >-
