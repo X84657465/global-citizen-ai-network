@@ -14,6 +14,8 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
+**Release:** `0.1.1` · [版本紀錄](CHANGELOG.md) · [四線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+
 </div>
 
 ---
@@ -53,6 +55,8 @@
 - **Agent Factory V2：** [PR #134（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/134)
 - **GCAN 產品線：** [PR #137（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/137)
 - **GitHub 專案展示線：** [PR #139（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
+- **第四線深度神經：** [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](docs/deep-neural-architecture.md)
+- **四線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
 - **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
 
@@ -374,6 +378,12 @@ http://localhost:3000
 | [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 自動開發工廠、Runner 與故障處理 |
 | [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 任務排程與執行機制 |
 | [Claude 獨立審查簡報](docs/claude-review-brief.md) | 架構與安全審查清單 |
+
+## 🧠 四線協作與持續學習
+
+本專案採四線並行：A Agent Factory V2、B Global Citizen AI Network、C 既有第三線任務、D 深度神經。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
+
+所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [四線工程治理規範](docs/engineering-governance.md)。
 
 ## 🤝 Contribution｜參與與貢獻
 
