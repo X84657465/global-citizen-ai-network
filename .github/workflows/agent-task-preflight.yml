@@ -39,6 +39,7 @@ on:
       - "tests/agent-patch-validation.test.mjs"
       - "tests/agent-plan-validation.test.mjs"
       - "tests/agent-factory-controller.test.mjs"
+      - "tests/agent-factory-lifecycle.integration.test.mjs"
       - "tests/agent-factory-state-machine.test.mjs"
       - "tests/agent-factory-state-store.test.mjs"
       - "tests/agent-path-safety.test.mjs"
