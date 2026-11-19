@@ -1,7 +1,10 @@
 name: CI
 
+# Serialize work on the single Windows Runner without dropping older pending CI runs.
+# GitHub keeps up to 100 pending runs in this group and processes them FIFO.
 concurrency:
   group: global-citizen-ai-network-self-hosted-runner
+  queue: max
   cancel-in-progress: false
 
 on:
