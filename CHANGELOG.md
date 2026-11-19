@@ -55,3 +55,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Documentation and version metadata updated; exact-head CI and independent review remain required.
+
+## 0.2.7 — 2026-11-20
+
+### Added
+- Add a CSS Module selector regression test to prevent the global-selector build failure from returning.
+- Align the root package version, overall version and Predictive Coding track version.
+
+### Verification
+- Exact-head CI is required; no release acceptance implied.
