@@ -36,6 +36,7 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
 });
 
 test("preflight and Runner smoke workflows share the bounded Runner queue", () => {
+  assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "preflight synthetic validation must run on the active development branch");
   assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must be runnable on the active development branch");
   for (const source of [preflight, runnerSmoke]) {
     assert.ok(source.includes("group: global-citizen-ai-network-self-hosted-runner"));
