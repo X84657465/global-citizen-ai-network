@@ -40,25 +40,32 @@ test("enforces legal state transitions and releases terminal leases", () => {
   state = transitionTask(state, 42, "sandbox_testing", {}, 5000);
   state = transitionTask(state, 42, "publishing", {}, 6000);
   state = transitionTask(state, 42, "draft_pr_created", { head_sha: "b".repeat(40), pull_request_number: 99 }, 7000);
-  assert.equal(state.active_task, null);
+  state = transitionTask(state, 42, "awaiting_ci", {}, 8000);
+  assert.equal(state.active_task.state, "awaiting_ci");
 });
 
 test("counts each task failure event once and quarantines after three distinct attempts", () => {
   let state = createInitialFactoryState(1000);
+  state = reserveTask(state, metadata(), 1500);
   let result = recordTaskFailure(state, 42, event("1"), "PATCH_INVALID", "bad json", 2000);
   state = result.state;
   assert.equal(result.duplicate, false);
   result = recordTaskFailure(state, 42, event("1"), "PATCH_INVALID", "duplicate event", 3000);
   assert.equal(result.duplicate, true);
   assert.equal(result.state.tasks["42"].failures, 1);
-  state = recordTaskFailure(state, 42, event("2"), "PATCH_INVALID", "bad json", 4000).state;
-  result = recordTaskFailure(state, 42, event("3"), "PATCH_INVALID", "bad json", 5000);
+  state = requeueTask(state, 42, 62_000);
+  state = reserveTask(state, metadata({ lease_id: "lease-attempt-2", workflow_run_id: "run-123457" }), 62_000);
+  state = recordTaskFailure(state, 42, event("2"), "PATCH_INVALID", "bad json", 63_000).state;
+  state = requeueTask(state, 42, 183_000);
+  state = reserveTask(state, metadata({ lease_id: "lease-attempt-3", workflow_run_id: "run-123458" }), 183_000);
+  result = recordTaskFailure(state, 42, event("3"), "PATCH_INVALID", "bad json", 184_000);
   assert.equal(result.quarantined, true);
   assert.equal(result.state.tasks["42"].quarantined, true);
 });
 
 test("task failures do not increment the global system breaker", () => {
   let state = createInitialFactoryState(1000);
+  state = reserveTask(state, metadata(), 1500);
   state = recordTaskFailure(state, 42, event("task"), "TEST_FAILURE", "assertion failed", 2000).state;
   assert.equal(state.system.consecutive_failures, 0);
   assert.equal(isSystemCooldownActive(state, 2000), false);
@@ -80,6 +87,13 @@ test("task success clears only that task retry record", () => {
   state = recordTaskFailure(state, 42, event("fail"), "PATCH_INVALID", "bad", 2000).state;
   state = requeueTask(state, 42, 62_000);
   state = reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 62_000);
+  state = transitionTask(state, 42, "preparing", {}, 62_100);
+  state = transitionTask(state, 42, "planning", {}, 62_200);
+  state = transitionTask(state, 42, "patching", {}, 62_300);
+  state = transitionTask(state, 42, "sandbox_testing", {}, 62_400);
+  state = transitionTask(state, 42, "publishing", {}, 62_500);
+  state = transitionTask(state, 42, "draft_pr_created", { pull_request_number: 99 }, 62_600);
+  state = transitionTask(state, 42, "awaiting_ci", {}, 62_700);
   state.system.consecutive_failures = 2;
   const result = recordTaskSuccess(state, 42, event("success"), 63_000);
   assert.equal(result.state.tasks["42"].failures, 0);
@@ -127,9 +141,14 @@ test("task retry enters backoff and cannot be reserved until requeued", () => {
 
 test("task success cannot clear a quarantine without owning the active lease", () => {
   let state = createInitialFactoryState(1000);
+  state = reserveTask(state, metadata(), 1500);
   state = recordTaskFailure(state, 42, event("q1"), "PATCH_INVALID", "bad", 2000).state;
-  state = recordTaskFailure(state, 42, event("q2"), "PATCH_INVALID", "bad", 3000).state;
-  state = recordTaskFailure(state, 42, event("q3"), "PATCH_INVALID", "bad", 4000).state;
+  state = requeueTask(state, 42, 62_000);
+  state = reserveTask(state, metadata({ lease_id: "lease-q2", workflow_run_id: "run-q2" }), 62_000);
+  state = recordTaskFailure(state, 42, event("q2"), "PATCH_INVALID", "bad", 63_000).state;
+  state = requeueTask(state, 42, 183_000);
+  state = reserveTask(state, metadata({ lease_id: "lease-q3", workflow_run_id: "run-q3" }), 183_000);
+  state = recordTaskFailure(state, 42, event("q3"), "PATCH_INVALID", "bad", 184_000).state;
   assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), 5000), /matching active task lease/);
   assert.equal(state.tasks["42"].quarantined, true);
 });
