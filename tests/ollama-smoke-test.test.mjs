@@ -32,6 +32,23 @@ test("selects the smallest installed model and validates a real structured gener
   assert.equal(request.options.num_predict, 32);
 });
 
+test("normalizes a trailing slash from the Ollama base URL", async () => {
+  const urls = [];
+  await runOllamaSmokeTest({
+    baseUrl: "http://127.0.0.1:11434/",
+    fetchImpl: async (url) => {
+      urls.push(url);
+      return urls.length === 1
+        ? response({ models: [{ name: "small", size: 1 }] })
+        : response({ done: true, response: '{"status":"ok"}' });
+    },
+  });
+  assert.deepEqual(urls, [
+    "http://127.0.0.1:11434/api/tags",
+    "http://127.0.0.1:11434/api/generate",
+  ]);
+});
+
 test("fails when no Ollama model is installed", async () => {
   await assert.rejects(
     runOllamaSmokeTest({ fetchImpl: async () => response({ models: [] }) }),
