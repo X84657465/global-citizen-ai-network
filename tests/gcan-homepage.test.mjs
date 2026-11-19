@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { isWorkspaceMessage } from "../lib/workspace/message-validation.ts";
 
 const homepage = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const homeCss = readFileSync(new URL("../app/home.module.css", import.meta.url), "utf8");
@@ -103,14 +104,29 @@ test("public homepage provides visible keyboard focus and respects reduced-motio
 });
 
 test("workspace validates every message API record before updating the active conversation", () => {
-  assert.match(workspaceClient, /function isMessage\(value: unknown\): value is Message/);
-  assert.match(workspaceClient, /const parsed: unknown = await response\.json\(\)/);
-  assert.match(workspaceClient, /!parsed \|\| typeof parsed !== "object" \|\| Array\.isArray\(parsed\)/);
-  assert.match(workspaceClient, /!Array\.isArray\(data\.messages\) \|\| !data\.messages\.every\(isMessage\)/);
-  assert.match(workspaceClient, /candidate\.role === "user" \|\| candidate\.role === "assistant"/);
-  assert.match(workspaceClient, /typeof candidate\.content === "string"/);
-  assert.match(workspaceClient, /candidate\.id === undefined \|\| isUuid\(candidate\.id\)/);
-  assert.match(workspaceClient, /candidate\.created_at === undefined \|\| isValidTimestamp\(candidate\.created_at\)/);
+  assert.match(workspaceClient, /const parsed: unknown = await response\\.json\\(\\)/);
+  assert.match(workspaceClient, /!parsed \\|\\| typeof parsed !== "object" \\|\\| Array\\.isArray\\(parsed\\)/);
+  assert.match(workspaceClient, /!Array\\.isArray\\(data\\.messages\\) \\|\\| !data\\.messages\\.every\\(isWorkspaceMessage\\)/);
+});
+
+test("message validation accepts only safe user and assistant message records", () => {
+  const validId = "8c3c5d8e-6d7b-4a7e-8b10-9d8c7b6a5f40";
+  const validMessage = { id: validId, role: "user", content: "hello", created_at: "2026-11-19T10:00:00.000Z" };
+  assert.equal(isWorkspaceMessage(validMessage), true);
+  assert.equal(isWorkspaceMessage({ role: "assistant", content: "reply" }), true);
+  for (const invalid of [
+    null,
+    [],
+    "message",
+    { ...validMessage, role: "system" },
+    { ...validMessage, role: "tool" },
+    { ...validMessage, content: 42 },
+    { ...validMessage, id: "not-a-uuid" },
+    { ...validMessage, created_at: "not-a-date" },
+    { ...validMessage, created_at: 1732000000 },
+  ]) {
+    assert.equal(isWorkspaceMessage(invalid), false);
+  }
 });
 
 test("workspace rejects malformed UUIDs, blank conversation titles, and invalid timestamps", () => {
