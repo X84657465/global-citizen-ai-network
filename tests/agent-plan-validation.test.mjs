@@ -170,7 +170,7 @@ test("sends only the current batch source files to Ollama", () => {
 test("marks invalid model patch output as task-scoped without classifying transport failures as task errors", () => {
   const generator = readFileSync(new URL("../scripts/generate-agent-patch.mjs", import.meta.url), "utf8");
   assert.ok(generator.includes('const fail = (message, scope = "system") => {'));
-  assert.ok(generator.includes('appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\\\n", "utf8")'));
+  assert.ok(generator.includes('appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8")'));
   assert.ok(generator.includes('exceeded the 256 KiB response limit.", "task")'));
   assert.ok(generator.includes('did not return a valid JSON patch manifest for batch " + (batchIndex + 1) + ".", "task")'));
   assert.ok(generator.includes('Local model patch stream failed in batch'));
