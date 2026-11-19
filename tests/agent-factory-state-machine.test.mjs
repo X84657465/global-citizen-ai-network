@@ -374,3 +374,40 @@ test("quarantine transitions set both the status and quarantine flag", () => {
     /quarantined/,
   );
 });
+
+
+test("candidate-start reopens the same PR for a new head and fences stale CI outcomes", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "a".repeat(40), pull_request_number: 88,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+
+  const firstEvidence = {
+    head_sha: "a".repeat(40), pull_request_number: 88,
+    ci_conclusion: "success", ci_run_id: "ci-first", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, firstEvidence, 1750);
+  state = recordTaskSuccess(state, 42, event("first-success"), firstEvidence, 1800).state;
+  assert.equal(state.tasks["42"].status, "completed");
+
+  const nextEvidence = {
+    head_sha: "c".repeat(40), pull_request_number: 88,
+    ci_conclusion: "success", ci_run_id: "ci-second", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, nextEvidence, 1900);
+  assert.equal(state.tasks["42"].status, "awaiting_ci");
+  assert.equal(state.tasks["42"].head_sha, "c".repeat(40));
+  assert.throws(
+    () => recordTaskSuccess(state, 42, event("stale-first-success"), firstEvidence, 2000),
+    /exact candidate SHA, PR, CI run ID/,
+  );
+  state = recordTaskSuccess(state, 42, event("second-success"), nextEvidence, 2100).state;
+  assert.equal(state.tasks["42"].status, "completed");
+  assert.equal(state.tasks["42"].head_sha, "c".repeat(40));
+});
