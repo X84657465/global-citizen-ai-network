@@ -468,6 +468,7 @@ jobs:
             });
 
       - name: Validate task and create a safe handoff bundle
+        id: prepare-task
         if: >-
           (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
@@ -493,6 +494,7 @@ jobs:
         run: node scripts/generate-agent-patch.mjs
 
       - name: Apply validated patch to a disposable scratch workspace
+        id: apply-scratch
         if: >-
           (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
@@ -557,6 +559,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Candidate dependency installation retry failed (exit $LASTEXITCODE)." }
 
       - name: Test patched candidate offline inside restricted container
+        id: candidate-tests
         if: >-
           (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
           steps.select-task.outputs.issue_number != ''
@@ -590,9 +593,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: success
+          AGENT_FACTORY_SUCCESS_SCOPE: task
           COMPLETED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-controller.mjs
+
+      - name: Classify known task-scoped failures before updating factory state
+        if: failure()
+        env:
+          APPLY_SCRATCH_OUTCOME: ${{ steps.apply-scratch.outcome }}
+          CANDIDATE_TESTS_OUTCOME: ${{ steps.candidate-tests.outcome }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          if ($env:APPLY_SCRATCH_OUTCOME -eq "failure" -or $env:CANDIDATE_TESTS_OUTCOME -eq "failure") {
+            [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task`n", [System.Text.UTF8Encoding]::new($false))
+            Write-Host "Classified patch-application or candidate-test failure as task-scoped."
+          } else {
+            Write-Host "No task-scoped step failure was identified; defaulting to system-scoped."
+          }
 
       - name: Record failed task and activate cooldown after three consecutive failures
         if: failure()
