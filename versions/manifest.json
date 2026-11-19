@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "overall": "0.1.1",
+  "tracks": {
+    "A": {
+      "name": "Agent Factory V2",
+      "version": "2.0.0",
+      "status": "active"
+    },
+    "B": {
+      "name": "Global Citizen AI Network",
+      "version": "0.1.1",
+      "status": "active"
+    },
+    "C": {
+      "name": "Existing third workstream",
+      "version": "0.0.0",
+      "status": "baseline-pending",
+      "note": "Numeric placeholder only; identify the existing workstream before assigning a release baseline."
+    },
+    "D": {
+      "name": "Deep Neural",
+      "version": "0.1.0",
+      "status": "architecture-started"
+    }
+  },
+  "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR."
+}
