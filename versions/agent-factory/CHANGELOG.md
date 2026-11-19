@@ -10,3 +10,10 @@
 - Add the Factory V2 operations console at `/factory` (demonstration status only; live runner telemetry is not implied).
 
 **Release status:** development candidate under PR #134. Version metadata does not constitute release acceptance; exact-head CI and independent review remain required.
+
+## 2.0.1
+
+- Fix an escaped newline in the patch generator comment that prevented `patchBatches` from being declared at runtime.
+- Add an explicit Node.js syntax-validation step for the patch generator and factory controller to CI.
+
+**Verification:** exact-head CI is required; not yet accepted as complete.
