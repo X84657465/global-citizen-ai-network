@@ -396,7 +396,7 @@ test("quarantines a task after three distinct candidate CI rejections", () => {
     if (attempt < 3) {
       assert.equal(state.tasks["42"].status, "candidate_rejected");
       assert.equal(state.tasks["42"].quarantined, false);
-      state = requeueTask(state, 42, start + 61_000);
+      state = requeueTask(state, 42, start + 800 + (60_000 * (2 ** (attempt - 1))));
     } else {
       assert.equal(state.tasks["42"].status, "quarantined");
       assert.equal(state.tasks["42"].quarantined, true);
