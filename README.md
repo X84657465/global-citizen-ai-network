@@ -1,20 +1,61 @@
-# 🌐 Global Citizen AI Network
-### 全球公民 AI 網路｜讓 AI 能力、知識貢獻與運算資源形成可信任的協作網路
+<div align="center">
 
-<p align="center">
-  <strong>AI for Everyone. Contribution with Transparency. Compute by Choice.</strong>
-</p>
+<img src="docs/assets/gcan-hero.svg" alt="Global Citizen AI Network — 全球公民 AI 網路" width="100%" />
 
-<p align="center">
-  <a href="#-專案願景">專案願景</a> ·
-  <a href="#-平台核心">平台核心</a> ·
-  <a href="#-agent-factory-v2">Agent Factory V2</a> ·
-  <a href="#-技術架構">技術架構</a> ·
-  <a href="#-開發路線圖">開發路線圖</a> ·
-  <a href="#-文件導覽">文件導覽</a>
-</p>
+### 把 AI 的力量，變成每個人都能參與的公共能力。
+
+**一個結合 AI 服務、全球知識協作、透明貢獻帳本與自願式運算願景的長期平台。**
+
+[產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [開發中的 Agent Factory V2](https://github.com/X84657465/global-citizen-ai-network/pull/134) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
+
+![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=feat%2Fagent-factory-v2)
+![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Engineering-3178C6?logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
+![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
+
+</div>
 
 ---
+
+## 🧭 快速導覽
+
+| 了解 GCAN | 深入技術 |
+|---|---|
+| [專案願景](#-專案願景) · [平台核心](#-平台核心) · [專案現況](#-專案現況) | [Agent Factory V2](#-agent-factory-v2ai-自動開發工廠) · [技術架構](#️-技術架構) · [品質驗證](#-品質驗證) |
+| [開發路線圖](#️-開發路線圖) · [參與與貢獻](#-contribution參與與貢獻) | [本機開發](#-local-development本機開發) · [文件導覽](#-文件導覽) · [安全原則](#️-安全隱私與公平原則) |
+
+## 🌐 GCAN 是什麼？
+
+**Global Citizen AI Network（GCAN，全球公民 AI 網路）**，目標是打造一個以人為本、重視透明與安全的 AI 協作生態系。
+
+我們希望讓不同地區、不同專業、不同資源條件的人，都能使用 AI、貢獻知識、參與協作；也讓每一次 AI 使用、每一項任務成果與每一筆成本或貢獻紀錄，都能有清楚的規則與可追蹤的依據。
+
+<div align="center">
+
+| 🤖 全民 AI 服務 | 🌍 全球知識貢獻 | 🧾 透明成本與獎勵 | 🖥️ 自願式運算 |
+|:---:|:---:|:---:|:---:|
+| 研究、寫作、分析與知識工作 | 任務、提交、審核與複核 | 成本、貢獻與稽核紀錄 | 明確授權、隔離、可暫停 |
+| **逐步建置中** | **逐步建置中** | **基礎流程建置中** | **長期研究方向** |
+
+</div>
+
+> **核心信念：AI 不應只是少數人的工具；知識貢獻應該被尊重，成本與規則應該透明，設備資源只能在使用者知情且自願的情況下參與。**
+
+### 專案目前在哪個階段？
+
+<blockquote>
+<strong>早期開發／MVP 建置階段。</strong><br/>
+核心應用、資料庫流程與 Agent Factory V2 正在持續開發及驗證。網站網址可供查看，但不代表所有功能已正式開放，也不代表已進入正式商業營運。
+</blockquote>
+
+- **目前開發主線：** `feat/agent-factory-v2`
+- **主要工程驗收：** [PR #134（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/134)
+- **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
+- **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
+
+---
+
 
 ## ✨ 一句話認識本計畫
 
