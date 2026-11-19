@@ -229,13 +229,13 @@ test("all workflow checkouts disable persisted Git credentials", () => {
 });
 
 test("preflight task publisher does not request Actions API permissions", () => {
-  const start = preflight.indexOf("  prepare-task:\\n");
+  const start = preflight.indexOf("  prepare-task:\n");
   assert.notEqual(start, -1, "expected the durable task publisher job");
-  const permissionsStart = preflight.indexOf("    permissions:\\n", start);
+  const permissionsStart = preflight.indexOf("    permissions:\n", start);
   const permissionsEnd = preflight.indexOf("    runs-on:", permissionsStart);
   const permissions = preflight.slice(permissionsStart, permissionsEnd);
-  assert.match(permissions, /actions:\\s+none/);
-  assert.match(permissions, /contents:\\s+write/);
-  assert.match(permissions, /issues:\\s+write/);
-  assert.match(permissions, /pull-requests:\\s+write/);
+  assert.match(permissions, /actions:\s+none/);
+  assert.match(permissions, /contents:\s+write/);
+  assert.match(permissions, /issues:\s+write/);
+  assert.match(permissions, /pull-requests:\s+write/);
 });
