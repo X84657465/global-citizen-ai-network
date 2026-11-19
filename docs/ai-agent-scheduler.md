@@ -33,11 +33,11 @@ The scheduler turns the validated task workflow into a bounded queue worker. It 
 3. Local Ollama and Docker Desktop must be available on that machine.
 4. Submit tasks through the repository's **AI Task** issue template.
 
-Until the workflow is merged, this scheduler code is present only in the feature branch and does not run on a schedule.
+The active scheduler is defined by the workflow on the repository default branch; the five-minute schedule is only a polling interval and never implies a task will start while the self-hosted Runner is offline.
 
 ## Operational behavior
 
-A 30-minute schedule is a queue polling interval, not a promise that a task completes within 30 minutes. GitHub may delay scheduled events. If the PC is offline, jobs wait for an eligible runner; they do not execute locally while the PC is powered off.
+A 5-minute schedule is a queue polling interval, not a promise that a task completes within 30 minutes. GitHub may delay scheduled events. If the PC is offline, jobs wait for an eligible runner; they do not execute locally while the PC is powered off.
 
 
 ## CI validation event matrix
