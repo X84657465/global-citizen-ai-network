@@ -187,7 +187,7 @@ if (dryRun) {
 
 if (!token) fail("GITHUB_TOKEN is required for draft PR creation.");
 
-const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\\/+$/, "");
+const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\/+$/, "");
 const githubApi = createGitHubApiClient({
   baseUrl: apiBase,
   token,
