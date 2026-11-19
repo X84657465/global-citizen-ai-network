@@ -179,6 +179,25 @@ test("reservation replay must match the complete immutable lease identity", () =
   );
 });
 
+test("rejects oversized or blank lease identity fields", () => {
+  const initial = createInitialFactoryState(1000);
+  const valid = metadata();
+
+  for (const patch of [
+    { lease_id: "x".repeat(201) },
+    { lease_owner: "x".repeat(201) },
+    { workflow_run_id: "x".repeat(101) },
+    { idempotency_key: "x".repeat(201) },
+    { lease_owner: "   " },
+    { idempotency_key: "   " },
+  ]) {
+    assert.throws(
+      () => reserveTask(initial, { ...valid, ...patch }, 2000),
+      /invalid|incomplete/i,
+    );
+  }
+});
+
 test("rejects incomplete reservation metadata", () => {
   assert.throws(() => reserveTask(createInitialFactoryState(), { issue_number: 42 }), /metadata is incomplete/);
 });
