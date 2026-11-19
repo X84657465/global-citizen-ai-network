@@ -61,7 +61,7 @@ export default function HomePage() {
         </nav>
         <div className={styles.headerActions}>
           <Link href="/login" className={styles.loginLink}>會員登入</Link>
-          <Link href="/login" className={styles.headerCta}>進入平台 <ArrowRight size={16} /></Link>
+          <Link href="/workspace" className={styles.headerCta}>AI 工作空間 <ArrowRight size={16} /></Link>
         </div>
       </header>
 
