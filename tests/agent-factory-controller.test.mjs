@@ -86,6 +86,29 @@ test("reserve mode creates one durable lease and safely handles duplicate invoca
   assert.equal(store.state.active_task.issue_number, 42);
 });
 
+test("concurrent workers cannot reserve different tasks under one repository lease", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const first = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const second = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const reserve = (issueNumber, runId) => ({
+    AGENT_FACTORY_MODE: "reserve",
+    ISSUE_NUMBER: String(issueNumber),
+    GITHUB_RUN_ID: runId,
+    GITHUB_RUN_ATTEMPT: "1",
+    GITHUB_SHA: "a".repeat(40),
+    RUNNER_NAME: "integration-runner",
+  });
+
+  const results = await Promise.allSettled([
+    first.run(reserve(42, "123456")),
+    second.run(reserve(43, "123457")),
+  ]);
+  assert.equal(results.filter((result) => result.status === "fulfilled").length, 1);
+  assert.equal(results.filter((result) => result.status === "rejected").length, 1);
+  assert.ok([42, 43].includes(store.state.active_task.issue_number));
+  assert.equal(Object.values(store.state.tasks).filter((task) => task.status === "reserved").length, 1);
+});
+
 test("transition mode is idempotent for a repeated exact lease transition", async () => {
   const store = fakeStore(createInitialFactoryState(1000));
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
