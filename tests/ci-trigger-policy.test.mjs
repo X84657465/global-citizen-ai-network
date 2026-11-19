@@ -136,6 +136,17 @@ test("candidate callbacks revalidate the current PR head and check out the exact
   }
 });
 
+test("CI verifies Docker Engine and Ollama API/model availability on the Windows Runner", () => {
+  const start = workflow.indexOf("- name: Verify local runner toolchain, Docker and Ollama");
+  const end = workflow.indexOf("- name: Migration filename safety guard", start);
+  assert.ok(start >= 0 && end > start, "runner capability verification step must exist");
+  const section = workflow.slice(start, end);
+  assert.ok(section.includes("docker info"), "Docker Engine health must be checked");
+  assert.ok(section.includes("OLLAMA_BASE_URL"));
+  assert.ok(section.includes("/api/tags"), "Ollama API must be queried");
+  assert.ok(section.includes("$models.Count -eq 0"), "an installed model must be required");
+});
+
 test("CI resolves the current task PR and binds candidate outcomes to exact run evidence", () => {
   assert.ok(workflow.includes("  resolve-candidate:"));
   assert.ok(workflow.includes("scripts/resolve-agent-task-pr.mjs"));
