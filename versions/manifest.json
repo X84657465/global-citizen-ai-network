@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "overall": "0.2.8",
+  "tracks": {
+    "A": {
+      "name": "Agent Factory V2",
+      "version": "2.0.1",
+      "status": "active"
+    },
+    "B": {
+      "name": "Global Citizen AI Network",
+      "version": "0.1.1",
+      "status": "active"
+    },
+    "C": {
+      "name": "Predictive Coding（預測編碼）",
+      "version": "0.1.3",
+      "status": "architecture-defined",
+      "responsibility": "Prediction, observation, prediction-error measurement, uncertainty calibration and evidence-based model updates."
+    },
+    "D": {
+      "name": "Deep Neural",
+      "version": "0.2.2",
+      "status": "implementation-candidate"
+    },
+    "E": {
+      "name": "Deep Research（深度研究）",
+      "version": "0.1.1",
+      "status": "interface-candidate",
+      "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
+    }
+  },
+  "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
+}
