@@ -1,6 +1,7 @@
 import { appendFileSync } from "node:fs";
 import { collectGitHubPages } from "../lib/github-pagination.mjs";
 import { taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
+import { sortTaskIssues } from "../lib/agent-task-queue.mjs";
 
 const fail = (message) => {
   console.error("Agent task selection failed: " + message);
@@ -65,22 +66,10 @@ const ready = issues.filter((issue) =>
 const dependencyReady = ready.filter((issue) => taskDependenciesResolved(issue.body, issuesByNumber, mergedTaskIssueNumbers));
 const blockedByDependencies = ready.length - dependencyReady.length;
 
-// Stable priority order: security and MVP release gates first, then Phase 2,
- // Phase 3 distributed-compute research, and finally Phase 4 governance/reporting.
- // Unknown future tasks remain eligible after the explicitly ranked backlog.
-const priorityOrder = [
-  17, 3, 71, 94, 81, 97, 95, 72, 73, 74, 75, 96, 76, 86, 82, 83, 84, 85,
-  87, 88, 89, 90, 92, 91, 93,
-];
-const priorityRank = new Map(priorityOrder.map((issueNumber, index) => [issueNumber, index]));
-dependencyReady.sort((a, b) => {
-  const rankA = priorityRank.get(a.number) ?? Number.MAX_SAFE_INTEGER;
-  const rankB = priorityRank.get(b.number) ?? Number.MAX_SAFE_INTEGER;
-  if (rankA !== rankB) return rankA - rankB;
-  return a.number - b.number;
-});
+// Explicit P0-P3 priority first; preserve FIFO order within each priority class.
+const orderedTasks = sortTaskIssues(dependencyReady);
 
-const selected = dependencyReady[0];
+const selected = orderedTasks[0];
 if (!selected) {
   appendFileSync(output, "issue_number=\n", "utf8");
   console.log(blockedByDependencies > 0
