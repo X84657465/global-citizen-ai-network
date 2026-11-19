@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { apiCooldownUntil, cooldownActive, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
 import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
 import { collectGitHubPages } from "../lib/github-pagination.mjs";
+import { isMergedTaskPullRequest } from "../lib/agent-task-queue.mjs";
 
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
@@ -168,7 +169,7 @@ try {
       pull,
       issueNumber: Number(/<!-- ai-task:(\d+) -->/.exec(pull.body || "")?.[1]) || null,
     })).filter((entry) => entry.issueNumber);
-    const completedByMerge = new Set(taskPulls.filter((entry) => entry.pull.merged === true).map((entry) => entry.issueNumber));
+    const completedByMerge = new Set(taskPulls.filter((entry) => isMergedTaskPullRequest(entry.pull)).map((entry) => entry.issueNumber));
     const activeTaskPull = taskPulls.some((entry) => entry.pull.state === "open");
     const openTasks = openIssues.filter((issue) => !issue.pull_request && issue.title?.startsWith("[AI Task]"));
     const pendingTasks = openTasks.filter((issue) => !skipped.has(issue.number) && !completedByMerge.has(issue.number));
