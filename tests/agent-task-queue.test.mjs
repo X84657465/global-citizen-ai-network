@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { taskPriority, compareTaskIssues, sortTaskIssues, isMergedTaskPullRequest, isTaskAlreadyPublished } from "../lib/agent-task-queue.mjs";
+
+const selectorSource = readFileSync(new URL("../scripts/select-agent-task.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 
 const issue = (number, created_at, priority = null) => ({
   number, created_at, body: priority ? "## Priority\n" + priority + "\n\n## Goal\n..." : "## Goal\n...",
@@ -62,4 +65,12 @@ test("merged task PRs and quarantined tasks remain excluded even when queued met
   assert.equal(isTaskAlreadyPublished(42, { status: "queued", quarantined: false }, new Set(), new Set([42])), true);
   assert.equal(isTaskAlreadyPublished(42, { status: "queued", quarantined: true }, new Set([42]), new Set()), true);
   assert.equal(isTaskAlreadyPublished(42, { status: "queued", quarantined: false }, new Set(), new Set()), false);
+});
+
+
+test("task selector applies durable retry eligibility instead of blanket open-PR exclusion", () => {
+  assert.ok(selectorSource.includes("isTaskAlreadyPublished("));
+  assert.ok(selectorSource.includes("openTaskPrNumbers"));
+  assert.ok(selectorSource.includes("mergedTaskIssueNumbers"));
+  assert.equal(selectorSource.includes("!alreadyPublished.has(issue.number)"), false);
 });
