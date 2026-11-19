@@ -88,7 +88,7 @@ test("workspace bootstrap validates the essential conversation response before r
 
 
 test("public homepage provides visible keyboard focus and respects reduced-motion preferences", () => {
-  assert.ok(homeCss.includes(".page :where("));
+  assert.ok(homeCss.includes(".page a:focus-visible"));
   assert.match(homeCss, /:focus-visible/);
   assert.match(homeCss, /outline: 3px solid/);
   assert.ok(homeCss.includes("@media (prefers-reduced-motion: reduce)"));
