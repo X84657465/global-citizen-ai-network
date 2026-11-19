@@ -234,7 +234,7 @@ test("transition mode remains idempotent after awaiting_ci has released the work
 test("candidate success callback recovers when the system-breaker write fails after task completion", async () => {
   const initial = awaitingCandidate();
   initial.system.consecutive_failures = 2;
-  const store = fakeStore(initial, { failWriteAt: 2 });
+  const store = fakeStore(initial, { failWriteAt: 3 });
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
   await startCandidate(controller, "555003");
   const env = {
@@ -256,7 +256,7 @@ test("candidate success callback recovers when the system-breaker write fails af
 });
 
 test("candidate failure callback recovers when the requeue write fails after rejection is persisted", async () => {
-  const store = fakeStore(awaitingCandidate(), { failWriteAt: 2 });
+  const store = fakeStore(awaitingCandidate(), { failWriteAt: 3 });
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
   await startCandidate(controller, "555004");
   const env = {
