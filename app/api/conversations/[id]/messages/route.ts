@@ -19,8 +19,9 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
   const { data, error } = await auth.supabase
     .from("messages")
-    .select("id,role,content,model,created_at")
+    .select("id,role,content,created_at")
     .eq("conversation_id", id)
+    .eq("owner_id", auth.user.id)
     .order("created_at", { ascending: true })
     .limit(500);
 
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   const { data, error } = await auth.supabase
     .from("messages")
     .insert({ conversation_id: id, owner_id: auth.user.id, role: "user", content })
-    .select("id,role,content,model,created_at")
+    .select("id,role,content,created_at")
     .single();
 
   if (error) return NextResponse.json({ error: "目前無法儲存訊息。" }, { status: 400 });
