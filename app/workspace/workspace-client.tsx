@@ -85,45 +85,67 @@ export default function WorkspaceClient() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([
+    Promise.allSettled([
       fetch("/api/conversations", { cache: "no-store" }),
       fetch("/api/ai/pending", { cache: "no-store" }),
       fetch("/api/projects", { cache: "no-store" }),
     ])
-      .then(async ([conversationResponse, pendingResponse, projectResponse]) => {
+      .then(async ([conversationResult, pendingResult, projectResult]) => {
+        if (conversationResult.status === "rejected") throw conversationResult.reason;
+        const conversationResponse = conversationResult.value;
         const data = await conversationResponse.json() as { conversations?: Conversation[] } & ApiError;
-        const projectData = projectResponse.ok
-          ? await projectResponse.json() as { projects?: ProjectOption[] }
-          : { projects: [] as ProjectOption[] };
-        const pendingData = await pendingResponse.json() as {
+        if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
+
+        // Conversation history is essential. Pending recovery and project
+        // metadata are optional: transient failures there must not blank the
+        // entire workspace or prevent a member from opening saved messages.
+        let projectData: { projects?: ProjectOption[] } = { projects: [] };
+        if (projectResult.status === "fulfilled" && projectResult.value.ok) {
+          try { projectData = await projectResult.value.json() as { projects?: ProjectOption[] }; }
+          catch { /* Keep the workspace usable without project metadata. */ }
+        }
+
+        let pendingAvailable = false;
+        let pendingResponse: Response | null = null;
+        let pendingData: {
           pending?: { conversationId: string; idempotencyKey: string; content: string; status: string } | null;
           unresolved?: boolean;
           recoverable?: boolean;
-        } & ApiError;
-        if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
+        } & ApiError = {};
+        if (pendingResult.status === "fulfilled") {
+          pendingResponse = pendingResult.value;
+          if (pendingResponse.ok) {
+            try {
+              pendingData = await pendingResponse.json() as typeof pendingData;
+              pendingAvailable = true;
+            } catch { /* Preserve local idempotency data if server recovery is unavailable. */ }
+          }
+        }
         if (!cancelled) {
           setConversations(data.conversations ?? []);
           setProjects((projectData.projects ?? []).filter(project => !project.archived_at));
           const recovered = pendingData.pending;
-          if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
+          if (pendingAvailable && recovered?.conversationId && recovered.idempotencyKey) {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
             storePendingContent(recovered.conversationId, recovered.content);
             setPendingConversationId(recovered.conversationId);
             setPendingRecoveryBlocked(false);
             setNotice("已從伺服器恢復一筆尚待核對的 AI 請求，返回原對話查看原始內容與狀態，等待管理員核對。");
-          } else if (pendingResponse.ok && pendingData.unresolved === false) {
+          } else if (pendingAvailable && pendingData.unresolved === false) {
             // The server is authoritative: clear stale tab-local keys after the
             // request has been completed or safely failed/reconciled.
             clearAllStoredPendingRequests();
             setPendingConversationId("");
             setPendingRecoveryBlocked(false);
-          } else if (pendingResponse.ok && pendingData.unresolved === true) {
+          } else if (pendingAvailable && pendingData.unresolved === true) {
             // Do not discard a possibly valid local key when the server found
             // an unresolved request but could not safely reconstruct its prompt.
             setPendingConversationId(findStoredPendingConversationId());
             setPendingRecoveryBlocked(true);
             setNotice("系統找到尚未結案的 AI 請求，但無法安全還原原始訊息，已暫停新請求並保留本機資料，請由管理員核對，不要更換冪等鍵。");
           } else {
+            // Do not clear local pending keys on a failed or malformed server
+            // response; they may be the only copy of an ambiguous request key.
             setPendingConversationId(findStoredPendingConversationId());
           }
         }
