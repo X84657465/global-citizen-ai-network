@@ -178,3 +178,24 @@ test("workspace message API scopes reads to the authenticated owner and returns 
 test("workspace message API forces authenticated ownership on client-created messages", () => {
   assert.match(workspaceMessagesRoute, /\.insert\(\{ conversation_id: id, owner_id: auth\.user\.id, role: "user", content \}\)/);
 });
+
+
+const messageRoute = readFileSync(new URL("../app/api/conversations/[id]/messages/route.ts", import.meta.url), "utf8");
+
+test("message history API is authenticated, owner-scoped, bounded, and non-cacheable", () => {
+  assert.match(messageRoute, /const auth = await getAuthenticatedClient\(\)/);
+  assert.match(messageRoute, /\.eq\("conversation_id", id\)/);
+  assert.match(messageRoute, /\.eq\("owner_id", auth\.user\.id\)/);
+  assert.match(messageRoute, /\.select\("id,role,content,created_at"\)/);
+  assert.match(messageRoute, /\.limit\(500\)/);
+  assert.match(messageRoute, /Cache-Control": "no-store"/);
+  assert.doesNotMatch(messageRoute, /\.select\([^\n]*model/);
+});
+
+test("message creation derives owner and role from the authenticated server context", () => {
+  assert.match(messageRoute, /\.insert\(\{\s*conversation_id: id,\s*owner_id: auth\.user\.id,\s*role: "user",\s*content\s*\}\)/);
+  assert.match(messageRoute, /readJsonBody\(request, 98304\)/);
+  assert.match(messageRoute, /content\.length < 1 \|\| content\.length > 20000/);
+  assert.match(messageRoute, /Cache-Control": "no-store"/);
+  assert.doesNotMatch(messageRoute, /input\.role|input\.owner_id|input\.model/);
+});
