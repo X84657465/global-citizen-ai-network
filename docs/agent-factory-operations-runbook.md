@@ -68,6 +68,14 @@ Candidate code is executed in disposable Docker containers. The workflow does no
 
 **Do not claim least-privilege completion yet.** Because GitHub token permissions are job-scoped, the remaining write scopes are still available to trusted steps throughout the combined job. A safe future split should introduce a distinct publisher job with only `contents: write` and `pull-requests: write`, and a state/issue writer with only `issues: write`; read-only preparation should receive only `contents: read` and `issues: read`. The split must explicitly transfer and validate immutable task/plan/patch artifacts, candidate base SHA, lease ID, issue number, runner identity and exact test evidence. It must preserve single-runner serialization, lease recovery, idempotent deterministic branch publication, failure classification, and cleanup. Do not split until integration tests cover cancellation, artifact expiry/tampering, stale base commits, publisher retries, and partial state-write recovery.
 
+## Processed-event ledger capacity
+
+- V2 currently stores at most 500 processed event keys in the durable state Issue.
+- The state machine must never evict an older key to make room: replaying an evicted system/candidate event could otherwise apply a stale side effect again.
+- When the ledger reaches capacity, new event-bearing transitions fail closed with an explicit capacity error; already-recorded duplicate events remain harmless and return as duplicates.
+- This is an intentional safety stop, not normal steady-state operation. Before the limit is reached in sustained production use, implement and test a schema migration to a compact, auditable idempotency representation (for example, per-task candidate event identity plus monotonic workflow-run/attempt watermarks where the source guarantees ordering). Do not manually delete processed keys or edit the state Issue to bypass the stop.
+- Monitor the serialized state Issue size and processed-event count. A full ledger requires a reviewed migration and recovery procedure; it must not be silently reset.
+
 ## Backup and rollback
 
 - Before any future Production release, confirm a recent recoverable Supabase backup/PITR point in the Supabase Dashboard and record its timestamp. This runbook does not claim that a backup was created or restore-tested.
