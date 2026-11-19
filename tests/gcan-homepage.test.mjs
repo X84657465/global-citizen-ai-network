@@ -130,8 +130,8 @@ test("public homepage skip link targets the main landmark and mission navigation
 
 
 test("build configuration scopes Next.js tracing and exports a named ESLint config", () => {
-  assert.match(nextConfig, /outputFileTracingRoot:\\s*process\\.cwd\\(\\)/);
-  assert.match(eslintConfig, /const eslintConfig = \\[/);
-  assert.match(eslintConfig, /export default eslintConfig;/);
-  assert.doesNotMatch(eslintConfig, /export default \\[/);
+  assert.ok(nextConfig.includes("outputFileTracingRoot: process.cwd(),"));
+  assert.ok(eslintConfig.includes("const eslintConfig = ["));
+  assert.ok(eslintConfig.includes("export default eslintConfig;"));
+  assert.ok(!eslintConfig.includes("export default ["));
 });
