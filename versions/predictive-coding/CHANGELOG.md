@@ -11,3 +11,11 @@
 ### Verification
 - Architecture and governance documentation only.
 - No live telemetry ingestion, predictive model training or production decision automation.
+
+## 0.1.1 — 2026-11-20
+
+### Fixed
+- Scope table and footer element selectors to local CSS Module classes so the production build accepts the workspace styles.
+
+### Verification
+- CI rerun required for this exact commit.
