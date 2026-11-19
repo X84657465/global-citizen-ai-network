@@ -151,7 +151,7 @@ export default function HomePage() {
       <section className={styles.ctaSection}>
         <div className={styles.ctaIcon}><LockKeyhole size={22} /></div>
         <div><div className={styles.sectionEyebrow}>BUILDING IN PUBLIC</div><h2>一起把想法，變成真正可用的平台</h2><p>目前仍在早期建置與驗證階段，功能會依安全、成本與品質條件逐步開放。</p></div>
-        <Link href="/login" className={styles.primaryButton}>進入會員入口 <ArrowRight size={17} /></Link>
+        <Link href="/workspace" className={styles.primaryButton}>前往 AI 工作空間 <ArrowRight size={17} /></Link>
       </section>
 
       <footer className={styles.footer}>
