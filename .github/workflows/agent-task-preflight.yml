@@ -43,6 +43,7 @@ permissions:
 concurrency:
   group: global-citizen-ai-network-self-hosted-runner
   cancel-in-progress: false
+  queue: max
 
 jobs:
   validation-tests:
