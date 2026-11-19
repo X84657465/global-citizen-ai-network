@@ -144,6 +144,11 @@ jobs:
             if (-not $model.name) { throw "Ollama returned a model entry without a name" }
             Write-Host "Ollama model available: $($model.name)"
           }
+      - name: Verify Ollama can perform a bounded structured inference
+        env:
+          OLLAMA_BASE_URL: http://127.0.0.1:11434
+          OLLAMA_SMOKE_TIMEOUT_MS: "180000"
+        run: node scripts/ollama-smoke-test.mjs
       - name: Migration filename safety guard
         id: migration-guard
         run: node scripts/check-migration-versions.mjs
