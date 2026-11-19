@@ -175,7 +175,8 @@ test("suspended and closed accounts cannot read member data; restricted accounts
     rollback;
   `);
   assert.match(output, /restricted:1/);
-  assert.match(output, /suspended:0/);\n  assert.match(output, /closed:0/);
+  assert.match(output, /suspended:0/);
+  assert.match(output, /closed:0/);
 });
 
 test("client cannot access service-only audit records", () => {
