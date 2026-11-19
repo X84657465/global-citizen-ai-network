@@ -370,8 +370,9 @@ jobs:
         if: failure()
         env:
           DATABASE_TESTS: ${{ steps.database-tests.outcome }}
+          APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}
         run: |
-          if ($env:DATABASE_TESTS -eq "failure") {
+          if ($env:DATABASE_TESTS -eq "failure" -or $env:APPLICATION_RLS_TESTS -eq "failure") {
             [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task`n", [System.Text.UTF8Encoding]::new($false))
             Write-Host "Database/RLS assertion failure is attributable to the task."
           } else {
