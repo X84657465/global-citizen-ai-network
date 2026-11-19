@@ -1,4 +1,5 @@
 import {
+  appendFileSync,
   existsSync,
   readFileSync,
   lstatSync,
@@ -12,7 +13,10 @@ import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
 import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 
-const fail = (message) => {
+const fail = (message, scope = "system") => {
+  if (scope === "task" && process.env.GITHUB_ENV) {
+    appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+  }
   console.error("Agent patch generation failed: " + message);
   process.exit(1);
 };
@@ -271,22 +275,22 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
   clearInterval(heartbeat);
 
   if (typeof result.response !== "string" || result.response.length === 0) {
-    fail("Local model returned an empty patch proposal for batch " + (batchIndex + 1) + ".");
+    fail("Local model returned an empty patch proposal for batch " + (batchIndex + 1) + ".", "task");
   }
   if (result.done_reason === "length") {
     const generated = Number.isInteger(result.eval_count) ? result.eval_count : "unknown";
     fail("Local model output reached the token limit in batch " + (batchIndex + 1) +
-      " (" + generated + " generated tokens); incomplete source files are rejected before scratch testing.");
+      " (" + generated + " generated tokens); incomplete source files are rejected before scratch testing.", "task");
   }
   if (Buffer.byteLength(result.response, "utf8") > 256 * 1024) {
-    fail("Local model patch batch " + (batchIndex + 1) + " exceeded the 256 KiB response limit.");
+    fail("Local model patch batch " + (batchIndex + 1) + " exceeded the 256 KiB response limit.", "task");
   }
 
   let candidate;
   try {
     candidate = JSON.parse(result.response);
   } catch {
-    fail("Local model did not return a valid JSON patch manifest for batch " + (batchIndex + 1) + ".");
+    fail("Local model did not return a valid JSON patch manifest for batch " + (batchIndex + 1) + ".", "task");
   }
 
   let validatedBatch;
@@ -294,7 +298,7 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
     validatedBatch = validatePatchManifest(candidate, scopedTask, existingPaths);
   } catch (error) {
     fail("Patch batch " + (batchIndex + 1) + " failed validation: " +
-      (error instanceof Error ? error.message : "unknown validation error"));
+      (error instanceof Error ? error.message : "unknown validation error"), "task");
   }
 
   proposedFiles.push(...validatedBatch.files);
@@ -312,7 +316,7 @@ try {
   );
 } catch (error) {
   fail("Combined patch failed final validation: " +
-    (error instanceof Error ? error.message : "unknown validation error"));
+    (error instanceof Error ? error.message : "unknown validation error"), "task");
 }
 
 try {
