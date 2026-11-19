@@ -14,7 +14,7 @@ test("parses exactly one positive AI task marker", () => {
 
 test("requires the task branch to identify the same issue", () => {
   assert.equal(isAgentTaskBranchForIssue("ai-task/issue-73-a1b2c3d4e5f6", 73), true);
-  assert.equal(isAgentTaskBranchForIssue("ai-task/issue-730-a1b2c3", 73), false);
+  assert.equal(isAgentTaskBranchForIssue("ai-task/issue-730-a1b2c3d4e5f6", 73), false);
   assert.equal(isAgentTaskBranchForIssue("codex/issue-73-a1b2c3", 73), false);
   assert.equal(isAgentTaskBranchForIssue("ai-task/issue-73-", 73), false);
   assert.equal(isAgentTaskBranchForIssue("ai-task/issue-73-a1b2c3", 73), false);
