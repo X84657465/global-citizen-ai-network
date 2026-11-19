@@ -12,6 +12,12 @@ const metadata = (overrides = {}) => ({
 });
 const event = (suffix) => "workflow-run-123456-" + suffix;
 
+const move = (state, issueNumber, nextStatus, details = {}, now = Date.now()) =>
+  transitionTask(state, issueNumber, state.active_task?.lease_id, nextStatus, details, now);
+
+const failTask = (state, issueNumber, eventKey, errorCode, summary, now = Date.now()) =>
+  recordTaskFailure(state, issueNumber, state.active_task?.lease_id, eventKey, errorCode, summary, now);
+
 test("creates a valid versioned empty state", () => {
   const state = createInitialFactoryState(1000);
   assert.equal(state.schema_version, 2);
@@ -33,14 +39,14 @@ test("rejects incomplete reservation metadata", () => {
 
 test("enforces legal state transitions and releases terminal leases", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
-  assert.throws(() => transitionTask(state, 42, "publishing"), /Illegal task state transition/);
-  state = transitionTask(state, 42, "preparing", {}, 2000);
-  state = transitionTask(state, 42, "planning", {}, 3000);
-  state = transitionTask(state, 42, "patching", {}, 4000);
-  state = transitionTask(state, 42, "sandbox_testing", {}, 5000);
-  state = transitionTask(state, 42, "publishing", {}, 6000);
-  state = transitionTask(state, 42, "draft_pr_created", { head_sha: "b".repeat(40), pull_request_number: 99 }, 7000);
-  state = transitionTask(state, 42, "awaiting_ci", {}, 8000);
+  assert.throws(() => move(state, 42, "publishing"), /Illegal task state transition/);
+  state = move(state, 42, "preparing", {}, 2000);
+  state = move(state, 42, "planning", {}, 3000);
+  state = move(state, 42, "patching", {}, 4000);
+  state = move(state, 42, "sandbox_testing", {}, 5000);
+  state = move(state, 42, "publishing", {}, 6000);
+  state = move(state, 42, "draft_pr_created", { head_sha: "b".repeat(40), pull_request_number: 99 }, 7000);
+  state = move(state, 42, "awaiting_ci", {}, 8000);
   assert.equal(state.active_task, null);
   assert.equal(state.tasks["42"].status, "awaiting_ci");
   assert.equal(state.tasks["42"].head_sha, "b".repeat(40));
@@ -49,18 +55,18 @@ test("enforces legal state transitions and releases terminal leases", () => {
 test("counts each task failure event once and quarantines after three distinct attempts", () => {
   let state = createInitialFactoryState(1000);
   state = reserveTask(state, metadata(), 1500);
-  let result = recordTaskFailure(state, 42, event("1"), "PATCH_INVALID", "bad json", 2000);
+  let result = failTask(state, 42, event("1"), "PATCH_INVALID", "bad json", 2000);
   state = result.state;
   assert.equal(result.duplicate, false);
-  result = recordTaskFailure(state, 42, event("1"), "PATCH_INVALID", "duplicate event", 3000);
+  result = failTask(state, 42, event("1"), "PATCH_INVALID", "duplicate event", 3000);
   assert.equal(result.duplicate, true);
   assert.equal(result.state.tasks["42"].failures, 1);
   state = requeueTask(state, 42, 62_000);
   state = reserveTask(state, metadata({ lease_id: "lease-attempt-2", workflow_run_id: "run-123457" }), 62_000);
-  state = recordTaskFailure(state, 42, event("2"), "PATCH_INVALID", "bad json", 63_000).state;
+  state = failTask(state, 42, event("2"), "PATCH_INVALID", "bad json", 63_000).state;
   state = requeueTask(state, 42, 183_000);
   state = reserveTask(state, metadata({ lease_id: "lease-attempt-3", workflow_run_id: "run-123458" }), 183_000);
-  result = recordTaskFailure(state, 42, event("3"), "PATCH_INVALID", "bad json", 184_000);
+  result = failTask(state, 42, event("3"), "PATCH_INVALID", "bad json", 184_000);
   assert.equal(result.quarantined, true);
   assert.equal(result.state.tasks["42"].quarantined, true);
 });
@@ -68,7 +74,7 @@ test("counts each task failure event once and quarantines after three distinct a
 test("task failures do not increment the global system breaker", () => {
   let state = createInitialFactoryState(1000);
   state = reserveTask(state, metadata(), 1500);
-  state = recordTaskFailure(state, 42, event("task"), "TEST_FAILURE", "assertion failed", 2000).state;
+  state = failTask(state, 42, event("task"), "TEST_FAILURE", "assertion failed", 2000).state;
   assert.equal(state.system.consecutive_failures, 0);
   assert.equal(isSystemCooldownActive(state, 2000), false);
 });
@@ -86,16 +92,16 @@ test("system failures release the lease and open a 15-minute cooldown after thre
 
 test("task success clears only that task retry record", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
-  state = recordTaskFailure(state, 42, event("fail"), "PATCH_INVALID", "bad", 2000).state;
+  state = failTask(state, 42, event("fail"), "PATCH_INVALID", "bad", 2000).state;
   state = requeueTask(state, 42, 62_000);
   state = reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 62_000);
-  state = transitionTask(state, 42, "preparing", {}, 62_100);
-  state = transitionTask(state, 42, "planning", {}, 62_200);
-  state = transitionTask(state, 42, "patching", {}, 62_300);
-  state = transitionTask(state, 42, "sandbox_testing", {}, 62_400);
-  state = transitionTask(state, 42, "publishing", {}, 62_500);
-  state = transitionTask(state, 42, "draft_pr_created", { head_sha: "c".repeat(40), pull_request_number: 99 }, 62_600);
-  state = transitionTask(state, 42, "awaiting_ci", {}, 62_700);
+  state = move(state, 42, "preparing", {}, 62_100);
+  state = move(state, 42, "planning", {}, 62_200);
+  state = move(state, 42, "patching", {}, 62_300);
+  state = move(state, 42, "sandbox_testing", {}, 62_400);
+  state = move(state, 42, "publishing", {}, 62_500);
+  state = move(state, 42, "draft_pr_created", { head_sha: "c".repeat(40), pull_request_number: 99 }, 62_600);
+  state = move(state, 42, "awaiting_ci", {}, 62_700);
   state.system.consecutive_failures = 2;
   const evidence = { head_sha: "c".repeat(40), pull_request_number: 99, ci_conclusion: "success", ci_run_id: "ci-123", ci_run_attempt: 1 };
   const result = recordTaskSuccess(state, 42, event("success"), evidence, 63_000);
@@ -108,7 +114,7 @@ test("task success clears only that task retry record", () => {
 test("system success clears system cooldown without erasing task failures", () => {
   let state = createInitialFactoryState(1000);
   state = reserveTask(state, metadata(), 1500);
-  state = recordTaskFailure(state, 42, event("task-fail"), "PATCH_INVALID", "bad", 2000).state;
+  state = failTask(state, 42, event("task-fail"), "PATCH_INVALID", "bad", 2000).state;
   state = recordSystemFailure(state, event("sys-fail"), "OLLAMA_OFFLINE", "offline", 3000).state;
   const result = recordSystemSuccess(state, event("sys-success"), 4000);
   assert.equal(result.state.system.consecutive_failures, 0);
@@ -135,7 +141,7 @@ test("rejects duplicate or missing event keys", () => {
 });
 test("task retry enters backoff and cannot be reserved until requeued", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
-  state = recordTaskFailure(state, 42, event("retry"), "PATCH_INVALID", "invalid manifest", 2000).state;
+  state = failTask(state, 42, event("retry"), "PATCH_INVALID", "invalid manifest", 2000).state;
   assert.equal(state.tasks["42"].status, "retry_wait");
   assert.throws(() => reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 3000), /not currently queued/);
   assert.throws(() => requeueTask(state, 42, 60_000), /backoff has not elapsed/);
@@ -148,25 +154,25 @@ test("task retry enters backoff and cannot be reserved until requeued", () => {
 test("task success cannot clear a quarantine without owning the active lease", () => {
   let state = createInitialFactoryState(1000);
   state = reserveTask(state, metadata(), 1500);
-  state = recordTaskFailure(state, 42, event("q1"), "PATCH_INVALID", "bad", 2000).state;
+  state = failTask(state, 42, event("q1"), "PATCH_INVALID", "bad", 2000).state;
   state = requeueTask(state, 42, 62_000);
   state = reserveTask(state, metadata({ lease_id: "lease-q2", workflow_run_id: "run-q2" }), 62_000);
-  state = recordTaskFailure(state, 42, event("q2"), "PATCH_INVALID", "bad", 63_000).state;
+  state = failTask(state, 42, event("q2"), "PATCH_INVALID", "bad", 63_000).state;
   state = requeueTask(state, 42, 183_000);
   state = reserveTask(state, metadata({ lease_id: "lease-q3", workflow_run_id: "run-q3" }), 183_000);
-  state = recordTaskFailure(state, 42, event("q3"), "PATCH_INVALID", "bad", 184_000).state;
+  state = failTask(state, 42, event("q3"), "PATCH_INVALID", "bad", 184_000).state;
   assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), {}, 5000), /exact pending candidate SHA and PR/);
   assert.equal(state.tasks["42"].quarantined, true);
 });
 test("candidate CI failure is recorded separately from worker task retries", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
-  state = transitionTask(state, 42, "preparing", {}, 1100);
-  state = transitionTask(state, 42, "planning", {}, 1200);
-  state = transitionTask(state, 42, "patching", {}, 1300);
-  state = transitionTask(state, 42, "sandbox_testing", {}, 1400);
-  state = transitionTask(state, 42, "publishing", {}, 1500);
-  state = transitionTask(state, 42, "draft_pr_created", { head_sha: "d".repeat(40), pull_request_number: 77 }, 1600);
-  state = transitionTask(state, 42, "awaiting_ci", {}, 1700);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", { head_sha: "d".repeat(40), pull_request_number: 77 }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
   const evidence = { head_sha: "d".repeat(40), pull_request_number: 77, ci_conclusion: "failure", ci_run_id: "ci-456", ci_run_attempt: 1 };
   assert.throws(() => recordCandidateFailure(state, 42, event("wrong-sha"), { ...evidence, head_sha: "e".repeat(40) }, "stale run", 1800), /exact pending candidate SHA/);
   const result = recordCandidateFailure(state, 42, event("candidate-fail"), evidence, "lint failed", 1900);
@@ -177,15 +183,15 @@ test("candidate CI failure is recorded separately from worker task retries", () 
 
 test("explicitly requeues a candidate CI rejection for a new worker attempt", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
-  state = transitionTask(state, 42, "preparing", {}, 1100);
-  state = transitionTask(state, 42, "planning", {}, 1200);
-  state = transitionTask(state, 42, "patching", {}, 1300);
-  state = transitionTask(state, 42, "sandbox_testing", {}, 1400);
-  state = transitionTask(state, 42, "publishing", {}, 1500);
-  state = transitionTask(state, 42, "draft_pr_created", {
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
     head_sha: "f".repeat(40), pull_request_number: 78,
   }, 1600);
-  state = transitionTask(state, 42, "awaiting_ci", {}, 1700);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
 
   const evidence = {
     head_sha: "f".repeat(40), pull_request_number: 78,
@@ -204,4 +210,36 @@ test("explicitly requeues a candidate CI rejection for a new worker attempt", ()
   }), 2000);
   assert.equal(state.active_task.issue_number, 42);
   assert.equal(state.active_task.attempt, 2);
+});
+
+
+test("stale workers cannot transition or fail a newer lease for the same Issue", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata({
+    lease_id: "lease-old-worker", lease_ms: 60_000,
+  }), 1000);
+  const recovered = recoverExpiredLease(state, {
+    workflow_still_running: false, event_key: event("old-lease-recovered"),
+  }, 61_200);
+  assert.equal(recovered.recovered, true);
+  state = reserveTask(recovered.state, metadata({
+    lease_id: "lease-current-worker", workflow_run_id: "run-current",
+    run_attempt: 2,
+  }), 62_000);
+
+  assert.throws(
+    () => transitionTask(state, 42, "lease-old-worker", "preparing"),
+    /lease ID/,
+  );
+  assert.throws(
+    () => recordTaskFailure(
+      state, 42, "lease-old-worker", event("stale-worker-failure"),
+      "PATCH_INVALID", "stale worker must not mutate the current task", 63_000,
+    ),
+    /lease ID/,
+  );
+
+  assert.equal(state.active_task.lease_id, "lease-current-worker");
+  assert.equal(state.tasks["42"].status, "reserved");
+  state = move(state, 42, "preparing", {}, 64_000);
+  assert.equal(state.active_task.state, "preparing");
 });
