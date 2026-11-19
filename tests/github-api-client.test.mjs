@@ -66,3 +66,77 @@ test("surfaces long rate-limit waits to the controller instead of sleeping throu
   assert.equal(calls, 1);
   assert.deepEqual(delays, []);
 });
+
+test("retries an explicitly retry-safe PATCH after a transient server error", async () => {
+  let calls = 0;
+  const delays = [];
+  const client = createGitHubApiClient({
+    fetchImpl: async () => {
+      calls += 1;
+      return calls === 1
+        ? response(503, { message: "temporarily unavailable" })
+        : response(200, { updated: true });
+    },
+    sleep: async (ms) => delays.push(ms),
+  });
+
+  assert.deepEqual(await client.request("/repos/example/repo/issues/7", {
+    method: "PATCH",
+    retrySafe: true,
+    body: { state: "closed" },
+  }), { updated: true });
+  assert.equal(calls, 2);
+  assert.deepEqual(delays, [500]);
+});
+
+test("does not retry PATCH unless the caller explicitly marks it retry-safe", async () => {
+  let calls = 0;
+  const client = createGitHubApiClient({
+    fetchImpl: async () => {
+      calls += 1;
+      return response(503, { message: "temporarily unavailable" });
+    },
+    sleep: async () => {},
+  });
+
+  await assert.rejects(client.request("/repos/example/repo/issues/7", {
+    method: "PATCH",
+    body: { state: "closed" },
+  }), (error) => error.status === 503);
+  assert.equal(calls, 1);
+});
+
+test("retries a safe request after a transient network failure", async () => {
+  let calls = 0;
+  const delays = [];
+  const client = createGitHubApiClient({
+    fetchImpl: async () => {
+      calls += 1;
+      if (calls === 1) throw new Error("socket reset");
+      return response(200, { recovered: true });
+    },
+    sleep: async (ms) => delays.push(ms),
+  });
+
+  assert.deepEqual(await client.request("/repos/example/repo"), { recovered: true });
+  assert.equal(calls, 2);
+  assert.deepEqual(delays, [500]);
+});
+
+test("never retries POST even when retrySafe is mistakenly requested", async () => {
+  let calls = 0;
+  const client = createGitHubApiClient({
+    fetchImpl: async () => {
+      calls += 1;
+      return response(503, { message: "ambiguous gateway failure" });
+    },
+    sleep: async () => {},
+  });
+
+  await assert.rejects(client.request("/repos/example/repo/issues", {
+    method: "POST",
+    retrySafe: true,
+    body: { title: "must not duplicate" },
+  }), (error) => error.status === 503);
+  assert.equal(calls, 1);
+});
