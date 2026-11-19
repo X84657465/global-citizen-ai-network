@@ -73,3 +73,35 @@ test("validates stream collection limits", async () => {
     /positive safe integer/,
   );
 });
+
+test("rejects a single oversized NDJSON line before its newline arrives", async () => {
+  const body = streamOf(['{"response":"' + "x".repeat(128) ]);
+  await assert.rejects(
+    collectOllamaGenerateStream(body, () => {}, { maxLineBytes: 64 }),
+    /maximum NDJSON line size/,
+  );
+});
+
+test("rejects oversized complete NDJSON lines before JSON parsing", async () => {
+  const body = streamOf(['{"response":"' + "x".repeat(128) + '" ,"done":true}\n']);
+  await assert.rejects(
+    collectOllamaGenerateStream(body, () => {}, { maxLineBytes: 64 }),
+    /maximum NDJSON line size/,
+  );
+});
+
+test("surfaces Ollama stream-level error payloads as failures", async () => {
+  const body = streamOf(['{"error":"model runner crashed"}\n']);
+  await assert.rejects(
+    collectOllamaGenerateStream(body),
+    /model runner crashed/,
+  );
+});
+
+test("validates the NDJSON line-size limit", async () => {
+  const body = streamOf(['{"response":"ok","done":true}\n']);
+  await assert.rejects(
+    collectOllamaGenerateStream(body, () => {}, { maxLineBytes: 0 }),
+    /positive safe integer/,
+  );
+});
