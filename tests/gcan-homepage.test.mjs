@@ -61,7 +61,7 @@ test("workspace bootstrap keeps conversations available when optional project or
 test("workspace bootstrap validates optional API JSON shapes before using project or pending data", () => {
   assert.match(workspaceClient, /const parsedProjects: unknown = await projectResult\.value\.json\(\)/);
   assert.match(workspaceClient, /Array\.isArray\(candidateProjects\)/);
-  assert.match(workspaceClient, /typeof \(project as ProjectOption\)\.id === "string"/);
+  assert.match(workspaceClient, /isUuid\(\(project as ProjectOption\)\.id\)/);
   assert.match(workspaceClient, /title === "string"/);
   assert.match(workspaceClient, /archived_at === null/);
   assert.match(workspaceClient, /const parsedPending: unknown = await pendingResponse\.json\(\)/);
@@ -81,7 +81,7 @@ test("workspace bootstrap validates the essential conversation response before r
   assert.match(workspaceClient, /Array\.isArray\(data\.conversations\)/);
   assert.match(workspaceClient, /isUuid\(\(item as Conversation\)\.id\)/);
   assert.match(workspaceClient, /typeof \(item as Conversation\)\.title === "string"/);
-  assert.match(workspaceClient, /typeof \(item as Conversation\)\.updated_at === "string"/);
+  assert.match(workspaceClient, /isValidTimestamp\(\(item as Conversation\)\.updated_at\)/);
   assert.match(workspaceClient, /對話資料格式無效/);
   assert.match(workspaceClient, /setConversations\(data\.conversations as Conversation\[\]\)/);
 });
