@@ -103,3 +103,11 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - README status is informational; GitHub Actions remains the source of truth for current CI state.
+
+## 0.3.2 — 2026-11-20
+
+### Changed
+- Synchronize the five-track engineering governance revision and repository release baseline after adding dependent-branch CI support.
+
+### Verification
+- Exact-head CI and independent review remain required.
