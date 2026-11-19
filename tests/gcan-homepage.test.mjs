@@ -46,3 +46,12 @@ test("workspace preserves the original idempotency key when an AI request outcom
   assert.match(workspaceClient, /storePendingContent\(activeId, content\)/);
   assert.match(workspaceClient, /setPendingConversationId\(activeId\)/);
 });
+
+
+test("workspace bootstrap keeps conversations available when optional project or pending APIs fail", () => {
+  assert.match(workspaceClient, /Promise\.allSettled\(\[/);
+  assert.match(workspaceClient, /pendingResult\.status === "fulfilled"/);
+  assert.match(workspaceClient, /projectResult\.status === "fulfilled"/);
+  assert.match(workspaceClient, /pendingAvailable && pendingData\.unresolved === false/);
+  assert.match(workspaceClient, /Do not clear local pending keys on a failed or malformed server/);
+});
