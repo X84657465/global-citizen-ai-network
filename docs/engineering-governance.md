@@ -1,6 +1,6 @@
 # Four-Track Engineering Governance
 
-**Governance revision: 1.0.0**  
+**Governance revision: 1.1.0**  
 **Repository release baseline: 0.1.1**
 
 ## 1. Four development tracks
@@ -9,7 +9,7 @@
 |---|---|---|
 | A — Agent Factory V2 | Autonomous engineering workflow | Task lifecycle, isolated patch generation, CI, recovery, evidence |
 | B — Global Citizen AI Network | Public product | User experience, AI workspace, contribution workflows, ledger and platform |
-| C — Existing third workstream | Existing separately agreed scope | Preserve its established mission; do not invent or silently replace its scope |
+| C — Predictive Coding（預測編碼） | Predictive processing and prediction-error learning | Build explicit prediction, observation, error comparison and model-update loops; publish measurable signals to the other tracks |
 | D — Deep Neural | Neural intelligence foundation | Memory, reasoning, evaluation, knowledge integration and cross-track learning |
 
 Each track owns its own branch, work items, version history, tests and acceptance evidence. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
@@ -34,8 +34,20 @@ Tracks A, B, C and D must exchange reusable knowledge through reviewed, versione
 
 1. A publishes engineering patterns, test fixtures, failure classifications, recovery playbooks and verified automation capabilities.
 2. B contributes real product workflows, user-facing requirements, usability findings and operational constraints.
-3. C contributes its domain-specific requirements, implementation results and verified lessons without losing its independent scope.
-4. D converts approved findings into reusable knowledge, reasoning/evaluation strategies and versioned memory/knowledge modules; it returns improvements to the other tracks.
+3. C (Predictive Coding) publishes explicit predictions, observed outcomes, prediction-error measurements, confidence/calibration data and tested model-update rules. It helps A anticipate task failures, B anticipate user/product needs and D prioritize memory/reasoning updates.
+4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C.
+
+### Four-track mutual-support loop
+
+- **A → B/C/D:** verified automation, reproducible builds, test evidence, failure taxonomy and recovery playbooks.
+- **B → A/C/D:** real product workflows, user feedback, operational constraints, usage patterns and measurable outcomes.
+- **C → A/B/D:** predictions, prediction errors, uncertainty/calibration signals, drift indicators and experimentally validated update rules.
+- **D → A/B/C:** reviewed memory, cross-domain synthesis, reasoning plans, evidence retrieval and evaluation recommendations.
+- **All tracks → all tracks:** changes are proposed as versioned artifacts, reviewed by the receiving owner, tested against that track's acceptance criteria and adopted explicitly.
+
+The shared loop is **observe → predict → act → measure outcome → calculate prediction error → explain/store evidence → revise model or plan → test → publish → adopt → monitor**. Prediction error is a learning signal, not automatic permission to mutate production systems.
+
+No track is a subordinate of another. Each owns its roadmap and release; shared work is coordinated through documented interfaces, dependency records and cross-track PRs.
 
 The learning loop is: **observe → record evidence → classify → review → generalize → test → publish → adopt → measure**.
 
@@ -48,6 +60,8 @@ No track may silently rewrite another track's code, configuration, database or p
 - Common error taxonomy and retry semantics.
 - Evidence format containing repository, branch, commit SHA, test command, result and timestamp.
 - Security and privacy classification for every shared knowledge artifact.
+- Prediction record contract: prediction, target, horizon, confidence, observed outcome, error metric, context/version and evidence provenance.
+- Cross-track learning proposal contract: source evidence, affected tracks, expected benefit, risk, validation plan and receiving-owner decision.
 - Compatibility checks before a shared contract is changed.
 
 ## 5. Quality gates
@@ -79,6 +93,6 @@ Every improvement, including a small one, records:
 
 Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
 
-## 8. Current baseline note
+## 8. Four-track baseline
 
-Track C is represented as `0.0.0` in the manifest only to indicate that its version baseline has not yet been identified. This is not a claim that its work is empty or cancelled. Confirm its established scope and repository before assigning its first release version.
+Track C is now formally named **Predictive Coding（預測編碼）**. Its architecture charter is version `0.1.0`; implementation maturity is not implied by the version number. Track D remains Deep Neural. The overall integration baseline is `0.2.0` for this governance and architecture update. Track versions remain independent and must only advance when their own artifacts change.
