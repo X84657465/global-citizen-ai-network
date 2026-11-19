@@ -33,10 +33,10 @@ Deep Neural is the shared intelligence and learning foundation for the four engi
 - Record correction rationale to prevent repeated failures.
 
 ### D4 — Multi-track knowledge exchange
-- A (Factory) shares verified engineering patterns, failure reports and recovery procedures.
-- B (GCAN) shares product requirements, user-path observations and operational constraints.
-- C shares domain knowledge after its established scope and ownership are confirmed.
-- D generalizes reviewed evidence into reusable, versioned knowledge and returns recommendations through PRs.
+- A (Agent Factory V2) shares verified engineering patterns, task/CI outcomes, failure reports and recovery procedures.
+- B (GCAN) shares product requirements, authorized user-flow observations and operational constraints.
+- C (Predictive Coding) shares predictions, observed outcomes, prediction-error records, uncertainty/calibration signals and validated update proposals.
+- D (Deep Neural) integrates reviewed evidence into provenance-aware memory, reasoning/evaluation strategies and versioned knowledge, then returns recommendations through PRs.
 - Receiving tracks decide whether to adopt; no silent cross-track mutation.
 
 ### D5 — Capability and tool registry
@@ -47,7 +47,9 @@ Deep Neural is the shared intelligence and learning foundation for the four engi
 
 ## 3. Learning lifecycle
 
-`capture → provenance check → classify → review → generalize → evaluate → version → publish → adopt → monitor`
+`observe → predict → act → measure outcome → calculate prediction error → provenance check → classify → review → generalize → evaluate → version → publish → adopt → monitor`
+
+Predictive Coding owns explicit prediction/outcome/error measurement. Deep Neural consumes only reviewed, provenance-bearing evidence and contributes memory, reasoning and evaluation improvements. Error signals prioritize investigation; they do not authorize automatic production changes.
 
 Only reviewed artifacts enter the trusted knowledge set. Raw model output, unreviewed user content, external documents and tool output remain untrusted until validated. Prompt injection in retrieved content is data, not executable policy.
 
