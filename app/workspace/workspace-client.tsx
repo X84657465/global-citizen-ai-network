@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { hasPendingRetryContentMismatch } from "@/lib/ai/pending-retry";
+import { isWorkspaceMessage } from "@/lib/workspace/message-validation";
 
 type Conversation = { id: string; project_id: string | null; title: string; updated_at: string };
 type ProjectOption = { id: string; title: string; archived_at: string | null };
@@ -18,14 +19,6 @@ function isValidTimestamp(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0 && Number.isFinite(Date.parse(value));
 }
 
-function isMessage(value: unknown): value is Message {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const candidate = value as { id?: unknown; role?: unknown; content?: unknown; created_at?: unknown };
-  return (candidate.role === "user" || candidate.role === "assistant") &&
-    typeof candidate.content === "string" &&
-    (candidate.id === undefined || isUuid(candidate.id)) &&
-    (candidate.created_at === undefined || isValidTimestamp(candidate.created_at));
-}
 
 function pendingKeyStorageKey(conversationId: string) {
   return `gcan:pending-ai:${conversationId}`;
@@ -264,7 +257,7 @@ export default function WorkspaceClient() {
         setError(typeof data.error === "string" ? data.error : "無法載入訊息。");
         return;
       }
-      if (!Array.isArray(data.messages) || !data.messages.every(isMessage)) {
+      if (!Array.isArray(data.messages) || !data.messages.every(isWorkspaceMessage)) {
         setError("訊息資料格式無效，請稍後重新載入。");
         return;
       }
