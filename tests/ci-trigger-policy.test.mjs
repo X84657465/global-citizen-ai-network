@@ -240,3 +240,30 @@ test("preflight task publisher does not request Actions API permissions", () => 
   assert.match(permissions, /issues:\s+write/);
   assert.match(permissions, /pull-requests:\s+write/);
 });
+
+
+test("untrusted candidate install and test containers never receive GitHub write credentials", () => {
+  const candidateStart = preflight.indexOf('      - name: Install candidate dependencies inside restricted container (attempt 1)');
+  const candidateEnd = preflight.indexOf('      - name: Transition task to publishing', candidateStart);
+  assert.notEqual(candidateStart, -1, "expected candidate install step");
+  assert.notEqual(candidateEnd, -1, "expected publishing boundary after candidate tests");
+  const candidateSection = preflight.slice(candidateStart, candidateEnd);
+  assert.equal(/GITHUB_TOKEN:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/.test(candidateSection), false);
+  assert.equal(/--env\s+GITHUB_TOKEN|--env\s+GH_TOKEN|--env\s+GITHUB_/.test(candidateSection), false);
+  assert.match(candidateSection, /--network none/);
+  assert.match(candidateSection, /--cap-drop ALL/);
+  assert.match(candidateSection, /--read-only/);
+});
+
+test("preflight GitHub write credentials are scoped to trusted orchestration and publisher steps", () => {
+  const lines = preflight.split("\\n");
+  const tokenSteps = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    if (!/GITHUB_TOKEN:\\s*\\$\\{\\{\\s*secrets\\.GITHUB_TOKEN\\s*\\}\\}/.test(lines[index])) continue;
+    let start = index;
+    while (start > 0 && !/^\\s*- name:/.test(lines[start])) start -= 1;
+    tokenSteps.push(lines[start]?.trim() || "unknown step");
+  }
+  assert.ok(tokenSteps.length > 0, "expected explicit step-scoped token injection");
+  assert.ok(tokenSteps.every((name) => !/candidate|docker run/i.test(name)), "candidate execution must not receive a token");
+});
