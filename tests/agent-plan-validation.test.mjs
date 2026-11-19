@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { AgentPlanValidationError, validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
+import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 
 const task = {
   schema_version: 1,
@@ -99,4 +101,66 @@ test("rejects plans with too many tasks", () => {
     id: `task-${String(index).padStart(2, "0")}`,
   }));
   rejects(() => validateAgentPlan(plan(tasks), task), /between 1 and 12/);
+});
+
+
+test("collects Ollama NDJSON response fragments when a multibyte UTF-8 character is split across chunks", async () => {
+  const encoder = new TextEncoder();
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode('{"response":"hello "'));
+      const tail = encoder.encode(',"done":false}\r\n{"response":"世界","done":true,"done_reason":"stop","eval_count":4}\n');
+      const multibyteStart = tail.indexOf(0xe4);
+      controller.enqueue(tail.slice(0, multibyteStart + 1));
+      controller.enqueue(tail.slice(multibyteStart + 1));
+      controller.close();
+    },
+  });
+  const progress = [];
+  const result = await collectOllamaGenerateStream(body, (value) => progress.push(value));
+  assert.equal(result.response, "hello 世界");
+  assert.equal(result.done_reason, "stop");
+  assert.equal(result.eval_count, 4);
+  assert.equal(progress.at(-1).done, true);
+});
+
+test("rejects malformed Ollama stream chunks and streams without completion markers", async () => {
+  const encoder = new TextEncoder();
+  const malformed = new ReadableStream({
+    start(controller) { controller.enqueue(encoder.encode("{not-json}\n")); controller.close(); },
+  });
+  await assert.rejects(() => collectOllamaGenerateStream(malformed), /invalid NDJSON/);
+
+  const incomplete = new ReadableStream({
+    start(controller) { controller.enqueue(encoder.encode('{"response":"partial","done":false}\n')); controller.close(); },
+  });
+  await assert.rejects(() => collectOllamaGenerateStream(incomplete), /without a completion marker/);
+});
+
+
+test("splits large approved patch scopes into deterministic bounded batches", () => {
+  const paths = Array.from({ length: 11 }, (_, index) => "app/file-" + index + ".tsx");
+  const batches = splitPatchPathsIntoBatches(paths, 4);
+  assert.deepEqual(batches.map((batch) => batch.length), [4, 4, 3]);
+  assert.deepEqual(batches.flat(), paths);
+});
+
+test("rejects invalid and duplicate patch batch paths", () => {
+  assert.throws(() => splitPatchPathsIntoBatches([]), /non-empty array/);
+  assert.throws(() => splitPatchPathsIntoBatches(["app/a.tsx", "APP/A.TSX"]), /unique/);
+  assert.throws(() => splitPatchPathsIntoBatches(["app/a.tsx"], 0), /between 1 and 20/);
+});
+
+
+test("sends only the current batch source files to Ollama", () => {
+  const context = [
+    { path: "app/a.tsx", operation: "modify", content: "A".repeat(100) },
+    { path: "app/b.tsx", operation: "modify", content: "B".repeat(200) },
+    { path: "app/c.tsx", operation: "modify", content: "C".repeat(300) },
+  ];
+  const selected = selectPatchBatchSourceFiles(context, ["app/c.tsx", "app/a.tsx"]);
+  assert.deepEqual(selected.map((file) => file.path), ["app/c.tsx", "app/a.tsx"]);
+  assert.equal(selected.reduce((sum, file) => sum + file.content.length, 0), 400);
+  assert.throws(() => selectPatchBatchSourceFiles(context, ["app/missing.tsx"]), /Missing source context/);
+  assert.throws(() => selectPatchBatchSourceFiles([context[0], context[0]], ["app/a.tsx"]), /unique/);
 });
