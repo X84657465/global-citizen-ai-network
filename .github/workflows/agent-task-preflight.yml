@@ -504,7 +504,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: plan
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-controller.mjs
+        run: node scripts/agent-factory-v2-controller.mjs
 
       - name: Dispatch the newly planned roadmap task
         if: steps.create-roadmap-task.outputs.created_issue_number != ''
