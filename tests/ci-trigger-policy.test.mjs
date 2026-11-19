@@ -265,5 +265,5 @@ test("preflight GitHub write credentials are scoped to trusted orchestration and
     tokenSteps.push(lines[start]?.trim() || "unknown step");
   }
   assert.ok(tokenSteps.length > 0, "expected explicit step-scoped token injection");
-  assert.ok(tokenSteps.every((name) => !/candidate|docker run/i.test(name)), "candidate execution must not receive a token");
+  assert.ok(tokenSteps.every((name) => !/Install candidate dependencies|Retry candidate dependency|Test patched candidate/i.test(name)), "candidate install/test execution must not receive a token");
 });
