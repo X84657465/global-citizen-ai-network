@@ -135,7 +135,7 @@
 }
 
 /* Keyboard accessibility and motion preferences */
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+.page :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 3px solid #3475d1;
   outline-offset: 3px;
 }
