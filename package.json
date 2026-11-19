@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:unit": "node --experimental-strip-types --test tests/ai-provider-response.test.ts tests/ai-pending-retry.test.ts tests/ai-pending-recovery.test.ts tests/ai-config.test.ts tests/ai-history.test.ts tests/contribution-task-validation.test.ts tests/ai-idempotency.test.ts tests/http-read-json-body.test.ts tests/security-headers.test.ts tests/ai-reconciliation-form-error.test.ts tests/ai-reconciliation-input.test.ts tests/ai-reconciliation-auth.test.ts tests/ai-cost.test.ts tests/agent-task-validation.test.mjs tests/agent-patch-validation.test.mjs tests/agent-plan-validation.test.mjs tests/agent-factory-policy.test.mjs tests/agent-factory-state-machine.test.mjs tests/agent-task-queue.test.mjs tests/github-pagination.test.mjs"
+    "test:unit": "node --experimental-strip-types --test tests/ai-provider-response.test.ts tests/ai-pending-retry.test.ts tests/ai-pending-recovery.test.ts tests/ai-config.test.ts tests/ai-history.test.ts tests/contribution-task-validation.test.ts tests/ai-idempotency.test.ts tests/http-read-json-body.test.ts tests/security-headers.test.ts tests/ai-reconciliation-form-error.test.ts tests/ai-reconciliation-input.test.ts tests/ai-reconciliation-auth.test.ts tests/ai-cost.test.ts tests/agent-task-validation.test.mjs tests/agent-patch-validation.test.mjs tests/agent-plan-validation.test.mjs tests/agent-factory-policy.test.mjs tests/agent-factory-state-machine.test.mjs tests/agent-task-queue.test.mjs tests/github-api-client.test.mjs tests/github-pagination.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
