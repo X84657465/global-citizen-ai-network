@@ -95,3 +95,11 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - CI must pass on each dependent PR's exact head; the branch filter itself is not acceptance evidence.
+
+## 0.3.1 — 2026-11-20
+
+### Changed
+- Correct the GCAN homepage CI status wording: the previous GCAN Product candidate passed, while the latest version-synchronization commit is awaiting its own exact-head CI run.
+
+### Verification
+- README status is informational; GitHub Actions remains the source of truth for current CI state.
