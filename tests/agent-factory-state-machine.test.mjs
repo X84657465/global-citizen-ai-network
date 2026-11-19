@@ -647,3 +647,26 @@ test("rejects invalid reservation identity before creating or mutating a lease",
     assert.deepEqual(initial.tasks, {});
   }
 });
+
+test("rejects unsafe integer Issue identities before reserving a worker lease", () => {
+  const initial = createInitialFactoryState(1000);
+  assert.throws(
+    () => reserveTask(initial, metadata({ issue_number: Number.MAX_SAFE_INTEGER + 1 }), 2000),
+    /positive Issue number|reservation metadata is incomplete/,
+  );
+  assert.equal(initial.state_version, 0);
+  assert.equal(initial.active_task, null);
+});
+
+test("durable state rejects non-canonical or unsafe Issue-number object keys", () => {
+  const makeTask = () => ({
+    status: "queued", attempts: 0, failures: 0, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  });
+  for (const issueKey of ["042", "9007199254740992"]) {
+    const state = createInitialFactoryState(1000);
+    state.tasks[issueKey] = makeTask();
+    assert.throws(() => validateFactoryState(state), /Task state record is invalid/);
+  }
+});
+
