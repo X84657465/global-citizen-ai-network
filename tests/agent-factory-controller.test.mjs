@@ -45,7 +45,7 @@ async function startCandidate(controller, ciRunId) {
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
     HEAD_SHA: "b".repeat(40),
-    HEAD_REF: "ai-task/issue-42-test",
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_RUN_ID: ciRunId,
     CI_RUN_ATTEMPT: "1",
   });
@@ -240,7 +240,7 @@ test("check mode waits for candidate CI retry backoff before requeueing", async 
   const evidence = {
     pull_request_number: 88,
     head_sha: "b".repeat(40),
-    head_ref: "ai-task/issue-42-test",
+    head_ref: "ai-task/issue-42-abcdef123456",
     ci_run_id: "candidate-backoff-1",
     ci_run_attempt: 1,
   };
@@ -274,7 +274,7 @@ test("check mode safely requeues legacy candidate rejections after a fallback de
   const evidence = {
     pull_request_number: 88,
     head_sha: "b".repeat(40),
-    head_ref: "ai-task/issue-42-test",
+    head_ref: "ai-task/issue-42-abcdef123456",
     ci_run_id: "legacy-candidate",
     ci_run_attempt: 1,
   };
@@ -552,7 +552,7 @@ test("candidate-start binds one PR head SHA and exact CI run attempt idempotentl
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
     HEAD_SHA: "c".repeat(40),
-    HEAD_REF: "ai-task/issue-42-updated",
+    HEAD_REF: "ai-task/issue-42-fedcba654321",
     CI_RUN_ID: "555005",
     CI_RUN_ATTEMPT: "2",
   };
@@ -642,7 +642,7 @@ test("check mode excludes quarantined tasks from the pending planner count", asy
     const evidence = {
       pull_request_number: 88,
       head_sha: "b".repeat(40),
-      head_ref: "ai-task/issue-42-test",
+      head_ref: "ai-task/issue-42-abcdef123456",
       ci_run_id: "quarantine-" + attempt,
       ci_run_attempt: 1,
     };
