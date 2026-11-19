@@ -626,3 +626,24 @@ test("candidate-start reopens the same PR for a new head and fences stale CI out
   assert.equal(state.tasks["42"].status, "completed");
   assert.equal(state.tasks["42"].head_sha, "c".repeat(40));
 });
+
+
+test("rejects invalid reservation identity before creating or mutating a lease", () => {
+  const initial = createInitialFactoryState(1000);
+  const invalidInputs = [
+    { lease_id: " ".repeat(1), lease_owner: "runner" },
+    { lease_id: "x".repeat(201), lease_owner: "runner" },
+    { lease_id: "lease-valid", lease_owner: "x".repeat(201) },
+    { lease_id: "lease-valid", lease_owner: "runner", workflow_run_id: "x".repeat(101) },
+    { lease_id: "lease-valid", lease_owner: "runner", idempotency_key: "x".repeat(201) },
+  ];
+  for (const overrides of invalidInputs) {
+    assert.throws(
+      () => reserveTask(initial, metadata(overrides), 2000),
+      /reservation metadata is incomplete or outside its allowed bounds/,
+    );
+    assert.equal(initial.state_version, 0);
+    assert.equal(initial.active_task, null);
+    assert.deepEqual(initial.tasks, {});
+  }
+});
