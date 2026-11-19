@@ -167,6 +167,13 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
       - name: Full dependency audit (including development tooling)
         run: npm audit --audit-level=high
+      - name: Validate Agent Factory script syntax
+        run: |
+          node --check scripts/generate-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Agent patch generator syntax validation failed" }
+          node --check scripts/agent-factory-v2-controller.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Agent Factory controller syntax validation failed" }
+
       - name: Unit tests
         id: unit-tests
         run: npm run test:unit
