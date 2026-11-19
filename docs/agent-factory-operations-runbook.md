@@ -47,7 +47,7 @@ Do not delete the Runner's `_work` directory, remove Docker volumes, reset the r
 - All workflow `actions/checkout` steps must set `persist-credentials: false`. A regression test enforces this across workflow YAML files.
 - Keep write-capable `GITHUB_TOKEN` use step-scoped and pass only the minimum required permissions to each job.
 - Candidate code must not receive GitHub tokens, Supabase credentials, production environment variables, Docker socket access, or host filesystem mounts.
-- The current `prepare-task` job has write permissions for contents, issues and pull requests because it creates task branches/PRs and updates workflow state. Review whether this can be split into a narrow write-only publishing job before enabling autonomous operation at scale.
+- The current `prepare-task` job has `actions: none`; it retains `contents: write`, `issues: write`, and `pull-requests: write` because it creates task branches/PRs and updates workflow state. A future hardening task should trace each API call and split task preparation from a narrow write-only publisher before enabling autonomous operation at scale.
 - Branch protection/ruleset settings could not be verified through the connected GitHub integration: the branch-protection API returned 403 (resource not accessible by integration), and repository rulesets are unavailable on the current private-repository plan. An owner must inspect repository Settings directly before release.
 - Confirm repository Actions settings allow GitHub Actions to create pull requests only if the automated Draft PR publisher is intended to run. Do not enable broader workflow permissions than required.
 - Rotate any credential suspected of exposure; never paste secrets into issues, PRs, logs, chat, or source files.
@@ -60,16 +60,23 @@ Do not delete the Runner's `_work` directory, remove Docker volumes, reset the r
 - For a future Production incident, stop further rollout first, identify the exact Vercel deployment and database migration state, then follow the separately approved application rollback and database recovery plan. Do not blindly roll back the database after writes have occurred.
 - A restore is not proven until a controlled restore test has completed and the restored application has passed health, authentication, and data-integrity checks.
 
+## Latest verified evidence (2026-11-19 UTC)
+
+- PR #134 head `7dfa22be7cd2624badfd57b269fd9f2894669017` completed CI run [#44507769727](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44507769727) successfully. The run passed 249/249 unit tests, local Supabase migrations and PostgreSQL/RLS checks, Ollama structured inference, TypeScript, ESLint, production build, and dependency audits (0 reported vulnerabilities).
+- Windows Runner read-only smoke run [#44507755044](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44507755044) passed on the same development branch, verifying Runner identity, Windows/x64, Node.js/npm, checkout, and workspace presence. This is not a restart/reconnect rehearsal.
+- All workflow Checkout steps disable persisted Git credentials; the policy test enforces the rule.
+- The preflight `prepare-task` job explicitly denies Actions API permissions (`actions: none`) while retaining the repository-content, issue, and pull-request write scopes required by its current publisher/state-update operations.
+- The Vercel Preview quota issue remains external and unresolved; no deployment was performed.
+
 ## Release gates still outstanding
 
-1. Complete CI on the current PR head, including local PostgreSQL/RLS tests.
-2. Complete an actual unattended 24-hour Runner soak. The existing 24-hour lifecycle test is simulated time and is not a wall-clock soak.
-3. Verify runner restart/reconnect and Docker/Ollama recovery with recorded workflow evidence.
-4. Obtain owner confirmation of branch protection, required status checks, Actions workflow permissions, secrets and environment protections.
-5. Review the job-level write permission boundary in `agent-task-preflight.yml`.
-6. Verify backup/PITR readiness and perform a controlled restore rehearsal.
-7. Resolve Vercel Preview capacity and complete a separate Preview smoke test.
-8. Obtain explicit human approval before changing PR #134 from Draft, merging, or deploying.
+1. Complete an actual unattended 24-hour Runner soak. The existing 24-hour lifecycle test is simulated time and is not a wall-clock soak.
+2. Verify runner restart/reconnect and Docker/Ollama recovery with recorded workflow evidence; the read-only smoke run above does not prove recovery after interruption.
+3. Obtain owner confirmation of branch protection, required status checks, Actions workflow permissions, secrets and environment protections.
+4. Trace all publisher API calls and evaluate splitting task preparation from a narrow write-only publisher job.
+5. Verify backup/PITR readiness and perform a controlled restore rehearsal.
+6. Resolve Vercel Preview capacity and complete a separate Preview smoke test.
+7. Obtain explicit human approval before changing PR #134 from Draft, merging, or deploying.
 
 ## Evidence record
 
