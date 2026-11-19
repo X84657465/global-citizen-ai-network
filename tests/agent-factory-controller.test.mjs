@@ -8,12 +8,15 @@ import {
 } from "../lib/agent-factory-state-machine.mjs";
 import { createAgentFactoryController } from "../lib/agent-factory-controller.mjs";
 
-function fakeStore(initialState) {
+function fakeStore(initialState, options = {}) {
   let state = initialState;
+  let writes = 0;
   return {
     async migrate() { return { state, migrated: false }; },
     async read() { return { state }; },
     async write(expectedVersion, nextState) {
+      writes += 1;
+      if (options.failWriteAt === writes) throw new Error("injected state write failure");
       if (state.state_version !== expectedVersion) throw new Error("state version conflict");
       if (nextState.state_version !== expectedVersion + 1) throw new Error("invalid next state version");
       state = nextState;
@@ -207,4 +210,49 @@ test("transition mode remains idempotent after awaiting_ci has released the work
   assert.equal(result.state.active_task, null);
   assert.equal(result.state.tasks["42"].status, "awaiting_ci");
   assert.equal(result.state.state_version, store.state.state_version);
+});
+
+
+test("candidate success callback recovers when the system-breaker write fails after task completion", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  const store = fakeStore(initial, { failWriteAt: 2 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const env = {
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555003",
+    CI_RUN_ATTEMPT: "1",
+  };
+  await assert.rejects(controller.run(env), /injected state write failure/);
+  assert.equal(store.state.tasks["42"].status, "completed");
+  assert.equal(store.state.system.consecutive_failures, 2);
+
+  const recovered = await controller.run(env);
+  assert.equal(recovered.outputs.duplicate, true);
+  assert.equal(recovered.state.system.consecutive_failures, 0);
+});
+
+test("candidate failure callback recovers when the requeue write fails after rejection is persisted", async () => {
+  const store = fakeStore(awaitingCandidate(), { failWriteAt: 2 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const env = {
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    CI_CONCLUSION: "failure",
+    CI_RUN_ID: "555004",
+    CI_RUN_ATTEMPT: "1",
+    FAILURE_SUMMARY: "lint failed",
+  };
+  await assert.rejects(controller.run(env), /injected state write failure/);
+  assert.equal(store.state.tasks["42"].status, "candidate_rejected");
+
+  const recovered = await controller.run(env);
+  assert.equal(recovered.outputs.duplicate, true);
+  assert.equal(recovered.state.tasks["42"].status, "queued");
 });
