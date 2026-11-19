@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflight = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const runnerSmoke = readFileSync(new URL("../.github/workflows/self-hosted-runner-smoke.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const workflowLevelConcurrency = workflow.split("\non:\n", 1)[0];
 
 test("full CI runs on main pushes and pull-request lifecycle events, not codex branch pushes", () => {
@@ -45,4 +46,26 @@ test("CI never auto-approves or merges AI task pull requests; human approval is 
   assert.equal(workflow.includes("  auto-merge-ai-task:"), false);
   assert.equal(workflow.includes("markPullRequestReadyForReview"), false);
   assert.equal(workflow.includes("github.rest.pulls.merge"), false);
+});
+
+
+test("publisher binds scratch evidence, recovers deterministic branches, and avoids duplicate new-PR CI dispatch", () => {
+  assert.ok(publisher.includes("scratchPatchEvidenceMatches"));
+  assert.ok(publisher.includes("ensureDeterministicBranch"));
+  assert.ok(publisher.includes("collectGitHubPages"));
+
+  const existingStart = publisher.indexOf(
+    "if (existingPull) {",
+    publisher.indexOf("const commitSha = branchResult.commit_sha;"),
+  );
+  const createStart = publisher.indexOf('pull = await api("/repos/" + repository + "/pulls", "POST", {');
+  assert.ok(existingStart >= 0);
+  assert.ok(createStart > existingStart);
+
+  const existingBlock = publisher.slice(existingStart, createStart);
+  const newPullBlock = publisher.slice(createStart);
+  assert.ok(existingBlock.includes("await dispatchAiTaskCi(existingPull);"));
+  assert.equal(newPullBlock.includes("dispatchAiTaskCi("), false);
+  assert.ok(newPullBlock.includes("item.head?.sha === commitSha"));
+  assert.ok(newPullBlock.includes("pull.head?.sha !== commitSha"));
 });
