@@ -183,3 +183,15 @@ test("verified task CI success clears both that task's quarantine and the global
   assert.deepEqual(reset.skipped_issue_numbers, []);
   assert.equal(reset.last_error, null);
 });
+
+
+test("AI task publisher requires explicit human approval and never promises automatic merge", () => {
+  const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8");
+  assert.ok(publisher.includes('merge_policy: "human_approval_required"'));
+  assert.ok(publisher.includes("automatic_merge: false"));
+  assert.ok(publisher.includes("a human must review and explicitly approve the PR before any merge"));
+  assert.ok(publisher.includes("A human must review and explicitly merge the pull request."));
+  assert.equal(publisher.includes("automatic_merge_policy"), false);
+  assert.equal(publisher.includes("ci_gated_squash"), false);
+  assert.equal(/will be squash-merged automatically/i.test(publisher), false);
+});
