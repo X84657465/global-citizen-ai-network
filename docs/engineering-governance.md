@@ -67,7 +67,14 @@ No track may silently rewrite another track's code, configuration, database or p
 - Cross-track learning proposal contract: source evidence, affected tracks, expected benefit, risk, validation plan and receiving-owner decision.
 - Compatibility checks before a shared contract is changed.
 
-## 5. Quality gates
+## 5. Integration-branch CI policy
+
+- The integration branch `feat/github-project-showcase` is an approved base for dependent workstreams D and E while the five-track integration PR is under review.
+- Pull requests targeting either `main` or the integration branch must run the same build, unit-test, type-check, lint, production-build and database/RLS verification workflow.
+- A dependent branch must include the current integration branch as an ancestor; its PR diff must contain only its own workstream files.
+- After the integration PR is merged, dependent PRs are retargeted to `main` only after their diff and exact-head CI are revalidated.
+
+## 6. Quality gates
 
 A change is not accepted merely because code was committed or a PR exists.
 
@@ -79,7 +86,7 @@ A change is not accepted merely because code was committed or a PR exists.
 - No automatic approval, merge, production database mutation or production deployment.
 - Draft PRs remain Draft until all stated acceptance criteria are evidenced and reviewed.
 
-## 6. Required change record
+## 7. Required change record
 
 Every improvement, including a small one, records:
 
@@ -92,10 +99,10 @@ Every improvement, including a small one, records:
 - security/privacy impact;
 - rollback or recovery method.
 
-## 7. Rollback
+## 8. Rollback
 
 Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
 
-## 8. Five-track baseline
+## 9. Five-track baseline
 
 Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.2.6`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
