@@ -47,6 +47,7 @@ on:
       - "tests/ci-trigger-policy.test.mjs"
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
+      - ".github/workflows/ci.yml"
   issues:
     types: [opened, reopened]
   repository_dispatch:
