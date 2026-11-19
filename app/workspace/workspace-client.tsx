@@ -18,6 +18,15 @@ function isValidTimestamp(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0 && Number.isFinite(Date.parse(value));
 }
 
+function isMessage(value: unknown): value is Message {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const candidate = value as { id?: unknown; role?: unknown; content?: unknown; created_at?: unknown };
+  return (candidate.role === "user" || candidate.role === "assistant") &&
+    typeof candidate.content === "string" &&
+    (candidate.id === undefined || isUuid(candidate.id)) &&
+    (candidate.created_at === undefined || isValidTimestamp(candidate.created_at));
+}
+
 function pendingKeyStorageKey(conversationId: string) {
   return `gcan:pending-ai:${conversationId}`;
 }
@@ -244,13 +253,22 @@ export default function WorkspaceClient() {
     setError("");
     try {
       const response = await fetch("/api/conversations/" + id + "/messages", { cache: "no-store" });
-      const data = await response.json() as { messages?: Message[] } & ApiError;
+      const parsed: unknown = await response.json();
       if (loadId !== conversationLoadRef.current) return;
-      if (!response.ok) {
-        setError(data.error ?? "無法載入訊息。");
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        setError("訊息資料格式無效，請稍後重新載入。");
         return;
       }
-      const visibleMessages = (data.messages ?? []).filter(message => message.role === "user" || message.role === "assistant");
+      const data = parsed as { messages?: unknown; error?: unknown };
+      if (!response.ok) {
+        setError(typeof data.error === "string" ? data.error : "無法載入訊息。");
+        return;
+      }
+      if (!Array.isArray(data.messages) || !data.messages.every(isMessage)) {
+        setError("訊息資料格式無效，請稍後重新載入。");
+        return;
+      }
+      const visibleMessages = data.messages;
       setConversationId(id);
       setMessages(visibleMessages);
       const storedKey = readStoredPendingKey(id);
