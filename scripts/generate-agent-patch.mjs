@@ -1,4 +1,5 @@
 import {
+  appendFileSync,
   existsSync,
   readFileSync,
   lstatSync,
@@ -7,15 +8,24 @@ import {
   writeFileSync,
 } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { dirname, resolve, sep } from "node:path";
+import { resolve, sep } from "node:path";
+import { resolveSafeExistingParent } from "../lib/agent-path-safety.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
 import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 
-const fail = (message) => {
+const fail = (message, scope = "system") => {
+  if (scope === "task" && process.env.GITHUB_ENV) {
+    try {
+      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+    } catch {
+      // Preserve the primary validation failure if the workflow environment file is unavailable.
+    }
+  }
   console.error("Agent patch generation failed: " + message);
   process.exit(1);
 };
+const failTask = (message) => fail(message, "task");
 
 const readJson = (path, label) => {
   try {
@@ -29,11 +39,11 @@ const task = readJson("artifacts/agent-task.json", "Validated task bundle");
 const plan = readJson("artifacts/agent-plan.json", "Validated plan");
 
 if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false) {
-  fail("Only a validated, AI-disabled task can be used.");
+  failTask("Only a validated, AI-disabled task can be used.");
 }
 if (plan?.execution_mode !== "validated_plan_only" || plan?.ai_execution_enabled !== false ||
     plan?.safety?.no_commands_or_model_code_executed !== true) {
-  fail("Only a validated read-only plan can authorize patch proposal.");
+  failTask("Only a validated read-only plan can authorize patch proposal.");
 }
 
 const plannedPaths = new Set(
@@ -69,36 +79,33 @@ const fileContext = [];
 let contextBytes = 0;
 
 for (const relativePath of patchablePaths) {
-  const absolutePath = resolve(root, relativePath);
-  if (absolutePath !== root && !absolutePath.startsWith(root + sep)) {
-    fail("A planned path resolved outside the repository.");
+  const absolutePath = resolve(realRoot, relativePath);
+  if (absolutePath !== realRoot && !absolutePath.startsWith(realRoot + sep)) {
+    failTask("A planned path resolved outside the repository.");
   }
 
-  let realParent;
   try {
-    realParent = realpathSync(dirname(absolutePath));
-  } catch {
-    fail("A planned path must have an existing parent directory.");
-  }
-  if (realParent !== realRoot && !realParent.startsWith(realRoot + sep)) {
-    fail("A planned path parent resolves outside the repository.");
+    resolveSafeExistingParent(absolutePath, realRoot);
+  } catch (error) {
+    failTask("A planned path has an unsafe parent: " +
+      (error instanceof Error ? error.message : "parent validation failed"));
   }
 
   const exists = existsSync(absolutePath);
   const operation = exists ? "modify" : "add";
   if (exists) {
     const entry = lstatSync(absolutePath);
-    if (entry.isSymbolicLink()) fail("Symbolic links are not eligible for AI patching.");
-    if (!entry.isFile()) fail("A planned path is not a regular file.");
+    if (entry.isSymbolicLink()) failTask("Symbolic links are not eligible for AI patching.");
+    if (!entry.isFile()) failTask("A planned path is not a regular file.");
     const realFile = realpathSync(absolutePath);
     if (realFile !== realRoot && !realFile.startsWith(realRoot + sep)) {
-      fail("A planned file resolves outside the repository.");
+      failTask("A planned file resolves outside the repository.");
     }
     const content = readFileSync(absolutePath);
-    if (content.includes(0)) fail("Binary files are not eligible for AI patching.");
-    if (content.byteLength > 64 * 1024) fail("An existing file exceeds the 64 KiB context limit.");
+    if (content.includes(0)) failTask("Binary files are not eligible for AI patching.");
+    if (content.byteLength > 64 * 1024) failTask("An existing file exceeds the 64 KiB context limit.");
     contextBytes += content.byteLength;
-    if (contextBytes > 128 * 1024) fail("Combined source context exceeds the 128 KiB limit.");
+    if (contextBytes > 128 * 1024) failTask("Combined source context exceeds the 128 KiB limit.");
     if (!existingSet.has(relativePath.toLowerCase())) existingPaths.push(relativePath);
     fileContext.push({ path: relativePath, operation, content: content.toString("utf8") });
   } else {
@@ -271,29 +278,29 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
   clearInterval(heartbeat);
 
   if (typeof result.response !== "string" || result.response.length === 0) {
-    fail("Local model returned an empty patch proposal for batch " + (batchIndex + 1) + ".");
+    failTask("Local model returned an empty patch proposal for batch " + (batchIndex + 1) + ".");
   }
   if (result.done_reason === "length") {
     const generated = Number.isInteger(result.eval_count) ? result.eval_count : "unknown";
-    fail("Local model output reached the token limit in batch " + (batchIndex + 1) +
+    failTask("Local model output reached the token limit in batch " + (batchIndex + 1) +
       " (" + generated + " generated tokens); incomplete source files are rejected before scratch testing.");
   }
   if (Buffer.byteLength(result.response, "utf8") > 256 * 1024) {
-    fail("Local model patch batch " + (batchIndex + 1) + " exceeded the 256 KiB response limit.");
+    failTask("Local model patch batch " + (batchIndex + 1) + " exceeded the 256 KiB response limit.");
   }
 
   let candidate;
   try {
     candidate = JSON.parse(result.response);
   } catch {
-    fail("Local model did not return a valid JSON patch manifest for batch " + (batchIndex + 1) + ".");
+    failTask("Local model did not return a valid JSON patch manifest for batch " + (batchIndex + 1) + ".");
   }
 
   let validatedBatch;
   try {
     validatedBatch = validatePatchManifest(candidate, scopedTask, existingPaths);
   } catch (error) {
-    fail("Patch batch " + (batchIndex + 1) + " failed validation: " +
+    failTask("Patch batch " + (batchIndex + 1) + " failed validation: " +
       (error instanceof Error ? error.message : "unknown validation error"));
   }
 
@@ -311,7 +318,7 @@ try {
     existingPaths,
   );
 } catch (error) {
-  fail("Combined patch failed final validation: " +
+  failTask("Combined patch failed final validation: " +
     (error instanceof Error ? error.message : "unknown validation error"));
 }
 
