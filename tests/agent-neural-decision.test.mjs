@@ -41,3 +41,21 @@ test("rejects plans without the data-only execution boundary", () => {
 test("requires structured plan and task inputs", () => {
   assert.throws(() => evaluateAgentDecision(null, task), /validated plan/);
 });
+
+test("approves multiple bounded implementer tasks when every path is allowlisted", () => {
+  const multiTask = { allowed_paths: ["docs/one.md", "docs/two.md"] };
+  const multiPlan = {
+    ...safePlan,
+    tasks: [
+      safePlan.tasks[0],
+      { ...safePlan.tasks[1], id: "patch-one", allowed_paths: ["docs/one.md"] },
+      { ...safePlan.tasks[2], id: "verify-one", depends_on: ["patch-one"] },
+      { ...safePlan.tasks[1], id: "patch-two", allowed_paths: ["docs/two.md"] },
+      { ...safePlan.tasks[2], id: "verify-two", depends_on: ["patch-two"] },
+    ],
+  };
+  const result = evaluateAgentDecision(multiPlan, multiTask);
+  assert.equal(result.decision, "approve_for_sandbox_validation");
+  assert.equal(result.evidence.implementer_count, 2);
+  assert.equal(result.evidence.proposed_path_count, 2);
+});
