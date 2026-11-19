@@ -127,3 +127,20 @@ test("declares the cooldown output writer before the local cooldown fast path", 
   assert.ok(writer >= 0);
   assert.ok(fastPath > writer);
 });
+
+
+test("does not persist unrelated review-branch CI failures into the factory circuit breaker", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("  circuit-breaker:");
+  const end = workflow.indexOf("\n  ", start + 4);
+  assert.ok(start >= 0);
+  const job = workflow.slice(start, end < 0 ? workflow.length : end);
+  assert.ok(job.includes("github.event_name == 'push'"));
+  assert.ok(job.includes("github.ref == 'refs/heads/main'"));
+  assert.ok(job.includes("github.event_name == 'pull_request'"));
+  assert.ok(job.includes("github.event.pull_request.head.repo.full_name == github.repository"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'codex/issue-')"));
+  assert.ok(job.includes("github.event_name == 'repository_dispatch'"));
+  assert.equal(job.includes("review/"), false);
+});

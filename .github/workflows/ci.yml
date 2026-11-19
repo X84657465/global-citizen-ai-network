@@ -392,7 +392,21 @@ jobs:
 
   circuit-breaker:
     name: Persist CI failures in the factory circuit breaker
-    if: always() && (needs.build.result == 'failure' || needs.database.result == 'failure')
+    if: >-
+      always() &&
+      (needs.build.result == 'failure' || needs.database.result == 'failure') &&
+      (
+        (github.event_name == 'push' &&
+         (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/codex/issue-'))) ||
+        (github.event_name == 'pull_request' &&
+         github.event.pull_request.head.repo.full_name == github.repository &&
+         ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
+           contains(github.event.pull_request.body, '<!-- ai-task:')) ||
+          startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) ||
+        (github.event_name == 'repository_dispatch' &&
+         github.event.action == 'ai-task-ci' &&
+         github.event.client_payload.pull_request_number != '')
+      )
     needs: [build, database]
     runs-on: [self-hosted, Windows, X64]
     permissions:
