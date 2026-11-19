@@ -1,31 +1,76 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
+import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
 
-test("third consecutive failure activates a fifteen-minute cooldown and task skip is per issue", () => {
+test("task-scoped failures quarantine only their issue and never increment the global breaker", () => {
   const now = Date.parse("2026-11-19T00:00:00.000Z");
-  const first = nextFailureState({}, "first", now);
-  const second = nextFailureState(first, "second", now + 1000);
-  const third = nextFailureState(second, "third", now + 2000, 123);
+  const previous = { consecutive_failures: 2, cooldown_until: null, task_failures: { "456": 1 }, skipped_issue_numbers: [] };
+  const first = nextFailureState(previous, "invalid task spec", now, 123, "task");
+  const second = nextFailureState(first, "invalid task spec", now + 1000, 123, "task");
+  const third = nextFailureState(second, "invalid task spec", now + 2000, 123, "task");
+
   assert.equal(FAILURE_THRESHOLD, 3);
+  assert.equal(third.consecutive_failures, 2);
+  assert.equal(third.cooldown_until, null);
+  assert.equal(third.task_failures["123"], 3);
+  assert.equal(third.task_failures["456"], 1);
+  assert.deepEqual(third.skipped_issue_numbers, [123]);
+  assert.equal(cooldownActive(third, now + 3000), false);
+});
+
+test("system-scoped failures activate the global cooldown and preserve task quarantine state", () => {
+  const now = Date.parse("2026-11-19T00:00:00.000Z");
+  const previous = { task_failures: { "123": 2 }, skipped_issue_numbers: [123] };
+  const first = nextFailureState(previous, "runner offline", now, 123, "system");
+  const second = nextFailureState(first, "runner offline", now + 1000, 123, "system");
+  const third = nextFailureState(second, "runner offline", now + 2000, 123, "system");
+
   assert.equal(third.consecutive_failures, 3);
-  assert.equal(third.task_failures["123"], 1);
-  const secondTaskFailure = nextFailureState(third, "again", now + 3000, 123);
-  const thirdTaskFailure = nextFailureState(secondTaskFailure, "again", now + 4000, 123);
-  assert.deepEqual(thirdTaskFailure.skipped_issue_numbers, [123]);
+  assert.equal(third.task_failures["123"], 2);
+  assert.deepEqual(third.skipped_issue_numbers, [123]);
   assert.equal(Date.parse(third.cooldown_until), now + 2000 + COOLDOWN_MS);
   assert.equal(cooldownActive(third, now + 3000), true);
   assert.equal(cooldownActive(third, now + 2000 + COOLDOWN_MS + 1), false);
 });
 
-test("success resets consecutive failures and only clears the completed issue's retry history", () => {
-  const previous = { consecutive_failures: 2, cooldown_until: "2026-11-19T00:20:00.000Z", task_failures: { "12": 2, "13": 1 }, skipped_issue_numbers: [12], last_error: "old" };
-  const reset = successState(1234, previous, 12);
-  assert.equal(reset.consecutive_failures, 0);
-  assert.equal(reset.cooldown_until, null);
+test("task-scoped success clears only that task and leaves the global breaker untouched", () => {
+  const previous = {
+    consecutive_failures: 2,
+    cooldown_until: "2026-11-19T00:20:00.000Z",
+    task_failures: { "12": 2, "13": 1 },
+    skipped_issue_numbers: [12],
+    last_error: "shared infrastructure failure",
+  };
+  const reset = successState(1234, previous, 12, "task");
+
+  assert.equal(reset.consecutive_failures, 2);
+  assert.equal(reset.cooldown_until, previous.cooldown_until);
+  assert.equal(reset.last_error, null);
   assert.deepEqual(reset.task_failures, { "13": 1 });
   assert.deepEqual(reset.skipped_issue_numbers, []);
-  assert.equal(reset.last_error, null);
+});
+
+test("system-scoped success resets only the global breaker and preserves task retry history", () => {
+  const previous = {
+    consecutive_failures: 4,
+    cooldown_until: "2026-11-19T00:20:00.000Z",
+    task_failures: { "12": 2 },
+    skipped_issue_numbers: [12],
+  };
+  const reset = successState(1234, previous, null, "system");
+
+  assert.equal(reset.consecutive_failures, 0);
+  assert.equal(reset.cooldown_until, null);
+  assert.deepEqual(reset.task_failures, { "12": 2 });
+  assert.deepEqual(reset.skipped_issue_numbers, [12]);
+});
+
+test("task-scoped state transitions require an issue number and an explicit supported scope", () => {
+  assert.throws(() => nextFailureState({}, "invalid", 1, null, "task"), /valid issue number/);
+  assert.throws(() => successState(1, {}, null, "task"), /valid issue number/);
+  assert.throws(() => nextFailureState({}, "invalid", 1, 1, "unknown"), /scope/);
 });
 
 test("API cooldown honors numeric Retry-After seconds", () => {
@@ -60,4 +105,79 @@ test("planner emits finite deduplicated four-section Runner tasks", () => {
   assert.ok(next);
   titles.push(next.title);
   assert.equal(nextPlannerTask(titles), null);
+});
+
+
+test("infers task identity from both AI task and codex issue branches", () => {
+  assert.equal(inferTaskIssueNumber({ branch: "ai-task/issue-3-abc", body: "<!-- ai-task:3 -->" }), 3);
+  assert.equal(inferTaskIssueNumber({ branch: "codex/issue-121-dedupe-ci-triggers" }), 121);
+  assert.equal(inferTaskIssueNumber({ body: "<!-- ai-task:94 -->" }), 94);
+});
+
+test("rejects mismatched task branch and pull-request issue markers", () => {
+  assert.equal(inferTaskIssueNumber({ branch: "codex/issue-121-fix", body: "<!-- ai-task:120 -->" }), null);
+  assert.equal(inferTaskIssueNumber({ branch: "review/no-issue", body: "Closes #121" }), null);
+});
+
+
+test("declares the cooldown output writer before the local cooldown fast path", () => {
+  const controller = readFileSync(new URL("../scripts/agent-factory-controller.mjs", import.meta.url), "utf8");
+  const writer = controller.indexOf("const writeOutput =");
+  const fastPath = controller.indexOf('if (mode === "check" && cooldownActive(localState))');
+  assert.ok(writer >= 0);
+  assert.ok(fastPath > writer);
+});
+
+
+test("does not persist unrelated review-branch CI failures into the factory circuit breaker", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("  circuit-breaker:");
+  assert.ok(start >= 0);
+  const job = workflow.slice(start);
+  assert.ok(job.includes("github.event_name == 'push'"));
+  assert.ok(job.includes("github.ref == 'refs/heads/main'"));
+  assert.ok(job.includes("github.event_name == 'pull_request'"));
+  assert.ok(job.includes("github.event.pull_request.head.repo.full_name == github.repository"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'codex/issue-')"));
+  assert.ok(job.includes("github.event_name == 'repository_dispatch'"));
+  assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
+  assert.ok(job.includes("pull-requests: read"));
+  assert.equal(job.includes("review/"), false);
+});
+
+
+test("resets the global breaker only after successful CI for main or a tracked factory task", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("  circuit-breaker-success:");
+  assert.ok(start >= 0);
+  const job = workflow.slice(start);
+  assert.ok(job.includes("needs.build.result == 'success'"));
+  assert.ok(job.includes("needs.database.result == 'success'"));
+  assert.ok(job.includes("AGENT_FACTORY_MODE: success"));
+  assert.ok(job.includes("AGENT_FACTORY_SUCCESS_SCOPE: task_and_system"));
+  assert.ok(job.includes("contents: read"));
+  assert.ok(job.includes("github.ref == 'refs/heads/main'"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'codex/issue-')"));
+  assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
+  assert.ok(job.includes("pull-requests: read"));
+  assert.equal(job.includes("review/"), false);
+});
+
+
+test("verified task CI success clears both that task's quarantine and the global breaker", () => {
+  const previous = {
+    consecutive_failures: 17,
+    cooldown_until: "2026-11-19T04:22:47.792Z",
+    task_failures: { "116": 3, "121": 1 },
+    skipped_issue_numbers: [116],
+    last_error: "old global failure",
+  };
+  const reset = successState(1234, previous, 116, "task_and_system");
+  assert.equal(reset.consecutive_failures, 0);
+  assert.equal(reset.cooldown_until, null);
+  assert.deepEqual(reset.task_failures, { "121": 1 });
+  assert.deepEqual(reset.skipped_issue_numbers, []);
+  assert.equal(reset.last_error, null);
 });
