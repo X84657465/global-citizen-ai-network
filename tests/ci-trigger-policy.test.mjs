@@ -147,6 +147,15 @@ test("CI verifies Docker Engine and Ollama API/model availability on the Windows
   assert.ok(section.includes("$models.Count -eq 0"), "an installed model must be required");
 });
 
+test("CI executes a bounded real Ollama inference smoke test after API/model health checks", () => {
+  const smokeStep = workflow.indexOf("- name: Verify Ollama can perform a bounded structured inference");
+  const migrationGuard = workflow.indexOf("- name: Migration filename safety guard", smokeStep);
+  assert.ok(smokeStep >= 0 && migrationGuard > smokeStep);
+  const section = workflow.slice(smokeStep, migrationGuard);
+  assert.ok(section.includes('OLLAMA_SMOKE_TIMEOUT_MS: "180000"'));
+  assert.ok(section.includes("node scripts/ollama-smoke-test.mjs"));
+});
+
 test("CI resolves the current task PR and binds candidate outcomes to exact run evidence", () => {
   assert.ok(workflow.includes("  resolve-candidate:"));
   assert.ok(workflow.includes("scripts/resolve-agent-task-pr.mjs"));
