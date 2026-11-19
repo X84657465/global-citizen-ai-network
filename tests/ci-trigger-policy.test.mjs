@@ -178,3 +178,10 @@ test("preflight reserves and releases V2 leases and does not overproduce roadmap
   assert.ok(preflight.includes("steps.select-task.outputs.open_task_prs == '0'"));
   assert.ok(preflight.includes("NEXT_TASK_STATE = \"awaiting_ci\""));
 });
+
+
+test("Supabase CI allocates Docker-published ports below the Windows dynamic TCP range", () => {
+  assert.ok(workflow.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)"));
+  assert.ok(workflow.includes("49152-65535 dynamic TCP range"));
+  assert.equal(workflow.includes("$candidate = 55000 +"), false);
+});
