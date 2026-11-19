@@ -166,10 +166,16 @@ test("suspended and closed accounts cannot read member data; restricted accounts
     select set_config('request.jwt.claim.sub', '${f.b}', true);
     select set_config('request.jwt.claims', '{"sub":"${f.b}","role":"authenticated"}', true);
     select 'suspended:' || (select count(*) from public.projects);
+    reset role;
+    update public.profiles set account_status = 'closed' where id = '${f.b}';
+    set local role authenticated;
+    select set_config('request.jwt.claim.sub', '${f.b}', true);
+    select set_config('request.jwt.claims', '{"sub":"${f.b}","role":"authenticated"}', true);
+    select 'closed:' || (select count(*) from public.projects);
     rollback;
   `);
   assert.match(output, /restricted:1/);
-  assert.match(output, /suspended:0/);
+  assert.match(output, /suspended:0/);\n  assert.match(output, /closed:0/);
 });
 
 test("client cannot access service-only audit records", () => {
