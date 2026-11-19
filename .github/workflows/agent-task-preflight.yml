@@ -79,6 +79,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+          with:
+            persist-credentials: false
 
       - name: Verify toolchain
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
@@ -462,6 +464,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+          with:
+            persist-credentials: false
 
       - name: Check durable circuit-breaker cooldown
         id: factory-gate
