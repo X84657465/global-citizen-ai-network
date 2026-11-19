@@ -438,6 +438,25 @@ test("recovers an expired worker lease only after a restarted controller confirm
   assert.equal(result.state.active_task.lease_id, leaseId);
   assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
 
+  // Missing attempt metadata must fail closed; status alone is insufficient.
+  api.workflows.set("700001", { status: "completed" });
+  result = await invoke({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.equal(result.state.active_task.lease_id, leaseId);
+  assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
+
+  // An unavailable workflow-status API must also preserve the lease.
+  const request = api.request;
+  api.request = async (path, options) => {
+    if (path.includes("/actions/runs/")) throw new Error("simulated GitHub API outage");
+    return request(path, options);
+  };
+  result = await invoke({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.equal(result.state.active_task.lease_id, leaseId);
+  assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
+  api.request = request;
+
   // A completed result for a different attempt of the same workflow run
   // is not proof that the leased attempt has stopped; fail closed.
   api.workflows.set("700001", { run_attempt: 2, status: "completed" });
