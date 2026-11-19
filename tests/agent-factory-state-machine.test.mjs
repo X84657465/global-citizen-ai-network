@@ -74,6 +74,28 @@ test("rejects inconsistent quarantine flags and orphaned active leases", () => {
   assert.throws(() => validateFactoryState(orphaned), /Active task lease/);
 });
 
+test("rejects orphaned and duplicate lease-bound task states", () => {
+  const reserved = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  const orphaned = structuredClone(reserved);
+  orphaned.active_task = null;
+  assert.throws(
+    () => validateFactoryState(orphaned),
+    /lease-bound task exists without the single active worker lease/,
+  );
+
+  const duplicate = structuredClone(reserved);
+  duplicate.tasks["43"] = {
+    ...structuredClone(duplicate.tasks["42"]),
+    lease_id: "lease-00000043",
+    workflow_run_id: "run-654321",
+    status: "preparing",
+  };
+  assert.throws(
+    () => validateFactoryState(duplicate),
+    /Active task lease is invalid or inconsistent/,
+  );
+});
+
 test("reserves only one task and records an expiring lease", () => {
   const first = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
   assert.equal(first.active_task.issue_number, 42);
