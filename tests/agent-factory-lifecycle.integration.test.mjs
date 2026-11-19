@@ -154,3 +154,100 @@ test("persists the complete worker-to-candidate lifecycle across controller rest
   assert.equal(persisted.state.tasks[String(issueNumber)].status, "completed");
   assert.equal(api.issues.filter((issue) => issue.title === FACTORY_STATE_ISSUE_TITLE).length, 1);
 });
+
+test("durable scheduler survives a 24-hour multi-task lifecycle soak with idempotent callbacks", async () => {
+  const api = createFakeGitHubApi();
+  let now = Date.parse("2026-11-19T10:00:00.000Z");
+  const invoke = async (env) => {
+    const store = createFactoryStateStore(api, { repository });
+    const controller = createAgentFactoryController({ store, api, repository, now: () => now });
+    const result = await controller.run(env);
+    now += 100;
+    return result;
+  };
+
+  const taskCount = 24;
+  for (let index = 0; index < taskCount; index += 1) {
+    const issue = 42 + index;
+    const runId = String(710000 + index);
+    const ciRunId = String(810000 + index);
+    const headSha = index.toString(16).repeat(40).slice(0, 40);
+    const pullRequestNumber = 2000 + index;
+    const leaseId = "gcan-" + runId + "-1-" + issue;
+
+    let result = await invoke({
+      AGENT_FACTORY_MODE: "reserve",
+      ISSUE_NUMBER: String(issue),
+      GITHUB_RUN_ID: runId,
+      GITHUB_RUN_ATTEMPT: "1",
+      GITHUB_SHA: "a".repeat(40),
+      RUNNER_NAME: "soak-runner",
+    });
+    assert.equal(result.state.active_task.lease_id, leaseId);
+
+    for (const nextState of ["preparing", "planning", "patching", "sandbox_testing", "publishing"]) {
+      result = await invoke({
+        AGENT_FACTORY_MODE: "transition",
+        ISSUE_NUMBER: String(issue),
+        AGENT_FACTORY_LEASE_ID: leaseId,
+        NEXT_TASK_STATE: nextState,
+      });
+      assert.equal(result.state.active_task.state, nextState);
+    }
+
+    await invoke({
+      AGENT_FACTORY_MODE: "transition",
+      ISSUE_NUMBER: String(issue),
+      AGENT_FACTORY_LEASE_ID: leaseId,
+      NEXT_TASK_STATE: "draft_pr_created",
+      HEAD_SHA: headSha,
+      PULL_REQUEST_NUMBER: String(pullRequestNumber),
+    });
+    result = await invoke({
+      AGENT_FACTORY_MODE: "transition",
+      ISSUE_NUMBER: String(issue),
+      AGENT_FACTORY_LEASE_ID: leaseId,
+      NEXT_TASK_STATE: "awaiting_ci",
+    });
+    assert.equal(result.state.active_task, null);
+
+    result = await invoke({
+      AGENT_FACTORY_MODE: "candidate-start",
+      ISSUE_NUMBER: String(issue),
+      PULL_REQUEST_NUMBER: String(pullRequestNumber),
+      HEAD_SHA: headSha,
+      HEAD_REF: "ai-task/issue-" + issue + "-soak",
+      CI_RUN_ID: ciRunId,
+      CI_RUN_ATTEMPT: "1",
+    });
+    assert.equal(result.state.tasks[String(issue)].candidate_status, "pending");
+
+    const callback = {
+      AGENT_FACTORY_MODE: "candidate",
+      ISSUE_NUMBER: String(issue),
+      PULL_REQUEST_NUMBER: String(pullRequestNumber),
+      HEAD_SHA: headSha,
+      CI_CONCLUSION: "success",
+      CI_RUN_ID: ciRunId,
+      CI_RUN_ATTEMPT: "1",
+    };
+    result = await invoke(callback);
+    assert.equal(result.state.tasks[String(issue)].status, "completed");
+    assert.equal(result.state.active_task, null);
+
+    const completedVersion = result.state.state_version;
+    const duplicate = await invoke(callback);
+    assert.equal(duplicate.outputs.duplicate, true);
+    assert.equal(duplicate.state.state_version, completedVersion);
+
+    // Advance the deterministic clock by one hour between task completions.
+    now += 60 * 60 * 1000;
+  }
+
+  const finalState = await createFactoryStateStore(api, { repository }).read();
+  assert.equal(Object.keys(finalState.state.tasks).length, taskCount);
+  assert.equal(Object.values(finalState.state.tasks).filter((task) => task.status === "completed").length, taskCount);
+  assert.equal(finalState.state.active_task, null);
+  assert.equal(finalState.state.processed_events.length, taskCount * 2);
+  assert.equal(api.issues.filter((issue) => issue.title === FACTORY_STATE_ISSUE_TITLE).length, 1);
+});
