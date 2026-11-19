@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   createInitialFactoryState, reserveTask, transitionTask, recordTaskFailure,
   recordSystemFailure, recordTaskSuccess, recordSystemSuccess,
-  recoverExpiredLease, requeueTask, isSystemCooldownActive, validateFactoryState,
+  recoverExpiredLease, requeueTask, recordCandidateFailure, isSystemCooldownActive, validateFactoryState,
 } from "../lib/agent-factory-state-machine.mjs";
 
 const metadata = (overrides = {}) => ({
@@ -41,7 +41,9 @@ test("enforces legal state transitions and releases terminal leases", () => {
   state = transitionTask(state, 42, "publishing", {}, 6000);
   state = transitionTask(state, 42, "draft_pr_created", { head_sha: "b".repeat(40), pull_request_number: 99 }, 7000);
   state = transitionTask(state, 42, "awaiting_ci", {}, 8000);
-  assert.equal(state.active_task.state, "awaiting_ci");
+  assert.equal(state.active_task, null);
+  assert.equal(state.tasks["42"].status, "awaiting_ci");
+  assert.equal(state.tasks["42"].head_sha, "b".repeat(40));
 });
 
 test("counts each task failure event once and quarantines after three distinct attempts", () => {
@@ -92,11 +94,14 @@ test("task success clears only that task retry record", () => {
   state = transitionTask(state, 42, "patching", {}, 62_300);
   state = transitionTask(state, 42, "sandbox_testing", {}, 62_400);
   state = transitionTask(state, 42, "publishing", {}, 62_500);
-  state = transitionTask(state, 42, "draft_pr_created", { pull_request_number: 99 }, 62_600);
+  state = transitionTask(state, 42, "draft_pr_created", { head_sha: "c".repeat(40), pull_request_number: 99 }, 62_600);
   state = transitionTask(state, 42, "awaiting_ci", {}, 62_700);
   state.system.consecutive_failures = 2;
-  const result = recordTaskSuccess(state, 42, event("success"), 63_000);
+  const evidence = { head_sha: "c".repeat(40), pull_request_number: 99, ci_conclusion: "success", ci_run_id: "ci-123", ci_run_attempt: 1 };
+  const result = recordTaskSuccess(state, 42, event("success"), evidence, 63_000);
   assert.equal(result.state.tasks["42"].failures, 0);
+  assert.equal(result.state.tasks["42"].status, "completed");
+  assert.equal(result.state.tasks["42"].candidate_status, "success");
   assert.equal(result.state.system.consecutive_failures, 2);
 });
 
@@ -150,6 +155,22 @@ test("task success cannot clear a quarantine without owning the active lease", (
   state = requeueTask(state, 42, 183_000);
   state = reserveTask(state, metadata({ lease_id: "lease-q3", workflow_run_id: "run-q3" }), 183_000);
   state = recordTaskFailure(state, 42, event("q3"), "PATCH_INVALID", "bad", 184_000).state;
-  assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), 5000), /awaiting_ci state/);
+  assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), {}, 5000), /exact pending candidate SHA and PR/);
   assert.equal(state.tasks["42"].quarantined, true);
+});
+test("candidate CI failure is recorded separately from worker task retries", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = transitionTask(state, 42, "preparing", {}, 1100);
+  state = transitionTask(state, 42, "planning", {}, 1200);
+  state = transitionTask(state, 42, "patching", {}, 1300);
+  state = transitionTask(state, 42, "sandbox_testing", {}, 1400);
+  state = transitionTask(state, 42, "publishing", {}, 1500);
+  state = transitionTask(state, 42, "draft_pr_created", { head_sha: "d".repeat(40), pull_request_number: 77 }, 1600);
+  state = transitionTask(state, 42, "awaiting_ci", {}, 1700);
+  const evidence = { head_sha: "d".repeat(40), pull_request_number: 77, ci_conclusion: "failure", ci_run_id: "ci-456", ci_run_attempt: 1 };
+  assert.throws(() => recordCandidateFailure(state, 42, event("wrong-sha"), { ...evidence, head_sha: "e".repeat(40) }, "stale run", 1800), /exact pending candidate SHA/);
+  const result = recordCandidateFailure(state, 42, event("candidate-fail"), evidence, "lint failed", 1900);
+  assert.equal(result.state.tasks["42"].status, "candidate_rejected");
+  assert.equal(result.state.tasks["42"].failures, 0);
+  assert.equal(result.state.active_task, null);
 });
