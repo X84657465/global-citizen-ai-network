@@ -451,6 +451,7 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:
+      contents: read
       issues: write
     steps:
       - name: Checkout tested revision
