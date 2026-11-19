@@ -385,7 +385,7 @@ test("candidate-start rejects blank or oversized CI run IDs and invalid branch i
     { head_ref: " ai-task/issue-42-abcdef123456" },
     { head_ref: "ai-task/issue-42-abcdef12345" },
     { head_ref: "ai-task/issue-42-abcdef12345g" },
-    { head_ref: "ai-task/issue-42-abcdef123456\\nmalicious" },
+    { head_ref: "ai-task/issue-42-abcdef123456" + String.fromCharCode(10) + "malicious" },
     { head_ref: "ai-task/issue-43-abcdef123456" },
     { head_ref: "ai-task/issue-42-" + "x".repeat(240) },
   ]) {
