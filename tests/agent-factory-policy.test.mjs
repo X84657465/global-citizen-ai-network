@@ -47,7 +47,7 @@ test("task-scoped success clears only that task and leaves the global breaker un
 
   assert.equal(reset.consecutive_failures, 2);
   assert.equal(reset.cooldown_until, previous.cooldown_until);
-  assert.equal(reset.last_error, previous.last_error);
+  assert.equal(reset.last_error, null);
   assert.deepEqual(reset.task_failures, { "13": 1 });
   assert.deepEqual(reset.skipped_issue_numbers, []);
 });
