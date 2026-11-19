@@ -154,7 +154,7 @@ test("resets the global breaker only after successful CI for main or a tracked f
   assert.ok(job.includes("needs.build.result == 'success'"));
   assert.ok(job.includes("needs.database.result == 'success'"));
   assert.ok(job.includes("AGENT_FACTORY_MODE: success"));
-  assert.ok(job.includes("AGENT_FACTORY_SUCCESS_SCOPE: system"));
+  assert.ok(job.includes("AGENT_FACTORY_SUCCESS_SCOPE: task_and_system"));
   assert.ok(job.includes("contents: read"));
   assert.ok(job.includes("github.ref == 'refs/heads/main'"));
   assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
