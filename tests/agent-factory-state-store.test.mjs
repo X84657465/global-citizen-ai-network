@@ -91,3 +91,13 @@ test("persists a V1-to-V2 migration on the existing state Issue", async () => {
   assert.equal(result.state.state_version, 1);
   assert.equal((await store.read()).migrated, false);
 });
+
+test("uses a supplied state Issue number without scanning the full issue list", async () => {
+  const body = "Machine-managed V2 factory state. <!-- agent-factory-state:" +
+    Buffer.from(JSON.stringify(createInitialFactoryState())).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo", issueNumber: 100 });
+  const result = await store.read();
+  assert.equal(result.issue.number, 100);
+  assert.equal(store.getStateIssueNumber(), 100);
+});
