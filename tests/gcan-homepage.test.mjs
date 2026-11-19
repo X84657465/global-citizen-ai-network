@@ -90,7 +90,7 @@ test("workspace bootstrap validates the essential conversation response before r
 test("public homepage provides visible keyboard focus and respects reduced-motion preferences", () => {
   assert.match(homeCss, /:focus-visible/);
   assert.match(homeCss, /outline: 3px solid/);
-  assert.match(homeCss, /@media \\(prefers-reduced-motion: reduce\\)/);
+  assert.ok(homeCss.includes("@media (prefers-reduced-motion: reduce)"));
   assert.match(homeCss, /transition: none !important/);
   assert.match(homeCss, /\.pillarCard:hover[\\s\\S]*?transform: none/);
 });
