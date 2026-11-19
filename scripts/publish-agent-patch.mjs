@@ -274,6 +274,10 @@ try {
     "feat(ai-task): " + safeIssueTitle + " (#" + issueNumber + ")",
   );
   const commitSha = branchResult.commit_sha;
+  const confirmedBase = await api("/repos/" + repository + "/branches/" + encodeURIComponent(defaultBranch));
+  if (confirmedBase.commit?.sha !== baseCommit) {
+    fail("Default branch advanced during publication; rerun the task against the latest base.");
+  }
 
   if (existingPull) {
     if (existingPull.head?.sha !== commitSha) {
