@@ -1,7 +1,7 @@
 import { appendFileSync } from "node:fs";
 import { collectGitHubPages } from "../lib/github-pagination.mjs";
 import { taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
-import { sortTaskIssues } from "../lib/agent-task-queue.mjs";
+import { sortTaskIssues, isMergedTaskPullRequest } from "../lib/agent-task-queue.mjs";
 
 const fail = (message) => {
   console.error("Agent task selection failed: " + message);
@@ -50,8 +50,8 @@ const mergedTaskIssueNumbers = new Set();
 const issuesByNumber = new Map(issues.filter((issue) => !issue.pull_request).map((issue) => [issue.number, issue]));
 for (const pull of pulls) {
   const match = typeof pull.body === "string" ? pull.body.match(/<!-- ai-task:(\d+) -->/) : null;
-  if (match && (pull.state === "open" || pull.merged === true)) alreadyPublished.add(Number(match[1]));
-  if (match && pull.merged === true) mergedTaskIssueNumbers.add(Number(match[1]));
+  if (match && (pull.state === "open" || isMergedTaskPullRequest(pull))) alreadyPublished.add(Number(match[1]));
+  if (match && isMergedTaskPullRequest(pull)) mergedTaskIssueNumbers.add(Number(match[1]));
 }
 const ready = issues.filter((issue) =>
   !issue.pull_request &&
