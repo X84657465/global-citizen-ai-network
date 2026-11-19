@@ -309,3 +309,16 @@ test("a rejected repository write does not poison the serialized write queue", a
   assert.equal((await store.read()).state.system.last_error, "second attempt");
   assert.equal(fake.issues.length, 1);
 });
+
+
+test("rejects invalid UTF-8 bytes in an otherwise canonical base64 state payload", async () => {
+  const invalidUtf8 = Buffer.concat([
+    Buffer.from("{\"schema_version\":2,\"broken\":\""),
+    Buffer.from([0xc3, 0x28]),
+    Buffer.from("\"}"),
+  ]).toString("base64");
+  const body = "Machine-managed V2 factory state. <!-- agent-factory-state:" + invalidUtf8 + " -->";
+  const fake = fakeApi([{ number: 105, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  await assert.rejects(store.read(), /invalid base64 JSON/);
+});
