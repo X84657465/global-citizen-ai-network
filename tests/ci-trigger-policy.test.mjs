@@ -268,3 +268,36 @@ test("preflight GitHub write credentials are scoped to trusted orchestration and
   assert.ok(tokenSteps.length > 0, "expected explicit step-scoped token injection");
   assert.ok(tokenSteps.every((name) => !/Install candidate dependencies|Retry candidate dependency|Test patched candidate/i.test(name)), "candidate install/test execution must not receive a token");
 });
+
+test("candidate install and offline test use separate least-network container profiles", () => {
+  const installStart = preflight.indexOf('      - name: Install candidate dependencies inside restricted container (attempt 1)');
+  const retryStart = preflight.indexOf('      - name: Retry candidate dependency installation once', installStart);
+  const testStart = preflight.indexOf('      - name: Test patched candidate offline inside restricted container', retryStart);
+  const publishStart = preflight.indexOf('      - name: Transition task to publishing', testStart);
+  assert.ok(installStart >= 0 && retryStart > installStart && testStart > retryStart && publishStart > testStart,
+    "candidate install, retry, offline test, and publisher boundaries must remain explicit");
+
+  const install = preflight.slice(installStart, retryStart);
+  const retry = preflight.slice(retryStart, testStart);
+  const offlineTest = preflight.slice(testStart, publishStart);
+
+  for (const section of [install, retry]) {
+    assert.match(section, /--network bridge/, "dependency installation may use network only inside the disposable container");
+    assert.doesNotMatch(section, /--network none/, "dependency installation must not claim to be offline");
+    assert.match(section, /--read-only/);
+    assert.match(section, /--cap-drop ALL/);
+    assert.match(section, /--security-opt no-new-privileges/);
+    assert.match(section, /--user 1000:1000/);
+    assert.match(section, /--ignore-scripts/, "candidate dependency lifecycle scripts must stay disabled");
+    assert.match(section, /--env npm_config_cache=\/npm-cache/);
+    assert.doesNotMatch(section, /GITHUB_TOKEN|GH_TOKEN/);
+  }
+
+  assert.match(offlineTest, /--network none/, "candidate code tests must run without network access");
+  assert.match(offlineTest, /--read-only/);
+  assert.match(offlineTest, /--cap-drop ALL/);
+  assert.match(offlineTest, /--security-opt no-new-privileges/);
+  assert.match(offlineTest, /--user 1000:1000/);
+  assert.match(offlineTest, /npm run test:unit && npx --no-install tsc --noEmit && npm run lint/);
+  assert.doesNotMatch(offlineTest, /GITHUB_TOKEN|GH_TOKEN/);
+});
