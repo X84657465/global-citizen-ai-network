@@ -84,7 +84,8 @@ test("serializes concurrent writes from one store instance and prevents duplicat
 test("serializes concurrent writes across separate store instances for the same repository", async () => {
   const fake = fakeApi();
   const firstStore = createFactoryStateStore(fake.client, { repository: "owner/repo" });
-  const secondStore = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  // GitHub repository identifiers are case-insensitive; lock keys must be too.
+  const secondStore = createFactoryStateStore(fake.client, { repository: "OWNER/REPO" });
   const initial = createInitialFactoryState(1000);
   const first = recordSystemFailure(initial, "run-instance-first-1", "ERR_FIRST", "first", 2000).state;
   const second = recordSystemFailure(initial, "run-instance-second-1", "ERR_SECOND", "second", 3000).state;
