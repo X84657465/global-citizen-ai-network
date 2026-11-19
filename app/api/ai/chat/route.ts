@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
   const { data: conversation, error: conversationError } = await auth.supabase
     .from("conversations")
-    .select("id")
+    .select("id,project_id")
     .eq("id", conversationId)
     .maybeSingle();
   if (conversationError || !conversation) {
@@ -185,6 +185,10 @@ export async function POST(request: NextRequest) {
   const { data: startedRequest, error: startError } = await admin
     .from("ai_requests")
     .update({
+      // Snapshot the conversation's trusted project association onto the
+      // request before any provider call. Never accept a client-supplied
+      // project ID; the authenticated conversation row is authoritative.
+      project_id: conversation.project_id,
       conversation_id: conversationId,
       status: "running",
       started_at: new Date().toISOString(),
