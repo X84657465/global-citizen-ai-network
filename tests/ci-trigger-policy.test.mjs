@@ -71,6 +71,24 @@ test("publisher binds scratch evidence, recovers deterministic branches, and avo
 });
 
 
+test("candidate callbacks revalidate the current PR head and check out the exact tested SHA", () => {
+  for (const stepName of [
+    "Revalidate candidate PR head before recording failure",
+    "Revalidate candidate PR head before recording success",
+  ]) assert.ok(workflow.includes(stepName));
+  const failureStart = workflow.indexOf("  circuit-breaker:");
+  const successStart = workflow.indexOf("  circuit-breaker-success:");
+  const failureJob = workflow.slice(failureStart, successStart);
+  const successJob = workflow.slice(successStart);
+  for (const job of [failureJob, successJob]) {
+    assert.ok(job.includes("EXPECTED_HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}"));
+    assert.ok(job.includes("EXPECTED_HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}"));
+    assert.ok(job.includes("steps.revalidate.outputs.is_current_head == 'true'"));
+    assert.ok(job.includes("steps.revalidate.outputs.is_task_pr == 'true'"));
+    assert.ok(job.includes("ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}"));
+  }
+});
+
 test("CI resolves the current task PR and binds candidate outcomes to exact run evidence", () => {
   assert.ok(workflow.includes("  resolve-candidate:"));
   assert.ok(workflow.includes("scripts/resolve-agent-task-pr.mjs"));
