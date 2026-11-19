@@ -113,7 +113,7 @@ for (const relativePath of patchablePaths) {
   }
 }
 
-const patchBatches = splitPatchPathsIntoBatches(patchablePaths, 4);
+// Full-file replacement output can be substantially larger than its source. Keep each model request to one approved file so a single large response cannot truncate the entire patch manifest.\nconst patchBatches = splitPatchPathsIntoBatches(patchablePaths, 1);
 const basePlanningInput = {
   goal: task.goal,
   acceptance_criteria: task.acceptance_criteria,
@@ -197,7 +197,7 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
   const batchSourceFiles = selectPatchBatchSourceFiles(fileContext, batchPaths);
   const batchSourceBytes = batchSourceFiles
     .reduce((total, file) => total + (file.content === null ? 0 : Buffer.byteLength(file.content, "utf8")), 0);
-  const outputTokenBudget = Math.min(16384, Math.max(4096, Math.ceil(batchSourceBytes / 3)));
+  const outputTokenBudget = Math.min(16384, Math.max(8192, Math.ceil(batchSourceBytes / 1.5)));
   const remainingMs = timeoutMs - (Date.now() - generationStartedAt);
   if (remainingMs < 10000) {
     fail("The total Ollama patch-generation time budget expired before batch " + (batchIndex + 1) + ".");
