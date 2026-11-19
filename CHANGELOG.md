@@ -10,3 +10,12 @@
 ### Verification
 - Candidate changes are committed to development branches and require exact-head CI plus independent review.
 - No track is marked production-complete by the presence of a UI or a merged code change alone.
+
+## 0.2.4 — 2026-11-20
+
+### Fixed
+- Repair Agent Factory patch-batch declaration and add CI syntax validation.
+- Correct CSS Module selector scoping in Predictive Coding and Deep Research workspaces.
+
+### Verification
+- Exact-head CI remains required for the updated A, C and E track branches.
