@@ -32,3 +32,12 @@
 - Add a CI policy regression assertion for the application RLS test step and its failure classification.
 
 **Verification:** exact-head CI required.
+
+
+## 2.0.4
+
+- Run the two-member application RLS integration suite through the isolated Supabase PostgreSQL container, avoiding an undeclared host-side `psql` dependency on Windows Runner.
+- Scope all factory workbench table header and cell selectors under the local `.tableWrap` CSS Module class.
+- Extend CI policy coverage for isolated-container RLS execution.
+
+**Verification:** fresh exact-head CI required; previous run failed because the host Runner lacked `psql` and the factory CSS Module contained unscoped table selectors.

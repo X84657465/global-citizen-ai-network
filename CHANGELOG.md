@@ -130,3 +130,19 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - New exact-head CI required.
+
+
+## 0.3.5 — 2026-11-20
+
+### Fixed
+- Execute the two-member application RLS suite inside the isolated Supabase PostgreSQL container so the Windows Runner no longer depends on a separately installed host `psql` binary.
+- Scope Agent Factory table, header and cell selectors to its CSS Module wrapper; retain the regression guard.
+- Extend CI policy tests to require the container-based database integration path.
+
+### Documentation and media
+- Synchronize the repository homepage release version and current five-track CI status.
+- Keep the existing five-track architecture visual and video storyboard as production assets; no rendered MP4 is claimed.
+
+### Verification
+- Previous A exact-head CI failed on the missing host `psql` executable and one CSS Module selector regression.
+- This repair is pending fresh exact-head CI; no release acceptance is implied.

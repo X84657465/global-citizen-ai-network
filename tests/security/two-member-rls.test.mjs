@@ -5,11 +5,13 @@ import test from "node:test";
 
 const databaseUrl = process.env.SUPABASE_DB_URL;
 const psql = process.env.PSQL_BIN || "psql";
+const databaseContainer = process.env.SUPABASE_DB_CONTAINER;
 
 function sql(query, { expectFailure = false } = {}) {
   if (!databaseUrl) throw new Error("SUPABASE_DB_URL is required. Use a disposable local Supabase database; never point this test at production.");
-  const result = spawnSync(psql, [
-    databaseUrl,
+  const command = databaseContainer ? "docker" : psql;
+  const args = databaseContainer ? ["exec", "-e", "PGAPPNAME=gcan-two-member-rls-test", databaseContainer, "psql", "-U", "postgres", "-d", "postgres"] : [databaseUrl];
+  args.push(
     "-X",
     "-q",
     "-A",
@@ -18,7 +20,8 @@ function sql(query, { expectFailure = false } = {}) {
     "ON_ERROR_STOP=1",
     "-c",
     query,
-  ], { encoding: "utf8", timeout: 30_000, env: { ...process.env, PGAPPNAME: "gcan-two-member-rls-test" } });
+  );
+  const result = spawnSync(command, args, { encoding: "utf8", timeout: 30_000, env: process.env });
 
   if (expectFailure) {
     assert.notEqual(result.status, 0, "Expected the database to reject this operation.");

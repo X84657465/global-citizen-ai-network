@@ -305,6 +305,8 @@ test("candidate install and offline test use separate least-network container pr
 test("database job runs the two-member application RLS integration suite and classifies its failures as task failures", () => {
   assert.ok(workflow.includes("- name: Run two-member application RLS integration tests"));
   assert.ok(workflow.includes("SUPABASE_DB_URL"));
+  assert.ok(workflow.includes("SUPABASE_DB_CONTAINER"));
+  assert.ok(workflow.includes('docker ps --filter "name=supabase_db_$projectId"'));
   assert.ok(workflow.includes("APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}"));
   assert.ok(workflow.includes('$env:APPLICATION_RLS_TESTS -eq "failure"'));
 });
