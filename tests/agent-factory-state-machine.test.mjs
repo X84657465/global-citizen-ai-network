@@ -253,13 +253,15 @@ test("explicitly requeues a candidate CI rejection for a new worker attempt", ()
   assert.equal(state.tasks["42"].status, "candidate_rejected");
   assert.equal(state.active_task, null);
 
-  state = requeueTask(state, 42, 1900);
+  assert.equal(state.tasks["42"].next_attempt_at, new Date(61_800).toISOString());
+  assert.throws(() => requeueTask(state, 42, 61_799), /backoff has not elapsed/);
+  state = requeueTask(state, 42, 61_800);
   assert.equal(state.tasks["42"].status, "queued");
   assert.equal(state.tasks["42"].candidate_status, "retry_queued");
 
   state = reserveTask(state, metadata({
     lease_id: "lease-attempt-2", workflow_run_id: "run-123457", run_attempt: 2,
-  }), 2000);
+  }), 62_000);
   assert.equal(state.active_task.issue_number, 42);
   assert.equal(state.active_task.attempt, 2);
 });
@@ -366,7 +368,7 @@ test("quarantines a task after three distinct candidate CI rejections", () => {
       workflow_run_id: "run-candidate-" + attempt,
       run_attempt: attempt,
     }), 1000 + attempt * 10_000);
-    const start = 1000 + attempt * 10_000;
+    const start = 1000 + attempt * 100_000;
     state = move(state, 42, "preparing", {}, start + 100);
     state = move(state, 42, "planning", {}, start + 200);
     state = move(state, 42, "patching", {}, start + 300);
@@ -394,7 +396,7 @@ test("quarantines a task after three distinct candidate CI rejections", () => {
     if (attempt < 3) {
       assert.equal(state.tasks["42"].status, "candidate_rejected");
       assert.equal(state.tasks["42"].quarantined, false);
-      state = requeueTask(state, 42, start + 900);
+      state = requeueTask(state, 42, start + 61_000);
     } else {
       assert.equal(state.tasks["42"].status, "quarantined");
       assert.equal(state.tasks["42"].quarantined, true);
