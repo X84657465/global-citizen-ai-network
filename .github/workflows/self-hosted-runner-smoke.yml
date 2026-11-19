@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat/agent-factory-v2
     paths:
       - .github/workflows/self-hosted-runner-smoke.yml
   workflow_dispatch:
