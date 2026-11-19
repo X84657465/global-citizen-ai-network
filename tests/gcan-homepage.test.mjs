@@ -110,10 +110,12 @@ test("workspace rejects malformed UUIDs, blank conversation titles, and invalid 
 
 
 
-test("public homepage provides a keyboard skip link to the main content", () => {
-  assert.match(homepage, /href="#main-content">跳至主要內容<\\/a>/);
-  assert.match(homepage, /<main className={styles\\.page}>/);
-  assert.match(homepage, /id="main-content" tabIndex={-1}/);
-  assert.match(homeCss, /\\.skipLink:focus-visible/);
-  assert.match(homeCss, /transform: translateY\\(0\\)/);
+test("public homepage skip link targets the main landmark and mission navigation resolves", () => {
+  assert.ok(homepage.includes('href="#main-content">跳至主要內容</a>'));
+  assert.ok(homepage.includes('<main className={styles.page} id="main-content" tabIndex={-1}>'));
+  assert.ok(homepage.includes('<div className={styles.heroCopy} id="mission">'));
+  assert.ok(homepage.includes('<a href="#mission">平台使命</a>'));
+  assert.ok(!homepage.includes('<section className={styles.hero} id="main-content"'));
+  assert.ok(homeCss.includes(".skipLink:focus-visible"));
+  assert.ok(homeCss.includes("transform: translateY(0)"));
 });
