@@ -61,6 +61,42 @@ test("rejects duplicate, malformed, or oversized processed-event histories", () 
   assert.throws(() => validateFactoryState(oversized), /Processed event history/);
 });
 
+test("preserves old idempotency keys and fails closed at the processed-event ledger capacity", () => {
+  const state = createInitialFactoryState(1000);
+  state.processed_events = Array.from(
+    { length: 500 },
+    (_, index) => "workflow-event-" + String(index).padStart(4, "0"),
+  );
+  state.system.consecutive_failures = 1;
+  assert.equal(validateFactoryState(state), true);
+
+  const replay = recordSystemFailure(
+    state,
+    "workflow-event-0000",
+    "REPLAYED_OLD_EVENT",
+    "must remain a duplicate after the ledger reaches capacity",
+    2000,
+  );
+  assert.equal(replay.duplicate, true);
+  assert.equal(replay.state, state);
+  assert.equal(replay.state.system.consecutive_failures, 1);
+  assert.equal(replay.state.state_version, 0);
+
+  assert.throws(
+    () => recordSystemFailure(
+      state,
+      "workflow-event-new-0001",
+      "NEW_EVENT",
+      "must fail closed instead of evicting an old idempotency key",
+      3000,
+    ),
+    /ledger capacity reached; refusing to evict idempotency keys/,
+  );
+  assert.equal(state.processed_events.length, 500);
+  assert.equal(state.system.consecutive_failures, 1);
+  assert.equal(state.state_version, 0);
+});
+
 test("rejects inconsistent quarantine flags and orphaned active leases", () => {
   const quarantined = createInitialFactoryState(1000);
   quarantined.tasks["42"] = {
