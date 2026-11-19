@@ -71,11 +71,21 @@ async function main() {
     sameRepository &&
     (!expectedSha || pull.head?.sha === expectedSha) &&
     (!expectedRef || pull.head?.ref === expectedRef);
-  const isTaskPr = Boolean(
-    issueNumber &&
-    sameRepository &&
-    isAgentTaskBranchForIssue(pull.head?.ref, issueNumber),
-  );
+  let authorizedTaskIssue = false;
+  if (issueNumber && sameRepository && isAgentTaskBranchForIssue(pull.head?.ref, issueNumber)) {
+    try {
+      const issue = await api.request("/repos/" + repository + "/issues/" + issueNumber);
+      const owner = repository.split("/")[0];
+      authorizedTaskIssue = issue?.state === "open" &&
+        issue?.user?.login === owner &&
+        typeof issue?.title === "string" &&
+        issue.title.startsWith("[AI Task]");
+    } catch (error) {
+      if (error?.status !== 404) throw error;
+    }
+  }
+  const isTaskPr = Boolean(issueNumber && sameRepository &&
+    isAgentTaskBranchForIssue(pull.head?.ref, issueNumber) && authorizedTaskIssue);
 
   writeOutput("is_current_head", currentHead ? "true" : "false");
   writeOutput("is_task_pr", isTaskPr ? "true" : "false");
