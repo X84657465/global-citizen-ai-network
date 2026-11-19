@@ -8,7 +8,7 @@ const fail = (message) => {
 
 const markTaskScopedFailure = () => {
   const envFile = process.env.GITHUB_ENV;
-  if (envFile) appendFileSync(envFile, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+  if (envFile) appendFileSync(envFile, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
 };
 
 const issueNumber = process.env.ISSUE_NUMBER ?? "";
