@@ -64,3 +64,16 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Exact-head CI is required; no release acceptance implied.
+
+## 0.2.8 — 2026-11-20
+
+### Added
+- Promote the Deep Neural workbench from a static knowledge overview to an interactive local demonstration with search, type filters, artifact details and a proposal interaction.
+- Expand the knowledge exchange view to all five workstreams.
+- Synchronize the Deep Neural track version to `0.2.2` and the overall integration version to `0.2.8`.
+
+### Limitations
+- Deep Neural interactions remain local demo state; persistent knowledge storage and live reasoning are not connected.
+
+### Verification
+- Exact-head CI and independent review required.

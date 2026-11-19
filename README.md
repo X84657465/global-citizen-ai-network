@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.2.7` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.2.8` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -406,7 +406,7 @@ http://localhost:3000
 | A｜Agent Factory V2 | 工廠控制台 | 開發候選；CI 執行中 | [PR #134](https://github.com/X84657465/global-citizen-ai-network/pull/134) |
 | B｜GCAN Product | 全球產品平台 | CI 通過；待獨立驗收 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) |
 | C｜Predictive Coding | 預測分析工作台 | CSS 修復候選；待 exact-head CI | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
-| D｜Deep Neural | 深度神經工作台 | CI 通過；待獨立驗收 | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
+| D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
 | E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
 
 > CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
