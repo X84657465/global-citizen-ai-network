@@ -41,7 +41,9 @@ permissions:
   issues: read
 
 concurrency:
-  group: global-citizen-ai-network-self-hosted-runner
+  # Keep scheduler dispatches independent from the FIFO CI queue group.
+  # Both workflows still serialize naturally on the single self-hosted Runner.
+  group: global-citizen-ai-network-agent-scheduler
   cancel-in-progress: false
 
 jobs:
