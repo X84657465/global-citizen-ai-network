@@ -32,9 +32,14 @@ on:
   workflow_dispatch:
     inputs:
       issue_number:
-        description: "Repository issue number containing the approved AI task"
-        required: true
+        description: "Optional repository issue number containing the approved AI task"
+        required: false
         type: string
+      run_validation_smoke:
+        description: "Run the local Ollama and Docker smoke tests instead of waiting for a code push"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -49,7 +54,13 @@ concurrency:
 jobs:
   validation-tests:
     name: Windows self-hosted project validation
-    if: github.event_name == 'push' && github.actor == github.repository_owner
+    if: >-
+      (github.event_name == 'workflow_dispatch' &&
+       github.actor == github.repository_owner &&
+       inputs.run_validation_smoke == true) ||
+      (github.event_name == 'push' &&
+       github.actor == github.repository_owner &&
+       contains(github.event.head_commit.message, '[runner-smoke]'))
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 25
     steps:
