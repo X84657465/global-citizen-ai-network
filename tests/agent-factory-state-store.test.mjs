@@ -164,3 +164,53 @@ test("recovers an ambiguous state Issue update after GitHub persisted the PATCH 
   assert.equal((await store.read()).state.state_version, 2);
   assert.equal(fake.issues.length, 1);
 });
+
+
+test("fails closed when the state Issue marker is missing or its payload is malformed", async () => {
+  const fake = fakeApi([
+    { number: 101, title: FACTORY_STATE_ISSUE_TITLE, body: "machine-managed but marker missing" },
+  ]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  await assert.rejects(store.read(), /state marker is missing/);
+
+  const invalidJsonBody = "Machine-managed V2 factory state. <!-- agent-factory-state:" +
+    Buffer.from("{not-json").toString("base64") + " -->";
+  const malformed = fakeApi([
+    { number: 102, title: FACTORY_STATE_ISSUE_TITLE, body: invalidJsonBody },
+  ]);
+  const malformedStore = createFactoryStateStore(malformed.client, { repository: "owner/repo" });
+  await assert.rejects(malformedStore.read(), /invalid base64 JSON/);
+});
+
+test("fails closed when a configured state Issue number points to an unrelated Issue", async () => {
+  const fake = fakeApi([{ number: 103, title: "Unrelated issue", body: "not factory state" }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo", issueNumber: 103 });
+  await assert.rejects(store.read(), /does not identify the machine-managed state Issue/);
+});
+
+test("fails closed rather than silently truncating state Issue discovery after 100 full pages", async () => {
+  const validBody = "Machine-managed V2 factory state. <!-- agent-factory-state:" +
+    Buffer.from(JSON.stringify(createInitialFactoryState())).toString("base64") + " -->";
+  let pageCalls = 0;
+  const client = {
+    request: async (path) => {
+      if (!path.includes("/issues?")) throw new Error("unexpected request");
+      pageCalls += 1;
+      return Array.from({ length: 100 }, (_, index) => ({
+        number: (pageCalls - 1) * 100 + index + 1,
+        title: "Unrelated issue " + index,
+        body: validBody,
+      }));
+    },
+  };
+  const store = createFactoryStateStore(client, { repository: "owner/repo" });
+  await assert.rejects(store.read(), /100-page safety limit/);
+  assert.equal(pageCalls, 100);
+});
+
+test("rejects state writes that do not advance exactly one version", async () => {
+  const fake = fakeApi();
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const state = createInitialFactoryState(1000);
+  await assert.rejects(store.write(0, state), /advance exactly one version/);
+});
