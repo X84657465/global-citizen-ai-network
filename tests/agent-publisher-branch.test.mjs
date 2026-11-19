@@ -31,7 +31,10 @@ function fakeApi(options = {}) {
       return ref;
     }
     if (path === "/repos/owner/repo/git/commits/" + commitSha && method === "GET") {
-      return { tree: { sha: options.existingTreeSha ?? treeSha } };
+      return {
+        tree: { sha: options.existingTreeSha ?? treeSha },
+        parents: [{ sha: options.existingBaseSha ?? baseSha }],
+      };
     }
     throw new Error("Unexpected fake API request: " + method + " " + path);
   };
@@ -76,5 +79,18 @@ test("rejects unsafe branch names and malformed commit identifiers", async () =>
   await assert.rejects(
     ensureDeterministicBranch(fake.api, repository, branch, "not-a-sha", treeSha, "test patch"),
     /valid base commit/,
+  );
+});
+
+
+test("rejects an existing branch whose parent is not the validated base commit", async () => {
+  const fake = fakeApi({
+    ref: { object: { sha: commitSha } },
+    existingTreeSha: treeSha,
+    existingBaseSha: "d".repeat(40),
+  });
+  await assert.rejects(
+    ensureDeterministicBranch(fake.api, repository, branch, baseSha, treeSha, "test patch"),
+    /exact validated base commit/,
   );
 });
