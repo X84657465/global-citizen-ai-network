@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   createInitialFactoryState, reserveTask, transitionTask, recordTaskFailure,
   recordSystemFailure, recordTaskSuccess, recordSystemSuccess,
-  recoverExpiredLease, requeueTask, recordCandidateFailure, isSystemCooldownActive, validateFactoryState,
+  recoverExpiredLease, requeueTask, recordCandidateFailure, recordCandidateStarted, isSystemCooldownActive, validateFactoryState,
 } from "../lib/agent-factory-state-machine.mjs";
 
 const metadata = (overrides = {}) => ({
@@ -17,6 +17,14 @@ const move = (state, issueNumber, nextStatus, details = {}, now = Date.now()) =>
 
 const failTask = (state, issueNumber, eventKey, errorCode, summary, now = Date.now()) =>
   recordTaskFailure(state, issueNumber, state.active_task?.lease_id, eventKey, errorCode, summary, now);
+
+const startCandidate = (state, issueNumber, evidence, now = Date.now()) =>
+  recordCandidateStarted(state, issueNumber,
+    "ci-start-" + evidence.ci_run_id + "-attempt-" + evidence.ci_run_attempt +
+      "-issue-" + issueNumber + "-sha-" + evidence.head_sha.slice(0, 12),
+    { ...evidence, head_ref: evidence.head_ref ?? ("ai-task/issue-" + issueNumber + "-candidate") },
+    now,
+  ).state;
 
 test("creates a valid versioned empty state", () => {
   const state = createInitialFactoryState(1000);
@@ -102,8 +110,9 @@ test("task success clears only that task retry record", () => {
   state = move(state, 42, "publishing", {}, 62_500);
   state = move(state, 42, "draft_pr_created", { head_sha: "c".repeat(40), pull_request_number: 99 }, 62_600);
   state = move(state, 42, "awaiting_ci", {}, 62_700);
-  state.system.consecutive_failures = 2;
   const evidence = { head_sha: "c".repeat(40), pull_request_number: 99, ci_conclusion: "success", ci_run_id: "ci-123", ci_run_attempt: 1 };
+  state = startCandidate(state, 42, evidence, 62_800);
+  state.system.consecutive_failures = 2;
   const result = recordTaskSuccess(state, 42, event("success"), evidence, 63_000);
   assert.equal(result.state.tasks["42"].failures, 0);
   assert.equal(result.state.tasks["42"].status, "completed");
@@ -174,6 +183,7 @@ test("candidate CI failure is recorded separately from worker task retries", () 
   state = move(state, 42, "draft_pr_created", { head_sha: "d".repeat(40), pull_request_number: 77 }, 1600);
   state = move(state, 42, "awaiting_ci", {}, 1700);
   const evidence = { head_sha: "d".repeat(40), pull_request_number: 77, ci_conclusion: "failure", ci_run_id: "ci-456", ci_run_attempt: 1 };
+  state = startCandidate(state, 42, evidence, 1750);
   assert.throws(() => recordCandidateFailure(state, 42, event("wrong-sha"), { ...evidence, head_sha: "e".repeat(40) }, "stale run", 1800), /exact candidate SHA, PR, CI run ID/);
   const result = recordCandidateFailure(state, 42, event("candidate-fail"), evidence, "lint failed", 1900);
   assert.equal(result.state.tasks["42"].status, "candidate_rejected");
@@ -197,6 +207,7 @@ test("explicitly requeues a candidate CI rejection for a new worker attempt", ()
     head_sha: "f".repeat(40), pull_request_number: 78,
     ci_conclusion: "failure", ci_run_id: "ci-789", ci_run_attempt: 1,
   };
+  state = startCandidate(state, 42, evidence, 1750);
   state = recordCandidateFailure(state, 42, event("candidate-rejected-retry"), evidence, "lint failed", 1800).state;
   assert.equal(state.tasks["42"].status, "candidate_rejected");
   assert.equal(state.active_task, null);
@@ -329,6 +340,7 @@ test("quarantines a task after three distinct candidate CI rejections", () => {
       head_sha: headSha, pull_request_number: pullRequestNumber,
       ci_conclusion: "failure", ci_run_id: String(9000 + attempt), ci_run_attempt: 1,
     };
+    state = startCandidate(state, 42, evidence, start + 750);
     state = recordCandidateFailure(
       state, 42, event("candidate-rejection-" + attempt), evidence,
       "candidate validation failed", start + 800,
