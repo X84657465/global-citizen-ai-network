@@ -131,8 +131,28 @@ export default function WorkspaceClient() {
             try {
               const parsedPending: unknown = await pendingResponse.json();
               if (parsedPending && typeof parsedPending === "object" && !Array.isArray(parsedPending)) {
-                pendingData = parsedPending as typeof pendingData;
-                pendingAvailable = true;
+                const candidate = parsedPending as {
+                  pending?: unknown;
+                  unresolved?: unknown;
+                  recoverable?: unknown;
+                  error?: unknown;
+                };
+                const pendingRecord = candidate.pending;
+                const validPendingRecord = pendingRecord === null || (
+                  Boolean(pendingRecord) && typeof pendingRecord === "object" &&
+                  typeof (pendingRecord as { conversationId?: unknown }).conversationId === "string" &&
+                  /^[0-9a-f-]{36}$/i.test((pendingRecord as { conversationId: string }).conversationId) &&
+                  typeof (pendingRecord as { idempotencyKey?: unknown }).idempotencyKey === "string" &&
+                  /^[A-Za-z0-9._:-]{8,128}$/.test((pendingRecord as { idempotencyKey: string }).idempotencyKey) &&
+                  typeof (pendingRecord as { content?: unknown }).content === "string" &&
+                  (pendingRecord as { content: string }).content.length >= 1 &&
+                  (pendingRecord as { content: string }).content.length <= 8000 &&
+                  ["queued", "running"].includes(String((pendingRecord as { status?: unknown }).status))
+                );
+                if (typeof candidate.unresolved === "boolean" && validPendingRecord) {
+                  pendingData = candidate as typeof pendingData;
+                  pendingAvailable = true;
+                }
               }
             } catch { /* Preserve local idempotency data if server recovery is unavailable. */ }
           }
