@@ -144,3 +144,20 @@ test("does not persist unrelated review-branch CI failures into the factory circ
   assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
   assert.equal(job.includes("review/"), false);
 });
+
+
+test("resets the global breaker only after successful CI for main or a tracked factory task", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("  circuit-breaker-success:");
+  assert.ok(start >= 0);
+  const job = workflow.slice(start);
+  assert.ok(job.includes("needs.build.result == 'success'"));
+  assert.ok(job.includes("needs.database.result == 'success'"));
+  assert.ok(job.includes("AGENT_FACTORY_MODE: success"));
+  assert.ok(job.includes("AGENT_FACTORY_SUCCESS_SCOPE: system"));
+  assert.ok(job.includes("github.ref == 'refs/heads/main'"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'codex/issue-')"));
+  assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
+  assert.equal(job.includes("review/"), false);
+});

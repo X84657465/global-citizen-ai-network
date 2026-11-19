@@ -63,6 +63,7 @@ jobs:
         id: schema-guard
         run: node scripts/check-schema.mjs
       - name: Production dependency security audit
+        id: production-audit
         run: npm audit --omit=dev --audit-level=high
       - name: Full dependency audit (including development tooling)
         run: npm audit --audit-level=high
@@ -84,13 +85,14 @@ jobs:
         if: failure()
         env:
           MIGRATION_GUARD: ${{ steps.migration-guard.outcome }}
+          PRODUCTION_AUDIT: ${{ steps.production-audit.outcome }}
           SCHEMA_GUARD: ${{ steps.schema-guard.outcome }}
           UNIT_TESTS: ${{ steps.unit-tests.outcome }}
           TYPE_CHECK: ${{ steps.type-check.outcome }}
           LINT: ${{ steps.lint.outcome }}
           PRODUCTION_BUILD: ${{ steps.production-build.outcome }}
         run: |
-          $taskOutcomes = @($env:MIGRATION_GUARD, $env:SCHEMA_GUARD, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
+          $taskOutcomes = @($env:MIGRATION_GUARD, $env:PRODUCTION_AUDIT, $env:SCHEMA_GUARD, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
           if ($taskOutcomes -contains "failure") {
             [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task`n", [System.Text.UTF8Encoding]::new($false))
             Write-Host "Build failure is attributable to task validation."
@@ -426,4 +428,41 @@ jobs:
           AGENT_FACTORY_MODE: failure
           AGENT_FACTORY_FAILURE_SCOPE: ${{ ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') && contains(github.event.pull_request.body, '<!-- ai-task:')) || startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) || (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/codex/issue-')) || (github.event_name == 'repository_dispatch' && github.event.action == 'ai-task-ci' && github.event.client_payload.pull_request_number != '')) && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
           FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database job logs."
+        run: node scripts/agent-factory-controller.mjs
+
+  circuit-breaker-success:
+    name: Reset the global circuit breaker after healthy factory CI
+    needs: [build, database]
+    if: >-
+      needs.build.result == 'success' &&
+      needs.database.result == 'success' &&
+      (
+        (github.event_name == 'push' &&
+         (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/codex/issue-'))) ||
+        (github.event_name == 'pull_request' &&
+         github.event.pull_request.head.repo.full_name == github.repository &&
+         ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
+           contains(github.event.pull_request.body, '<!-- ai-task:')) ||
+          startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) ||
+        (github.event_name == 'repository_dispatch' &&
+         github.event.action == 'ai-task-ci' &&
+         github.event.client_payload.pull_request_number != '')
+      )
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+      - name: Reset global circuit breaker after verified CI success
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: success
+          AGENT_FACTORY_SUCCESS_SCOPE: system
         run: node scripts/agent-factory-controller.mjs
