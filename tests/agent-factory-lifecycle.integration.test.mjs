@@ -457,16 +457,16 @@ test("recovers an expired worker lease only after a restarted controller confirm
   assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
   api.request = request;
 
-  // A completed result for a different attempt of the same workflow run
-  // is not proof that the leased attempt has stopped; fail closed.
-  api.workflows.set("700001", { run_attempt: 2, status: "completed" });
+  // A newer GitHub rerun supersedes the leased attempt. While that
+  // attempt is running it cannot be recovered; once it completes, the old
+  // lease is stale and can be safely reclaimed.
+  api.workflows.set("700001", { run_attempt: 2, status: "in_progress" });
   result = await invoke({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, false);
   assert.equal(result.state.active_task.lease_id, leaseId);
   assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
 
-  // Only the exact leased attempt may authorize recovery.
-  api.workflows.set("700001", { run_attempt: 1, status: "completed" });
+  api.workflows.set("700001", { run_attempt: 2, status: "completed" });
   result = await invoke({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, true);
   assert.equal(result.outputs.recovered_issue_number, issueNumber);
