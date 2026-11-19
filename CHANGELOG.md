@@ -77,3 +77,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Exact-head CI and independent review required.
+
+## 0.2.9 — 2026-11-20
+
+### Fixed
+- Correct the CSS Module selector regression guard regex to ensure the test detects unscoped selectors rather than escaped literal characters.
+- Synchronize the overall version and Predictive Coding track version.
+
+### Verification
+- Exact-head CI required; this change does not constitute release acceptance.
