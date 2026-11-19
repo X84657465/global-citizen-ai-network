@@ -33,6 +33,47 @@ test("creates a valid versioned empty state", () => {
   assert.equal(validateFactoryState(state), true);
 });
 
+test("rejects invalid system breaker counters and timestamps", () => {
+  const invalidCounter = createInitialFactoryState(1000);
+  invalidCounter.system.consecutive_failures = -1;
+  assert.throws(() => validateFactoryState(invalidCounter), /system breaker state/);
+
+  const invalidCooldown = createInitialFactoryState(1000);
+  invalidCooldown.system.cooldown_until = "not-a-date";
+  assert.throws(() => validateFactoryState(invalidCooldown), /system breaker state/);
+
+  const invalidUpdatedAt = createInitialFactoryState(1000);
+  invalidUpdatedAt.updated_at = "not-a-date";
+  assert.throws(() => validateFactoryState(invalidUpdatedAt), /update timestamp/);
+});
+
+test("rejects duplicate, malformed, or oversized processed-event histories", () => {
+  const duplicate = createInitialFactoryState(1000);
+  duplicate.processed_events = ["workflow-event-1", "workflow-event-1"];
+  assert.throws(() => validateFactoryState(duplicate), /Processed event history/);
+
+  const malformed = createInitialFactoryState(1000);
+  malformed.processed_events = ["short"];
+  assert.throws(() => validateFactoryState(malformed), /Processed event history/);
+
+  const oversized = createInitialFactoryState(1000);
+  oversized.processed_events = Array.from({ length: 501 }, (_, index) => "workflow-event-" + index);
+  assert.throws(() => validateFactoryState(oversized), /Processed event history/);
+});
+
+test("rejects inconsistent quarantine flags and orphaned active leases", () => {
+  const quarantined = createInitialFactoryState(1000);
+  quarantined.tasks["42"] = {
+    status: "quarantined", attempts: 3, failures: 3, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  assert.throws(() => validateFactoryState(quarantined), /Task state record/);
+
+  const orphaned = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  orphaned.tasks["42"].lease_id = "different-lease";
+  assert.throws(() => validateFactoryState(orphaned), /Active task lease/);
+});
+
 test("reserves only one task and records an expiring lease", () => {
   const first = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
   assert.equal(first.active_task.issue_number, 42);
