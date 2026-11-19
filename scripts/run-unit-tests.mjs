@@ -32,6 +32,8 @@ const candidates = [
   "tests/github-pagination.test.mjs",
   "tests/ollama-generate-stream.test.mjs",
   "tests/ollama-smoke-test.test.mjs",
+  "tests/ci-trigger-policy.test.mjs",
+  "tests/ci-trigger-policy.test.mjs",
   "tests/gcan-homepage.test.mjs"
 ];
 
