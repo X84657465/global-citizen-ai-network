@@ -272,6 +272,7 @@ test("candidate success requires exact CI run ID and positive run attempt", () =
     head_sha: "a".repeat(40), pull_request_number: 88,
     ci_conclusion: "success", ci_run_id: "ci-888", ci_run_attempt: 1,
   };
+  state = startCandidate(state, 42, evidence, 1750);
   assert.throws(
     () => recordTaskSuccess(state, 42, event("missing-ci-run-id"), { ...evidence, ci_run_id: "" }, 1800),
     /CI run ID/,
@@ -302,6 +303,7 @@ test("candidate failure also requires exact CI run ID and positive run attempt",
     head_sha: "b".repeat(40), pull_request_number: 89,
     ci_conclusion: "failure", ci_run_id: "ci-889", ci_run_attempt: 1,
   };
+  state = startCandidate(state, 42, evidence, 1750);
   assert.throws(
     () => recordCandidateFailure(state, 42, event("failure-missing-run-id"), { ...evidence, ci_run_id: "" }, "failed", 1800),
     /CI run ID/,
