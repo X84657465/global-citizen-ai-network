@@ -273,3 +273,31 @@ test("refuses to write an oversized durable state Issue before issuing POST or P
   assert.equal(fake.issues.length, before);
   assert.equal(MAX_STATE_ISSUE_BODY_CHARS, 60_000);
 });
+
+
+test("a rejected repository write does not poison the serialized write queue", async () => {
+  const fake = fakeApi();
+  const originalRequest = fake.client.request;
+  let failNextRead = true;
+  fake.client.request = async (path, options = {}) => {
+    if (failNextRead && (options.method ?? "GET") === "GET" && path.includes("/issues?")) {
+      failNextRead = false;
+      throw new Error("simulated transient GitHub read failure");
+    }
+    return originalRequest(path, options);
+  };
+
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const first = recordSystemFailure(
+    createInitialFactoryState(1000), "run-queue-first-1", "API_TIMEOUT", "first attempt", 2000,
+  ).state;
+  await assert.rejects(store.write(0, first), /transient GitHub read failure/);
+
+  const second = recordSystemFailure(
+    createInitialFactoryState(1000), "run-queue-second-1", "API_TIMEOUT", "second attempt", 3000,
+  ).state;
+  const result = await store.write(0, second);
+  assert.equal(result.state.state_version, 1);
+  assert.equal((await store.read()).state.system.last_error, "second attempt");
+  assert.equal(fake.issues.length, 1);
+});
