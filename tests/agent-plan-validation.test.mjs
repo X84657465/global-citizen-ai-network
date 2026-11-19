@@ -134,3 +134,17 @@ test("rejects malformed Ollama stream chunks and streams without completion mark
   });
   await assert.rejects(() => collectOllamaGenerateStream(incomplete), /without a completion marker/);
 });
+
+
+test("splits large approved patch scopes into deterministic bounded batches", () => {
+  const paths = Array.from({ length: 11 }, (_, index) => "app/file-" + index + ".tsx");
+  const batches = splitPatchPathsIntoBatches(paths, 4);
+  assert.deepEqual(batches.map((batch) => batch.length), [4, 4, 3]);
+  assert.deepEqual(batches.flat(), paths);
+});
+
+test("rejects invalid and duplicate patch batch paths", () => {
+  assert.throws(() => splitPatchPathsIntoBatches([]), /non-empty array/);
+  assert.throws(() => splitPatchPathsIntoBatches(["app/a.tsx", "APP/A.TSX"]), /unique/);
+  assert.throws(() => splitPatchPathsIntoBatches(["app/a.tsx"], 0), /between 1 and 20/);
+});
