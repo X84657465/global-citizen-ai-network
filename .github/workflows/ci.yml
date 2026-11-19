@@ -442,7 +442,7 @@ jobs:
 
   circuit-breaker-success:
     concurrency:
-      group: global-citizen-ai-network-self-hosted-runner-success
+      group: global-citizen-ai-network-self-hosted-runner
       queue: max
       cancel-in-progress: false
     name: Persist candidate success or reset system breaker
