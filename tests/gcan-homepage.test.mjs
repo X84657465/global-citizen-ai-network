@@ -166,3 +166,15 @@ test("build configuration scopes Next.js tracing and exports a named ESLint conf
   assert.ok(eslintConfig.includes("export default eslintConfig;"));
   assert.ok(!eslintConfig.includes("export default ["));
 });
+
+const workspaceMessagesRoute = readFileSync(new URL("../app/api/conversations/[id]/messages/route.ts", import.meta.url), "utf8");
+
+test("workspace message API scopes reads to the authenticated owner and returns only required fields", () => {
+  assert.match(workspaceMessagesRoute, /\.eq\("conversation_id", id\)[\s\S]*?\.eq\("owner_id", auth\.user\.id\)/);
+  assert.match(workspaceMessagesRoute, /\.select\("id,role,content,created_at"\)/);
+  assert.doesNotMatch(workspaceMessagesRoute, /\.select\("id,role,content,model,created_at"\)/);
+});
+
+test("workspace message API forces authenticated ownership on client-created messages", () => {
+  assert.match(workspaceMessagesRoute, /\.insert\(\{ conversation_id: id, owner_id: auth\.user\.id, role: "user", content \}\)/);
+});
