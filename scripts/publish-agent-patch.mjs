@@ -156,7 +156,8 @@ const body = [
   "### Safety boundary",
   "- Draft PR remains open until the repository CI build and PostgreSQL/RLS tests pass",
   "- No production deployment or production database access",
-  "- CI automatically marks the PR ready and squash-merges it after all required jobs pass, unless destructive SQL/database changes require human review",
+  "- CI results are validation evidence only; a human must review and explicitly approve the PR before any merge",
+  "- The factory does not automatically approve, merge, or close the source task issue",
 ].join("\n");
 
 const resultPath = "artifacts/agent-publish.json";
@@ -177,7 +178,8 @@ if (dryRun) {
     draft: true,
     changed_files: validatedPatch.files.map((file) => file.path),
     no_api_writes: true,
-    automatic_merge_policy: "ci_gated_squash",
+    merge_policy: "human_approval_required",
+    automatic_merge: false,
     production_deployment: false,
   });
   console.log("PASS: publication payload validated in dry-run mode; no GitHub API writes were made.");
@@ -255,7 +257,8 @@ try {
       pull_request_number: existingPull.number,
       pull_request_url: existingPull.html_url,
       no_duplicate_created: true,
-      automatic_merge_policy: "ci_gated_squash",
+      merge_policy: "human_approval_required",
+      automatic_merge: false,
       production_deployment: false,
     });
     console.log("An open PR already exists for this task: " + existingPull.html_url);
@@ -304,7 +307,7 @@ try {
 
   try {
     await api("/repos/" + repository + "/issues/" + issueNumber + "/comments", "POST", {
-      body: "The automated candidate passed isolated tests and a draft pull request is awaiting repository CI; it will be squash-merged automatically if build and PostgreSQL/RLS checks pass and no destructive database operation is detected: " + pull.html_url + "\n\nNo merge or deployment was performed.",
+      body: "The automated candidate passed isolated tests and a draft pull request is awaiting repository CI and human review: " + pull.html_url + "\n\nNo merge, source-issue closure, or production deployment was performed. A human must review and explicitly merge the pull request.",
     });
   } catch (error) {
     console.warn("Draft PR was created, but the source issue comment could not be posted: " + error.message);
@@ -322,7 +325,8 @@ try {
     base_commit: baseCommit,
     commit_sha: commit.sha,
     changed_files: validatedPatch.files.map((file) => file.path),
-    automatic_merge_policy: "ci_gated_squash",
+    merge_policy: "human_approval_required",
+    automatic_merge: false,
     production_deployment: false,
   });
   console.log("Created draft PR after successful isolated validation: " + pull.html_url);
