@@ -17,7 +17,7 @@ function writeOutput(key, value) {
 function writeEnv(key, value) {
   const envFile = process.env.GITHUB_ENV;
   if (!envFile) return;
-  const safeValue = String(value ?? "").replace(/[\\r\\n]/g, " ");
+  const safeValue = String(value ?? "").replace(/[\r\n]/g, " ");
   appendFileSync(envFile, key + "=" + safeValue + "\\n", "utf8");
 }
 
