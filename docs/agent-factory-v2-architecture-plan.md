@@ -312,3 +312,29 @@ A green unit-test suite or successful synthetic preflight is not sufficient.
 - Ollama FAQ and queue behavior: https://github.com/ollama/ollama/blob/main/docs/faq.mdx
 - Docker Desktop resources: https://docs.docker.com/desktop/settings-and-maintenance/settings/
 - Docker Desktop WSL 2: https://docs.docker.com/desktop/features/wsl
+
+## 11. Concurrency design correction — verified against current GitHub documentation (2026-11-19)
+
+The initial design must not rely on the old one-pending-run concurrency behavior. GitHub Actions now supports queue: max, allowing up to 100 pending jobs or workflow runs per concurrency group when cancel-in-progress is false or omitted.
+
+Required implementation:
+- Remove the preflight workflow-level concurrency group that currently serializes the whole workflow independently of CI.
+- Add the same repository-wide runner gate at the job level to every job using the Windows self-hosted Runner, across CI and preflight workflows. Use one exact, stable group key such as global-citizen-ai-network-windows-runner.
+- Configure queue: max and cancel-in-progress: false for the shared runner gate.
+- Keep PR-level superseded-commit coalescing only where it cannot bypass the shared job-level runner gate.
+- Consolidate CI build and database work into one self-hosted job as already specified. Do not create parallel self-hosted jobs that then wait on the same runner gate.
+- Ensure preflight synthetic validation and real task processing cannot overlap on the same machine. If retained as separate jobs, both must use the same runner gate.
+- Monitor pending queue depth and oldest queued age. GitHub permits at most 100 pending items per concurrency group; items beyond that are rejected/cancelled, so the durable Issue queue and periodic full rescan remain mandatory recovery mechanisms.
+- Do not claim strict FIFO from GitHub concurrency. GitHub documents queue order by the time a job/run starts waiting on the concurrency group, not the time the event was dispatched; ordering is not guaranteed. Strict task order is implemented by the controller Issue scan using created_at and issue number as deterministic tie-break.
+- A queued self-hosted job can fail after 24 hours if no matching Runner becomes available. Alert on queue age well before that limit.
+
+This correction supersedes any earlier wording that could imply a single pending slot, unlimited queueing, or guaranteed event-dispatch FIFO.
+
+## 12. PR disposition and merge-gate decisions
+
+Verified open Draft PRs on 2026-11-19:
+- PR #119: exact scheduler workflow write exception. Reject from V2. Keep .github/** excluded from AI-generated write paths. Do not merge.
+- PR #132: classify malformed model patch output as task-scoped while preserving stream/transport failures as system-scoped. Preserve the intent, but integrate into the single V2 failure classifier. Do not merge independently.
+- PR #133: avoid duplicate CI dispatch after creating a new Draft PR; rely on pull_request: opened for new PRs and explicit dispatch only for existing-PR revalidation. Preserve the intent and regression test in the V2 Publisher. Do not merge independently.
+
+No PR is merged as part of this design phase. Rebase/port the approved portions into one V2 implementation branch after the complete state machine and tests are ready.
