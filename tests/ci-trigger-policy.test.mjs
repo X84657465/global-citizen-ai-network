@@ -6,6 +6,7 @@ const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta
 const preflight = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const runnerSmoke = readFileSync(new URL("../.github/workflows/self-hosted-runner-smoke.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const workflowLevelConcurrency = workflow.split("\non:\n", 1)[0];
 
 test("full CI runs on main pushes and pull-request lifecycle events, not codex branch pushes", () => {
@@ -87,6 +88,10 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
   }
 
   assert.ok(writerWorkflowCount > 0, "expected at least one V2 state-writer workflow");
+});
+
+test("Next.js output tracing is scoped to the repository and ignores unrelated Runner workspace lockfiles", () => {
+  assert.ok(nextConfig.includes("outputFileTracingRoot: process.cwd()"));
 });
 
 test("full dependency audit is a blocking CI security gate", () => {
