@@ -113,7 +113,7 @@ test("message validation accepts only safe user and assistant message records", 
   const validId = "8c3c5d8e-6d7b-4a7e-8b10-9d8c7b6a5f40";
   const validMessage = { id: validId, role: "user", content: "hello", created_at: "2026-11-19T10:00:00.000Z" };
   assert.equal(isWorkspaceMessage(validMessage), true);
-  assert.equal(isWorkspaceMessage({ role: "assistant", content: "reply" }), true);
+  assert.equal(isWorkspaceMessage({ id: validId, role: "assistant", content: "reply", created_at: "2026-11-19T10:00:00.000Z" }), true);
   for (const invalid of [
     null,
     [],
@@ -122,6 +122,9 @@ test("message validation accepts only safe user and assistant message records", 
     { ...validMessage, role: "tool" },
     { ...validMessage, content: 42 },
     { ...validMessage, id: "not-a-uuid" },
+    { role: "assistant", content: "missing database identity" },
+    { ...validMessage, id: undefined },
+    { ...validMessage, created_at: undefined },
     { ...validMessage, created_at: "not-a-date" },
     { ...validMessage, created_at: 1732000000 },
   ]) {
