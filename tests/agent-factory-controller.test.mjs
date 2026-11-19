@@ -35,6 +35,18 @@ const leaseEnv = {
   RUNNER_NAME: "DESKTOP-S2S4BM9",
 };
 
+async function startCandidate(controller, ciRunId) {
+  return controller.run({
+    AGENT_FACTORY_MODE: "candidate-start",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-test",
+    CI_RUN_ID: ciRunId,
+    CI_RUN_ATTEMPT: "1",
+  });
+}
+
 function awaitingCandidate(now = 1000) {
   const leaseId = "lease-candidate-42";
   let state = reserveTask(createInitialFactoryState(now), {
@@ -109,6 +121,7 @@ test("task-scoped failure requires and releases the exact active lease", async (
 test("candidate failure callback persists rejection then requeues without counting infrastructure failure", async () => {
   const store = fakeStore(awaitingCandidate());
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  await startCandidate(controller, "555001");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
     ISSUE_NUMBER: "42",
@@ -135,6 +148,7 @@ test("candidate success completes the exact PR and resets the system breaker", a
   initial.system.consecutive_failures = 2;
   const store = fakeStore(initial);
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  await startCandidate(controller, "555002");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
     ISSUE_NUMBER: "42",
@@ -218,6 +232,7 @@ test("candidate success callback recovers when the system-breaker write fails af
   initial.system.consecutive_failures = 2;
   const store = fakeStore(initial, { failWriteAt: 2 });
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  await startCandidate(controller, "555003");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
     ISSUE_NUMBER: "42",
@@ -239,6 +254,7 @@ test("candidate success callback recovers when the system-breaker write fails af
 test("candidate failure callback recovers when the requeue write fails after rejection is persisted", async () => {
   const store = fakeStore(awaitingCandidate(), { failWriteAt: 2 });
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  await startCandidate(controller, "555004");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
     ISSUE_NUMBER: "42",
