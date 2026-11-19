@@ -219,6 +219,39 @@ test("check mode waits for candidate CI retry backoff before requeueing", async 
   assert.equal(ready.state.tasks["42"].status, "queued");
 });
 
+test("check mode safely requeues legacy candidate rejections after a fallback delay", async () => {
+  const evidence = {
+    pull_request_number: 88,
+    head_sha: "b".repeat(40),
+    head_ref: "ai-task/issue-42-test",
+    ci_run_id: "legacy-candidate",
+    ci_run_attempt: 1,
+  };
+  let state = awaitingCandidate();
+  state = recordCandidateStarted(state, 42, "candidate-start-legacy", evidence, 2000).state;
+  state = recordCandidateFailure(
+    state,
+    42,
+    "candidate-failure-legacy",
+    { ...evidence, ci_conclusion: "failure" },
+    "candidate checks failed",
+    3000,
+  ).state;
+  delete state.tasks["42"].next_attempt_at;
+
+  let now = 62_999;
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => now });
+  const early = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(early.outputs.requeued_tasks, 0);
+  assert.equal(early.state.tasks["42"].status, "candidate_rejected");
+
+  now = 63_000;
+  const ready = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(ready.outputs.requeued_tasks, 1);
+  assert.equal(ready.state.tasks["42"].status, "queued");
+});
+
 test("check mode recovers an expired lease only after the workflow is confirmed completed", async () => {
   const state = reserveTask(createInitialFactoryState(1000), {
     issue_number: 42, lease_id: "lease-expired", lease_owner: "runner",
