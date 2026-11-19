@@ -22,6 +22,8 @@ on:
       - "lib/agent-path-safety.mjs"
       - "lib/agent-scratch-evidence.mjs"
       - "lib/agent-publisher-branch.mjs"
+      - "lib/agent-task-pr-metadata.mjs"
+      - "scripts/resolve-agent-task-pr.mjs"
       - "lib/agent-factory-policy.mjs"
       - "tests/agent-factory-policy.test.mjs"
       - "tests/agent-task-queue.test.mjs"
@@ -41,6 +43,7 @@ on:
       - "tests/agent-path-safety.test.mjs"
       - "tests/agent-scratch-evidence.test.mjs"
       - "tests/agent-publisher-branch.test.mjs"
+      - "tests/agent-task-pr-metadata.test.mjs"
       - "tests/ci-trigger-policy.test.mjs"
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
@@ -87,6 +90,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Legacy factory controller syntax check failed." }
           node --check scripts/agent-factory-v2-controller.mjs
           if ($LASTEXITCODE -ne 0) { throw "V2 factory controller syntax check failed." }
+          node --check scripts/resolve-agent-task-pr.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Candidate PR resolver syntax check failed." }
           node --check lib/agent-factory-controller.mjs
           if ($LASTEXITCODE -ne 0) { throw "V2 factory controller module syntax check failed." }
           node --check lib/agent-factory-state-machine.mjs
