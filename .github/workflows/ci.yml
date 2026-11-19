@@ -360,21 +360,34 @@ jobs:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
       CI_FAILURE_SCOPE: ${{ (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
     steps:
-      - name: Checkout tested revision
+      - name: Checkout exact tested revision
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
+      - name: Revalidate candidate PR head before recording failure
+        id: revalidate
+        if: needs.resolve-candidate.result == 'success' && needs.resolve-candidate.outputs.is_task_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+          PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
+          EXPECTED_HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          EXPECTED_HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
+        run: node scripts/resolve-agent-task-pr.mjs
       - name: Record task candidate CI rejection
-        if: needs.resolve-candidate.result == 'success' && needs.resolve-candidate.outputs.is_task_pr == 'true' && env.CI_FAILURE_SCOPE == 'task'
+        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true' && env.CI_FAILURE_SCOPE == 'task'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: candidate
-          ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.issue_number }}
-          PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
-          HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          ISSUE_NUMBER: ${{ steps.revalidate.outputs.issue_number }}
+          PULL_REQUEST_NUMBER: ${{ steps.revalidate.outputs.pull_request_number }}
+          HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}
           CI_CONCLUSION: failure
           CI_RUN_ID: ${{ github.run_id }}
           CI_RUN_ATTEMPT: ${{ github.run_attempt }}
@@ -424,21 +437,34 @@ jobs:
     env:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
     steps:
-      - name: Checkout tested revision
+      - name: Checkout exact tested revision
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
-      - name: Record exact candidate CI success
+      - name: Revalidate candidate PR head before recording success
+        id: revalidate
         if: needs.resolve-candidate.outputs.is_task_pr == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: candidate
-          ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.issue_number }}
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
           PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
-          HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          EXPECTED_HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          EXPECTED_HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
+        run: node scripts/resolve-agent-task-pr.mjs
+      - name: Record exact candidate CI success
+        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: candidate
+          ISSUE_NUMBER: ${{ steps.revalidate.outputs.issue_number }}
+          PULL_REQUEST_NUMBER: ${{ steps.revalidate.outputs.pull_request_number }}
+          HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}
           CI_CONCLUSION: success
           CI_RUN_ID: ${{ github.run_id }}
           CI_RUN_ATTEMPT: ${{ github.run_attempt }}
