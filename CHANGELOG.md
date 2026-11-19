@@ -31,3 +31,17 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 ### Verification
 - Documentation, version manifest and package metadata update only in this PR.
 - Runtime tests and CI must pass against the exact candidate SHA before acceptance.
+
+## 0.2.5 — 2026-11-20
+
+### Fixed
+- Complete the Predictive Coding CSS Module footer selector scoping, including responsive footer rules.
+- Synchronize the five-track version manifest and the Predictive Coding track version.
+- Refresh the public project overview to describe all five workstreams and their current evidence-based status.
+
+### Documentation and media
+- Add a five-track architecture visual and a dedicated GCAN introduction storyboard for video production.
+- Add explicit video-production status so a storyboard is not misrepresented as a rendered video.
+
+### Verification
+- Exact-head CI and independent review are required before acceptance.
