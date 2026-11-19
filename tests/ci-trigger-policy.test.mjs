@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflight = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -40,6 +40,53 @@ test("preflight and Runner smoke workflows share the bounded Runner queue", () =
     assert.ok(source.includes("queue: max"));
     assert.ok(source.includes("cancel-in-progress: false"));
   }
+});
+
+test("every V2 state-writer workflow is serialized by the shared Runner queue", () => {
+  const workflowDirectory = new URL("../.github/workflows/", import.meta.url);
+  const workflowFiles = readdirSync(workflowDirectory).filter((name) => /\\.ya?ml$/i.test(name));
+  let writerWorkflowCount = 0;
+
+  for (const fileName of workflowFiles) {
+    const source = readFileSync(new URL(fileName, workflowDirectory), "utf8").replace(/\\r\\n/g, "\\n");
+    if (!source.includes("scripts/agent-factory-v2-controller.mjs")) continue;
+    writerWorkflowCount += 1;
+
+    const jobsMarker = source.indexOf("\\njobs:");
+    assert.ok(jobsMarker >= 0, fileName + " must declare jobs");
+    const workflowHeader = source.slice(0, jobsMarker);
+    const workflowWideQueue =
+      workflowHeader.includes("group: global-citizen-ai-network-self-hosted-runner") &&
+      workflowHeader.includes("queue: max") &&
+      workflowHeader.includes("cancel-in-progress: false");
+
+    const jobsSource = source.slice(jobsMarker + "\\njobs:".length);
+    const jobHeaders = [...jobsSource.matchAll(/^  ([A-Za-z0-9_-]+):\\s*$/gm)];
+    const writerJobs = [];
+
+    for (let index = 0; index < jobHeaders.length; index += 1) {
+      const start = jobHeaders[index].index;
+      const end = index + 1 < jobHeaders.length ? jobHeaders[index + 1].index : jobsSource.length;
+      const section = jobsSource.slice(start, end);
+      if (section.includes("scripts/agent-factory-v2-controller.mjs")) {
+        writerJobs.push({ name: jobHeaders[index][1], section });
+      }
+    }
+
+    assert.ok(writerJobs.length > 0, fileName + " references the V2 controller but no writer job was detected");
+    if (!workflowWideQueue) {
+      for (const job of writerJobs) {
+        assert.ok(
+          job.section.includes("group: global-citizen-ai-network-self-hosted-runner") &&
+          job.section.includes("queue: max") &&
+          job.section.includes("cancel-in-progress: false"),
+          fileName + " job " + job.name + " must use the shared non-cancelling Runner queue",
+        );
+      }
+    }
+  }
+
+  assert.ok(writerWorkflowCount > 0, "expected at least one V2 state-writer workflow");
 });
 
 test("CI never auto-approves or merges AI task pull requests; human approval is required", () => {
