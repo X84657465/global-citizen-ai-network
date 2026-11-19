@@ -1,7 +1,7 @@
 # Five-Track Engineering Governance
 
-**Governance revision: 1.1.0**  
-**Repository release baseline: 0.1.1**
+**Governance revision: 1.2.0**  
+**Repository release baseline: 0.2.6**
 
 ## 1. Five development tracks
 
@@ -10,7 +10,8 @@
 | A — Agent Factory V2 | Autonomous engineering workflow | Task lifecycle, isolated patch generation, CI, recovery, evidence |
 | B — Global Citizen AI Network | Public product | User experience, AI workspace, contribution workflows, ledger and platform |
 | C — Predictive Coding（預測編碼） | Predictive processing and prediction-error learning | Build explicit prediction, observation, error comparison and model-update loops; publish measurable signals to the other tracks |
-| D — Deep Neural | Neural intelligence foundation | Memory, reasoning, evaluation, knowledge integration and cross-track learning |\n| E — Deep Research（深度研究） | Evidence-led research | Multi-source discovery, provenance, source-quality assessment, corroboration, counter-evidence and research synthesis |
+| D — Deep Neural | Neural intelligence foundation | Memory, reasoning, evaluation, knowledge integration and cross-track learning |
+| E — Deep Research（深度研究） | Research and evidence synthesis | Multi-source retrieval, source provenance and quality, corroboration, counter-evidence, cited synthesis and actionable research reports |
 
 Each track owns its own branch, work items, version history, tests and acceptance evidence. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
 
@@ -35,14 +36,16 @@ Tracks A, B, C, D and E must exchange reusable knowledge through reviewed, versi
 1. A publishes engineering patterns, test fixtures, failure classifications, recovery playbooks and verified automation capabilities.
 2. B contributes real product workflows, user-facing requirements, usability findings and operational constraints.
 3. C (Predictive Coding) publishes explicit predictions, observed outcomes, prediction-error measurements, confidence/calibration data and tested model-update rules. It helps A anticipate task failures, B anticipate user/product needs and D prioritize memory/reasoning updates.
-4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C/E.\n5. E (Deep Research) investigates questions across independent sources, records provenance and publication dates, evaluates source quality, seeks counter-evidence and publishes cited research briefs for A/B/C/D.
+4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C/E.
+5. E (Deep Research) conducts multi-source research, checks source provenance and freshness, seeks corroboration and counter-evidence, and publishes cited findings and actionable recommendations to A/B/C/D.
 
 ### Five-track mutual-support loop
 
 - **A → B/C/D:** verified automation, reproducible builds, test evidence, failure taxonomy and recovery playbooks.
 - **B → A/C/D:** real product workflows, user feedback, operational constraints, usage patterns and measurable outcomes.
 - **C → A/B/D:** predictions, prediction errors, uncertainty/calibration signals, drift indicators and experimentally validated update rules.
-- **D → A/B/C/E:** reviewed memory, cross-domain synthesis, reasoning plans, evidence retrieval and evaluation recommendations.\n- **E → A/B/C/D:** source-backed research briefs, methodology, counter-evidence, uncertainty and actionable recommendations.
+- **D → A/B/C/E:** reviewed memory, cross-domain synthesis, reasoning plans, evidence retrieval and evaluation recommendations.
+- **E → A/B/C/D:** sourced research, verification methods, counter-evidence, source-quality assessments and cited synthesis.
 - **All tracks → all tracks:** changes are proposed as versioned artifacts, reviewed by the receiving owner, tested against that track's acceptance criteria and adopted explicitly.
 
 The shared loop is **observe → predict → act → measure outcome → calculate prediction error → explain/store evidence → revise model or plan → test → publish → adopt → monitor**. Prediction error is a learning signal, not automatic permission to mutate production systems.
@@ -95,4 +98,4 @@ Each change must identify the smallest safe rollback unit. Application changes s
 
 ## 8. Five-track baseline
 
-Track C is now formally named **Predictive Coding（預測編碼）**. Its architecture charter is version `0.1.0`; implementation maturity is not implied by the version number. Track D remains Deep Neural. Track E is formally named **Deep Research（深度研究）**. Its initial interface and research-workbench charter are version `0.1.0`; live source retrieval and persistent research storage are not yet connected. The overall integration baseline is `0.2.2` for this governance and architecture update. Track versions remain independent and must only advance when their own artifacts change.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.2.6`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.

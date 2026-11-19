@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.1.1` · [版本紀錄](CHANGELOG.md) · [四線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.2.7` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -57,7 +57,8 @@
 - **GitHub 專案展示線：** [PR #139（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
 - **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
 - **第四線深度神經：** [PR #140（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/140) · [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
-- **四線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
+- **第五線深度研究：** [PR #141（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/141) · [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
+- **五線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
 - **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
 
@@ -380,15 +381,45 @@ http://localhost:3000
 | [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 任務排程與執行機制 |
 | [Claude 獨立審查簡報](docs/claude-review-brief.md) | 架構與安全審查清單 |
 
-## 🧠 四線協作與持續學習
 
-本專案採四線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
+## 🎬 圖片與影片介紹｜Visual & Video Tour
 
-所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [四線工程治理規範](docs/engineering-governance.md)。
+### GCAN 五線總覽
 
-## 🔄 四線互輔互成｜Predict → Learn → Build → Validate
+<p align="center">
+  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN 五線架構圖" width="100%" />
+</p>
 
-四線不是四個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
+五條開發線各自擁有獨立工作台，透過來源追蹤、版本管理、測試與接收線審核互相協作。
+
+### 影片導覽
+
+**GCAN 平台介紹影片：製作規劃中。** 分鏡與旁白稿已列入專案文件；正式影片必須以真實工作台操作畫面錄製，不會使用虛構影片連結或把示範畫面冒充正式功能。
+
+- [影片分鏡與旁白稿](docs/media/gcan-introduction-storyboard.md)
+- [即時 CI 與開發紀錄](https://github.com/X84657465/global-citizen-ai-network/actions)
+
+### 五線工作台與進度
+
+| 線別 | 工作台 | 最新已知狀態 | 入口 |
+|---|---|---|---|
+| A｜Agent Factory V2 | 工廠控制台 | 開發候選；CI 執行中 | [PR #134](https://github.com/X84657465/global-citizen-ai-network/pull/134) |
+| B｜GCAN Product | 全球產品平台 | CI 通過；待獨立驗收 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) |
+| C｜Predictive Coding | 預測分析工作台 | CSS 修復候選；待 exact-head CI | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
+| D｜Deep Neural | 深度神經工作台 | CI 通過；待獨立驗收 | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
+| E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
+
+> CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
+
+## 🧠 五線協作與持續學習
+
+本專案採五線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經（Deep Neural）、E 深度研究（Deep Research）。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
+
+所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [五線工程治理規範](docs/engineering-governance.md)。
+
+## 🔄 五線互輔互成｜Predict → Learn → Build → Validate
+
+五線不是五個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
 
 | 線別 | 核心責任 | 支援其他線的方式 |
 |---|---|---|
@@ -396,8 +427,9 @@ http://localhost:3000
 | B｜Global Citizen AI Network | 真實產品、使用者流程與全球協作場景 | 提供需求、使用回饋、營運限制與真實成效資料 |
 | C｜預測編碼（Predictive Coding） | 預測、觀測、預測誤差、校準與模型更新 | 提供可量測的預測誤差、漂移訊號與改進依據 |
 | D｜深度神經（Deep Neural） | 記憶、推理、知識整合與評估 | 將跨線證據整理為可追溯知識、推理策略及評估建議 |
+| E｜深度研究（Deep Research） | 多來源研究、來源查核、反證與引用報告 | 提供可追溯的研究證據、方法、來源可信度與可執行建議 |
 
-共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋四線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
+共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋五線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
 
 ### 第三線架構
 
