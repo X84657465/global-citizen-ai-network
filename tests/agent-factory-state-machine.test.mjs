@@ -267,6 +267,30 @@ test("explicitly requeues a candidate CI rejection for a new worker attempt", ()
 });
 
 
+test("legacy candidate rejections without next_attempt_at retain a safe retry delay", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "d".repeat(40), pull_request_number: 79,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+  const evidence = {
+    head_sha: "d".repeat(40), pull_request_number: 79,
+    ci_conclusion: "failure", ci_run_id: "ci-legacy", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, evidence, 1750);
+  state = recordCandidateFailure(state, 42, event("legacy-candidate-failure"), evidence, "failed", 1800).state;
+  delete state.tasks["42"].next_attempt_at;
+
+  assert.throws(() => requeueTask(state, 42, 61_799), /backoff has not elapsed/);
+  state = requeueTask(state, 42, 61_800);
+  assert.equal(state.tasks["42"].status, "queued");
+});
+
 test("stale workers cannot transition or fail a newer lease for the same Issue", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata({
     lease_id: "lease-old-worker", lease_ms: 60_000,
