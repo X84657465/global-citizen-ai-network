@@ -106,7 +106,7 @@ test("task-scoped failure requires and releases the exact active lease", async (
 test("candidate failure callback persists rejection then requeues without counting infrastructure failure", async () => {
   const store = fakeStore(awaitingCandidate());
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
-  const result = await controller.run({
+  const env = {
     AGENT_FACTORY_MODE: "candidate",
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
@@ -115,8 +115,12 @@ test("candidate failure callback persists rejection then requeues without counti
     CI_RUN_ID: "555001",
     CI_RUN_ATTEMPT: "1",
     FAILURE_SUMMARY: "lint failed",
-  });
+  };
+  const result = await controller.run(env);
+  const duplicate = await controller.run(env);
   assert.equal(result.state.tasks["42"].status, "queued");
+  assert.equal(duplicate.outputs.duplicate, true);
+  assert.equal(duplicate.state.state_version, result.state.state_version);
   assert.equal(result.state.tasks["42"].candidate_status, "retry_queued");
   assert.equal(result.state.tasks["42"].candidate_failures, 1);
   assert.equal(result.state.tasks["42"].failures, 0);
@@ -128,7 +132,7 @@ test("candidate success completes the exact PR and resets the system breaker", a
   initial.system.consecutive_failures = 2;
   const store = fakeStore(initial);
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
-  const result = await controller.run({
+  const env = {
     AGENT_FACTORY_MODE: "candidate",
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
@@ -136,9 +140,13 @@ test("candidate success completes the exact PR and resets the system breaker", a
     CI_CONCLUSION: "success",
     CI_RUN_ID: "555002",
     CI_RUN_ATTEMPT: "1",
-  });
+  };
+  const result = await controller.run(env);
+  const duplicate = await controller.run(env);
   assert.equal(result.state.tasks["42"].status, "completed");
   assert.equal(result.state.system.consecutive_failures, 0);
+  assert.equal(duplicate.outputs.duplicate, true);
+  assert.equal(duplicate.state.state_version, result.state.state_version);
 });
 
 test("check mode requeues retry-wait tasks only after their backoff expires", async () => {
@@ -184,4 +192,19 @@ test("check mode never recovers a lease while its workflow is still running", as
   const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, false);
   assert.equal(result.state.active_task.lease_id, "lease-running");
+});
+
+
+test("transition mode remains idempotent after awaiting_ci has released the worker lease", async () => {
+  const store = fakeStore(awaitingCandidate());
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const result = await controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: "lease-candidate-42",
+    NEXT_TASK_STATE: "awaiting_ci",
+  });
+  assert.equal(result.state.active_task, null);
+  assert.equal(result.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(result.state.state_version, store.state.state_version);
 });
