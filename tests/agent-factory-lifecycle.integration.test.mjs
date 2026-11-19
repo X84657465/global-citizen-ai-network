@@ -249,7 +249,7 @@ test("durable scheduler survives a 24-hour multi-task lifecycle soak with idempo
   assert.equal(Object.keys(finalState.state.tasks).length, taskCount);
   assert.equal(Object.values(finalState.state.tasks).filter((task) => task.status === "completed").length, taskCount);
   assert.equal(finalState.state.active_task, null);
-  assert.equal(finalState.state.processed_events.length, taskCount * 2);
+  assert.equal(finalState.state.processed_events.length, taskCount * 3);
   assert.equal(api.issues.filter((issue) => issue.title === FACTORY_STATE_ISSUE_TITLE).length, 1);
 });
 
