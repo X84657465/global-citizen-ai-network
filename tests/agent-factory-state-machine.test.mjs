@@ -159,6 +159,26 @@ test("reserves only one task and records an expiring lease", () => {
   assert.throws(() => reserveTask(first, metadata({ issue_number: 43 })), /already owns/);
 });
 
+test("reservation replay must match the complete immutable lease identity", () => {
+  const initial = createInitialFactoryState(1000);
+  const input = metadata({ idempotency_key: "factory-event-42" });
+  const reserved = reserveTask(initial, input, 2000);
+
+  assert.equal(reserveTask(reserved, input, 3000), reserved);
+  assert.throws(
+    () => reserveTask(reserved, metadata({
+      idempotency_key: "factory-event-42", lease_owner: "OTHER-RUNNER",
+    }), 3000),
+    /already owns the factory lease/,
+  );
+  assert.throws(
+    () => reserveTask(reserved, metadata({
+      idempotency_key: "different-event-key",
+    }), 3000),
+    /already owns the factory lease/,
+  );
+});
+
 test("rejects incomplete reservation metadata", () => {
   assert.throws(() => reserveTask(createInitialFactoryState(), { issue_number: 42 }), /metadata is incomplete/);
 });
