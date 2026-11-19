@@ -121,3 +121,33 @@ test("requires a previously validated task and an existing-path inventory", () =
     /Existing repository paths/,
   );
 });
+
+
+test("accepts the exact scheduler workflow path through patch validation", () => {
+  const workflowPath = ".github/workflows/agent-task-preflight.yml";
+  const result = validatePatchManifest(
+    manifest([file(workflowPath, "modify", "name: AI Agent Task Preflight\\n")]),
+    { schema_version: 1, allowed_paths: [workflowPath] },
+    [workflowPath],
+  );
+  assert.equal(result.files[0].path, workflowPath);
+});
+
+test("rejects every non-exact GitHub workflow path and case variant at patch validation", () => {
+  for (const path of [
+    ".github/workflows/ci.yml",
+    ".github/workflows/agent-task-preflight.yaml",
+    ".GITHUB/workflows/agent-task-preflight.yml",
+    ".github/CODEOWNERS",
+  ]) {
+    assert.throws(
+      () => validatePatchManifest(
+        manifest([file(path, "modify")]),
+        { schema_version: 1, allowed_paths: [path] },
+        [path],
+      ),
+      PatchValidationError,
+      path,
+    );
+  }
+});

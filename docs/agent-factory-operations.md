@@ -20,4 +20,4 @@ Changes to this workflow must receive normal human review in the Draft PR. Revie
 
 ## Regression evidence
 
-The task-validator test suite verifies that the exact scheduler workflow path is accepted while other `.github/` paths, other workflow files, case variants, traversal attempts, and secret-like paths remain rejected. Full unit tests, TypeScript, lint, and isolated candidate validation must pass in CI before this capability is considered verified.
+The task-validator and patch-validator test suites both verify that the exact scheduler workflow path is accepted while other `.github/` paths, other workflow files, case variants, traversal attempts, and secret-like paths remain rejected. Scratch application and publisher revalidate the same patch manifest, so the exception remains exact through the complete write pipeline. Full unit tests, TypeScript, lint, and isolated candidate validation must pass in CI before this capability is considered verified.
