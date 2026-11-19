@@ -79,7 +79,7 @@ test("workspace accepts pending recovery only when its envelope and original pro
 test("workspace bootstrap validates the essential conversation response before rendering history", () => {
   assert.match(workspaceClient, /conversations\?: unknown/);
   assert.match(workspaceClient, /Array\.isArray\(data\.conversations\)/);
-  assert.match(workspaceClient, /typeof \(item as Conversation\)\.id === "string"/);
+  assert.match(workspaceClient, /isUuid\(\(item as Conversation\)\.id\)/);
   assert.match(workspaceClient, /typeof \(item as Conversation\)\.title === "string"/);
   assert.match(workspaceClient, /typeof \(item as Conversation\)\.updated_at === "string"/);
   assert.match(workspaceClient, /對話資料格式無效/);
@@ -97,3 +97,14 @@ test("public homepage provides visible keyboard focus and respects reduced-motio
   assert.ok(reducedMotionCss.includes(".pillarCard:hover"));
   assert.ok(reducedMotionCss.includes("transform: none;"));
 });
+
+test("workspace rejects malformed UUIDs, blank conversation titles, and invalid timestamps", () => {
+  assert.match(workspaceClient, /function isUuid\(value: unknown\): value is string/);
+  assert.match(workspaceClient, /\[0-9a-f\]\{8\}-\[0-9a-f\]\{4\}-\[1-8\]\[0-9a-f\]\{3\}-\[89ab\]\[0-9a-f\]\{3\}-\[0-9a-f\]\{12\}/i);
+  assert.match(workspaceClient, /function isValidTimestamp\(value: unknown\): value is string/);
+  assert.match(workspaceClient, /Number\.isFinite\(Date\.parse\(value\)\)/);
+  assert.match(workspaceClient, /title\.trim\(\)\.length > 0/);
+  assert.match(workspaceClient, /isValidTimestamp\(\(item as Conversation\)\.updated_at\)/);
+  assert.match(workspaceClient, /isUuid\(\(item as Conversation\)\.project_id\)/);
+});
+
