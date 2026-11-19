@@ -359,10 +359,14 @@ jobs:
           $env:SUPABASE_DB_URL = $dbUrlLine.Substring(7).Trim().Trim('"').Trim("'")
           if (-not $env:SUPABASE_DB_URL) { throw "The isolated Supabase DB_URL is empty." }
           $projectId = "gcan-ci-" + $env:GITHUB_RUN_ID
-          $containerName = docker ps --filter "name=supabase_db_$projectId" --format "{{.Names}}" | Select-Object -First 1
+          $dockerCommand = Get-Command docker.exe -ErrorAction Stop
+          $env:DOCKER_BIN = $dockerCommand.Source
+          $containerName = & $env:DOCKER_BIN ps --filter "name=supabase_db_$projectId" --format "{{.Names}}" | Select-Object -First 1
           if (-not $containerName) { throw "The isolated Supabase PostgreSQL container was not found." }
           [System.IO.File]::AppendAllText($env:GITHUB_ENV, "SUPABASE_DB_CONTAINER=$containerName" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          [System.IO.File]::AppendAllText($env:GITHUB_ENV, "DOCKER_BIN=$env:DOCKER_BIN" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           Write-Host "Running two-member RLS checks inside isolated container: $containerName"
+          Write-Host "Using Docker executable: $env:DOCKER_BIN"
           node --test tests/security/two-member-rls.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Two-member application RLS integration tests failed." }
       - name: Stop Supabase services
