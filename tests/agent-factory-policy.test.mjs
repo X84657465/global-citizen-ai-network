@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
 import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
 
@@ -116,4 +117,13 @@ test("infers task identity from both AI task and codex issue branches", () => {
 test("rejects mismatched task branch and pull-request issue markers", () => {
   assert.equal(inferTaskIssueNumber({ branch: "codex/issue-121-fix", body: "<!-- ai-task:120 -->" }), null);
   assert.equal(inferTaskIssueNumber({ branch: "review/no-issue", body: "Closes #121" }), null);
+});
+
+
+test("declares the cooldown output writer before the local cooldown fast path", () => {
+  const controller = readFileSync(new URL("../scripts/agent-factory-controller.mjs", import.meta.url), "utf8");
+  const writer = controller.indexOf("const writeOutput =");
+  const fastPath = controller.indexOf('if (mode === "check" && cooldownActive(localState))');
+  assert.ok(writer >= 0);
+  assert.ok(fastPath > writer);
 });

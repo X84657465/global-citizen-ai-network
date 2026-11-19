@@ -8,6 +8,7 @@ const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
 const mode = process.env.AGENT_FACTORY_MODE ?? "check";
 const output = process.env.GITHUB_OUTPUT ?? "";
+const writeOutput = (key, value) => { if (output) appendFileSync(output, key + "=" + String(value) + "\n", "utf8"); };
 if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
 const [owner] = repository.split("/");
 const base = "https://api.github.com/repos/" + repository;
@@ -69,7 +70,6 @@ async function persistState(issues, state) {
   await api("/issues/" + existing.number, { method: "PATCH", body: JSON.stringify({ body: stateBody(state) }) });
   return existing;
 }
-const writeOutput = (key, value) => { if (output) appendFileSync(output, key + "=" + String(value) + "\n", "utf8"); };
 async function inferFailedIssueNumber() {
   const explicit = Number(process.env.FAILED_ISSUE_NUMBER);
   if (Number.isInteger(explicit) && explicit > 0) return explicit;
