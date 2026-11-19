@@ -22,7 +22,7 @@ const startCandidate = (state, issueNumber, evidence, now = Date.now()) =>
   recordCandidateStarted(state, issueNumber,
     "ci-start-" + evidence.ci_run_id + "-attempt-" + evidence.ci_run_attempt +
       "-issue-" + issueNumber + "-sha-" + evidence.head_sha.slice(0, 12),
-    { ...evidence, head_ref: evidence.head_ref ?? ("ai-task/issue-" + issueNumber + "-candidate") },
+    { ...evidence, head_ref: evidence.head_ref ?? ("ai-task/issue-" + issueNumber + "-abcdef123456") },
     now,
   ).state;
 
@@ -377,12 +377,16 @@ test("candidate-start rejects blank or oversized CI run IDs and invalid branch i
   const evidence = {
     head_sha: "b".repeat(40), pull_request_number: 89,
     ci_conclusion: "success", ci_run_id: "ci-889", ci_run_attempt: 1,
-    head_ref: "ai-task/issue-42-candidate",
+    head_ref: "ai-task/issue-42-abcdef123456",
   };
   for (const patch of [
     { ci_run_id: "   " },
     { ci_run_id: "x".repeat(101) },
-    { head_ref: " ai-task/issue-42-candidate" },
+    { head_ref: " ai-task/issue-42-abcdef123456" },
+    { head_ref: "ai-task/issue-42-abcdef12345" },
+    { head_ref: "ai-task/issue-42-abcdef12345g" },
+    { head_ref: "ai-task/issue-42-abcdef123456\\nmalicious" },
+    { head_ref: "ai-task/issue-43-abcdef123456" },
     { head_ref: "ai-task/issue-42-" + "x".repeat(240) },
   ]) {
     assert.throws(
