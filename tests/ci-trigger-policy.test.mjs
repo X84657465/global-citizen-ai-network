@@ -256,12 +256,12 @@ test("untrusted candidate install and test containers never receive GitHub write
 });
 
 test("preflight GitHub write credentials are scoped to trusted orchestration and publisher steps", () => {
-  const lines = preflight.split("\\n");
+  const lines = preflight.split("\n");
   const tokenSteps = [];
   for (let index = 0; index < lines.length; index += 1) {
-    if (!/GITHUB_TOKEN:\\s*\\$\\{\\{\\s*secrets\\.GITHUB_TOKEN\\s*\\}\\}/.test(lines[index])) continue;
+    if (!/GITHUB_TOKEN:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/.test(lines[index])) continue;
     let start = index;
-    while (start > 0 && !/^\\s*- name:/.test(lines[start])) start -= 1;
+    while (start > 0 && !/^\s*- name:/.test(lines[start])) start -= 1;
     tokenSteps.push(lines[start]?.trim() || "unknown step");
   }
   assert.ok(tokenSteps.length > 0, "expected explicit step-scoped token injection");
