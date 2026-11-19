@@ -20,7 +20,7 @@ if (repositoryParts.length !== 2 || !repositoryParts.every((part) => /^[A-Za-z0-
 if (!token) fail("GITHUB_TOKEN is unavailable.");
 if (!output) fail("GITHUB_OUTPUT is unavailable.");
 
-const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\\/+$/, "");
+const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\/+$/, "");
 const api = createGitHubApiClient({
   baseUrl: apiBase,
   token,
@@ -51,7 +51,7 @@ const stateStore = createFactoryStateStore(api, { repository });
 const stored = await stateStore.read();
 const factoryState = stored.state;
 if (factoryState.active_task) {
-  appendFileSync(output, "issue_number=\\n", "utf8");
+  appendFileSync(output, "issue_number=\n", "utf8");
   console.log("Queue paused: Issue #" + factoryState.active_task.issue_number +
     " still owns active lease " + factoryState.active_task.lease_id + ".");
   process.exit(0);
@@ -76,7 +76,8 @@ const ready = issues.filter((issue) =>
   typeof issue.title === "string" && issue.title.startsWith("[AI Task]") &&
   !alreadyPublished.has(issue.number) &&
   !skippedIssueNumbers.has(issue.number) &&
-  (!taskStateByIssue[String(issue.number)] || taskStateByIssue[String(issue.number)].status === "queued")
+  (!taskStateByIssue[String(issue.number)] ||
+   (taskStateByIssue[String(issue.number)].status === "queued" && !taskStateByIssue[String(issue.number)].quarantined))
 );
 const dependencyReady = ready.filter((issue) => taskDependenciesResolved(issue.body, issuesByNumber, mergedTaskIssueNumbers));
 const blockedByDependencies = ready.length - dependencyReady.length;
