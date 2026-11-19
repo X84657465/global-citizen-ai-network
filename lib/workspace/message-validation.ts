@@ -1,8 +1,8 @@
 export type WorkspaceMessage = {
-  id?: string;
+  id: string;
   role: "user" | "assistant";
   content: string;
-  created_at?: string;
+  created_at: string;
 };
 
 function isUuid(value: unknown): value is string {
@@ -19,6 +19,6 @@ export function isWorkspaceMessage(value: unknown): value is WorkspaceMessage {
   const candidate = value as { id?: unknown; role?: unknown; content?: unknown; created_at?: unknown };
   return (candidate.role === "user" || candidate.role === "assistant") &&
     typeof candidate.content === "string" &&
-    (candidate.id === undefined || isUuid(candidate.id)) &&
-    (candidate.created_at === undefined || isValidTimestamp(candidate.created_at));
+    isUuid(candidate.id) &&
+    isValidTimestamp(candidate.created_at);
 }
