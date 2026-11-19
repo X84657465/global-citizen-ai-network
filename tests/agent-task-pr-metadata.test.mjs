@@ -19,5 +19,5 @@ test("requires the task branch to identify the same issue", () => {
   assert.equal(isAgentTaskBranchForIssue("ai-task/issue-73-", 73), false);
   assert.equal(isAgentTaskBranchForIssue("ai-task/issue-73-a1b2c3", 73), false);
   assert.equal(isAgentTaskBranchForIssue("ai-task/issue-73-A1B2C3D4E5F6", 73), false);
-  assert.equal(isAgentTaskBranchForIssue("ai-task/issue-73-a1b2c3d4e5f6\\nmalicious", 73), false);
+  assert.equal(isAgentTaskBranchForIssue("ai-task/issue-73-a1b2c3d4e5f6" + String.fromCharCode(10) + "malicious", 73), false);
 });
