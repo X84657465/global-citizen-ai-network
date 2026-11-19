@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import {
   createInitialFactoryState,
   recordTaskFailure,
+  recordCandidateStarted,
+  recordCandidateFailure,
+  requeueTask,
   reserveTask,
   transitionTask,
 } from "../lib/agent-factory-state-machine.mjs";
@@ -363,4 +366,34 @@ test("V2 plan mode waits while an AI Task PR is open", async () => {
   const result = await controller.run({ AGENT_FACTORY_MODE: "plan" });
   assert.equal(result.outputs.planner_status, "blocked_by_existing_tasks");
   assert.equal(result.outputs.active_task_pr, true);
+});
+
+
+test("check mode excludes quarantined tasks from the pending planner count", async () => {
+  let state = awaitingCandidate();
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const evidence = {
+      pull_request_number: 88,
+      head_sha: "b".repeat(40),
+      head_ref: "ai-task/issue-42-test",
+      ci_run_id: "quarantine-" + attempt,
+      ci_run_attempt: 1,
+    };
+    state = recordCandidateStarted(state, 42, "start-" + attempt, evidence, 2000 + attempt).state;
+    state = recordCandidateFailure(
+      state,
+      42,
+      "failure-" + attempt,
+      { ...evidence, ci_conclusion: "failure" },
+      "candidate test failed",
+      3000 + attempt,
+    ).state;
+    if (attempt < 3) state = requeueTask(state, 42, 4000 + attempt);
+  }
+  assert.equal(state.tasks["42"].quarantined, true);
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 10000 });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.quarantined_tasks, 1);
+  assert.equal(result.outputs.pending_tasks, 0);
 });
