@@ -17,3 +17,11 @@
 - Add an explicit Node.js syntax-validation step for the patch generator and factory controller to CI.
 
 **Verification:** exact-head CI is required; not yet accepted as complete.
+
+## 2.0.2
+
+- Exclude the database-backed two-member RLS integration test from the generic unit-test discovery runner.
+- Execute that test in the isolated Supabase database job after migrations and SQL RLS tests, using the local `DB_URL` only.
+- Allow dependent five-track pull requests targeting the integration branch to run the full CI workflow.
+
+**Verification:** exact-head CI required.
