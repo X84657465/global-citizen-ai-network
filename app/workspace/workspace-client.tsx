@@ -110,7 +110,8 @@ export default function WorkspaceClient() {
                   projects: candidateProjects.filter((project): project is ProjectOption =>
                     Boolean(project) && typeof project === "object" &&
                     typeof (project as ProjectOption).id === "string" &&
-                    typeof (project as ProjectOption).name === "string",
+                    typeof (project as ProjectOption).title === "string" &&
+                    ((project as ProjectOption).archived_at === null || typeof (project as ProjectOption).archived_at === "string"),
                   ),
                 };
               }
