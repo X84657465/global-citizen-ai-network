@@ -5,6 +5,7 @@ import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { scratchPatchEvidenceMatches } from "../lib/agent-scratch-evidence.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
+import { ensureDeterministicBranch } from "../lib/agent-publisher-branch.mjs";
 
 const fail = (message) => {
   console.error("Agent PR publishing rejected: " + message);
@@ -216,9 +217,11 @@ try {
   }
 
   const openPulls = await api("/repos/" + repository + "/pulls?state=open&per_page=100");
-  const existingPull = openPulls.find((pull) => pull.body?.includes("<!-- ai-task:" + issueNumber + " -->"));
-  if (existingPull) {
-    await dispatchAiTaskCi(existingPull);
+  if (!Array.isArray(openPulls)) fail("GitHub returned an invalid open pull-request list.");
+  const matchingPulls = openPulls.filter((pull) => pull.body?.includes("<!-- ai-task:" + issueNumber + " -->"));
+  if (matchingPulls.length > 1) fail("Multiple open pull requests exist for this task; refusing ambiguous publication.");
+  const existingPull = matchingPulls[0] ?? null;
+  if (existingPull && existingPull.head?.ref !== branch) {
     saveResult({
       schema_version: 1,
       state: "existing_open_pr",
@@ -226,12 +229,16 @@ try {
       issue_number: issueNumber,
       pull_request_number: existingPull.number,
       pull_request_url: existingPull.html_url,
+      existing_branch: existingPull.head?.ref ?? null,
+      expected_branch: branch,
+      different_candidate_branch: true,
       no_duplicate_created: true,
+      ci_dispatch_skipped: true,
       merge_policy: "human_approval_required",
       automatic_merge: false,
       production_deployment: false,
     });
-    console.log("An open PR already exists for this task: " + existingPull.html_url);
+    console.log("An open PR already exists for this task on a different candidate branch: " + existingPull.html_url);
     process.exit(0);
   }
 
@@ -254,26 +261,67 @@ try {
     base_tree: baseCommitInfo.tree.sha,
     tree: blobEntries,
   });
-  const commit = await api("/repos/" + repository + "/git/commits", "POST", {
-    message: "feat(ai-task): " + safeIssueTitle + " (#" + issueNumber + ")",
-    tree: tree.sha,
-    parents: [baseCommit],
-  });
+  const branchResult = await ensureDeterministicBranch(
+    api,
+    repository,
+    branch,
+    baseCommit,
+    tree.sha,
+    "feat(ai-task): " + safeIssueTitle + " (#" + issueNumber + ")",
+  );
+  const commitSha = branchResult.commit_sha;
 
-  await api("/repos/" + repository + "/git/refs", "POST", {
-    ref: "refs/heads/" + branch,
-    sha: commit.sha,
-  });
+  if (existingPull) {
+    if (existingPull.head?.sha !== commitSha) {
+      fail("Existing task PR head SHA does not match the exact deterministic candidate branch.");
+    }
+    await dispatchAiTaskCi(existingPull);
+    saveResult({
+      schema_version: 1,
+      state: "existing_open_pr",
+      repository,
+      issue_number: issueNumber,
+      pull_request_number: existingPull.number,
+      pull_request_url: existingPull.html_url,
+      branch,
+      commit_sha: commitSha,
+      no_duplicate_created: true,
+      ci_dispatch_requested: true,
+      merge_policy: "human_approval_required",
+      automatic_merge: false,
+      production_deployment: false,
+    });
+    console.log("The exact deterministic candidate PR already exists and was revalidated: " + existingPull.html_url);
+    process.exit(0);
+  }
 
-  const pull = await api("/repos/" + repository + "/pulls", "POST", {
-    title: pullTitle,
-    head: owner + ":" + branch,
-    base: defaultBranch,
-    body,
-    draft: true,
-  });
+  let pull;
+  let pullCreated = false;
+  try {
+    pull = await api("/repos/" + repository + "/pulls", "POST", {
+      title: pullTitle,
+      head: owner + ":" + branch,
+      base: defaultBranch,
+      body,
+      draft: true,
+    });
+    pullCreated = true;
+  } catch (createError) {
+    const refreshedPulls = await api("/repos/" + repository + "/pulls?state=open&per_page=100");
+    const recovered = Array.isArray(refreshedPulls)
+      ? refreshedPulls.find((item) =>
+          item.body?.includes("<!-- ai-task:" + issueNumber + " -->") &&
+          item.head?.ref === branch &&
+          item.head?.sha === commitSha)
+      : null;
+    if (!recovered) throw createError;
+    pull = recovered;
+  }
 
-  await dispatchAiTaskCi(pull);
+  if (pull.head?.ref !== branch || pull.head?.sha !== commitSha) {
+    fail("Created task PR does not point to the exact deterministic candidate commit.");
+  }
+
 
   try {
     await api("/repos/" + repository + "/issues/" + issueNumber + "/comments", "POST", {
@@ -293,7 +341,9 @@ try {
     branch,
     base_branch: defaultBranch,
     base_commit: baseCommit,
-    commit_sha: commit.sha,
+    commit_sha: commitSha,
+    branch_reused: !branchResult.created,
+    publication_recovered: !pullCreated,
     changed_files: validatedPatch.files.map((file) => file.path),
     merge_policy: "human_approval_required",
     automatic_merge: false,
