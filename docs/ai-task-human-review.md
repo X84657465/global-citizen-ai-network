@@ -14,7 +14,7 @@ The CI workflow is limited to validation and failure reporting:
 - Local Supabase migrations, PostgreSQL, and RLS tests remain enabled.
 - Failed validation continues to feed the factory circuit breaker.
 - Successful validation does not imply approval or merge.
-- The scheduler remains idle while an AI task pull request is open. After a human merges or closes it, the normal scheduled queue poll can proceed.
+- The source task is excluded from selection while its AI pull request is open. Other independent eligible tasks whose declared dependencies are satisfied may continue through separate queue cycles. After a human merges or closes the pull request, the normal scheduled queue poll can proceed.
 
 ## Security regression test
 
