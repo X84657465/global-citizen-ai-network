@@ -10,7 +10,7 @@ test("public homepage exposes the authenticated workspace and contribution entry
   assert.match(homepage, /href="\/login"/);
 });
 
-test("primary homepage actions route visitors to the intended product destinations", () => {
+test("hero primary action opens the workspace entry point", () => {\n  assert.match(homepage, /<div className={styles\\.heroActions}>[\\s\\S]*?<Link href="\\/workspace" className={styles\\.primaryButton}>前往 AI 工作空間/);\n});\n\ntest("primary homepage actions route visitors to the intended product destinations", () => {
   assert.match(homepage, /前往 AI 工作空間/);
   assert.match(homepage, /了解全球貢獻中心/);
   assert.match(homepage, /開始探索平台/);
