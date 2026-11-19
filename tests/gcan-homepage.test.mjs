@@ -102,6 +102,17 @@ test("public homepage provides visible keyboard focus and respects reduced-motio
   assert.ok(reducedMotionCss.includes("transform: none;"));
 });
 
+test("workspace validates every message API record before updating the active conversation", () => {
+  assert.match(workspaceClient, /function isMessage\(value: unknown\): value is Message/);
+  assert.match(workspaceClient, /const parsed: unknown = await response\.json\(\)/);
+  assert.match(workspaceClient, /!parsed \|\| typeof parsed !== "object" \|\| Array\.isArray\(parsed\)/);
+  assert.match(workspaceClient, /!Array\.isArray\(data\.messages\) \|\| !data\.messages\.every\(isMessage\)/);
+  assert.match(workspaceClient, /candidate\.role === "user" \|\| candidate\.role === "assistant"/);
+  assert.match(workspaceClient, /typeof candidate\.content === "string"/);
+  assert.match(workspaceClient, /candidate\.id === undefined \|\| isUuid\(candidate\.id\)/);
+  assert.match(workspaceClient, /candidate\.created_at === undefined \|\| isValidTimestamp\(candidate\.created_at\)/);
+});
+
 test("workspace rejects malformed UUIDs, blank conversation titles, and invalid timestamps", () => {
   assert.match(workspaceClient, /function isUuid\(value: unknown\): value is string/);
   assert.match(workspaceClient, /\[0-9a-f\]\{8\}-\[0-9a-f\]\{4\}-\[1-8\]\[0-9a-f\]\{3\}-\[89ab\]\[0-9a-f\]\{3\}-\[0-9a-f\]\{12\}/i);
