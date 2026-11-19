@@ -2,6 +2,7 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { apiCooldownUntil, cooldownActive, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
+import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
 
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
@@ -69,13 +70,30 @@ async function inferFailedIssueNumber() {
     const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
     const dispatchedIssue = Number(event.inputs?.issue_number ?? event.issue?.number ?? 0);
     if (Number.isInteger(dispatchedIssue) && dispatchedIssue > 0) return dispatchedIssue;
+
+    let branch = event.pull_request?.head?.ref ?? "";
     let body = event.pull_request?.body ?? "";
-    if (!body && typeof event.ref === "string") {
-      const branch = event.ref.startsWith("refs/heads/") ? event.ref.slice("refs/heads/".length) : event.ref;
+
+    const dispatchedPullNumber = Number(event.client_payload?.pull_request_number ?? 0);
+    if (Number.isInteger(dispatchedPullNumber) && dispatchedPullNumber > 0) {
+      const pull = await api("/pulls/" + dispatchedPullNumber);
+      branch = pull.head?.ref ?? branch;
+      body = pull.body ?? body;
+    }
+
+    if (!branch && typeof event.ref === "string") {
+      branch = event.ref.startsWith("refs/heads/") ? event.ref.slice("refs/heads/".length) : event.ref;
+    }
+
+    let issueNumber = inferTaskIssueNumber({ branch, body });
+    if (issueNumber) return issueNumber;
+
+    if (!body && branch) {
       const pulls = await api("/pulls?state=open&head=" + encodeURIComponent(owner + ":" + branch) + "&per_page=20");
       body = pulls.find((pull) => pull.head?.ref === branch)?.body ?? "";
+      issueNumber = inferTaskIssueNumber({ branch, body });
     }
-    return Number(/<!-- ai-task:([0-9]+) -->/.exec(body)?.[1]) || null;
+    return issueNumber;
   } catch {
     return null;
   }

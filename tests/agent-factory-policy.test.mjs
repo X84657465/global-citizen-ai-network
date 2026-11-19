@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
+import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
 
 test("task-scoped failures quarantine only their issue and never increment the global breaker", () => {
   const now = Date.parse("2026-11-19T00:00:00.000Z");
@@ -103,4 +104,16 @@ test("planner emits finite deduplicated four-section Runner tasks", () => {
   assert.ok(next);
   titles.push(next.title);
   assert.equal(nextPlannerTask(titles), null);
+});
+
+
+test("infers task identity from both AI task and codex issue branches", () => {
+  assert.equal(inferTaskIssueNumber({ branch: "ai-task/issue-3-abc", body: "<!-- ai-task:3 -->" }), 3);
+  assert.equal(inferTaskIssueNumber({ branch: "codex/issue-121-dedupe-ci-triggers" }), 121);
+  assert.equal(inferTaskIssueNumber({ body: "<!-- ai-task:94 -->" }), 94);
+});
+
+test("rejects mismatched task branch and pull-request issue markers", () => {
+  assert.equal(inferTaskIssueNumber({ branch: "codex/issue-121-fix", body: "<!-- ai-task:120 -->" }), null);
+  assert.equal(inferTaskIssueNumber({ branch: "review/no-issue", body: "Closes #121" }), null);
 });
