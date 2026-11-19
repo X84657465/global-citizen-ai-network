@@ -12,6 +12,16 @@ on:
       - "scripts/prepare-agent-task.mjs"
       - "scripts/select-agent-task.mjs"
       - "scripts/agent-factory-controller.mjs"
+      - "scripts/agent-factory-v2-controller.mjs"
+      - "lib/agent-factory-controller.mjs"
+      - "lib/agent-factory-state-machine.mjs"
+      - "lib/agent-factory-state-store.mjs"
+      - "lib/agent-task-queue.mjs"
+      - "lib/github-api-client.mjs"
+      - "lib/github-pagination.mjs"
+      - "lib/agent-path-safety.mjs"
+      - "lib/agent-scratch-evidence.mjs"
+      - "lib/agent-publisher-branch.mjs"
       - "lib/agent-factory-policy.mjs"
       - "tests/agent-factory-policy.test.mjs"
       - "scripts/generate-agent-plan.mjs"
@@ -21,6 +31,13 @@ on:
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
       - "tests/agent-plan-validation.test.mjs"
+      - "tests/agent-factory-controller.test.mjs"
+      - "tests/agent-factory-state-machine.test.mjs"
+      - "tests/agent-factory-state-store.test.mjs"
+      - "tests/agent-path-safety.test.mjs"
+      - "tests/agent-scratch-evidence.test.mjs"
+      - "tests/agent-publisher-branch.test.mjs"
+      - "tests/ci-trigger-policy.test.mjs"
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
   issues:
@@ -63,7 +80,17 @@ jobs:
           node --check scripts/select-agent-task.mjs
           if ($LASTEXITCODE -ne 0) { throw "Scheduled task selector syntax check failed." }
           node --check scripts/agent-factory-controller.mjs
-          if ($LASTEXITCODE -ne 0) { throw "Factory controller syntax check failed." }
+          if ($LASTEXITCODE -ne 0) { throw "Legacy factory controller syntax check failed." }
+          node --check scripts/agent-factory-v2-controller.mjs
+          if ($LASTEXITCODE -ne 0) { throw "V2 factory controller syntax check failed." }
+          node --check lib/agent-factory-controller.mjs
+          if ($LASTEXITCODE -ne 0) { throw "V2 factory controller module syntax check failed." }
+          node --check lib/agent-factory-state-machine.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Factory state machine syntax check failed." }
+          node --check lib/agent-factory-state-store.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Factory state store syntax check failed." }
+          node --check scripts/publish-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Publisher syntax check failed." }
           node --check lib/agent-factory-policy.mjs
           if ($LASTEXITCODE -ne 0) { throw "Factory policy syntax check failed." }
 
