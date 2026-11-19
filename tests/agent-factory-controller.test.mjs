@@ -327,6 +327,32 @@ test("check mode fails closed when the workflow status API is unavailable", asyn
   assert.equal(store.state.state_version, state.state_version);
 });
 
+test("check mode retries lease recovery after the durable state write fails", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-recovery-write-failure", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state, { failWriteAt: 1 });
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async () => ({ status: "completed", conclusion: "failure", run_attempt: 1 }) },
+  });
+
+  await assert.rejects(controller.run({ AGENT_FACTORY_MODE: "check" }), /injected state write failure/);
+  assert.equal(store.state.active_task.lease_id, "lease-recovery-write-failure");
+  assert.equal(store.state.state_version, state.state_version);
+
+  const recovered = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(recovered.outputs.lease_recovered, true);
+  assert.equal(recovered.state.active_task, null);
+  assert.equal(recovered.state.tasks["42"].status, "retry_wait");
+  assert.equal(recovered.state.system.consecutive_failures, 1);
+
+  const duplicate = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(duplicate.outputs.lease_recovered, false);
+  assert.equal(duplicate.state.state_version, recovered.state.state_version);
+});
+
 test("check mode does not recover an expired lease for an unknown workflow status", async () => {
   const state = reserveTask(createInitialFactoryState(1000), {
     issue_number: 42, lease_id: "lease-unknown-status", lease_owner: "runner",
