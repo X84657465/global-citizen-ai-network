@@ -13,7 +13,7 @@ function collectTestFiles(directory) {
 }
 
 const databaseIntegrationTests = new Set(["tests/security/two-member-rls.test.mjs"]);
-const discoveredTestFiles = collectTestFiles("tests").map((path) => path.replaceAll("\\\\", "/")).sort();
+const discoveredTestFiles = collectTestFiles("tests").map((path) => path.split(String.fromCharCode(92)).join("/")).sort();
 const testFiles = discoveredTestFiles.filter((path) => !databaseIntegrationTests.has(path));
 const deferredDatabaseTests = discoveredTestFiles.filter((path) => databaseIntegrationTests.has(path));
 if (deferredDatabaseTests.length > 0) {
