@@ -1,6 +1,8 @@
-# Exact scheduler workflow write exception
+# Agent factory operations and workflow safety
 
-The agent task validator keeps the normal write roots restricted to `app/`, `components/`, `lib/`, `tests/`, and `docs/`. The `.github/` tree remains denied by default because workflow changes can alter execution triggers, runner selection, permissions, and release behavior.
+## Exact scheduler workflow write exception
+
+The agent task validator keeps normal write roots restricted to `app/`, `components/`, `lib/`, `tests/`, and `docs/`. The `.github/` tree remains denied by default because workflow changes can alter execution triggers, runner selection, permissions, and release behavior.
 
 A single exact-path exception is available for:
 
