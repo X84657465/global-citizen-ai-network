@@ -1,5 +1,6 @@
 import { appendFileSync } from "node:fs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
+import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
 import {
   isAgentTaskBranchForIssue,
   parseAgentTaskIssueNumber,
@@ -21,6 +22,20 @@ async function main() {
     throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
   }
   const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);
+  const api = createGitHubApiClient({
+    baseUrl: apiBase,
+    token,
+    timeoutMs: 15_000,
+    maxRetries: 2,
+    maxInlineRetryDelayMs: 30_000,
+  });
+  const stateStore = createFactoryStateStore(api, {
+    repository,
+    issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
+  });
+  const stateRecord = await stateStore.read();
+  writeOutput("state_issue_number", stateRecord.issue?.number ?? "");
+
   if (!Number.isSafeInteger(pullRequestNumber) || pullRequestNumber < 1) {
     writeOutput("is_current_head", "true");
     writeOutput("is_task_pr", "false");
@@ -31,14 +46,6 @@ async function main() {
     console.log("No pull-request candidate metadata applies to this event.");
     return;
   }
-
-  const api = createGitHubApiClient({
-    baseUrl: apiBase,
-    token,
-    timeoutMs: 15_000,
-    maxRetries: 2,
-    maxInlineRetryDelayMs: 30_000,
-  });
 
   let pull;
   try {
