@@ -102,6 +102,7 @@ test("task success clears only that task retry record", () => {
 
 test("system success clears system cooldown without erasing task failures", () => {
   let state = createInitialFactoryState(1000);
+  state = reserveTask(state, metadata(), 1500);
   state = recordTaskFailure(state, 42, event("task-fail"), "PATCH_INVALID", "bad", 2000).state;
   state = recordSystemFailure(state, event("sys-fail"), "OLLAMA_OFFLINE", "offline", 3000).state;
   const result = recordSystemSuccess(state, event("sys-success"), 4000);
@@ -110,8 +111,8 @@ test("system success clears system cooldown without erasing task failures", () =
 });
 
 test("expired lease is recovered only after workflow is confirmed stopped", () => {
-  let state = reserveTask(createInitialFactoryState(1000), metadata({ lease_ms: 100 }), 1000);
-  let result = recoverExpiredLease(state, { workflow_still_running: true, event_key: event("recover") }, 1200);
+  let state = reserveTask(createInitialFactoryState(1000), metadata({ lease_ms: 60_000 }), 1000);
+  let result = recoverExpiredLease(state, { workflow_still_running: true, event_key: event("recover") }, 61_200);
   assert.equal(result.recovered, false);
   assert.equal(result.reason, "workflow_may_still_be_running");
   result = recoverExpiredLease(state, { workflow_still_running: false, event_key: event("recover") }, 1200);
@@ -149,6 +150,6 @@ test("task success cannot clear a quarantine without owning the active lease", (
   state = requeueTask(state, 42, 183_000);
   state = reserveTask(state, metadata({ lease_id: "lease-q3", workflow_run_id: "run-q3" }), 183_000);
   state = recordTaskFailure(state, 42, event("q3"), "PATCH_INVALID", "bad", 184_000).state;
-  assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), 5000), /matching active task lease/);
+  assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), 5000), /awaiting_ci state/);
   assert.equal(state.tasks["42"].quarantined, true);
 });
