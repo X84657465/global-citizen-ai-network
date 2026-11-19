@@ -104,9 +104,9 @@ test("public homepage provides visible keyboard focus and respects reduced-motio
 });
 
 test("workspace validates every message API record before updating the active conversation", () => {
-  assert.match(workspaceClient, /const parsed: unknown = await response\\.json\\(\\)/);
-  assert.match(workspaceClient, /!parsed \\|\\| typeof parsed !== "object" \\|\\| Array\\.isArray\\(parsed\\)/);
-  assert.match(workspaceClient, /!Array\\.isArray\\(data\\.messages\\) \\|\\| !data\\.messages\\.every\\(isWorkspaceMessage\\)/);
+  assert.match(workspaceClient, /const parsed: unknown = await response\.json\(\)/);
+  assert.match(workspaceClient, /!parsed \|\| typeof parsed !== "object" \|\| Array\.isArray\(parsed\)/);
+  assert.match(workspaceClient, /!Array\.isArray\(data\.messages\) \|\| !data\.messages\.every\(isWorkspaceMessage\)/);
 });
 
 test("message validation accepts only safe user and assistant message records", () => {
