@@ -55,3 +55,12 @@ test("workspace bootstrap keeps conversations available when optional project or
   assert.match(workspaceClient, /pendingAvailable && pendingData\.unresolved === false/);
   assert.match(workspaceClient, /Do not clear local pending keys on a failed or malformed server/);
 });
+
+
+test("workspace bootstrap validates optional API JSON shapes before using project or pending data", () => {
+  assert.match(workspaceClient, /const parsedProjects: unknown = await projectResult\.value\.json\(\)/);
+  assert.match(workspaceClient, /Array\.isArray\(candidateProjects\)/);
+  assert.match(workspaceClient, /typeof \(project as ProjectOption\)\.id === "string"/);
+  assert.match(workspaceClient, /const parsedPending: unknown = await pendingResponse\.json\(\)/);
+  assert.match(workspaceClient, /parsedPending && typeof parsedPending === "object" && !Array\.isArray\(parsedPending\)/);
+});
