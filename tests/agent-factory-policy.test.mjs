@@ -141,5 +141,6 @@ test("does not persist unrelated review-branch CI failures into the factory circ
   assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
   assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'codex/issue-')"));
   assert.ok(job.includes("github.event_name == 'repository_dispatch'"));
+  assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
   assert.equal(job.includes("review/"), false);
 });
