@@ -74,6 +74,7 @@ async function main() {
   const expectedSha = process.env.EXPECTED_HEAD_SHA ?? "";
   const expectedRef = process.env.EXPECTED_HEAD_REF ?? "";
   const sameRepository = pull.head?.repo?.full_name === repository;
+  const sameBaseRepository = pull.base?.repo?.full_name === repository && pull.base?.ref === "main";
   const owner = repository.split("/")[0].toLowerCase();
   const pullAuthor = String(pull.user?.login ?? "").toLowerCase();
   const trustedPullAuthor = pullAuthor === owner || pullAuthor === "github-actions[bot]";
@@ -94,7 +95,7 @@ async function main() {
       if (error?.status !== 404) throw error;
     }
   }
-  const isTaskPr = Boolean(issueNumber && sameRepository && trustedPullAuthor &&
+  const isTaskPr = Boolean(issueNumber && sameRepository && sameBaseRepository && trustedPullAuthor &&
     isAgentTaskBranchForIssue(pull.head?.ref, issueNumber) && authorizedTaskIssue);
 
   writeOutput("is_current_head", currentHead ? "true" : "false");
