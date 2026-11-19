@@ -268,7 +268,9 @@ test("rejects state writes that do not advance exactly one version", async () =>
 test("refuses to write an oversized durable state Issue before issuing POST or PATCH", async () => {
   const fake = fakeApi();
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
-  const state = createInitialFactoryState(1000);
+  const state = recordSystemFailure(
+    createInitialFactoryState(1000), "run-oversized-state-1", "TEST", "oversized fixture", 2000,
+  ).state;
   state.processed_events = Array.from(
     { length: 500 },
     (_, index) => "oversized-event-" + String(index).padStart(4, "0") + "-" + "x".repeat(160),
