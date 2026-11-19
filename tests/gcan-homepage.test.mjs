@@ -30,3 +30,19 @@ test("public homepage does not fabricate member activity or reward counters", ()
   assert.doesNotMatch(homepage, /\b(?:1,?000|10,?000)\s*\+?\s*(?:members|contributors|tasks completed)\b/i);
   assert.doesNotMatch(homepage, /NT\$\s*[\d,]+\s*(?:earned|rewards? paid)/i);
 });
+
+
+const workspaceClient = readFileSync(new URL("../app/workspace/workspace-client.tsx", import.meta.url), "utf8");
+
+test("workspace conversation loading ignores stale responses and handles network or JSON failures", () => {
+  assert.match(workspaceClient, /const loadId = \+\+conversationLoadRef\.current/);
+  assert.match(workspaceClient, /if \(loadId !== conversationLoadRef\.current\) return/);
+  assert.match(workspaceClient, /catch \(reason\) \{[\s\S]*?setError\(reason instanceof Error \? reason\.message : "無法載入訊息/);
+});
+
+test("workspace preserves the original idempotency key when an AI request outcome is ambiguous", () => {
+  assert.match(workspaceClient, /if \(data\.retryWithSameKey !== true\)/);
+  assert.match(workspaceClient, /storePendingKey\(activeId, key\)/);
+  assert.match(workspaceClient, /storePendingContent\(activeId, content\)/);
+  assert.match(workspaceClient, /setPendingConversationId\(activeId\)/);
+});
