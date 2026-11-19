@@ -154,3 +154,18 @@ test("does not treat missing or intentionally abandoned dependencies as complete
   assert.equal(taskDependenciesResolved("Dependencies: #1234.", notPlanned), false);
   assert.equal(taskDependenciesResolved("No dependencies.", notPlanned), true);
 });
+
+
+test("requires a human approval label before allowing factory control-plane paths", () => {
+  const body = validIssue().body.replace("app/settings/page.tsx", "lib/agent-factory-state-machine.mjs");
+  assert.throws(
+    () => validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network"),
+    /factory-control-plane-approved/,
+  );
+  const task = validateAndBuildTask(validIssue({
+    body,
+    labels: [{ name: "factory-control-plane-approved" }],
+  }), "X84657465/global-citizen-ai-network");
+  assert.equal(task.control_plane_authorized, true);
+  assert.deepEqual(task.allowed_paths, ["lib/agent-factory-state-machine.mjs", "tests/settings-page.test.ts"]);
+});
