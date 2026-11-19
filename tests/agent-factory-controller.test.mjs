@@ -311,3 +311,56 @@ test("candidate outcome from a stale CI run attempt is rejected", async () => {
     CI_RUN_ATTEMPT: "1",
   }), /exact candidate SHA, PR, CI run ID/);
 });
+
+
+test("V2 plan mode creates roadmap tasks through the durable V2 controller", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const requests = [];
+  const api = {
+    async request(path, options = {}) {
+      requests.push({ path, options });
+      if (path.includes("/issues?state=all")) return [];
+      if (path.includes("/pulls?state=all")) return [];
+      if (path.endsWith("/issues") && options.method === "POST") return { number: 901 };
+      throw new Error("Unexpected GitHub API request: " + path);
+    },
+  };
+  const controller = createAgentFactoryController({ store, api, repository: "owner/repo", now: () => 2000 });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "plan" });
+  assert.equal(result.outputs.planner_status, "created");
+  assert.equal(result.outputs.created_issue_number, 901);
+  assert.equal(store.state.state_version, 0);
+  assert.equal(requests.filter((request) => request.options.method === "POST").length, 1);
+});
+
+test("V2 plan mode waits while an eligible AI Task Issue is open", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const api = {
+    async request(path) {
+      if (path.includes("/issues?state=all")) {
+        return [{ number: 42, title: "[AI Task] Existing task", state: "open", created_at: "2026-01-01T00:00:00Z" }];
+      }
+      if (path.includes("/pulls?state=all")) return [];
+      throw new Error("Unexpected GitHub API request: " + path);
+    },
+  };
+  const controller = createAgentFactoryController({ store, api, repository: "owner/repo", now: () => 2000 });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "plan" });
+  assert.equal(result.outputs.planner_status, "blocked_by_existing_tasks");
+  assert.equal(result.outputs.pending_tasks, 1);
+});
+
+test("V2 plan mode waits while an AI Task PR is open", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const api = {
+    async request(path) {
+      if (path.includes("/issues?state=all")) return [];
+      if (path.includes("/pulls?state=all")) return [{ number: 88, state: "open", body: "<!-- ai-task:42 -->" }];
+      throw new Error("Unexpected GitHub API request: " + path);
+    },
+  };
+  const controller = createAgentFactoryController({ store, api, repository: "owner/repo", now: () => 2000 });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "plan" });
+  assert.equal(result.outputs.planner_status, "blocked_by_existing_tasks");
+  assert.equal(result.outputs.active_task_pr, true);
+});
