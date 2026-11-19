@@ -379,11 +379,11 @@ test("check mode excludes quarantined tasks from the pending planner count", asy
       ci_run_id: "quarantine-" + attempt,
       ci_run_attempt: 1,
     };
-    state = recordCandidateStarted(state, 42, "start-" + attempt, evidence, 2000 + attempt).state;
+    state = recordCandidateStarted(state, 42, "candidate-start-" + attempt, evidence, 2000 + attempt).state;
     state = recordCandidateFailure(
       state,
       42,
-      "failure-" + attempt,
+      "candidate-failure-" + attempt,
       { ...evidence, ci_conclusion: "failure" },
       "candidate test failed",
       3000 + attempt,
