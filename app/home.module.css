@@ -60,7 +60,7 @@
 .statusDot { width: 7px; height: 7px; border-radius: 50%; background: #d39b39; box-shadow: 0 0 0 4px #d39b391c; }
 .pillarsSection, .workflowSection, .safetySection, .ctaSection { width: min(1200px, calc(100% - 56px)); margin: 0 auto; }
 .pillarsSection { padding: 100px 0 95px; }
-.sectionIntro { display: flex; justify-content: space-between; align-items: end; gap: 50px; margin-bottom: 38px; }
+.sectionIntro { display: flex; justify-content: space-between; align-items: flex-end; gap: 50px; margin-bottom: 38px; }
 .sectionIntro h2, .workflowCopy h2 { margin: 16px 0 0; font-size: clamp(30px, 3.3vw, 43px); line-height: 1.4; letter-spacing: -.04em; }
 .sectionIntro > p { max-width: 430px; margin: 0 0 5px; color: var(--muted); font-size: 13px; line-height: 2; }
 .pillarGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
