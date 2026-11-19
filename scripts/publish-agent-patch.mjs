@@ -303,7 +303,8 @@ try {
     draft: true,
   });
 
-  await dispatchAiTaskCi(pull);
+  // The pull_request opened event runs CI for this new draft PR. Keep repository_dispatch
+  // for explicit revalidation of an already-open PR above to avoid duplicate full CI runs.
 
   try {
     await api("/repos/" + repository + "/issues/" + issueNumber + "/comments", "POST", {
