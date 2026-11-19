@@ -350,7 +350,7 @@ try {
     commit_sha: commitSha,
     branch_reused: !branchResult.created,
     publication_recovered: !pullCreated,
-    changed_files: validatedPatch.files.map((file) => file.path),
+    changed_files: canonicalPatchFiles.map((file) => file.path),
     merge_policy: "human_approval_required",
     automatic_merge: false,
     production_deployment: false,
