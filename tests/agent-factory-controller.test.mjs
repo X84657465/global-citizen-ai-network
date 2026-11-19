@@ -472,7 +472,7 @@ test("check mode fails closed when GitHub omits the workflow run attempt", async
   const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
 
   assert.equal(result.outputs.lease_recovered, false);
-  assert.match(result.outputs.recovery_error, /run attempt does not match/);
+  assert.match(result.outputs.recovery_error, /does not match the exact active lease attempt/);
   assert.equal(result.state.active_task.lease_id, "lease-attempt-missing");
   assert.equal(store.state.state_version, state.state_version);
 });
