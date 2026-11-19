@@ -61,10 +61,12 @@ const taskStateByIssue = factoryState.tasks ?? {};
 const skippedIssueNumbers = new Set((process.env.AGENT_FACTORY_SKIPPED_ISSUES ?? "").split(",").map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0));
 const alreadyPublished = new Set();
 const mergedTaskIssueNumbers = new Set();
+const openTaskPrNumbers = new Set();
 const issuesByNumber = new Map(issues.filter((issue) => !issue.pull_request).map((issue) => [issue.number, issue]));
 for (const pull of pulls) {
   const match = typeof pull.body === "string" ? pull.body.match(/<!-- ai-task:(\d+) -->/) : null;
   if (match && (pull.state === "open" || isMergedTaskPullRequest(pull))) alreadyPublished.add(Number(match[1]));
+  if (match && pull.state === "open") openTaskPrNumbers.add(Number(match[1]));
   if (match && isMergedTaskPullRequest(pull)) mergedTaskIssueNumbers.add(Number(match[1]));
 }
 const ready = issues.filter((issue) =>
@@ -81,17 +83,18 @@ const ready = issues.filter((issue) =>
 );
 const dependencyReady = ready.filter((issue) => taskDependenciesResolved(issue.body, issuesByNumber, mergedTaskIssueNumbers));
 const blockedByDependencies = ready.length - dependencyReady.length;
+const openTaskPrs = openTaskPrNumbers.size;
 
 // Explicit P0-P3 priority first; preserve FIFO order within each priority class.
 const orderedTasks = sortTaskIssues(dependencyReady);
 
 const selected = orderedTasks[0];
 if (!selected) {
-  appendFileSync(output, "issue_number=\n", "utf8");
+  appendFileSync(output, "issue_number=\nblocked_by_dependencies=" + blockedByDependencies + "\nopen_task_prs=" + openTaskPrs + "\n", "utf8");
   console.log(blockedByDependencies > 0
     ? "Queue waiting: " + blockedByDependencies + " task(s) have unresolved dependencies; no dependent task was started."
     : "Queue empty: no eligible open owner-authored [AI Task] issue remains without an open task PR.");
 } else {
-  appendFileSync(output, "issue_number=" + selected.number + "\n", "utf8");
+  appendFileSync(output, "issue_number=" + selected.number + "\nblocked_by_dependencies=" + blockedByDependencies + "\nopen_task_prs=" + openTaskPrs + "\n", "utf8");
   console.log("Selected one queued task: issue #" + selected.number + ". Existing task PRs are excluded; later cycles will pick the next task.");
 }
