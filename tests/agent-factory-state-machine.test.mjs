@@ -161,7 +161,7 @@ test("task success cannot clear a quarantine without owning the active lease", (
   state = requeueTask(state, 42, 183_000);
   state = reserveTask(state, metadata({ lease_id: "lease-q3", workflow_run_id: "run-q3" }), 183_000);
   state = failTask(state, 42, event("q3"), "PATCH_INVALID", "bad", 184_000).state;
-  assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), {}, 5000), /exact pending candidate SHA and PR/);
+  assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), {}, 5000), /exact candidate SHA, PR, CI run ID/);
   assert.equal(state.tasks["42"].quarantined, true);
 });
 test("candidate CI failure is recorded separately from worker task retries", () => {
@@ -174,7 +174,7 @@ test("candidate CI failure is recorded separately from worker task retries", () 
   state = move(state, 42, "draft_pr_created", { head_sha: "d".repeat(40), pull_request_number: 77 }, 1600);
   state = move(state, 42, "awaiting_ci", {}, 1700);
   const evidence = { head_sha: "d".repeat(40), pull_request_number: 77, ci_conclusion: "failure", ci_run_id: "ci-456", ci_run_attempt: 1 };
-  assert.throws(() => recordCandidateFailure(state, 42, event("wrong-sha"), { ...evidence, head_sha: "e".repeat(40) }, "stale run", 1800), /exact pending candidate SHA/);
+  assert.throws(() => recordCandidateFailure(state, 42, event("wrong-sha"), { ...evidence, head_sha: "e".repeat(40) }, "stale run", 1800), /exact candidate SHA, PR, CI run ID/);
   const result = recordCandidateFailure(state, 42, event("candidate-fail"), evidence, "lint failed", 1900);
   assert.equal(result.state.tasks["42"].status, "candidate_rejected");
   assert.equal(result.state.tasks["42"].failures, 0);
