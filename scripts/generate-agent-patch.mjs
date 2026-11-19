@@ -113,7 +113,8 @@ for (const relativePath of patchablePaths) {
   }
 }
 
-// Full-file replacement output can be substantially larger than its source. Keep each model request to one approved file so a single large response cannot truncate the entire patch manifest.\nconst patchBatches = splitPatchPathsIntoBatches(patchablePaths, 1);
+// Full-file replacement output can be substantially larger than its source. Keep each model request to one approved file so a single large response cannot truncate the entire patch manifest.
+const patchBatches = splitPatchPathsIntoBatches(patchablePaths, 1);
 const basePlanningInput = {
   goal: task.goal,
   acceptance_criteria: task.acceptance_criteria,
