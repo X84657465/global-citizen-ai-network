@@ -89,6 +89,15 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
   assert.ok(writerWorkflowCount > 0, "expected at least one V2 state-writer workflow");
 });
 
+test("full dependency audit is a blocking CI security gate", () => {
+  const start = workflow.indexOf("- name: Full dependency audit (including development tooling)");
+  const end = workflow.indexOf("- name: Unit tests", start);
+  assert.ok(start >= 0 && end > start, "full dependency audit step must exist");
+  const section = workflow.slice(start, end);
+  assert.ok(section.includes("npm audit --audit-level=high"));
+  assert.equal(section.includes("continue-on-error: true"), false);
+});
+
 test("CI never auto-approves or merges AI task pull requests; human approval is required", () => {
   assert.equal(workflow.includes("  auto-merge-ai-task:"), false);
   assert.equal(workflow.includes("markPullRequestReadyForReview"), false);
