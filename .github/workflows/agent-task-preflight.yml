@@ -40,8 +40,10 @@ permissions:
   contents: read
   issues: read
 
+# Keep every scheduled/task-triggered factory run queued behind the single Windows Runner.
 concurrency:
   group: global-citizen-ai-network-self-hosted-runner
+  queue: max
   cancel-in-progress: false
 
 jobs:
