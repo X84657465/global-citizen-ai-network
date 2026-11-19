@@ -388,9 +388,11 @@ Implementation branch: feat/agent-factory-v2 (created from main).
 
 Added as isolated, not-yet-integrated modules:
 - lib/agent-factory-state-machine.mjs: versioned state schema, one active worker lease, legal transitions, task/system failure separation, event idempotency, retry backoff, quarantine, lease recovery, and exact-head candidate CI callbacks.
-- tests/agent-factory-state-machine.test.mjs: transition, lease, retry, quarantine, duplicate event, system cooldown, and candidate evidence cases.
+- lib/agent-factory-state-store.mjs: remote Issue #100 state persistence, version conflict detection, ambiguous-write reconciliation, duplicate-state-issue fail-closed behavior, and V1-to-V2 migration.
+- lib/github-api-client.mjs: bounded retry for safe requests, no blind POST replay, 401/403 permission classification, 429/secondary-rate-limit handling, Retry-After/reset parsing, and bounded inline waits.
 - lib/agent-task-queue.mjs and tests/agent-task-queue.test.mjs: explicit P0-P3 priority then FIFO creation time and issue-number tie-break.
 - scripts/select-agent-task.mjs now uses the queue comparator instead of a hard-coded list of Issue numbers.
+- Tests added for state transitions, lease/retry/quarantine, candidate SHA evidence, remote state migration/version conflicts, API retry/rate-limit behavior, and queue ordering.
 - package.json includes the new unit test files in test:unit.
 
 These changes are committed on the implementation branch only. They have not yet been run in the Windows Runner or integrated with the current controller, Publisher, or workflows. Do not enable the V2 worker until integration and CI evidence are complete.
