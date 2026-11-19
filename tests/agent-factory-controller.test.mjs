@@ -413,6 +413,7 @@ test("V2 plan mode waits while an AI Task PR is open", async () => {
 test("check mode excludes quarantined tasks from the pending planner count", async () => {
   let state = awaitingCandidate();
   for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const attemptNow = attempt * 100_000;
     const evidence = {
       pull_request_number: 88,
       head_sha: "b".repeat(40),
@@ -420,16 +421,16 @@ test("check mode excludes quarantined tasks from the pending planner count", asy
       ci_run_id: "quarantine-" + attempt,
       ci_run_attempt: 1,
     };
-    state = recordCandidateStarted(state, 42, "candidate-start-" + attempt, evidence, 2000 + attempt).state;
+    state = recordCandidateStarted(state, 42, "candidate-start-" + attempt, evidence, attemptNow + 100).state;
     state = recordCandidateFailure(
       state,
       42,
       "candidate-failure-" + attempt,
       { ...evidence, ci_conclusion: "failure" },
       "candidate test failed",
-      3000 + attempt,
+      attemptNow + 200,
     ).state;
-    if (attempt < 3) state = requeueTask(state, 42, 64_000 + attempt * 1000);
+    if (attempt < 3) state = requeueTask(state, 42, attemptNow + 60_200);
   }
   assert.equal(state.tasks["42"].quarantined, true);
   const store = fakeStore(state);
