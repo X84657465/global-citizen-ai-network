@@ -243,3 +243,60 @@ test("stale workers cannot transition or fail a newer lease for the same Issue",
   state = move(state, 42, "preparing", {}, 64_000);
   assert.equal(state.active_task.state, "preparing");
 });
+
+
+test("candidate success requires exact CI run ID and positive run attempt", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "a".repeat(40), pull_request_number: 88,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+
+  const evidence = {
+    head_sha: "a".repeat(40), pull_request_number: 88,
+    ci_conclusion: "success", ci_run_id: "ci-888", ci_run_attempt: 1,
+  };
+  assert.throws(
+    () => recordTaskSuccess(state, 42, event("missing-ci-run-id"), { ...evidence, ci_run_id: "" }, 1800),
+    /CI run ID/,
+  );
+  assert.throws(
+    () => recordTaskSuccess(state, 42, event("missing-ci-attempt"), { ...evidence, ci_run_attempt: 0 }, 1800),
+    /CI run ID/,
+  );
+  const result = recordTaskSuccess(state, 42, event("valid-ci-evidence"), evidence, 1900);
+  assert.equal(result.state.tasks["42"].status, "completed");
+});
+
+test("candidate failure also requires exact CI run ID and positive run attempt", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "b".repeat(40), pull_request_number: 89,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+
+  const evidence = {
+    head_sha: "b".repeat(40), pull_request_number: 89,
+    ci_conclusion: "failure", ci_run_id: "ci-889", ci_run_attempt: 1,
+  };
+  assert.throws(
+    () => recordCandidateFailure(state, 42, event("failure-missing-run-id"), { ...evidence, ci_run_id: "" }, "failed", 1800),
+    /CI run ID/,
+  );
+  assert.throws(
+    () => recordCandidateFailure(state, 42, event("failure-missing-attempt"), { ...evidence, ci_run_attempt: 0 }, "failed", 1800),
+    /CI run ID/,
+  );
+  const result = recordCandidateFailure(state, 42, event("valid-failure-evidence"), evidence, "failed", 1900);
+  assert.equal(result.state.tasks["42"].status, "candidate_rejected");
+});
