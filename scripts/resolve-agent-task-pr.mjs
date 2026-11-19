@@ -74,24 +74,27 @@ async function main() {
   const expectedSha = process.env.EXPECTED_HEAD_SHA ?? "";
   const expectedRef = process.env.EXPECTED_HEAD_REF ?? "";
   const sameRepository = pull.head?.repo?.full_name === repository;
+  const owner = repository.split("/")[0].toLowerCase();
+  const pullAuthor = String(pull.user?.login ?? "").toLowerCase();
+  const trustedPullAuthor = pullAuthor === owner || pullAuthor === "github-actions[bot]";
   const currentHead = pull.state === "open" &&
     sameRepository &&
     (!expectedSha || pull.head?.sha === expectedSha) &&
     (!expectedRef || pull.head?.ref === expectedRef);
   let authorizedTaskIssue = false;
-  if (issueNumber && sameRepository && isAgentTaskBranchForIssue(pull.head?.ref, issueNumber)) {
+  if (issueNumber && sameRepository && trustedPullAuthor &&
+      isAgentTaskBranchForIssue(pull.head?.ref, issueNumber)) {
     try {
       const issue = await api.request("/repos/" + repository + "/issues/" + issueNumber);
-      const owner = repository.split("/")[0];
       authorizedTaskIssue = issue?.state === "open" &&
-        issue?.user?.login === owner &&
+        String(issue?.user?.login ?? "").toLowerCase() === owner &&
         typeof issue?.title === "string" &&
         issue.title.startsWith("[AI Task]");
     } catch (error) {
       if (error?.status !== 404) throw error;
     }
   }
-  const isTaskPr = Boolean(issueNumber && sameRepository &&
+  const isTaskPr = Boolean(issueNumber && sameRepository && trustedPullAuthor &&
     isAgentTaskBranchForIssue(pull.head?.ref, issueNumber) && authorizedTaskIssue);
 
   writeOutput("is_current_head", currentHead ? "true" : "false");
