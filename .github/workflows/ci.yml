@@ -25,7 +25,7 @@ defaults:
 jobs:
   resolve-candidate:
     concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
+      group: global-citizen-ai-network-runner-resolver
       queue: max
       cancel-in-progress: false
     name: Resolve exact candidate PR metadata
@@ -76,7 +76,7 @@ jobs:
     env:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
     concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
+      group: global-citizen-ai-network-runner-build
       queue: max
       cancel-in-progress: false
     name: Build, unit tests, type check, lint and production build
@@ -209,7 +209,7 @@ jobs:
     env:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
     concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
+      group: global-citizen-ai-network-runner-database
       queue: max
       cancel-in-progress: false
     name: Local Supabase migrations, PostgreSQL and RLS tests
@@ -363,7 +363,7 @@ jobs:
 
   circuit-breaker:
     concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
+      group: global-citizen-ai-network-runner-circuit-breaker
       queue: max
       cancel-in-progress: false
     name: Persist candidate or system CI failures
@@ -442,7 +442,7 @@ jobs:
 
   circuit-breaker-success:
     concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
+      group: global-citizen-ai-network-runner-circuit-breaker-success
       queue: max
       cancel-in-progress: false
     name: Persist candidate success or reset system breaker
