@@ -113,7 +113,12 @@ test("workspace rejects malformed UUIDs, blank conversation titles, and invalid 
 
 test("public homepage skip link targets the main landmark and mission navigation resolves", () => {
   assert.ok(homepage.includes('href="#main-content">跳至主要內容</a>'));
-  assert.ok(homepage.includes('<main className={styles.page} id="main-content" tabIndex={-1}>'));
+  assert.ok(homepage.includes('<div className={styles.page}>'));
+  assert.ok(homepage.includes('<main id="main-content" tabIndex={-1}>'));
+  assert.ok(homepage.includes('<header className={styles.header}>'));
+  assert.ok(homepage.includes('<footer className={styles.footer}>'));
+  assert.ok(homepage.indexOf('<header className={styles.header}>') < homepage.indexOf('<main id="main-content"'));
+  assert.ok(homepage.indexOf('</main>') < homepage.indexOf('<footer className={styles.footer}>'));
   assert.ok(homepage.includes('<div className={styles.heroCopy} id="mission">'));
   assert.ok(homepage.includes('<a href="#mission">平台使命</a>'));
   assert.ok(!homepage.includes('<section className={styles.hero} id="main-content"'));
