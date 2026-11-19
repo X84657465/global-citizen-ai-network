@@ -118,7 +118,6 @@ test("accepts only explicitly planner-marked automation-authored issues", () => 
   );
 });
 
-
 test("accepts an optional P0-P3 priority section without weakening required sections", () => {
   const issue = validIssue({ body: validIssue().body.replace("## Goal", "## Priority\nP0 — security gate\n\n## Goal") });
   const task = validateAndBuildTask(issue, "X84657465/global-citizen-ai-network");
@@ -127,4 +126,43 @@ test("accepts an optional P0-P3 priority section without weakening required sect
   assert.throws(() => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"), /Duplicate section/);
   const invalid = validIssue({ body: validIssue().body.replace("## Goal", "## Priority\nUrgent\n\n## Goal") });
   assert.throws(() => validateAndBuildTask(invalid, "X84657465/global-citizen-ai-network"), /P0-P3/);
+});
+
+test("accepts only the exact scheduler workflow path as a narrowly scoped exception", () => {
+  const body = validIssue().body.replace("app/settings/page.tsx", ".github/workflows/agent-task-preflight.yml");
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, [".github/workflows/agent-task-preflight.yml", "tests/settings-page.test.ts"]);
+});
+
+test("rejects every other GitHub path, workflow file, and case variant", () => {
+  for (const unsafePath of [
+    ".github/workflows/ci.yml",
+    ".github/workflows/build.yml",
+    ".github/CODEOWNERS",
+    ".github/agent-task-preflight.yml",
+    ".GITHUB/workflows/agent-task-preflight.yml",
+  ]) {
+    const body = validIssue().body.replace("app/settings/page.tsx", unsafePath);
+    assert.throws(
+      () => validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network"),
+      TaskValidationError,
+      unsafePath,
+    );
+  }
+});
+
+test("rejects traversal and protected segments even when targeting the scheduler workflow", () => {
+  for (const unsafePath of [
+    ".github/workflows/../agent-task-preflight.yml",
+    ".github/workflows/agent-task-preflight.yml/../../secrets/token.txt",
+    ".github/workflows/agent-task-preflight.yml/credentials.txt",
+    ".github/workflows/.env",
+  ]) {
+    const body = validIssue().body.replace("app/settings/page.tsx", unsafePath);
+    assert.throws(
+      () => validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network"),
+      TaskValidationError,
+      unsafePath,
+    );
+  }
 });
