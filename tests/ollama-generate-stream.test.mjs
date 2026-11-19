@@ -123,8 +123,8 @@ test("rejects malformed UTF-8 even when an invalid sequence spans stream chunks"
 
 test("rejects any non-empty NDJSON data after the completion marker", async () => {
   const body = streamOf([
-    '{"response":"complete","done":true}\\n',
-    '{"response":"late","done":false}\\n',
+    '{"response":"complete","done":true}\n',
+    '{"response":"late","done":false}\n',
   ]);
   await assert.rejects(
     collectOllamaGenerateStream(body),
@@ -133,7 +133,7 @@ test("rejects any non-empty NDJSON data after the completion marker", async () =
 });
 
 test("allows trailing whitespace after the completion marker", async () => {
-  const body = streamOf(['{"response":"complete","done":true}\\n  \\n']);
+  const body = streamOf(['{"response":"complete","done":true}\n  \n']);
   const result = await collectOllamaGenerateStream(body);
   assert.equal(result.response, "complete");
   assert.equal(result.done, true);
