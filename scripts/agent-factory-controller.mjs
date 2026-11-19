@@ -141,15 +141,26 @@ try {
       ? "Recorded task-scoped failure for issue #" + failedIssueNumber + " (" + (state.task_failures[String(failedIssueNumber)] ?? 0) + "/" + 3 + "). " + ((state.skipped_issue_numbers ?? []).includes(failedIssueNumber) ? "Task quarantined; other queued tasks remain eligible." : "Global circuit breaker unchanged.")
       : "Recorded system-scoped failure " + state.consecutive_failures + "/3. " + (state.cooldown_until ? "Cooldown until " + state.cooldown_until : "Next system failure may trigger 15 minutes of cooldown."));
   } else if (mode === "success") {
-    const completedIssueNumber = Number(process.env.COMPLETED_ISSUE_NUMBER) || null;
-    const successScope = process.env.AGENT_FACTORY_SUCCESS_SCOPE === "task" && completedIssueNumber ? "task" : "system";
+    const requestedSuccessScope = process.env.AGENT_FACTORY_SUCCESS_SCOPE ?? "system";
+    const explicitCompletedIssueNumber = Number(process.env.COMPLETED_ISSUE_NUMBER) || null;
+    const inferredCompletedIssueNumber = requestedSuccessScope === "task_and_system"
+      ? await inferFailedIssueNumber()
+      : null;
+    const completedIssueNumber = explicitCompletedIssueNumber || inferredCompletedIssueNumber;
+    const successScope = requestedSuccessScope === "task" && completedIssueNumber
+      ? "task"
+      : requestedSuccessScope === "task_and_system" && completedIssueNumber
+        ? "task_and_system"
+        : "system";
     const reset = successState(Date.now(), state, completedIssueNumber, successScope);
     effectiveState = reset;
     saveLocalState(reset);
     await persistState(allIssues, reset);
     console.log(successScope === "task"
       ? "Successful task publication recorded; only issue #" + completedIssueNumber + " retry state was cleared."
-      : "System-level success recorded; global circuit breaker reset.");
+      : successScope === "task_and_system"
+        ? "Verified CI success cleared global cooldown and issue #" + completedIssueNumber + " retry state."
+        : "System-level success recorded; global circuit breaker reset.");
   } else if (mode === "plan") {
     const openIssues = await listIssues("open");
     const allPulls = await api("/pulls?state=all&per_page=100");

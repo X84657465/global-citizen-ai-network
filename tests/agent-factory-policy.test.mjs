@@ -162,3 +162,20 @@ test("resets the global breaker only after successful CI for main or a tracked f
   assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
   assert.equal(job.includes("review/"), false);
 });
+
+
+test("verified task CI success clears both that task's quarantine and the global breaker", () => {
+  const previous = {
+    consecutive_failures: 17,
+    cooldown_until: "2026-11-19T04:22:47.792Z",
+    task_failures: { "116": 3, "121": 1 },
+    skipped_issue_numbers: [116],
+    last_error: "old global failure",
+  };
+  const reset = successState(1234, previous, 116, "task_and_system");
+  assert.equal(reset.consecutive_failures, 0);
+  assert.equal(reset.cooldown_until, null);
+  assert.deepEqual(reset.task_failures, { "121": 1 });
+  assert.deepEqual(reset.skipped_issue_numbers, []);
+  assert.equal(reset.last_error, previous.last_error);
+});

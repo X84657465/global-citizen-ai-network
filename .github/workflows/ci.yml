@@ -465,5 +465,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: success
-          AGENT_FACTORY_SUCCESS_SCOPE: system
+          AGENT_FACTORY_SUCCESS_SCOPE: task_and_system
         run: node scripts/agent-factory-controller.mjs
