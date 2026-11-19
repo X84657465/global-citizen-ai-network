@@ -86,3 +86,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Exact-head CI required; this change does not constitute release acceptance.
+
+## 0.3.0 — 2026-11-20
+
+### Added
+- Enable the shared CI workflow for pull requests targeting the five-track integration branch, so dependent Deep Neural and Deep Research PRs receive exact-head build and database verification.
+- Add a CI policy regression assertion and document the integration-branch dependency and retargeting procedure.
+
+### Verification
+- CI must pass on each dependent PR's exact head; the branch filter itself is not acceptance evidence.
