@@ -44,15 +44,15 @@ test("preflight and Runner smoke workflows share the bounded Runner queue", () =
 
 test("every V2 state-writer workflow is serialized by the shared Runner queue", () => {
   const workflowDirectory = new URL("../.github/workflows/", import.meta.url);
-  const workflowFiles = readdirSync(workflowDirectory).filter((name) => /\\.ya?ml$/i.test(name));
+  const workflowFiles = readdirSync(workflowDirectory).filter((name) => /\.ya?ml$/i.test(name));
   let writerWorkflowCount = 0;
 
   for (const fileName of workflowFiles) {
-    const source = readFileSync(new URL(fileName, workflowDirectory), "utf8").replace(/\\r\\n/g, "\\n");
+    const source = readFileSync(new URL(fileName, workflowDirectory), "utf8").replace(/\r\n/g, "\n");
     if (!source.includes("scripts/agent-factory-v2-controller.mjs")) continue;
     writerWorkflowCount += 1;
 
-    const jobsMarker = source.indexOf("\\njobs:");
+    const jobsMarker = source.indexOf("\njobs:");
     assert.ok(jobsMarker >= 0, fileName + " must declare jobs");
     const workflowHeader = source.slice(0, jobsMarker);
     const workflowWideQueue =
@@ -60,8 +60,8 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
       workflowHeader.includes("queue: max") &&
       workflowHeader.includes("cancel-in-progress: false");
 
-    const jobsSource = source.slice(jobsMarker + "\\njobs:".length);
-    const jobHeaders = [...jobsSource.matchAll(/^  ([A-Za-z0-9_-]+):\\s*$/gm)];
+    const jobsSource = source.slice(jobsMarker + "\njobs:".length);
+    const jobHeaders = [...jobsSource.matchAll(/^  ([A-Za-z0-9_-]+):\s*$/gm)];
     const writerJobs = [];
 
     for (let index = 0; index < jobHeaders.length; index += 1) {
