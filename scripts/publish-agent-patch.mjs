@@ -4,6 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { scratchPatchEvidenceMatches } from "../lib/agent-scratch-evidence.mjs";
+import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 
 const fail = (message) => {
   console.error("Agent PR publishing rejected: " + message);
@@ -183,41 +184,17 @@ if (dryRun) {
 
 if (!token) fail("GITHUB_TOKEN is required for draft PR creation.");
 
-const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\/+$/, "");
-const api = async (path, method = "GET", payload = undefined) => {
-  let response;
-  try {
-    response = await fetch(apiBase + path, {
-      method,
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: "Bearer " + token,
-        "X-GitHub-Api-Version": "2022-11-28",
-        ...(payload ? { "Content-Type": "application/json" } : {}),
-      },
-      ...(payload ? { body: JSON.stringify(payload) } : {}),
-      signal: AbortSignal.timeout(20000),
-    });
-  } catch {
-    throw new Error("GitHub API network request failed: " + method + " " + path);
-  }
-
-  const responseText = await response.text();
-  let data = null;
-  if (responseText) {
-    try {
-      data = JSON.parse(responseText);
-    } catch {
-      throw new Error("GitHub API returned a non-JSON response for " + path);
-    }
-  }
-  if (!response.ok) {
-    const message = typeof data?.message === "string" ? data.message.slice(0, 300) : "request failed";
-    throw new Error("GitHub API " + method + " " + path + " returned HTTP " + response.status + ": " + message);
-  }
-  return data;
-};
-
+const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\\/+$/, "");
+const githubApi = createGitHubApiClient({
+  baseUrl: apiBase,
+  token,
+  timeoutMs: 20_000,
+  maxRetries: 2,
+  maxInlineRetryDelayMs: 30_000,
+});
+const api = (path, method = "GET", payload = undefined) =>
+  githubApi.request(path, { method, body: payload });
+ 
 const dispatchAiTaskCi = async (pull) => {
   await api("/dispatches", "POST", {
     event_type: "ai-task-ci",
