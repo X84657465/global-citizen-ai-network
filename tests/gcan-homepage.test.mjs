@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 
 const homepage = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const homeCss = readFileSync(new URL("../app/home.module.css", import.meta.url), "utf8");
+const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
+const eslintConfig = readFileSync(new URL("../eslint.config.mjs", import.meta.url), "utf8");
 
 test("public homepage exposes the authenticated workspace and contribution entry points", () => {
   assert.match(homepage, /href="\/workspace"/);
@@ -124,4 +126,12 @@ test("public homepage skip link targets the main landmark and mission navigation
   assert.ok(!homepage.includes('<section className={styles.hero} id="main-content"'));
   assert.ok(homeCss.includes(".skipLink:focus-visible"));
   assert.ok(homeCss.includes("transform: translateY(0)"));
+});
+
+
+test("build configuration scopes Next.js tracing and exports a named ESLint config", () => {
+  assert.match(nextConfig, /outputFileTracingRoot:\\s*process\\.cwd\\(\\)/);
+  assert.match(eslintConfig, /const eslintConfig = \\[/);
+  assert.match(eslintConfig, /export default eslintConfig;/);
+  assert.doesNotMatch(eslintConfig, /export default \\[/);
 });
