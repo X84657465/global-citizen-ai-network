@@ -17,6 +17,11 @@ function fakeApi(initialIssues = []) {
         const created = { number: nextNumber++, title: options.body.title, body: options.body.body }; issues.push(created); return created;
       }
       const match = /\/issues\/(\d+)$/.exec(path);
+      if (match && (options.method ?? "GET") === "GET") {
+        const issue = issues.find((item) => item.number === Number(match[1]));
+        if (!issue) throw new Error("not found");
+        return structuredClone(issue);
+      }
       if (match && options.method === "PATCH") {
         const issue = issues.find((item) => item.number === Number(match[1]));
         if (!issue) throw new Error("not found"); issue.body = options.body.body; return issue;
