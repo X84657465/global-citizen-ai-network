@@ -12,8 +12,9 @@ function fakeStore(initialState, options = {}) {
   let state = initialState;
   let writes = 0;
   return {
-    async migrate() { return { state, migrated: false }; },
-    async read() { return { state }; },
+    async migrate() { return { issue: { number: 100 }, state, migrated: false }; },
+    async read() { return { issue: { number: 100 }, state }; },
+    getStateIssueNumber() { return 100; },
     async write(expectedVersion, nextState) {
       writes += 1;
       if (options.failWriteAt === writes) throw new Error("injected state write failure");
