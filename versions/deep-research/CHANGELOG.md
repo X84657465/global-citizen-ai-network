@@ -12,3 +12,12 @@
 
 ### Verification
 - Exact-head CI and independent review pending.
+
+## 0.1.1 — 2026-11-20
+
+### Fixed
+- Scope research workspace footer styles to the local page class.
+- Carry the Predictive Coding CSS Module selector fix required by the integrated five-track build.
+
+### Verification
+- CI rerun required for this exact commit and its C-track base.
