@@ -203,6 +203,38 @@ test("expired lease is recovered only after workflow is confirmed stopped", () =
   assert.equal(result.state.active_task, null);
 });
 
+test("expired lease recovery is idempotent and activates the system cooldown at the failure threshold", () => {
+  let state = createInitialFactoryState(1000);
+  state = recordSystemFailure(state, event("system-before-recovery-1"), "OLLAMA_OFFLINE", "offline", 2000).state;
+  state = recordSystemFailure(state, event("system-before-recovery-2"), "DOCKER_UNAVAILABLE", "docker unavailable", 3000).state;
+  state = reserveTask(state, metadata({ lease_ms: 60_000 }), 4000);
+
+  const recoveredAt = 65_000;
+  const eventKey = event("threshold-lease-recovery");
+  const result = recoverExpiredLease(state, {
+    workflow_still_running: false,
+    event_key: eventKey,
+  }, recoveredAt);
+
+  assert.equal(result.recovered, true);
+  assert.equal(result.state.active_task, null);
+  assert.equal(result.state.tasks["42"].status, "queued");
+  assert.equal(result.state.system.consecutive_failures, 3);
+  assert.equal(result.state.system.last_error_code, "WORKER_LEASE_EXPIRED");
+  assert.equal(result.state.system.cooldown_until, new Date(recoveredAt + 15 * 60 * 1000).toISOString());
+  assert.equal(isSystemCooldownActive(result.state, recoveredAt), true);
+
+  // Replaying the same recovery after a controller restart cannot mutate state.
+  const replay = recoverExpiredLease(result.state, {
+    workflow_still_running: false,
+    event_key: eventKey,
+  }, recoveredAt + 1000);
+  assert.equal(replay.recovered, false);
+  assert.equal(replay.state, result.state);
+  assert.equal(replay.state.state_version, result.state.state_version);
+  assert.equal(replay.state.system.consecutive_failures, 3);
+});
+
 test("rejects duplicate or missing event keys", () => {
   const state = createInitialFactoryState(1000);
   assert.throws(() => recordSystemFailure(state, "short", "ERR", "bad", 2000), /event key/);
