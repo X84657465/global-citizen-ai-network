@@ -55,7 +55,8 @@
 - **Agent Factory V2：** [PR #134（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/134)
 - **GCAN 產品線：** [PR #137（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/137)
 - **GitHub 專案展示線：** [PR #139（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
-- **第四線深度神經：** [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
+- **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
+- **第四線深度神經：** [PR #140（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/140) · [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
 - **四線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
 - **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
