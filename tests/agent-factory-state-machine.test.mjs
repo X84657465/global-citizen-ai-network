@@ -120,7 +120,7 @@ test("expired lease is recovered only after workflow is confirmed stopped", () =
   let result = recoverExpiredLease(state, { workflow_still_running: true, event_key: event("recover") }, 61_200);
   assert.equal(result.recovered, false);
   assert.equal(result.reason, "workflow_may_still_be_running");
-  result = recoverExpiredLease(state, { workflow_still_running: false, event_key: event("recover") }, 1200);
+  result = recoverExpiredLease(state, { workflow_still_running: false, event_key: event("recover") }, 61_200);
   assert.equal(result.recovered, true);
   assert.equal(result.state.active_task, null);
 });
