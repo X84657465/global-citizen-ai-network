@@ -74,3 +74,13 @@ test("workspace accepts pending recovery only when its envelope and original pro
   assert.match(workspaceClient, /\[A-Za-z0-9\._:-\]\{8,128\}/);
   assert.match(workspaceClient, /\["queued", "running"\]\.includes/);
 });
+
+test("workspace bootstrap validates the essential conversation response before rendering history", () => {
+  assert.match(workspaceClient, /conversations\?: unknown/);
+  assert.match(workspaceClient, /Array\.isArray\(data\.conversations\)/);
+  assert.match(workspaceClient, /typeof \(item as Conversation\)\.id === "string"/);
+  assert.match(workspaceClient, /typeof \(item as Conversation\)\.title === "string"/);
+  assert.match(workspaceClient, /typeof \(item as Conversation\)\.updated_at === "string"/);
+  assert.match(workspaceClient, /對話資料格式無效/);
+  assert.match(workspaceClient, /setConversations\(data\.conversations as Conversation\[\]\)/);
+});
