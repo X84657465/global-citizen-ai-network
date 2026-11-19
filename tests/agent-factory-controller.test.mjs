@@ -313,7 +313,9 @@ test("candidate failure callback recovers when the requeue write fails after rej
 
   const recovered = await controller.run(env);
   assert.equal(recovered.outputs.duplicate, true);
-  assert.equal(recovered.state.tasks["42"].status, "queued");
+  assert.equal(recovered.state.tasks["42"].status, "candidate_rejected");
+  assert.equal(recovered.state.tasks["42"].candidate_status, "failure");
+  assert.ok(Date.parse(recovered.state.tasks["42"].next_attempt_at) > 3000);
 });
 
 
@@ -427,7 +429,7 @@ test("check mode excludes quarantined tasks from the pending planner count", asy
       "candidate test failed",
       3000 + attempt,
     ).state;
-    if (attempt < 3) state = requeueTask(state, 42, 4000 + attempt);
+    if (attempt < 3) state = requeueTask(state, 42, 64_000 + attempt * 1000);
   }
   assert.equal(state.tasks["42"].quarantined, true);
   const store = fakeStore(state);
