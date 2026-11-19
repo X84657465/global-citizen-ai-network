@@ -208,3 +208,22 @@ test("Supabase CI allocates Docker-published ports below the Windows dynamic TCP
   assert.ok(workflow.includes("49152-65535 dynamic TCP range"));
   assert.equal(workflow.includes("$candidate = 55000 +"), false);
 });
+
+test("all workflow checkouts disable persisted Git credentials", () => {
+  const workflowDirectory = new URL("../.github/workflows/", import.meta.url);
+  const workflowFiles = readdirSync(workflowDirectory).filter((name) => /\\.ya?ml$/i.test(name));
+  for (const fileName of workflowFiles) {
+    const source = readFileSync(new URL(fileName, workflowDirectory), "utf8").replace(/\\r\\n/g, "\\n");
+    const lines = source.split("\\n");
+    for (let index = 0; index < lines.length; index += 1) {
+      if (!/^\\s*uses:\\s*actions\\/checkout@/.test(lines[index])) continue;
+      let end = index + 1;
+      while (end < lines.length && !/^\\s*-\\s+(?:name|uses):/.test(lines[end])) end += 1;
+      const step = lines.slice(index, end).join("\\n");
+      assert.ok(
+        /persist-credentials:\\s*false/.test(step),
+        fileName + " checkout at line " + (index + 1) + " must not persist its token in .git/config",
+      );
+    }
+  }
+});
