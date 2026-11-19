@@ -19,3 +19,12 @@
 
 ### Verification
 - CI rerun required for this exact commit.
+
+## 0.1.2 — 2026-11-20
+
+### Fixed
+- Scope responsive footer and footer-span selectors to `.page` so the CSS Module does not emit unapproved global selectors.
+- Keep table styles scoped to `.tableScroll`.
+
+### Verification
+- Exact-head CI rerun required; no release acceptance implied.
