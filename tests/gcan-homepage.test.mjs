@@ -61,6 +61,8 @@ test("workspace bootstrap validates optional API JSON shapes before using projec
   assert.match(workspaceClient, /const parsedProjects: unknown = await projectResult\.value\.json\(\)/);
   assert.match(workspaceClient, /Array\.isArray\(candidateProjects\)/);
   assert.match(workspaceClient, /typeof \(project as ProjectOption\)\.id === "string"/);
+  assert.match(workspaceClient, /title === "string"/);
+  assert.match(workspaceClient, /archived_at === null/);
   assert.match(workspaceClient, /const parsedPending: unknown = await pendingResponse\.json\(\)/);
   assert.match(workspaceClient, /parsedPending && typeof parsedPending === "object" && !Array\.isArray\(parsedPending\)/);
 });
