@@ -142,6 +142,7 @@ test("does not persist unrelated review-branch CI failures into the factory circ
   assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'codex/issue-')"));
   assert.ok(job.includes("github.event_name == 'repository_dispatch'"));
   assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
+  assert.ok(job.includes("pull-requests: read"));
   assert.equal(job.includes("review/"), false);
 });
 
@@ -160,6 +161,7 @@ test("resets the global breaker only after successful CI for main or a tracked f
   assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
   assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'codex/issue-')"));
   assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
+  assert.ok(job.includes("pull-requests: read"));
   assert.equal(job.includes("review/"), false);
 });
 
