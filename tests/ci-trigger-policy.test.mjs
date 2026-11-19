@@ -84,6 +84,12 @@ test("CI resolves the current task PR and binds candidate outcomes to exact run 
   assert.ok(workflow.includes("needs.resolve-candidate.outputs.is_task_pr == 'true'"));
 });
 
+test("roadmap planning uses V2 controller and does not invoke the legacy local-state writer", () => {
+  assert.ok(preflight.includes("AGENT_FACTORY_MODE: plan"));
+  assert.ok(preflight.includes("run: node scripts/agent-factory-v2-controller.mjs"));
+  assert.equal(preflight.includes("run: node scripts/agent-factory-controller.mjs"), false);
+});
+
 test("preflight reserves and releases V2 leases and does not overproduce roadmap tasks", () => {
   assert.ok(preflight.includes("AGENT_FACTORY_MODE: reserve"));
   assert.ok(preflight.includes("AGENT_FACTORY_MODE: transition"));
