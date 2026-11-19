@@ -30,9 +30,21 @@ const apiGet = async (path) => {
   try { return await response.json(); } catch { fail("GitHub queue response was not valid JSON."); }
 };
 
+const apiGetAllPages = async (path) => {
+  const collected = [];
+  for (let page = 1; page <= 10; page += 1) {
+    const separator = path.includes("?") ? "&" : "?";
+    const batch = await apiGet(path + separator + "page=" + page);
+    if (!Array.isArray(batch)) fail("GitHub paginated queue response has an unexpected shape.");
+    collected.push(...batch);
+    if (batch.length < 100) return collected;
+  }
+  fail("GitHub task queue exceeded 1,000 records; refusing incomplete dependency resolution.");
+};
+
 const [issues, pulls] = await Promise.all([
-  apiGet("/issues?state=all&per_page=100&sort=created&direction=asc"),
-  apiGet("/pulls?state=all&per_page=100"),
+  apiGetAllPages("/issues?state=all&per_page=100&sort=created&direction=asc"),
+  apiGetAllPages("/pulls?state=all&per_page=100"),
 ]);
 if (!Array.isArray(issues) || !Array.isArray(pulls)) fail("GitHub queue response has an unexpected shape.");
 
