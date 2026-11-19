@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   createInitialFactoryState, reserveTask, transitionTask, recordTaskFailure,
   recordSystemFailure, recordTaskSuccess, recordSystemSuccess,
-  recoverExpiredLease, isSystemCooldownActive, validateFactoryState,
+  recoverExpiredLease, requeueTask, isSystemCooldownActive, validateFactoryState,
 } from "../lib/agent-factory-state-machine.mjs";
 
 const metadata = (overrides = {}) => ({
@@ -76,9 +76,12 @@ test("system failures release the lease and open a 15-minute cooldown after thre
 });
 
 test("task success clears only that task retry record", () => {
-  let state = recordTaskFailure(createInitialFactoryState(1000), 42, event("fail"), "PATCH_INVALID", "bad", 2000).state;
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = recordTaskFailure(state, 42, event("fail"), "PATCH_INVALID", "bad", 2000).state;
+  state = requeueTask(state, 42, 62_000);
+  state = reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 62_000);
   state.system.consecutive_failures = 2;
-  const result = recordTaskSuccess(state, 42, event("success"), 3000);
+  const result = recordTaskSuccess(state, 42, event("success"), 63_000);
   assert.equal(result.state.tasks["42"].failures, 0);
   assert.equal(result.state.system.consecutive_failures, 2);
 });
@@ -109,4 +112,24 @@ test("rejects duplicate or missing event keys", () => {
   const second = recordSystemFailure(first.state, event("one"), "ERR", "bad", 3000);
   assert.equal(second.duplicate, true);
   assert.equal(second.state.state_version, first.state.state_version);
+});
+test("task retry enters backoff and cannot be reserved until requeued", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = recordTaskFailure(state, 42, event("retry"), "PATCH_INVALID", "invalid manifest", 2000).state;
+  assert.equal(state.tasks["42"].status, "retry_wait");
+  assert.throws(() => reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 3000), /not currently queued/);
+  assert.throws(() => requeueTask(state, 42, 60_000), /backoff has not elapsed/);
+  state = requeueTask(state, 42, 62_000);
+  assert.equal(state.tasks["42"].status, "queued");
+  state = reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 63_000);
+  assert.equal(state.active_task.attempt, 2);
+});
+
+test("task success cannot clear a quarantine without owning the active lease", () => {
+  let state = createInitialFactoryState(1000);
+  state = recordTaskFailure(state, 42, event("q1"), "PATCH_INVALID", "bad", 2000).state;
+  state = recordTaskFailure(state, 42, event("q2"), "PATCH_INVALID", "bad", 3000).state;
+  state = recordTaskFailure(state, 42, event("q3"), "PATCH_INVALID", "bad", 4000).state;
+  assert.throws(() => recordTaskSuccess(state, 42, event("fake-success"), 5000), /matching active task lease/);
+  assert.equal(state.tasks["42"].quarantined, true);
 });
