@@ -82,9 +82,9 @@ export default function HomePage() {
           </div>
         </div>
         <div className={styles.heroVisual} aria-label="全球公民共同協作的抽象視覺">
-          <div className={styles.orbit orbitOne} />
-          <div className={styles.orbit orbitTwo} />
-          <div className={styles.orbit orbitThree} />
+          <div className={styles.orbit + " " + styles.orbitOne} />
+          <div className={styles.orbit + " " + styles.orbitTwo} />
+          <div className={styles.orbit + " " + styles.orbitThree} />
           <div className={styles.globeCore}><Globe2 size={74} strokeWidth={1.1} /></div>
           <div className={styles.floatCard + " " + styles.floatTop}><Sparkles size={17} /><span><b>AI for Everyone</b><small>讓知識工作更容易取得</small></span></div>
           <div className={styles.floatCard + " " + styles.floatBottom}><HandHeart size={18} /><span><b>Contribution Matters</b><small>每份貢獻都應被公平看待</small></span></div>
