@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { TaskValidationError, validateAndBuildTask } from "../lib/agent-task-validation.mjs";
+import { extractTaskDependencyNumbers, taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
 
 const validIssue = (overrides = {}) => ({
   number: 123,
@@ -127,4 +128,29 @@ test("accepts an optional P0-P3 priority section without weakening required sect
   assert.throws(() => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"), /Duplicate section/);
   const invalid = validIssue({ body: validIssue().body.replace("## Goal", "## Priority\nUrgent\n\n## Goal") });
   assert.throws(() => validateAndBuildTask(invalid, "X84657465/global-citizen-ai-network"), /P0-P3/);
+});
+
+
+test("extracts only explicit dependency references without duplicating issue numbers", () => {
+  const body = "Goal text mentioning #999 is not a dependency.\nDependencies: #3 uncertain outcome, #84 provider adapter, and #94 migration chain.\nDependencies/context: #84 provider adapter.";
+  assert.deepEqual(extractTaskDependencyNumbers(body), [3, 84, 94]);
+  assert.deepEqual(extractTaskDependencyNumbers("No dependency declaration."), []);
+});
+
+test("blocks tasks until every dependency is completed or its task PR is merged", () => {
+  const body = "Dependencies: #3, #84, and #94.";
+  const issues = new Map([
+    [3, { number: 3, state: "open" }],
+    [84, { number: 84, state: "closed", state_reason: "completed" }],
+    [94, { number: 94, state: "open" }],
+  ]);
+  assert.equal(taskDependenciesResolved(body, issues), false);
+  assert.equal(taskDependenciesResolved(body, issues, new Set([3, 94])), true);
+});
+
+test("does not treat missing or intentionally abandoned dependencies as completed", () => {
+  assert.equal(taskDependenciesResolved("Dependencies: #1234.", new Map()), false);
+  const notPlanned = new Map([[1234, { number: 1234, state: "closed", state_reason: "not_planned" }]]);
+  assert.equal(taskDependenciesResolved("Dependencies: #1234.", notPlanned), false);
+  assert.equal(taskDependenciesResolved("No dependencies.", notPlanned), true);
 });

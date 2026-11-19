@@ -1,9 +1,14 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { validateAndBuildTask } from "../lib/agent-task-validation.mjs";
 
 const fail = (message) => {
   console.error("Task preflight rejected: " + message);
   process.exit(1);
+};
+
+const markTaskScopedFailure = () => {
+  const envFile = process.env.GITHUB_ENV;
+  if (envFile) appendFileSync(envFile, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
 };
 
 const issueNumber = process.env.ISSUE_NUMBER ?? "";
@@ -43,6 +48,7 @@ let task;
 try {
   task = validateAndBuildTask(issue, repository);
 } catch (error) {
+  markTaskScopedFailure();
   fail(error instanceof Error ? error.message : "Unknown task validation error.");
 }
 

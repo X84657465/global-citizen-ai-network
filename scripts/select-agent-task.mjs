@@ -1,4 +1,6 @@
 import { appendFileSync } from "node:fs";
+import { collectGitHubPages } from "../lib/github-pagination.mjs";
+import { taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
 
 const fail = (message) => {
   console.error("Agent task selection failed: " + message);
@@ -29,18 +31,26 @@ const apiGet = async (path) => {
   try { return await response.json(); } catch { fail("GitHub queue response was not valid JSON."); }
 };
 
+const apiGetAllPages = (path) => collectGitHubPages((page) => {
+  const separator = path.includes("?") ? "&" : "?";
+  return apiGet(path + separator + "page=" + page);
+});
+
 const [issues, pulls] = await Promise.all([
-  apiGet("/issues?state=open&per_page=100&sort=created&direction=asc"),
-  apiGet("/pulls?state=all&per_page=100"),
+  apiGetAllPages("/issues?state=all&per_page=100&sort=created&direction=asc"),
+  apiGetAllPages("/pulls?state=all&per_page=100"),
 ]);
 if (!Array.isArray(issues) || !Array.isArray(pulls)) fail("GitHub queue response has an unexpected shape.");
 
 const owner = repositoryParts[0].toLowerCase();
 const skippedIssueNumbers = new Set((process.env.AGENT_FACTORY_SKIPPED_ISSUES ?? "").split(",").map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0));
 const alreadyPublished = new Set();
+const mergedTaskIssueNumbers = new Set();
+const issuesByNumber = new Map(issues.filter((issue) => !issue.pull_request).map((issue) => [issue.number, issue]));
 for (const pull of pulls) {
   const match = typeof pull.body === "string" ? pull.body.match(/<!-- ai-task:(\d+) -->/) : null;
   if (match && (pull.state === "open" || pull.merged === true)) alreadyPublished.add(Number(match[1]));
+  if (match && pull.merged === true) mergedTaskIssueNumbers.add(Number(match[1]));
 }
 const ready = issues.filter((issue) =>
   !issue.pull_request &&
@@ -51,7 +61,9 @@ const ready = issues.filter((issue) =>
   typeof issue.title === "string" && issue.title.startsWith("[AI Task]") &&
   !alreadyPublished.has(issue.number) &&
   !skippedIssueNumbers.has(issue.number)
-).sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
+);
+const dependencyReady = ready.filter((issue) => taskDependenciesResolved(issue.body, issuesByNumber, mergedTaskIssueNumbers));
+const blockedByDependencies = ready.length - dependencyReady.length;
 
 // Stable priority order: security and MVP release gates first, then Phase 2,
  // Phase 3 distributed-compute research, and finally Phase 4 governance/reporting.
@@ -61,17 +73,19 @@ const priorityOrder = [
   87, 88, 89, 90, 92, 91, 93,
 ];
 const priorityRank = new Map(priorityOrder.map((issueNumber, index) => [issueNumber, index]));
-ready.sort((a, b) => {
+dependencyReady.sort((a, b) => {
   const rankA = priorityRank.get(a.number) ?? Number.MAX_SAFE_INTEGER;
   const rankB = priorityRank.get(b.number) ?? Number.MAX_SAFE_INTEGER;
   if (rankA !== rankB) return rankA - rankB;
   return a.number - b.number;
 });
 
-const selected = ready[0];
+const selected = dependencyReady[0];
 if (!selected) {
   appendFileSync(output, "issue_number=\n", "utf8");
-  console.log("Queue empty: no eligible open owner-authored [AI Task] issue remains without an open task PR.");
+  console.log(blockedByDependencies > 0
+    ? "Queue waiting: " + blockedByDependencies + " task(s) have unresolved dependencies; no dependent task was started."
+    : "Queue empty: no eligible open owner-authored [AI Task] issue remains without an open task PR.");
 } else {
   appendFileSync(output, "issue_number=" + selected.number + "\n", "utf8");
   console.log("Selected one queued task: issue #" + selected.number + ". Existing task PRs are excluded; later cycles will pick the next task.");
