@@ -8,11 +8,12 @@ function fakeApi(initialIssues = []) {
   return {
     issues,
     client: { request: async (path, options = {}) => {
-      if (path.includes("/issues?")) {
-        const page = Number(/page=(\d+)/.exec(path)?.[1] ?? 1);
+      const parsed = new URL(path, "https://api.github.com");
+      if (parsed.pathname.endsWith("/issues") && (options.method ?? "GET") === "GET") {
+        const page = Number(parsed.searchParams.get("page") ?? 1);
         return page === 1 ? structuredClone(issues) : [];
       }
-      if (path.endsWith("/issues") && options.method === "POST") {
+      if (parsed.pathname.endsWith("/issues") && options.method === "POST") {
         const created = { number: nextNumber++, title: options.body.title, body: options.body.body }; issues.push(created); return created;
       }
       const match = /\/issues\/(\d+)$/.exec(path);
