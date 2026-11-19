@@ -33,7 +33,11 @@ test("rejects a patch whose content changed after scratch tests", () => {
 
 test("rejects missing hashes, wrong byte counts, and mismatched operations", () => {
   const evidence = buildScratchPatchEvidence(files);
-  assert.equal(scratchPatchEvidenceMatches(evidence.map(({ sha256, ...file }) => file), files), false);
+  assert.equal(scratchPatchEvidenceMatches(evidence.map((file) => {
+    const copy = { ...file };
+    delete copy.sha256;
+    return copy;
+  }), files), false);
   assert.equal(scratchPatchEvidenceMatches(evidence.map((file, index) => index === 0 ? { ...file, bytes: file.bytes + 1 } : file), files), false);
   assert.equal(scratchPatchEvidenceMatches(evidence.map((file, index) => index === 0 ? { ...file, operation: "add" } : file), files), false);
 });
