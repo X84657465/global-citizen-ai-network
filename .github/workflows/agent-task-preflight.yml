@@ -41,7 +41,7 @@ permissions:
   issues: read
 
 concurrency:
-  group: global-citizen-ai-network-self-hosted-runner
+  group: global-citizen-ai-network-agent-factory
   cancel-in-progress: false
 
 jobs:
