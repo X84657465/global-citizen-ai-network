@@ -78,7 +78,7 @@ jobs:
          github.event.pull_request.head.repo.full_name == github.repository &&
          (github.event.pull_request.user.login == github.repository_owner ||
           (startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
-           contains(github.event.pull_request.body, '<!-- ai-task:')))) ||
+           contains(github.event.pull_request.body, '<!-- ai-task:') && needs.resolve-candidate.outputs.is_task_pr == 'true')))) ||
         (github.event_name == 'repository_dispatch' &&
          github.event.action == 'ai-task-ci' &&
          github.event.client_payload.pull_request_number != '' &&
@@ -396,7 +396,7 @@ jobs:
         (github.event_name == 'pull_request' &&
          github.event.pull_request.head.repo.full_name == github.repository &&
          ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
-           contains(github.event.pull_request.body, '<!-- ai-task:')) ||
+           contains(github.event.pull_request.body, '<!-- ai-task:') && needs.resolve-candidate.outputs.is_task_pr == 'true')) ||
           startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) ||
         (github.event_name == 'repository_dispatch' &&
          github.event.action == 'ai-task-ci' &&
