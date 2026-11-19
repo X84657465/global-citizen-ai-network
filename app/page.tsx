@@ -47,7 +47,7 @@ export default function HomePage() {
   return (
     <>
       <a className={styles.skipLink} href="#main-content">跳至主要內容</a>
-      <main className={styles.page}>
+      <main className={styles.page} id="main-content" tabIndex={-1}>
         <header className={styles.header}>
           <Link href="/" className={styles.brand} aria-label="Global Citizen AI Network 首頁">
             <span className={styles.brandMark}><Globe2 size={23} /></span>
@@ -67,8 +67,8 @@ export default function HomePage() {
           </div>
         </header>
 
-        <section className={styles.hero} id="main-content" tabIndex={-1}>
-          <div className={styles.heroCopy}>
+        <section className={styles.hero}>
+          <div className={styles.heroCopy} id="mission">
             <div className={styles.eyebrow}><span /> BUILD A SHARED AI FUTURE</div>
             <h1>讓 AI 成為<br /><em>每個人的共同資產</em></h1>
             <p className={styles.lead}>
