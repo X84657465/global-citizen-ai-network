@@ -71,6 +71,12 @@ test("rejects non-bullet sections and path traversal", () => {
   assert.throws(() => validateAndBuildTask(traversal, "X84657465/global-citizen-ai-network"), /Path traversal/);
 });
 
+test("accepts safe Next.js dynamic route segments in explicitly allowed paths", () => {
+  const body = validIssue().body.replace("app/settings/page.tsx", "app/api/conversations/[id]/route.ts");
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, ["app/api/conversations/[id]/route.ts", "tests/settings-page.test.ts"]);
+});
+
 test("rejects protected roots, dotfiles, duplicate paths, and backslashes", () => {
   for (const unsafePath of [
     ".github/workflows/build.yml",
