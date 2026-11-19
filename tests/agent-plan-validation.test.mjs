@@ -102,12 +102,15 @@ test("rejects plans with too many tasks", () => {
 });
 
 
-test("collects Ollama NDJSON response fragments across split UTF-8 chunks", async () => {
+test("collects Ollama NDJSON response fragments when a multibyte UTF-8 character is split across chunks", async () => {
   const encoder = new TextEncoder();
   const body = new ReadableStream({
     start(controller) {
       controller.enqueue(encoder.encode('{"response":"hello "'));
-      controller.enqueue(encoder.encode(',"done":false}\r\n{"response":"世界","done":true,"done_reason":"stop","eval_count":4}\n'));
+      const tail = encoder.encode(',"done":false}\r\n{"response":"世界","done":true,"done_reason":"stop","eval_count":4}\n');
+      const multibyteStart = tail.indexOf(0xe4);
+      controller.enqueue(tail.slice(0, multibyteStart + 1));
+      controller.enqueue(tail.slice(multibyteStart + 1));
       controller.close();
     },
   });
