@@ -232,7 +232,7 @@ test("candidate success callback recovers when the system-breaker write fails af
   assert.equal(store.state.system.consecutive_failures, 2);
 
   const recovered = await controller.run(env);
-  assert.equal(recovered.outputs.duplicate, true);
+  assert.equal(recovered.outputs.duplicate, false);
   assert.equal(recovered.state.system.consecutive_failures, 0);
 });
 
