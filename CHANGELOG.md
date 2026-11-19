@@ -111,3 +111,13 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Exact-head CI and independent review remain required.
+
+## 0.3.3 — 2026-11-20
+
+### Fixed
+- Separate database-backed two-member RLS integration tests from the generic unit-test discovery runner.
+- Execute application-level RLS integration tests in the isolated Supabase CI job using its local database URL.
+- Synchronize Agent Factory track version to `2.0.2` and overall integration version to `0.3.3`.
+
+### Verification
+- New exact-head Agent Factory CI required; previous candidate failed because database integration tests were invoked without `SUPABASE_DB_URL`.
