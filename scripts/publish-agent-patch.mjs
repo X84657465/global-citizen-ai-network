@@ -118,7 +118,7 @@ if (!scratchPatchEvidenceMatches(scratch.patched_files, validatedPatch.files)) {
 
 const canonicalPatchFiles = [...validatedPatch.files].sort((a, b) => a.path.localeCompare(b.path));
 const digest = createHash("sha256")
-  .update(JSON.stringify(canonicalPatchFiles))
+  .update(baseCommit + "\\n" + JSON.stringify(canonicalPatchFiles))
   .digest("hex")
   .slice(0, 12);
 const branch = "ai-task/issue-" + issueNumber + "-" + digest;
