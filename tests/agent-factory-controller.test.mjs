@@ -294,8 +294,8 @@ test("candidate success callback recovers when the system-breaker write fails af
   assert.equal(recovered.state.system.consecutive_failures, 0);
 });
 
-test("candidate failure callback recovers when the requeue write fails after rejection is persisted", async () => {
-  const store = fakeStore(awaitingCandidate(), { failWriteAt: 3 });
+test("candidate failure callback recovers after a transient durable-state write failure", async () => {
+  const store = fakeStore(awaitingCandidate(), { failWriteAt: 2 });
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
   await startCandidate(controller, "555004");
   const env = {
@@ -309,13 +309,16 @@ test("candidate failure callback recovers when the requeue write fails after rej
     FAILURE_SUMMARY: "lint failed",
   };
   await assert.rejects(controller.run(env), /injected state write failure/);
-  assert.equal(store.state.tasks["42"].status, "candidate_rejected");
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
 
   const recovered = await controller.run(env);
-  assert.equal(recovered.outputs.duplicate, true);
+  assert.equal(recovered.outputs.duplicate, false);
   assert.equal(recovered.state.tasks["42"].status, "candidate_rejected");
   assert.equal(recovered.state.tasks["42"].candidate_status, "failure");
   assert.ok(Date.parse(recovered.state.tasks["42"].next_attempt_at) > 3000);
+  const duplicate = await controller.run(env);
+  assert.equal(duplicate.outputs.duplicate, true);
+  assert.equal(duplicate.state.state_version, recovered.state.state_version);
 });
 
 
