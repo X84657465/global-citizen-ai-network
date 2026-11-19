@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { scratchPatchEvidenceMatches } from "../lib/agent-scratch-evidence.mjs";
 
 const fail = (message) => {
   console.error("Agent PR publishing rejected: " + message);
@@ -51,7 +52,7 @@ if (planArtifact?.execution_mode !== "validated_plan_only" ||
     planArtifact?.safety?.no_commands_or_model_code_executed !== true) {
   fail("Only a validated read-only plan can authorize publication.");
 }
-if (scratch?.schema_version !== 1 ||
+if (scratch?.schema_version !== 2 ||
     scratch?.repository_files_modified !== false ||
     scratch?.generated_code_executed !== false ||
     typeof scratch.base_commit !== "string" ||
@@ -108,16 +109,8 @@ try {
   fail(error instanceof Error ? error.message : "Patch revalidation failed.");
 }
 
-const scratchFiles = scratch.patched_files.map((file) => ({
-  path: file.path,
-  operation: file.operation,
-})).sort((a, b) => a.path.localeCompare(b.path));
-const patchFiles = validatedPatch.files.map((file) => ({
-  path: file.path,
-  operation: file.operation,
-})).sort((a, b) => a.path.localeCompare(b.path));
-if (JSON.stringify(scratchFiles) !== JSON.stringify(patchFiles)) {
-  fail("Scratch test evidence does not match the validated patch manifest.");
+if (!scratchPatchEvidenceMatches(scratch.patched_files, validatedPatch.files)) {
+  fail("Scratch test evidence does not match the exact validated patch content.");
 }
 
 const digest = createHash("sha256")
