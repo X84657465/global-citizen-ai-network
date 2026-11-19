@@ -37,10 +37,12 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      issues: read
       pull-requests: read
     outputs:
       is_current_head: ${{ steps.resolve.outputs.is_current_head }}
       is_task_pr: ${{ steps.resolve.outputs.is_task_pr }}
+      state_issue_number: ${{ steps.resolve.outputs.state_issue_number }}
       issue_number: ${{ steps.resolve.outputs.issue_number }}
       pull_request_number: ${{ steps.resolve.outputs.pull_request_number }}
       head_sha: ${{ steps.resolve.outputs.head_sha }}
@@ -68,6 +70,8 @@ jobs:
       contents: read
       issues: write
       pull-requests: read
+    env:
+      AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max
@@ -351,6 +355,7 @@ jobs:
       issues: write
       pull-requests: read
     env:
+      AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
       CI_FAILURE_SCOPE: ${{ (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
     steps:
       - name: Checkout tested revision
@@ -414,6 +419,8 @@ jobs:
       contents: read
       issues: write
       pull-requests: read
+    env:
+      AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
     steps:
       - name: Checkout tested revision
         uses: actions/checkout@v5
