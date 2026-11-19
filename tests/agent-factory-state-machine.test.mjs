@@ -347,3 +347,16 @@ test("quarantines a task after three distinct candidate CI rejections", () => {
     }
   }
 });
+
+
+test("quarantine transitions set both the status and quarantine flag", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "quarantined", {}, 1100);
+  assert.equal(state.active_task, null);
+  assert.equal(state.tasks["42"].status, "quarantined");
+  assert.equal(state.tasks["42"].quarantined, true);
+  assert.throws(
+    () => reserveTask(state, metadata({ lease_id: "lease-blocked", workflow_run_id: "run-blocked" }), 1200),
+    /quarantined/,
+  );
+});
