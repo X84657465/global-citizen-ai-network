@@ -8,6 +8,7 @@ const safePlan = { execution_mode: "validated_plan_only", ai_execution_enabled: 
   { id: "patch", role: "implementer", action: "propose_patch", title: "Propose documentation", acceptance_criteria: ["Stay within scope"], depends_on: ["inspect"], allowed_paths: ["docs/example.md"], max_output_bytes: 8192 },
   { id: "verify", role: "tester", action: "validate_patch", title: "Verify proposed patch", acceptance_criteria: ["Check acceptance criteria"], depends_on: ["patch"], allowed_paths: [], max_output_bytes: 4096 },
 ] };
+
 test("approves bounded plans only for sandbox validation", () => {
   const result = evaluateAgentDecision(safePlan, task);
   assert.equal(result.decision, "approve_for_sandbox_validation");
@@ -21,10 +22,17 @@ test("rejects plans missing implementation or verification", () => {
   assert.ok(result.blockers.includes("implementation_present"));
   assert.ok(result.blockers.includes("verification_present"));
 });
-test("rejects production-risk scope", () => {
+test("rejects production-risk scope in task descriptions", () => {
   const result = evaluateAgentDecision({ ...safePlan, tasks: [...safePlan.tasks, { ...safePlan.tasks[0], id: "deploy", title: "Deploy to production" }] }, task);
   assert.equal(result.decision, "reject_and_replan");
   assert.ok(result.blockers.includes("no_high_risk_scope"));
+});
+test("rejects sensitive target paths even when task wording looks harmless", () => {
+  const sensitiveTask = { allowed_paths: ["app/api/auth/route.ts"] };
+  const result = evaluateAgentDecision(safePlan, sensitiveTask);
+  assert.equal(result.decision, "reject_and_replan");
+  assert.ok(result.blockers.includes("no_high_risk_scope"));
+  assert.equal(result.evidence.high_risk_scope_detected, true);
 });
 test("rejects plans without the data-only execution boundary", () => {
   const result = evaluateAgentDecision({ ...safePlan, ai_execution_enabled: true }, task);
