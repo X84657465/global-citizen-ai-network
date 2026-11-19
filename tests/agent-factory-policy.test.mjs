@@ -2,30 +2,73 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
 
-test("third consecutive failure activates a fifteen-minute cooldown and task skip is per issue", () => {
+test("task-scoped failures quarantine only their issue and never increment the global breaker", () => {
   const now = Date.parse("2026-11-19T00:00:00.000Z");
-  const first = nextFailureState({}, "first", now);
-  const second = nextFailureState(first, "second", now + 1000);
-  const third = nextFailureState(second, "third", now + 2000, 123);
+  const previous = { consecutive_failures: 2, cooldown_until: null, task_failures: { "456": 1 }, skipped_issue_numbers: [] };
+  const first = nextFailureState(previous, "invalid task spec", now, 123, "task");
+  const second = nextFailureState(first, "invalid task spec", now + 1000, 123, "task");
+  const third = nextFailureState(second, "invalid task spec", now + 2000, 123, "task");
+
   assert.equal(FAILURE_THRESHOLD, 3);
+  assert.equal(third.consecutive_failures, 2);
+  assert.equal(third.cooldown_until, null);
+  assert.equal(third.task_failures["123"], 3);
+  assert.equal(third.task_failures["456"], 1);
+  assert.deepEqual(third.skipped_issue_numbers, [123]);
+  assert.equal(cooldownActive(third, now + 3000), false);
+});
+
+test("system-scoped failures activate the global cooldown and preserve task quarantine state", () => {
+  const now = Date.parse("2026-11-19T00:00:00.000Z");
+  const previous = { task_failures: { "123": 2 }, skipped_issue_numbers: [123] };
+  const first = nextFailureState(previous, "runner offline", now, 123, "system");
+  const second = nextFailureState(first, "runner offline", now + 1000, 123, "system");
+  const third = nextFailureState(second, "runner offline", now + 2000, 123, "system");
+
   assert.equal(third.consecutive_failures, 3);
-  assert.equal(third.task_failures["123"], 1);
-  const secondTaskFailure = nextFailureState(third, "again", now + 3000, 123);
-  const thirdTaskFailure = nextFailureState(secondTaskFailure, "again", now + 4000, 123);
-  assert.deepEqual(thirdTaskFailure.skipped_issue_numbers, [123]);
+  assert.equal(third.task_failures["123"], 2);
+  assert.deepEqual(third.skipped_issue_numbers, [123]);
   assert.equal(Date.parse(third.cooldown_until), now + 2000 + COOLDOWN_MS);
   assert.equal(cooldownActive(third, now + 3000), true);
   assert.equal(cooldownActive(third, now + 2000 + COOLDOWN_MS + 1), false);
 });
 
-test("success resets consecutive failures and only clears the completed issue's retry history", () => {
-  const previous = { consecutive_failures: 2, cooldown_until: "2026-11-19T00:20:00.000Z", task_failures: { "12": 2, "13": 1 }, skipped_issue_numbers: [12], last_error: "old" };
-  const reset = successState(1234, previous, 12);
-  assert.equal(reset.consecutive_failures, 0);
-  assert.equal(reset.cooldown_until, null);
+test("task-scoped success clears only that task and leaves the global breaker untouched", () => {
+  const previous = {
+    consecutive_failures: 2,
+    cooldown_until: "2026-11-19T00:20:00.000Z",
+    task_failures: { "12": 2, "13": 1 },
+    skipped_issue_numbers: [12],
+    last_error: "shared infrastructure failure",
+  };
+  const reset = successState(1234, previous, 12, "task");
+
+  assert.equal(reset.consecutive_failures, 2);
+  assert.equal(reset.cooldown_until, previous.cooldown_until);
+  assert.equal(reset.last_error, previous.last_error);
   assert.deepEqual(reset.task_failures, { "13": 1 });
   assert.deepEqual(reset.skipped_issue_numbers, []);
-  assert.equal(reset.last_error, null);
+});
+
+test("system-scoped success resets only the global breaker and preserves task retry history", () => {
+  const previous = {
+    consecutive_failures: 4,
+    cooldown_until: "2026-11-19T00:20:00.000Z",
+    task_failures: { "12": 2 },
+    skipped_issue_numbers: [12],
+  };
+  const reset = successState(1234, previous, null, "system");
+
+  assert.equal(reset.consecutive_failures, 0);
+  assert.equal(reset.cooldown_until, null);
+  assert.deepEqual(reset.task_failures, { "12": 2 });
+  assert.deepEqual(reset.skipped_issue_numbers, [12]);
+});
+
+test("task-scoped state transitions require an issue number and an explicit supported scope", () => {
+  assert.throws(() => nextFailureState({}, "invalid", 1, null, "task"), /valid issue number/);
+  assert.throws(() => successState(1, {}, null, "task"), /valid issue number/);
+  assert.throws(() => nextFailureState({}, "invalid", 1, 1, "unknown"), /scope/);
 });
 
 test("API cooldown honors numeric Retry-After seconds", () => {
