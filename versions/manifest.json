@@ -20,8 +20,8 @@
     },
     "D": {
       "name": "Deep Neural",
-      "version": "0.1.0",
-      "status": "architecture-started"
+      "version": "0.2.0",
+      "status": "implementation-candidate"
     }
   },
   "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR."
