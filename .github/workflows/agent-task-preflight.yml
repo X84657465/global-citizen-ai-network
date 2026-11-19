@@ -453,6 +453,7 @@ jobs:
       (github.event_name == 'repository_dispatch' &&
        github.event.action == 'ai-task-next')
     permissions:
+      actions: read
       contents: write
       issues: write
       pull-requests: write
