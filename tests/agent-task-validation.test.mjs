@@ -71,6 +71,12 @@ test("rejects non-bullet sections and path traversal", () => {
   assert.throws(() => validateAndBuildTask(traversal, "X84657465/global-citizen-ai-network"), /Path traversal/);
 });
 
+test("accepts safe Next.js dynamic route segments in explicitly allowed paths", () => {
+  const body = validIssue().body.replace("app/settings/page.tsx", "app/api/conversations/[id]/route.ts");
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, ["app/api/conversations/[id]/route.ts", "tests/settings-page.test.ts"]);
+});
+
 test("rejects protected roots, dotfiles, duplicate paths, and backslashes", () => {
   for (const unsafePath of [
     ".github/workflows/build.yml",
@@ -110,4 +116,15 @@ test("accepts only explicitly planner-marked automation-authored issues", () => 
     () => validateAndBuildTask(validIssue({ user: { login: "github-actions[bot]" } }), "X84657465/global-citizen-ai-network"),
     /repository-owner tasks or explicitly planner-generated tasks/,
   );
+});
+
+
+test("accepts an optional P0-P3 priority section without weakening required sections", () => {
+  const issue = validIssue({ body: validIssue().body.replace("## Goal", "## Priority\nP0 — security gate\n\n## Goal") });
+  const task = validateAndBuildTask(issue, "X84657465/global-citizen-ai-network");
+  assert.equal(task.priority, "P0 — security gate");
+  const duplicate = validIssue({ body: issue.body + "\n## Priority\nP1" });
+  assert.throws(() => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"), /Duplicate section/);
+  const invalid = validIssue({ body: validIssue().body.replace("## Goal", "## Priority\nUrgent\n\n## Goal") });
+  assert.throws(() => validateAndBuildTask(invalid, "X84657465/global-citizen-ai-network"), /P0-P3/);
 });
