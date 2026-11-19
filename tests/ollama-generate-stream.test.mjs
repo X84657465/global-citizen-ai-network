@@ -105,3 +105,17 @@ test("validates the NDJSON line-size limit", async () => {
     /positive safe integer/,
   );
 });
+
+test("rejects malformed UTF-8 even when an invalid sequence spans stream chunks", async () => {
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new Uint8Array([123, 34, 114, 101, 115, 112, 111, 110, 115, 101, 34, 58, 34, 0xc3]));
+      controller.enqueue(new Uint8Array([0x28, 34, 44, 34, 100, 111, 110, 101, 34, 58, 116, 114, 117, 101, 125, 10]));
+      controller.close();
+    },
+  });
+  await assert.rejects(
+    collectOllamaGenerateStream(body),
+    /invalid UTF-8/,
+  );
+});
