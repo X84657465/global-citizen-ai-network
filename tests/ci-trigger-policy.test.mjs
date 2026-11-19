@@ -35,14 +35,15 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
   }
 });
 
-test("preflight and Runner smoke workflows share the bounded Runner queue", () => {
-  assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "preflight synthetic validation must run on the active development branch");
-  assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must be runnable on the active development branch");
-  for (const source of [preflight, runnerSmoke]) {
-    assert.ok(source.includes("group: global-citizen-ai-network-self-hosted-runner"));
-    assert.ok(source.includes("queue: max"));
-    assert.ok(source.includes("cancel-in-progress: false"));
-  }
+test("preflight coalesces redundant poller events while Runner smoke retains the bounded queue", () => {
+  assert.ok(preflight.includes("      - feat/agent-factory-v2\\n"), "preflight synthetic validation must remain available on the active development branch");
+  assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\\n"), "Runner smoke must remain runnable on the active development branch");
+  assert.ok(preflight.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(preflight.includes("cancel-in-progress: false"));
+  assert.equal(preflight.includes("queue: max"), false, "durable preflight polling must coalesce obsolete pending triggers");
+  assert.ok(runnerSmoke.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(runnerSmoke.includes("queue: max"), "explicit Runner smoke jobs must retain their bounded queue");
+  assert.ok(runnerSmoke.includes("cancel-in-progress: false"));
 });
 
 test("every V2 state-writer workflow is serialized by the shared Runner queue", () => {
@@ -60,7 +61,6 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
     const workflowHeader = source.slice(0, jobsMarker);
     const workflowWideQueue =
       workflowHeader.includes("group: global-citizen-ai-network-self-hosted-runner") &&
-      workflowHeader.includes("queue: max") &&
       workflowHeader.includes("cancel-in-progress: false");
 
     const jobsSource = source.slice(jobsMarker + "\njobs:".length);

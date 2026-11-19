@@ -66,10 +66,11 @@ permissions:
   contents: read
   issues: read
 
+# Durable task Issues and state are the source of truth. Keep the active run,
+# but coalesce redundant pending poller events instead of building an unbounded queue.
 concurrency:
   group: global-citizen-ai-network-self-hosted-runner
   cancel-in-progress: false
-  queue: max
 
 jobs:
   validation-tests:
