@@ -52,6 +52,22 @@ Do not delete the Runner's `_work` directory, remove Docker volumes, reset the r
 - Confirm repository Actions settings allow GitHub Actions to create pull requests only if the automated Draft PR publisher is intended to run. Do not enable broader workflow permissions than required.
 - Rotate any credential suspected of exposure; never paste secrets into issues, PRs, logs, chat, or source files.
 
+## Fine-grained token and publisher boundary audit
+
+The preflight workflow currently grants its single `prepare-task` job `contents: write`, `issues: write`, and `pull-requests: write`, while explicitly setting `actions: none`. The permissions are job-scoped, not step-scoped; putting a token only in selected step environments reduces accidental exposure but does not reduce the job's GitHub API authority.
+
+Observed API responsibilities in the current implementation:
+
+- `contents: write`: the deterministic publisher creates/updates the candidate branch and commit before opening a Draft PR.
+- `pull-requests: write`: the publisher opens the task's Draft PR.
+- `issues: write`: the V2 state store creates/updates the durable state Issue; the planner creates task Issues; the publisher posts a task Issue comment.
+- `issues: read`: task preflight reads the selected task Issue; queue selection and state recovery also enumerate Issues.
+- `actions: none`: retained intentionally; the preflight job does not need Actions API write authority.
+
+Candidate code is executed in disposable Docker containers. The workflow does not pass `GITHUB_TOKEN`, `GH_TOKEN`, or `GITHUB_*` environment variables into candidate install/test containers; candidate tests run with `--network none`, `--cap-drop ALL`, and `--read-only`. New regression tests now enforce the token-isolation boundary and ensure credential injection remains in named trusted orchestration/publisher steps.
+
+**Do not claim least-privilege completion yet.** Because GitHub token permissions are job-scoped, the remaining write scopes are still available to trusted steps throughout the combined job. A safe future split should introduce a distinct publisher job with only `contents: write` and `pull-requests: write`, and a state/issue writer with only `issues: write`; read-only preparation should receive only `contents: read` and `issues: read`. The split must explicitly transfer and validate immutable task/plan/patch artifacts, candidate base SHA, lease ID, issue number, runner identity and exact test evidence. It must preserve single-runner serialization, lease recovery, idempotent deterministic branch publication, failure classification, and cleanup. Do not split until integration tests cover cancellation, artifact expiry/tampering, stale base commits, publisher retries, and partial state-write recovery.
+
 ## Backup and rollback
 
 - Before any future Production release, confirm a recent recoverable Supabase backup/PITR point in the Supabase Dashboard and record its timestamp. This runbook does not claim that a backup was created or restore-tested.
