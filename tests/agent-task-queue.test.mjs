@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { taskPriority, compareTaskIssues, sortTaskIssues, isMergedTaskPullRequest, isTaskAlreadyPublished } from "../lib/agent-task-queue.mjs";
 
 const selectorSource = readFileSync(new URL("../scripts/select-agent-task.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const preflightWorkflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 
 const issue = (number, created_at, priority = null) => ({
   number, created_at, body: priority ? "## Priority\n" + priority + "\n\n## Goal\n..." : "## Goal\n...",
@@ -73,4 +74,11 @@ test("task selector applies durable retry eligibility instead of blanket open-PR
   assert.ok(selectorSource.includes("openTaskPrNumbers"));
   assert.ok(selectorSource.includes("mergedTaskIssueNumbers"));
   assert.equal(selectorSource.includes("!alreadyPublished.has(issue.number)"), false);
+});
+
+
+test("workflow supersedes changed candidate branches instead of overwriting an existing PR", () => {
+  assert.ok(preflightWorkflow.includes("$publish.different_candidate_branch -eq $true"));
+  assert.ok(preflightWorkflow.includes('$env:NEXT_TASK_STATE = "superseded"'));
+  assert.ok(preflightWorkflow.includes("Publisher did not return exact candidate commit and PR evidence."));
 });
