@@ -27,6 +27,7 @@ jobs:
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max
+      cancel-in-progress: false
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
@@ -75,6 +76,7 @@ jobs:
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max
+      cancel-in-progress: false
     name: Build, unit tests, type check, lint and production build
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
@@ -182,6 +184,7 @@ jobs:
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max
+      cancel-in-progress: false
     name: Local Supabase migrations, PostgreSQL and RLS tests
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
@@ -331,6 +334,7 @@ jobs:
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max
+      cancel-in-progress: false
     name: Persist candidate or system CI failures
     needs: [resolve-candidate, build, database]
     if: >-
@@ -408,6 +412,7 @@ jobs:
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max
+      cancel-in-progress: false
     name: Persist candidate success or reset system breaker
     needs: [resolve-candidate, build, database]
     if: >-
