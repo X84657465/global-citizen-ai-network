@@ -283,7 +283,7 @@ test("check mode recovers an expired lease only after the workflow is confirmed 
   const store = fakeStore(state);
   const controller = createAgentFactoryController({
     store, repository: "owner/repo", now: () => 62_000,
-    api: { request: async () => ({ status: "completed", conclusion: "failure" }) },
+    api: { request: async () => ({ status: "completed", conclusion: "failure", run_attempt: 1 }) },
   });
   const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, true);
@@ -299,7 +299,7 @@ test("check mode never recovers a lease while its workflow is still running", as
   const store = fakeStore(state);
   const controller = createAgentFactoryController({
     store, repository: "owner/repo", now: () => 62_000,
-    api: { request: async () => ({ status: "in_progress" }) },
+    api: { request: async () => ({ status: "in_progress", run_attempt: 1 }) },
   });
   const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, false);
@@ -335,7 +335,7 @@ test("check mode does not recover an expired lease for an unknown workflow statu
   const store = fakeStore(state);
   const controller = createAgentFactoryController({
     store, repository: "owner/repo", now: () => 62_000,
-    api: { request: async () => ({ status: "unknown" }) },
+    api: { request: async () => ({ status: "unknown", run_attempt: 1 }) },
   });
 
   const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
@@ -345,6 +345,45 @@ test("check mode does not recover an expired lease for an unknown workflow statu
   assert.equal(store.state.state_version, state.state_version);
 });
 
+
+test("check mode refuses to recover an expired lease when GitHub reports a different run attempt", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-attempt-mismatch", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async () => ({ status: "completed", conclusion: "failure", run_attempt: 2 }) },
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.match(result.outputs.recovery_error, /run attempt does not match/);
+  assert.equal(result.state.active_task.lease_id, "lease-attempt-mismatch");
+  assert.equal(result.state.state_version, state.state_version);
+  assert.equal(store.state.state_version, state.state_version);
+});
+
+test("check mode fails closed when GitHub omits the workflow run attempt", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-attempt-missing", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async () => ({ status: "completed", conclusion: "failure" }) },
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.match(result.outputs.recovery_error, /run attempt does not match/);
+  assert.equal(result.state.active_task.lease_id, "lease-attempt-missing");
+  assert.equal(store.state.state_version, state.state_version);
+});
 
 test("transition mode remains idempotent after awaiting_ci has released the worker lease", async () => {
   const store = fakeStore(awaitingCandidate());
