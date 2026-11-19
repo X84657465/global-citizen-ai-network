@@ -6,7 +6,7 @@ The scheduler turns the validated task workflow into a bounded queue worker. It 
 
 ## Execution model
 
-- GitHub Actions schedules a queue scan every 30 minutes.
+- GitHub Actions schedules a queue scan every 5 minutes.
 - The worker runs on the Windows self-hosted runner and uses the local Ollama API.
 - Each scheduled cycle selects at most one eligible task, ordered oldest first.
 - Eligible tasks are open issues titled `[AI Task]`, authored by the repository owner, and not already represented by a task PR.
@@ -38,3 +38,17 @@ Until the workflow is merged, this scheduler code is present only in the feature
 ## Operational behavior
 
 A 30-minute schedule is a queue polling interval, not a promise that a task completes within 30 minutes. GitHub may delay scheduled events. If the PC is offline, jobs wait for an eligible runner; they do not execute locally while the PC is powered off.
+
+
+## CI validation event matrix
+
+The full CI workflow is intentionally triggered by one event for each normal code change:
+
+| Event | Validation behavior |
+| --- | --- |
+| Push to `main` | Run the full CI suite for the new main commit. |
+| Pull request opened, reopened, or synchronized | Run the full CI suite for the current PR head SHA. |
+| Explicit `repository_dispatch: ai-task-ci` | Re-run validation for the supplied PR number and exact head SHA when an already-open task PR needs an explicit recheck. |
+| Push to a `codex/*` branch | Does not independently start the full CI suite; the PR lifecycle event validates the commit. |
+
+When the factory creates a new Draft PR, it relies on the GitHub `pull_request: opened` event and does not send a second `ai-task-ci` dispatch for the same SHA. When the publisher finds an already-open PR for the task, it keeps the explicit dispatch path so the current head can be revalidated on request. Per-PR concurrency coalesces superseded pending commits without cancelling an in-progress validation or unrelated queued PRs.
