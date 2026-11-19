@@ -80,14 +80,6 @@ async function inferFailedIssueNumber() {
     return null;
   }
 }
-if (mode === "check" && cooldownActive(localState)) {
-  writeOutput("cooldown_active", true);
-  writeOutput("cooldown_until", localState.cooldown_until);
-  writeOutput("skipped_issues", (localState.skipped_issue_numbers ?? []).join(","));
-  console.log("Local circuit breaker active until " + localState.cooldown_until + "; skipped GitHub API calls and task work.");
-  process.exit(0);
-}
-
 try {
   const allIssues = await listIssues("all");
   const stateIssue = allIssues.find(isStateIssue);

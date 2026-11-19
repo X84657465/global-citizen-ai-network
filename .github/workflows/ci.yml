@@ -26,6 +26,8 @@ defaults:
 jobs:
   build:
     name: Build, unit tests, type check, lint and production build
+    outputs:
+      failure_scope: ${{ steps.classify-failure.outputs.scope }}
     if: >-
       (github.event_name == 'push' && github.actor == github.repository_owner) ||
       (github.event_name == 'pull_request' &&
@@ -53,10 +55,12 @@ jobs:
           node --version
           npm --version
       - name: Migration filename safety guard
+        id: migration-guard
         run: node scripts/check-migration-versions.mjs
       - name: Install dependencies
         run: npm ci
       - name: Schema safety guard
+        id: schema-guard
         run: node scripts/check-schema.mjs
       - name: Production dependency security audit
         run: npm audit --omit=dev --audit-level=high
@@ -64,16 +68,41 @@ jobs:
         run: npm audit --audit-level=high
         continue-on-error: true
       - name: Unit tests
+        id: unit-tests
         run: npm run test:unit
       - name: Type check
+        id: type-check
         run: npx --no-install tsc --noEmit
       - name: Lint
+        id: lint
         run: npm run lint
       - name: Build production app
+        id: production-build
         run: npm run build
+      - name: Classify build failure scope
+        id: classify-failure
+        if: failure()
+        env:
+          MIGRATION_GUARD: ${{ steps.migration-guard.outcome }}
+          SCHEMA_GUARD: ${{ steps.schema-guard.outcome }}
+          UNIT_TESTS: ${{ steps.unit-tests.outcome }}
+          TYPE_CHECK: ${{ steps.type-check.outcome }}
+          LINT: ${{ steps.lint.outcome }}
+          PRODUCTION_BUILD: ${{ steps.production-build.outcome }}
+        run: |
+          $taskOutcomes = @($env:MIGRATION_GUARD, $env:SCHEMA_GUARD, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
+          if ($taskOutcomes -contains "failure") {
+            "scope=task" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            Write-Host "Build failure is attributable to task validation."
+          } else {
+            "scope=system" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            Write-Host "Build failure occurred before task validation; classify as system/runner failure."
+          }
 
   database:
     name: Local Supabase migrations, PostgreSQL and RLS tests
+    outputs:
+      failure_scope: ${{ steps.classify-failure.outputs.scope }}
     if: >-
       (github.event_name == 'push' && github.actor == github.repository_owner) ||
       (github.event_name == 'pull_request' &&
@@ -175,6 +204,7 @@ jobs:
           supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
           if ($LASTEXITCODE -ne 0) { throw "Local Supabase services failed to start or migrations failed." }
       - name: Run PostgreSQL and RLS tests
+        id: database-tests
         run: |
           supabase test db
           if ($LASTEXITCODE -ne 0) { throw "PostgreSQL or RLS tests failed." }
@@ -182,6 +212,19 @@ jobs:
         if: always() && steps.supabase-start.outcome != 'skipped'
         continue-on-error: true
         run: supabase stop --no-backup
+      - name: Classify database failure scope
+        id: classify-failure
+        if: failure()
+        env:
+          DATABASE_TESTS: ${{ steps.database-tests.outcome }}
+        run: |
+          if ($env:DATABASE_TESTS -eq "failure") {
+            "scope=task" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            Write-Host "Database/RLS assertion failure is attributable to the task."
+          } else {
+            "scope=system" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            Write-Host "Supabase startup, migration application, or runner failure is system-scoped."
+          }
 
 
   auto-merge-ai-task:
@@ -367,5 +410,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: failure
+          AGENT_FACTORY_FAILURE_SCOPE: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') && contains(github.event.pull_request.body, '<!-- ai-task:') && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
+          FAILED_ISSUE_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') && contains(github.event.pull_request.body, '<!-- ai-task:') && github.event.pull_request.body || '' }}
           FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database job logs."
         run: node scripts/agent-factory-controller.mjs
