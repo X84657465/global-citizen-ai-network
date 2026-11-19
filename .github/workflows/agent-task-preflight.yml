@@ -588,13 +588,13 @@ jobs:
         run: node scripts/publish-agent-patch.mjs
 
       - name: Reset circuit breaker after successful task publication
-        if: success() && steps.select-task.outputs.issue_number != ''
+        if: success() && (steps.select-task.outputs.issue_number != '' || (github.event_name == 'workflow_dispatch' && inputs.issue_number != ''))
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: success
           AGENT_FACTORY_SUCCESS_SCOPE: task
-          COMPLETED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number }}
+          COMPLETED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-controller.mjs
 
@@ -618,7 +618,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: failure
-          FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number }}
+          FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
           FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-controller.mjs
