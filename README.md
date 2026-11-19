@@ -3,7 +3,7 @@
 
 A people-powered AI ecosystem: useful AI services, verified human contributions, transparent rewards, and—later—opt-in distributed compute.
 
-## Project status
+## Five-track project navigation\n\nGCAN is developed through five independently versioned workstreams. The current visual architecture and shared engineering governance are maintained in the [five-track project overview](https://github.com/X84657465/global-citizen-ai-network/blob/feat/github-project-showcase/README.md).\n\n- [A — Agent Factory V2](https://github.com/X84657465/global-citizen-ai-network/pull/134)\n- [B — GCAN Product](https://github.com/X84657465/global-citizen-ai-network/pull/137)\n- [C — Predictive Coding](https://github.com/X84657465/global-citizen-ai-network/pull/139)\n- [D — Deep Neural](https://github.com/X84657465/global-citizen-ai-network/pull/140)\n- [E — Deep Research](https://github.com/X84657465/global-citizen-ai-network/pull/141)\n\n## Project status
 
 **Phase:** Foundation / MVP scaffolding  
 **Status:** Early development; not production-ready.
