@@ -52,7 +52,7 @@
 - **目前開發主線：** `feat/agent-factory-v2`
 - **Agent Factory V2：** [PR #134（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/134)
 - **GCAN 產品線：** [PR #137（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/137)
-- **GitHub 專案展示線：** [專案展示分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)（PR 建立後補上連結）
+- **GitHub 專案展示線：** [PR #139（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
 - **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
 
