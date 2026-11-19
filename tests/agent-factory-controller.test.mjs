@@ -272,3 +272,41 @@ test("candidate failure callback recovers when the requeue write fails after rej
   assert.equal(recovered.outputs.duplicate, true);
   assert.equal(recovered.state.tasks["42"].status, "queued");
 });
+
+
+test("candidate-start binds one PR head SHA and exact CI run attempt idempotently", async () => {
+  const store = fakeStore(awaitingCandidate());
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const env = {
+    AGENT_FACTORY_MODE: "candidate-start",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "c".repeat(40),
+    HEAD_REF: "ai-task/issue-42-updated",
+    CI_RUN_ID: "555005",
+    CI_RUN_ATTEMPT: "2",
+  };
+  const first = await controller.run(env);
+  const duplicate = await controller.run(env);
+  assert.equal(first.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(first.state.tasks["42"].head_sha, "c".repeat(40));
+  assert.equal(first.state.tasks["42"].ci_run_id, "555005");
+  assert.equal(first.state.tasks["42"].ci_run_attempt, 2);
+  assert.equal(duplicate.outputs.duplicate, true);
+  assert.equal(duplicate.state.state_version, first.state.state_version);
+});
+
+test("candidate outcome from a stale CI run attempt is rejected", async () => {
+  const store = fakeStore(awaitingCandidate());
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  await startCandidate(controller, "555006");
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    CI_CONCLUSION: "failure",
+    CI_RUN_ID: "555007",
+    CI_RUN_ATTEMPT: "1",
+  }), /exact candidate SHA, PR, CI run ID/);
+});
