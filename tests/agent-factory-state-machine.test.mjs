@@ -363,12 +363,12 @@ test("candidate failure also requires exact CI run ID and positive run attempt",
 test("quarantines a task after three distinct candidate CI rejections", () => {
   let state = createInitialFactoryState(1000);
   for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const start = 1000 + attempt * 100_000;
     state = reserveTask(state, metadata({
       lease_id: "lease-candidate-" + attempt,
       workflow_run_id: "run-candidate-" + attempt,
       run_attempt: attempt,
-    }), 1000 + attempt * 10_000);
-    const start = 1000 + attempt * 100_000;
+    }), start);
     state = move(state, 42, "preparing", {}, start + 100);
     state = move(state, 42, "planning", {}, start + 200);
     state = move(state, 42, "patching", {}, start + 300);
