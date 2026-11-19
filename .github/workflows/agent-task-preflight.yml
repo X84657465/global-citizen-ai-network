@@ -490,6 +490,9 @@ jobs:
            github.event_name == 'repository_dispatch' ||
            github.event_name == 'issues') &&
           steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '' &&
+          steps.factory-gate.outputs.pending_tasks == '0' &&
+          steps.select-task.outputs.blocked_by_dependencies == '0' &&
+          steps.select-task.outputs.open_task_prs == '0' &&
           steps.select-task.outputs.issue_number == ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
