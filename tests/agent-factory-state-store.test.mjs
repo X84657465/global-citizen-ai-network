@@ -145,7 +145,7 @@ test("recovers an ambiguous state Issue update after GitHub persisted the PATCH 
   let losePatchResponse = true;
   fake.client.request = async (path, options = {}) => {
     const result = await originalRequest(path, options);
-    if (/\\/issues\\/\\d+$/.test(path) && options.method === "PATCH" && losePatchResponse) {
+    if (/\/issues\/\d+$/.test(path) && options.method === "PATCH" && losePatchResponse) {
       losePatchResponse = false;
       throw new Error("simulated connection reset after GitHub persisted the PATCH");
     }
