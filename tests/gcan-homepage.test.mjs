@@ -98,6 +98,7 @@ test("public homepage provides visible keyboard focus and respects reduced-motio
   assert.match(homeCss, /transition: none !important/);
   const reducedMotionCss = homeCss.slice(homeCss.indexOf("@media (prefers-reduced-motion: reduce)"));
   assert.ok(reducedMotionCss.includes(".pillarCard:hover"));
+  assert.ok(reducedMotionCss.includes(".nav a"));
   assert.ok(reducedMotionCss.includes("transform: none;"));
 });
 
