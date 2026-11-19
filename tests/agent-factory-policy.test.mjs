@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
 
 test("third consecutive failure activates a fifteen-minute cooldown and task skip is per issue", () => {
@@ -60,4 +61,16 @@ test("planner emits finite deduplicated four-section Runner tasks", () => {
   assert.ok(next);
   titles.push(next.title);
   assert.equal(nextPlannerTask(titles), null);
+});
+
+
+test("AI task publisher requires explicit human approval and never promises automatic merge", () => {
+  const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8");
+  assert.ok(publisher.includes('merge_policy: "human_approval_required"'));
+  assert.ok(publisher.includes("automatic_merge: false"));
+  assert.ok(publisher.includes("a human must review and explicitly approve the PR before any merge"));
+  assert.ok(publisher.includes("A human must review and explicitly merge the pull request."));
+  assert.equal(publisher.includes("automatic_merge_policy"), false);
+  assert.equal(publisher.includes("ci_gated_squash"), false);
+  assert.equal(/will be squash-merged automatically/i.test(publisher), false);
 });
