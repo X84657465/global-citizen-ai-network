@@ -33,6 +33,25 @@ test("creates a valid versioned empty state", () => {
   assert.equal(validateFactoryState(state), true);
 });
 
+test("validates workflow identity and base revision across the active lease and task record", () => {
+  const reserved = reserveTask(createInitialFactoryState(1000), metadata(), 2000);
+  const corruptions = [
+    ["missing workflow run ID", state => { state.active_task.workflow_run_id = ""; }],
+    ["invalid workflow attempt", state => { state.active_task.run_attempt = 0; }],
+    ["invalid base SHA", state => { state.active_task.base_sha = "not-a-sha"; }],
+    ["missing idempotency key", state => { state.active_task.idempotency_key = ""; }],
+    ["mismatched task workflow ID", state => { state.tasks["42"].workflow_run_id = "different-run"; }],
+    ["mismatched task attempt", state => { state.tasks["42"].run_attempt = 2; }],
+    ["mismatched task base SHA", state => { state.tasks["42"].base_sha = "b".repeat(40); }],
+  ];
+
+  for (const [label, corrupt] of corruptions) {
+    const invalid = JSON.parse(JSON.stringify(reserved));
+    corrupt(invalid);
+    assert.throws(() => validateFactoryState(invalid), /Active task lease is invalid/, label);
+  }
+});
+
 test("rejects invalid system breaker counters and timestamps", () => {
   const invalidCounter = createInitialFactoryState(1000);
   invalidCounter.system.consecutive_failures = -1;
