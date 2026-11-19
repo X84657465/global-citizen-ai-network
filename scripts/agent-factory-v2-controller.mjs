@@ -32,11 +32,19 @@ async function main() {
     maxRetries: 2,
     maxInlineRetryDelayMs: 30_000,
   });
-  const store = createFactoryStateStore(api, { repository });
+  const store = createFactoryStateStore(api, {
+    repository,
+    issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
+  });
   const controller = createAgentFactoryController({ store, api, repository });
   const result = await controller.run(process.env);
 
   for (const [key, value] of Object.entries(result.outputs ?? {})) writeOutput(key, value);
+  const stateIssueNumber = store.getStateIssueNumber();
+  if (stateIssueNumber) {
+    writeOutput("state_issue_number", stateIssueNumber);
+    writeEnv("AGENT_FACTORY_STATE_ISSUE_NUMBER", stateIssueNumber);
+  }
   if (result.mode === "reserve" && result.outputs?.lease_id) {
     writeEnv("AGENT_FACTORY_LEASE_ID", result.outputs.lease_id);
   }
