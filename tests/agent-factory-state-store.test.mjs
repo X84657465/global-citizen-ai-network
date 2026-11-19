@@ -61,6 +61,26 @@ test("rejects stale state writers instead of overwriting a newer version", async
   await assert.rejects(store.write(0, stale), /version conflict/);
 });
 
+test("serializes concurrent writes from one store instance and prevents duplicate state Issues", async () => {
+  const fake = fakeApi();
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const initial = createInitialFactoryState(1000);
+  const first = recordSystemFailure(initial, "run-concurrent-first-1", "ERR_FIRST", "first", 2000).state;
+  const second = recordSystemFailure(initial, "run-concurrent-second-1", "ERR_SECOND", "second", 3000).state;
+
+  const results = await Promise.allSettled([
+    store.write(0, first),
+    store.write(0, second),
+  ]);
+
+  assert.equal(results.filter((result) => result.status === "fulfilled").length, 1);
+  assert.equal(results.filter((result) => result.status === "rejected" && /version conflict/.test(result.reason.message)).length, 1);
+  assert.equal(fake.issues.length, 1);
+  const persisted = await store.read();
+  assert.equal(persisted.state.state_version, 1);
+  assert.ok(["ERR_FIRST", "ERR_SECOND"].includes(persisted.state.system.last_error_code));
+});
+
 test("fails closed when multiple state Issues are present", async () => {
   const body = "Machine-managed V2 factory state. <!-- agent-factory-state:" + Buffer.from(JSON.stringify(createInitialFactoryState())).toString("base64") + " -->";
   const fake = fakeApi([{ number: 1, title: FACTORY_STATE_ISSUE_TITLE, body }, { number: 2, title: FACTORY_STATE_ISSUE_TITLE, body }]);
