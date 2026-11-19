@@ -215,6 +215,45 @@ test("check mode never recovers a lease while its workflow is still running", as
   assert.equal(result.state.active_task.lease_id, "lease-running");
 });
 
+test("check mode fails closed when the workflow status API is unavailable", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-api-down", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state);
+  const requestedPaths = [];
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async (path) => { requestedPaths.push(path); throw new Error("GitHub Actions API unavailable"); } },
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.deepEqual(requestedPaths, ["/repos/owner/repo/actions/runs/123456"]);
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.match(result.outputs.recovery_error, /API unavailable/);
+  assert.equal(result.state.active_task.lease_id, "lease-api-down");
+  assert.equal(store.state.state_version, state.state_version);
+});
+
+test("check mode does not recover an expired lease for an unknown workflow status", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-unknown-status", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async () => ({ status: "unknown" }) },
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.equal(result.state.active_task.lease_id, "lease-unknown-status");
+  assert.equal(store.state.state_version, state.state_version);
+});
+
 
 test("transition mode remains idempotent after awaiting_ci has released the worker lease", async () => {
   const store = fakeStore(awaitingCandidate());
