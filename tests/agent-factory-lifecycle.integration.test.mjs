@@ -132,7 +132,7 @@ test("persists the complete worker-to-candidate lifecycle across controller rest
     ISSUE_NUMBER: String(issueNumber),
     PULL_REQUEST_NUMBER: "88",
     HEAD_SHA: candidateSha,
-    HEAD_REF: "ai-task/issue-42-lifecycle",
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_RUN_ID: "800001",
     CI_RUN_ATTEMPT: "1",
   });
@@ -225,7 +225,7 @@ test("durable scheduler survives a 24-hour multi-task lifecycle soak with idempo
       ISSUE_NUMBER: String(issue),
       PULL_REQUEST_NUMBER: String(pullRequestNumber),
       HEAD_SHA: headSha,
-      HEAD_REF: "ai-task/issue-" + issue + "-soak",
+      HEAD_REF: "ai-task/issue-" + issue + "-" + index.toString(16).padStart(12, "0"),
       CI_RUN_ID: ciRunId,
       CI_RUN_ATTEMPT: "1",
     });
@@ -310,7 +310,7 @@ test("candidate failure recovers through backoff and retries the same open PR wi
     ISSUE_NUMBER: String(issue),
     PULL_REQUEST_NUMBER: String(pullRequestNumber),
     HEAD_SHA: firstSha,
-    HEAD_REF: "ai-task/issue-42-retry",
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_RUN_ID: "820001",
     CI_RUN_ATTEMPT: "1",
   });
@@ -386,7 +386,7 @@ test("candidate failure recovers through backoff and retries the same open PR wi
     ISSUE_NUMBER: String(issue),
     PULL_REQUEST_NUMBER: String(pullRequestNumber),
     HEAD_SHA: secondSha,
-    HEAD_REF: "ai-task/issue-42-retry",
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_RUN_ID: "820002",
     CI_RUN_ATTEMPT: "1",
   });
