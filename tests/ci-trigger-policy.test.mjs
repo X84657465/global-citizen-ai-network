@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 
 test("full CI runs on main pushes and pull-request lifecycle events, not codex branch pushes", () => {
   assert.ok(workflow.includes("  push:\n    branches: [main]\n"));
