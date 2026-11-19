@@ -73,3 +73,15 @@ test("migrates the existing Issue #100 V1 payload without losing failure and qua
   assert.equal(migrated.state.tasks["95"].quarantined, true);
   assert.equal(migrated.state.tasks["95"].status, "quarantined");
 });
+test("persists a V1-to-V2 migration on the existing state Issue", async () => {
+  const legacy = { consecutive_failures: 1, cooldown_until: null, task_failures: { "81": 1 }, skipped_issue_numbers: [], last_error: "old", updated_at: "2026-11-19T05:00:00.000Z" };
+  const body = "Machine-managed scheduler state. <!-- agent-factory-state:" + Buffer.from(JSON.stringify(legacy)).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  assert.equal((await store.read()).migrated, true);
+  const result = await store.migrate();
+  assert.equal(result.migrated, true);
+  assert.equal(result.state.schema_version, 2);
+  assert.equal(result.state.state_version, 1);
+  assert.equal((await store.read()).migrated, false);
+});
