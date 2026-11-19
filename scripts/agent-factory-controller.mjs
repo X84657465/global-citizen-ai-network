@@ -21,6 +21,13 @@ function saveLocalState(value) {
   writeFileSync(localStatePath, JSON.stringify(value, null, 2) + "\n", "utf8");
 }
 const localState = readLocalState();
+if (mode === "check" && cooldownActive(localState)) {
+  writeOutput("cooldown_active", true);
+  writeOutput("cooldown_until", localState.cooldown_until);
+  writeOutput("skipped_issues", (localState.skipped_issue_numbers ?? []).join(","));
+  console.log("Local circuit breaker active until " + localState.cooldown_until + "; skipped GitHub API calls and task work.");
+  process.exit(0);
+}
 let effectiveState = localState;
 const headers = { Accept: "application/vnd.github+json", Authorization: "Bearer " + token, "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" };
 

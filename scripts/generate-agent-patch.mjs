@@ -10,7 +10,10 @@ import { execFileSync } from "node:child_process";
 import { dirname, resolve, sep } from "node:path";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
-const fail = (message) => {
+const fail = (message, scope = "system") => {
+  if (scope === "task" && process.env.GITHUB_ENV) {
+    appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+  }
   console.error("Agent patch generation failed: " + message);
   process.exit(1);
 };
@@ -201,29 +204,29 @@ try {
   fail("Ollama patch response was not valid JSON.");
 }
 if (typeof result.response !== "string" || result.response.length === 0) {
-  fail("Local model returned an empty patch proposal.");
+  fail("Local model returned an empty patch proposal.", "task");
 }
 
 if (result.done_reason === "length") {
   const generated = Number.isInteger(result.eval_count) ? result.eval_count : "unknown";
-  fail("Local model output reached the token limit (" + generated + " generated tokens). Increase the patch output budget or reduce the task scope; incomplete source files are rejected before scratch testing.");
+  fail("Local model output reached the token limit (" + generated + " generated tokens). Increase the patch output budget or reduce the task scope; incomplete source files are rejected before scratch testing.", "task");
 }
 console.log("Ollama patch response completed; model=" + model + ", done_reason=" + (result.done_reason || "not-reported") + ", eval_count=" + (Number.isInteger(result.eval_count) ? result.eval_count : "not-reported"));
 if (Buffer.byteLength(result.response, "utf8") > 256 * 1024) {
-  fail("Local model patch response exceeded the 256 KiB limit.");
+  fail("Local model patch response exceeded the 256 KiB limit.", "task");
 }
 let candidate;
 try {
   candidate = JSON.parse(result.response);
 } catch {
-  fail("Local model did not return a valid JSON patch manifest.");
+  fail("Local model did not return a valid JSON patch manifest.", "task");
 }
 
 let validatedPatch;
 try {
   validatedPatch = validatePatchManifest(candidate, scopedTask, existingPaths);
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Generated patch failed validation.");
+  fail(error instanceof Error ? error.message : "Generated patch failed validation.", "task");
 }
 
 try {

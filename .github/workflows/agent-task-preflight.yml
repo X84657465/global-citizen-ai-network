@@ -601,15 +601,16 @@ jobs:
       - name: Classify known task-scoped failures before updating factory state
         if: failure()
         env:
+          PRECLASSIFIED_SCOPE: ${{ env.AGENT_FACTORY_FAILURE_SCOPE }}
           APPLY_SCRATCH_OUTCOME: ${{ steps.apply-scratch.outcome }}
           CANDIDATE_TESTS_OUTCOME: ${{ steps.candidate-tests.outcome }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
-          if ($env:APPLY_SCRATCH_OUTCOME -eq "failure" -or $env:CANDIDATE_TESTS_OUTCOME -eq "failure") {
+          if ($env:PRECLASSIFIED_SCOPE -eq "task" -or $env:APPLY_SCRATCH_OUTCOME -eq "failure" -or $env:CANDIDATE_TESTS_OUTCOME -eq "failure") {
             [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Classified patch-application or candidate-test failure as task-scoped."
+            Write-Host "Preserved or confirmed task-scoped validation failure."
           } else {
-            Write-Host "No task-scoped step failure was identified; defaulting to system-scoped."
+            Write-Host "No task-scoped failure was identified; defaulting to system-scoped."
           }
 
       - name: Record failed task and activate cooldown after three consecutive failures
@@ -619,7 +620,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: failure
           FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
-          FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
+          FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number || inputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-controller.mjs
 
