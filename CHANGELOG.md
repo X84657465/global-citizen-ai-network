@@ -121,3 +121,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - New exact-head Agent Factory CI required; previous candidate failed because database integration tests were invoked without `SUPABASE_DB_URL`.
+
+## 0.3.4 — 2026-11-20
+
+### Fixed
+- Classify application-level two-member RLS test failures as task validation failures in Agent Factory CI.
+- Synchronize Agent Factory track version to `2.0.3` and overall integration version to `0.3.4`.
+
+### Verification
+- New exact-head CI required.
