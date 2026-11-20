@@ -221,7 +221,7 @@ test("passes the reserved lease ID to the task-failure recorder", () => {
   const controller = readFileSync(new URL("../scripts/agent-factory-v2-controller.mjs", import.meta.url), "utf8");
   assert.match(
     controller,
-    /writeOutput\("lease_id",\s*result\.outputs\.lease_id\)/,
-    "the reserve step must publish lease_id as a GitHub step output before downstream failure handling consumes it"
+    /writeEnv\("AGENT_FACTORY_LEASE_ID",\s*result\.outputs\.lease_id\)/,
+    "the reserve controller must publish the lease ID to GITHUB_ENV for subsequent steps"
   );
 });
