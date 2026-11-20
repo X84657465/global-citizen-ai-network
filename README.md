@@ -38,7 +38,7 @@ GCAN 由 A–P 共 16 條工作線組成。每條線有獨立責任邊界、版�
 | **H** | Observability, Telemetry & Cost/Quota Governance｜可觀測性與成本配額治理 | 監控任務、佇列、Runner 健康度、重試與失敗指標、成本來源、配額門檻及安全暫停告警，避免資源失控。 | 優先開發／候選實作 | `0.1.5` |
 | **I** | Ecosystem, Connectors & Workflow Automation｜生態連接與流程自動化 | 管理外部 API、Webhook、通知與系統狀態同步，提供身分驗證、冪等處理及可安全重播的事件整合。 | 規劃中 | `0.1.0` |
 | **J** | Self-Healing, Chaos & Continuity｜自我修復、混沌測試與持續性 | 設計有界自動復原、熔斷、安全降級、檢查點、備份還原及受控故障注入，驗證系統在故障下仍可安全運作。 | 規劃中 | `0.1.0` |
-| **K** | Knowledge Base, Docs & Governance Playbooks｜知識庫、文件與治理手冊 | 維護架構決策、工作線邊界、操作手冊、交接模板、決策紀錄與故障排除流程，讓知識可追溯、可交接、可持續維護。 | 規劃中 | `0.1.1` |
+| **K** | Knowledge Base, Docs & Governance Playbooks｜知識庫、文件與治理手冊 | 維護架構決策、工作線邊界、操作手冊、交接模板、決策紀錄與故障排除流程，讓知識可追溯、可交接、可持續維護。 | 規劃中 | `0.1.2` |
 | **L** | Multi-Node, Federation & Edge/Cluster Coordination｜多節點聯邦與叢集協調 | 規劃使用者自願加入的節點身分、能力感知排程、租約、防止過期節點寫入的 fencing、健康檢查及跨節點協調。 | 規劃中 | `0.1.0` |
 | **M** | Compliance, Policy Audit & Risk Governance｜合規、政策稽核與風險治理 | 管理行為者與操作稽核紀錄、政策證據、風險清單、限縮例外、有效期限及資料保留控制。 | 規劃中 | `0.1.0` |
 | **N** | Productization, Analytics & Growth/Ecosystem Ops｜產品化、分析與生態營運 | 建立兼顧隱私的產品指標、採用率與品質分析、使用者回饋迴路、引導流程及生態系營運能力。 | 規劃中 | `0.1.0` |
