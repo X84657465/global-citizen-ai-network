@@ -1,3 +1,11 @@
+## 2.0.52 — 2026-11-20
+
+### Fixed — Enforce release-label consistency
+- Align the README release labels and engineering-governance baseline with the authoritative root and Agent Factory version files.
+- Add a CI regression assertion so stale public release labels cannot silently diverge from VERSION and the manifest.
+- No runtime behavior, database schema or production data changes.
+- Exact-head full CI and Windows synthetic preflight are required; no completion is claimed until both pass.
+
 ## 2.0.51 — 2026-11-20
 
 ### Harden — Conversation message ownership and bounded history

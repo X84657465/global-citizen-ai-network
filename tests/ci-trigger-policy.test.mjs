@@ -24,6 +24,15 @@ test("root and Agent Factory numeric release metadata stay synchronized", () => 
   const rootVersion = readFileSync(new URL("../VERSION", import.meta.url), "utf8").trim();
   const factoryVersion = readFileSync(new URL("../versions/agent-factory/VERSION", import.meta.url), "utf8").trim();
   const predictiveCodingVersion = readFileSync(new URL("../versions/predictive-coding/VERSION", import.meta.url), "utf8").trim();
+  const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
+  const governance = readFileSync(new URL("../docs/engineering-governance.md", import.meta.url), "utf8");
+  const readmeRelease = /\*\*Release:\*\* `([^`]+)` · A 線 Agent Factory V2 `([^`]+)`/.exec(readme);
+  assert.ok(readmeRelease, "README must expose root and Agent Factory release versions");
+  assert.equal(readmeRelease[1], rootVersion);
+  assert.equal(readmeRelease[2], factoryVersion);
+  const governanceBaseline = /\*\*Repository release baseline: ([0-9.]+)\*\*/.exec(governance);
+  assert.ok(governanceBaseline, "engineering governance must expose its repository release baseline");
+  assert.equal(governanceBaseline[1], rootVersion);
   assert.equal(packageJson.version, rootVersion);
   assert.equal(packageLock.version, rootVersion);
   assert.equal(packageLock.packages[""].version, rootVersion);

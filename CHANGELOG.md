@@ -1,3 +1,11 @@
+## 0.3.81 — 2026-11-20
+
+- Correct the stale README root/A release labels and engineering-governance baseline so public release metadata matches the authoritative VERSION files and manifest.
+- Extend the blocking CI regression test to verify the README root version, Agent Factory version and governance baseline against the authoritative release metadata.
+- Agent Factory V2 advances to 2.0.52; no runtime behavior, dependency, database schema or production data changes.
+- Verification: exact-head full CI and the Windows synthetic Agent Factory preflight are required; no completion is claimed before both finish successfully.
+- Rollback: revert this single metadata-and-regression-test commit; no database rollback is required.
+
 ## 0.3.80 — 2026-11-20
 
 - Port the B-line strict workspace message contract into the A integration branch: validate message UUID, role, content and timezone-qualified timestamp before rendering.
