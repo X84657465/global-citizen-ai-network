@@ -1,3 +1,9 @@
+## 0.3.76 — 2026-11-20
+
+- Tighten the Supabase startup redaction regression guard to verify the actual single-line cmd.exe-to-PowerShell pipeline, including the closing quote before the PowerShell pipe.
+- Synchronize repository, package, lockfile, Agent Factory and governance release metadata.
+- Trigger a fresh PR validation for the corrected exact head; no CI pass is claimed until GitHub Actions completes on that SHA.
+
 ## 0.3.75 — 2026-11-20
 
 - Correct the Supabase startup workflow regression test to recognize PowerShell's actual command-boundary syntax: stderr redirection occurs inside the quoted cmd.exe command, followed by the PowerShell pipeline to Out-String.
