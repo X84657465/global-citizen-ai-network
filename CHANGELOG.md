@@ -1,3 +1,10 @@
+## 0.3.89 — 2026-11-20
+
+- Recover migrated Agent Factory V2 retry-wait tasks whose legacy state has no per-task retry timestamp; preserve explicit retry schedules, bounded backoff, quarantine and same-pass idempotency.
+- Add deterministic state-machine and controller regression coverage for the legacy recovery path.
+- Agent Factory V2 advances to 2.0.58; B track remains 0.1.13.
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; no production state was manually changed and no live task completion is claimed.
+
 ## 0.3.88 — 2026-11-20
 
 - Restrict full CI push-triggered runs to `main`; development branches are validated by their pull-request lifecycle events, avoiding duplicate full-suite execution for the same PR head.
