@@ -1,3 +1,11 @@
+## 0.3.29 — 2026-11-20
+
+### Fixed
+- Move the Windows Supabase CI port allocator to the IANA dynamic/private range (20000–39999) and add a regression guard against the former 55000–63999 range.
+
+### Verification
+- Exact-head CI required; port allocation regression is covered by ci-trigger-policy tests.
+
 ## 0.3.23 — 2026-11-20
 
 ### Fixed
