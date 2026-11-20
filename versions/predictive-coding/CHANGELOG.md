@@ -45,3 +45,15 @@
 
 ### Verification
 - Exact-head CI required.
+
+## 0.2.0 — 2026-11-20
+
+### Added
+- Add deterministic prediction-error, mean-absolute-error and binary Brier-score calculations.
+- Define residual sign as observed minus predicted; validate finite values, array shape, probability bounds and binary outcomes.
+- Render prediction residuals from numeric inputs and leave missing observations explicitly unscored.
+- Register the regression suite in `npm run test:unit`.
+
+### Verification boundary
+- Deterministic utilities only; no live telemetry, model training or production decision automation is connected.
+- Exact-head CI is required before acceptance.

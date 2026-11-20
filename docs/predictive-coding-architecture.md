@@ -112,3 +112,13 @@ The receiving track owns adoption decisions. Shared data must be authorized, min
 - Metrics and scientific validation controls are explicit.
 - Cross-track read/write boundaries and human approval are defined.
 - No live user telemetry ingestion, automatic production decisions or model training is introduced by this architecture-only release.
+
+## 8. Deterministic metric implementation — 0.2.0
+
+The initial metrics module provides three pure calculations:
+
+- `calculatePredictionError(predicted, observed)`: signed residual is `observed - predicted`; absolute residual stays in the target's original unit.
+- `calculateMeanAbsoluteError(predictions, observations)`: requires equally sized, non-empty finite-number arrays. Callers must group by metric and unit; percentages, percentage points and elapsed time must never be averaged together.
+- `calculateBrierScore(probabilities, outcomes)`: computes mean squared probability error for binary outcomes. Probabilities must be within [0, 1] and outcomes must be 0 or 1.
+
+Missing observations are not converted to zero and are not scored. Invalid, non-finite or structurally mismatched values fail explicitly. These are deterministic building blocks only: they do not ingest telemetry, train a model or trigger operational decisions.
