@@ -1,3 +1,11 @@
+## 0.3.31 — 2026-11-20
+
+### Changed
+- Synchronize the B-branch release manifest with the latest Deep Neural track version 0.3.10.
+
+### Verification
+- Exact-head CI required.
+
 ## 0.3.29 — 2026-11-20
 
 ### Fixed
