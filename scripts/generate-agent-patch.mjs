@@ -125,6 +125,7 @@ const systemPrompt = [
   "operation is add only when the supplied source_files entry has operation add; otherwise use modify.",
   "For modify, return the complete replacement file content, preserving unrelated behavior.",
   "For add, return the complete new text file content.",
+  "For add operations, keep UTF-8 content within max_output_bytes from the matching implementation_plan task; prefer the smallest complete implementation.",
   "Never output shell commands, scripts to run, credentials, secrets, binary data, or deployment instructions.",
   "Do not include Markdown fences or explanations outside JSON.",
   "Keep changes minimal and satisfy the stated acceptance criteria.",
@@ -192,11 +193,6 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
   const batchSourceFiles = selectPatchBatchSourceFiles(fileContext, batchPaths);
   const batchSourceBytes = batchSourceFiles
     .reduce((total, file) => total + (file.content === null ? 0 : Buffer.byteLength(file.content, "utf8")), 0);
-  const outputTokenBudget = calculatePatchOutputTokenBudget(batchSourceBytes);
-  const remainingMs = timeoutMs - (Date.now() - generationStartedAt);
-  if (remainingMs < 10000) {
-    fail("The total Ollama patch-generation time budget expired before batch " + (batchIndex + 1) + ".");
-  }
 
   const implementationPlan = plan.tasks
     .filter((item) => item.action === "propose_patch" && item.role === "implementer")
@@ -205,6 +201,21 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
       allowed_paths: item.allowed_paths.filter((path) => batchPathSet.has(path.toLowerCase())),
     }))
     .filter((item) => item.allowed_paths.length > 0);
+
+  const isNewFileBatch = batchSourceFiles.some((file) => file.operation === "add");
+  const plannedOutputBytes = implementationPlan.length > 0
+    ? Math.min(...implementationPlan.map((item) => item.max_output_bytes))
+    : 8192;
+  // New files have no source-size signal. Bound their generation by the plan's
+  // output allowance instead of applying the 16,384-token minimum to an empty file.
+  const outputTokenBudget = isNewFileBatch
+    ? calculatePatchOutputTokenBudget(batchSourceBytes, Math.max(2048, Math.min(8192, Math.floor(plannedOutputBytes / 2))))
+    : calculatePatchOutputTokenBudget(batchSourceBytes);
+
+  const remainingMs = timeoutMs - (Date.now() - generationStartedAt);
+  if (remainingMs < 10000) {
+    fail("The total Ollama patch-generation time budget expired before batch " + (batchIndex + 1) + ".");
+  }
 
   const planningInput = {
     ...basePlanningInput,
@@ -304,6 +315,19 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
     candidate = JSON.parse(result.response);
   } catch {
     failTask("Local model did not return a valid JSON patch manifest for batch " + (batchIndex + 1) + ".");
+  }
+
+  for (const file of candidate.files ?? []) {
+    if (file?.operation === "add") {
+      const matchingPlan = implementationPlan.find((item) =>
+        item.allowed_paths.some((path) => path.toLowerCase() === String(file.path ?? "").toLowerCase()),
+      );
+      const maxOutputBytes = matchingPlan?.max_output_bytes;
+      if (Number.isInteger(maxOutputBytes) &&
+          Buffer.byteLength(typeof file.content === "string" ? file.content : "", "utf8") > maxOutputBytes) {
+        failTask("New file proposal exceeded its planned output limit for " + String(file.path) + ".");
+      }
+    }
   }
 
   let validatedBatch;
