@@ -183,10 +183,19 @@ test("accepts a dependency section and carries normalized dependency issue numbe
 test("keeps dependency declarations optional and rejects duplicate dependency sections", () => {
   const task = validateAndBuildTask(validIssue(), "X84657465/global-citizen-ai-network");
   assert.deepEqual(task.dependencies, []);
-  const duplicate = validIssue({ body: validIssue().body + "\n## Dependencies\n- #74\n" });
   const withOne = validIssue({ body: validIssue().body.replace("## Acceptance criteria", "## Dependencies\n- #74\n\n## Acceptance criteria") });
   assert.throws(
     () => validateAndBuildTask(validIssue({ body: withOne.body + "\n## Dependencies\n- #75\n" }), "X84657465/global-citizen-ai-network"),
     /Duplicate section/,
   );
+});
+
+
+test("accepts the Dependencies/context section alias in task preflight", () => {
+  const body = validIssue().body.replace(
+    "## Acceptance criteria",
+    "## Dependencies/context\n- #75 submission/review status\n\n## Acceptance criteria",
+  );
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.dependencies, [75]);
 });
