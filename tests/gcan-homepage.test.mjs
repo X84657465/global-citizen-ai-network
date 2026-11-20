@@ -15,19 +15,18 @@ test("public homepage exposes the authenticated workspace and contribution entry
 });
 
 test("hero primary action opens the workspace entry point", () => {
-  assert.match(homepage, /<div className={styles\.heroActions}>[\s\S]*?<Link href="\/workspace" className={styles\.primaryButton}>前往 AI 工作空間/);
+  assert.match(homepage, /<div className={styles\.heroActions}>[\s\S]*?<a href="#workstreams" className={styles\.primaryButton}>探索 A–E 五線工作台/);
 });
 
 test("primary homepage actions route visitors to the intended product destinations", () => {
-  assert.match(homepage, /前往 AI 工作空間/);
-  assert.match(homepage, /了解全球貢獻中心/);
-  assert.match(homepage, /了解平台架構/);
+  assert.match(homepage, /探索 A–E 五線工作台/);
+  assert.match(homepage, /查看整體架構/);
+  assert.match(homepage, /進入 B 線產品工作區/);
 });
 
 test("public homepage clearly discloses early-stage feature limitations", () => {
-  assert.match(homepage, /早期 MVP 建置階段/);
-  assert.match(homepage, /尚未開放現金獎勵或分散式運算/);
-  assert.match(homepage, /正式 AI 服務依供應商與預算設定啟用/);
+  assert.match(homepage, /早期建置與預覽階段/);
+  assert.match(homepage, /示範數據/);\n  assert.match(homepage, /尚未連接的 AI／搜尋服務/);\n  assert.match(homepage, /尚未啟用的獎勵支付與分散式運算/);
 });
 
 test("public homepage does not fabricate member activity or reward counters", () => {
@@ -93,14 +92,14 @@ test("workspace bootstrap validates the essential conversation response before r
 test("public homepage provides visible keyboard focus and respects reduced-motion preferences", () => {
   assert.ok(homeCss.includes(".page a:focus-visible"));
   assert.match(homeCss, /:focus-visible/);
-  assert.match(homeCss, /outline: 3px solid/);
-  assert.ok(homeCss.includes("@media (prefers-reduced-motion: reduce)"));
-  assert.ok(homeCss.includes("align-items: flex-end;"));
-  assert.match(homeCss, /transition: none !important/);
+  assert.ok(homeCss.includes(".page a:focus-visible{outline:3px solid"));
+  assert.ok(homeCss.includes("@media(prefers-reduced-motion:reduce)"));
+  assert.ok(homeCss.includes("align-items:flex-end;"));
+  assert.ok(homeCss.includes("transition:none!important"));
   const reducedMotionCss = homeCss.slice(homeCss.indexOf("@media (prefers-reduced-motion: reduce)"));
   assert.ok(reducedMotionCss.includes(".pillarCard:hover"));
-  assert.ok(reducedMotionCss.includes(".nav a"));
-  assert.ok(reducedMotionCss.includes("transform: none;"));
+  assert.ok(reducedMotionCss.includes(".trackCard:hover"));
+  assert.ok(reducedMotionCss.includes("transform:none"));
 });
 
 test("workspace validates every message API record before updating the active conversation", () => {
@@ -152,8 +151,8 @@ test("public homepage skip link targets the main landmark and mission navigation
   assert.ok(homepage.includes('<footer className={styles.footer}>'));
   assert.ok(homepage.indexOf('<header className={styles.header}>') < homepage.indexOf('<main id="main-content"'));
   assert.ok(homepage.indexOf('</main>') < homepage.indexOf('<footer className={styles.footer}>'));
-  assert.ok(homepage.includes('<div className={styles.heroCopy} id="mission">'));
-  assert.ok(homepage.includes('<a href="#mission">平台使命</a>'));
+  assert.ok(homepage.includes('<section className={styles.pillarsSection} id="pillars">'));
+  assert.ok(homepage.includes('<a href="#pillars">平台價值</a>'));
   assert.ok(!homepage.includes('<section className={styles.hero} id="main-content"'));
   assert.ok(homeCss.includes(".skipLink:focus-visible"));
   assert.ok(homeCss.includes("transform: translateY(0)"));
