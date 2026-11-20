@@ -1,3 +1,13 @@
+## 2.0.58 — 2026-11-20
+
+### Fixed — Recover legacy retry tasks missing per-task timestamps
+- Requeue migrated `retry_wait` tasks using the original task failure timestamp when present, or a stable legacy state timestamp when task history is absent.
+- Preserve explicit retry timestamps, bounded exponential backoff and quarantine fencing.
+- Snapshot the fallback timestamp once per controller pass and add deterministic regression coverage for multi-task recovery and idempotency.
+
+### Verification
+- Exact-head full CI, TypeScript, lint and Windows factory validation are required. No task recovery is claimed until all required checks pass.
+
 ## 2.0.57 — 2026-11-20
 
 ### Fixed — Validate failure-scope regression test changes
