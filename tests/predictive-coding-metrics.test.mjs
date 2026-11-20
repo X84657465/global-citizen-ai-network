@@ -34,7 +34,7 @@ test("rejects probabilities outside zero to one and non-binary outcomes", () => 
 test("calculates weighted Expected Calibration Error across probability bins", () => {
   // Low-confidence group: mean probability 0.25, observed frequency 0.00.
   // High-confidence group: mean probability 0.85, observed frequency 1.00.
-  assert.equal(calculateExpectedCalibrationError([0.2, 0.3, 0.8, 0.9], [0, 0, 1, 1], { bins: 2 }), 0.2);
+  assert.ok(Math.abs(calculateExpectedCalibrationError([0.2, 0.3, 0.8, 0.9], [0, 0, 1, 1], { bins: 2 }) - 0.2) < 1e-12);
 });
 test("handles the exact-one probability boundary in the final calibration bin", () => {
   assert.equal(calculateExpectedCalibrationError([1, 1, 0, 0], [1, 1, 0, 0], { bins: 2 }), 0);
