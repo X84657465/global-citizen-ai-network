@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.16 — 2026-11-20
+
+### Fixed
+- Correct the package-lock regression guard to compare the resolved tarball filename directly with the locked package version.
+- Preserve eslint-import-resolver-node at the actual 0.3.10 tarball version.
+
+### Verification
+- Regression guard corrected; exact-head Windows Runner CI remains required.
+
 ## 0.3.15 — 2026-11-20
 
 ### Fixed
