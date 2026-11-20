@@ -149,3 +149,13 @@ Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or 
 
 ### Verification
 - Exact-head CI must pass unit tests, type checking, lint, production build and PostgreSQL/RLS validation.
+
+
+## 0.3.7 — 2026-11-20
+
+### Fixed
+- Align CI push policy regression coverage with the exact five-branch allowlist without a duplicate `main` entry.
+- Synchronize Deep Research to 0.1.5 and repository metadata to 0.3.7.
+
+### Verification
+- Exact-head CI required; no merge or deployment is implied.

@@ -52,3 +52,13 @@ Verification: exact-head CI and database/RLS validation required; no merge or de
 
 ### Verification
 - Exact-head CI must execute source URL safety, claim linkage, publisher-independence and counter-evidence tests; registration alone is not acceptance evidence.
+
+
+## 0.1.5 — 2026-11-20
+
+### Fixed
+- Correct the CI push-allowlist regression assertion to match the actual workflow list: `main` appears once, followed by the five controlled A-E branches.
+- Keep the Deep Research source quality suite registered in the canonical unit-test command.
+
+### Verification
+- Exact-head CI must execute source provenance, publisher independence, counter-evidence and research ID tests, plus build and database checks.
