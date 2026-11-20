@@ -1,3 +1,13 @@
+## 0.3.29 — 2026-11-20
+
+### Added — F Cyber Security & Defense
+- Add repository vulnerability-disclosure policy with private reporting guidance, response expectations and explicit authorization boundaries.
+- Enable scheduled Dependabot monitoring for npm dependencies (weekly) and GitHub Actions (monthly).
+- Extend CI security-policy regression coverage for dependency update configuration and safe disclosure guidance; advance F to 0.1.3.
+
+### Verification
+- Configuration and policy are verified by repository read-back. Exact-head Windows Runner CI must execute the registered tests before this release is considered validated.
+
 ## 0.3.28 — 2026-11-20
 
 ### Added — F Cyber Security & Defense
