@@ -1,5 +1,10 @@
 # K — Knowledge Base, Docs & Governance Playbooks
 
+## 0.1.4 — 2026-11-21
+
+- Remove a stale exact-head CI success assertion from the A–P PR homepage link; require readers to verify the live candidate SHA before acceptance.
+- Synchronize K version history with the repository-wide release metadata.
+
 ## 0.1.3 — 2026-11-21
 
 - Correct stale A Factory and A–P homepage CI statements against the verified exact-head GitHub Actions runs.
