@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.14 — 2026-11-20
+
+### Fixed
+- Move Windows CI Supabase API/database/shadow port allocation to 20000–39999, outside the default Windows dynamic TCP port range.
+- Add a regression guard that rejects reintroduction of the previous 55000–63999 allocator.
+- Synchronize the five-track integration manifest and numeric release metadata.
+
+### Documentation
+- Refresh the GitHub project homepage release number, CI badge target and current verification status.
+
+### Verification
+- Static workflow and metadata review completed; exact-head Windows Runner CI remains required.
+
 ## 0.3.13 — 2026-11-20
 
 ### Fixed

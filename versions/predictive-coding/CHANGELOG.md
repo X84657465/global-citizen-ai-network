@@ -1,5 +1,14 @@
 # Predictive Coding Changelog
 
+## 0.3.5 — 2026-11-20
+
+### Fixed
+- Align the five-track integration CI Supabase port allocator with the Windows-safe 20000–39999 range.
+- Add a workflow regression test to prevent the previous dynamic-range allocator from returning.
+
+### Verification
+- Exact-head Windows Runner CI is required, including Supabase startup, migrations, PostgreSQL and RLS tests.
+
 ## 0.3.4 — 2026-11-20
 
 ### Fixed

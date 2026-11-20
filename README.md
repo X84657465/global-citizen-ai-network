@@ -8,13 +8,13 @@
 
 [產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [開發中的 Agent Factory V2](https://github.com/X84657465/global-citizen-ai-network/pull/134) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=feat%2Fagent-factory-v2)
+![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=feat%2Fgithub-project-showcase)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Engineering-3178C6?logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.5` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.14` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -361,8 +361,7 @@ http://localhost:3000
 - Windows Self-hosted Runner Toolchain Checks
 - Docker／Ollama Availability 與有界結構化推論
 
-最新已確認通過的 Agent Factory V2 CI：  
-[查看 CI Run #44509589985](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44509589985)
+最新驗證原則：只採用各分支最新候選 SHA 對應的 Actions Run；舊 SHA 曾通過不代表目前候選通過。當前五線候選與 Windows Supabase 修復仍在等待最新 CI 執行，請以 [GitHub Actions 即時狀態](https://github.com/X84657465/global-citizen-ai-network/actions) 為準。
 
 ## 📚 文件導覽
 
@@ -406,7 +405,7 @@ http://localhost:3000
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
 | A｜Agent Factory V2 | 工廠控制台 | 已修正 DB-backed RLS 測試分流與失敗分類；新 exact-head CI 待驗證 | [PR #134](https://github.com/X84657465/global-citizen-ai-network/pull/134) |
-| B｜GCAN Product | 全球產品平台 | CI 通過；待獨立驗收 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) |
+| B｜GCAN Product | 全球產品平台 | 首頁字體與響應式可讀性已更新；最新 exact-head CI 待驗證 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) |
 | C｜Predictive Coding | 預測分析工作台 | 已加入可測試的殘差、MAE、Brier 指標核心；未連接即時遙測或模型訓練 | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
 | D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
 | E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
