@@ -32,7 +32,7 @@
 | D｜Deep Neural | [#140](https://github.com/X84657465/global-citizen-ai-network/pull/140) | [Run #44580264020](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580264020) | 該提交 CI 通過 |
 | E｜Deep Research | [#141](https://github.com/X84657465/global-citizen-ai-network/pull/141) | [Run #44580352440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580352440) | 該提交 CI 通過 |\n| F｜Cyber Security & Defense | [#145](https://github.com/X84657465/global-citizen-ai-network/pull/145) | 最新 exact-head CI 待確認 | Draft；安全驗收未完成 |
 
-**注意：** 上表 CI 結果只代表各自列出的 exact commit；任何後續更新都必須重新驗證。五個 PR 目前均為 Draft，尚未合併。介面中的示範資料不代表已接通正式資料來源或持久化服務。
+**注意：** 上表 CI 結果只代表各自列出的 exact commit；任何後續更新都必須重新驗證。六個 PR 目前均為 Draft，尚未合併。介面中的示範資料不代表已接通正式資料來源或持久化服務。
 
 ### 核心研發線入口
 
