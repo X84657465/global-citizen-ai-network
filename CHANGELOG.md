@@ -1,3 +1,12 @@
+## 0.3.30 — 2026-11-20
+
+### Security
+- Reject non-public special-use hostname suffixes in Deep Research source references.
+- Synchronize E track version 0.1.14 and repository package metadata.
+
+### Verification
+- Network fetching remains disabled pending DNS, redirect and connection-time IP checks; exact-head CI is required.
+
 ## 0.3.29 — 2026-11-20
 
 ### Security
