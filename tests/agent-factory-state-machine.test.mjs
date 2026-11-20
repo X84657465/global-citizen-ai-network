@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   createInitialFactoryState, reserveTask, transitionTask, recordTaskFailure,
   recordSystemFailure, recordTaskSuccess, recordSystemSuccess,
-  recoverExpiredLease, requeueTask, recordCandidateFailure, recordCandidateStarted, isSystemCooldownActive, validateFactoryState,
+  recoverExpiredLease, requeueTask, getTaskRetryAt, recordCandidateFailure, recordCandidateStarted, isSystemCooldownActive, validateFactoryState,
 } from "../lib/agent-factory-state-machine.mjs";
 
 const metadata = (overrides = {}) => ({
