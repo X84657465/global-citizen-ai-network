@@ -77,3 +77,13 @@ Verification: exact-head CI and database/RLS validation required; no merge or de
 
 ### Verification
 - Exact-head CI must execute the complete Deep Neural contract suite; registration alone is not acceptance evidence.
+
+
+## 0.3.4 — 2026-11-20
+
+### Fixed
+- Correct the CI push-allowlist regression assertion to match the actual workflow list: `main` appears once, followed by the five controlled A-E branches.
+- Keep the Deep Neural contract suite registered in the canonical unit-test command.
+
+### Verification
+- Exact-head CI must pass the push policy, all Deep Neural contract tests, TypeScript, lint, production build and PostgreSQL/RLS checks.
