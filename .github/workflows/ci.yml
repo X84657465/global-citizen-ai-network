@@ -10,7 +10,7 @@ on:
   push:
     branches: [main, feat/agent-factory-v2]
   pull_request:
-    branches: [main, feat/github-project-showcase]
+    branches: [main, feat/github-project-showcase, feat/agent-factory-v2, fix/issue-164-candidate-success-scope]
     types: [opened, reopened, synchronize]
   repository_dispatch:
     types: [ai-task-ci]
