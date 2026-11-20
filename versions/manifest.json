@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.9",
+  "overall": "0.3.10",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
-      "version": "2.0.3",
+      "version": "2.0.8",
       "status": "active"
     },
     "B": {
       "name": "Global Citizen AI Network",
-      "version": "0.1.1",
+      "version": "0.1.5",
       "status": "active"
     },
     "C": {
       "name": "Predictive Coding（預測編碼）",
-      "version": "0.1.4",
-      "status": "architecture-defined",
+      "version": "0.3.3",
+      "status": "implementation-candidate",
       "responsibility": "Prediction, observation, prediction-error measurement, uncertainty calibration and evidence-based model updates."
     },
     "D": {
@@ -25,8 +25,8 @@
     },
     "E": {
       "name": "Deep Research（深度研究）",
-      "version": "0.1.1",
-      "status": "interface-candidate",
+      "version": "0.1.5",
+      "status": "implementation-candidate",
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
     }
   },
