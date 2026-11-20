@@ -9,6 +9,13 @@ const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", imp
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const workflowLevelConcurrency = workflow.split("\non:\n", 1)[0];
 
+function findJobSection(source, name) {
+  const start = source.indexOf("  " + name + ":\\n");
+  assert.ok(start >= 0, "missing CI job: " + name);
+  const headers = [...source.slice(start + 1).matchAll(/^  [A-Za-z0-9_-]+:\s*$/gm)];
+  return { start, end: headers[0] ? start + 1 + headers[0].index : source.length };
+}
+
 test("root and Agent Factory numeric release metadata stay synchronized", () => {
   const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   const packageLock = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url), "utf8"));
@@ -51,9 +58,8 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
   }
 
   for (const job of ["resolve-candidate", "circuit-breaker", "circuit-breaker-success"]) {
-    const start = workflow.indexOf("  " + job + ":\n");
-    const next = workflow.indexOf("\n  ", start + 4);
-    const section = workflow.slice(start, next < 0 ? workflow.length : next);
+    const { start, end } = findJobSection(workflow, job);
+    const section = workflow.slice(start, end);
     assert.ok(section.includes("runs-on: ubuntu-latest"), job + " must not consume the Windows Runner");
     assert.equal(section.includes("global-citizen-ai-network-self-hosted-runner"), false, job + " must not queue behind Windows-only work");
   }

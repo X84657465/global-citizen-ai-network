@@ -1,3 +1,8 @@
+## 0.3.44 — 2026-11-20
+
+- Corrected CI runner placement: GitHub API-only candidate resolution and CI result persistence use GitHub-hosted Ubuntu runners; Windows build and database validation remain serialized on the self-hosted Runner.
+- Added policy assertions to prevent API-only jobs from consuming or queueing behind the Windows Runner.
+
 ## 0.3.43 — 2026-11-20
 
 - Moved GitHub API-only candidate resolution and CI result persistence to GitHub-hosted Ubuntu runners, reserving the single Windows self-hosted Runner for Windows, Docker, Ollama and database validation.

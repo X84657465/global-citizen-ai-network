@@ -24,17 +24,13 @@ defaults:
 
 jobs:
   resolve-candidate:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
        (github.event.pull_request.user.login == github.repository_owner ||
         github.event.pull_request.user.login == 'github-actions[bot]'))
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -391,10 +387,6 @@ jobs:
 
 
   circuit-breaker:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
     name: Persist candidate or system CI failures
     needs: [resolve-candidate, build, database]
     if: >-
@@ -414,7 +406,7 @@ jobs:
          github.event.action == 'ai-task-ci' &&
          github.event.client_payload.pull_request_number != '')
       )
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -487,10 +479,6 @@ jobs:
         run: node scripts/agent-factory-v2-controller.mjs
 
   circuit-breaker-success:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
     name: Persist candidate success or reset system breaker
     needs: [resolve-candidate, build, database]
     if: >-
@@ -511,7 +499,7 @@ jobs:
          github.event.client_payload.pull_request_number != '' &&
          needs.resolve-candidate.outputs.is_task_pr == 'true')
       )
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
