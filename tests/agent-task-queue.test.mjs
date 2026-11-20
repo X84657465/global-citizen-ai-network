@@ -97,9 +97,9 @@ test("extracts inline and multiline dependency declarations, including the produ
     "",
     "## Safety",
     "Do not issue real cash payouts or represent pending rewards as withdrawable funds.",
-  ].join("\\n");
+  ].join("\n");
   assert.deepEqual(extractTaskDependencyNumbers(actualIssueShape), [74, 75, 81, 94]);
-  assert.deepEqual(extractTaskDependencyNumbers("Dependencies: #74, #75 and #81\\nDependencies/context: #94"), [74, 75, 81, 94]);
+  assert.deepEqual(extractTaskDependencyNumbers("Dependencies: #74, #75 and #81\nDependencies/context: #94"), [74, 75, 81, 94]);
 });
 
 test("dependency extraction is scoped to dependency sections, ignores code fences, and deduplicates", () => {
@@ -110,18 +110,18 @@ test("dependency extraction is scoped to dependency sections, ignores code fence
     "- #94 migration",
     "- #74 discovery",
     "- #94 duplicate",
-    "```md",
+    "\`\`\`md",
     "- #999 example only",
     "## Not a real heading",
-    "```",
+    "\`\`\`",
     "## Acceptance criteria",
     "Do not parse #12 from this section.",
-  ].join("\\n");
+  ].join("\n");
   assert.deepEqual(extractTaskDependencyNumbers(body), [74, 94]);
 });
 
 test("dependency resolution fails closed for open, missing, and non-completed closed issues", () => {
-  const body = "## Dependencies\\n- #74\\n- #75\\n- #81";
+  const body = "## Dependencies\n- #74\n- #75\n- #81";
   const dependencies = new Map([
     [74, { state: "closed", state_reason: "completed" }],
     [75, { state: "open", state_reason: null }],
@@ -132,6 +132,6 @@ test("dependency resolution fails closed for open, missing, and non-completed cl
   assert.equal(taskDependenciesResolved(body, dependencies), false);
   dependencies.set(81, { state: "closed", state_reason: "completed" });
   assert.equal(taskDependenciesResolved(body, dependencies), true);
-  assert.equal(taskDependenciesResolved("## Dependencies\\n- #74", new Map()), false);
-  assert.equal(taskDependenciesResolved("## Dependencies\\n- #74", new Map(), new Set([74])), true);
+  assert.equal(taskDependenciesResolved("## Dependencies\n- #74", new Map()), false);
+  assert.equal(taskDependenciesResolved("## Dependencies\n- #74", new Map(), new Set([74])), true);
 });
