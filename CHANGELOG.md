@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.11 — 2026-11-20
+
+### Fixed
+- Reject impossible calendar dates, out-of-range clock fields and invalid timezone offsets in Track E research-source provenance timestamps.
+- Add regression coverage for invalid dates and offsets that JavaScript Date.parse may normalize instead of rejecting.
+
+### Verification
+- Exact-head CI must pass the full unit, type, lint, build and Supabase/PostgreSQL/RLS jobs. This change does not enable live URL fetching or claim source authenticity.
+
 ## 0.3.10 — 2026-11-20
 
 ### Fixed
