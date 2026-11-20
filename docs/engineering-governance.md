@@ -12,8 +12,11 @@
 | C — Predictive Coding（預測編碼） | Predictive processing and prediction-error learning | Build explicit prediction, observation, error comparison and model-update loops; publish measurable signals to the other tracks |
 | D — Deep Neural | Neural intelligence foundation | Memory, reasoning, evaluation, knowledge integration and cross-track learning |
 | E — Deep Research（深度研究） | Research and evidence synthesis | Multi-source retrieval, source provenance and quality, corroboration, counter-evidence, cited synthesis and actionable research reports |
+| F — Cyber Security & Defense | Cross-track security | Threat modeling, security controls, adversarial validation, vulnerability response and incident readiness |
+| G — Release, QA & Integration | Integration quality | Compatibility checks, regression gates, exact-SHA release evidence and rollback readiness |
+| H — Observability, Telemetry & Cost/Quota Governance | Operations visibility | Queue/Runner telemetry, failure metrics, cost provenance, quota thresholds and safe-pause alerts |
 
-The governance and versioning model covers workstreams A through H. Each workstream owns its own branch, work items, independent version history, tests and acceptance evidence. The current manifest registers A–E; F–H must be registered with an approved name, owner, scope and initial version before being treated as active. Do not invent track identities or silently reuse another track's version. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
+The governance and versioning model covers the full A–P architecture, with A–H as the currently prioritized operating workstreams. Each workstream owns its own branch, work items, independent version history, tests and acceptance evidence. A–H are defined as follows: A Agent Factory V2; B Global Citizen AI Network; C Predictive Coding; D Deep Neural; E Deep Research; F Cyber Security & Defense; G Release, QA & Integration; H Observability, Telemetry & Cost/Quota Governance. I–P remain separately defined roadmap workstreams in the manifest and architecture plan. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
 
 ## 2. Independent A–H version and generation policy
 
@@ -31,7 +34,7 @@ A version bump is not evidence of completion. Acceptance requires exact commit S
 
 ## 3. Cross-track learning and support
 
-Registered tracks A–E exchange reusable knowledge through reviewed, versioned artifacts. As F–H are formally registered, they join this loop with explicit ownership, versioned contracts and receiving-owner review:
+Tracks A–H exchange reusable knowledge through reviewed, versioned artifacts, with I–P joining as their roadmap work is activated:
 
 1. A publishes engineering patterns, test fixtures, failure classifications, recovery playbooks and verified automation capabilities.
 2. B contributes real product workflows, user-facing requirements, usability findings and operational constraints.
@@ -39,7 +42,7 @@ Registered tracks A–E exchange reusable knowledge through reviewed, versioned 
 4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C/E.
 5. E (Deep Research) conducts multi-source research, checks source provenance and freshness, seeks corroboration and counter-evidence, and publishes cited findings and actionable recommendations to A/B/C/D.
 
-### Registered-track mutual-support loop
+### A–H mutual-support loop
 
 - **A → B/C/D:** verified automation, reproducible builds, test evidence, failure taxonomy and recovery playbooks.
 - **B → A/C/D:** real product workflows, user feedback, operational constraints, usage patterns and measurable outcomes.
@@ -105,4 +108,4 @@ Each change must identify the smallest safe rollback unit. Application changes s
 
 ## 9. Registered-track baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All currently registered tracks have independent ownership, interfaces, versions, tests and acceptance evidence. Workstreams F–H remain unregistered until their names, scope and owners are recorded. The overall integration baseline is tracked in `VERSION` and `versions/manifest.json`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All A–H workstreams have explicit ownership boundaries and independent version histories. I–P remain planned roadmap tracks until their implementation and acceptance evidence are delivered. The overall integration baseline is tracked in `VERSION` and `versions/manifest.json`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
