@@ -169,3 +169,66 @@ test("requires a human approval label before allowing factory control-plane path
   assert.equal(task.control_plane_authorized, true);
   assert.deepEqual(task.allowed_paths, ["lib/agent-factory-state-machine.mjs", "tests/settings-page.test.ts"]);
 });
+
+
+test("extracts multiline dependency sections and stops at the next heading", () => {
+  const body = `## Goal
+The task goal mentions #999 but that is not a dependency.
+
+## Dependencies
+- #94 migration chain
+- #74 task discovery
+- #75 submission status
+- #94 duplicate reference
+
+## Acceptance criteria
+- Do not collect #123 from this section.
+
+```md
+## Dependencies
+- #456 inside a code example is not active metadata
+```
+
+## Dependencies/context
+Context references #81 and #74.
+`;
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75, 81, 94]);
+});
+
+test("parses inline and multiline dependency declarations together without reading fenced examples", () => {
+  const body = `Dependencies: #3, #84
+Dependencies/context: #94
+```
+Dependencies: #777
+## Dependencies
+- #778
+```
+## Dependencies
+- #84 provider adapter
+- #97 migration recovery
+`;
+  assert.deepEqual(extractTaskDependencyNumbers(body), [3, 84, 94, 97]);
+});
+
+test("preflight accepts an optional Dependencies section and returns normalized issue numbers", () => {
+  const body = validIssue().body.replace(
+    "## Goal",
+    "## Dependencies\\n- #94 migration chain\\n- #74 task discovery\\n\\n## Goal",
+  );
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.dependencies, [74, 94]);
+});
+
+test("dependency resolver fails closed for unresolved multiline references", () => {
+  const body = "## Dependencies\\n- #74\\n- #75\\n- #81\\n- #94\\n\\n## Goal\\n#999 is unrelated.";
+  const issues = new Map([
+    [74, { number: 74, state: "closed", state_reason: "completed" }],
+    [75, { number: 75, state: "closed", state_reason: "not_planned" }],
+    [81, { number: 81, state: "open" }],
+    [94, { number: 94, state: "open" }],
+  ]);
+  assert.equal(taskDependenciesResolved(body, issues), false);
+  assert.equal(taskDependenciesResolved(body, issues, new Set([81, 94])), false);
+  issues.set(75, { number: 75, state: "closed", state_reason: "completed" });
+  assert.equal(taskDependenciesResolved(body, issues, new Set([81, 94])), true);
+});
