@@ -1,3 +1,11 @@
+## 0.3.89 — 2026-11-20
+
+- Add a case-sensitive exact-path exception for the existing Agent Factory scheduler workflow; no other `.github/` paths are opened.
+- Enforce the existing factory control-plane approval label in both task and patch validation, retaining shared write-policy enforcement, scratch/publisher revalidation, and existing-file-only modification.
+- Add adversarial tests and operator documentation. No workflow file, Runner permission, secret, database, or deployment setting is changed.
+- Agent Factory V2 advances to 2.0.58; root, package, lockfile, manifest, README and governance baseline are synchronized.
+- Exact-head full CI and isolated Windows factory validation remain mandatory; no completion is claimed before all required jobs pass.
+
 ## 0.3.88 — 2026-11-20
 
 - Restrict full CI push-triggered runs to `main`; development branches are validated by their pull-request lifecycle events, avoiding duplicate full-suite execution for the same PR head.
