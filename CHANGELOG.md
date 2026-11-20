@@ -1,3 +1,10 @@
+## 0.3.89 — 2026-11-21
+
+- Recover migrated V2 retry_wait tasks missing next_attempt_at by persisting a deterministic retry deadline once.
+- Prefer per-task last_error.at; use the captured durable state updated_at only when task-level failure history is absent.
+- Preserve bounded exponential backoff, quarantine, explicit deadlines and same-pass clock stability. Agent Factory V2 advances to 2.0.59; B remains 0.1.13.
+- Exact-head full CI, TypeScript, lint, release consistency and Windows Runner validation remain required; no merge or deployment is claimed.
+
 ## 0.3.88 — 2026-11-21
 
 - Keep Agent Factory V2 candidate CI success task-scoped: completing one candidate no longer clears the global circuit breaker or unrelated task quarantine.
