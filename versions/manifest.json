@@ -31,4 +31,4 @@
     }
   },
   "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
-}\n
+}
