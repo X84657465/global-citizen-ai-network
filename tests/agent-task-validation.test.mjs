@@ -169,3 +169,64 @@ test("requires a human approval label before allowing factory control-plane path
   assert.equal(task.control_plane_authorized, true);
   assert.deepEqual(task.allowed_paths, ["lib/agent-factory-state-machine.mjs", "tests/settings-page.test.ts"]);
 });
+
+
+test("extracts the actual multiline Issue #96 dependency section and ignores unrelated or fenced references", () => {
+  const body = `## Goal
+Unrelated context mentions #999 but it is not a dependency.
+```md
+Dependencies: #777
+```
+
+## Dependencies
+Dependencies: #74, #75, #81, #94
+#74 task discovery; #75 submission/review status; #81 RLS tests; #94 migration-chain validation.
+
+## Acceptance criteria
+Do not collect #555 from this section.
+`;
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75, 81, 94]);
+});
+
+test("parses Dependencies and Dependencies/context sections, inline declarations, deduplicates and sorts", () => {
+  const body = `Dependencies: #94, #74
+Dependencies/context: #84
+## Dependencies
+- #75 submission status
+- #74 duplicate reference
+## Dependencies/context
+- #81 RLS coverage
+- #84 duplicate context
+## Safety
+Do not collect #999 here.
+`;
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75, 81, 84, 94]);
+});
+
+test("blocks missing, open and closed-but-not-completed dependencies", () => {
+  const body = `## Dependencies
+- #74 prerequisite
+- #75 prerequisite
+- #81 prerequisite
+- #94 prerequisite
+`;
+  const issues = new Map([
+    [74, { number: 74, state: "closed", state_reason: "completed" }],
+    [75, { number: 75, state: "open" }],
+    [81, { number: 81, state: "closed", state_reason: "not_planned" }],
+  ]);
+  assert.equal(taskDependenciesResolved(body, issues), false);
+  assert.equal(taskDependenciesResolved(body, issues, new Set([75, 81, 94])), true);
+});
+
+test("task preflight accepts optional Dependencies sections and returns normalized dependency numbers", () => {
+  const body = validIssue().body + `
+\n## Dependencies
+- #94 migration chain
+- #74 task discovery
+- #94 duplicate
+`;
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.dependency_issue_numbers, [74, 94]);
+  assert.deepEqual(task.allowed_paths, ["app/settings/page.tsx", "tests/settings-page.test.ts"]);
+});
