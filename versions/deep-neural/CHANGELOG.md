@@ -1,3 +1,11 @@
+## 0.3.9 — 2026-11-20
+
+### Fixed
+- Align the timezone-boundary regression test with the contract's timestamp-preservation behavior rather than UTC normalization.
+
+### Verification
+- The exact +14:00 offset is accepted unchanged; +14:01 and -15:00 are rejected. Exact-head CI required.
+
 # Deep Neural Changelog
 
 ## 0.3.8 — 2026-11-20

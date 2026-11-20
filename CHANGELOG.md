@@ -1,3 +1,11 @@
+## 0.3.23 — 2026-11-20
+
+### Fixed
+- Correct the Deep Neural timezone-boundary regression to assert the validator's intentional preservation of the original ISO-8601 timestamp string; the contract validates but does not canonicalize timestamps.
+
+### Verification
+- The +14:00 input is accepted and preserved; +14:01 and -15:00 remain rejected. Exact-head CI is required.
+
 # Changelog
 
 ## 0.3.22 — 2026-11-20
