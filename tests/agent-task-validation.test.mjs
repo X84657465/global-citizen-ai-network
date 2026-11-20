@@ -233,10 +233,10 @@ test("indented code headings cannot create or replace task sections", () => {
     "## Explicit exclusions",
     "- No database schema changes",
     "- No production deployment",
-  ].join("\\n");
+  ].join("\n");
   const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
   assert.deepEqual(task.allowed_paths, ["app/settings/page.tsx", "tests/settings-page.test.ts"]);
-  assert.match(task.goal, /app\\/hidden-example\\.ts/);
+  assert.ok(task.goal.includes("app/hidden-example.ts"));
 });
 
 test("accepts a dependency section and carries normalized dependency issue numbers into the task bundle", () => {
