@@ -1,3 +1,10 @@
+## 0.3.91 — 2026-11-21
+
+- Harden Agent Factory multiline dependency parsing to honor matching Markdown fence characters and opening fence lengths; mismatched and undersized fences no longer expose example Issue references to the queue dependency parser.
+- Add regression coverage for mixed backtick/tilde fences and short closing fences.
+- Agent Factory V2 advances to 2.0.60; B track remains 0.1.13.
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; dispatch acceptance is not claimed until all required checks pass.
+
 ## 0.3.90 — 2026-11-20
 
 - Harden Agent Factory queue selection so multiline Markdown dependency sections are parsed before dispatch; tasks with unresolved or missing dependencies remain blocked.
