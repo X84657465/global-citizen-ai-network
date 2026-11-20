@@ -212,8 +212,8 @@ test("passes the reserved lease ID to the task-failure recorder", () => {
 
   assert.match(
     section,
-    /AGENT_FACTORY_LEASE_ID:\s*\$\{\{\s*env\.AGENT_FACTORY_LEASE_ID\s*\}\}/,
-    "task-scoped failures require the exact lease that reserved the selected Issue"
+    /AGENT_FACTORY_LEASE_ID\s*:/,
+    "task-scoped failures must not shadow the lease ID exported to subsequent steps through GITHUB_ENV"
   );
   assert.match(section, /FAILED_ISSUE_NUMBER:/);
   assert.match(section, /AGENT_FACTORY_MODE:\s*failure/);
