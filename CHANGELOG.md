@@ -1,3 +1,10 @@
+## 0.3.90 — 2026-11-21
+
+- Formalize independent A–H workstream versioning and major generations (v1, v2, v3...) using numeric MAJOR.MINOR.PATCH as the canonical value.
+- Require every change to bump affected track versions and changelogs; cross-track changes record each affected version and leave unaffected tracks unchanged.
+- Register current A–E manifest tracks and mark F–H pending registration without inventing track identities.
+- Governance revision 1.4.3. This policy change does not claim any track has completed a major-generation reform.
+
 ## 0.3.88 — 2026-11-20
 
 - Restrict full CI push-triggered runs to `main`; development branches are validated by their pull-request lifecycle events, avoiding duplicate full-suite execution for the same PR head.
