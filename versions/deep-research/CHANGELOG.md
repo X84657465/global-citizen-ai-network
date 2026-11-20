@@ -1,3 +1,15 @@
+## 0.1.13 — 2026-11-20
+
+### Security
+- Restrict IPv6 source URL literals to ordinary global-unicast space and reject unspecified, loopback, IPv4-compatible/mapped, ULA, link-local, site-local, multicast, documentation and special-purpose ranges.
+- Explicitly reject compressed IPv4-compatible literals that bypassed the previous host-prefix checks.
+
+### Regression coverage
+- Add adversarial cases for IPv4-compatible IPv6, site-local, ORCHID/special-purpose and documentation prefixes.
+
+### Verification
+- Exact-head CI is required. URL fetching remains disabled; DNS resolution, redirect validation and connection-time address checks remain mandatory before any future fetch feature is activated.
+
 ## 0.1.12 — 2026-11-20
 
 ### Fixed
