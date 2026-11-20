@@ -1,3 +1,12 @@
+## 2.0.61 — 2026-11-21
+
+### Harden — Reject invalid backtick fence info strings
+- CommonMark backtick fence info strings cannot contain backticks; malformed openers are treated as task text and cannot hide subsequent dependency references.
+- Add regression coverage for invalid fence opener fail-closed behavior.
+
+### Verification
+- Exact-head full CI, TypeScript, lint and Windows factory validation are required; no dispatch acceptance is claimed before all required checks pass.
+
 ## 2.0.60 — 2026-11-21
 
 ### Harden — Match Markdown code-fence delimiters during dependency extraction
