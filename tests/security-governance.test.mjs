@@ -11,10 +11,10 @@ const incidentRunbook = read("../docs/security/incident-response.md");
 const releaseGates = read("../docs/security/release-gates.md");
 
 test("release manifest declares the independent F security workstream", () => {
-  assert.equal(manifest.overall, "0.3.28");
+  assert.equal(manifest.overall, "0.3.29");
   assert.deepEqual(manifest.tracks.F, {
     name: "Cyber Security & Defense",
-    version: "0.1.2",
+    version: "0.1.3",
     status: "foundation",
     responsibility: "Cross-track threat modeling, security controls, adversarial validation, vulnerability response and incident readiness.",
   });
