@@ -1,3 +1,12 @@
+## 0.3.36 — 2026-11-20
+
+### Reliability
+- Require a recognized GitHub Actions conclusion before Agent Factory expired-lease recovery.
+- Synchronize A track version 2.0.21 and repository package metadata.
+
+### Verification
+- Exact-head CI and live Runner validation remain required.
+
 ## 0.3.35 — 2026-11-20
 
 ### Reliability
