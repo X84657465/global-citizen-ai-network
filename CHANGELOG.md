@@ -1,3 +1,14 @@
+## 0.3.45 — 2026-11-20
+
+### Hardened — G Release Evidence
+- Reject duplicate required-gate names.
+- Treat explicitly supplied empty expected repository/head values as mismatches instead of silently disabling identity checks.
+- Expand regression coverage for timezone offset boundaries and strict expected-identity handling.
+
+### Verification
+- Source and regression tests are committed; exact-head Windows Runner CI remains pending.
+- The validator still does not authenticate GitHub workflow runs or gate production publishing.
+
 ## 0.3.44 — 2026-11-20
 
 ### Added — G Release, QA & Integration
