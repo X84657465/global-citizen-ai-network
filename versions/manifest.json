@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.102",
+  "overall": "0.3.103",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -61,7 +61,7 @@
     },
     "K": {
       "name": "Knowledge Base, Docs & Governance Playbooks",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "status": "planned",
       "responsibility": "Architecture records, track boundaries, operator runbooks, handoff templates, decision logs, troubleshooting playbooks and the public A-P workstream registry."
     },
