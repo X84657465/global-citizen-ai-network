@@ -130,3 +130,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - New exact-head CI required.
+
+
+## 0.3.5
+
+- Run full CI on all explicitly controlled A-E feature branch pushes, not only on main or PR lifecycle events.
+- Retain repository-owner push gating and the five-workstream branch allowlist.
+- Synchronize Deep Research to 0.1.3 and repository metadata to 0.3.5.
+
+Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or deployment implied.

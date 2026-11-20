@@ -35,3 +35,11 @@
 ### Verification boundary
 - Research records remain local demonstration state; no persistence, live retrieval or autonomous research is implied.
 - Exact-head CI is required before acceptance.
+
+
+## 0.1.3
+
+- Run full CI on the explicit A-E development-branch push allowlist.
+- Keep push execution restricted to repository-owner events and verify the five workstream branches in the CI policy test.
+
+Verification: exact-head CI and database/RLS validation required; no merge or deployment implied.
