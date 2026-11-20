@@ -1,3 +1,10 @@
+## 0.3.101 — 2026-11-21
+
+- K Knowledge Base/Docs advances to 0.1.3: correct A/ A–P homepage operational status against completed exact-head CI for PR #168 and #167; clearly distinguish CI success from pending independent formal review and merge.
+- Synchronize README, governance baseline, manifest, root/package versions and the independent K version history.
+- No A factory runtime behavior, B product code, production data, secrets or deployment settings changed.
+- Verification: fresh exact-head full CI and independent formal review remain required; rollback by reverting this documentation/version metadata commit.
+
 ## 0.3.100 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.69: system-health recovery now requires exact same-repository PR evidence targeting main, in addition to completed successful exact-head CI, run ID and attempt.
