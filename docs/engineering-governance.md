@@ -1,7 +1,7 @@
 # Six-Track Engineering Governance
 
 **Governance revision: 1.5.0**  
-**Repository release baseline: 0.3.27**
+**Repository release baseline: 0.3.28**
 
 ## 1. Six development tracks
 
@@ -109,4 +109,4 @@ Each change must identify the smallest safe rollback unit. Application changes s
 
 ## 9. Six-track baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All six tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.27`. Track F is Cyber Security & Defense and its initial version is recorded in `versions/manifest.json`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All six tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.28`. Track F is Cyber Security & Defense and its initial version is recorded in `versions/manifest.json`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
