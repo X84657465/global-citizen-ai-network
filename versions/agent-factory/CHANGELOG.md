@@ -1,3 +1,13 @@
+## 2.0.58 — 2026-11-21
+
+### Fixed — Isolate candidate success from global system recovery
+- Candidate CI success now commits only the exact task success transition.
+- Preserve global breaker history/cooldown and unrelated quarantined tasks.
+- Cover duplicate success and recovery after a transient task-state write failure.
+
+### Verification
+- Exact-head full CI, including unit tests, type check, lint, production build, database and Runner integration, is required before acceptance.
+
 ## 2.0.57 — 2026-11-20
 
 ### Fixed — Validate failure-scope regression test changes
