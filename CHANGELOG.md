@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.12 — 2026-11-20
+
+### Improved
+- Increase GCAN public homepage typography across navigation, hero copy, workstream cards, product details, governance and documentation sections.
+- Add mobile-specific font-size floors so supporting text remains readable on narrow screens.
+
+### Verification
+- Added homepage CSS regression assertions. Exact-head CI is required; no backend, database or deployment behavior changed.
+
 ## 0.3.10 — 2026-11-20
 
 ### Fixed
