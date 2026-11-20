@@ -1,3 +1,9 @@
+## 0.3.91 — 2026-11-21
+
+- Add queue-selector integration regression coverage for dependency gating before dispatch, including completed, open, missing, and merged-PR prerequisites.
+- Agent Factory V2 advances to 2.0.60; B remains unchanged at 0.1.13.
+- Exact-head full CI and controlled Windows factory validation remain required; no merge or deployment is claimed.
+
 ## 0.3.90 — 2026-11-21
 
 - Fix the P0 factory queue dependency parser: Issue #96-style multiline dependency sections are now recognized before task dispatch.
