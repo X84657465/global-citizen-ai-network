@@ -1,3 +1,12 @@
+## 0.3.27 — 2026-11-20
+
+### Added — F Cyber Security & Defense
+- Add HTTP Strict Transport Security with a one-year max-age to the shared Next.js security-header baseline.
+- Add a regression assertion for the HSTS header and record F track version 0.1.1.
+
+### Verification
+- Header and governance regression tests are registered; exact-head Windows Runner CI remains the acceptance gate. No runtime deployment is implied.
+
 ## 0.3.26 — 2026-11-20
 
 ### Added — F Cyber Security & Defense
