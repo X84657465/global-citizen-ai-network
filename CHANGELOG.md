@@ -1,17 +1,11 @@
-## 0.3.28 — 2026-11-20
+## 0.3.29 — 2026-11-20
 
-### Fixed
-- Separate scheduled preflight poller concurrency from actionable task triggers so recurring polls cannot replace a pending issue-triggered worker.
-- Serialize both self-hosted preflight jobs through the shared bounded Runner queue while retaining poller coalescing.
-
-### Regression coverage
-- Verify that only scheduled poller runs share a workflow concurrency group and that both self-hosted jobs preserve pending work in the shared Runner queue.
+### Reliability
+- Add a production-path regression test for configured Agent Factory V1 state-Issue migration.
+- Verify legacy failure and quarantine counters survive migration and the existing Issue is updated in place without duplicate creation.
 
 ### Verification
-- Exact-head Windows Runner CI is required for acceptance. This change does not claim that a real AI task was executed or published.
-
-### Rollback
-- Revert the exact scheduler-concurrency commit; no application runtime or database schema is changed.
+- Exact-head Windows Runner CI is required. The test uses a synthetic fixture and does not modify production state.
 
 ## 0.3.26 — 2026-11-20
 
