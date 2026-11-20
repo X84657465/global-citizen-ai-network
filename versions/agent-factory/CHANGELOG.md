@@ -1,3 +1,13 @@
+## 2.0.61 — 2026-11-21
+
+### Test — Align lifecycle soak event accounting with the durable deduplication contract
+- Count the two idempotently recorded candidate callbacks per completed task.
+- Explicitly document that reservation and task-state transitions are durable state changes but are not processed callback events.
+- Preserve duplicate callback idempotency and the 24-task completion assertions.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation remain required before acceptance.
+
 ## 2.0.60 — 2026-11-21
 
 ### Test — Verify dependency gating at the queue dispatch boundary
