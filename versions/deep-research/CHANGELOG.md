@@ -1,3 +1,15 @@
+## 0.1.12 — 2026-11-20
+
+### Fixed
+- Detect duplicate numeric project identifiers in existing research records, including differently zero-padded aliases.
+- Fail closed rather than treating ambiguous identifiers as unique.
+
+### Tests
+- Add exact-duplicate and normalized-numeric-collision regression cases.
+
+### Verification
+- Exact-head CI is required; research IDs remain caller-persisted local identifiers.
+
 ## 0.1.11 — 2026-11-20
 
 ### Fixed
