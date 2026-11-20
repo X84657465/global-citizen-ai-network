@@ -1,134 +1,74 @@
-"use client";
-
-import { useMemo, useState, type ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import {
-  Activity, ArrowDownRight, ArrowUpRight, BrainCircuit, CheckCircle2,
-  ChevronRight, CircleDollarSign, Clock3, Cpu, FileSearch, Globe2,
-  HandHeart, LayoutDashboard, LockKeyhole, Menu, MessageSquareText,
-  Search, ShieldCheck, Sparkles, Wallet, X
-} from "lucide-react";
+import { Activity, ArrowRight, ArrowUpRight, BookOpen, BrainCircuit, CheckCircle2, ChevronRight, ClipboardCheck, Cpu, GitBranch, Globe2, Layers3, LockKeyhole, Network, ReceiptText, SearchCheck, ShieldCheck, Sparkles, Workflow, type LucideIcon } from "lucide-react";
+import styles from "./home.module.css";
 
-type Task = { id: number; title: string; category: string; reward: number; time: string; level: string; status: "可參與" | "審核中" };
-
-const initialTasks: Task[] = [
-  { id: 1, title: "繁體中文 AI 回答品質評估", category: "模型評估", reward: 35, time: "約 8 分鐘", level: "入門", status: "可參與" },
-  { id: 2, title: "公開資料來源查核與標註", category: "事實查核", reward: 60, time: "約 15 分鐘", level: "一般", status: "可參與" },
-  { id: 3, title: "英文產品說明在地化校對", category: "翻譯校對", reward: 90, time: "約 20 分鐘", level: "一般", status: "可參與" },
+type Track = { code: "A" | "B" | "C" | "D" | "E"; title: string; subtitle: string; mission: string; scope: string[]; status: string; href: string; action: string; external?: boolean; icon: LucideIcon };
+const tracks: Track[] = [
+ { code:"A", title:"Agent Factory V2", subtitle:"AI 自動開發工廠", mission:"讓工程任務從規劃、執行、測試、修復到交付，都有明確狀態與可核對證據。", scope:["任務派送與 Worker Lease","隔離執行、測試與故障修復","精確 SHA 綁定 CI 與候選 PR","重試、復原及交付稽核"], status:"獨立工作台 · 開發候選", href:"/factory", action:"開啟 A 線工廠工作台", icon:Workflow },
+ { code:"B", title:"Global Citizen AI Network", subtitle:"全球公民 AI 產品", mission:"面向使用者的產品主線，整合 AI 工作空間、知識貢獻、透明帳本與平台治理。", scope:["AI 工作空間與專案脈絡","任務、提交、審核與複核","成本、貢獻與稽核紀錄","會員體驗與平台流程"], status:"產品入口 · MVP 建置中", href:"/workspace", action:"進入 B 線產品工作區", icon:Globe2 },
+ { code:"C", title:"Predictive Coding", subtitle:"預測編碼與誤差學習", mission:"明確提出可驗證預測，再對照觀測結果、計算誤差、檢查校準並提出改進方案。", scope:["預測紀錄與目標期限","實際觀測與來源證據","誤差量測、校準與漂移","附驗證與回復方案的更新提案"], status:"展示工作台 · 示範資料", href:"/predictive-coding", action:"開啟 C 線預測工作台", icon:Activity },
+ { code:"D", title:"Deep Neural", subtitle:"深度神經與知識推理", mission:"整理具來源、版本與信心標記的知識記憶，支援推理、評估與跨線學習。", scope:["來源可追溯的知識記憶","證據檢索與脈絡整合","推理品質與不確定性評估","需審核的跨線學習提案"], status:"互動原型 · 持久化待整合", href:"https://global-citizen-ai-network-git-fe-c5aecf-acmes-projects-3dfbdf35.vercel.app/deep-neural", action:"開啟 D 線神經工作台", external:true, icon:BrainCircuit },
+ { code:"E", title:"Deep Research", subtitle:"深度研究與證據查核", mission:"把研究問題拆成可追蹤任務，查驗來源、尋找佐證與反證，輸出有引用的研究成果。", scope:["研究任務與問題拆解","來源可信度與出處追蹤","交叉驗證與反證搜尋","引用式綜整與行動建議"], status:"工作台候選 · 外部服務待接", href:"https://global-citizen-ai-network-git-fe-fef10e-acmes-projects-3dfbdf35.vercel.app/deep-research", action:"開啟 E 線研究工作台", external:true, icon:SearchCheck },
 ];
-
-const navItems = [
-  { id: "overview", label: "總覽", icon: LayoutDashboard },
-  { id: "ai", label: "AI 工作空間", icon: BrainCircuit },
-  { id: "contribute", label: "全球貢獻中心", icon: HandHeart },
-  { id: "ledger", label: "成本與貢獻帳本", icon: Wallet },
+const pillars = [
+ { n:"01", title:"全民 AI 服務", text:"研究、寫作、分析與專案知識整理，讓 AI 成為日常工作中可持續使用的工具。", icon:Sparkles },
+ { n:"02", title:"全球知識貢獻", text:"以任務規格、成果提交、品質驗收與複核流程，讓知識協作可以被公平評價。", icon:Network },
+ { n:"03", title:"透明成本與貢獻", text:"區分供應商帳單、內部成本估算、審核結果與獎勵紀錄，保留完整稽核脈絡。", icon:ReceiptText },
+ { n:"04", title:"自願式分散運算", text:"長期探索由使用者明確授權、可暫停退出且有隔離限制的閒置 CPU／GPU 協作。", icon:Cpu },
 ];
-
-export default function Home() {
-  const [active, setActive] = useState("overview");
-  const [mobileMenu, setMobileMenu] = useState(false);
-  const [query, setQuery] = useState("");
-  const [prompt, setPrompt] = useState("");
-  const [messages, setMessages] = useState<{ role: "assistant" | "user"; text: string }[]>([
-    { role: "assistant", text: "你好，這裡是全球公民 AI 網路的工作空間原型。你可以先描述想研究的問題，我會在此展示流程介面。目前尚未連接正式 AI 服務，這個版本不會產生 API 費用。" }
-  ]);
-  const [tasks, setTasks] = useState(initialTasks);
-  const [joined, setJoined] = useState<number[]>([]);
-  const [showNotice, setShowNotice] = useState(true);
-
-  const filteredTasks = useMemo(() => tasks.filter(t => (t.title + t.category).toLowerCase().includes(query.toLowerCase())), [tasks, query]);
-
-  function sendMessage() {
-    const value = prompt.trim();
-    if (!value) return;
-    setMessages(prev => [...prev, { role: "user", text: value }, { role: "assistant", text: "已收到你的需求。這是前端展示模式，尚未呼叫外部模型或搜尋服務。正式版會在每次請求前檢查使用額度，並記錄模型、token、供應商帳單成本與狀態。" }]);
-    setPrompt("");
-  }
-
-  function joinTask(id: number) {
-    if (joined.includes(id)) return;
-    setJoined(prev => [...prev, id]);
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, status: "審核中" } : t));
-  }
-
-  const title = navItems.find(n => n.id === active)?.label ?? "總覽";
-
-  return (
-    <main className="shell">
-      <aside className={mobileMenu ? "sidebar sidebar-open" : "sidebar"}>
-        <div className="brand">
-          <div className="brand-mark"><Globe2 size={22} /></div>
-          <div><strong>GLOBAL CITIZEN</strong><span>AI NETWORK</span></div>
-          <button className="mobile-close" onClick={() => setMobileMenu(false)} aria-label="關閉選單"><X size={18}/></button>
-        </div>
-        <div className="workspace-label">工作平台</div>
-        <nav>
-          {navItems.map(item => {
-            const Icon = item.icon;
-            return <button key={item.id} className={active === item.id ? "nav-item active" : "nav-item"} onClick={() => { setActive(item.id); setMobileMenu(false); }}>
-              <Icon size={18}/><span>{item.label}</span>{active === item.id && <span className="nav-dot"/>}
-            </button>;
-          })}
-        </nav>
-        <div className="sidebar-bottom">
-          <div className="secure-card"><ShieldCheck size={18}/><div><b>安全優先設計</b><span>透明、可驗證、可退出</span></div></div>
-          <div className="profile"><div className="avatar">G</div><div><b>訪客體驗帳戶</b><span>原型展示模式</span></div><span className="online-dot"/></div>
-        </div>
-      </aside>
-
-      {mobileMenu && <button className="scrim" onClick={() => setMobileMenu(false)} aria-label="關閉選單"/>}
-      <section className="main-area">
-        <header className="topbar">
-          <button className="menu-toggle" onClick={() => setMobileMenu(true)} aria-label="開啟選單"><Menu size={20}/></button>
-          <div className="breadcrumb">平台 / <b>{title}</b></div>
-          <div className="top-actions"><Link href="/contribute" className="login-link">全球貢獻中心</Link><Link href="/workspace" className="login-link">AI 工作空間</Link><Link href="/login" className="login-link">會員登入</Link><span className="status-pill"><span/> 系統原型運作中</span><button className="icon-button" aria-label="搜尋"><Search size={18}/></button><div className="avatar small">G</div></div>
-        </header>
-
-        <div className="content">
-          {showNotice && <div className="prototype-notice"><div><Activity size={17}/><span><b>早期原型</b>　目前使用示範資料，尚未連接正式 AI、資料庫、金流或獎勵支付。</span></div><button onClick={() => setShowNotice(false)} aria-label="關閉提示"><X size={16}/></button></div>}
-
-          {active === "overview" && <>
-            <div className="page-heading"><div><div className="eyebrow">GLOBAL CITIZEN AI NETWORK</div><h1>讓 AI 成為每個人的共同資產</h1><p>使用 AI，也用你的知識、經驗與專業，參與建設更好的 AI。</p></div><button className="primary-button" onClick={() => setActive("ai")}><Sparkles size={16}/> 開始使用 AI <ChevronRight size={16}/></button></div>
-            <div className="metric-grid">
-              <Metric icon={<BrainCircuit/>} label="AI 服務請求" value="—" note="正式服務尚未啟用" />
-              <Metric icon={<HandHeart/>} label="已驗證貢獻" value="—" note="等待真實任務資料" />
-              <Metric icon={<CircleDollarSign/>} label="可結算獎勵" value="NT$ 0" note="目前沒有實際發放" />
-              <Metric icon={<Cpu/>} label="運算節點" value="0" note="分散式運算尚未開放" />
-            </div>
-            <div className="section-heading"><div><h2>平台四大核心</h2><p>先建立可持續的服務，再逐步擴大公民參與網路。</p></div></div>
-            <div className="pillar-grid">
-              <Pillar icon={<BrainCircuit/>} number="01" title="AI 服務中心" text="研究、搜尋、寫作、分析與個人專案工作區。" tag="第一階段核心"/>
-              <Pillar icon={<HandHeart/>} number="02" title="全球貢獻中心" text="知識整理、翻譯、查核、回答評估與工具開發。" tag="第一階段核心"/>
-              <Pillar icon={<Wallet/>} number="03" title="貢獻與獎勵帳本" text="每筆貢獻可追蹤、可驗證，獎勵規則公開透明。" tag="第一階段核心"/>
-              <Pillar icon={<Cpu/>} number="04" title="分散式運算網路" text="由參與者自主選擇是否分享閒置 CPU/GPU 資源。" tag="後續階段"/>
-            </div>
-            <div className="bottom-grid">
-              <div className="panel"><div className="panel-title"><div><h3>近期開發里程碑</h3><p>以安全與真實營運能力為優先</p></div><span className="subtle-label">路線圖</span></div><div className="milestones"><Milestone done title="核心理念與產品邊界" detail="四大支柱、參與者權益與經濟原則"/><Milestone done title="成本透明規格" detail="API 帳單、內部估算與營運成本分帳"/><Milestone title="MVP 前端與資料模型" detail="工作區、貢獻任務、帳本與管理介面"/><Milestone title="登入、資料庫與權限" detail="建立可驗證的真實使用者流程"/><Milestone title="小規模封閉測試" detail="資安檢查、成本上限與人工覆核"/></div></div>
-              <div className="panel principles"><div className="panel-title"><div><h3>平台承諾</h3><p>不是口號，是系統規則</p></div><LockKeyhole size={18}/></div><ul><li><CheckCircle2/> 不會未經同意使用你的裝置資源</li><li><CheckCircle2/> 不承諾不實收益或投資報酬</li><li><CheckCircle2/> 貢獻品質有標準，也有申訴機制</li><li><CheckCircle2/> 成本與獎勵有紀錄可供查驗</li></ul></div>
-            </div>
-          </>}
-
-          {active === "ai" && <><div className="page-heading"><div><div className="eyebrow">AI SERVICE CENTER</div><h1>AI 工作空間</h1><p>把研究、思考與執行集中在同一個專案空間。</p></div><span className="subtle-label">模擬模式 · 不呼叫 API</span></div><div className="chat-layout"><div className="chat-panel"><div className="chat-header"><div className="ai-orb"><Sparkles size={18}/></div><div><b>Global AI 助手</b><span>目前為前端互動示範</span></div><span className="model-tag">DEMO</span></div><div className="messages">{messages.map((m,i)=><div key={i} className={m.role === "user" ? "message user-message" : "message assistant-message"}><div className="message-avatar">{m.role === "user" ? "你" : <BrainCircuit size={17}/>}</div><div>{m.text}</div></div>)}</div><div className="chat-input"><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}}} placeholder="輸入你想研究、分析或規劃的問題…"/><button onClick={sendMessage} disabled={!prompt.trim()}><ArrowUpRight size={17}/></button></div><div className="input-footnote">Enter 傳送 · Shift + Enter 換行 · 示範訊息不會送往外部服務</div></div><div className="side-info"><div className="panel"><h3>工作區能力規劃</h3><InfoRow icon={<FileSearch/>} title="研究與資料查證" text="來源追蹤、交叉比對與研究摘要"/><InfoRow icon={<MessageSquareText/>} title="專案與對話記憶" text="將對話整理成可持續更新的專案"/><InfoRow icon={<Sparkles/>} title="多模型路由" text="依任務品質、延遲與成本選擇模型"/></div><div className="cost-note"><CircleDollarSign size={19}/><div><b>成本保護已列入規格</b><p>正式串接前必須設定每月支出上限、單次請求上限與異常停用機制。</p></div></div></div></div></>}
-
-          {active === "contribute" && <><div className="page-heading"><div><div className="eyebrow">GLOBAL CONTRIBUTION CENTER</div><h1>全球貢獻中心</h1><p>每個人的知識與判斷，都能成為 AI 進步的一部分。</p></div><span className="subtle-label">任務示範資料</span></div><div className="contribution-intro"><div className="contribution-icon"><HandHeart size={25}/></div><div><b>從可驗證的小任務開始</b><p>完成任務不代表立即獲得現金，必須先通過品質驗證，再依公開規則記錄獎勵資格。</p></div></div><div className="task-toolbar"><div><h2>可參與任務</h2><p>以下獎勵金額純屬介面測試範例，不代表平台已承諾付款。</p></div><div className="search-box"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋任務"/></div></div><div className="task-list">{filteredTasks.map(task=><div className="task-row" key={task.id}><div className="task-icon"><FileSearch size={20}/></div><div className="task-main"><b>{task.title}</b><div className="task-meta"><span>{task.category}</span><span><Clock3 size={13}/>{task.time}</span><span>{task.level}</span></div></div><div className="task-reward"><b>NT$ {task.reward}</b><span>示範值</span></div><button className={task.status==="可參與"?"outline-button":"muted-button"} disabled={task.status!=="可參與"} onClick={()=>joinTask(task.id)}>{task.status==="可參與"?"查看並參與":"已送出"}</button></div>)}</div><div className="review-note"><ShieldCheck size={18}/><span><b>品質驗證：</b>格式檢查、重複內容偵測、AI 輔助評估與抽樣人工覆核並行，並保留申訴與重新審查流程。</span></div></>}
-
-          {active === "ledger" && <><div className="page-heading"><div><div className="eyebrow">TRANSPARENT ACCOUNTING</div><h1>成本與貢獻帳本</h1><p>讓每一筆 AI 成本、平台支出與參與者獎勵都有跡可循。</p></div><span className="subtle-label">帳務尚未啟用</span></div><div className="ledger-banner"><Wallet size={22}/><div><b>透明帳本是平台核心，不是事後補上的報表</b><p>以下為正式版欄位與計算規則示意，並非真實財務數字。</p></div></div><div className="metric-grid ledger-metrics"><Metric icon={<ArrowDownRight/>} label="AI 直接成本" value="NT$ 0" note="尚未連接供應商"/><Metric icon={<ArrowUpRight/>} label="平台營收" value="NT$ 0" note="尚未啟用收款"/><Metric icon={<HandHeart/>} label="貢獻者結算" value="NT$ 0" note="尚未開放實際支付"/><Metric icon={<Activity/>} label="平台營運結果" value="未計算" note="沒有正式帳務資料"/></div><div className="panel ledger-table-panel"><div className="panel-title"><div><h3>每筆 AI 請求必須記錄</h3><p>不以公開 API 標價冒充供應商實際帳單或內部推論成本</p></div><span className="subtle-label">資料規格</span></div><div className="ledger-table"><div className="ledger-table-head"><span>欄位</span><span>記錄內容</span><span>目的</span></div>{[["請求識別","request_id、時間、匿名使用者 ID","追蹤每次服務"],["模型用量","供應商、模型版本、輸入/輸出/快取 token","計算用量"],["供應商帳單","provider_billed_cost、幣別、帳單週期","對帳實際費用"],["內部成本估算","estimated_internal_cost、計算依據","管理邊際成本"],["工具與人工","搜尋、工具、人工覆核、重試成本","避免漏算服務成本"],["帳本異動","原始交易、沖銷、調整與審計紀錄","確保歷史可追溯"]].map(row=><div className="ledger-table-row" key={row[0]}><b>{row[0]}</b><span>{row[1]}</span><span>{row[2]}</span></div>)}</div></div><div className="formula-grid"><div className="formula-card"><span>服務貢獻毛利</span><b>服務收入 − 可歸屬直接服務成本</b></div><div className="formula-card"><span>平台營運結果</span><b>總收入 − 全部營運費用</b></div><div className="formula-card"><span>可分配盈餘</span><b>依法可分配且經核實的實際盈餘</b></div></div></>}
-          <footer><span>© 2026 Global Citizen AI Network</span><span>以透明、尊重與可驗證的方式共同建設 AI</span></footer>
-        </div>
-      </section>
-    </main>
-  );
+const loop = ["觀測","提出預測","採取行動","量測結果","計算預測誤差","解釋並保存證據","修正模型／計畫","測試","發布","接收線審核","持續監控"];
+const rules = [
+ { title:"最小權限與明確授權", text:"各線擁有自己的程式碼、資料與操作邊界；跨線資料必須有用途、權限及來源標記。", icon:LockKeyhole },
+ { title:"高風險動作保留人工控制", text:"AI 建議、預測與自動化結果不會自行更改正式帳務、定價、會員權限、資料庫或正式部署。", icon:ShieldCheck },
+ { title:"證據先於結論", text:"每項重要成果記錄版本、來源、精確 commit SHA、測試結果、審核決策與回復方式。", icon:SearchCheck },
+ { title:"展示資料不冒充真實營運", text:"示範數據、尚未連接的 AI／搜尋服務、尚未啟用的獎勵支付與分散式運算都會清楚標示。", icon:ClipboardCheck },
+];
+const docs = [
+ { title:"五線工程治理規範", text:"責任分工、跨線互助、版本制度、相容性測試與接收線審核。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/feat/agent-factory-v2/docs/engineering-governance.md", icon:GitBranch },
+ { title:"版本清單與變更紀錄", text:"查看整體版本、A–E 各線版本、狀態與每次更新內容。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/feat/agent-factory-v2/versions/manifest.json", icon:Layers3 },
+ { title:"Predictive Coding 架構", text:"預測、觀測、誤差、校準、漂移與更新提案的資料契約。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/feat/github-project-showcase/docs/predictive-coding-architecture.md", icon:Activity },
+ { title:"Deep Neural 架構", text:"知識記憶、證據來源、推理評估與跨線學習邊界。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md", icon:BrainCircuit },
+];
+function Heading({ label, title, text }: { label:string; title:string; text:string }) {
+ return <div className={styles.sectionHeading}><div className={styles.sectionEyebrow}>{label}</div><h2>{title}</h2><p>{text}</p></div>;
 }
 
-function Metric({icon,label,value,note}:{icon:ReactNode;label:string;value:string;note:string}) {
-  return <div className="metric-card"><div className="metric-top"><span>{label}</span><div className="metric-icon">{icon}</div></div><strong>{value}</strong><small>{note}</small></div>;
-}
-function Pillar({icon,number,title,text,tag}:{icon:ReactNode;number:string;title:string;text:string;tag:string}) {
-  return <div className="pillar-card"><div className="pillar-top"><div className="pillar-icon">{icon}</div><span>{number}</span></div><h3>{title}</h3><p>{text}</p><div className="pillar-tag">{tag}</div></div>;
-}
-function Milestone({done=false,title,detail}:{done?:boolean;title:string;detail:string}) {
-  return <div className="milestone"><div className={done?"milestone-check done":"milestone-check"}>{done?<CheckCircle2 size={15}/>:<span/>}</div><div><b>{title}</b><p>{detail}</p></div><span className={done?"milestone-state done":"milestone-state"}>{done?"已完成":"待執行"}</span></div>;
-}
-function InfoRow({icon,title,text}:{icon:ReactNode;title:string;text:string}) {
-  return <div className="info-row"><div>{icon}</div><section><b>{title}</b><p>{text}</p></section></div>;
+export default function HomePage() {
+ return <div className={styles.page}>
+  <a className={styles.skipLink} href="#main-content">跳至主要內容</a>
+  <header className={styles.header}><div className={styles.headerInner}>
+   <Link href="/" className={styles.brand} aria-label="Global Citizen AI Network 首頁"><span className={styles.brandMark}><Globe2 size={22}/></span><span className={styles.brandText}><strong>GLOBAL CITIZEN</strong><small>AI NETWORK</small></span></Link>
+   <nav className={styles.nav} aria-label="主要導覽"><a href="#pillars">平台價值</a><a href="#workstreams">五線工作台</a><a href="#learning-loop">協作閉環</a><a href="#governance">安全治理</a><a href="#documentation">技術文件</a></nav>
+   <div className={styles.headerActions}><Link href="/login" className={styles.loginLink}>會員登入</Link><Link href="/workspace" className={styles.headerCta}>進入平台 <ArrowUpRight size={15}/></Link></div>
+  </div></header>
+  <main id="main-content" tabIndex={-1}>
+   <section className={styles.hero}><div className={styles.heroInner}>
+    <div className={styles.heroCopy}><div className={styles.eyebrow}><span/> FIVE WORKSTREAMS · ONE SHARED MISSION</div>
+     <h1>讓 AI 成為<br/><em>每個人都能參與</em><br/>的全球協作網路</h1>
+     <p className={styles.heroLead}>Global Citizen AI Network（GCAN）不只是一個 AI 聊天介面。我們正在建立結合 AI 服務、全球知識貢獻、預測學習、知識推理與深度研究的協作平台，讓每一項成果都能被追蹤、驗證與持續改善。</p>
+     <div className={styles.heroActions}><a href="#workstreams" className={styles.primaryButton}>探索 A–E 五線工作台 <ArrowRight size={17}/></a><a href="#architecture" className={styles.secondaryButton}>查看整體架構 <ChevronRight size={15}/></a></div>
+     <div className={styles.heroPrinciples}><span><ShieldCheck size={15}/> 明確授權</span><span><GitBranch size={15}/> 版本可追溯</span><span><CheckCircle2 size={15}/> 結果可驗證</span></div>
+    </div>
+    <div className={styles.heroVisual}><div className={styles.visualGlow}/><div className={styles.visualFrame}><Image src="/brand/gcan-hero.svg" alt="GCAN 全球 AI 協作網路品牌主視覺" width={1600} height={520} priority className={styles.heroImage} sizes="(max-width: 900px) 100vw, 52vw"/></div><div className={styles.visualTagTop}><span className={styles.liveDot}/> 五線協作架構</div><div className={styles.visualTagBottom}><Network size={15}/> INDEPENDENT · CONNECTED · REVIEWED</div></div>
+   </div><div className={styles.heroBottom}><div className={styles.heroBottomLabel}>THE GCAN OPERATING MODEL</div><div className={styles.heroFact}><b>A–E</b><span>五條獨立工作線</span></div><div className={styles.heroFact}><b>01</b><span>共用證據協作閉環</span></div><div className={styles.heroFact}><b>OWNED</b><span>各線自主、明確責任</span></div><div className={styles.heroFact}><b>REVIEWED</b><span>整合前必須審核與測試</span></div></div></section>
+   <section className={styles.stageBar} aria-label="專案狀態"><div className={styles.stageLabel}><span/> EARLY DEVELOPMENT / MVP</div><p>目前為早期建置與預覽階段；各工作台成熟度不同，請以每條工作線標示與 GitHub 精確提交紀錄為準。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">查看 CI 驗證 <ArrowUpRight size={14}/></a></section>
+   <section className={styles.pillarsSection} id="pillars"><Heading label="THE PLATFORM" title="四大平台價值，承載五線協作" text="四大價值描述 GCAN 最終要提供的公共能力；A–E 五線則是實際負責建設、驗證與持續改善的工程分工。兩者互相對應，但不是同一層級。"/><div className={styles.pillarGrid}>{pillars.map(({n,title,text,icon:Icon})=><article className={styles.pillarCard} key={n}><div className={styles.pillarTop}><span>{n}</span><div className={styles.pillarIcon}><Icon size={21}/></div></div><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+   <section className={styles.workstreamsSection} id="workstreams"><div className={styles.workstreamsTop}><Heading label="FIVE CONNECTED WORKSTREAMS" title="五條主線，各自負責、互相成就" text="每條線有獨立工作台、責任範圍、版本與驗收證據。工作台預覽不代表正式上線；尚未整合的功能會明確標示。"/><a className={styles.textLink} href="https://github.com/X84657465/global-citizen-ai-network/blob/feat/gcan-product-homepage/docs/engineering-governance.md" target="_blank" rel="noreferrer">閱讀五線治理規範 <ArrowUpRight size={15}/></a></div>
+    <div className={styles.trackGrid}>{tracks.map(({code,title,subtitle,mission,scope,status,href,action,external,icon:Icon})=>{const body=<><div className={styles.trackTop}><span className={styles.trackCode}>TRACK {code}</span><span className={styles.trackOrb}><Icon size={21}/></span></div><div className={styles.trackTitleGroup}><h3>{title}</h3><span>{subtitle}</span></div><p className={styles.trackMission}>{mission}</p><ul className={styles.trackScope}>{scope.map(item=><li key={item}><CheckCircle2 size={13}/>{item}</li>)}</ul><div className={styles.trackFooter}><span className={styles.trackStatus}>{status}</span><span className={styles.trackAction}>{action} <ArrowUpRight size={15}/></span></div></>;return external?<a className={styles.trackCard} data-track={code} href={href} key={code} target="_blank" rel="noreferrer" aria-label={action+"（開啟獨立預覽）"}>{body}</a>:<Link className={styles.trackCard} data-track={code} href={href} key={code} aria-label={action+"（需要登入）"}>{body}</Link>;})}</div>
+    <div className={styles.trackFootnote}><ShieldCheck size={16}/>A、C 使用本平台內建工作台；D、E 目前仍為獨立預覽環境；B 進入會員工作區。各工作台可能使用示範資料，登入、AI 服務、資料持久化與外部整合仍依各線狀態逐步驗收。</div>
+   </section>
+   <section className={styles.architectureSection} id="architecture"><div className={styles.architectureIntro}><div><div className={styles.sectionEyebrow}>SYSTEM ARCHITECTURE</div><h2>不是五個孤島，<em>而是一個可驗證的協作系統</em></h2><p>五線保有各自的決策權與交付責任，跨線成果透過版本化文件、來源證據、接收線審核與相容性測試整合。</p></div><div className={styles.architectureLegend}><span><i className={styles.legendBlue}/> 工程執行</span><span><i className={styles.legendTeal}/> 產品流程</span><span><i className={styles.legendViolet}/> 預測學習</span><span><i className={styles.legendPink}/> 知識推理</span><span><i className={styles.legendGold}/> 研究查核</span></div></div><div className={styles.architectureVisual}><Image src="/brand/gcan-five-track-architecture.svg" alt="GCAN A 至 E 五條工作線及共同治理與學習閉環架構圖" width={1500} height={850} className={styles.architectureImage} sizes="(max-width: 1200px) 100vw, 1200px"/></div><div className={styles.architectureNote}><div><Layers3 size={17}/><b>接收線擁有採用決策權</b></div><p>共享成果先成為提案，再由接收線確認相容性、執行測試與決定是否採用；任何 AI 輸出都不能繞過這個流程。</p></div></section>
+   <section className={styles.loopSection} id="learning-loop"><Heading label="SHARED LEARNING LOOP" title="讓每次改善都有起點、證據與回饋" text="五線共同使用同一個可稽核閉環。預測誤差是改善訊號，不是自動修改正式系統的授權。"/><div className={styles.loopRail}>{loop.map((step,i)=><div className={styles.loopStep} key={step}><span>{String(i+1).padStart(2,"0")}</span><b>{step}</b>{i<loop.length-1&&<ArrowRight size={14}/>}</div>)}</div><div className={styles.loopPrinciple}><Activity size={18}/><p><b>核心規則：</b>所有跨線改進都要保留來源、數字版本、影響線別、接收線決策、測試結果與回復方式。</p></div></section>
+   <section className={styles.productSection} id="product-entry"><Heading label="START WITH THE PLATFORM" title="從真正的產品入口開始" text="工程工作台負責建設平台；使用者入口則聚焦 AI 工作、知識貢獻與可理解的產品規則。"/><div className={styles.productGrid}>
+    <Link href="/workspace" className={styles.productCard}><span className={styles.productIcon}><Sparkles size={21}/></span><div><h3>AI 工作空間</h3><p>進入個人工作區，進行 AI 對話與專案知識工作。正式使用需登入並符合環境設定。</p></div><ArrowUpRight size={17}/></Link>
+    <Link href="/contribute" className={styles.productCard}><span className={styles.productIcon}><ClipboardCheck size={21}/></span><div><h3>全球貢獻中心</h3><p>了解任務、提交、品質驗收與複核機制；獎勵資格以審核結果及平台規則為準。</p></div><ArrowUpRight size={17}/></Link>
+    <a href="https://github.com/X84657465/global-citizen-ai-network" className={styles.productCard} target="_blank" rel="noreferrer"><span className={styles.productIcon}><BookOpen size={21}/></span><div><h3>公開技術與開發紀錄</h3><p>查看版本、工作線責任、工程文件、測試與每次變更的可追溯證據。</p></div><ArrowUpRight size={17}/></a>
+   </div></section>
+   <section className={styles.governanceSection} id="governance"><div className={styles.governanceHeader}><div className={styles.sectionEyebrow}>TRUST & GOVERNANCE</div><h2>安全與信任，從第一天就寫進架構</h2><p>平台不以尚未完成的功能作承諾，也不把 AI 建議當成正式決策。治理規則必須能被程式、測試與審核紀錄驗證。</p></div><div className={styles.trustGrid}>{rules.map(({title,text,icon:Icon})=><article className={styles.trustCard} key={title}><span><Icon size={20}/></span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div></section>
+   <section className={styles.docsSection} id="documentation"><div className={styles.docsHeading}><div><div className={styles.sectionEyebrow}>DOCUMENTATION & EVIDENCE</div><h2>網站說明與 GitHub 文件使用同一套定義</h2><p>架構、工作線責任、版本與技術細節以專案文件為準；首頁只呈現易讀摘要與各線入口。</p></div><a className={styles.textLink} href="https://github.com/X84657465/global-citizen-ai-network" target="_blank" rel="noreferrer">前往 GitHub 專案 <ArrowUpRight size={15}/></a></div><div className={styles.docsGrid}>{docs.map(({title,text,href,icon:Icon})=><a href={href} className={styles.docCard} key={title} target="_blank" rel="noreferrer"><span><Icon size={18}/></span><div><b>{title}</b><p>{text}</p></div><ArrowUpRight size={15}/></a>)}</div></section>
+   <section className={styles.finalCta}><div className={styles.finalCtaMark}><Globe2 size={23}/></div><div><div className={styles.sectionEyebrow}>BUILD TOGETHER · LEARN TOGETHER</div><h2>讓每一份貢獻，都成為可驗證的進步</h2><p>GCAN 正在持續建置。歡迎先了解產品、檢視五線架構與追蹤公開開發紀錄。</p></div><a href="https://github.com/X84657465/global-citizen-ai-network" className={styles.finalCtaButton} target="_blank" rel="noreferrer">查看 GitHub <ArrowRight size={16}/></a></section>
+  </main>
+  <footer className={styles.footer}><div className={styles.footerTop}><Link href="/" className={styles.footerBrand}><span><Globe2 size={18}/></span><b>GLOBAL CITIZEN AI NETWORK</b></Link><p>Build Together. Learn Together. Make AI Useful for Everyone.</p></div><div className={styles.footerBottom}><span>© {new Date().getFullYear()} GCAN · Early Development / MVP</span><div><Link href="/workspace">AI 工作空間</Link><Link href="/contribute">全球貢獻中心</Link><a href="https://github.com/X84657465/global-citizen-ai-network" target="_blank" rel="noreferrer">GitHub</a><a href="https://github.com/X84657465/global-citizen-ai-network/blob/feat/agent-factory-v2/CHANGELOG.md" target="_blank" rel="noreferrer">版本紀錄</a></div></div></footer>
+ </div>;
 }

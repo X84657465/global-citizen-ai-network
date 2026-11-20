@@ -37,7 +37,7 @@ export default function LoginPage() {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        window.location.assign("/");
+        window.location.assign("/workspace");
       } else {
         const response = await fetch("/api/auth/signup", {
           method: "POST",
