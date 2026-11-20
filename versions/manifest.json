@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.17",
+  "overall": "0.3.21",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
-      "version": "2.0.9",
+      "version": "2.0.10",
       "status": "active"
     },
     "B": {
@@ -14,18 +14,18 @@
     },
     "C": {
       "name": "Predictive Coding（預測編碼）",
-      "version": "0.3.5",
+      "version": "0.3.6",
       "status": "implementation-candidate",
       "responsibility": "Prediction, observation, prediction-error measurement, uncertainty calibration and evidence-based model updates."
     },
     "D": {
       "name": "Deep Neural",
-      "version": "0.3.5",
+      "version": "0.3.8",
       "status": "implementation-candidate"
     },
     "E": {
       "name": "Deep Research（深度研究）",
-      "version": "0.1.8",
+      "version": "0.1.9",
       "status": "implementation-candidate",
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
     }
