@@ -1,5 +1,16 @@
 # Deep Research Changelog
 
+## 0.1.8 — 2026-11-20
+
+### Fixed
+- Validate actual calendar dates, clock fields and timezone offset bounds instead of relying on permissive Date.parse normalization.
+
+### Tests
+- Reject invalid month/day combinations, impossible times, leap-second values and invalid timezone offsets.
+
+### Verification
+- Exact-head CI required; URL fetching remains unimplemented and must add DNS/redirect protections before activation.
+
 ## 0.1.7 — 2026-11-20
 
 ### Fixed
