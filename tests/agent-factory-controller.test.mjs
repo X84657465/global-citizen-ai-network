@@ -746,3 +746,23 @@ test("check mode rejects a workflow response from an older run attempt", async (
   assert.equal(result.state.active_task.lease_id, "lease-old-attempt");
   assert.equal(store.state.state_version, state.state_version);
 });
+
+test("check mode fails closed when a completed workflow has a missing or unsupported conclusion", async () => {
+  for (const conclusion of [null, "unknown", "success-ish"]) {
+    const state = reserveTask(createInitialFactoryState(1000), {
+      issue_number: 42, lease_id: "lease-invalid-conclusion-" + String(conclusion),
+      lease_owner: "runner", workflow_run_id: "123456", run_attempt: 1,
+      base_sha: "a".repeat(40), lease_ms: 60_000,
+    }, 1000);
+    const store = fakeStore(state);
+    const controller = createAgentFactoryController({
+      store, repository: "owner/repo", now: () => 62_000,
+      api: { request: async () => ({ id: 123456, status: "completed", conclusion, run_attempt: 1 }) },
+    });
+    const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+    assert.equal(result.outputs.lease_recovered, false);
+    assert.match(result.outputs.recovery_error, /conclusion is missing or unsupported/);
+    assert.equal(result.state.active_task.lease_id, "lease-invalid-conclusion-" + String(conclusion));
+    assert.equal(store.state.state_version, state.state_version);
+  }
+});
