@@ -77,6 +77,7 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
     assert.ok(section.includes("runs-on: ubuntu-latest"), job + " must not consume the Windows Runner");
+    assert.ok(section.includes("shell: bash"), job + " must use a Linux-compatible shell");
     assert.equal(section.includes("global-citizen-ai-network-self-hosted-runner"), false, job + " must not queue behind Windows-only work");
   }
 });
