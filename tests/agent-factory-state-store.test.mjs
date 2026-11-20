@@ -324,3 +324,37 @@ test("rejects invalid UTF-8 bytes in an otherwise canonical base64 state payload
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
   await assert.rejects(store.read(), /invalid base64 JSON/);
 });
+
+test("migrates the configured production state-Issue path without creating a replacement Issue", async () => {
+  const legacy = {
+    consecutive_failures: 1,
+    cooldown_until: null,
+    task_failures: { "81": 1, "94": 1, "95": 3, "97": 2 },
+    skipped_issue_numbers: [95],
+    last_error: "previous worker failure",
+    last_task_success_at: "2026-11-19T16:43:26.594Z",
+    updated_at: "2026-11-20T04:09:57.622Z",
+  };
+  const body = "Machine-managed scheduler state. <!-- agent-factory-state:" +
+    Buffer.from(JSON.stringify(legacy)).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, {
+    repository: "owner/repo",
+    issueNumber: 100,
+  });
+
+  const migrated = await store.migrate();
+
+  assert.equal(migrated.migrated, true);
+  assert.equal(migrated.issue.number, 100);
+  assert.equal(migrated.state.schema_version, 2);
+  assert.equal(migrated.state.state_version, 1);
+  assert.equal(migrated.state.system.consecutive_failures, 1);
+  assert.equal(migrated.state.tasks["81"].failures, 1);
+  assert.equal(migrated.state.tasks["94"].failures, 1);
+  assert.equal(migrated.state.tasks["95"].status, "quarantined");
+  assert.equal(migrated.state.tasks["97"].failures, 2);
+  assert.equal(migrated.state.system.last_success_at, legacy.last_task_success_at);
+  assert.equal(fake.issues.length, 1, "migration must update the existing state Issue, not create another");
+  assert.equal((await store.read()).migrated, false);
+});
