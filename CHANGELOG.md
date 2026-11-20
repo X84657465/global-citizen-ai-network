@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.12 — 2026-11-20
+
+### Fixed
+- Repair eslint-import-resolver-node lockfile metadata so the package version matches its immutable 0.3.10 tarball URL and integrity entry.
+- Add CI regression coverage for resolved tarball/version consistency.
+- Synchronize the five-track candidate manifest.
+
+### Verification
+- Static lockfile consistency guard added; exact-head Windows Runner CI remains required.
+
 ## 0.3.11 — 2026-11-20
 
 ### Fixed
