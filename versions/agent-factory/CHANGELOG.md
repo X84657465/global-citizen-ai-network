@@ -59,3 +59,11 @@
 - Keep cancelled and non-terminal runs out of the scored evidence stream.
 
 **Verification:** exact-head CI required. Export is not a live Predictive Coding ingestion or production decision.
+
+## 2.0.7
+
+- Update durable lifecycle integration fixtures to include the exact deterministic candidate branch ref on terminal CI callbacks.
+- Keep candidate evidence generation strict: callbacks without an exact branch ref remain rejected.
+- Add regression coverage for single-task, 24-task, failure/backoff and retry-success lifecycles under the EvidenceRecord export contract.
+
+**Verification:** exact-head Agent Factory Preflight and full CI must pass before acceptance.

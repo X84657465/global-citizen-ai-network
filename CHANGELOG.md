@@ -168,3 +168,14 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 ### Verification
 - New helper and controller tests cover result mapping, exact branch/SHA/run provenance, malformed evidence rejection and callback replay behavior.
 - Exact-head CI is required before acceptance; no live C/D ingestion or production deployment is implied.
+
+
+## 0.3.8 — 2026-11-20
+
+### Fixed
+- Align the Agent Factory lifecycle integration fixtures with the strict exact-branch EvidenceRecord contract.
+- Synchronize Agent Factory to 2.0.7 and the repository integration version to 0.3.8.
+
+### Verification
+- The latest isolated Preflight exposed three lifecycle callbacks missing the newly required candidate branch ref. The regression fixtures now supply the deterministic branch for every terminal callback.
+- Exact-head Preflight and full CI must pass before the change is accepted.
