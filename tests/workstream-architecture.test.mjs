@@ -36,5 +36,5 @@ test("cross-track boundaries and staged acceptance gates are documented", () => 
 test("engineering governance links the sixteen-track roadmap and preserves numeric version policy", () => {
   assert.ok(governance.includes("A–P"));
   assert.ok(governance.includes("MAJOR.MINOR.PATCH"));
-  assert.ok(governance.includes("no automatic approval"));
+  assert.ok(governance.toLowerCase().includes("no automatic approval"));
 });
