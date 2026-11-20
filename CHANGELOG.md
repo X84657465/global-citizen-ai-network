@@ -1,3 +1,14 @@
+## 0.3.41 — 2026-11-20
+
+### Fixed — Agent Factory Release Metadata and Exact-Head Verification
+- Reconcile the A-track manifest version with the authoritative `versions/agent-factory/VERSION` and track changelog (`2.0.22`).
+- Add a CI regression test requiring package.json, package-lock.json, root VERSION, manifest overall version, and Agent Factory manifest/version file to agree.
+- Previous run #44641219370 is not current-head acceptance evidence: its log predates current head `392fc270d7d5d8993ff2fd42e03df6cb02adfd80` and failed the older CI trigger assertion plus a `psql` executable fallback in the application RLS test. The current branch contains the Docker-container execution path and matching trigger assertion; exact-head rerun remains required.
+
+### Verification
+- Metadata read-back is synchronized to repository `0.3.41` and Agent Factory `2.0.22`.
+- No local test execution or fresh exact-head CI pass is claimed.
+
 ## 0.3.40 — 2026-11-20
 
 ### Reliability
