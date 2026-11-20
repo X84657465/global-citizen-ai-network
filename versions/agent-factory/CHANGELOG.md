@@ -1,3 +1,12 @@
+## 2.0.57 — 2026-11-20
+
+### Fixed — Validate failure-scope regression test changes
+- Add tests/agent-failure-scope.test.mjs to the V2 preflight path filter.
+- Assert both helper and dedicated regression-test changes trigger factory validation.
+
+### Verification
+- Exact-head full CI and controlled Windows factory smoke remain required.
+
 ## 2.0.56 — 2026-11-20
 
 ### Fixed — Trigger factory validation for failure-scope helper changes

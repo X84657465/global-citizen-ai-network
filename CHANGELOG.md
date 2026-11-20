@@ -1,3 +1,10 @@
+## 0.3.86 — 2026-11-20
+
+- Include tests/agent-failure-scope.test.mjs in the Agent Factory preflight path filter so isolated changes to the task-failure regression suite still execute Windows factory validation.
+- Extend CI policy coverage to guard both the helper implementation and its dedicated tests.
+- Agent Factory V2 advances to 2.0.57; root/package/lock/manifest metadata stays synchronized.
+- Exact-head full CI remains required; no live task completion is claimed.
+
 ## 0.3.85 — 2026-11-20
 
 - Include the new Agent Factory task-failure scope helper in the V2 preflight push path filter, ensuring helper-only changes cannot bypass Windows factory validation.

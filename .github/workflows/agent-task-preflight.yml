@@ -16,6 +16,7 @@ on:
       - "scripts/agent-factory-v2-controller.mjs"
       - "lib/agent-factory-controller.mjs"
       - "lib/agent-failure-scope.mjs"
+      - "tests/agent-failure-scope.test.mjs"
       - "lib/agent-factory-state-machine.mjs"
       - "lib/agent-factory-state-store.mjs"
       - "lib/agent-task-queue.mjs"

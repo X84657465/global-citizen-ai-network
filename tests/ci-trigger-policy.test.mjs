@@ -75,6 +75,7 @@ test("CI coalesces pending commits and serializes every job on the available Win
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
   assert.ok(preflight.includes('      - "lib/agent-failure-scope.mjs"\n'), "changes to the task-failure scope helper must trigger factory validation");
+  assert.ok(preflight.includes('      - "tests/agent-failure-scope.test.mjs"\n'), "changes to the helper regression tests must trigger factory validation");
   assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must remain runnable on the active development branch");
 
   const workflowHeader = preflight.slice(0, preflight.indexOf("\njobs:"));
