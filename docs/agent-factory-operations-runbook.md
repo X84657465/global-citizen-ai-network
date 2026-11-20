@@ -10,6 +10,19 @@ This runbook covers the GitHub Actions + Windows self-hosted Runner workflow on 
 - The scheduled workflow is defined in `.github/workflows/agent-task-preflight.yml` and currently polls every five minutes (`*/5 * * * *`). GitHub may delay scheduled events.
 - The Windows Runner is a single execution lane. Workflow concurrency serializes its work; this is not multi-host parallel capacity.
 
+## Default-branch scheduling gate
+
+GitHub evaluates scheduled workflows from the repository's default branch only. A copy of `.github/workflows/agent-task-preflight.yml` on `feat/agent-factory-v2` does **not** make its five-minute schedule or `workflow_dispatch` trigger operational while the default branch still contains the older workflow definition.
+
+Operational consequences:
+
+- Do not infer that V2's `check`/migration path is running merely because the feature-branch workflow contains `schedule: ` or `workflow_dispatch:`.
+- The V2 workflow must first be reviewed and incorporated into the default branch through the repository's approved integration/release process. PR #134 and PR #139 must remain Draft until their independent acceptance and release gates are satisfied.
+- Until that release gate is met, Issue #100 remains on its existing V1 payload. Do not edit the machine-managed Issue manually, create a replacement state Issue, or claim that migration occurred.
+- The configured-issue migration regression test is synthetic. A real migration is accepted only after an exact-SHA Windows Runner run demonstrates the V2 controller reading and updating the same Issue #100, followed by a read-back confirming schema version 2 and preserved task/system history.
+
+This gate is separate from branch CI: pull-request CI can validate feature-branch code without activating that branch's scheduled production workflow.
+
 ## Normal health checks
 
 Before treating an Agent Factory failure as an application defect, verify in this order:
