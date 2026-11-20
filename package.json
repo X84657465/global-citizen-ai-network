@@ -1,6 +1,6 @@
 {
   "name": "global-citizen-ai-network",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -26,9 +26,5 @@
     "typescript": "^5.8.3",
     "@eslint/eslintrc": "^3.3.7"
   },
-  "overrides": {
-    "next": {
-      "postcss": "^8.5.23"
-    }
-  }
+  "overrides": { "next": { "postcss": "^8.5.23" } }
 }
