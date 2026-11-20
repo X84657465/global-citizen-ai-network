@@ -1,3 +1,9 @@
+## 0.3.99 — 2026-11-21
+
+- B 0.1.14: validate conversation/project metadata timestamps before workspace state updates and remove unused model metadata from message API projections.
+- Add regression coverage for metadata timestamp validation and minimal message API field selection.
+- Repository baseline advances to 0.3.99; A remains 2.0.67 and all C–P workstream versions remain unchanged.
+
 ## 0.3.98 — 2026-11-21
 
 - Synchronize the A–P homepage and governance registry with the current Agent Factory V2 baseline: A 2.0.67 / repository 0.3.98; preserve B 0.1.13, K 0.1.2 and all independent C–P versions.

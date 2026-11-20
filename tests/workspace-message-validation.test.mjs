@@ -60,3 +60,10 @@ test("workspace message loading validates the response envelope and catches malf
   assert.match(client, /!Array\.isArray\(data\.messages\) \|\| !data\.messages\.every\(isWorkspaceMessage\)/);
   assert.match(client, /catch \(reason\)/);
 });
+
+test("conversation and project metadata timestamps are validated before entering workspace state", () => {
+  const client = readFileSync(new URL("../app/workspace/workspace-client.tsx", import.meta.url), "utf8");
+  assert.match(client, /import \{ isValidTimestamp, isWorkspaceMessage \}/);
+  assert.match(client, /data\.conversations\.filter\(conversation => isValidTimestamp\(conversation\.updated_at\)\)/);
+  assert.match(client, /project\.archived_at === null \|\| isValidTimestamp\(project\.archived_at\)/);
+});

@@ -1,3 +1,13 @@
+## 0.1.14 — 2026-11-21
+
+### Fixed — Validate workspace metadata and minimize message API payloads
+- Validate conversation `updated_at` and project `archived_at` timestamps before accepting metadata into workspace state; malformed timestamps are excluded fail-closed.
+- Remove the unused `model` column from both GET and POST message selections; preserve the client-consumed message contract.
+- Add regressions for strict metadata timestamp filtering and the exact message API field projection.
+
+### Verification
+- Exact-head full CI, PostgreSQL/RLS, functional and visual regression, and independent formal review required before acceptance. No production deployment is claimed.
+
 ## 0.1.13 — 2026-11-20
 
 ### Integrated
