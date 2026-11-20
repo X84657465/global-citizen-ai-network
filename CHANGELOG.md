@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.16 — 2026-11-20
+
+### Security
+- Require workspace message and conversation timestamps to be real, timezone-qualified ISO-8601 instants.
+- Reject impossible calendar dates, invalid clock/offset fields, timezone-less strings and permissive Date.parse inputs.
+
+### Verification
+- Added adversarial timestamp validation tests; exact-head CI required.
+
+
 ## 0.3.15 — 2026-11-20
 
 ### Fixed

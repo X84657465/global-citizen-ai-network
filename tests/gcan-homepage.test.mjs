@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { isWorkspaceMessage } from "../lib/workspace/message-validation.ts";
+import { isValidTimestamp, isWorkspaceMessage } from "../lib/workspace/message-validation.ts";
 
 const homepage = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const homeCss = readFileSync(new URL("../app/home.module.css", import.meta.url), "utf8");
@@ -216,4 +216,30 @@ test("homepage typography keeps body and supporting copy readable on desktop and
   assert.match(homeCss, /\.sectionHeading>p,[\s\S]*?font-size:15px/);
   assert.match(homeCss, /\.pillarCard p\{font-size:13px/);
   assert.match(homeCss, /@media\(max-width:620px\)[\s\S]*?\.heroLead\{font-size:16px\}/);
+});
+
+
+test("workspace timestamps require a real timezone-qualified ISO-8601 instant", () => {
+  for (const valid of [
+    "2026-11-20T12:34:56Z",
+    "2024-02-29T23:59:59.123456Z",
+    "2026-11-20T12:34:56+08:00",
+    "2026-11-20T12:34:56-05:30",
+  ]) assert.equal(isValidTimestamp(valid), true, valid);
+
+  for (const invalid of [
+    "2026-11-20",
+    "2026-11-20T12:34:56",
+    "2026-11-20 12:34:56Z",
+    "2026-02-29T12:00:00Z",
+    "2026-11-31T12:00:00Z",
+    "2026-11-20T24:00:00Z",
+    "2026-11-20T12:60:00Z",
+    "2026-11-20T12:00:60Z",
+    "2026-11-20T12:00:00+14:01",
+    "2026-11-20T12:00:00+15:00",
+    "tomorrow",
+    "",
+    1732000000,
+  ]) assert.equal(isValidTimestamp(invalid), false, String(invalid));
 });

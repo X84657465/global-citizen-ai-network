@@ -1,4 +1,13 @@
-# GCAN Product changelog
+# GCAN Product Changelog
+
+## 0.1.8 — 2026-11-20
+
+### Security
+- Share strict ISO-8601 timestamp validation across workspace message and conversation response handling.
+
+### Verification
+- Added valid and adversarial timestamp test cases; exact-head CI required.
+
 
 ## 0.1.7 — 2026-11-20
 

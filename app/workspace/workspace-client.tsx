@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { hasPendingRetryContentMismatch } from "@/lib/ai/pending-retry";
-import { isWorkspaceMessage } from "@/lib/workspace/message-validation";
+import { isValidTimestamp, isWorkspaceMessage } from "@/lib/workspace/message-validation";
 
 type Conversation = { id: string; project_id: string | null; title: string; updated_at: string };
 type ProjectOption = { id: string; title: string; archived_at: string | null };
@@ -14,11 +14,6 @@ function isUuid(value: unknown): value is string {
   return typeof value === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
-
-function isValidTimestamp(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0 && Number.isFinite(Date.parse(value));
-}
-
 
 function pendingKeyStorageKey(conversationId: string) {
   return `gcan:pending-ai:${conversationId}`;
