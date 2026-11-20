@@ -1,3 +1,15 @@
+## 0.3.46 — 2026-11-20
+
+### Added — H Runner Observability & Quota Contract
+- Add a privacy-minimized Runner snapshot contract for heartbeat, queue depth, recent outcomes and quota usage.
+- Add deterministic health evaluation for stale heartbeat, queue pressure, failure rate, quota thresholds and clock skew.
+- Return advisory pause/alert recommendations only; no Runner, quota, workflow or production state is mutated.
+- Reject unknown fields to prevent secrets, environment variables, host paths and job payloads entering telemetry records.
+- Add regression coverage and document the trust boundary and operational integration requirements.
+
+### Verification
+- Exact-head Windows Runner CI remains mandatory; no test pass or operational telemetry integration is claimed.
+
 ## 0.3.45 — 2026-11-20
 
 ### Fixed — Stacked PR CI Dispatch
