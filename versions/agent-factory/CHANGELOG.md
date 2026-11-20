@@ -1,3 +1,15 @@
+## 2.0.21 — 2026-11-20
+
+### Lease recovery hardening
+- Require completed GitHub Actions runs to include a recognized conclusion before recovering an expired lease.
+- Fail closed for null, missing or unknown conclusions while preserving the active lease and state version.
+
+### Regression coverage
+- Add controller cases for missing and unsupported workflow conclusions.
+
+### Verification
+- Exact-head Windows Runner CI remains required; no test pass is claimed.
+
 ## 2.0.20 — 2026-11-20
 
 ### Reliability regression coverage
