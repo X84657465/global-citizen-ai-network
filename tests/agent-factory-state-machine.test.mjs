@@ -736,6 +736,16 @@ test("legacy retry_wait fallback prefers task failure time and applies bounded e
   };
   assert.equal(getTaskRetryAt(legacy, new Date(50_000).toISOString()), 121_000);
 
+  const explicit = {
+    ...legacy,
+    next_attempt_at: new Date(77_000).toISOString(),
+  };
+  assert.equal(
+    getTaskRetryAt(explicit, new Date(50_000).toISOString()),
+    77_000,
+    "an explicit retry timestamp must remain authoritative over legacy fallbacks"
+  );
+
   const migrated = { ...legacy, last_error: null };
   assert.equal(getTaskRetryAt(migrated, new Date(1_000).toISOString()), 121_000);
   assert.equal(getTaskRetryAt({ ...migrated, failures: 10 }, new Date(1_000).toISOString()), 1_801_000);
