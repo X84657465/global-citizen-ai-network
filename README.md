@@ -243,3 +243,8 @@ Run checks with `npm run lint`, `npm run test:unit`, and `npm run build`. See th
 <sub>Global Citizen AI Network · README maintained with the project source of truth</sub>
 
 </div>
+
+
+## CI 工程紀錄
+
+- **2026-11-20：** Windows Runner 的 Supabase CI 連接埠配置改用 `20000–39999`，避開 Windows 預設動態 TCP 連接埠範圍；並新增回歸測試，防止舊範圍再次引入。此修正仍須以最新 PR head 的完整 CI（含 PostgreSQL/RLS）驗證後才能驗收。
