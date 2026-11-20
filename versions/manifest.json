@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.22",
+  "overall": "0.3.23",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
-      "version": "2.0.10",
+      "version": "2.0.15",
       "status": "active"
     },
     "B": {
       "name": "Global Citizen AI Network",
-      "version": "0.1.9",
+      "version": "0.1.11",
       "status": "active"
     },
     "C": {
@@ -20,12 +20,12 @@
     },
     "D": {
       "name": "Deep Neural",
-      "version": "0.3.8",
+      "version": "0.3.10",
       "status": "implementation-candidate"
     },
     "E": {
       "name": "Deep Research（深度研究）",
-      "version": "0.1.10",
+      "version": "0.1.11",
       "status": "implementation-candidate",
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
     }
