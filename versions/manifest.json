@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.34",
+  "overall": "0.3.35",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
-      "version": "2.0.19",
+      "version": "2.0.20",
       "status": "active"
     },
     "B": {
