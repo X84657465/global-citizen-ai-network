@@ -8,7 +8,7 @@ concurrency:
 
 on:
   push:
-    branches: [main, feat/agent-factory-v2]
+    branches: [main]
   pull_request:
     branches: [main, feat/github-project-showcase]
     types: [opened, reopened, synchronize]

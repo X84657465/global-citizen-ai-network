@@ -1,3 +1,10 @@
+## 0.3.88 — 2026-11-20
+
+- Restrict full CI push-triggered runs to `main`; development branches are validated by their pull-request lifecycle events, avoiding duplicate full-suite execution for the same PR head.
+- Preserve `pull_request` opened/reopened/synchronize checks and explicit `repository_dispatch: ai-task-ci` exact-SHA factory validation.
+- Extend CI trigger-policy regression coverage; no jobs, database/RLS checks, Ollama checks, Runner settings, or concurrency protections are removed.
+- Required branch-protection status checks must be confirmed by a repository maintainer; this change is proposed in a Draft PR for review.
+
 ## 0.3.87 — 2026-11-20
 
 - Integrate the GCAN public homepage, five-track architecture visuals and login entry on top of Agent Factory V2 without replacing the factory-owned Workspace client, API, validation or RLS contracts.
