@@ -1,3 +1,12 @@
+## 2.0.63 — 2026-11-21
+
+### Harden — Ignore indented code examples during task section parsing
+- Four-space and tab-indented Markdown code examples remain section content and cannot create or replace required task headings.
+- Add regression coverage for indented fake Allowed paths and Acceptance criteria headings.
+
+### Verification
+- Exact-head full CI, TypeScript, lint and Windows factory validation are required; no dispatch acceptance is claimed before all required checks pass.
+
 ## 2.0.62 — 2026-11-21
 
 ### Harden — Match CommonMark fences in task preflight sections
