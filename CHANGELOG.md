@@ -1,3 +1,11 @@
+## 0.3.105 — 2026-11-21
+
+- B GCAN Product advances to 0.1.14: validate conversation/project metadata timestamps before workspace state updates and remove unused model metadata from message API projections.
+- Add regression coverage for strict metadata timestamp validation and minimal message API field selection.
+- Preserve A Agent Factory V2 2.0.70, the complete A–P registry and all unaffected independent track versions; repository/package baseline advances to 0.3.105.
+- Selective B transplant only; no database schema, RLS policy, authentication, production data, secrets or workflow/control-plane changes.
+- Exact-head full CI and independent formal review are required before acceptance.
+
 ## 0.3.104 — 2026-11-21
 
 - Reconcile the complete A–P governance registry onto the current Agent Factory V2 candidate baseline without importing stale A 2.0.69 metadata.
