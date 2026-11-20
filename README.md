@@ -58,7 +58,7 @@
 - **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
 - **第四線深度神經：** [PR #140（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/140) · [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
 - **第五線深度研究：** [PR #141（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/141) · [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
-- **五線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
+- **六線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
 - **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
 
@@ -399,7 +399,7 @@ A～E 五條研發主線各自擁有獨立工作台；F 資安防禦橫向覆蓋
 
 ### 六線工作台與進度
 
-> D、E 兩線以五線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
+> D、E 兩線以六線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
 
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
