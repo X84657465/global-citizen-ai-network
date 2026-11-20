@@ -1,3 +1,12 @@
+## 0.1.12 — 2026-11-20
+
+### Accessibility and readability
+- Increase supporting copy, workstream descriptions, feature lists and secondary metadata to a more readable desktop/mobile size floor.
+- Add a homepage regression test to guard the desktop and mobile typography rules.
+
+### Verification
+- Exact-head CI required; no browser or device visual pass is claimed.
+
 # GCAN Product Changelog
 
 ## 0.1.11 — 2026-11-20
