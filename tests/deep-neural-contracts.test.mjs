@@ -25,7 +25,7 @@ const knowledge = (overrides = {}) => ({
   ...overrides,
 });
 
-test("validates and normalizes a reviewed knowledge artifact", () => {
+test("validates and preserves a reviewed knowledge artifact", () => {
   const result = validateKnowledgeArtifact(knowledge());
   assert.equal(result.artifact_id, "factory.failure.patch-path");
   assert.equal(result.track, "A");
@@ -211,7 +211,7 @@ test("normalizes Track E publisher keys and defaults omitted limitations", () =>
 
 test("rejects impossible ISO-8601 dates and timezone offsets beyond ±14:00", () => {
   const validBoundary = validateKnowledgeArtifact(knowledge({ created_at: "2026-11-20T00:00:00+14:00" }));
-  assert.equal(validBoundary.created_at, "2026-11-19T10:00:00.000Z");
+  assert.equal(validBoundary.created_at, "2026-11-20T00:00:00+14:00");
 
   for (const created_at of [
     "2026-02-30T00:00:00.000Z",
