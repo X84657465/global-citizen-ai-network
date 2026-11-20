@@ -702,3 +702,47 @@ test("check mode fails closed when the workflow API returns a different run ID",
   assert.equal(result.state.active_task.lease_id, "lease-wrong-run-id");
   assert.equal(store.state.state_version, state.state_version);
 });
+
+
+test("check mode keeps an expired lease while a newer rerun attempt is active, then recovers after it completes", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-rerun-attempt", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 1, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state);
+  let workflow = { id: 123456, status: "in_progress", conclusion: null, run_attempt: 2 };
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async () => workflow },
+  });
+
+  const running = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(running.outputs.lease_recovered, false);
+  assert.equal(running.state.active_task.lease_id, "lease-rerun-attempt");
+  assert.equal(store.state.state_version, state.state_version);
+
+  workflow = { id: 123456, status: "completed", conclusion: "success", run_attempt: 2 };
+  const completed = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(completed.outputs.lease_recovered, true);
+  assert.equal(completed.state.active_task, null);
+  assert.equal(completed.state.tasks["42"].status, "queued");
+});
+
+test("check mode rejects a workflow response from an older run attempt", async () => {
+  const state = reserveTask(createInitialFactoryState(1000), {
+    issue_number: 42, lease_id: "lease-old-attempt", lease_owner: "runner",
+    workflow_run_id: "123456", run_attempt: 2, base_sha: "a".repeat(40), lease_ms: 60_000,
+  }, 1000);
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 62_000,
+    api: { request: async () => ({ id: 123456, status: "completed", conclusion: "success", run_attempt: 1 }) },
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.match(result.outputs.recovery_error, /predates the active lease/);
+  assert.equal(result.state.active_task.lease_id, "lease-old-attempt");
+  assert.equal(store.state.state_version, state.state_version);
+});
