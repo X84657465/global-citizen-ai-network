@@ -109,3 +109,34 @@ test("unknown evaluations remain explicit and are not coerced to pass", () => {
   const result = validateEvaluationResult({ target_version: "0.2.0", criteria: ["CI completed"], evidence_refs: [], outcome: "unknown" });
   assert.equal(result.outcome, "unknown");
 });
+
+
+test("accepts Track E knowledge artifacts and proposals spanning all five tracks", () => {
+  const artifact = validateKnowledgeArtifact(knowledge({ track: "E" }));
+  assert.equal(artifact.track, "E");
+
+  const proposal = validateLearningProposal({
+    source_evidence: ["sha:" + sha],
+    proposed_rule: "Share a reviewed research finding across every governed workstream.",
+    affected_tracks: ["A", "B", "C", "D", "E"],
+    expected_benefit: "Make cross-track impact explicit without rejecting the five-track model.",
+    risks: "Each receiving track must independently review and adopt the proposal.",
+    validation_plan: ["Run the exact-head Deep Neural contract suite."],
+    decision: "pending",
+  });
+  assert.deepEqual(proposal.affected_tracks, ["A", "B", "C", "D", "E"]);
+});
+
+test("continues to reject proposals with unknown tracks or more than five affected tracks", () => {
+  const base = {
+    source_evidence: ["evidence"],
+    proposed_rule: "rule",
+    affected_tracks: ["A", "B", "C", "D", "E", "F"],
+    expected_benefit: "benefit",
+    risks: "risk",
+    validation_plan: ["test"],
+    decision: "pending",
+  };
+  assert.throws(() => validateLearningProposal(base), /between 1 and 5 items/);
+  assert.throws(() => validateLearningProposal({ ...base, affected_tracks: ["A", "B", "C", "D", "Z"] }), /unknown track/);
+});

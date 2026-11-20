@@ -26,3 +26,16 @@
 
 ### Verification
 - Exact-head CI and independent review required.
+
+## 0.2.3 — 2026-11-20
+
+### Fixed
+- Align the runtime workstream allowlist with the five-track A–E governance model.
+- Allow learning proposals to name all five affected tracks while continuing to reject unknown tracks and oversized lists.
+- Update the Deep Neural architecture charter to define Track E research evidence as a first-class input to reviewed knowledge exchange.
+
+### Tests
+- Add regression coverage for Track E knowledge artifacts, all-five-track proposals, unknown track rejection and the five-track limit.
+
+### Verification
+- Exact-head CI is required before acceptance; no production data or autonomous production mutation is introduced.

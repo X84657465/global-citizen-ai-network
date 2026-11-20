@@ -7,7 +7,7 @@
 
 ## 1. Mission
 
-Deep Neural is the shared intelligence and learning foundation for the four engineering tracks. It turns reviewed experience, explicit knowledge and test evidence into reusable capabilities. It is not a claim that the system can autonomously retrain a foundation model or safely rewrite production code.
+Deep Neural is the shared intelligence and learning foundation for the five engineering tracks (A–E). It turns reviewed experience, explicit knowledge and test evidence into reusable capabilities. It is not a claim that the system can autonomously retrain a foundation model or safely rewrite production code.
 
 ## 2. Core subsystems
 
@@ -37,6 +37,7 @@ Deep Neural is the shared intelligence and learning foundation for the four engi
 - B (GCAN) shares product requirements, authorized user-flow observations and operational constraints.
 - C (Predictive Coding) shares predictions, observed outcomes, prediction-error records, uncertainty/calibration signals and validated update proposals.
 - D (Deep Neural) integrates reviewed evidence into provenance-aware memory, reasoning/evaluation strategies and versioned knowledge, then returns recommendations through PRs.
+- E (Deep Research) shares source-verified research questions, citations, corroboration, counter-evidence, uncertainty notes and reviewed research packages.
 - Receiving tracks decide whether to adopt; no silent cross-track mutation.
 
 ### D5 — Capability and tool registry
@@ -79,7 +80,7 @@ Contracts require runtime validation and compatibility tests before production u
 1. **0.1.0 — Architecture foundation:** charter, trust boundaries, subsystem boundaries and initial contracts.
 2. **0.2.0 — Knowledge artifact prototype:** local-only storage format, provenance validator and retrieval tests.
 3. **0.3.0 — Evaluation harness:** regression registry, evidence freshness checks and deterministic scoring.
-4. **0.4.0 — Cross-track adapters:** read-only import/export for approved A/B/C artifacts.
+4. **0.4.0 — Cross-track adapters:** read-only import/export for approved A/B/C/E artifacts.
 5. **0.5.0 — Controlled feedback:** PR-based recommendations and adoption metrics.
 6. **1.0.0 — Stable neural core:** after security review, reproducible tests, retention/deletion behavior and multi-track acceptance.
 
