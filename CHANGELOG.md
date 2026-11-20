@@ -1,3 +1,10 @@
+## 0.3.90 — 2026-11-21
+
+- Fix the P0 factory queue dependency parser: Issue #96-style multiline dependency sections are now recognized before task dispatch.
+- Preflight accepts optional dependency sections and returns normalized dependency issue numbers; queue selection remains the authoritative completion gate.
+- Agent Factory V2 advances to 2.0.59; B remains unchanged at 0.1.13.
+- Exact-head full CI and Windows factory validation remain required; no merge or deployment is claimed.
+
 ## 0.3.89 — 2026-11-21
 
 - Prevent successful candidate CI for one task from clearing the factory-wide infrastructure circuit breaker.
