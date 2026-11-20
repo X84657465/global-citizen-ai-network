@@ -1,3 +1,14 @@
+## 0.3.25 — 2026-11-20
+
+### Changed
+- Complete the Agent Factory V2 release record by synchronizing its track-specific VERSION and changelog with the overall release metadata.
+
+### Verification
+- Confirmed root package, lockfile, VERSION and manifest values are synchronized; exact-head CI remains pending.
+
+### Rollback
+- Revert the exact metadata synchronization commit; no application or database behavior changes.
+
 ## 0.3.24 — 2026-11-20
 
 ### Fixed

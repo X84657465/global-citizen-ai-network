@@ -1,3 +1,18 @@
+## 2.0.13 — 2026-11-20
+
+### Reliability
+- Retry one incomplete Ollama patch-generation stream with a fresh bounded request; discard partial output and retain strict completion-marker validation.
+- Do not retry malformed NDJSON, provider errors, HTTP errors or unrelated failures.
+
+### Regression coverage
+- Cover successful retry, partial-output isolation, non-retryable malformed streams, and the two-attempt ceiling.
+
+### Verification
+- Exact-head CI and live Windows Runner/Ollama task acceptance are required before this release is accepted.
+
+### Rollback
+- Revert the exact Agent Factory V2 change commit; no database migration or production data change is involved.
+
 # Agent Factory V2 changelog
 
 ## 2.0.10 — 2026-11-20
