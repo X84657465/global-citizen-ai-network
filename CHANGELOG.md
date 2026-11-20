@@ -1,3 +1,12 @@
+## 0.3.29 — 2026-11-20
+
+### Security
+- Reject IPv4-compatible IPv6 URL literals and IPv6 ranges outside ordinary global-unicast space in curated Deep Research source records.
+- Cover site-local, special-purpose and documentation IPv6 prefixes with regression tests.
+
+### Verification
+- Exact-head CI required. Source validation only; no URL fetcher, DNS lookup, redirects or production network access were enabled.
+
 ## 0.3.28 — 2026-11-20
 
 ### Fixed
