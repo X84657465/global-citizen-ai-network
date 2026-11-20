@@ -50,3 +50,12 @@
 - Keep push execution restricted to repository-owner events and verify the five workstream branches in the CI policy test.
 
 Verification: exact-head CI and database/RLS validation required; no merge or deployment implied.
+
+
+## 0.1.5 — 2026-11-20
+
+### Fixed
+- Correct the CI push-allowlist regression assertion to match the actual workflow list: `main` appears once, followed by the five controlled A-E branches.
+
+### Verification
+- Exact-head CI must complete the policy test, unit tests, TypeScript, lint, production build and database/RLS jobs.

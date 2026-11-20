@@ -166,3 +166,13 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 - Synchronize GCAN Product to 0.1.4 and repository metadata to 0.3.7.
 
 Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or deployment implied.
+
+
+## 0.3.8 — 2026-11-20
+
+### Fixed
+- Align CI push policy regression coverage with the exact allowlist without a duplicate `main` entry.
+- Synchronize GCAN Product to 0.1.5 and repository metadata to 0.3.8.
+
+### Verification
+- Exact-head CI required; no merge or deployment is implied.
