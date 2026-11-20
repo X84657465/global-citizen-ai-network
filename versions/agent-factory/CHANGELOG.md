@@ -1,3 +1,12 @@
+## 2.0.20 — 2026-11-20
+
+### Reliability regression coverage
+- Cover expired-lease handling when a GitHub Actions run is rerun under the same run ID.
+- Verify a newer in-progress attempt keeps the lease reserved, a completed newer attempt permits recovery, and an older attempt can never authorize recovery.
+
+### Verification
+- Exact-head Windows Runner CI remains required; these are added regression tests, not a claimed test pass.
+
 ## 2.0.19 — 2026-11-20
 
 ### Reliability
