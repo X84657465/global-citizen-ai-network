@@ -1,3 +1,12 @@
+## 0.3.26 — 2026-11-20
+
+### Fixed
+- Align the Predictive Coding ECE options regression assertion with the strict plain-object error contract so the shared integration CI no longer fails on a stale message matcher.
+- Synchronize repository release metadata to 0.3.26; no Predictive Coding runtime behavior changed.
+
+### Verification
+- Exact-head CI is required; this compatibility correction is not considered complete until the latest full CI succeeds.
+
 ## 0.3.25 — 2026-11-20
 
 ### Fixed
