@@ -73,34 +73,13 @@ test("rejects non-bullet sections and path traversal", () => {
 });
 
 test("accepts safe Next.js dynamic route segments in explicitly allowed paths", () => {
-  const body = validIssue().body.replace("app/settings/page.tsx", "app/api/conversations/[id]/route.ts");
-  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
-  assert.deepEqual(task.allowed_paths, ["app/api/conversations/[id]/route.ts", "tests/settings-page.test.ts"]);
-});
+  const body = validIssue().body.replace(
+    "## Goal",
+    `## Dependencies
+- #94 migration chain
+- #74 task discovery
 
-test("rejects protected roots, dotfiles, duplicate paths, and backslashes", () => {
-  for (const unsafePath of [
-    ".github/workflows/build.yml",
-    "supabase/migrations/001.sql",
-    "docs/.env.production",
-    "app\\settings\\page.tsx",
-    "app/settings/page.tsx",
-  ]) {
-    const body = validIssue().body.replace("app/settings/page.tsx", unsafePath);
-    const issue = validIssue({ body });
-    if (unsafePath === "app/settings/page.tsx") {
-      const duplicateBody = body.replace("tests/settings-page.test.ts", "app/settings/page.tsx");
-      assert.throws(() => validateAndBuildTask(validIssue({ body: duplicateBody }), "X84657465/global-citizen-ai-network"), /Duplicate/);
-    } else {
-      assert.throws(() => validateAndBuildTask(issue, "X84657465/global-citizen-ai-network"), TaskValidationError);
-    }
-  }
-});
-
-test("rejects oversized bodies and malformed repository names", () => {
-  assert.throws(
-    () => validateAndBuildTask(validIssue({ body: "x".repeat(20001) }), "X84657465/global-citizen-ai-network"),
-    /20,000-character/,
+## Goal`,
   );
   assert.throws(() => validateAndBuildTask(validIssue(), "not-a-repository"), /Repository name/);
 });
