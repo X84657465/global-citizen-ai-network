@@ -1,3 +1,10 @@
+## 0.3.102 — 2026-11-21
+
+- K Knowledge Base/Docs advances to 0.1.4: make the A–P candidate homepage status SHA-neutral so it cannot claim a previous exact-head CI result for a newer commit.
+- Synchronize README, root release metadata, manifest, governance baseline/revision, package lock and K track history.
+- No application runtime behavior, factory state, B product code, production data, secrets or deployment settings changed.
+- Verification: fresh exact-head CI and independent formal review are required for the resulting candidate SHA.
+
 ## 0.3.101 — 2026-11-21
 
 - K Knowledge Base/Docs advances to 0.1.3: correct A/ A–P homepage operational status against completed exact-head CI for PR #168 and #167; clearly distinguish CI success from pending independent formal review and merge.
