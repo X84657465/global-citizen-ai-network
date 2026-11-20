@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { taskPriority, compareTaskIssues, sortTaskIssues, isMergedTaskPullRequest, isTaskAlreadyPublished } from "../lib/agent-task-queue.mjs";
+import { extractTaskDependencyNumbers, taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
 
 const selectorSource = readFileSync(new URL("../scripts/select-agent-task.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflightWorkflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -81,4 +82,56 @@ test("workflow supersedes changed candidate branches instead of overwriting an e
   assert.ok(preflightWorkflow.includes("$publish.different_candidate_branch -eq $true"));
   assert.ok(preflightWorkflow.includes('$env:NEXT_TASK_STATE = "superseded"'));
   assert.ok(preflightWorkflow.includes("Publisher did not return exact candidate commit and PR evidence."));
+});
+
+
+test("extracts inline and multiline dependency declarations, including the production issue format", () => {
+  const actualIssueShape = [
+    "## Priority",
+    "P0 — core contribution platform",
+    "",
+    "## Dependencies",
+    "#74 task discovery; #75 submission/review status",
+    "#81 RLS tests",
+    "#94 migration-chain validation",
+    "",
+    "## Safety",
+    "Do not issue real cash payouts or represent pending rewards as withdrawable funds.",
+  ].join("\\n");
+  assert.deepEqual(extractTaskDependencyNumbers(actualIssueShape), [74, 75, 81, 94]);
+  assert.deepEqual(extractTaskDependencyNumbers("Dependencies: #74, #75 and #81\\nDependencies/context: #94"), [74, 75, 81, 94]);
+});
+
+test("dependency extraction is scoped to dependency sections, ignores code fences, and deduplicates", () => {
+  const body = [
+    "## Goal",
+    "See unrelated issue #10.",
+    "## Dependencies/context",
+    "- #94 migration",
+    "- #74 discovery",
+    "- #94 duplicate",
+    "```md",
+    "- #999 example only",
+    "## Not a real heading",
+    "```",
+    "## Acceptance criteria",
+    "Do not parse #12 from this section.",
+  ].join("\\n");
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 94]);
+});
+
+test("dependency resolution fails closed for open, missing, and non-completed closed issues", () => {
+  const body = "## Dependencies\\n- #74\\n- #75\\n- #81";
+  const dependencies = new Map([
+    [74, { state: "closed", state_reason: "completed" }],
+    [75, { state: "open", state_reason: null }],
+    [81, { state: "closed", state_reason: "not_planned" }],
+  ]);
+  assert.equal(taskDependenciesResolved(body, dependencies), false);
+  dependencies.set(75, { state: "closed", state_reason: "completed" });
+  assert.equal(taskDependenciesResolved(body, dependencies), false);
+  dependencies.set(81, { state: "closed", state_reason: "completed" });
+  assert.equal(taskDependenciesResolved(body, dependencies), true);
+  assert.equal(taskDependenciesResolved("## Dependencies\\n- #74", new Map()), false);
+  assert.equal(taskDependenciesResolved("## Dependencies\\n- #74", new Map(), new Set([74])), true);
 });
