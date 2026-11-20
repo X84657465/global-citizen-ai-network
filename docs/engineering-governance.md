@@ -1,7 +1,32 @@
 # Five-Track Engineering Governance
 
-**Governance revision: 1.4.2**  
-**Repository release baseline: 0.3.88**
+**Governance revision: 1.4.3**  
+**Repository release baseline: 0.3.90**
+
+## A–P workstream registry
+
+The repository defines sixteen independent engineering workstreams. The README contains the at-a-glance index; the [A–P architecture document](engineering-workstreams.md) is the detailed source for ownership, non-goals, dependencies, staged deliverables and exit criteria.
+
+| Track | Name | Responsibility |
+|---|---|---|
+| A | Agent Factory V2 | AI 自動開發工廠：需求拆解、任務派送、隔離執行、測試、候選 PR、CI 證據與復原。 |
+| B | GCAN Product | GCAN 主產品：公開網站、會員體驗、AI 工作台、全球貢獻流程與平台服務。 |
+| C | Predictive Coding（預測編碼） | 預測與觀測、預測誤差計算、信心校準、漂移分析及可驗證的模型更新訊號。 |
+| D | Deep Neural（深度神經） | 知識記憶、推理、知識整合、評估與跨線學習提案。 |
+| E | Deep Research（深度研究） | 多來源研究、來源品質與溯源、交叉查證、反證分析及引用式研究報告。 |
+| F | Cyber Security & Defense（資安防禦） | 跨線威脅模型、安全控制、弱點驗證、漏洞應變與事件準備。 |
+| G | Release, QA & Integration（發布、品質與整合） | 跨線整合順序、相容性矩陣、回歸測試、發布關卡、精確 SHA 證據與回滾準備。 |
+| H | Observability, Telemetry & Cost/Quota Governance（可觀測性、遙測與成本配額） | Queue／Runner 健康、任務耗時、失敗分類、成本來源、配額與安全暫停告警。 |
+| I | Ecosystem, Connectors & Workflow Automation（生態串接與流程自動化） | 外部 API、Webhook、通知、資料同步、冪等處理與防重播工作流。 |
+| J | Self-Healing, Chaos & Continuity（自我修復、混沌與持續營運） | 有限重試、熔斷、安全降級、檢查點、備份還原及受控故障演練。 |
+| K | Knowledge Base, Docs & Governance Playbooks（知識庫、文件與治理手冊） | 架構紀錄、線別責任、操作手冊、交接模板、決策紀錄與故障排查。 |
+| L | Multi-Node, Federation & Edge/Cluster Coordination（多節點、聯邦與叢集協調） | 未來自願加入節點的身分、能力排程、租約 fencing、健康檢查與跨節點協調。 |
+| M | Compliance, Policy Audit & Risk Governance（法遵、政策稽核與風險治理） | 可稽核事件、政策證據、風險登錄、限時例外及資料保留控制。 |
+| N | Productization, Analytics & Growth/Ecosystem Ops（產品化、分析與成長營運） | 隱私友善的產品指標、採用與品質分析、回饋循環、新手導引及生態營運。 |
+| O | Lifecycle, Deprecation & Legacy Retirement（生命週期、棄用與舊系統退場） | 棄用清單、遷移窗口、相容性契約、移除核准及舊系統維護成本降低。 |
+| P | Governance, Ethics & Trust/Policy Evolution（治理、倫理、信任與政策演進） | 自主權限分級、人類核准門檻、信任原則、政策演進及跨線優先級仲裁。 |
+
+A is the highest-priority Agent Factory V2 line. B is the product integration line and follows A capability acceptance. C–H supply only required capability, security, quality, observability and integration dependencies. I–P retain independent ownership and numeric versions; planned status is not an operational-readiness claim. Multi-node execution (L) remains deferred until measured capacity evidence, explicit participant opt-in and independent security approval exist.
 
 ## 1. Five development tracks
 
