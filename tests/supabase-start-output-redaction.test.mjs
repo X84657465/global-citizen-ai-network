@@ -4,6 +4,7 @@ import test from "node:test";
 import { redactSupabaseStartOutput } from "../scripts/redact-supabase-start-output.mjs";
 
 const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
+const packageConfig = JSON.parse(readFileSync("package.json", "utf8"));
 
 test("redacts Supabase named key rows and preserves useful diagnostics", () => {
   const secrets = [
@@ -74,7 +75,7 @@ test("redaction is idempotent", () => {
 });
 
 test("CI captures Supabase output and fails closed before emitting sanitized diagnostics", () => {
-  const start = workflow.indexOf("      - name: Start isolated Supabase and apply migrations");
+  const start = workflow.indexOf("      - name: Start local Supabase services and apply migrations");
   assert.ok(start >= 0, "Supabase startup step must exist");
   const next = workflow.indexOf("\n      - name:", start + 1);
   const section = workflow.slice(start, next < 0 ? workflow.length : next);
@@ -91,4 +92,5 @@ test("CI captures Supabase output and fails closed before emitting sanitized dia
   assert.ok(section.includes("Write-Output ($redactedOutput -join [Environment]::NewLine)"));
   assert.equal(section.includes("Write-Output $startOutput"), false);
   assert.equal(section.includes("Write-Host $startOutput"), false);
+  assert.ok(packageConfig.scripts["test:unit"].includes("tests/supabase-start-output-redaction.test.mjs"), "redaction regression suite must run in the standard unit-test command");
 });
