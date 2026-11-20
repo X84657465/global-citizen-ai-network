@@ -1,3 +1,9 @@
+## 0.3.49 — 2026-11-20
+
+- Added regression coverage proving Supabase startup, pgTAP and two-member RLS checks stay on Ubuntu and outside the shared Windows Runner queue.
+- Updated Runner policy assertions to reserve the Windows queue for the remaining Windows/Ollama build integration only.
+- Removed the obsolete Windows dynamic-port allocation regression after moving database integration to isolated Ubuntu-hosted Docker.
+
 ## 0.3.48 — 2026-11-20
 
 - Moved Supabase CLI startup, migration application, PostgreSQL pgTAP/RLS suite and two-member application RLS integration from the Windows Runner to GitHub-hosted Ubuntu.

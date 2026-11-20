@@ -59,7 +59,7 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
   assert.ok(quality.includes("needs: [resolve-candidate]"));
   assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 
-  const runnerJobs = ["build", "database"];
+  const runnerJobs = ["build"];
   for (let index = 0; index < runnerJobs.length; index += 1) {
     const job = runnerJobs[index];
     const start = workflow.indexOf("  " + job + ":\n");
@@ -271,11 +271,23 @@ test("preflight reserves and releases V2 leases and does not overproduce roadmap
 });
 
 
-test("Supabase CI allocates Docker-published ports below the Windows dynamic TCP range", () => {
-  assert.ok(workflow.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)"));
-  assert.ok(workflow.includes("49152-65535 dynamic TCP range"));
-  assert.equal(workflow.includes("$candidate = 55000 +"), false);
+test("Supabase database and RLS integration runs on Ubuntu without consuming the Windows Runner", () => {
+  const { start, end } = findJobSection(workflow, "database");
+  const database = workflow.slice(start, end);
+  assert.ok(database.includes("runs-on: ubuntu-latest"));
+  assert.equal(database.includes("global-citizen-ai-network-self-hosted-runner"), false);
+  assert.ok(database.includes("npm install --global supabase@3.2.0"));
+  assert.ok(database.includes("supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit"));
+  assert.ok(database.includes("supabase test db"));
+  assert.ok(database.includes("node --test tests/security/two-member-rls.test.mjs"));
+  assert.ok(database.includes("SUPABASE_DB_CONTAINER"));
+  assert.ok(database.includes("DOCKER_BIN"));
+  assert.ok(database.includes("supabase stop --no-backup"));
+  assert.ok(database.includes('echo "scope=system"'));
+  assert.ok(database.includes('echo "scope=task"'));
+  assert.equal(database.includes("runs-on: [self-hosted, Windows, X64]"), false);
 });
+
 
 test("all workflow checkouts disable persisted Git credentials", () => {
   const workflowDirectory = new URL("../.github/workflows/", import.meta.url);
