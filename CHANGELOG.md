@@ -1,3 +1,10 @@
+## 0.3.99 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.68: task-publication success is now non-mutating and cannot reset the global circuit breaker.
+- Add separately verified system-health success using completed exact-head GitHub CI evidence; preserve task retry and quarantine history.
+- Add controller regressions for non-mutating publication callbacks, fail-closed evidence validation and idempotent health recovery.
+- Exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable and independent formal review remain required.
+
 ## 0.3.98 — 2026-11-21
 
 - Fix a preflight normalization gap: preserve leading whitespace in task section bodies so first-line four-space/tab-indented examples cannot be trimmed into executable task directives.
