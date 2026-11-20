@@ -1,3 +1,13 @@
+## 2.0.62 — 2026-11-21
+
+### Harden — Match CommonMark fences in task preflight sections
+- Only matching marker characters and sufficiently long closing fences terminate fenced content.
+- Invalid backtick info strings do not open a fence or suppress required task headings.
+- Add regression coverage for headings inside valid fenced examples and invalid openers.
+
+### Verification
+- Exact-head full CI, TypeScript, lint and Windows factory validation are required; no dispatch acceptance is claimed before all required checks pass.
+
 ## 2.0.61 — 2026-11-21
 
 ### Harden — Reject invalid backtick fence info strings
