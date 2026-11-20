@@ -1,3 +1,16 @@
+## 2.0.19 — 2026-11-20
+
+### Reliability
+- Verify the GitHub Actions workflow-run response ID exactly matches the active lease's persisted workflow ID before considering an expired lease recoverable.
+- Fail closed on mismatched or malformed workflow identity responses.
+
+### Regression coverage
+- Add a controller test proving a completed response for a different run ID cannot release the active lease.
+- Update workflow recovery fixtures to include the authoritative GitHub run ID.
+
+### Verification
+- Exact-head Windows Runner CI is required; no live lease recovery or production state mutation is claimed.
+
 ## 2.0.18 — 2026-11-20
 
 ### Fixed
