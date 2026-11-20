@@ -257,3 +257,35 @@ Do not collect unrelated reference #123.
 `;
   assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75, 81, 94]);
 });
+
+
+test("dependency extraction honors Markdown fence character and length and closing heading markers", () => {
+  const body = `## Dependencies ##
+- #74 migration
+
+````md
+## Dependencies
+- #456 inside a fenced example
+~~~
+Dependencies: #457 still inside the original fence
+``
+````
+
+## Dependencies/context ###
+Context references #81.
+`;
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 81]);
+});
+
+test("dependency extraction does not close a backtick fence with a shorter delimiter", () => {
+  const body = `## Dependencies
+- #74
+````md
+```
+Dependencies: #456 is still fenced
+````
+## Goal
+#999 is not a dependency.
+`;
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74]);
+});
