@@ -1,3 +1,11 @@
+## 0.3.66 — 2026-11-20
+
+- Remove a duplicate migration regression test while retaining the future-schema downgrade protection.
+- Synchronize repository package, lockfile, manifest and Agent Factory track versions.
+
+### Verification
+- Exact-head full CI is required; no test pass or production migration is claimed.
+
 ## 0.3.65 — 2026-11-20
 
 - Reject unsupported future Agent Factory state schema versions instead of silently treating them as legacy V1 and potentially discarding fields.

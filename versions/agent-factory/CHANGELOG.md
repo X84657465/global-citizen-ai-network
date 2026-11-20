@@ -1,3 +1,12 @@
+## 2.0.38 — 2026-11-20
+
+### Changed — Keep migration regression coverage singular
+- Retain one focused regression test proving unknown future state schemas fail closed without mutating the durable Issue.
+- Synchronize Agent Factory and repository release metadata.
+
+### Verification
+- Exact-head full CI and live Runner validation remain required.
+
 ## 2.0.37 — 2026-11-20
 
 ### Fixed — Fail closed on unsupported durable-state schemas
