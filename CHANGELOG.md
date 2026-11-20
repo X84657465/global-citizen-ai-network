@@ -1,3 +1,12 @@
+## 0.3.46 — 2026-11-20
+
+### Fixed — CI Base-Branch Allowlist
+- Correct the downstream G pull-request branch filter so the G integration branch is an item inside the YAML branch array.
+- Keep the CI trigger-policy regression assertion aligned with the exact valid workflow syntax.
+
+### Verification
+- Exact-head CI is required; the corrected trigger policy is not itself a passing test result.
+
 ## 0.3.45 — 2026-11-20
 
 ### Fixed — Stacked PR CI Dispatch
