@@ -38,14 +38,16 @@ test("rejects invalid identity, timestamp, queue and quota boundaries", () => {
   const value = snapshot();
   value.repository = "not-a-repository";
   value.observedAt = "2026-02-30T25:61:00";
-  value.queue.queued = -1;
+  value.queue.queued = 2;
   value.queue.oldestQueuedAt = null;
   value.quota.used = 1001;
   const result = validateRunnerSnapshot(value);
   assert.ok(result.errors.some((error) => error.includes("repository")));
   assert.ok(result.errors.some((error) => error.includes("observedAt")));
-  assert.ok(result.errors.some((error) => error.includes("queue.queued")));
   assert.ok(result.errors.some((error) => error.includes("oldestQueuedAt")));
+  const negativeQueue = snapshot();
+  negativeQueue.queue.queued = -1;
+  assert.ok(validateRunnerSnapshot(negativeQueue).errors.some((error) => error.includes("queue.queued")));
   assert.ok(result.errors.some((error) => error.includes("quota.used")));
 });
 
