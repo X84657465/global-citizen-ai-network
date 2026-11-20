@@ -245,3 +245,10 @@ test("workspace timestamps require a real timezone-qualified ISO-8601 instant", 
     1732000000,
   ]) assert.equal(isValidTimestamp(invalid), false, String(invalid));
 });
+
+test("homepage secondary copy and workstream metadata meet readable desktop and mobile size floors", () => {
+  assert.match(homeCss, /\.pillarCard p,\.trackMission,\.productCard p,\.trustCard p,\.docCard p\{font-size:15px/);
+  assert.match(homeCss, /\.trackScope li,\.trackAction,\.trackFootnote,\.productCard \.cardMeta,\.trustCard \.cardMeta\{font-size:14px/);
+  assert.match(homeCss, /@media\(max-width:620px\)[\s\S]*?\.pillarCard p,\.trackMission,\.productCard p,\.trustCard p,\.docCard p\{font-size:14px/);
+  assert.match(homeCss, /\.trackStatus,\.architectureLegend span,\.visualTagBottom,\.heroBottomLabel,\.heroFact span,\.footerTop p,\.footerBottom\{font-size:12px/);
+});
