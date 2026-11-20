@@ -392,7 +392,7 @@ jobs:
       - name: Start isolated Supabase and apply migrations
         id: supabase-start
         run: |
-          $startOutput = & supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1 | Out-String
+          $startOutput = & $env:ComSpec /d /s /c 'supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1' | Out-String
           $startExitCode = $LASTEXITCODE
           $redactedOutput = $startOutput | node scripts/redact-supabase-start-output.mjs
           $redactionExitCode = $LASTEXITCODE

@@ -266,7 +266,8 @@ test("Supabase database and RLS integration runs on the shared Windows Runner", 
   assert.ok(database.includes("runs-on: [self-hosted, Windows, X64]"));
   assert.ok(database.includes("group: global-citizen-ai-network-self-hosted-runner"));
   assert.ok(database.includes("queue: max"));
-  assert.ok(database.includes("supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit"));
+  assert.ok(database.includes("$env:ComSpec /d /s /c 'supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1'"), "native stderr must be redirected by cmd.exe before PowerShell captures output");
+  assert.equal(database.includes("$startOutput = & supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1 | Out-String"), false, "PowerShell 5.1 must not reinterpret native stderr as NativeCommandError");
   assert.ok(database.includes("supabase test db"));
   assert.ok(database.includes("node --test tests/security/two-member-rls.test.mjs"));
   assert.ok(database.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 19998)"));

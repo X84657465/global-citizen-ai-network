@@ -1,3 +1,12 @@
+## 0.3.74 — 2026-11-20
+
+- Fix Windows PowerShell 5.1 handling of Supabase CLI stderr by capturing the native command through cmd.exe before applying fail-closed output redaction.
+- Add a CI policy regression test preventing the original NativeCommandError-prone capture path.
+- Synchronize repository and Agent Factory numeric release metadata.
+
+### Verification
+- Exact-head full CI, including Supabase migrations, PostgreSQL/RLS and Ollama integration, is required. No pass is claimed for this change.
+
 ## 0.3.73 — 2026-11-20
 
 - Capture local Supabase startup output before logging and redact ephemeral anon/service-role, publishable/secret, Storage access/secret keys, JWT-shaped tokens and URL passwords.

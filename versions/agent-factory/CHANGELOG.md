@@ -1,3 +1,13 @@
+## 2.0.46 — 2026-11-20
+
+### Fixed — Capture Supabase CLI diagnostics safely on Windows PowerShell
+- Route Supabase CLI stdout and stderr through cmd.exe redirection before PowerShell captures the output, avoiding PowerShell 5.1 NativeCommandError handling for native stderr.
+- Preserve the native exit code and existing fail-closed secret redaction before diagnostics are emitted.
+- Add a regression assertion for the exact Windows CI command.
+
+### Verification
+- Exact-head full CI and Windows Runner integration are required. No pass is claimed for this change.
+
 ## 2.0.45 — 2026-11-20
 
 ### Fixed — Redact ephemeral Supabase credentials from CI logs
