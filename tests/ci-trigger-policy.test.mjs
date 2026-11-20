@@ -356,3 +356,12 @@ test("package lock metadata matches the resolved eslint-import-resolver-node tar
   const resolvedTarball = entry.resolved.split("/").at(-1);
   assert.equal(resolvedTarball, "eslint-import-resolver-node-" + entry.version + ".tgz");
 });
+
+test("Agent Factory runbook makes the default-branch schedule gate explicit", () => {
+  const runbook = readFileSync(new URL("../docs/agent-factory-operations-runbook.md", import.meta.url), "utf8").replace(/\\r\\n/g, "\\n");
+  assert.ok(preflight.includes("  schedule:\\n    - cron: \"*/5 * * * *\""));
+  assert.ok(runbook.includes("GitHub evaluates scheduled workflows from the repository's default branch only."));
+  assert.ok(runbook.includes("Issue #100 remains on its existing V1 payload."));
+  assert.ok(runbook.includes("same Issue #100"));
+  assert.ok(runbook.includes("schema version 2"));
+});
