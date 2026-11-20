@@ -5,6 +5,7 @@
 - Add adversarial unit coverage for malformed messages, invalid calendar dates, clock fields and timezone offsets.
 - Align the integrated B product track metadata with its current release, 0.1.12. Agent Factory V2 remains 2.0.51.
 - Exact-head full CI on the resulting commit is mandatory; no completion is claimed before all required Actions jobs pass.
+- Rollback: revert the workspace-bridge commits as one reviewed range back to the pre-bridge parent; no database schema or production data is changed.
 
 ## 0.3.79 — 2026-11-20
 
