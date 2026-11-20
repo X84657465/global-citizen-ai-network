@@ -1,3 +1,17 @@
+## 0.3.50 — 2026-11-21
+
+### Fixed — H Runner Offline Detection Under Clock Skew
+- Keep offline Runner state critical even when its reported heartbeat is later than the observation timestamp.
+- Preserve the separate clock-synchronization finding and advisory operator pause recommendation.
+- Add a regression proving clock skew cannot mask an offline Runner.
+- Advance H from 0.1.4 to 0.1.5 and synchronize repository package/release metadata.
+
+### Verification
+- Regression and contract updates require fresh exact-head Windows CI; no operational Runner integration or acceptance is claimed.
+
+### Rollback
+- Revert the exact 0.3.50 H observability fix; no live Runner, quota, production database or deployment configuration is changed.
+
 ## 0.3.49 — 2026-11-21
 
 ### Integrated — Eight-Track Governance and H Runner Readiness
