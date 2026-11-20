@@ -1,3 +1,10 @@
+## 0.3.95 — 2026-11-21
+
+- Harden Agent Factory dependency extraction against four-space and tab-indented Markdown code blocks.
+- Prevent example issue references from being treated as real dependencies and fake headings from terminating dependency sections.
+- Add regression coverage for both cases; Agent Factory V2 advances to 2.0.64, B remains 0.1.13.
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; no dispatch acceptance is claimed until all required checks pass.
+
 ## 0.3.94 — 2026-11-21
 
 - Prevent four-space and tab-indented Markdown code examples from being interpreted as task section headings during preflight validation.

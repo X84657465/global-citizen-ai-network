@@ -1,3 +1,13 @@
+## 2.0.64 — 2026-11-21
+
+### Harden — Ignore CommonMark indented code blocks during dependency extraction
+- Four-space and tab-indented code examples after a block boundary cannot inject fake issue references or terminate the Dependencies section.
+- Preserve indented list continuations unless they meet the indented-code block boundary rule.
+- Add regression coverage for four-space/tab-indented references and fake headings.
+
+### Verification
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; no task dispatch acceptance is claimed until all required checks pass.
+
 ## 2.0.63 — 2026-11-21
 
 ### Harden — Ignore indented code examples during task section parsing

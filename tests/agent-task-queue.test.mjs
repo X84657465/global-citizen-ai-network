@@ -149,6 +149,36 @@ test("invalid backtick fence info strings cannot hide subsequent dependencies", 
   assert.deepEqual(extractTaskDependencyNumbers(body), [74]);
 });
 
+test("dependency extraction ignores four-space and tab-indented code blocks", () => {
+  const body = [
+    "## Dependencies",
+    "- #74 required",
+    "",
+    "    - #999 example only",
+    "\t- #998 tab-indented example only",
+    "",
+    "- #75 required",
+    "## Acceptance criteria",
+    "- #12 unrelated reference",
+  ].join("\n");
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75]);
+});
+
+test("indented fake headings inside code blocks do not terminate dependency sections", () => {
+  const body = [
+    "## Dependencies",
+    "- #74 required before the example",
+    "",
+    "    ## Acceptance criteria",
+    "    - #999 example only",
+    "",
+    "- #75 required after the example",
+    "## Safety",
+    "- #12 unrelated reference",
+  ].join("\n");
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75]);
+});
+
 test("dependency resolution fails closed for open, missing, and non-completed closed issues", () => {
   const body = "## Dependencies\n- #74\n- #75\n- #81";
   const dependencies = new Map([
