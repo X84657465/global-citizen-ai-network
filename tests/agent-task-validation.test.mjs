@@ -169,3 +169,43 @@ test("requires a human approval label before allowing factory control-plane path
   assert.equal(task.control_plane_authorized, true);
   assert.deepEqual(task.allowed_paths, ["lib/agent-factory-state-machine.mjs", "tests/settings-page.test.ts"]);
 });
+
+
+test("allows only the exact scheduler workflow path with explicit control-plane approval", () => {
+  const body = validIssue().body.replace("app/settings/page.tsx", ".github/workflows/agent-task-preflight.yml");
+  assert.throws(
+    () => validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network"),
+    /factory-control-plane-approved/,
+  );
+  const task = validateAndBuildTask(validIssue({
+    body,
+    labels: [{ name: "factory-control-plane-approved" }],
+  }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, [".github/workflows/agent-task-preflight.yml", "tests/settings-page.test.ts"]);
+  assert.equal(task.control_plane_authorized, true);
+});
+
+test("rejects non-exact GitHub paths, case variants, traversal, and secret-like segments", () => {
+  for (const unsafePath of [
+    ".github/workflows/ci.yml",
+    ".github/workflows/build.yml",
+    ".github/CODEOWNERS",
+    ".github/agent-task-preflight.yml",
+    ".GITHUB/workflows/agent-task-preflight.yml",
+    ".github/workflows/agent-task-preflight.yaml",
+    ".github/workflows/../agent-task-preflight.yml",
+    ".github/workflows/agent-task-preflight.yml/../../secrets/token.txt",
+    ".github/workflows/agent-task-preflight.yml/credentials.txt",
+    ".github/workflows/.env",
+  ]) {
+    const body = validIssue().body.replace("app/settings/page.tsx", unsafePath);
+    assert.throws(
+      () => validateAndBuildTask(validIssue({
+        body,
+        labels: [{ name: "factory-control-plane-approved" }],
+      }), "X84657465/global-citizen-ai-network"),
+      TaskValidationError,
+      unsafePath,
+    );
+  }
+});
