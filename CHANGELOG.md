@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.17 — 2026-11-20
+
+### Documentation
+- Align the GitHub homepage release label and CI badge with the default branch.
+- Remove a duplicate scheduler documentation entry and keep CI guidance SHA-specific and current.
+
+### Verification
+- Static README and version metadata consistency checks completed; exact-head CI is required.
+
 ## 0.3.16 — 2026-11-20
 
 ### Fixed
