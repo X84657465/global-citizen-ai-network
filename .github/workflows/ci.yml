@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, feat/github-project-showcase]
+    branches: [main]
     types: [opened, reopened, synchronize]
   repository_dispatch:
     types: [ai-task-ci]
@@ -186,7 +186,7 @@ jobs:
 
           $basePort = 0
           for ($attempt = 0; $attempt -lt 500; $attempt++) {
-            $candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)
+            $candidate = 55000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 9000)
             $available = $true
             foreach ($port in @([int]$candidate, [int]($candidate + 1), [int]($candidate + 2))) {
               if (-not (Test-PortAvailable $port)) { $available = $false; break }
