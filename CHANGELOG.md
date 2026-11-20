@@ -2,6 +2,15 @@
 
 All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` only.
 
+## 0.3.8 — 2026-11-20
+
+### Fixed
+- Synchronize the five-track manifest to A 2.0.8, B 0.1.5, C 0.3.3, D 0.3.4 and E 0.1.5.
+- Align root VERSION, package metadata, lockfile and governance baseline.
+
+### Verification
+- Metadata-only synchronization; exact-head CI is required before acceptance.
+
 ## 0.1.1 — 2026-11-20
 
 ### Added
