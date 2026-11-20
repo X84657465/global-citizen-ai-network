@@ -98,3 +98,12 @@ Contracts require runtime validation and compatibility tests before production u
 - Using community devices or private data without opt-in.
 - Replacing deterministic tests or human accountability with model confidence.
 - Claiming biological-neural equivalence; Deep Neural names the software intelligence architecture.
+
+
+## 8. Track E source-provenance adapter — 0.3.0
+
+Deep Neural accepts Track E `ResearchSourceRecord` values through a dedicated runtime validator. The accepted fields are `source_id`, `title`, `url`, `publisher`, `publisher_key`, `source_type`, `published_at`, `retrieved_at`, `claim_ids`, `stance` and `limitations`.
+
+The adapter validates public HTTPS URL shape, source/claim identifiers, publisher identity keys, source type, evidence stance, dates and bounded limitations. It does not fetch or authenticate the URL. Publisher keys are curated identity labels and therefore require consistent assignment by the research owner; they are not cryptographic proof of publisher independence.
+
+E research records remain untrusted until reviewed. This adapter is a contract compatibility boundary only: no automatic persistence, embedding, memory promotion or cross-track adoption is enabled. Receiving owners retain the adoption decision.

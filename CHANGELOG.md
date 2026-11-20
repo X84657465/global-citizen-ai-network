@@ -130,3 +130,14 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - New exact-head CI required.
+
+
+
+## 0.3.5 — 2026-11-20
+
+### Added
+- Add the Track E research source provenance receiver contract to Deep Neural.
+- Synchronize Deep Neural to 0.3.0 and repository integration version to 0.3.5.
+
+### Verification
+- Add source compatibility and adversarial-input tests. Exact-head CI is required; no live page retrieval or automatic memory ingestion is implied.

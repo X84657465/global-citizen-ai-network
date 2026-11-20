@@ -140,3 +140,59 @@ test("continues to reject proposals with unknown tracks or more than five affect
   assert.throws(() => validateLearningProposal(base), /between 1 and 5 items/);
   assert.throws(() => validateLearningProposal({ ...base, affected_tracks: ["A", "B", "C", "D", "Z"] }), /unknown track/);
 });
+
+
+test("validates Track E research source records with publication and retrieval provenance", () => {
+  const source = validateResearchSourceRecord({
+    source_id: "SRC-RESEARCH-001",
+    title: "A curated primary research source",
+    url: "https://research.example.org/report",
+    publisher: "Example Research Institute",
+    publisher_key: "example-research-institute",
+    source_type: "primary",
+    published_at: "2026-11-01T00:00:00.000Z",
+    retrieved_at: "2026-11-20T00:00:00.000Z",
+    claim_ids: ["CLM-RESEARCH-001"],
+    stance: "supports",
+    limitations: ["Synthetic compatibility fixture"],
+  });
+  assert.equal(source.source_id, "SRC-RESEARCH-001");
+  assert.equal(source.publisher_key, "example-research-institute");
+  assert.equal(source.stance, "supports");
+  assert.deepEqual(source.claim_ids, ["CLM-RESEARCH-001"]);
+});
+
+test("rejects unsafe Track E URLs, malformed source IDs and invalid provenance fields", () => {
+  const base = {
+    source_id: "SRC-RESEARCH-001", title: "Source", url: "https://example.org/source",
+    publisher: "Publisher", publisher_key: "publisher", source_type: "secondary",
+    published_at: null, retrieved_at: "2026-11-20T00:00:00.000Z",
+    claim_ids: ["CLM-RESEARCH-001"], stance: "contradicts", limitations: [],
+  };
+  for (const patch of [
+    { url: "http://example.org/source" },
+    { url: "https://user:secret@example.org/source" },
+    { url: "https://localhost/source" },
+    { url: "https://10.0.0.10/source" },
+    { url: "https://example.org:8443/source" },
+    { source_id: "not-a-source-id" },
+    { publisher_key: "Publisher with spaces" },
+    { source_type: "unknown" },
+    { stance: "maybe" },
+    { claim_ids: ["not-a-claim"] },
+    { published_at: "yesterday" },
+    { retrieved_at: "yesterday" },
+    { unexpected: true },
+  ]) assert.throws(() => validateResearchSourceRecord({ ...base, ...patch }));
+});
+
+test("normalizes Track E publisher keys and defaults omitted limitations", () => {
+  const result = validateResearchSourceRecord({
+    source_id: "SRC-RESEARCH-002", title: "Source", url: "https://example.org/source",
+    publisher: "Publisher", publisher_key: "PUBLISHER", source_type: "tertiary",
+    published_at: null, retrieved_at: "2026-11-20T00:00:00Z",
+    claim_ids: ["CLM-RESEARCH-002"], stance: "contextualizes",
+  });
+  assert.equal(result.publisher_key, "publisher");
+  assert.deepEqual(result.limitations, []);
+});

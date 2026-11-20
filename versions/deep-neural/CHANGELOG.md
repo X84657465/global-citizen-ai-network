@@ -39,3 +39,15 @@
 
 ### Verification
 - Exact-head CI is required before acceptance; no production data or autonomous production mutation is introduced.
+
+
+## 0.3.0 — 2026-11-20
+
+### Added
+- Add a strict Track E ResearchSourceRecord receiver validator matching the E source-provenance output contract.
+- Validate public HTTPS references, source and claim IDs, curated publisher identity keys, source type, stance, publication/retrieval timestamps and bounded limitations.
+- Add compatibility tests using the same field shape produced by E and adversarial URL/provenance cases.
+
+### Verification boundary
+- Source URLs are validated, not fetched or authenticated. No automatic knowledge persistence, vector embedding or adoption is enabled.
+- Exact-head CI and independent review are required.
