@@ -1,3 +1,13 @@
+## 2.0.65 — 2026-11-21
+
+### Harden — Reject indented code-block bullets as task directives
+- Reject four-space and tab-indented code-block lines in required bullet sections before whitespace normalization.
+- Prevent code examples from being promoted into allowed paths, acceptance criteria or explicit exclusions.
+- Add regression tests covering all three directive sections.
+
+### Verification
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; no task dispatch acceptance is claimed until all required checks pass.
+
 ## 2.0.64 — 2026-11-21
 
 ### Harden — Ignore CommonMark indented code blocks during dependency extraction
