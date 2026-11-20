@@ -128,3 +128,11 @@ test("rejects impossible calendar dates, clock times and offsets beyond the ISO-
     );
   }
 });
+
+
+test("rejects overlong raw text even when trimming would make it short", () => {
+  assert.throws(
+    () => validateResearchSourceRecord(source({ title: " ".repeat(300) + "x" })),
+    /title must be non-empty text within 300 characters/,
+  );
+});

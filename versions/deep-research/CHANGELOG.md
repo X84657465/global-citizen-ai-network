@@ -1,5 +1,16 @@
 # Deep Research changelog
 
+## 0.1.10 — 2026-11-20
+
+### Fixed
+- Enforce the maximum raw text length before trimming source metadata fields.
+
+### Tests
+- Reject oversized title text padded with whitespace.
+
+### Verification
+- Exact-head CI required.
+
 ## 0.1.9 — 2026-11-20
 
 ### Fixed
