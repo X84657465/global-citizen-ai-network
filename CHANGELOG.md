@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.19 — 2026-11-20
+
+### Fixed
+- Synchronize the GitHub homepage release label with the canonical repository version.
+
+### Verification
+- Homepage release and package metadata cross-check completed; exact-head CI remains required.
+
 ## 0.3.18 — 2026-11-20
 
 ### Fixed
