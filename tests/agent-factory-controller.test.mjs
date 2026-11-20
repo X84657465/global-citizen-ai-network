@@ -766,3 +766,71 @@ test("check mode fails closed when a completed workflow has a missing or unsuppo
     assert.equal(store.state.state_version, state.state_version);
   }
 });
+
+
+test("check mode requeues all eligible legacy retry_wait tasks from one stable state timestamp", async () => {
+  const fallbackAt = Date.parse("2026-11-20T15:35:42.315Z");
+  let state = createInitialFactoryState(fallbackAt);
+  const legacyTask = (failures, quarantined = false) => ({
+    status: quarantined ? "quarantined" : "retry_wait",
+    attempts: failures,
+    failures,
+    candidate_failures: 0,
+    quarantined,
+    next_attempt_at: null,
+    last_error: null,
+    last_success_at: null,
+  });
+  state.tasks["81"] = legacyTask(1);
+  state.tasks["94"] = legacyTask(1);
+  state.tasks["97"] = legacyTask(2);
+  state.tasks["95"] = legacyTask(3, true);
+  state.updated_at = new Date(fallbackAt).toISOString();
+
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => fallbackAt + 120_001,
+  });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.requeued_tasks, 3);
+  for (const issueNumber of ["81", "94", "97"]) {
+    assert.equal(result.state.tasks[issueNumber].status, "queued");
+    assert.equal(result.state.tasks[issueNumber].next_attempt_at, null);
+  }
+  assert.equal(result.state.tasks["95"].status, "quarantined");
+  assert.equal(result.state.tasks["95"].quarantined, true);
+
+  const version = result.state.state_version;
+  const duplicate = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(duplicate.outputs.requeued_tasks, 0);
+  assert.equal(duplicate.state.state_version, version);
+});
+
+test("check mode does not prematurely requeue legacy retry_wait tasks before fallback backoff", async () => {
+  const fallbackAt = Date.parse("2026-11-20T15:35:42.315Z");
+  let state = createInitialFactoryState(fallbackAt);
+  state.tasks["97"] = {
+    status: "retry_wait",
+    attempts: 2,
+    failures: 2,
+    candidate_failures: 0,
+    quarantined: false,
+    next_attempt_at: null,
+    last_error: null,
+    last_success_at: null,
+  };
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => fallbackAt + 119_999,
+  });
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.requeued_tasks, 0);
+  assert.equal(result.state.tasks["97"].status, "retry_wait");
+  assert.equal(result.state.state_version, state.state_version);
+});
