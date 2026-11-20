@@ -1,3 +1,8 @@
+## 0.3.64 — 2026-11-20
+
+- Restore the CI policy regression assertions to the current workflow contract after verifying Docker/Ollama readiness and bounded inference steps are present.
+- Preserve exact candidate-evidence artifact checks and synchronized root package metadata.
+
 ## 0.3.63 — 2026-11-20
 
 - Restore explicit Windows Runner Docker Engine and Ollama API/model readiness gates in the A-line CI.

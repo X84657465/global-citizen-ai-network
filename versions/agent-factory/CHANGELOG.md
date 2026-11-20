@@ -1,3 +1,13 @@
+## 2.0.36 — 2026-11-20
+
+### Fixed — Preserve CI contract regression coverage
+- Align the policy regression tests with the current full security audit, Windows Runner and bounded Ollama inference step names.
+- Retain the exact count of candidate-evidence uploads without conflating diagnostic artifacts.
+- Synchronize root package and manifest versions; no security checks are weakened.
+
+### Verification
+- Previous exact-SHA run passed 28/30 policy tests; the remaining two failures identified the missing runner and Ollama readiness steps, now restored. This commit requires a fresh full CI run.
+
 ## 2.0.35 — 2026-11-20
 
 ### Fixed — Restore local execution prerequisites to the factory CI
