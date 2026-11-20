@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.22 — 2026-11-20
+
+### Fixed
+- Harden Deep Research source-field length validation against whitespace-padding bypasses.
+
+### Changed
+- Advance E track to 0.1.10 and align five-track release metadata.
+
+### Verification
+- Added a regression test; exact-head CI is required before acceptance.
+
 ## 0.3.21 — 2026-11-20
 
 ### Changed
