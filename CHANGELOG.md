@@ -1,3 +1,11 @@
+## 0.3.93 — 2026-11-21
+
+- Refine the repository homepage so all A–P lines are explicitly explained as 16 distinct workstreams; correct stale five-track labels and remove the partial five-track graphic from the A–P overview.
+- Clarify that the A–E dashboard lists currently verifiable workbench/PR entries only, not the full architecture.
+- Expand governance documentation with explicit I–P scope descriptions and synchronize its repository baseline to 0.3.93.
+- K Knowledge Base/Docs advances to 0.1.2; other track versions remain unchanged.
+- Exact-head full CI and formal review remain required; no implementation maturity is implied.
+
 ## 0.3.92 — 2026-11-21
 
 - Publish the complete A–P workstream registry on the repository homepage, including each track's purpose, responsibilities, status and independent version.
