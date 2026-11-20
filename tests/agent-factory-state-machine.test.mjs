@@ -706,3 +706,16 @@ test("durable state rejects non-canonical or unsafe Issue-number object keys", (
   }
 });
 
+test("rejects normalized impossible dates and timezone-less lease timestamps", () => {
+  for (const updated_at of [
+    "2026-02-30T00:00:00.000Z",
+    "2026-13-01T00:00:00.000Z",
+    "2026-11-20T24:00:00.000Z",
+    "2026-11-20T00:00:00",
+    "2026-11-20T00:00:00+00:60",
+  ]) {
+    const invalid = createInitialFactoryState(1000);
+    invalid.updated_at = updated_at;
+    assert.throws(() => validateFactoryState(invalid), /update timestamp/);
+  }
+});
