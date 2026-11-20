@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.90` · A 線 Agent Factory V2 `2.0.57`（工廠失敗分類與完整觸發路徑回歸防護） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 十六線工程治理](docs/engineering-governance.md) · [A–P 線別架構與責任](docs/engineering-workstreams.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.91` · A 線 Agent Factory V2 `2.0.57`（工廠失敗分類與完整觸發路徑回歸防護） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 十六線工程治理](docs/engineering-governance.md) · [A–P 線別架構與責任](docs/engineering-workstreams.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
