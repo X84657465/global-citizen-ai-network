@@ -1,3 +1,13 @@
+## 0.3.43 — 2026-11-20
+
+### Fixed — dependent-branch CI dispatch
+- Include the A–P governance integration branch in the base-branch pull-request CI allowlist.
+- Add a policy regression assertion so stacked G implementation PRs receive the full exact-head validation workflow.
+
+### Verification
+- This change enables CI dispatch; it does not claim that a workflow run has passed.
+- Exact-head Windows Runner CI remains required.
+
 ## 0.3.42 — 2026-11-20
 
 ### Architecture — G–P workstream expansion
