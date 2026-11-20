@@ -4,6 +4,8 @@
 
 ### 全球公民 AI 網路
 
+<p align="center"><img src="docs/assets/gcan-readme-hero.svg" alt="Global Citizen AI Network — Human knowledge, useful AI, transparent collaboration" width="100%" /></p>
+
 **讓 AI 能力、人的專業知識與可信任的協作，形成一個透明、可持續的全球網路。**
 
 <p>
@@ -18,7 +20,7 @@
 [![React](https://img.shields.io/badge/React-19-149eca?style=for-the-badge&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend-3ecf8e?style=for-the-badge&logo=supabase)](https://supabase.com/)
-[![Version](https://img.shields.io/badge/version-0.1.1-4569d4?style=for-the-badge)](#版本紀錄)
+[![Version](https://img.shields.io/badge/version-0.1.2-4569d4?style=for-the-badge)](#版本紀錄)
 [![Status](https://img.shields.io/badge/status-MVP%20development-orange?style=for-the-badge)](#目前開發狀態)
 
 <br/>
@@ -36,7 +38,7 @@
 | 專案名稱 | Global Citizen AI Network（GCAN） |
 | 中文名稱 | 全球公民 AI 網路 |
 | 產品定位 | 以人為核心、重視透明治理的 AI 協作平台 |
-| 目前版本 | **0.1.1** |
+| 目前版本 | **0.1.2** |
 | 開發階段 | 早期開發 / MVP 建置中 |
 | 前端技術 | Next.js 15、React 19、TypeScript 5 |
 | 後端服務 | Supabase（資料庫、身分驗證與資料權限） |
@@ -290,7 +292,7 @@ npm run build
 
 | 版本 | 類型 | 變更 |
 |---|---|---|
-| **0.1.1** | Patch | GitHub 專案首頁資訊架構與視覺層級優化；公開首頁字體與閱讀體驗改善 |
+| **0.1.2** | Patch | 首頁視覺系統升級、資訊層級與行動版排版優化；GitHub README 品牌橫幅與導覽體驗改善 |
 
 ---
 
