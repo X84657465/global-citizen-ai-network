@@ -1,3 +1,8 @@
+## 0.3.53 — 2026-11-20
+
+- Corrected Ubuntu candidate-resolution shell selection and removed the head-SHA suffix from PR concurrency grouping so superseded commits coalesce as intended.
+- Added CI policy assertions for Linux-compatible shell selection; exact-head CI is required to verify the workflow startup correction.
+
 ## 0.3.52 — 2026-11-20
 
 - Replaced fragile escaped-regex matching in the exact-SHA concurrency regression with literal workflow-expression assertions.
