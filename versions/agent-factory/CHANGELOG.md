@@ -1,3 +1,13 @@
+## 2.0.58 — 2026-11-21
+
+### Fixed — Restore exact-head CI for active Agent Factory pull-request bases
+- Include `feat/agent-factory-v2` and the current dependent #169 base in the CI pull_request target allowlist.
+- Extend trigger-policy regression tests for the active A-line PR base matrix.
+- Preserve the main/showcase PR triggers, repository_dispatch, exact SHA resolver, quality gates and Windows Runner serialization.
+
+### Verification
+- Exact-head full CI and Windows Runner validation remain required. This control-plane PR itself is expected to activate PR CI after the workflow change is merged into its base.
+
 ## 2.0.57 — 2026-11-20
 
 ### Fixed — Validate failure-scope regression test changes
