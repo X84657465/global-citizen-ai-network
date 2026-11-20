@@ -153,3 +153,61 @@ test("existing test files cannot be modified and control-plane files require exp
   assert.equal(approved.files.length, 1);
   assert.equal(approved.safety.control_plane_paths_require_approval_label, true);
 });
+
+
+test("accepts the exact scheduler workflow path only with control-plane approval and as an existing file", () => {
+  const workflowPath = ".github/workflows/agent-task-preflight.yml";
+  const approvedTask = {
+    schema_version: 1,
+    allowed_paths: [workflowPath],
+    control_plane_authorized: true,
+  };
+  const result = validatePatchManifest(
+    manifest([file(workflowPath, "modify", "name: AI Agent Task Preflight\\n")]),
+    approvedTask,
+    [workflowPath],
+  );
+  assert.equal(result.files[0].path, workflowPath);
+  assert.equal(result.safety.control_plane_paths_require_approval_label, true);
+
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([file(workflowPath, "modify")]),
+      { ...approvedTask, control_plane_authorized: false },
+      [workflowPath],
+    ),
+    /factory-control-plane-approved/,
+  );
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([file(workflowPath, "add")]),
+      approvedTask,
+      [workflowPath],
+    ),
+    /cannot replace an existing file/,
+  );
+});
+
+test("rejects non-exact GitHub workflow paths and traversal at patch validation", () => {
+  for (const path of [
+    ".github/workflows/ci.yml",
+    ".github/workflows/build.yml",
+    ".github/workflows/agent-task-preflight.yaml",
+    ".GITHUB/workflows/agent-task-preflight.yml",
+    ".github/CODEOWNERS",
+    ".github/workflows/../agent-task-preflight.yml",
+    ".github/workflows/agent-task-preflight.yml/../../secrets/token.txt",
+    ".github/workflows/agent-task-preflight.yml/credentials.txt",
+    ".github/workflows/.env",
+  ]) {
+    assert.throws(
+      () => validatePatchManifest(
+        manifest([file(path, "modify")]),
+        { schema_version: 1, allowed_paths: [path], control_plane_authorized: true },
+        [path],
+      ),
+      PatchValidationError,
+      path,
+    );
+  }
+});
