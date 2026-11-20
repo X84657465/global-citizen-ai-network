@@ -1,3 +1,8 @@
+## 0.3.54 — 2026-11-20
+
+- Corrected the Agent Factory V2 lease-recovery integration fixture to include the authoritative GitHub workflow run ID for every simulated run attempt, while retaining the missing-attempt fail-closed regression.
+- Exact-head CI remains the acceptance gate; no full CI pass is claimed.
+
 ## 0.3.53 — 2026-11-20
 
 - Corrected Ubuntu candidate-resolution shell selection and removed the head-SHA suffix from PR concurrency grouping so superseded commits coalesce as intended.

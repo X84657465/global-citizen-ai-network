@@ -1,3 +1,12 @@
+## 2.0.27 — 2026-11-20
+
+### Fixed — Workflow-attempt recovery fixture
+- Populate the GitHub workflow run `id` in simulated run responses for original and rerun attempts so controller recovery tests match the actual GitHub Actions API contract.
+- Preserve the negative case where missing `run_attempt` metadata must fail closed.
+
+### Verification
+- Exact-head full CI remains required; this change does not claim live lease recovery or production state mutation.
+
 ## 2.0.26 — 2026-11-20
 
 - Set the Ubuntu candidate resolver to Bash instead of inheriting the Windows PowerShell default.

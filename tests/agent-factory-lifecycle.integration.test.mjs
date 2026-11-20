@@ -433,7 +433,7 @@ test("recovers an expired worker lease only after a restarted controller confirm
   });
   const expiredAt = Date.parse(reserved.state.active_task.lease_expires_at) + 1;
   now = expiredAt;
-  api.workflows.set("700001", { run_attempt: 1, status: "in_progress" });
+  api.workflows.set("700001", { id: 700001, run_attempt: 1, status: "in_progress" });
 
   // A restarted controller must not steal a lease while GitHub still reports
   // that the original workflow attempt is running, even after lease expiry.
@@ -443,7 +443,7 @@ test("recovers an expired worker lease only after a restarted controller confirm
   assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
 
   // Missing attempt metadata must fail closed; status alone is insufficient.
-  api.workflows.set("700001", { status: "completed" });
+  api.workflows.set("700001", { id: 700001, status: "completed" });
   result = await invoke({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, false);
   assert.equal(result.state.active_task.lease_id, leaseId);
@@ -464,13 +464,13 @@ test("recovers an expired worker lease only after a restarted controller confirm
   // A newer GitHub rerun supersedes the leased attempt. While that
   // attempt is running it cannot be recovered; once it completes, the old
   // lease is stale and can be safely reclaimed.
-  api.workflows.set("700001", { run_attempt: 2, status: "in_progress" });
+  api.workflows.set("700001", { id: 700001, run_attempt: 2, status: "in_progress" });
   result = await invoke({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, false);
   assert.equal(result.state.active_task.lease_id, leaseId);
   assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
 
-  api.workflows.set("700001", { run_attempt: 2, status: "completed" });
+  api.workflows.set("700001", { id: 700001, run_attempt: 2, status: "completed" });
   result = await invoke({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, true);
   assert.equal(result.outputs.recovered_issue_number, issueNumber);
