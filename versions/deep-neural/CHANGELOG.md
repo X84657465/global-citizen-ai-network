@@ -1,5 +1,19 @@
 # Deep Neural Changelog
 
+## 0.3.6 — 2026-11-20
+
+### Security
+- Align the Track E research-source receiver with the stricter public-host URL policy used by Track E.
+- Reject loopback, private, link-local, carrier-grade NAT, documentation, multicast, reserved and IPv4-mapped IPv6 literals.
+
+### Tests
+- Add adversarial coverage for non-public IPv4 and IPv6 URL literals.
+
+### Verification
+- Exact-head CI is required; source URLs are validated but never fetched by this contract.
+
+# Deep Neural Changelog
+
 ## 0.3.5 — 2026-11-20
 
 ### Fixed
