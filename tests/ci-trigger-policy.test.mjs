@@ -10,7 +10,7 @@ const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "
 const workflowLevelConcurrency = workflow.split("\non:\n", 1)[0];
 
 function findJobSection(source, name) {
-  const start = source.indexOf("  " + name + ":\\n");
+  const start = source.indexOf("  " + name + ":\n");
   assert.ok(start >= 0, "missing CI job: " + name);
   const headers = [...source.slice(start + 1).matchAll(/^  [A-Za-z0-9_-]+:\s*$/gm)];
   return { start, end: headers[0] ? start + 1 + headers[0].index : source.length };
@@ -42,6 +42,22 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
+
+  const qualitySection = findJobSection(workflow, "quality");
+  const quality = workflow.slice(qualitySection.start, qualitySection.end);
+  assert.ok(quality.includes("runs-on: ubuntu-latest"), "portable quality gates must run on GitHub-hosted Ubuntu");
+  assert.equal(quality.includes("self-hosted"), false, "portable quality gates must not queue behind Windows");
+  for (const command of [
+    "npm ci --no-audit --no-fund",
+    "npm run test:unit",
+    "npx --no-install tsc --noEmit",
+    "npm run lint",
+    "npm run build",
+    "npm audit --audit-level=high",
+    "node --test tests/ci-trigger-policy.test.mjs",
+  ]) assert.ok(quality.includes(command), "Ubuntu quality job must execute " + command);
+  assert.ok(quality.includes("needs: [resolve-candidate]"));
+  assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 
   const runnerJobs = ["build", "database"];
   for (let index = 0; index < runnerJobs.length; index += 1) {

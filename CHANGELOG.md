@@ -1,3 +1,10 @@
+## 0.3.46 — 2026-11-20
+
+- Split portable quality gates onto GitHub-hosted Ubuntu: migration/schema guards, dependency audits, Agent Factory syntax checks, CI policy tests, unit tests, TypeScript, lint and production build no longer consume the single Windows Runner.
+- Reduced the Windows build job to exact-candidate registration and Windows/Docker/Ollama integration checks; database integration remains on Windows.
+- Wired Ubuntu quality failure classification into the factory CI circuit-breaker and success gates; Windows integration now runs only after portable quality gates pass.
+- Fixed the CI policy test job-section lookup and added regression checks for Ubuntu execution and required quality commands.
+
 ## 0.3.45 — 2026-11-20
 
 - Removed the active Agent Factory feature branch from the heavyweight Windows preflight push trigger; the exact-head PR CI remains the authoritative validation path, while scheduled/manual preflight and main-branch environment smoke checks remain available.
