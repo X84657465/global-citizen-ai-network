@@ -199,7 +199,14 @@ test("preflight accepts an optional Dependencies section and returns normalized 
 });
 
 test("dependency resolver fails closed for unresolved multiline references", () => {
-  const body = "## Dependencies\\n- #74\\n- #75\\n- #81\\n- #94\\n\\n## Goal\\n#999 is unrelated.";
+  const body = `## Dependencies
+- #74
+- #75
+- #81
+- #94
+
+## Goal
+#999 is unrelated.`
   const issues = new Map([
     [74, { number: 74, state: "closed", state_reason: "completed" }],
     [75, { number: 75, state: "closed", state_reason: "not_planned" }],
