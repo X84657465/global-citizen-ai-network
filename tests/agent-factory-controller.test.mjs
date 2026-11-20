@@ -805,3 +805,25 @@ test("check mode does not requeue a migrated task before its fallback backoff ex
   assert.equal(result.state.tasks["94"].status, "retry_wait");
   assert.equal(store.state.state_version, initial.state_version);
 });
+
+
+test("check mode persists legacy retry deadlines before later state writes can shift the fallback clock", async () => {
+  const initial = createInitialFactoryState(100_000);
+  initial.tasks["94"] = {
+    status: "retry_wait", attempts: 2, failures: 2, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 150_000,
+  });
+
+  const first = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  const deadline = new Date(220_000).toISOString();
+  assert.equal(first.state.tasks["94"].status, "retry_wait");
+  assert.equal(first.state.tasks["94"].next_attempt_at, deadline);
+
+  const second = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(second.state.tasks["94"].next_attempt_at, deadline);
+  assert.equal(second.state.state_version, first.state.state_version);
+});
