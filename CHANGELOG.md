@@ -1,3 +1,10 @@
+## 0.3.99 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.68: task-publication success is non-mutating and cannot reset the global circuit breaker.
+- Add separately verified system-health success using completed exact-head GitHub CI evidence; preserve task retry and quarantine history.
+- Add controller regressions for publication isolation, fail-closed evidence validation and idempotent health recovery.
+- Exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable and independent formal review remain required.
+
 ## 0.3.98 — 2026-11-21
 
 - Synchronize the A–P homepage and governance registry with the current Agent Factory V2 baseline: A 2.0.67 / repository 0.3.98; preserve B 0.1.13, K 0.1.2 and all independent C–P versions.
