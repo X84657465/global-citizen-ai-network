@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.21 — 2026-11-20
+
+### Changed
+- Synchronize five-track branch history and canonical repository release metadata.
+- Align the version manifest with the latest recorded versions across all five tracks.
+
+### Verification
+- Exact-head CI and independent review remain required.
+
 ## 0.3.14 — 2026-11-20
 
 ### Fixed
