@@ -1,3 +1,8 @@
+## 0.3.45 — 2026-11-20
+
+- Removed the active Agent Factory feature branch from the heavyweight Windows preflight push trigger; the exact-head PR CI remains the authoritative validation path, while scheduled/manual preflight and main-branch environment smoke checks remain available.
+- Added a regression assertion preventing duplicate full Windows preflight runs on the active feature branch.
+
 ## 0.3.44 — 2026-11-20
 
 - Corrected CI runner placement: GitHub API-only candidate resolution and CI result persistence use GitHub-hosted Ubuntu runners; Windows build and database validation remain serialized on the self-hosted Runner.

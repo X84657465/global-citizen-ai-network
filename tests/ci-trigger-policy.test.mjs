@@ -66,7 +66,7 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
 });
 
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
-  assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "preflight synthetic validation must remain available on the active development branch");
+  assert.equal(preflight.includes("      - feat/agent-factory-v2\n"), false, "full Windows preflight must not duplicate the active feature-branch CI run");
   assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must remain runnable on the active development branch");
 
   const workflowHeader = preflight.slice(0, preflight.indexOf("\njobs:"));
