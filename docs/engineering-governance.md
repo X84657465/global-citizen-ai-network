@@ -1,12 +1,12 @@
 # A–P Engineering Governance
 
-**Governance revision: 2.0.0**  
-**Repository release baseline: 0.3.42**  
+**Governance revision: 2.0.1**  
+**Repository release baseline: 0.3.49**  
 **Architecture detail:** [A–P Engineering Workstream Architecture](engineering-workstreams.md)
 
 ## 1. Track ownership
 
-GCAN has sixteen defined workstream boundaries. A–F retain their existing engineering ownership; G–P are planned until implementation evidence and acceptance gates are delivered.
+GCAN has sixteen defined workstream boundaries. A–F retain their existing engineering ownership; G and H are implementation candidates pending exact-head CI and formal review; I–P remain planned until implementation evidence and acceptance gates are delivered.
 
 | Track | Scope | Primary responsibility |
 |---|---|---|
@@ -53,7 +53,7 @@ A version bump is not evidence of completion. Acceptance requires exact commit S
 
 ## 4. Dependency sequence
 
-1. Preserve A–F and complete F's security acceptance independently.
+1. Preserve A–H and complete F's cross-track security acceptance independently; G/H remain candidates until their own gates pass.
 2. Establish G/H/K foundations: integration gates, observability/resource governance and operational playbooks.
 3. Add J/M/P resilience, audit and autonomy governance after observability is reliable.
 4. Add I/N/O after core security and integration contracts stabilize.
