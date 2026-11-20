@@ -1,3 +1,14 @@
+## 0.3.32 — 2026-11-20
+
+### Reliability
+- Document and regression-guard the GitHub default-branch scheduling boundary for Agent Factory V2.
+- Make explicit that feature-branch schedules do not activate production polling or V1-to-V2 migration while the default branch still hosts the legacy workflow.
+- Define exact-SHA Windows Runner and same-Issue read-back evidence required before accepting the Issue #100 migration.
+
+### Verification
+- Added a CI policy assertion for the runbook's default-branch gate.
+- No production state was changed; Issue #100 remains V1 pending approved integration and an actual V2 workflow run.
+
 ## 0.3.30 — 2026-11-20
 
 ### Fixed
