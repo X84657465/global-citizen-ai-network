@@ -1,3 +1,9 @@
+## 0.3.92 — 2026-11-21
+
+- Correct the 24-task Agent Factory lifecycle soak assertion: the deduplication ledger records candidate-start and candidate-result callbacks, not reserve/state-transition operations (48 unique callback events for 24 completed tasks).
+- Agent Factory V2 advances to 2.0.61; B remains unchanged at 0.1.13.
+- Exact-head full CI and controlled Windows factory validation remain required; no merge or deployment is claimed.
+
 ## 0.3.91 — 2026-11-21
 
 - Add queue-selector integration regression coverage for dependency gating before dispatch, including completed, open, missing, and merged-PR prerequisites.
