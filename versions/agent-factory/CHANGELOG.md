@@ -1,3 +1,13 @@
+## 2.0.59 — 2026-11-20
+
+### Fixed — Block tasks until multiline dependencies are completed
+- Parse explicit inline dependency declarations and Markdown Dependencies/Dependencies-context sections.
+- Stop at the next section, ignore fenced examples, deduplicate and sort references.
+- Keep missing, open and non-completed dependencies blocked; accept only completed issues or verified merged task PRs.
+
+### Verification
+- Exact-head full CI, TypeScript, lint and Windows factory validation are required. No task dispatch acceptance is claimed until all required checks pass.
+
 ## 2.0.58 — 2026-11-20
 
 ### Fixed — Recover legacy retry tasks missing per-task timestamps
