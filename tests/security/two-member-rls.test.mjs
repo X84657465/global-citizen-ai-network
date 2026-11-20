@@ -161,8 +161,13 @@ test("suspended and closed accounts cannot read member data; restricted accounts
   const f = fixture();
   const output = sql(`
     ${f.setup}
+    -- Account-status transitions are trusted server operations, not member writes.
+    set local role service_role;
+    select set_config('request.jwt.claim.sub', '', true);
+    select set_config('request.jwt.claims', '{}', true);
     update public.profiles set account_status = 'restricted' where id = '${f.a}';
     update public.profiles set account_status = 'suspended' where id = '${f.b}';
+    reset role;
     set local role authenticated;
     select set_config('request.jwt.claim.sub', '${f.a}', true);
     select set_config('request.jwt.claims', '{"sub":"${f.a}","role":"authenticated"}', true);
@@ -173,7 +178,11 @@ test("suspended and closed accounts cannot read member data; restricted accounts
     select set_config('request.jwt.claims', '{"sub":"${f.b}","role":"authenticated"}', true);
     select 'suspended:' || (select count(*) from public.projects);
     reset role;
+    set local role service_role;
+    select set_config('request.jwt.claim.sub', '', true);
+    select set_config('request.jwt.claims', '{}', true);
     update public.profiles set account_status = 'closed' where id = '${f.b}';
+    reset role;
     set local role authenticated;
     select set_config('request.jwt.claim.sub', '${f.b}', true);
     select set_config('request.jwt.claims', '{"sub":"${f.b}","role":"authenticated"}', true);
