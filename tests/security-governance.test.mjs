@@ -14,7 +14,7 @@ test("release manifest declares the independent F security workstream", () => {
   assert.match(manifest.overall, /^\d+\.\d+\.\d+$/);
   assert.deepEqual(manifest.tracks.F, {
     name: "Cyber Security & Defense",
-    version: "0.1.1",
+    version: "0.1.5",
     status: "foundation",
     responsibility: "Cross-track threat modeling, security controls, adversarial validation, vulnerability response and incident readiness.",
   });
