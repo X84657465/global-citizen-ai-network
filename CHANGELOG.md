@@ -1,3 +1,14 @@
+## 0.3.24 — 2026-11-20
+
+### Fixed
+- Validate the Predictive Coding Expected Calibration Error options object and reject unknown configuration keys to prevent silent fallback to default calibration bins.
+
+### Tests
+- Add regression coverage for null, primitive, array and misspelled ECE options.
+
+### Verification
+- Exact-head CI required; no live model execution or production data mutation is claimed.
+
 # Changelog
 
 ## 0.3.23 — 2026-11-20
