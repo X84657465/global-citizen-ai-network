@@ -47,7 +47,6 @@ async function main() {
   }
   if (result.mode === "reserve" && result.outputs?.lease_id) {
     writeEnv("AGENT_FACTORY_LEASE_ID", result.outputs.lease_id);
-    writeOutput("lease_id", result.outputs.lease_id);
   }
   console.log("Agent Factory V2 controller mode: " + result.mode);
   console.log("State version: " + result.state.state_version);
