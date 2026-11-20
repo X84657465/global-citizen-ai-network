@@ -1,3 +1,14 @@
+## 2.0.71 — 2026-11-21
+
+### Fixed — Restore exact-head CI for active A-line integration PR bases
+- Add the current Agent Factory candidate branch and its governance child branch to the pull_request base-branch allowlist.
+- Preserve exact-head candidate resolution, same-repository/owner authorization, task marker checks, Runner serialization and all quality/database gates.
+- Extend CI trigger-policy regression coverage for both active integration targets.
+- No wildcard branch expansion, permission changes, secret exposure, auto-merge or deployment behavior added.
+
+### Verification
+- The change is covered by the CI trigger-policy test; exact-head full CI for this control-plane change and dependent PRs remains required.
+
 ## 2.0.70 — 2026-11-21
 
 ### Fixed — Bound new-file patch generation to the plan output budget

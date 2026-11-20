@@ -1,3 +1,9 @@
+## 0.3.102 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
+- Add regression coverage for the precise target-branch allowlist; preserve owner/same-repository checks, exact-SHA resolver, self-hosted Runner queue, security audits, build and database gates.
+- No wildcard branch expansion, permission changes, production data or automatic merge/deployment behavior.
+
 ## 0.3.101 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.70: new-file generation now uses the validated plan output allowance instead of a 16,384-token floor for empty source files.
