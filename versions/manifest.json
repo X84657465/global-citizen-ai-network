@@ -25,7 +25,7 @@
     },
     "E": {
       "name": "Deep Research（深度研究）",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "status": "interface-candidate",
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
     }

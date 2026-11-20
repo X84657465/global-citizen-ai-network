@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { nextResearchProjectId } from "../../lib/deep-research-ids.mjs";
 import { ArrowUpRight, BookOpen, CheckCircle2, CircleHelp, ClipboardList, FileSearch, FlaskConical, Globe2, Library, Plus, Search, ShieldCheck, Sparkles } from "lucide-react";
 import styles from "./research.module.css";
 
@@ -13,7 +14,7 @@ const stages=["研究問題定義","多來源蒐集","來源可信度查核","�
 export default function DeepResearchPage(){
  const [studies,setStudies]=useState(initial); const [query,setQuery]=useState(""); const [filter,setFilter]=useState("全部"); const [created,setCreated]=useState(false);
  const visible=useMemo(()=>studies.filter(s=>(filter==="全部"||s.status===filter)&&(!query||s.title.toLowerCase().includes(query.toLowerCase())||s.id.toLowerCase().includes(query.toLowerCase()))),[studies,filter,query]);
- function createStudy(){const q=query.trim();if(!q)return;setStudies([{id:"DR-"+String(27+studies.length).padStart(3,"0"),title:q,sources:0,status:"待研究",updated:"剛剛"},...studies]);setQuery("");setCreated(true);}
+ function createStudy(){const title=query.trim();if(!title)return;const id=nextResearchProjectId(studies.map(study=>study.id));setStudies([{id,title,sources:0,status:"待研究",updated:"剛剛"},...studies]);setQuery("");setCreated(true);}
  return <main className={styles.page}>
  <aside className={styles.sidebar}><Link href="/" className={styles.brand}><span><FlaskConical size={21}/></span><b>DEEP RESEARCH</b></Link><div className={styles.label}>RESEARCH WORKSPACE</div><a className={styles.active} href="#overview"><Globe2/>研究總覽</a><a href="#projects"><ClipboardList/>研究專案</a><a href="#sources"><Library/>來源資料庫</a><a href="#method"><ShieldCheck/>研究方法</a><div className={styles.sideFoot}>TRACK E · EVIDENCE FIRST</div></aside>
  <section className={styles.main}><header className={styles.top}><span>WORKSPACE / DEEP RESEARCH</span><Link href="/">返回 GCAN ↗</Link></header><div className={styles.content} id="overview">
