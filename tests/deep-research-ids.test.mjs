@@ -19,3 +19,9 @@ test("rejects malformed identifiers and unsafe numeric overflow", () => {
   assert.throws(() => nextResearchProjectId(["DR-99999999999999999999"]), /safe numeric range/);
   assert.throws(() => nextResearchProjectId(["DR-9007199254740991"]), /No safe research project ID remains/);
 });
+
+test("rejects duplicate numeric IDs even when their zero-padding differs", () => {
+  assert.throws(() => nextResearchProjectId(["DR-024", "DR-024"]), /duplicate numeric research ID: DR-024/);
+  assert.throws(() => nextResearchProjectId(["DR-024", "DR-0024"]), /duplicate numeric research ID: DR-024/);
+  assert.throws(() => nextResearchProjectId(["DR-00024", "DR-024"]), /duplicate numeric research ID: DR-024/);
+});
