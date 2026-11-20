@@ -1,3 +1,12 @@
+## 0.3.40 — 2026-11-20
+
+### Reliability
+- Serialize legacy V1-to-V2 state migrations through the repository-scoped write queue so independent store instances cannot race the same migration.
+- Recover idempotently when another process completes the migration first, and add a concurrent two-store regression test.
+
+### Verification
+- Static read-back is required; exact-head Windows Runner CI remains the acceptance gate.
+
 ## 0.3.39 — 2026-11-20
 
 ### Reliability
