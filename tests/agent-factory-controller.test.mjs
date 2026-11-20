@@ -807,6 +807,35 @@ test("check mode does not requeue a migrated task before its fallback backoff ex
 });
 
 
+
+test("check mode preserves the pre-initialization retry clock when creating the state issue", async () => {
+  const initial = createInitialFactoryState(100_000);
+  initial.tasks["94"] = {
+    status: "retry_wait", attempts: 2, failures: 2, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  let state = initial;
+  const store = {
+    async migrate() { return { issue: null, state, migrated: false }; },
+    getStateIssueNumber() { return null; },
+    async write(expectedVersion, nextState) {
+      assert.equal(state.state_version, expectedVersion);
+      assert.equal(nextState.state_version, expectedVersion + 1);
+      state = nextState;
+      return { state };
+    },
+  };
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 150_000,
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.state.tasks["94"].status, "retry_wait");
+  assert.equal(result.state.tasks["94"].next_attempt_at, new Date(220_000).toISOString());
+  assert.equal(result.state.updated_at, new Date(150_000).toISOString());
+});
+
 test("check mode persists legacy retry deadlines before later state writes can shift the fallback clock", async () => {
   const initial = createInitialFactoryState(100_000);
   initial.tasks["94"] = {
