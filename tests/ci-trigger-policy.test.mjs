@@ -35,12 +35,32 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
   }
 });
 
-test("preflight coalesces redundant poller events while Runner smoke retains the bounded queue", () => {
+test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "preflight synthetic validation must remain available on the active development branch");
   assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must remain runnable on the active development branch");
-  assert.ok(preflight.includes("group: global-citizen-ai-network-self-hosted-runner"));
-  assert.ok(preflight.includes("cancel-in-progress: false"));
-  assert.equal(preflight.includes("queue: max"), false, "durable preflight polling must coalesce obsolete pending triggers");
+
+  const workflowHeader = preflight.slice(0, preflight.indexOf("\njobs:"));
+  assert.ok(workflowHeader.includes("group: global-citizen-ai-network-preflight-${{ github.event_name == 'schedule' && 'poller' || github.run_id }}"));
+  assert.ok(workflowHeader.includes("cancel-in-progress: false"));
+  assert.equal(workflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false);
+
+  const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\njobs:".length);
+  const jobHeaders = [...jobsSource.matchAll(/^  ([A-Za-z0-9_-]+): *$/gm)];
+  const requiredRunnerJobs = new Set(["validation-tests", "prepare-task"]);
+  const verifiedRunnerJobs = new Set();
+  for (let index = 0; index < jobHeaders.length; index += 1) {
+    const name = jobHeaders[index][1];
+    if (!requiredRunnerJobs.has(name)) continue;
+    const start = jobHeaders[index].index;
+    const end = index + 1 < jobHeaders.length ? jobHeaders[index + 1].index : jobsSource.length;
+    const section = jobsSource.slice(start, end);
+    assert.ok(section.includes("group: global-citizen-ai-network-self-hosted-runner"), name + " must serialize on the shared Runner");
+    assert.ok(section.includes("queue: max"), name + " must preserve pending actionable jobs");
+    assert.ok(section.includes("cancel-in-progress: false"), name + " must not cancel active Runner work");
+    verifiedRunnerJobs.add(name);
+  }
+  assert.deepEqual([...verifiedRunnerJobs].sort(), [...requiredRunnerJobs].sort());
+
   assert.ok(runnerSmoke.includes("group: global-citizen-ai-network-self-hosted-runner"));
   assert.ok(runnerSmoke.includes("queue: max"), "explicit Runner smoke jobs must retain their bounded queue");
   assert.ok(runnerSmoke.includes("cancel-in-progress: false"));

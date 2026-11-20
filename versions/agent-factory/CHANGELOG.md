@@ -1,3 +1,15 @@
+## 2.0.15 — 2026-11-20
+
+### Reliability
+- Isolate five-minute scheduled pollers from issue, repository-dispatch and manual task triggers at workflow concurrency level.
+- Add a shared bounded Runner queue to both preflight self-hosted jobs so actionable task runs are not displaced by recurring polls.
+
+### Regression coverage
+- Assert poller-only coalescing, unique actionable workflow runs, and shared Runner serialization for validation and task-worker jobs.
+
+### Verification
+- Exact-head CI is required. The current change does not claim real task planning, patch validation or publication; those require an actionable run on the default-branch workflow.
+
 ## 2.0.13 — 2026-11-20
 
 ### Reliability

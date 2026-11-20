@@ -67,16 +67,20 @@ permissions:
   contents: read
   issues: read
 
-# Durable task Issues and state are the source of truth. Keep the active run,
-# but coalesce redundant pending poller events instead of building an unbounded queue.
+# Durable task Issues and state are the source of truth. Coalesce only scheduled pollers;
+# actionable task triggers must keep independent workflow runs. Serialize Runner jobs below.
 concurrency:
-  group: global-citizen-ai-network-self-hosted-runner
+  group: global-citizen-ai-network-preflight-${{ github.event_name == 'schedule' && 'poller' || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   validation-tests:
     name: Windows self-hosted project validation
     if: github.event_name == 'push' && github.actor == github.repository_owner
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 25
     steps:
@@ -462,6 +466,10 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 60
     steps:
