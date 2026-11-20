@@ -29,14 +29,8 @@ async function main() {
     maxRetries: 2,
     maxInlineRetryDelayMs: 30_000,
   });
-  const stateStore = createFactoryStateStore(api, {
-    repository,
-    issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
-  });
-  const stateRecord = await stateStore.read();
-  writeOutput("state_issue_number", stateRecord.issue?.number ?? "");
-
   if (!Number.isSafeInteger(pullRequestNumber) || pullRequestNumber < 1) {
+    writeOutput("state_issue_number", "");
     writeOutput("is_current_head", "true");
     writeOutput("is_task_pr", "false");
     writeOutput("issue_number", "");
@@ -97,6 +91,19 @@ async function main() {
   }
   const isTaskPr = Boolean(issueNumber && sameRepository && sameBaseRepository && trustedPullAuthor &&
     isAgentTaskBranchForIssue(pull.head?.ref, issueNumber) && authorizedTaskIssue);
+
+  // Ordinary product/documentation PRs do not need durable factory state.
+  // Defer the Issue scan until an authorized AI-task PR actually needs it.
+  let stateIssueNumber = "";
+  if (isTaskPr) {
+    const stateStore = createFactoryStateStore(api, {
+      repository,
+      issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
+    });
+    const stateRecord = await stateStore.read();
+    stateIssueNumber = stateRecord.issue?.number ?? "";
+  }
+  writeOutput("state_issue_number", stateIssueNumber);
 
   writeOutput("is_current_head", currentHead ? "true" : "false");
   writeOutput("is_task_pr", isTaskPr ? "true" : "false");

@@ -1,3 +1,13 @@
+## 2.0.28 — 2026-11-20
+
+### Changed — Isolate PR metadata resolution
+- Defer durable factory state Issue discovery until a PR is positively classified as an authorized AI-task PR.
+- Ordinary product and documentation PRs no longer perform an unnecessary machine-state lookup during candidate resolution.
+
+### Verification
+- Added a CI regression assertion for lazy state lookup.
+- Exact-head full CI remains required; no successful CI or production readiness is claimed.
+
 ## 2.0.27 — 2026-11-20
 
 ### Fixed — Workflow-attempt recovery fixture

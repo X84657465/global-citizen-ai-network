@@ -1,3 +1,9 @@
+## 0.3.55 — 2026-11-20
+
+- Defer durable Agent Factory state lookup until a pull request is positively classified as an authorized AI-task PR.
+- Add CI regression coverage so ordinary product/documentation PR metadata checks do not depend on factory state storage.
+- Exact-head full CI remains mandatory; this change is not complete until all required jobs pass.
+
 ## 0.3.54 — 2026-11-20
 
 - Corrected the Agent Factory V2 lease-recovery integration fixture to include the authoritative GitHub workflow run ID for every simulated run attempt, while retaining the missing-attempt fail-closed regression.
