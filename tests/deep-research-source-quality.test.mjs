@@ -141,3 +141,10 @@ test("rejects overlong raw text even when trimming would make it short", () => {
     /title must be non-empty text within 300 characters/,
   );
 });
+
+test("rejects special-use non-public host suffixes", () => {
+  for (const host of ["localhost", "service.local", "metadata.internal", "docs.test", "docs.example", "bad.invalid", "hidden.onion", "1.0.0.127.in-addr.arpa"]) {
+    assert.throws(() => validateResearchSourceRecord(source({ url: "https://" + host + "/source" })), /public HTTPS reference/);
+  }
+  assert.equal(validateResearchSourceRecord(source({ url: "https://research.example.org/source" })).url, "https://research.example.org/source");
+});
