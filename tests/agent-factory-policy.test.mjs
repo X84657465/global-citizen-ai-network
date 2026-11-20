@@ -201,3 +201,20 @@ test("AI task publisher requires explicit human approval and never promises auto
   assert.equal(publisher.includes("ci_gated_squash"), false);
   assert.equal(/will be squash-merged automatically/i.test(publisher), false);
 });
+
+
+test("passes the reserved lease ID to the task-failure recorder", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("      - name: Record failed task and activate cooldown after three consecutive failures");
+  assert.ok(start >= 0, "factory failure recorder step must exist");
+  const next = workflow.indexOf("\n      - name:", start + 1);
+  const section = workflow.slice(start, next < 0 ? workflow.length : next);
+
+  assert.match(
+    section,
+    /AGENT_FACTORY_LEASE_ID:\\s*\\$\\{\\{\\s*steps\\.reserve-task\\.outputs\\.lease_id\\s*\\}\\}/,
+    "task-scoped failures require the exact lease that reserved the selected Issue"
+  );
+  assert.match(section, /FAILED_ISSUE_NUMBER:/);
+  assert.match(section, /AGENT_FACTORY_MODE:\\s*failure/);
+});
