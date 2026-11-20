@@ -32,8 +32,17 @@ test("scales Ollama patch output tokens above the former truncation-prone floor"
   assert.equal(calculatePatchOutputTokenBudget(65536), 24576);
 });
 
+test("caps new-file generation budgets below the model truncation ceiling", () => {
+  assert.equal(calculatePatchOutputTokenBudget(0, 4096), 4096);
+  assert.equal(calculatePatchOutputTokenBudget(0, 2048), 2048);
+  assert.equal(calculatePatchOutputTokenBudget(17758, 4096), 4096);
+});
+
 test("rejects invalid Ollama patch output budget inputs", () => {
   for (const value of [-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1]) {
     assert.throws(() => calculatePatchOutputTokenBudget(value), /non-negative safe integer/);
+  }
+  for (const value of [0, 1023, 1.5, Number.NaN, Number.POSITIVE_INFINITY, 24577]) {
+    assert.throws(() => calculatePatchOutputTokenBudget(0, value), /maxOutputTokens/);
   }
 });
