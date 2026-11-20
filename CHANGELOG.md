@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.10 — 2026-11-20
+
+### Fixed
+- Repair two literal escaped-newline sequences in the GCAN homepage regression test that made the test module syntactically invalid.
+- Bump the repository and GCAN Product versions; synchronize the lockfile, manifest and governance baseline.
+
+### Verification
+- Source-level syntax defect confirmed by inspecting the exact branch file; exact-head CI is required to validate the repair.
+
+
 All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` only.
 
 ## 0.3.9 — 2026-11-20

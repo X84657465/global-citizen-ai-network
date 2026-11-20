@@ -26,7 +26,9 @@ test("primary homepage actions route visitors to the intended product destinatio
 
 test("public homepage clearly discloses early-stage feature limitations", () => {
   assert.match(homepage, /早期建置與預覽階段/);
-  assert.match(homepage, /示範數據/);\n  assert.match(homepage, /尚未連接的 AI／搜尋服務/);\n  assert.match(homepage, /尚未啟用的獎勵支付與分散式運算/);
+  assert.match(homepage, /示範數據/);
+  assert.match(homepage, /尚未連接的 AI／搜尋服務/);
+  assert.match(homepage, /尚未啟用的獎勵支付與分散式運算/);
 });
 
 test("public homepage does not fabricate member activity or reward counters", () => {

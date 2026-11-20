@@ -1,5 +1,14 @@
 # GCAN Product changelog
 
+## 0.1.6 — 2026-11-20
+
+### Fixed
+- Repair escaped newline literals in homepage regression assertions so the test file parses as JavaScript.
+
+### Verification
+- Exact-head CI must pass before this candidate is accepted.
+
+
 ## 0.1.0
 
 - Establish the public Global Citizen AI Network product homepage and responsive visual identity.
