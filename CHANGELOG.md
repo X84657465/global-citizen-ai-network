@@ -179,3 +179,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 ### Verification
 - The latest isolated Preflight exposed three lifecycle callbacks missing the newly required candidate branch ref. The regression fixtures now supply the deterministic branch for every terminal callback.
 - Exact-head Preflight and full CI must pass before the change is accepted.
+
+
+## 0.3.9
+
+- Run full CI on all explicitly controlled A-E feature branch pushes, not only main or PR lifecycle events.
+- Retain repository-owner push gating and the explicit five-workstream branch allowlist.
+- Synchronize Agent Factory V2 to 2.0.8 and repository metadata to 0.3.9.
+
+Verification: exact-head CI and PostgreSQL/RLS validation are required. No PR merge or deployment is implied.

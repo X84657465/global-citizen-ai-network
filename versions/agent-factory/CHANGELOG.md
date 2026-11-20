@@ -67,3 +67,12 @@
 - Add regression coverage for single-task, 24-task, failure/backoff and retry-success lifecycles under the EvidenceRecord export contract.
 
 **Verification:** exact-head Agent Factory Preflight and full CI must pass before acceptance.
+
+
+## 2.0.8
+
+- Trigger full CI on controlled A-E feature branch pushes, in addition to main and pull-request events.
+- Keep the push allowlist explicit and build execution restricted to repository-owner events.
+- Extend CI trigger policy regression coverage for the five controlled workstreams.
+
+Verification: exact-head CI and database/RLS validation are required. No merge or deployment is implied.
