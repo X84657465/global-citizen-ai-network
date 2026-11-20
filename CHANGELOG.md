@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.17 — 2026-11-20
+
+### Fixed
+- Correct the lockfile regression test to compare the exact resolved tarball filename without an escaped-regex ambiguity.
+- Keep eslint-import-resolver-node locked at the tarball's actual 0.3.10 version.
+
+### Verification
+- Regression test now compares the resolved filename to the lockfile version; exact-head CI remains required.
+
 ## 0.3.16 — 2026-11-20
 
 ### Fixed
