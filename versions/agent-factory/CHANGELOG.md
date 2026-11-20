@@ -1,3 +1,14 @@
+## 2.0.58 — 2026-11-21
+
+### Fixed — Restore exact-head CI for active integration PR bases
+- Add the current A candidate branch and governance child branch to the pull_request target-branch allowlist.
+- Preserve exact-head PR resolution, same-repository/owner authorization, task marker validation, Runner serialization and all quality/security/database gates.
+- Extend CI trigger-policy regression coverage for both active integration targets.
+- No wildcard branches, permission expansion, auto-merge, deployment or production-data changes.
+
+### Verification
+- Exact-head full CI on this control-plane PR and each dependent PR is required before acceptance.
+
 ## 2.0.57 — 2026-11-20
 
 ### Fixed — Validate failure-scope regression test changes

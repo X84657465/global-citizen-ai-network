@@ -1,3 +1,9 @@
+## 0.3.89 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.58: restore exact-head pull-request CI for the active A-line integration base and governance child base.
+- Add regression coverage for the precise target-branch allowlist while preserving authorization, exact-SHA resolution, Runner queue, quality, security and database gates.
+- No wildcard branch expansion, permission changes, production data or automatic merge/deployment behavior.
+
 ## 0.3.88 — 2026-11-20
 
 - Restrict full CI push-triggered runs to `main`; development branches are validated by their pull-request lifecycle events, avoiding duplicate full-suite execution for the same PR head.
