@@ -760,3 +760,48 @@ test("check mode fails closed when a completed workflow has a missing or unsuppo
     assert.equal(store.state.state_version, state.state_version);
   }
 });
+
+
+test("check mode requeues migrated retry tasks using one immutable state timestamp", async () => {
+  const initial = createInitialFactoryState(100_000);
+  const retryTask = (failures) => ({
+    status: "retry_wait", attempts: failures, failures, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  });
+  initial.tasks["81"] = retryTask(1);
+  initial.tasks["94"] = retryTask(2);
+  initial.tasks["95"] = {
+    status: "quarantined", attempts: 3, failures: 3, candidate_failures: 0,
+    quarantined: true, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 400_000,
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.requeued_tasks, 2);
+  assert.equal(result.state.tasks["81"].status, "queued");
+  assert.equal(result.state.tasks["94"].status, "queued");
+  assert.equal(result.state.tasks["95"].status, "quarantined");
+  assert.equal(result.state.tasks["95"].quarantined, true);
+});
+
+test("check mode does not requeue a migrated task before its fallback backoff expires", async () => {
+  const initial = createInitialFactoryState(100_000);
+  initial.tasks["94"] = {
+    status: "retry_wait", attempts: 2, failures: 2, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 150_000,
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.requeued_tasks, 0);
+  assert.equal(result.state.tasks["94"].status, "retry_wait");
+  assert.equal(store.state.state_version, initial.state_version);
+});
