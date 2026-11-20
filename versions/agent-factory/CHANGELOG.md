@@ -1,3 +1,13 @@
+## 2.0.60 — 2026-11-21
+
+### Test — Verify dependency gating at the queue dispatch boundary
+- Add selector-level regression coverage proving dependency filtering occurs before priority sorting and dispatch.
+- Cover completed prerequisites, open prerequisites, missing prerequisites, and verified merged task PRs.
+- Retain the 2.0.58 candidate/global-breaker isolation and 2.0.59 multiline dependency parser fixes.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation remain required before acceptance.
+
 ## 2.0.59 — 2026-11-21
 
 ### Fixed — Block tasks with unresolved multiline dependencies
