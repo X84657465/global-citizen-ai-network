@@ -1,3 +1,12 @@
+## 0.3.38 — 2026-11-20
+
+### Reliability
+- Add a regression test proving the repository-scoped durable-state write queue remains usable after a stale-version write is rejected.
+- Verify a subsequent valid write advances the exact persisted state version without creating a duplicate state Issue.
+
+### Verification
+- Exact-head Windows Runner CI is required; this test is not considered passed until the new branch head completes CI.
+
 ## 0.3.37 — 2026-11-20
 
 ### Reliability
