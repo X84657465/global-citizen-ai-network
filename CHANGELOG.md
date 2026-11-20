@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.14 — 2026-11-20
+
+### Fixed
+- Require timezone-qualified ISO-8601 timestamps with real calendar dates and bounded clock/offset fields in Deep Neural knowledge and evidence contracts.
+- Reject normalized invalid dates and timezone-less evidence records before they can enter the knowledge provenance layer.
+
+### Verification
+- Added adversarial timestamp regression tests. Exact-head CI is required.
+
 All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` only.
 
 ## 0.3.10 — 2026-11-20
