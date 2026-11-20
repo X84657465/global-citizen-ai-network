@@ -1,3 +1,8 @@
+## 0.3.47 — 2026-11-20
+
+- Corrected the Ubuntu quality job dependency graph: portable quality gates depend only on candidate resolution, while Windows build/database and both circuit-breaker callbacks explicitly depend on the quality result.
+- Prevented a self-referential quality dependency and ensured failure/success callbacks can read the quality job result and failure classification.
+
 ## 0.3.46 — 2026-11-20
 
 - Split portable quality gates onto GitHub-hosted Ubuntu: migration/schema guards, dependency audits, Agent Factory syntax checks, CI policy tests, unit tests, TypeScript, lint and production build no longer consume the single Windows Runner.

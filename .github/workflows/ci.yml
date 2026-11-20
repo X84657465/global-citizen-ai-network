@@ -65,7 +65,7 @@ jobs:
 
   quality:
     name: Ubuntu quality gates — tests, types, lint, audit and production build
-    needs: [resolve-candidate, quality]
+    needs: [resolve-candidate]
     if: >-
       needs.resolve-candidate.result == 'success' &&
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
@@ -247,7 +247,7 @@ jobs:
           [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
           Write-Host "Windows/Docker/Ollama integration failure is system-scoped."
   database:
-    needs: [resolve-candidate]
+    needs: [resolve-candidate, quality]
     permissions:
       contents: read
       issues: write
@@ -525,7 +525,7 @@ jobs:
 
   circuit-breaker-success:
     name: Persist candidate success or reset system breaker
-    needs: [resolve-candidate, build, database]
+    needs: [resolve-candidate, quality, build, database]
     if: >-
       needs.resolve-candidate.result == 'success' &&
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
