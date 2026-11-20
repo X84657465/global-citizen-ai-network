@@ -50,3 +50,12 @@ test("rejects malformed ECE arrays, probabilities, outcomes and bin counts", () 
     assert.throws(() => calculateExpectedCalibrationError([0.5], [1], { bins }), /bins must be an integer/);
   }
 });
+
+test("rejects arithmetic overflow instead of emitting infinite prediction errors", () => {
+  assert.throws(() => calculatePredictionError(-1e308, 1e308), /exceeds the finite numeric range/);
+  assert.throws(() => calculateMeanAbsoluteError([-1e308], [1e308]), /exceeds the finite numeric range/);
+});
+
+test("computes large finite MAE values without overflowing an intermediate sum", () => {
+  assert.equal(calculateMeanAbsoluteError([0, 0], [1e308, 1e308]), 1e308);
+});
