@@ -39,10 +39,9 @@ test("full CI runs only on main pushes and pull-request lifecycle events", () =>
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
-test("CI supersedes stale ordinary PR runs but preserves AI-task runs and serializes self-hosted jobs", () => {
+test("CI coalesces pending commits per PR without cancelling active state writers", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
-  assert.ok(/cancel-in-progress: \$\{\{ !startsWith\(github\.head_ref/.test(workflowLevelConcurrency));
-  assert.ok(workflowLevelConcurrency.includes("github.head_ref || github.event.client_payload.head_ref"));
+  assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
 
   const qualitySection = findJobSection(workflow, "quality");

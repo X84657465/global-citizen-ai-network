@@ -1,3 +1,9 @@
+## 0.3.57 — 2026-11-20
+
+- Restore non-cancelling workflow-level concurrency: GitHub keeps one active run and coalesces pending runs to the newest event, so stale pending commits do not require cancelling active work.
+- Protect shared Agent Factory state writers from being interrupted by a newer ordinary PR event; retain per-PR concurrency groups and exact event-head SHA fencing.
+- CI runner-start failures remain infrastructure-blocked; no code-test success is claimed.
+
 ## 0.3.56 — 2026-11-20
 
 - Supersede stale ordinary PR CI runs so obsolete queued commits cannot block current-head validation.

@@ -1,3 +1,14 @@
+## 2.0.30 — 2026-11-20
+
+### Fixed — Preserve active factory state writers during CI coalescing
+- Restore `cancel-in-progress: false` at workflow level. GitHub permits one active and one pending run per concurrency group; a newer pending run replaces the older pending run without cancelling active state-writing work.
+- Retain per-PR concurrency grouping and exact event-head SHA validation.
+- Do not treat runner allocation failures as application test failures; exact-head full CI remains mandatory.
+
+### Verification
+- Updated CI policy regression to enforce non-cancelling workflow-level concurrency.
+- This release remains unaccepted until all required jobs pass on the exact head.
+
 ## 2.0.29 — 2026-11-20
 
 ### Fixed — Prevent stale ordinary PR runs from blocking current-head CI
