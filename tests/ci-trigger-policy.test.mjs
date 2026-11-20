@@ -39,50 +39,28 @@ test("full CI runs only on main pushes and pull-request lifecycle events", () =>
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
-test("CI coalesces pending commits per PR without cancelling active state writers", () => {
+test("CI coalesces pending commits and serializes every job on the available Windows Runner", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
-
-  const qualitySection = findJobSection(workflow, "quality");
-  const quality = workflow.slice(qualitySection.start, qualitySection.end);
-  assert.ok(quality.includes("runs-on: ubuntu-latest"), "portable quality gates must run on GitHub-hosted Ubuntu");
-  assert.equal(quality.includes("self-hosted"), false, "portable quality gates must not queue behind Windows");
-  for (const command of [
-    "npm ci --no-audit --no-fund",
-    "npm run test:unit",
-    "npx --no-install tsc --noEmit",
-    "npm run lint",
-    "npm run build",
-    "npm audit --audit-level=high",
-    "node --test tests/ci-trigger-policy.test.mjs",
-  ]) assert.ok(quality.includes(command), "Ubuntu quality job must execute " + command);
-  assert.ok(quality.includes("needs: [resolve-candidate]"));
-  assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
-
-  const runnerJobs = ["build"];
-  for (let index = 0; index < runnerJobs.length; index += 1) {
-    const job = runnerJobs[index];
-    const start = workflow.indexOf("  " + job + ":\n");
-    assert.ok(start >= 0, "missing CI job: " + job);
-    const next = index + 1 < runnerJobs.length
-      ? workflow.indexOf("  " + runnerJobs[index + 1] + ":\n", start + 1)
-      : workflow.indexOf("\n  circuit-breaker:", start + 1);
-    const section = workflow.slice(start, next < 0 ? workflow.length : next);
-    assert.ok(section.includes("group: global-citizen-ai-network-self-hosted-runner"), job + " must use the shared Runner group");
-    assert.ok(section.includes("queue: max"), job + " must preserve pending Runner jobs");
-    assert.ok(section.includes("runs-on: [self-hosted, Windows, X64]"), job + " requires the Windows Runner toolchain");
-  }
-
-  for (const job of ["resolve-candidate", "circuit-breaker", "circuit-breaker-success"]) {
+  const jobs = ["resolve-candidate", "quality", "build", "database", "circuit-breaker", "circuit-breaker-success", "ci-diagnostics"];
+  for (const job of jobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
-    assert.ok(section.includes("runs-on: ubuntu-latest"), job + " must not consume the Windows Runner");
-    assert.ok(section.includes("shell: bash"), job + " must use a Linux-compatible shell");
-    assert.equal(section.includes("global-citizen-ai-network-self-hosted-runner"), false, job + " must not queue behind Windows-only work");
+    assert.ok(section.includes("runs-on: [self-hosted, Windows, X64]"), job + " must use the available Windows Runner");
+    assert.ok(section.includes("group: global-citizen-ai-network-self-hosted-runner"), job + " must use the shared Runner queue");
+    assert.ok(section.includes("queue: max"), job + " must preserve pending work");
+    assert.ok(section.includes("cancel-in-progress: false"), job + " must not cancel active Runner work");
+    assert.equal(section.includes("shell: bash"), false, job + " must use the native PowerShell Runner shell");
   }
+  const { start: qualityStart, end: qualityEnd } = findJobSection(workflow, "quality");
+  const quality = workflow.slice(qualityStart, qualityEnd);
+  for (const command of ["npm ci --no-audit --no-fund", "npm run test:unit", "npx --no-install tsc --noEmit", "npm run lint", "npm run build", "npm audit --audit-level=high", "node --test tests/ci-trigger-policy.test.mjs"]) {
+    assert.ok(quality.includes(command), "Windows quality job must execute " + command);
+  }
+  assert.ok(quality.includes("needs: [resolve-candidate]"));
+  assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 });
-
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
   assert.equal(preflight.includes("      - feat/agent-factory-v2\n"), false, "full Windows preflight must not duplicate the active feature-branch CI run");
   assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must remain runnable on the active development branch");
@@ -273,21 +251,20 @@ test("preflight reserves and releases V2 leases and does not overproduce roadmap
 });
 
 
-test("Supabase database and RLS integration runs on Ubuntu without consuming the Windows Runner", () => {
+test("Supabase database and RLS integration runs on the shared Windows Runner", () => {
   const { start, end } = findJobSection(workflow, "database");
   const database = workflow.slice(start, end);
-  assert.ok(database.includes("runs-on: ubuntu-latest"));
-  assert.equal(database.includes("global-citizen-ai-network-self-hosted-runner"), false);
-  assert.ok(database.includes("npm install --global supabase@3.2.0"));
+  assert.ok(database.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.ok(database.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(database.includes("queue: max"));
   assert.ok(database.includes("supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit"));
   assert.ok(database.includes("supabase test db"));
   assert.ok(database.includes("node --test tests/security/two-member-rls.test.mjs"));
+  assert.ok(database.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 19998)"));
   assert.ok(database.includes("SUPABASE_DB_CONTAINER"));
   assert.ok(database.includes("DOCKER_BIN"));
   assert.ok(database.includes("supabase stop --no-backup"));
-  assert.ok(database.includes('echo "scope=system"'));
-  assert.ok(database.includes('echo "scope=task"'));
-  assert.equal(database.includes("runs-on: [self-hosted, Windows, X64]"), false);
+  assert.ok(database.includes('$env:APPLICATION_RLS_TESTS -eq "failure"'));
 });
 
 
@@ -431,7 +408,7 @@ test("CI candidate execution is fenced to the exact event head SHA", () => {
   assert.ok(resolver.includes("pull.head?.sha === expectedSha"));
   assert.ok(workflow.includes("github.event.client_payload.head_sha || github.event.pull_request.head.sha"));
 });
-test("CI diagnostics use Ubuntu, read-only Actions access and redacted evidence",()=>{const x=findJobSection(workflow,"ci-diagnostics");const s=workflow.slice(x.start,x.end);assert.ok(s.includes("runs-on: ubuntu-latest"));assert.ok(s.includes("actions: read"));assert.ok(s.includes("gh run view"));assert.ok(s.includes("CI_EXPECTED_HEAD_SHA"));assert.ok(s.includes("ci-failure-diagnostics.json"));assert.ok(s.includes("retention-days: 90"));assert.equal(s.includes("issues: write"),false);});
+test("CI diagnostics use the shared Windows Runner, read-only Actions access and redacted evidence", () => { const x = findJobSection(workflow, "ci-diagnostics"); const s = workflow.slice(x.start, x.end); assert.ok(s.includes("runs-on: [self-hosted, Windows, X64]")); assert.ok(s.includes("group: global-citizen-ai-network-self-hosted-runner")); assert.ok(s.includes("queue: max")); assert.ok(s.includes("actions: read")); assert.ok(s.includes("Invoke-RestMethod")); assert.ok(s.includes("CI_EXPECTED_HEAD_SHA")); assert.ok(s.includes("ci-failure-diagnostics.json")); assert.ok(s.includes("retention-days: 90")); assert.equal(s.includes("issues: write"), false); });
 
 
 test("ordinary PR metadata resolution does not depend on durable factory-state storage", () => {

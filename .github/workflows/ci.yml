@@ -23,17 +23,18 @@ defaults:
 
 jobs:
   resolve-candidate:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
        (github.event.pull_request.user.login == github.repository_owner ||
         github.event.pull_request.user.login == 'github-actions[bot]'))
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
-    defaults:
-      run:
-        shell: bash
     permissions:
       contents: read
       issues: read
@@ -66,7 +67,11 @@ jobs:
         run: node scripts/resolve-agent-task-pr.mjs
 
   quality:
-    name: Ubuntu quality gates — tests, types, lint, audit and production build
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    name: Windows Runner quality gates — tests, types, lint, audit and production build
     needs: [resolve-candidate]
     if: >-
       needs.resolve-candidate.result == 'success' &&
@@ -84,11 +89,8 @@ jobs:
          github.event.client_payload.head_sha != '' &&
          needs.resolve-candidate.outputs.is_task_pr == 'true')
       )
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 35
-    defaults:
-      run:
-        shell: bash
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
     steps:
@@ -118,13 +120,13 @@ jobs:
         run: npm audit --audit-level=high
       - name: Validate Agent Factory script syntax
         run: |
-          node --check scripts/generate-agent-patch.mjs
-          node --check scripts/agent-factory-v2-controller.mjs
-          node --check scripts/resolve-agent-task-pr.mjs
-          node --check lib/agent-factory-controller.mjs
-          node --check lib/agent-factory-state-machine.mjs
-          node --check lib/agent-factory-state-store.mjs
-          node --check lib/agent-factory-policy.mjs
+          node --check scripts/generate-agent-patch.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check scripts/agent-factory-v2-controller.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check scripts/resolve-agent-task-pr.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check lib/agent-factory-controller.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check lib/agent-factory-state-machine.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check lib/agent-factory-state-store.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check lib/agent-factory-policy.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify CI trigger and Runner policy
         run: node --test tests/ci-trigger-policy.test.mjs
       - name: Unit tests
@@ -152,11 +154,12 @@ jobs:
           LINT: ${{ steps.lint.outcome }}
           PRODUCTION_BUILD: ${{ steps.production-build.outcome }}
         run: |
-          if [[ "$MIGRATION_GUARD $SCHEMA_GUARD $PRODUCTION_AUDIT $FULL_AUDIT $UNIT_TESTS $TYPE_CHECK $LINT $PRODUCTION_BUILD" == *failure* ]]; then
-            echo "scope=task" >> "$GITHUB_OUTPUT"
-          else
-            echo "scope=system" >> "$GITHUB_OUTPUT"
-          fi
+          $taskOutcomes = @($env:MIGRATION_GUARD, $env:SCHEMA_GUARD, $env:PRODUCTION_AUDIT, $env:FULL_AUDIT, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
+          if ($taskOutcomes -contains "failure") {
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          } else {
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          }
 
   build:
     needs: [resolve-candidate, quality]
@@ -249,6 +252,10 @@ jobs:
           [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
           Write-Host "Windows/Docker/Ollama integration failure is system-scoped."
   database:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     needs: [resolve-candidate, quality]
     permissions:
       contents: read
@@ -256,7 +263,7 @@ jobs:
       pull-requests: read
     env:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
-    name: Ubuntu Supabase migrations, PostgreSQL and RLS integration
+    name: Windows Supabase migrations, PostgreSQL and RLS integration
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
     if: >-
@@ -276,11 +283,8 @@ jobs:
          github.event.client_payload.head_sha != '' &&
          needs.resolve-candidate.outputs.is_task_pr == 'true')
       )
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 45
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout exact candidate revision
         uses: actions/checkout@v5
@@ -293,55 +297,107 @@ jobs:
           node-version: "22.13.0"
           cache: npm
       - name: Install locked dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Install pinned Supabase CLI
+        run: |
+          npm ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Dependency installation failed." }
+      - name: Install verified Supabase CLI without symlink privileges
         id: supabase-cli
         run: |
-          npm install --global supabase@3.2.0
-          supabase --version
+          $version = "3.2.0"
+          $expectedSha256 = "1ca731039b1537ee4cceb9ea757ebcccee109f5eddc39228001a853c1fbe8122"
+          $cacheRoot = Join-Path $env:RUNNER_TOOL_CACHE "supabase-cli/$version/x64"
+          $exe = Join-Path $cacheRoot "supabase.exe"
+          if (-not (Test-Path $exe)) {
+            $archive = Join-Path $env:RUNNER_TEMP "supabase-$version-windows-amd64.zip"
+            $extract = Join-Path $env:RUNNER_TEMP "supabase-$version-extract"
+            Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/supabase/cli/releases/download/v$version/supabase_$($version)_windows_amd64.zip" -OutFile $archive
+            $actualSha256 = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualSha256 -ne $expectedSha256) { throw "Supabase CLI archive SHA-256 verification failed." }
+            if (Test-Path $extract) { Remove-Item $extract -Recurse -Force }
+            New-Item -ItemType Directory -Path $extract -Force | Out-Null
+            Expand-Archive -LiteralPath $archive -DestinationPath $extract -Force
+            $candidate = Get-ChildItem -LiteralPath $extract -Filter "supabase.exe" -Recurse | Select-Object -First 1
+            if (-not $candidate) { throw "Verified Supabase CLI executable was not found." }
+            New-Item -ItemType Directory -Path $cacheRoot -Force | Out-Null
+            Copy-Item -LiteralPath $candidate.FullName -Destination $exe -Force
+          }
+          [System.IO.File]::AppendAllText($env:GITHUB_PATH, $cacheRoot + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          & $exe --version
+          if ($LASTEXITCODE -ne 0) { throw "Supabase CLI version verification failed." }
       - name: Initialize isolated local Supabase project
         run: |
-          supabase init
-          test -f supabase/config.toml
-          project_id="gcan-ci-${GITHUB_RUN_ID}"
-          PROJECT_ID="$project_id" node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          const path = 'supabase/config.toml';
-          const source = fs.readFileSync(path, 'utf8');
-          const projectId = process.env.PROJECT_ID;
-          if (!/^[a-z0-9-]{1,40}$/.test(projectId)) throw new Error('Invalid isolated Supabase project id');
-          const next = source.replace(/^project_id\s*=\s*"[^"]*"/m, `project_id = "${projectId}"`);
-          if (next === source) throw new Error('Supabase project_id setting was not found');
-          fs.writeFileSync(path, next);
-          NODE
+          if (-not (Test-Path "supabase/config.toml")) {
+            supabase init
+            if ($LASTEXITCODE -ne 0) { throw "Supabase CLI initialization failed." }
+          }
+          $configPath = "supabase/config.toml"
+          if (-not (Test-Path $configPath)) { throw "Supabase config is missing after initialization." }
+          $config = Get-Content -LiteralPath $configPath -Raw
+          $projectId = "gcan-ci-" + $env:GITHUB_RUN_ID
+          $config = [regex]::Replace($config, '(?m)^project_id\s*=\s*"[^"]*"', "project_id = `"$projectId`"", 1)
+          if ($config -notmatch '(?m)^project_id\s*=') { throw "Supabase project_id setting was not found." }
+          function Set-TomlSectionValue([string]$Text, [string]$Section, [string]$Key, [int]$Value) {
+            $pattern = "(?ms)(^\[" + [regex]::Escape($Section) + "\]\s*\r?\n)(.*?)(?=^\[|\z)"
+            $match = [regex]::Match($Text, $pattern)
+            if (-not $match.Success) { throw "Supabase config section [$Section] was not found." }
+            $body = $match.Groups[2].Value
+            $keyPattern = "(?m)^" + [regex]::Escape($Key) + "\s*=\s*\d+\s*$"
+            if (-not [regex]::IsMatch($body, $keyPattern)) { throw "Supabase config key [$Section].$Key was not found." }
+            $body = [regex]::Replace($body, $keyPattern, "$Key = $Value", 1)
+            return $Text.Substring(0, $match.Index) + $match.Groups[1].Value + $body + $Text.Substring($match.Index + $match.Length)
+          }
+          function Test-PortAvailable([int]$Port) {
+            $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any, $Port)
+            $started = $false
+            try { $listener.Start(); $started = $true; return $true }
+            catch { return $false }
+            finally { if ($started) { $listener.Stop() } }
+          }
+          $basePort = 0
+          for ($attempt = 0; $attempt -lt 500; $attempt++) {
+            $candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 19998)
+            $available = $true
+            foreach ($port in @([int]$candidate, [int]($candidate + 1), [int]($candidate + 2))) {
+              if (-not (Test-PortAvailable $port)) { $available = $false; break }
+            }
+            if ($available) { $basePort = [int]$candidate; break }
+          }
+          if ($basePort -eq 0) { throw "Unable to allocate three consecutive local Supabase ports." }
+          $config = Set-TomlSectionValue $config "api" "port" $basePort
+          $config = Set-TomlSectionValue $config "db" "port" ($basePort + 1)
+          $config = Set-TomlSectionValue $config "db" "shadow_port" ($basePort + 2)
+          [System.IO.File]::WriteAllText((Join-Path (Get-Location) $configPath), $config, [System.Text.UTF8Encoding]::new($false))
+          Write-Host "Isolated Supabase project: $projectId"
+          Write-Host "Allocated API/DB/shadow ports: $basePort / $($basePort + 1) / $($basePort + 2)"
       - name: Start isolated Supabase and apply migrations
         id: supabase-start
-        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
+        run: |
+          supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
+          if ($LASTEXITCODE -ne 0) { throw "Supabase startup or migration application failed." }
       - name: Run PostgreSQL and RLS pgTAP tests
         id: database-tests
-        run: supabase test db
+        run: |
+          supabase test db
+          if ($LASTEXITCODE -ne 0) { throw "PostgreSQL or RLS pgTAP tests failed." }
       - name: Run two-member application RLS integration tests
         id: application-rls-tests
-        env:
-          PROJECT_ID: gcan-ci-${{ github.run_id }}
         run: |
-          status_output="$(supabase status -o env)"
-          db_url="$(printf '%s\n' "$status_output" | sed -n 's/^DB_URL=//p' | head -n 1 | tr -d '"')"
-          if [[ -z "$db_url" ]]; then
-            echo "::error::Supabase status did not return DB_URL"
-            exit 1
-          fi
-          container_name="$(docker ps --filter "name=supabase_db_$PROJECT_ID" --format '{{.Names}}' | head -n 1)"
-          if [[ -z "$container_name" ]]; then
-            echo "::error::Isolated Supabase PostgreSQL container was not found"
-            exit 1
-          fi
-          {
-            echo "SUPABASE_DB_URL=$db_url"
-            echo "SUPABASE_DB_CONTAINER=$container_name"
-            echo "DOCKER_BIN=$(command -v docker)"
-          } >> "$GITHUB_ENV"
+          $projectId = "gcan-ci-" + $env:GITHUB_RUN_ID
+          $statusOutput = supabase status -o env
+          if ($LASTEXITCODE -ne 0) { throw "Unable to read Supabase service status." }
+          $dbLine = $statusOutput | Where-Object { $_ -match '^DB_URL=' } | Select-Object -First 1
+          $dbUrl = if ($dbLine) { ($dbLine -replace '^DB_URL=', '').Trim('"') } else { "" }
+          if ([string]::IsNullOrWhiteSpace($dbUrl)) { throw "Supabase status did not return DB_URL." }
+          $docker = Get-Command docker.exe -ErrorAction Stop
+          $containerName = (& $docker.Source ps --filter "name=supabase_db_$projectId" --format "{{.Names}}" | Select-Object -First 1)
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($containerName)) { throw "Isolated Supabase PostgreSQL container was not found." }
+          $env:SUPABASE_DB_URL = $dbUrl
+          $env:SUPABASE_DB_CONTAINER = $containerName
+          $env:DOCKER_BIN = $docker.Source
+          & $env:DOCKER_BIN ps --filter "name=supabase_db_$projectId"
+          if ($LASTEXITCODE -ne 0) { throw "Docker container verification failed." }
           node --test tests/security/two-member-rls.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Two-member application RLS integration tests failed." }
       - name: Stop Supabase services
         if: always() && steps.supabase-start.outcome != 'skipped'
         continue-on-error: true
@@ -355,15 +411,19 @@ jobs:
           DATABASE_TESTS: ${{ steps.database-tests.outcome }}
           APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}
         run: |
-          if [[ "$DATABASE_TESTS" == "failure" || "$APPLICATION_RLS_TESTS" == "failure" ]]; then
-            echo "scope=task" >> "$GITHUB_OUTPUT"
-            echo "::error::Database/RLS assertion failed; preserve logs and isolate candidate."
-          else
-            echo "scope=system" >> "$GITHUB_OUTPUT"
-            echo "::error::Supabase CLI, Docker startup, migration bootstrap, or Runner infrastructure failed."
-          fi
+          if ($env:DATABASE_TESTS -eq "failure" -or $env:APPLICATION_RLS_TESTS -eq "failure") {
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "::error::Database/RLS assertion failed; preserve logs and isolate candidate."
+          } else {
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "::error::Supabase CLI, Docker startup, migration bootstrap, or Runner infrastructure failed."
+          }
 
   circuit-breaker:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     name: Persist candidate or system CI failures
     needs: [resolve-candidate, quality, build, database]
     if: >-
@@ -384,7 +444,7 @@ jobs:
          github.event.action == 'ai-task-ci' &&
          github.event.client_payload.pull_request_number != '')
       )
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:
       contents: read
@@ -457,6 +517,10 @@ jobs:
         run: node scripts/agent-factory-v2-controller.mjs
 
   circuit-breaker-success:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     name: Persist candidate success or reset system breaker
     needs: [resolve-candidate, quality, build, database]
     if: >-
@@ -478,7 +542,7 @@ jobs:
          github.event.client_payload.pull_request_number != '' &&
          needs.resolve-candidate.outputs.is_task_pr == 'true')
       )
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:
       contents: read
@@ -546,6 +610,10 @@ jobs:
         run: node scripts/agent-factory-v2-controller.mjs
 
   ci-diagnostics:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     name: Exact-SHA CI failure diagnostics and evidence
     needs: [resolve-candidate, quality, build, database]
     if: >-
@@ -554,14 +622,11 @@ jobs:
        needs.quality.result == 'failure' ||
        needs.build.result == 'failure' ||
        needs.database.result == 'failure')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:
       actions: read
       contents: read
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
@@ -576,10 +641,29 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > "$RUNNER_TEMP/ci-run.json"
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" > "$RUNNER_TEMP/ci-jobs.json"
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs?branch=$GITHUB_REF_NAME&per_page=30" > "$RUNNER_TEMP/ci-sibling-runs.json"
-          gh run view "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > "$RUNNER_TEMP/ci-failed.log" 2> "$RUNNER_TEMP/ci-log-error.txt" || true
+          $apiBase = $env:GITHUB_API_URL
+          if ([string]::IsNullOrWhiteSpace($apiBase)) { $apiBase = "https://api.github.com" }
+          $apiBase = $apiBase.TrimEnd("/")
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json"; "X-GitHub-Api-Version" = "2022-11-28" }
+          $runUri = "$apiBase/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+          $run = Invoke-RestMethod -Uri $runUri -Headers $headers -Method Get
+          $jobs = Invoke-RestMethod -Uri "$runUri/jobs?per_page=100" -Headers $headers -Method Get
+          $branch = [uri]::EscapeDataString($env:GITHUB_REF_NAME)
+          $siblings = Invoke-RestMethod -Uri "$apiBase/repos/$env:GITHUB_REPOSITORY/actions/runs?branch=$branch&per_page=30" -Headers $headers -Method Get
+          $utf8 = [System.Text.UTF8Encoding]::new($false)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-run.json"), ($run | ConvertTo-Json -Depth 100), $utf8)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-jobs.json"), ($jobs | ConvertTo-Json -Depth 100), $utf8)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-sibling-runs.json"), ($siblings | ConvertTo-Json -Depth 100), $utf8)
+          $logText = ""
+          try {
+            $zipPath = Join-Path $env:RUNNER_TEMP "ci-run-logs.zip"
+            $extractPath = Join-Path $env:RUNNER_TEMP "ci-run-logs"
+            Invoke-WebRequest -UseBasicParsing -Uri "$runUri/logs" -Headers $headers -OutFile $zipPath
+            if (Test-Path $extractPath) { Remove-Item $extractPath -Recurse -Force }
+            Expand-Archive -LiteralPath $zipPath -DestinationPath $extractPath -Force
+            $logText = (Get-ChildItem -LiteralPath $extractPath -Recurse -Filter "*.txt" | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join [Environment]::NewLine
+          } catch { Write-Warning ("Failed-step logs unavailable: " + $_.Exception.Message) }
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-failed.log"), $logText, $utf8)
       - name: Classify failure and write redacted evidence
         env:
           CI_RUN_JSON: ${{ runner.temp }}/ci-run.json

@@ -1,3 +1,11 @@
+## 0.3.58 — 2026-11-20
+
+- Align every CI job with the repository's verified Windows self-hosted Runner; the current Ubuntu-hosted jobs failed before starting any steps because no hosted runner was assigned.
+- Port resolver, quality gates, Supabase migrations/PostgreSQL/RLS, state callbacks and diagnostics to the native PowerShell Windows execution path.
+- Serialize all CI jobs through the existing shared Runner queue, preserve non-cancelling semantics for durable state writers, and retain exact event-head SHA fencing.
+- Restore the verified Windows Supabase CLI installation path, isolated per-run project/ports, and two-member application RLS integration gate.
+- This is an infrastructure alignment, not an acceptance claim; exact-head full CI and Runner smoke evidence are still mandatory.
+
 ## 0.3.57 — 2026-11-20
 
 - Restore non-cancelling workflow-level concurrency: GitHub keeps one active run and coalesces pending runs to the newest event, so stale pending commits do not require cancelling active work.

@@ -1,3 +1,14 @@
+## 2.0.31 — 2026-11-20
+
+### Fixed — Align CI execution with the available Windows Runner
+- Move resolver, quality, database/RLS, circuit-breaker callbacks and diagnostics to the verified Windows self-hosted Runner; remove reliance on unassigned `ubuntu-latest` jobs.
+- Convert shell-dependent gates to PowerShell and serialize every job with the shared `queue: max` Runner concurrency group.
+- Retain exact-head candidate fencing, non-cancelling state-writer behavior, verified Supabase CLI installation, isolated Windows-safe ports, and two-member RLS integration tests.
+
+### Verification
+- CI policy tests now require every CI job to use the shared Windows Runner and native PowerShell shell.
+- Not accepted until all required jobs pass on this exact head, including Supabase, Ollama and application RLS integration.
+
 ## 2.0.30 — 2026-11-20
 
 ### Fixed — Preserve active factory state writers during CI coalescing
