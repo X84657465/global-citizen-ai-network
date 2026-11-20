@@ -1,3 +1,15 @@
+## 0.3.7 — 2026-11-20
+
+### Fixed
+- Validate Expected Calibration Error option containers before reading configuration.
+- Reject null, arrays, primitive values and unsupported option keys instead of silently accepting misspelled settings and falling back to the default bin count.
+
+### Tests
+- Add malformed-container and unknown-option regression coverage.
+
+### Verification
+- Exact-head CI required; no production model or prediction records were changed.
+
 # Predictive Coding changelog
 
 ## 0.3.6 — 2026-11-20
