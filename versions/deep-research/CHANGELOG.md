@@ -1,4 +1,12 @@
-# Deep Research Changelog
+# Deep Research changelog
+
+## 0.1.9 — 2026-11-20
+
+### Fixed
+- Enforce the ISO-8601 ±14:00 timezone-offset boundary for publication and retrieval provenance.
+
+### Verification
+- Added timezone-offset boundary regression tests; exact-head CI required.
 
 ## 0.1.8 — 2026-11-20
 

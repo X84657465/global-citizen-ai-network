@@ -1,7 +1,34 @@
 {
-  "name":"global-citizen-ai-network","version":"0.3.13","private":true,
-  "scripts":{"dev":"next dev","build":"next build","start":"next start","lint":"eslint .","test:unit":"node --experimental-strip-types --test tests/ai-provider-response.test.ts tests/ai-pending-retry.test.ts tests/ai-pending-recovery.test.ts tests/ai-config.test.ts tests/ai-history.test.ts tests/contribution-task-validation.test.ts tests/ai-idempotency.test.ts tests/http-read-json-body.test.ts tests/security-headers.test.ts tests/ai-reconciliation-form-error.test.ts tests/ai-reconciliation-input.test.ts tests/ai-reconciliation-auth.test.ts tests/ai-cost.test.ts tests/agent-task-validation.test.mjs tests/agent-patch-validation.test.mjs tests/agent-plan-validation.test.mjs tests/agent-factory-policy.test.mjs tests/github-pagination.test.mjs tests/css-module-local-selectors.test.mjs tests/deep-research-ids.test.mjs tests/deep-research-source-quality.test.mjs"},
-  "dependencies":{"@supabase/ssr":"^0.12.7","@supabase/supabase-js":"^2.119.0","lucide-react":"^0.468.0","next":"15.5.29","react":"19.3.1","react-dom":"19.3.1"},
-  "devDependencies":{"@types/node":"^22.15.30","@types/react":"^19.1.8","@types/react-dom":"^19.1.7","eslint":"^9.30.1","eslint-config-next":"15.5.29","typescript":"^5.8.3","@eslint/eslintrc":"^3.3.7"},
-  "overrides":{"next":{"postcss":"^8.5.23"}}
+  "name": "global-citizen-ai-network",
+  "version": "0.3.14",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test:unit": "node --experimental-strip-types --test tests/ai-provider-response.test.ts tests/ai-pending-retry.test.ts tests/ai-pending-recovery.test.ts tests/ai-config.test.ts tests/ai-history.test.ts tests/contribution-task-validation.test.ts tests/ai-idempotency.test.ts tests/http-read-json-body.test.ts tests/security-headers.test.ts tests/ai-reconciliation-form-error.test.ts tests/ai-reconciliation-input.test.ts tests/ai-reconciliation-auth.test.ts tests/ai-cost.test.ts tests/agent-task-validation.test.mjs tests/agent-patch-validation.test.mjs tests/agent-plan-validation.test.mjs tests/agent-factory-policy.test.mjs tests/github-pagination.test.mjs tests/css-module-local-selectors.test.mjs tests/deep-research-ids.test.mjs tests/deep-research-source-quality.test.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.0",
+    "lucide-react": "^0.468.0",
+    "next": "15.5.29",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.7",
+    "eslint": "^9.30.1",
+    "eslint-config-next": "15.5.29",
+    "typescript": "^5.8.3",
+    "@eslint/eslintrc": "^3.3.7"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.23"
+    }
+  }
 }

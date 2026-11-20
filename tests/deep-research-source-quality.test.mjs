@@ -106,7 +106,10 @@ test("rejects duplicate source IDs and identifies counter-evidence-only claims",
   assert.equal(result.supporting_source_ids.length, 0);
 });
 
-test("rejects impossible calendar dates, clock times and timezone offsets", () => {
+test("rejects impossible calendar dates, clock times and offsets beyond the ISO-8601 ±14:00 limit", () => {
+  const validBoundary = validateResearchSourceRecord(source({ published_at: "2026-11-20T00:00:00+14:00" }));
+  assert.equal(validBoundary.published_at, "2026-11-19T10:00:00.000Z");
+
   for (const value of [
     "2026-02-30T00:00:00Z",
     "2026-13-01T00:00:00Z",
@@ -114,6 +117,8 @@ test("rejects impossible calendar dates, clock times and timezone offsets", () =
     "2026-11-20T00:60:00Z",
     "2026-11-20T00:00:60Z",
     "2026-11-20T00:00:00+00:60",
+    "2026-11-20T00:00:00+14:01",
+    "2026-11-20T00:00:00-15:00",
     "2026-11-20T00:00:00+24:00",
   ]) {
     assert.throws(

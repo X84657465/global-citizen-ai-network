@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.14 — 2026-11-20
+
+### Fixed
+- Enforce the ISO-8601 maximum timezone offset of ±14:00 for curated Deep Research source provenance timestamps.
+- Reject offsets beyond 14 hours and non-zero minutes at the 14-hour boundary.
+
+### Verification
+- Added valid +14:00 boundary and invalid +14:01/-15:00 cases; exact-head CI required.
+
 ## 0.3.13 — 2026-11-20
 
 ### Fixed
