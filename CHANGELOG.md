@@ -139,3 +139,13 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 - Synchronize Deep Research to 0.1.3 and repository metadata to 0.3.5.
 
 Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or deployment implied.
+
+
+## 0.3.6 — 2026-11-20
+
+### Fixed
+- Ensure Deep Research source quality, provenance and corroboration tests are included in the blocking CI unit-test suite.
+- Synchronize Track E to 0.1.4 and repository metadata to 0.3.6.
+
+### Verification
+- Exact-head CI must pass unit tests, type checking, lint, production build and PostgreSQL/RLS validation.

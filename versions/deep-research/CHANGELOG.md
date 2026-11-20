@@ -43,3 +43,12 @@
 - Keep push execution restricted to repository-owner events and verify the five workstream branches in the CI policy test.
 
 Verification: exact-head CI and database/RLS validation required; no merge or deployment implied.
+
+
+## 0.1.4 — 2026-11-20
+
+### Fixed
+- Register `tests/deep-research-source-quality.test.mjs` in the canonical unit-test command so source provenance and independent corroboration rules are actually executed in CI.
+
+### Verification
+- Exact-head CI must execute source URL safety, claim linkage, publisher-independence and counter-evidence tests; registration alone is not acceptance evidence.
