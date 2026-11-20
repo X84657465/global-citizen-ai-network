@@ -65,3 +65,15 @@
  .trackFootnote{font-size:11px}.productCard p,.trustCard p{font-size:13px}
  .docCard p{font-size:12px}.footerTop p,.footerBottom{font-size:10px}
 }
+
+/* Second readability pass: raise dense card copy and secondary metadata without changing the visual hierarchy. */
+.pillarCard p,.trackMission,.productCard p,.trustCard p,.docCard p{font-size:15px;line-height:1.85}
+.trackScope li,.trackAction,.trackFootnote,.productCard .cardMeta,.trustCard .cardMeta{font-size:14px}
+.trackStatus,.architectureLegend span,.visualTagBottom,.heroBottomLabel,.heroFact span,.footerTop p,.footerBottom{font-size:12px}
+.stageLabel,.stageBar a,.heroPrinciples span{font-size:13px}
+@media(max-width:620px){
+ .pillarCard p,.trackMission,.productCard p,.trustCard p,.docCard p{font-size:14px}
+ .trackScope li,.trackAction,.trackFootnote{font-size:13px}
+ .trackStatus,.architectureLegend span,.visualTagBottom,.heroBottomLabel,.heroFact span,.footerTop p,.footerBottom{font-size:12px}
+ .stageLabel,.stageBar a,.heroPrinciples span{font-size:12px}
+}
