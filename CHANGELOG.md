@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.18 — 2026-11-20
+
+### Fixed
+- Remove the duplicate AI Agent Scheduler entry from the GitHub documentation index.
+
+### Verification
+- README navigation and numeric release metadata checked; exact-head CI remains required.
+
 ## 0.3.17 — 2026-11-20
 
 ### Documentation
