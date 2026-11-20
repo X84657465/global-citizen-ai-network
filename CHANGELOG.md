@@ -1,3 +1,10 @@
+## 0.3.100 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.69: system-health recovery now requires exact same-repository PR evidence targeting main, in addition to completed successful exact-head CI, run ID and attempt.
+- Task-publication success remains non-mutating; task retry/quarantine history is preserved.
+- Added regression coverage for missing or mismatched PR identity and health evidence.
+- Exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable and independent formal review remain required.
+
 ## 0.3.99 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.68: task-publication success is now non-mutating and cannot reset the global circuit breaker.
