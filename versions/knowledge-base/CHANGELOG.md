@@ -1,5 +1,12 @@
 # K — Knowledge Base, Docs & Governance Playbooks
 
+## 0.1.3 — 2026-11-21
+
+- Correct stale A Factory and A–P homepage CI statements against the verified exact-head GitHub Actions runs.
+- Explicitly distinguish completed CI from pending independent formal review and merge; keep B #174's Draft/dependency status unchanged.
+- Synchronize the A–P homepage, governance baseline and numeric version metadata.
+
+
 ## 0.1.2 — 2026-11-21
 
 - Publish the complete A–P workstream registry on the repository homepage, including each track's purpose, responsibilities, status and independent version.
