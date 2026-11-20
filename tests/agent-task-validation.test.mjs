@@ -222,3 +222,18 @@ test("dependency resolver fails closed for unresolved multiline references", () 
   issues.set(75, { number: 75, state: "closed", state_reason: "completed" });
   assert.equal(taskDependenciesResolved(body, issues, new Set([81, 94])), true);
 });
+
+
+test("matches the real Issue 96 dependency-section format and ignores later sections", () => {
+  const body = `## Goal
+Unrelated goal reference #999 must not become a prerequisite.
+
+## Dependencies
+Dependencies: #74, #75, #81, #94
+#74 task discovery; #75 submission/review status; #81 RLS tests; #94 migration-chain validation.
+
+## Safety
+Do not collect unrelated reference #123.
+`;
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75, 81, 94]);
+});
