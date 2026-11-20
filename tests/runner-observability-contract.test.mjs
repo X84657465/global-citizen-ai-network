@@ -97,7 +97,17 @@ test("detects queue pressure, failure rate and quota pressure without performing
   assert.equal(Object.hasOwn(result, "executedActions"), false);
 });
 
-test("accepts quota overrun telemetry and recommends an operator pause", () => {\n  const value = snapshot();\n  value.quota.used = 1100;\n  const validation = validateRunnerSnapshot(value);\n  assert.equal(validation.valid, true);\n  const health = evaluateRunnerHealth(value);\n  assert.equal(health.severity, "critical");\n  assert.ok(health.recommendedActions.includes("pause_quota_consuming_work_pending_operator_review"));\n});\n\ntest("rejects invalid thresholds and inverted critical thresholds", () => {
+test("accepts quota overrun telemetry and recommends an operator pause", () => {
+  const value = snapshot();
+  value.quota.used = 1100;
+  const validation = validateRunnerSnapshot(value);
+  assert.equal(validation.valid, true);
+  const health = evaluateRunnerHealth(value);
+  assert.equal(health.severity, "critical");
+  assert.ok(health.recommendedActions.includes("pause_quota_consuming_work_pending_operator_review"));
+});
+
+test("rejects invalid thresholds and inverted critical thresholds", () => {
   const value = snapshot();
   assert.equal(evaluateRunnerHealth(value, { queueWarningDepth: 0 }).valid, false);
   assert.equal(evaluateRunnerHealth(value, { queueWarningDepth: 10, queueCriticalDepth: 5 }).valid, false);
