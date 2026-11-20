@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - codex/ai-runner-foundation
+      - feat/agent-factory-v2
     paths:
       - "lib/agent-task-validation.mjs"
       - "lib/agent-patch-validation.mjs"
@@ -12,8 +13,26 @@ on:
       - "scripts/prepare-agent-task.mjs"
       - "scripts/select-agent-task.mjs"
       - "scripts/agent-factory-controller.mjs"
+      - "scripts/agent-factory-v2-controller.mjs"
+      - "lib/agent-factory-controller.mjs"
+      - "lib/agent-failure-scope.mjs"
+      - "tests/agent-failure-scope.test.mjs"
+      - "lib/agent-factory-state-machine.mjs"
+      - "lib/agent-factory-state-store.mjs"
+      - "lib/agent-task-queue.mjs"
+      - "lib/github-api-client.mjs"
+      - "lib/github-pagination.mjs"
+      - "lib/agent-path-safety.mjs"
+      - "lib/agent-scratch-evidence.mjs"
+      - "lib/agent-publisher-branch.mjs"
+      - "lib/agent-task-pr-metadata.mjs"
+      - "scripts/resolve-agent-task-pr.mjs"
       - "lib/agent-factory-policy.mjs"
       - "tests/agent-factory-policy.test.mjs"
+      - "tests/agent-task-queue.test.mjs"
+      - "tests/github-api-client.test.mjs"
+      - "tests/github-pagination.test.mjs"
+      - "eslint.config.mjs"
       - "scripts/generate-agent-plan.mjs"
       - "scripts/generate-agent-patch.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
@@ -21,8 +40,18 @@ on:
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
       - "tests/agent-plan-validation.test.mjs"
+      - "tests/agent-factory-controller.test.mjs"
+      - "tests/agent-factory-lifecycle.integration.test.mjs"
+      - "tests/agent-factory-state-machine.test.mjs"
+      - "tests/agent-factory-state-store.test.mjs"
+      - "tests/agent-path-safety.test.mjs"
+      - "tests/agent-scratch-evidence.test.mjs"
+      - "tests/agent-publisher-branch.test.mjs"
+      - "tests/agent-task-pr-metadata.test.mjs"
+      - "tests/ci-trigger-policy.test.mjs"
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
+      - ".github/workflows/ci.yml"
   issues:
     types: [opened, reopened]
   repository_dispatch:
@@ -40,19 +69,27 @@ permissions:
   contents: read
   issues: read
 
+# Durable task Issues and state are the source of truth. Coalesce only scheduled pollers;
+# actionable task triggers must keep independent workflow runs. Serialize Runner jobs below.
 concurrency:
-  group: global-citizen-ai-network-self-hosted-runner
+  group: global-citizen-ai-network-preflight-${{ github.event_name == 'schedule' && 'poller' || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   validation-tests:
     name: Windows self-hosted project validation
     if: github.event_name == 'push' && github.actor == github.repository_owner
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Verify toolchain
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
@@ -62,7 +99,19 @@ jobs:
           node --check scripts/select-agent-task.mjs
           if ($LASTEXITCODE -ne 0) { throw "Scheduled task selector syntax check failed." }
           node --check scripts/agent-factory-controller.mjs
-          if ($LASTEXITCODE -ne 0) { throw "Factory controller syntax check failed." }
+          if ($LASTEXITCODE -ne 0) { throw "Legacy factory controller syntax check failed." }
+          node --check scripts/agent-factory-v2-controller.mjs
+          if ($LASTEXITCODE -ne 0) { throw "V2 factory controller syntax check failed." }
+          node --check scripts/resolve-agent-task-pr.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Candidate PR resolver syntax check failed." }
+          node --check lib/agent-factory-controller.mjs
+          if ($LASTEXITCODE -ne 0) { throw "V2 factory controller module syntax check failed." }
+          node --check lib/agent-factory-state-machine.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Factory state machine syntax check failed." }
+          node --check lib/agent-factory-state-store.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Factory state store syntax check failed." }
+          node --check scripts/publish-agent-patch.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Publisher syntax check failed." }
           node --check lib/agent-factory-policy.mjs
           if ($LASTEXITCODE -ne 0) { throw "Factory policy syntax check failed." }
 
@@ -301,6 +350,17 @@ jobs:
           Remove-Item $outputDir -Recurse -Force
           Write-Host "PASS: host repository remained unchanged; output stayed in isolated scratch directory"
 
+      - name: Transition task to sandbox testing
+        if: steps.reserve-task.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: transition
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+          NEXT_TASK_STATE: sandbox_testing
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-v2-controller.mjs
+
       - name: Apply validated patch to a disposable scratch workspace
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/apply-agent-patch-to-scratch.mjs
@@ -325,9 +385,21 @@ jobs:
           $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
           $workspaceMount = "type=bind,source=$scratch,target=/workspace"
           $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
-          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
-          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
+          $testLog = Join-Path $env:RUNNER_TEMP "agent-preflight-offline-test.log"
+          $testOutput = & docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks 2>&1
+          $testExitCode = $LASTEXITCODE
+          $testOutput | ForEach-Object { Write-Host "$_" }
+          $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
+          if ($testExitCode -ne 0) { throw "Patched candidate failed isolated offline tests (exit $testExitCode). See the uploaded diagnostic artifact." }
           Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+      - name: Preserve synthetic offline test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-preflight-synthetic-offline-test-${{ github.run_id }}
+          path: ${{ runner.temp }}/agent-preflight-offline-test.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Validate draft PR publisher without API writes
         env:
@@ -404,14 +476,21 @@ jobs:
       (github.event_name == 'repository_dispatch' &&
        github.event.action == 'ai-task-next')
     permissions:
+      actions: none
       contents: write
       issues: write
       pull-requests: write
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Check durable circuit-breaker cooldown
         id: factory-gate
@@ -425,18 +504,19 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: check
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-controller.mjs
+        run: node scripts/agent-factory-v2-controller.mjs
       - name: Select one queued task for every queue trigger
         id: select-task
         if: >-
           (github.event_name == 'schedule' ||
            github.event_name == 'repository_dispatch' ||
            github.event_name == 'issues') &&
-          steps.factory-gate.outputs.cooldown_active != 'true'
+          steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_SKIPPED_ISSUES: ${{ steps.factory-gate.outputs.skipped_issues }}
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ steps.factory-gate.outputs.state_issue_number }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/select-agent-task.mjs
 
@@ -446,14 +526,17 @@ jobs:
           (github.event_name == 'schedule' ||
            github.event_name == 'repository_dispatch' ||
            github.event_name == 'issues') &&
-          steps.factory-gate.outputs.cooldown_active != 'true' &&
+          steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '' &&
+          steps.factory-gate.outputs.pending_tasks == '0' &&
+          steps.select-task.outputs.blocked_by_dependencies == '0' &&
+          steps.select-task.outputs.open_task_prs == '0' &&
           steps.select-task.outputs.issue_number == ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: plan
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-controller.mjs
+        run: node scripts/agent-factory-v2-controller.mjs
 
       - name: Dispatch the newly planned roadmap task
         if: steps.create-roadmap-task.outputs.created_issue_number != ''
@@ -467,10 +550,38 @@ jobs:
               client_payload: { source_issue: Number('${{ steps.create-roadmap-task.outputs.created_issue_number }}'), outcome: 'planner_created' }
             });
 
+      - name: Reserve durable V2 worker lease
+        id: reserve-task
+        if: >-
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' &&
+           steps.factory-gate.outputs.cooldown_active != 'true' &&
+           steps.factory-gate.outputs.active_task_issue_number == '') ||
+          steps.select-task.outputs.issue_number != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: reserve
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+          BASE_SHA: ${{ github.sha }}
+          AGENT_FACTORY_LEASE_OWNER: ${{ runner.name }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-v2-controller.mjs
+
+      - name: Transition task to preparing
+        if: steps.reserve-task.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: transition
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+          NEXT_TASK_STATE: preparing
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-v2-controller.mjs
+
       - name: Validate task and create a safe handoff bundle
         id: prepare-task
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '') ||
           steps.select-task.outputs.issue_number != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -479,16 +590,38 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/prepare-agent-task.mjs
 
+      - name: Transition task to planning
+        if: steps.reserve-task.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: transition
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+          NEXT_TASK_STATE: planning
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-v2-controller.mjs
+
       - name: Generate and validate a read-only plan with local Ollama
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '') ||
           steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-plan.mjs
 
+      - name: Transition task to patching
+        if: steps.reserve-task.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: transition
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+          NEXT_TASK_STATE: patching
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-v2-controller.mjs
+
       - name: Generate and validate a bounded patch proposal
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '') ||
           steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/generate-agent-patch.mjs
@@ -496,14 +629,14 @@ jobs:
       - name: Apply validated patch to a disposable scratch workspace
         id: apply-scratch
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '') ||
           steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/apply-agent-patch-to-scratch.mjs
 
       - name: Restore npm cache for isolated candidate installs
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '') ||
           steps.select-task.outputs.issue_number != ''
         uses: actions/cache@v4
         with:
@@ -515,7 +648,7 @@ jobs:
       - name: Install candidate dependencies inside restricted container (attempt 1)
         id: install-first
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '') ||
           steps.select-task.outputs.issue_number != ''
         timeout-minutes: 15
         continue-on-error: true
@@ -561,7 +694,7 @@ jobs:
       - name: Test patched candidate offline inside restricted container
         id: candidate-tests
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '') ||
           steps.select-task.outputs.issue_number != ''
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
@@ -571,13 +704,36 @@ jobs:
           $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
           $workspaceMount = "type=bind,source=$scratch,target=/workspace"
           $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
-          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
-          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
+          $testLog = Join-Path $env:RUNNER_TEMP "agent-preflight-offline-test.log"
+          $testOutput = & docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks 2>&1
+          $testExitCode = $LASTEXITCODE
+          $testOutput | ForEach-Object { Write-Host "$_" }
+          $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
+          if ($testExitCode -ne 0) { throw "Patched candidate failed isolated offline tests (exit $testExitCode). See the uploaded diagnostic artifact." }
           Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+      - name: Preserve candidate offline test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-preflight-candidate-offline-test-${{ github.run_id }}
+          path: ${{ runner.temp }}/agent-preflight-offline-test.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Transition task to publishing
+        if: steps.reserve-task.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: transition
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+          NEXT_TASK_STATE: publishing
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-v2-controller.mjs
 
       - name: Create a draft PR after isolated tests pass
         if: >-
-          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true') ||
+          (github.event_name == 'workflow_dispatch' && inputs.issue_number != '' && steps.factory-gate.outputs.cooldown_active != 'true' && steps.factory-gate.outputs.active_task_issue_number == '') ||
           steps.select-task.outputs.issue_number != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -587,16 +743,42 @@ jobs:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/publish-agent-patch.mjs
 
+      - name: Record candidate PR state and release worker lease
+        if: success() && (steps.select-task.outputs.issue_number != '' || (github.event_name == 'workflow_dispatch' && inputs.issue_number != ''))
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: transition
+          ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $publish = Get-Content "artifacts/agent-publish.json" -Raw | ConvertFrom-Json
+          if ($publish.different_candidate_branch -eq $true) {
+            $env:NEXT_TASK_STATE = "superseded"
+            node scripts/agent-factory-v2-controller.mjs
+            if ($LASTEXITCODE -ne 0) { throw "Unable to release superseded task lease." }
+          } else {
+            if (-not $publish.commit_sha -or -not $publish.pull_request_number) {
+              throw "Publisher did not return exact candidate commit and PR evidence."
+            }
+            $env:HEAD_SHA = [string]$publish.commit_sha
+            $env:PULL_REQUEST_NUMBER = [string]$publish.pull_request_number
+            $env:NEXT_TASK_STATE = "draft_pr_created"
+            node scripts/agent-factory-v2-controller.mjs
+            if ($LASTEXITCODE -ne 0) { throw "Unable to record the exact draft PR candidate." }
+            $env:NEXT_TASK_STATE = "awaiting_ci"
+            node scripts/agent-factory-v2-controller.mjs
+            if ($LASTEXITCODE -ne 0) { throw "Unable to release the worker lease for candidate CI." }
+          }
+
       - name: Reset circuit breaker after successful task publication
         if: success() && (steps.select-task.outputs.issue_number != '' || (github.event_name == 'workflow_dispatch' && inputs.issue_number != ''))
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: success
-          AGENT_FACTORY_SUCCESS_SCOPE: task
-          COMPLETED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-controller.mjs
+        run: node scripts/agent-factory-v2-controller.mjs
 
       - name: Classify known task-scoped failures before updating factory state
         if: failure()
@@ -619,9 +801,10 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: failure
           FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+          FAILURE_STAGE: preflight
           FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number || inputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-controller.mjs
+        run: node scripts/agent-factory-v2-controller.mjs
 
       - name: Clean disposable scratch workspace
         if: always()

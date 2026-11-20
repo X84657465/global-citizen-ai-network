@@ -1,14 +1,14 @@
 name: CI
+run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}
+# Keep one active run per PR/ref; GitHub coalesces pending runs. Never cancel an active state writer.
 
-# Keep one active run and coalesce superseded pending commits per PR.
-# This prevents a rapidly updated PR from filling the single Windows Runner queue.
 concurrency:
   group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}
   cancel-in-progress: false
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/agent-factory-v2]
   pull_request:
     branches: [main, feat/github-project-showcase]
     types: [opened, reopened, synchronize]
@@ -23,52 +23,133 @@ defaults:
     shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
 
 jobs:
-  build:
-    name: Build, unit tests, type check, lint and production build
-    outputs:
-      failure_scope: ${{ steps.classify-failure.outputs.scope }}
+  resolve-candidate:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    name: Resolve exact candidate PR metadata
     if: >-
-      (github.event_name == 'push' && github.actor == github.repository_owner) ||
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
        (github.event.pull_request.user.login == github.repository_owner ||
-        (startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
-         contains(github.event.pull_request.body, '<!-- ai-task:')))) ||
-      (github.event_name == 'repository_dispatch' &&
-       github.event.action == 'ai-task-ci' &&
-       github.event.client_payload.pull_request_number != '' &&
-       github.event.client_payload.head_sha != '')
+        github.event.pull_request.user.login == 'github-actions[bot]'))
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 40
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    outputs:
+      is_current_head: ${{ steps.resolve.outputs.is_current_head }}
+      is_task_pr: ${{ steps.resolve.outputs.is_task_pr }}
+      state_issue_number: ${{ steps.resolve.outputs.state_issue_number }}
+      issue_number: ${{ steps.resolve.outputs.issue_number }}
+      pull_request_number: ${{ steps.resolve.outputs.pull_request_number }}
+      head_sha: ${{ steps.resolve.outputs.head_sha }}
+      head_ref: ${{ steps.resolve.outputs.head_ref }}
     steps:
-      - name: Checkout tested revision
+      - name: Checkout resolver
         uses: actions/checkout@v5
         with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+      - name: Resolve current PR head and task marker
+        id: resolve
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || '' }}
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || '' }}
+          EXPECTED_HEAD_REF: ${{ github.event.pull_request.head.ref || github.event.client_payload.head_ref || '' }}
+        run: node scripts/resolve-agent-task-pr.mjs
+
+  quality:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    name: Windows Runner quality gates — tests, types, lint, audit and production build
+    needs: [resolve-candidate]
+    if: >-
+      needs.resolve-candidate.result == 'success' &&
+      needs.resolve-candidate.outputs.is_current_head == 'true' &&
+      (
+        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'pull_request' &&
+         github.event.pull_request.head.repo.full_name == github.repository &&
+         (github.event.pull_request.user.login == github.repository_owner ||
+          (startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
+           contains(github.event.pull_request.body, '<!-- ai-task:') && needs.resolve-candidate.outputs.is_task_pr == 'true'))) ||
+        (github.event_name == 'repository_dispatch' &&
+         github.event.action == 'ai-task-ci' &&
+         github.event.client_payload.pull_request_number != '' &&
+         github.event.client_payload.head_sha != '' &&
+         needs.resolve-candidate.outputs.is_task_pr == 'true')
+      )
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 35
+    outputs:
+      failure_scope: ${{ steps.classify-failure.outputs.scope }}
+    steps:
+      - name: Checkout exact candidate revision
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
           ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
-      - name: Verify local runner toolchain
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify Windows Runner, Docker and Ollama
+        env:
+          OLLAMA_BASE_URL: "http://127.0.0.1:11434"
         run: |
-          node --version
-          npm --version
+          docker info
+          if ($LASTEXITCODE -ne 0) { throw "Docker Engine is unavailable on the Windows Runner." }
+          $tagsUrl = "$($env:OLLAMA_BASE_URL.TrimEnd('/'))/api/tags"
+          try {
+            $ollama = Invoke-RestMethod -Uri $tagsUrl -Method Get -TimeoutSec 10
+          } catch {
+            throw "Ollama API is unavailable on the Windows Runner."
+          }
+          $models = @($ollama.models | Where-Object { $_.name })
+          if ($models.Count -eq 0) { throw "No local Ollama model is installed." }
+          Write-Host ("Ollama models available: " + $models.Count)
+      - name: Verify bounded local Ollama inference
+        env:
+          OLLAMA_BASE_URL: "http://127.0.0.1:11434"
+          OLLAMA_SMOKE_TIMEOUT_MS: "180000"
+        run: node scripts/ollama-smoke-test.mjs
       - name: Migration filename safety guard
         id: migration-guard
         run: node scripts/check-migration-versions.mjs
-      - name: Verify CI trigger policy
-        run: node --test tests/ci-trigger-policy.test.mjs
-      - name: Install dependencies
-        run: npm ci
       - name: Schema safety guard
         id: schema-guard
         run: node scripts/check-schema.mjs
       - name: Production dependency security audit
         id: production-audit
         run: npm audit --omit=dev --audit-level=high
-      - name: Full dependency audit (including development tooling)
+      - name: Full dependency security audit
+        id: full-audit
         run: npm audit --audit-level=high
-        continue-on-error: true
+      - name: Validate Agent Factory script syntax
+        run: |
+          node --check scripts/generate-agent-patch.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check scripts/agent-factory-v2-controller.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check scripts/resolve-agent-task-pr.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check lib/agent-factory-controller.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check lib/agent-factory-state-machine.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check lib/agent-factory-state-store.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check lib/agent-factory-policy.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify CI trigger and Runner policy
+        run: node --test tests/ci-trigger-policy.test.mjs
       - name: Unit tests
         id: unit-tests
         run: npm run test:unit
@@ -78,57 +159,170 @@ jobs:
       - name: Lint
         id: lint
         run: npm run lint
-      - name: Build production app
+      - name: Production build
         id: production-build
         run: npm run build
-      - name: Classify build failure scope
+      - name: Classify quality-gate failure
         id: classify-failure
         if: failure()
         env:
           MIGRATION_GUARD: ${{ steps.migration-guard.outcome }}
-          PRODUCTION_AUDIT: ${{ steps.production-audit.outcome }}
           SCHEMA_GUARD: ${{ steps.schema-guard.outcome }}
+          PRODUCTION_AUDIT: ${{ steps.production-audit.outcome }}
+          FULL_AUDIT: ${{ steps.full-audit.outcome }}
           UNIT_TESTS: ${{ steps.unit-tests.outcome }}
           TYPE_CHECK: ${{ steps.type-check.outcome }}
           LINT: ${{ steps.lint.outcome }}
           PRODUCTION_BUILD: ${{ steps.production-build.outcome }}
         run: |
-          $taskOutcomes = @($env:MIGRATION_GUARD, $env:PRODUCTION_AUDIT, $env:SCHEMA_GUARD, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
+          $taskOutcomes = @($env:MIGRATION_GUARD, $env:SCHEMA_GUARD, $env:PRODUCTION_AUDIT, $env:FULL_AUDIT, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
           if ($taskOutcomes -contains "failure") {
-            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Build failure is attributable to task validation."
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           } else {
-            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Build failure occurred before task validation; classify as system/runner failure."
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           }
 
-  database:
-    name: Local Supabase migrations, PostgreSQL and RLS tests
+  build:
+    needs: [resolve-candidate, quality]
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    env:
+      AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    name: Windows Ollama and local execution integration
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
     if: >-
-      (github.event_name == 'push' && github.actor == github.repository_owner) ||
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.head.repo.full_name == github.repository &&
-       (github.event.pull_request.user.login == github.repository_owner ||
-        (startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
-         contains(github.event.pull_request.body, '<!-- ai-task:')))) ||
-      (github.event_name == 'repository_dispatch' &&
-       github.event.action == 'ai-task-ci' &&
-       github.event.client_payload.pull_request_number != '' &&
-       github.event.client_payload.head_sha != '')
+      needs.resolve-candidate.result == 'success' &&
+      needs.quality.result == 'success' &&
+      needs.resolve-candidate.outputs.is_current_head == 'true' &&
+      (
+        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'pull_request' &&
+         github.event.pull_request.head.repo.full_name == github.repository &&
+         (github.event.pull_request.user.login == github.repository_owner ||
+          (startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
+           contains(github.event.pull_request.body, '<!-- ai-task:') && needs.resolve-candidate.outputs.is_task_pr == 'true'))) ||
+        (github.event_name == 'repository_dispatch' &&
+         github.event.action == 'ai-task-ci' &&
+         github.event.client_payload.pull_request_number != '' &&
+         github.event.client_payload.head_sha != '' &&
+         needs.resolve-candidate.outputs.is_task_pr == 'true')
+      )
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 45
+    timeout-minutes: 20
     steps:
-      - name: Checkout tested revision
+      - name: Checkout exact candidate revision
         uses: actions/checkout@v5
         with:
+          persist-credentials: false
           ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
+      - name: Register exact candidate CI run
+        if: needs.resolve-candidate.outputs.is_task_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: candidate-start
+          ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.issue_number }}
+          PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
+          HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
+          CI_RUN_ID: ${{ github.run_id }}
+          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: node scripts/agent-factory-v2-controller.mjs
+      - name: Verify Windows Runner, Docker and Ollama
+        env:
+          OLLAMA_BASE_URL: http://127.0.0.1:11434
+        run: |
+          node --version
+          if ($LASTEXITCODE -ne 0) { throw "Node.js is not available on PATH" }
+          npm --version
+          if ($LASTEXITCODE -ne 0) { throw "npm is not available on PATH" }
+          docker info --format '{{.ServerVersion}}'
+          if ($LASTEXITCODE -ne 0) { throw "Docker Engine is not available to the self-hosted Runner" }
+          $ollamaUrl = $env:OLLAMA_BASE_URL.TrimEnd('/')
+          try {
+            $ollama = Invoke-RestMethod -Uri "$ollamaUrl/api/tags" -TimeoutSec 10 -ErrorAction Stop
+          } catch {
+            throw "Ollama API health check failed at $ollamaUrl/api/tags"
+          }
+          $models = @($ollama.models)
+          if ($models.Count -eq 0) { throw "Ollama is reachable but has no installed models" }
+          foreach ($model in $models) {
+            if (-not $model.name) { throw "Ollama returned a model entry without a name" }
+            Write-Host "Ollama model available: $($model.name)"
+          }
+      - name: Verify bounded local Ollama inference
+        env:
+          OLLAMA_BASE_URL: http://127.0.0.1:11434
+          OLLAMA_SMOKE_TIMEOUT_MS: "180000"
+        run: node scripts/ollama-smoke-test.mjs
+      - name: Classify Windows integration failure
+        id: classify-failure
+        if: failure()
+        run: |
+          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
+          Write-Host "Windows/Docker/Ollama integration failure is system-scoped."
+  database:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    needs: [resolve-candidate, quality]
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    env:
+      AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+    name: Windows Supabase migrations, PostgreSQL and RLS integration
+    outputs:
+      failure_scope: ${{ steps.classify-failure.outputs.scope }}
+    if: >-
+      needs.resolve-candidate.result == 'success' &&
+      needs.quality.result == 'success' &&
+      needs.resolve-candidate.outputs.is_current_head == 'true' &&
+      (
+        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'pull_request' &&
+         github.event.pull_request.head.repo.full_name == github.repository &&
+         (github.event.pull_request.user.login == github.repository_owner ||
+          (startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
+           contains(github.event.pull_request.body, '<!-- ai-task:') && needs.resolve-candidate.outputs.is_task_pr == 'true'))) ||
+        (github.event_name == 'repository_dispatch' &&
+         github.event.action == 'ai-task-ci' &&
+         github.event.client_payload.pull_request_number != '' &&
+         github.event.client_payload.head_sha != '' &&
+         needs.resolve-candidate.outputs.is_task_pr == 'true')
+      )
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact candidate revision
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+          cache: npm
+      - name: Install locked dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "Dependency installation failed." }
       - name: Install verified Supabase CLI without symlink privileges
+        id: supabase-cli
         run: |
           $version = "3.2.0"
           $expectedSha256 = "1ca731039b1537ee4cceb9ea757ebcccee109f5eddc39228001a853c1fbe8122"
@@ -144,28 +338,25 @@ jobs:
             New-Item -ItemType Directory -Path $extract -Force | Out-Null
             Expand-Archive -LiteralPath $archive -DestinationPath $extract -Force
             $candidate = Get-ChildItem -LiteralPath $extract -Filter "supabase.exe" -Recurse | Select-Object -First 1
-            if (-not $candidate) { throw "Verified Supabase CLI executable was not found in the release archive." }
+            if (-not $candidate) { throw "Verified Supabase CLI executable was not found." }
             New-Item -ItemType Directory -Path $cacheRoot -Force | Out-Null
             Copy-Item -LiteralPath $candidate.FullName -Destination $exe -Force
           }
-          Add-Content -LiteralPath $env:GITHUB_PATH -Value $cacheRoot
+          [System.IO.File]::AppendAllText($env:GITHUB_PATH, $cacheRoot + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           & $exe --version
           if ($LASTEXITCODE -ne 0) { throw "Supabase CLI version verification failed." }
-      - name: Initialize local Supabase config when absent
+      - name: Initialize isolated local Supabase project
         run: |
           if (-not (Test-Path "supabase/config.toml")) {
             supabase init
             if ($LASTEXITCODE -ne 0) { throw "Supabase CLI initialization failed." }
           }
-      - name: Allocate isolated Supabase project and free local ports
-        run: |
           $configPath = "supabase/config.toml"
           if (-not (Test-Path $configPath)) { throw "Supabase config is missing after initialization." }
           $config = Get-Content -LiteralPath $configPath -Raw
           $projectId = "gcan-ci-" + $env:GITHUB_RUN_ID
           $config = [regex]::Replace($config, '(?m)^project_id\s*=\s*"[^"]*"', "project_id = `"$projectId`"", 1)
           if ($config -notmatch '(?m)^project_id\s*=') { throw "Supabase project_id setting was not found." }
-
           function Set-TomlSectionValue([string]$Text, [string]$Section, [string]$Key, [int]$Value) {
             $pattern = "(?ms)(^\[" + [regex]::Escape($Section) + "\]\s*\r?\n)(.*?)(?=^\[|\z)"
             $match = [regex]::Match($Text, $pattern)
@@ -176,17 +367,16 @@ jobs:
             $body = [regex]::Replace($body, $keyPattern, "$Key = $Value", 1)
             return $Text.Substring(0, $match.Index) + $match.Groups[1].Value + $body + $Text.Substring($match.Index + $match.Length)
           }
-
           function Test-PortAvailable([int]$Port) {
             $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any, $Port)
-            try { $listener.Start(); return $true }
+            $started = $false
+            try { $listener.Start(); $started = $true; return $true }
             catch { return $false }
-            finally { $listener.Stop() }
+            finally { if ($started) { $listener.Stop() } }
           }
-
           $basePort = 0
           for ($attempt = 0; $attempt -lt 500; $attempt++) {
-            $candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)
+            $candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 19998)
             $available = $true
             foreach ($port in @([int]$candidate, [int]($candidate + 1), [int]($candidate + 2))) {
               if (-not (Test-PortAvailable $port)) { $available = $false; break }
@@ -194,23 +384,59 @@ jobs:
             if ($available) { $basePort = [int]$candidate; break }
           }
           if ($basePort -eq 0) { throw "Unable to allocate three consecutive local Supabase ports." }
-
           $config = Set-TomlSectionValue $config "api" "port" $basePort
           $config = Set-TomlSectionValue $config "db" "port" ($basePort + 1)
           $config = Set-TomlSectionValue $config "db" "shadow_port" ($basePort + 2)
           [System.IO.File]::WriteAllText((Join-Path (Get-Location) $configPath), $config, [System.Text.UTF8Encoding]::new($false))
           Write-Host "Isolated Supabase project: $projectId"
           Write-Host "Allocated API/DB/shadow ports: $basePort / $($basePort + 1) / $($basePort + 2)"
-      - name: Start local Supabase services and apply migrations
+      - name: Start isolated Supabase and apply migrations
         id: supabase-start
         run: |
-          supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
-          if ($LASTEXITCODE -ne 0) { throw "Local Supabase services failed to start or migrations failed." }
-      - name: Run PostgreSQL and RLS tests
+          $startOutput = & $env:ComSpec /d /s /c 'supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1' | Out-String
+          $startExitCode = $LASTEXITCODE
+          $redactedOutput = $startOutput | node scripts/redact-supabase-start-output.mjs
+          $redactionExitCode = $LASTEXITCODE
+          if ($redactionExitCode -ne 0) { throw "Supabase startup output redaction failed; refusing to emit unredacted output." }
+          if ($redactedOutput) { Write-Output ($redactedOutput -join [Environment]::NewLine) }
+          if ($startExitCode -ne 0) { throw "Supabase startup or migration application failed." }
+      - name: Run PostgreSQL and RLS pgTAP tests
         id: database-tests
         run: |
           supabase test db
-          if ($LASTEXITCODE -ne 0) { throw "PostgreSQL or RLS tests failed." }
+          if ($LASTEXITCODE -ne 0) { throw "PostgreSQL or RLS pgTAP tests failed." }
+      - name: Run two-member application RLS integration tests
+        id: application-rls-tests
+        run: |
+          $projectId = "gcan-ci-" + $env:GITHUB_RUN_ID
+          $statusOutput = supabase status -o env
+          if ($LASTEXITCODE -ne 0) { throw "Unable to read Supabase service status." }
+          $dbLine = $statusOutput | Where-Object { $_ -match '^DB_URL=' } | Select-Object -First 1
+          $dbUrl = if ($dbLine) { ($dbLine -replace '^DB_URL=', '').Trim('"') } else { "" }
+          if ([string]::IsNullOrWhiteSpace($dbUrl)) { throw "Supabase status did not return DB_URL." }
+          $docker = Get-Command docker.exe -ErrorAction Stop
+          $dbPort = ([uri]$dbUrl).Port
+          if ($dbPort -le 0) { throw "Supabase DB_URL did not expose a valid local database port." }
+          # Resolve by the published host port; Supabase CLI container names vary by version.
+          $containerRows = @(& $docker.Source ps --format "{{.ID}}|{{.Names}}|{{.Ports}}")
+          if ($LASTEXITCODE -ne 0) { throw "Unable to enumerate running Docker containers." }
+          $portPattern = ":$dbPort->5432/tcp"
+          $matchingContainers = @($containerRows | Where-Object { $_ -match [regex]::Escape($portPattern) })
+          if ($matchingContainers.Count -ne 1) {
+            Write-Host "Docker containers with published ports:"
+            $containerRows | ForEach-Object { Write-Host $_ }
+            throw "Expected exactly one isolated PostgreSQL container publishing DB port $dbPort; found $($matchingContainers.Count)."
+          }
+          $containerId = ($matchingContainers[0] -split '\|', 3)[0]
+          if ([string]::IsNullOrWhiteSpace($containerId)) { throw "Resolved PostgreSQL container ID is empty." }
+          $env:SUPABASE_DB_URL = $dbUrl
+          $env:SUPABASE_DB_CONTAINER = $containerId
+          $env:DOCKER_BIN = $docker.Source
+          & $env:DOCKER_BIN inspect --format "{{.State.Running}}" $containerId
+          if ($LASTEXITCODE -ne 0) { throw "Resolved PostgreSQL container verification failed." }
+          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "failure_scope=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          node --test tests/security/two-member-rls.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Two-member application RLS integration tests failed." }
       - name: Stop Supabase services
         if: always() && steps.supabase-start.outcome != 'skipped'
         continue-on-error: true
@@ -219,62 +445,33 @@ jobs:
         id: classify-failure
         if: failure()
         env:
+          CLI_INSTALL: ${{ steps.supabase-cli.outcome }}
+          SUPABASE_START: ${{ steps.supabase-start.outcome }}
           DATABASE_TESTS: ${{ steps.database-tests.outcome }}
+          APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}
+          APPLICATION_RLS_SCOPE: ${{ steps.application-rls-tests.outputs.failure_scope }}
         run: |
-          if ($env:DATABASE_TESTS -eq "failure") {
-            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Database/RLS assertion failure is attributable to the task."
+          if ($env:DATABASE_TESTS -eq "failure" -or ($env:APPLICATION_RLS_TESTS -eq "failure" -and $env:APPLICATION_RLS_SCOPE -eq "task")) {
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "::error::Database/RLS assertion failed; preserve logs and isolate candidate."
           } else {
-            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Supabase startup, migration application, or runner failure is system-scoped."
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "::error::Supabase CLI, Docker startup, migration bootstrap, or Runner infrastructure failed."
           }
 
-
   circuit-breaker:
-    name: Persist CI failures in the factory circuit breaker
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    name: Persist candidate or system CI failures
+    needs: [resolve-candidate, quality, build, database]
     if: >-
       always() &&
-      (needs.build.result == 'failure' || needs.database.result == 'failure') &&
-      (
-        (github.event_name == 'push' &&
-         (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/codex/issue-'))) ||
-        (github.event_name == 'pull_request' &&
-         github.event.pull_request.head.repo.full_name == github.repository &&
-         ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
-           contains(github.event.pull_request.body, '<!-- ai-task:')) ||
-          startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) ||
-        (github.event_name == 'repository_dispatch' &&
-         github.event.action == 'ai-task-ci' &&
-         github.event.client_payload.pull_request_number != '')
-      )
-    needs: [build, database]
-    runs-on: [self-hosted, Windows, X64]
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: read
-    steps:
-      - name: Checkout tested revision
-        uses: actions/checkout@v5
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "22.13.0"
-      - name: Record one failure for this CI run
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: failure
-          AGENT_FACTORY_FAILURE_SCOPE: ${{ ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') && contains(github.event.pull_request.body, '<!-- ai-task:')) || startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) || (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/codex/issue-')) || (github.event_name == 'repository_dispatch' && github.event.action == 'ai-task-ci' && github.event.client_payload.pull_request_number != '')) && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
-          FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database job logs."
-        run: node scripts/agent-factory-controller.mjs
-
-  circuit-breaker-success:
-    name: Reset the global circuit breaker after healthy factory CI
-    needs: [build, database]
-    if: >-
-      needs.build.result == 'success' &&
-      needs.database.result == 'success' &&
+      (needs.resolve-candidate.result == 'failure' ||
+       needs.quality.result == 'failure' ||
+       needs.build.result == 'failure' ||
+       needs.database.result == 'failure') &&
       (
         (github.event_name == 'push' &&
          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/codex/issue-'))) ||
@@ -293,17 +490,233 @@ jobs:
       contents: read
       issues: write
       pull-requests: read
+    env:
+      AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+      CI_FAILURE_SCOPE: ${{ (needs.quality.result != 'failure' || needs.quality.outputs.failure_scope == 'task') && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.quality.outputs.failure_scope == 'task' || needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
     steps:
-      - name: Checkout tested revision
+      - name: Checkout exact tested revision
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
-      - name: Reset global circuit breaker after verified CI success
+      - name: Revalidate candidate PR head before recording failure
+        id: revalidate
+        if: needs.resolve-candidate.result == 'success' && needs.resolve-candidate.outputs.is_task_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+          PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
+          EXPECTED_HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          EXPECTED_HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
+        run: node scripts/resolve-agent-task-pr.mjs
+      - name: Record task candidate CI rejection
+        id: record-candidate-result
+        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true' && env.CI_FAILURE_SCOPE == 'task'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: candidate
+          ISSUE_NUMBER: ${{ steps.revalidate.outputs.issue_number }}
+          PULL_REQUEST_NUMBER: ${{ steps.revalidate.outputs.pull_request_number }}
+          HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}
+          HEAD_REF: ${{ steps.revalidate.outputs.head_ref }}
+          CI_CONCLUSION: failure
+          CI_RUN_ID: ${{ github.run_id }}
+          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
+          FAILURE_SUMMARY: "Candidate CI run ${{ github.run_id }} failed for PR #${{ needs.resolve-candidate.outputs.pull_request_number }}."
+        run: node scripts/agent-factory-v2-controller.mjs
+      - name: Write candidate evidence JSON
+        if: steps.record-candidate-result.outputs.candidate_evidence_json != ''
+        env:
+          CANDIDATE_EVIDENCE_JSON: ${{ steps.record-candidate-result.outputs.candidate_evidence_json }}
+        run: |
+          $path = Join-Path (Get-Location) "candidate-evidence.json"
+          [System.IO.File]::WriteAllText($path, $env:CANDIDATE_EVIDENCE_JSON, [System.Text.UTF8Encoding]::new($false))
+      - name: Upload machine-readable candidate evidence
+        if: steps.record-candidate-result.outputs.candidate_evidence_json != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-factory-evidence-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: candidate-evidence.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Record system CI failure
+        if: needs.resolve-candidate.result == 'failure' || needs.resolve-candidate.outputs.is_task_pr != 'true' || env.CI_FAILURE_SCOPE != 'task'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: failure
+          AGENT_FACTORY_FAILURE_SCOPE: system
+          FAILURE_STAGE: ci
+          FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database and candidate-resolution logs."
+        run: node scripts/agent-factory-v2-controller.mjs
+
+  circuit-breaker-success:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    name: Persist candidate success or reset system breaker
+    needs: [resolve-candidate, quality, build, database]
+    if: >-
+      needs.resolve-candidate.result == 'success' &&
+      needs.resolve-candidate.outputs.is_current_head == 'true' &&
+      needs.quality.result == 'success' &&
+      needs.build.result == 'success' &&
+      needs.database.result == 'success' &&
+      (
+        (github.event_name == 'push' &&
+         (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/codex/issue-'))) ||
+        (github.event_name == 'pull_request' &&
+         github.event.pull_request.head.repo.full_name == github.repository &&
+         ((startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') &&
+           contains(github.event.pull_request.body, '<!-- ai-task:') && needs.resolve-candidate.outputs.is_task_pr == 'true') ||
+          startsWith(github.event.pull_request.head.ref, 'codex/issue-'))) ||
+        (github.event_name == 'repository_dispatch' &&
+         github.event.action == 'ai-task-ci' &&
+         github.event.client_payload.pull_request_number != '' &&
+         needs.resolve-candidate.outputs.is_task_pr == 'true')
+      )
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    env:
+      AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+    steps:
+      - name: Checkout exact tested revision
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+      - name: Revalidate candidate PR head before recording success
+        id: revalidate
+        if: needs.resolve-candidate.outputs.is_task_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+          PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
+          EXPECTED_HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
+          EXPECTED_HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
+        run: node scripts/resolve-agent-task-pr.mjs
+      - name: Record exact candidate CI success
+        id: record-candidate-result
+        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: candidate
+          ISSUE_NUMBER: ${{ steps.revalidate.outputs.issue_number }}
+          PULL_REQUEST_NUMBER: ${{ steps.revalidate.outputs.pull_request_number }}
+          HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}
+          HEAD_REF: ${{ steps.revalidate.outputs.head_ref }}
+          CI_CONCLUSION: success
+          CI_RUN_ID: ${{ github.run_id }}
+          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: node scripts/agent-factory-v2-controller.mjs
+      - name: Write candidate evidence JSON
+        if: steps.record-candidate-result.outputs.candidate_evidence_json != ''
+        env:
+          CANDIDATE_EVIDENCE_JSON: ${{ steps.record-candidate-result.outputs.candidate_evidence_json }}
+        run: |
+          $path = Join-Path (Get-Location) "candidate-evidence.json"
+          [System.IO.File]::WriteAllText($path, $env:CANDIDATE_EVIDENCE_JSON, [System.Text.UTF8Encoding]::new($false))
+      - name: Upload machine-readable candidate evidence
+        if: steps.record-candidate-result.outputs.candidate_evidence_json != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-factory-evidence-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: candidate-evidence.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Reset global breaker after healthy non-task CI
+        if: needs.resolve-candidate.outputs.is_task_pr != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: success
-          AGENT_FACTORY_SUCCESS_SCOPE: task_and_system
-        run: node scripts/agent-factory-controller.mjs
+        run: node scripts/agent-factory-v2-controller.mjs
+
+  ci-diagnostics:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    name: Exact-SHA CI failure diagnostics and evidence
+    needs: [resolve-candidate, quality, build, database]
+    if: >-
+      always() &&
+      (needs.resolve-candidate.result == 'failure' ||
+       needs.quality.result == 'failure' ||
+       needs.build.result == 'failure' ||
+       needs.database.result == 'failure')
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout exact tested revision
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+      - name: Capture workflow metadata and failed-step logs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $apiBase = $env:GITHUB_API_URL
+          if ([string]::IsNullOrWhiteSpace($apiBase)) { $apiBase = "https://api.github.com" }
+          $apiBase = $apiBase.TrimEnd("/")
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json"; "X-GitHub-Api-Version" = "2022-11-28" }
+          $runUri = "$apiBase/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+          $run = Invoke-RestMethod -Uri $runUri -Headers $headers -Method Get
+          $jobs = Invoke-RestMethod -Uri "$runUri/jobs?per_page=100" -Headers $headers -Method Get
+          $branch = [uri]::EscapeDataString($env:GITHUB_REF_NAME)
+          $siblings = Invoke-RestMethod -Uri "$apiBase/repos/$env:GITHUB_REPOSITORY/actions/runs?branch=$branch&per_page=30" -Headers $headers -Method Get
+          $utf8 = [System.Text.UTF8Encoding]::new($false)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-run.json"), ($run | ConvertTo-Json -Depth 100), $utf8)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-jobs.json"), ($jobs | ConvertTo-Json -Depth 100), $utf8)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-sibling-runs.json"), ($siblings | ConvertTo-Json -Depth 100), $utf8)
+          $logText = ""
+          try {
+            $zipPath = Join-Path $env:RUNNER_TEMP "ci-run-logs.zip"
+            $extractPath = Join-Path $env:RUNNER_TEMP "ci-run-logs"
+            Invoke-WebRequest -UseBasicParsing -Uri "$runUri/logs" -Headers $headers -OutFile $zipPath
+            if (Test-Path $extractPath) { Remove-Item $extractPath -Recurse -Force }
+            Expand-Archive -LiteralPath $zipPath -DestinationPath $extractPath -Force
+            $logText = (Get-ChildItem -LiteralPath $extractPath -Recurse -Filter "*.txt" | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join [Environment]::NewLine
+          } catch { Write-Warning ("Failed-step logs unavailable: " + $_.Exception.Message) }
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-failed.log"), $logText, $utf8)
+      - name: Classify failure and write redacted evidence
+        env:
+          CI_RUN_JSON: ${{ runner.temp }}/ci-run.json
+          CI_JOBS_JSON: ${{ runner.temp }}/ci-jobs.json
+          CI_SIBLING_RUNS_JSON: ${{ runner.temp }}/ci-sibling-runs.json
+          CI_FAILED_LOG: ${{ runner.temp }}/ci-failed.log
+          CI_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+          CI_DIAGNOSTICS_OUTPUT: artifacts/ci-failure-diagnostics.json
+        run: node scripts/ci-failure-diagnostics.mjs
+      - name: Upload redacted CI failure evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/ci-failure-diagnostics.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.26",
+  "overall": "0.3.86",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
-      "version": "2.0.15",
+      "version": "2.0.57",
       "status": "active"
     },
     "B": {
       "name": "Global Citizen AI Network",
-      "version": "0.1.11",
+      "version": "0.1.12",
       "status": "active"
     },
     "C": {
       "name": "Predictive Coding（預測編碼）",
-      "version": "0.3.8",
+      "version": "0.3.9",
       "status": "implementation-candidate",
       "responsibility": "Prediction, observation, prediction-error measurement, uncertainty calibration and evidence-based model updates."
     },

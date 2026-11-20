@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { hasPendingRetryContentMismatch } from "@/lib/ai/pending-retry";
+import { isWorkspaceMessage } from "@/lib/workspace/message-validation";
 
 type Conversation = { id: string; project_id: string | null; title: string; updated_at: string };
 type ProjectOption = { id: string; title: string; archived_at: string | null };
@@ -165,28 +166,42 @@ export default function WorkspaceClient() {
     if (busy) return;
     const loadId = ++conversationLoadRef.current;
     setError("");
-    const response = await fetch("/api/conversations/" + id + "/messages", { cache: "no-store" });
-    const data = await response.json() as { messages?: Message[] } & ApiError;
-    if (loadId !== conversationLoadRef.current) return;
-    if (!response.ok) {
-      setError(data.error ?? "無法載入訊息。");
-      return;
-    }
-    const visibleMessages = (data.messages ?? []).filter(message => message.role === "user" || message.role === "assistant");
-    setConversationId(id);
-    setMessages(visibleMessages);
-    const storedKey = readStoredPendingKey(id);
-    setPendingKey(storedKey);
-    setPendingConversationId(storedKey ? id : findStoredPendingConversationId(id));
-    const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
-    if (storedKey && lastVisibleMessage?.role === "assistant") {
-      // The atomic server transaction committed successfully before the browser lost its response.
-      clearStoredPendingKey(id);
-      setPendingKey("");
-      setPendingConversationId(findStoredPendingConversationId(id));
-    } else if (storedKey && (readStoredPendingContent(id) || lastVisibleMessage?.role === "user")) {
-      setPrompt(readStoredPendingContent(id) || lastVisibleMessage?.content || "");
-      setNotice("上一個 AI 請求結果尚待確認，系統會保留原冪等鍵；核對完成前不會再次呼叫供應商。");
+    try {
+      const response = await fetch("/api/conversations/" + id + "/messages", { cache: "no-store" });
+      const parsed: unknown = await response.json();
+      if (loadId !== conversationLoadRef.current) return;
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        setError("訊息資料格式無效，請稍後重新載入。");
+        return;
+      }
+      const data = parsed as { messages?: unknown; error?: unknown };
+      if (!response.ok) {
+        setError(typeof data.error === "string" ? data.error : "無法載入訊息。");
+        return;
+      }
+      if (!Array.isArray(data.messages) || !data.messages.every(isWorkspaceMessage)) {
+        setError("訊息資料格式無效，請稍後重新載入。");
+        return;
+      }
+      const visibleMessages = data.messages;
+      setConversationId(id);
+      setMessages(visibleMessages);
+      const storedKey = readStoredPendingKey(id);
+      setPendingKey(storedKey);
+      setPendingConversationId(storedKey ? id : findStoredPendingConversationId(id));
+      const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
+      if (storedKey && lastVisibleMessage?.role === "assistant") {
+        // The atomic server transaction committed successfully before the browser lost its response.
+        clearStoredPendingKey(id);
+        setPendingKey("");
+        setPendingConversationId(findStoredPendingConversationId(id));
+      } else if (storedKey && (readStoredPendingContent(id) || lastVisibleMessage?.role === "user")) {
+        setPrompt(readStoredPendingContent(id) || lastVisibleMessage?.content || "");
+        setNotice("上一個 AI 請求結果尚待確認，系統會保留原冪等鍵；核對完成前不會再次呼叫供應商。");
+      }
+    } catch (reason) {
+      if (loadId !== conversationLoadRef.current) return;
+      setError(reason instanceof Error ? reason.message : "無法載入訊息，請稍後重試。");
     }
   }
 

@@ -13,6 +13,7 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+import { buildScratchPatchEvidence } from "../lib/agent-scratch-evidence.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 let scratchDir;
@@ -178,16 +179,12 @@ try {
   writeFileSync(
     "artifacts/agent-scratch.json",
     JSON.stringify({
-      schema_version: 1,
+      schema_version: 2,
       scratch_dir: scratchDir,
       base_commit: baseCommit,
       copied_file_count: copiedFiles,
       copied_bytes: totalBytes,
-      patched_files: validatedPatch.files.map((file) => ({
-        path: file.path,
-        operation: file.operation,
-        bytes: Buffer.byteLength(file.content, "utf8"),
-      })),
+      patched_files: buildScratchPatchEvidence(validatedPatch.files),
       repository_files_modified: false,
       generated_code_executed: false,
     }, null, 2) + "\n",

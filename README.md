@@ -8,17 +8,39 @@
 
 [產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [開發中的 Agent Factory V2](https://github.com/X84657465/global-citizen-ai-network/pull/134) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=main)
+![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=feat%2Fagent-factory-v2)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Engineering-3178C6?logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.26` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.86` · A 線 Agent Factory V2 `2.0.57`（工廠失敗分類與完整觸發路徑回歸防護；完整 CI 與實跑驗收中） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
 ---
+
+
+
+## 🔎 最新五線驗證狀態｜2026-11-20
+
+| 主線 | PR | 最新已查核 CI | 狀態 |
+|---|---:|---|---|
+| A｜Agent Factory V2 | [#134](https://github.com/X84657465/global-citizen-ai-network/pull/134) | [Run #44721263122](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44721263122) | 前一 exact SHA 完整 CI 通過；本次新增的 A 線 synthetic Runner preflight 觸發仍待驗收 |
+| B｜GCAN Product | [#137](https://github.com/X84657465/global-citizen-ai-network/pull/137) | [Run #44580554679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580554679) | 該提交 CI 通過 |
+| C｜Predictive Coding | [#139](https://github.com/X84657465/global-citizen-ai-network/pull/139) | [Run #44580087470](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580087470) | 該提交 CI 通過 |
+| D｜Deep Neural | [#140](https://github.com/X84657465/global-citizen-ai-network/pull/140) | [Run #44580264020](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580264020) | 該提交 CI 通過 |
+| E｜Deep Research | [#141](https://github.com/X84657465/global-citizen-ai-network/pull/141) | [Run #44580352440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580352440) | 該提交 CI 通過 |
+
+**注意：** 上表 CI 結果只代表各自列出的 exact commit；任何後續更新都必須重新驗證。五個 PR 目前均為 Draft，尚未合併。介面中的示範資料不代表已接通正式資料來源或持久化服務。
+
+### 五線入口
+
+- A｜[Agent Factory V2 工廠控制台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2)
+- B｜[GCAN Product 產品線](https://github.com/X84657465/global-citizen-ai-network/tree/feat/gcan-product-homepage)
+- C｜[Predictive Coding 預測編碼](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
+- D｜[Deep Neural 深度神經工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core)
+- E｜[Deep Research 深度研究工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
 
 ## 🧭 快速導覽
 
@@ -361,7 +383,7 @@ http://localhost:3000
 - Windows Self-hosted Runner Toolchain Checks
 - Docker／Ollama Availability 與有界結構化推論
 
-最新驗證原則：只採用各分支最新候選 SHA 對應的 Actions Run；舊 SHA 曾通過不代表目前候選通過。請以 [GitHub Actions 即時狀態](https://github.com/X84657465/global-citizen-ai-network/actions) 核對各線最新 SHA、工作項目與結果。
+最新 CI 請以各主線上方的 exact-head 紀錄為準；A 線修復提交尚待重新執行完整 CI。
 
 ## 📚 文件導覽
 
@@ -377,6 +399,7 @@ http://localhost:3000
 | [API 文件](docs/api.md) | 應用 API 說明 |
 | [AI 預算超額保護](docs/ai-budget-overrun-hard-stop.md) | AI 預算硬性停止機制 |
 | [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 自動開發工廠、Runner 與故障處理 |
+| [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 任務排程與執行機制 |
 | [Claude 獨立審查簡報](docs/claude-review-brief.md) | 架構與安全審查清單 |
 
 
@@ -404,8 +427,8 @@ http://localhost:3000
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
 | A｜Agent Factory V2 | 工廠控制台 | 已修正 DB-backed RLS 測試分流與失敗分類；新 exact-head CI 待驗證 | [PR #134](https://github.com/X84657465/global-citizen-ai-network/pull/134) |
-| B｜GCAN Product | 全球產品平台 | 首頁字體與響應式可讀性已更新；最新 exact-head CI 待驗證 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) |
-| C｜Predictive Coding | 預測分析工作台 | 已加入可測試的殘差、MAE、Brier 指標核心；未連接即時遙測或模型訓練 | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
+| B｜GCAN Product | 全球產品平台 | CI 通過；待獨立驗收 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) |
+| C｜Predictive Coding | 預測分析工作台 | CSS 修復候選；待 exact-head CI | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
 | D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
 | E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
 

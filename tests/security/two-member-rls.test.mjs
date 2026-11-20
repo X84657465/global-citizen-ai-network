@@ -5,26 +5,32 @@ import test from "node:test";
 
 const databaseUrl = process.env.SUPABASE_DB_URL;
 const psql = process.env.PSQL_BIN || "psql";
+const databaseContainer = process.env.SUPABASE_DB_CONTAINER;
+const docker = process.env.DOCKER_BIN || "docker";
 
 function sql(query, { expectFailure = false } = {}) {
   if (!databaseUrl) throw new Error("SUPABASE_DB_URL is required. Use a disposable local Supabase database; never point this test at production.");
-  const result = spawnSync(psql, [
-    databaseUrl,
-    "-X",
-    "-q",
-    "-A",
-    "-t",
-    "-v",
-    "ON_ERROR_STOP=1",
-    "-c",
-    query,
-  ], { encoding: "utf8", timeout: 30_000, env: { ...process.env, PGAPPNAME: "gcan-two-member-rls-test" } });
+  const command = databaseContainer ? docker : psql;
+  const args = databaseContainer ? ["exec", "-e", "PGAPPNAME=gcan-two-member-rls-test", databaseContainer, "psql", "-U", "postgres", "-d", "postgres"] : [databaseUrl];
+  args.push("-X", "-q", "-A", "-t", "-v", "ON_ERROR_STOP=1", "-c", query);
+  const result = spawnSync(command, args, { encoding: "utf8", timeout: 30_000, env: process.env });
+
+  const diagnostic = [
+    result.error?.message,
+    result.stderr,
+    result.stdout,
+    `command=${command}`,
+    `args=${JSON.stringify(args.slice(0, -1))}`,
+    result.signal ? `signal=${result.signal}` : "",
+    result.status === null ? "process did not return an exit status" : "",
+  ].filter(Boolean).join("\n");
 
   if (expectFailure) {
     assert.notEqual(result.status, 0, "Expected the database to reject this operation.");
+    if (result.error) throw new Error(`Database subprocess could not execute: ${diagnostic}`);
     return result.stderr || result.stdout;
   }
-  assert.equal(result.status, 0, result.stderr || result.stdout || "psql command failed");
+  assert.equal(result.status, 0, diagnostic || "psql command failed");
   return result.stdout.trim();
 }
 
@@ -56,8 +62,8 @@ function fixture() {
       ('${conversationA}', '${a}', '${projectA}', 'member-a conversation'),
       ('${conversationB}', '${b}', '${projectB}', 'member-b conversation');
     insert into public.messages (id, conversation_id, owner_id, role, content) values
-      ('${messageA}', '${conversationA}', '${a}', 'user', 'fixture-a'),
-      ('${messageB}', '${conversationB}', '${b}', 'user', 'fixture-b');
+      ('${messageA}', '${conversationA}', '${a}', 'user', 'Valid contribution fixture from member A.'),
+      ('${messageB}', '${conversationB}', '${b}', 'user', 'Valid contribution fixture from member B.');
     insert into public.ai_requests (id, owner_id, project_id, conversation_id, provider, model, feature)
     values
       ('${requestA}', '${a}', '${projectA}', '${conversationA}', 'fixture', 'fixture', 'rls-test'),
@@ -66,8 +72,8 @@ function fixture() {
     values ('${task}', 'RLS fixture task', 'Disposable test fixture', 'security', 'published');
     insert into public.task_submissions (id, task_id, contributor_id, content)
     values
-      ('${submissionA}', '${task}', '${a}', 'fixture-a'),
-      ('${submissionB}', '${task}', '${b}', 'fixture-b');
+      ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.'),
+      ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.');
     `;
   return { a, b, projectA, projectB, conversationA, conversationB, messageA, messageB, requestA, requestB, submissionA, submissionB, setup };
 }
@@ -155,8 +161,13 @@ test("suspended and closed accounts cannot read member data; restricted accounts
   const f = fixture();
   const output = sql(`
     ${f.setup}
+    -- Account-status transitions are trusted server operations, not member writes.
+    set local role service_role;
+    select set_config('request.jwt.claim.sub', '', true);
+    select set_config('request.jwt.claims', '{}', true);
     update public.profiles set account_status = 'restricted' where id = '${f.a}';
     update public.profiles set account_status = 'suspended' where id = '${f.b}';
+    reset role;
     set local role authenticated;
     select set_config('request.jwt.claim.sub', '${f.a}', true);
     select set_config('request.jwt.claims', '{"sub":"${f.a}","role":"authenticated"}', true);
@@ -167,7 +178,11 @@ test("suspended and closed accounts cannot read member data; restricted accounts
     select set_config('request.jwt.claims', '{"sub":"${f.b}","role":"authenticated"}', true);
     select 'suspended:' || (select count(*) from public.projects);
     reset role;
+    set local role service_role;
+    select set_config('request.jwt.claim.sub', '', true);
+    select set_config('request.jwt.claims', '{}', true);
     update public.profiles set account_status = 'closed' where id = '${f.b}';
+    reset role;
     set local role authenticated;
     select set_config('request.jwt.claim.sub', '${f.b}', true);
     select set_config('request.jwt.claims', '{"sub":"${f.b}","role":"authenticated"}', true);

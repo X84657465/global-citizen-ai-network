@@ -21,11 +21,15 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     .from("messages")
     .select("id,role,content,model,created_at")
     .eq("conversation_id", id)
-    .order("created_at", { ascending: true })
+    .eq("owner_id", auth.user.id)
+    // Fetch the newest bounded window first; reverse it for chronological display.
+    // Ascending + limit(500) would permanently hide messages after the first 500.
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
     .limit(500);
 
   if (error) return NextResponse.json({ error: "目前無法讀取訊息。" }, { status: 500 });
-  return NextResponse.json({ messages: data }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ messages: [...data].reverse() }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {

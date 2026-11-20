@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat/agent-factory-v2
     paths:
       - .github/workflows/self-hosted-runner-smoke.yml
   workflow_dispatch:
@@ -12,8 +13,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: self-hosted-runner-smoke
-  cancel-in-progress: true
+  group: global-citizen-ai-network-self-hosted-runner
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   smoke-test:
@@ -23,6 +25,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Verify runner identity
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}

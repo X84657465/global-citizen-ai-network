@@ -3,6 +3,10 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { scratchPatchEvidenceMatches } from "../lib/agent-scratch-evidence.mjs";
+import { createGitHubApiClient } from "../lib/github-api-client.mjs";
+import { ensureDeterministicBranch } from "../lib/agent-publisher-branch.mjs";
+import { collectGitHubPages } from "../lib/github-pagination.mjs";
 
 const fail = (message) => {
   console.error("Agent PR publishing rejected: " + message);
@@ -51,7 +55,7 @@ if (planArtifact?.execution_mode !== "validated_plan_only" ||
     planArtifact?.safety?.no_commands_or_model_code_executed !== true) {
   fail("Only a validated read-only plan can authorize publication.");
 }
-if (scratch?.schema_version !== 1 ||
+if (scratch?.schema_version !== 2 ||
     scratch?.repository_files_modified !== false ||
     scratch?.generated_code_executed !== false ||
     typeof scratch.base_commit !== "string" ||
@@ -108,26 +112,19 @@ try {
   fail(error instanceof Error ? error.message : "Patch revalidation failed.");
 }
 
-const scratchFiles = scratch.patched_files.map((file) => ({
-  path: file.path,
-  operation: file.operation,
-})).sort((a, b) => a.path.localeCompare(b.path));
-const patchFiles = validatedPatch.files.map((file) => ({
-  path: file.path,
-  operation: file.operation,
-})).sort((a, b) => a.path.localeCompare(b.path));
-if (JSON.stringify(scratchFiles) !== JSON.stringify(patchFiles)) {
-  fail("Scratch test evidence does not match the validated patch manifest.");
+if (!scratchPatchEvidenceMatches(scratch.patched_files, validatedPatch.files)) {
+  fail("Scratch test evidence does not match the exact validated patch content.");
 }
 
+const canonicalPatchFiles = [...validatedPatch.files].sort((a, b) => a.path.localeCompare(b.path));
 const digest = createHash("sha256")
-  .update(JSON.stringify(validatedPatch.files))
+  .update(baseCommit + "\\n" + JSON.stringify(canonicalPatchFiles))
   .digest("hex")
   .slice(0, 12);
 const branch = "ai-task/issue-" + issueNumber + "-" + digest;
 const safeIssueTitle = task.issue.title.replace(/[\r\n]+/g, " ").trim().slice(0, 120);
 const pullTitle = ("[AI Task #" + issueNumber + "] " + safeIssueTitle).slice(0, 240);
-const changedFiles = validatedPatch.files.map((file) => "- " + file.path + " (" + file.operation + ")").join("\n");
+const changedFiles = canonicalPatchFiles.map((file) => "- " + file.path + " (" + file.operation + ")").join("\n");
 const criteria = task.acceptance_criteria.map((item) => "- " + item).join("\n");
 const body = [
   "<!-- ai-task:" + issueNumber + " -->",
@@ -176,7 +173,7 @@ if (dryRun) {
     branch,
     title: pullTitle,
     draft: true,
-    changed_files: validatedPatch.files.map((file) => file.path),
+    changed_files: canonicalPatchFiles.map((file) => file.path),
     no_api_writes: true,
     merge_policy: "human_approval_required",
     automatic_merge: false,
@@ -191,40 +188,16 @@ if (dryRun) {
 if (!token) fail("GITHUB_TOKEN is required for draft PR creation.");
 
 const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\/+$/, "");
-const api = async (path, method = "GET", payload = undefined) => {
-  let response;
-  try {
-    response = await fetch(apiBase + path, {
-      method,
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: "Bearer " + token,
-        "X-GitHub-Api-Version": "2022-11-28",
-        ...(payload ? { "Content-Type": "application/json" } : {}),
-      },
-      ...(payload ? { body: JSON.stringify(payload) } : {}),
-      signal: AbortSignal.timeout(20000),
-    });
-  } catch {
-    throw new Error("GitHub API network request failed: " + method + " " + path);
-  }
-
-  const responseText = await response.text();
-  let data = null;
-  if (responseText) {
-    try {
-      data = JSON.parse(responseText);
-    } catch {
-      throw new Error("GitHub API returned a non-JSON response for " + path);
-    }
-  }
-  if (!response.ok) {
-    const message = typeof data?.message === "string" ? data.message.slice(0, 300) : "request failed";
-    throw new Error("GitHub API " + method + " " + path + " returned HTTP " + response.status + ": " + message);
-  }
-  return data;
-};
-
+const githubApi = createGitHubApiClient({
+  baseUrl: apiBase,
+  token,
+  timeoutMs: 20_000,
+  maxRetries: 2,
+  maxInlineRetryDelayMs: 30_000,
+});
+const api = (path, method = "GET", payload = undefined) =>
+  githubApi.request(path, { method, body: payload });
+ 
 const dispatchAiTaskCi = async (pull) => {
   await api("/dispatches", "POST", {
     event_type: "ai-task-ci",
@@ -245,10 +218,14 @@ try {
     fail("Default branch advanced after candidate tests; rerun the task against the latest base.");
   }
 
-  const openPulls = await api("/repos/" + repository + "/pulls?state=open&per_page=100");
-  const existingPull = openPulls.find((pull) => pull.body?.includes("<!-- ai-task:" + issueNumber + " -->"));
-  if (existingPull) {
-    await dispatchAiTaskCi(existingPull);
+  const openPulls = await collectGitHubPages((page) =>
+    api("/repos/" + repository + "/pulls?state=open&per_page=100&page=" + page)
+  );
+  if (!Array.isArray(openPulls)) fail("GitHub returned an invalid open pull-request list.");
+  const matchingPulls = openPulls.filter((pull) => pull.body?.includes("<!-- ai-task:" + issueNumber + " -->"));
+  if (matchingPulls.length > 1) fail("Multiple open pull requests exist for this task; refusing ambiguous publication.");
+  const existingPull = matchingPulls[0] ?? null;
+  if (existingPull && existingPull.head?.ref !== branch) {
     saveResult({
       schema_version: 1,
       state: "existing_open_pr",
@@ -256,18 +233,22 @@ try {
       issue_number: issueNumber,
       pull_request_number: existingPull.number,
       pull_request_url: existingPull.html_url,
+      existing_branch: existingPull.head?.ref ?? null,
+      expected_branch: branch,
+      different_candidate_branch: true,
       no_duplicate_created: true,
+      ci_dispatch_skipped: true,
       merge_policy: "human_approval_required",
       automatic_merge: false,
       production_deployment: false,
     });
-    console.log("An open PR already exists for this task: " + existingPull.html_url);
+    console.log("An open PR already exists for this task on a different candidate branch: " + existingPull.html_url);
     process.exit(0);
   }
 
   const baseCommitInfo = await api("/repos/" + repository + "/git/commits/" + baseCommit);
   const blobEntries = [];
-  for (const file of validatedPatch.files) {
+  for (const file of canonicalPatchFiles) {
     const blob = await api("/repos/" + repository + "/git/blobs", "POST", {
       content: file.content,
       encoding: "utf-8",
@@ -284,26 +265,73 @@ try {
     base_tree: baseCommitInfo.tree.sha,
     tree: blobEntries,
   });
-  const commit = await api("/repos/" + repository + "/git/commits", "POST", {
-    message: "feat(ai-task): " + safeIssueTitle + " (#" + issueNumber + ")",
-    tree: tree.sha,
-    parents: [baseCommit],
-  });
+  const branchResult = await ensureDeterministicBranch(
+    api,
+    repository,
+    branch,
+    baseCommit,
+    tree.sha,
+    "feat(ai-task): " + safeIssueTitle + " (#" + issueNumber + ")",
+  );
+  const commitSha = branchResult.commit_sha;
+  const confirmedBase = await api("/repos/" + repository + "/branches/" + encodeURIComponent(defaultBranch));
+  if (confirmedBase.commit?.sha !== baseCommit) {
+    fail("Default branch advanced during publication; rerun the task against the latest base.");
+  }
 
-  await api("/repos/" + repository + "/git/refs", "POST", {
-    ref: "refs/heads/" + branch,
-    sha: commit.sha,
-  });
+  if (existingPull) {
+    if (existingPull.head?.sha !== commitSha) {
+      fail("Existing task PR head SHA does not match the exact deterministic candidate branch.");
+    }
+    await dispatchAiTaskCi(existingPull);
+    saveResult({
+      schema_version: 1,
+      state: "existing_open_pr",
+      repository,
+      issue_number: issueNumber,
+      pull_request_number: existingPull.number,
+      pull_request_url: existingPull.html_url,
+      branch,
+      commit_sha: commitSha,
+      no_duplicate_created: true,
+      ci_dispatch_requested: true,
+      merge_policy: "human_approval_required",
+      automatic_merge: false,
+      production_deployment: false,
+    });
+    console.log("The exact deterministic candidate PR already exists and was revalidated: " + existingPull.html_url);
+    process.exit(0);
+  }
 
-  const pull = await api("/repos/" + repository + "/pulls", "POST", {
-    title: pullTitle,
-    head: owner + ":" + branch,
-    base: defaultBranch,
-    body,
-    draft: true,
-  });
+  let pull;
+  let pullCreated = false;
+  try {
+    pull = await api("/repos/" + repository + "/pulls", "POST", {
+      title: pullTitle,
+      head: owner + ":" + branch,
+      base: defaultBranch,
+      body,
+      draft: true,
+    });
+    pullCreated = true;
+  } catch (createError) {
+    const refreshedPulls = await collectGitHubPages((page) =>
+      api("/repos/" + repository + "/pulls?state=open&per_page=100&page=" + page)
+    );
+    const recovered = Array.isArray(refreshedPulls)
+      ? refreshedPulls.find((item) =>
+          item.body?.includes("<!-- ai-task:" + issueNumber + " -->") &&
+          item.head?.ref === branch &&
+          item.head?.sha === commitSha)
+      : null;
+    if (!recovered) throw createError;
+    pull = recovered;
+  }
 
-  await dispatchAiTaskCi(pull);
+  if (pull.head?.ref !== branch || pull.head?.sha !== commitSha) {
+    fail("Created task PR does not point to the exact deterministic candidate commit.");
+  }
+
 
   try {
     await api("/repos/" + repository + "/issues/" + issueNumber + "/comments", "POST", {
@@ -323,8 +351,10 @@ try {
     branch,
     base_branch: defaultBranch,
     base_commit: baseCommit,
-    commit_sha: commit.sha,
-    changed_files: validatedPatch.files.map((file) => file.path),
+    commit_sha: commitSha,
+    branch_reused: !branchResult.created,
+    publication_recovered: !pullCreated,
+    changed_files: canonicalPatchFiles.map((file) => file.path),
     merge_policy: "human_approval_required",
     automatic_merge: false,
     production_deployment: false,

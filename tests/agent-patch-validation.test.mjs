@@ -58,7 +58,7 @@ test("enforces add versus modify semantics against the base checkout", () => {
   );
   assert.throws(
     () => validatePatchManifest(manifest([file("tests/settings-page.test.ts", "modify")]), task, existing),
-    /must target an existing file/,
+    /Existing test files are immutable/,
   );
 });
 
@@ -120,4 +120,36 @@ test("requires a previously validated task and an existing-path inventory", () =
     () => validatePatchManifest(manifest([file("app/settings/page.tsx")]), task, null),
     /Existing repository paths/,
   );
+});
+
+
+test("existing test files cannot be modified and control-plane files require explicit approval", () => {
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([file("tests/settings-page.test.ts", "modify")]),
+      task,
+      existing.concat("tests/settings-page.test.ts"),
+    ),
+    /Existing test files are immutable/,
+  );
+
+  const protectedTask = {
+    schema_version: 1,
+    allowed_paths: ["lib/agent-factory-state-machine.mjs"],
+    control_plane_authorized: false,
+  };
+  const protectedPatch = manifest([file("lib/agent-factory-state-machine.mjs", "modify")]);
+  assert.throws(
+    () => validatePatchManifest(protectedPatch, protectedTask, ["lib/agent-factory-state-machine.mjs"]),
+    /factory-control-plane-approved/,
+  );
+
+  const approvedTask = { ...protectedTask, control_plane_authorized: true };
+  const approved = validatePatchManifest(
+    protectedPatch,
+    approvedTask,
+    ["lib/agent-factory-state-machine.mjs"],
+  );
+  assert.equal(approved.files.length, 1);
+  assert.equal(approved.safety.control_plane_paths_require_approval_label, true);
 });
