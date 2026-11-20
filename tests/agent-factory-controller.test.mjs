@@ -933,6 +933,11 @@ test("system-health success requires verified exact-head CI evidence and resets 
           conclusion: "success",
           path: ".github/workflows/ci.yml",
           event: "pull_request",
+          pull_requests: [{
+            number: 168,
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { sha, repo: { full_name: "owner/repo" } },
+          }],
         };
       },
     },
@@ -941,6 +946,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
     AGENT_FACTORY_MODE: "system-health-success",
     SYSTEM_HEALTH_RUN_ID: "555009",
     SYSTEM_HEALTH_RUN_ATTEMPT: "2",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "168",
     SYSTEM_HEALTH_HEAD_SHA: sha,
   };
 
@@ -985,6 +991,11 @@ test("system-health success fails closed for missing or mismatched health eviden
           conclusion: "success",
           path: ".github/workflows/ci.yml",
           event: "pull_request",
+          pull_requests: [{
+            number: 168,
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { sha: "e".repeat(40), repo: { full_name: "owner/repo" } },
+          }],
         };
       },
     },
@@ -999,9 +1010,20 @@ test("system-health success fails closed for missing or mismatched health eviden
       AGENT_FACTORY_MODE: "system-health-success",
       SYSTEM_HEALTH_RUN_ID: "555010",
       SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "168",
       SYSTEM_HEALTH_HEAD_SHA: "f".repeat(40),
     }),
     /exact-head CI pull_request run/,
+  );
+  await assert.rejects(
+    controller.run({
+      AGENT_FACTORY_MODE: "system-health-success",
+      SYSTEM_HEALTH_RUN_ID: "555010",
+      SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "999",
+      SYSTEM_HEALTH_HEAD_SHA: "e".repeat(40),
+    }),
+    /same-repository PR targeting main/,
   );
 
   assert.equal(store.state.state_version, initial.state_version);
