@@ -1,3 +1,10 @@
+## 0.3.92 — 2026-11-21
+
+- Publish the complete A–P workstream registry on the repository homepage, including each track's purpose, responsibilities, status and independent version.
+- Explain the A–P collaboration model and distinguish prioritized A–H tracks from planned I–P tracks without implying unimplemented capabilities are production-ready.
+- K Knowledge Base/Docs advances to 0.1.1; P Governance/Ethics/Trust advances to 0.1.1. Other track versions remain unchanged.
+- Exact-head full CI and formal review remain required; documentation does not imply feature completion.
+
 ## 0.3.91 — 2026-11-21
 
 - Extend independent MAJOR.MINOR.PATCH and vN generation governance from A–H to every workstream A–P, including planned I–P.
