@@ -1,5 +1,14 @@
 # Deep Research Changelog
 
+## 0.1.7 — 2026-11-20
+
+### Fixed
+- Correct regex escaping in the host-literal and timezone-qualified timestamp validators.
+
+### Verification
+- Exact-head CI required.
+
+
 ## 0.1.6 — 2026-11-20
 
 ### Security

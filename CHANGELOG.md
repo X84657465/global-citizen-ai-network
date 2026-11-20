@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.10 — 2026-11-20
+
+### Fixed
+- Correct regular-expression escaping in the new research-source host and timestamp guards so the intended address and ISO-8601 checks execute as designed.
+- Bump the integration and Deep Research patch versions; synchronize package metadata and governance baseline.
+
+### Verification
+- Exact-head CI is required to validate this correction and the preceding security regression cases.
+
+
 ## 0.3.9 — 2026-11-20
 
 ### Security
