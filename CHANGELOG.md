@@ -1,3 +1,13 @@
+## 0.3.51 — 2026-11-21
+
+### Fixed — Synchronize F Cross-Track Security Baseline
+- Carry forward the latest F security-track baseline and extend its review matrix across G release evidence and H Runner/quota telemetry.
+- Advance F to 0.1.5 and synchronize the overall release and package metadata.
+- Keep G/H as implementation candidates; no security certification or operational acceptance is implied.
+
+### Verification
+- Exact-head Windows Runner CI and independent security review remain required; this release record is not a test pass.
+
 ## 0.3.50 — 2026-11-21
 
 ### Fixed — H Runner Offline Detection Under Clock Skew
