@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.23 — 2026-11-20
+
+### Fixed
+- Synchronize the integration release manifest with the latest numeric versions recorded on the five active workstream branches (A–E).
+- Align VERSION, package.json, package-lock.json and the GitHub project homepage release label.
+
+### Verification
+- Metadata consistency is checked against the five workstream branch version files; exact-head CI and independent integration review remain required.
+
+
 ## 0.3.22 — 2026-11-20
 
 ### Fixed
