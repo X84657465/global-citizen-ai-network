@@ -1,3 +1,10 @@
+## 0.3.97 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.66 with CommonMark-aware dependency parsing and fail-closed task preflight hardening: matching fence markers and lengths, invalid backtick opener handling, four-space/tab-indented code exclusion, and protection against indented example bullets becoming task directives.
+- Preserve the existing `dependency_issue_numbers` preflight contract and unresolved-dependency dispatch gate.
+- Root VERSION, package.json, package-lock.json, manifest, README, governance baseline and Agent Factory track version/changelog are synchronized.
+- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent formal review remain required before acceptance.
+
 ## 0.3.96 — 2026-11-21
 
 - Fix the first-time state-Issue test double to implement the durable store read contract required by Agent Factory controller construction; retain the no-Issue initialization and retry-clock regression.

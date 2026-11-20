@@ -1,3 +1,15 @@
+## 2.0.66 — 2026-11-21
+
+### Fixed — Harden task dependency parsing and preflight against Markdown code-block ambiguity
+- Match CommonMark fence character and minimum closing-fence length; malformed backtick info strings cannot hide real task sections or dependency references.
+- Ignore four-space and tab-indented code blocks during dependency extraction and task-section parsing.
+- Reject indented code-block bullets before normalization so examples cannot become Allowed paths, acceptance criteria or exclusions.
+- Preserve the existing `dependency_issue_numbers` preflight field and fail-closed unresolved dependency gate.
+- Add regression coverage for mismatched/short fences, malformed openers, indented dependency references, fake headings and indented task directives.
+
+### Verification
+- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent review required before acceptance.
+
 ## 2.0.65 — 2026-11-21
 
 ### Fixed — Align first-time state-Issue test double with the durable store contract
