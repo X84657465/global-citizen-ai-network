@@ -1,3 +1,9 @@
+## 0.3.60 — 2026-11-20
+
+- Preserve synthetic and real Agent Factory offline-test stdout/stderr as separate CI artifacts, including when container tests fail.
+- Record the native Docker exit code before raising a PowerShell failure so diagnostics remain actionable when GitHub job logs are unavailable.
+- Add regression coverage for failure-path artifact retention and synchronize Agent Factory release metadata.
+
 ## 0.3.59 — 2026-11-20
 
 - Fix the Agent Factory expired-lease lifecycle regression fixture: require a complete GitHub workflow identity, attempt, completed status, and conclusion before recovery is authorized.

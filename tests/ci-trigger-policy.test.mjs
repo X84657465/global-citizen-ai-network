@@ -421,3 +421,30 @@ test("ordinary PR metadata resolution does not depend on durable factory-state s
   assert.ok(guardedBlock.includes("createFactoryStateStore"));
   assert.ok(resolver.includes('writeOutput("state_issue_number", stateIssueNumber);'));
 });
+
+test("preflight captures and uploads both synthetic and real candidate offline-test diagnostics", () => {
+  const offlineSteps = [...preflight.matchAll(/^      - name: Test patched candidate offline inside restricted container$/gm)];
+  assert.equal(offlineSteps.length, 2, "synthetic validation and task execution must each retain an offline test stage");
+
+  for (const name of [
+    "Preserve synthetic offline test diagnostics",
+    "Preserve candidate offline test diagnostics",
+  ]) {
+    const start = preflight.indexOf("      - name: " + name);
+    assert.ok(start >= 0, "missing diagnostic artifact step: " + name);
+    const next = preflight.indexOf("\\n      - name:", start + 1);
+    const section = preflight.slice(start, next < 0 ? preflight.length : next);
+    assert.ok(section.includes("if: always()"), name + " must run after a failed test");
+    assert.ok(section.includes("uses: actions/upload-artifact@v4"));
+    assert.ok(section.includes("agent-preflight-offline-test.log"));
+    assert.ok(section.includes("retention-days: 7"));
+  }
+
+  for (const match of offlineSteps) {
+    const next = preflight.indexOf("\\n      - name:", match.index + match[0].length);
+    const section = preflight.slice(match.index, next < 0 ? preflight.length : next);
+    assert.ok(section.includes("$testExitCode = $LASTEXITCODE"), "preserve the native Docker exit code");
+    assert.ok(section.includes("Out-File -LiteralPath $testLog"), "persist stdout and stderr before raising failure");
+  }
+});
+

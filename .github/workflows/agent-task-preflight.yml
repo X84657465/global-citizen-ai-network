@@ -382,9 +382,21 @@ jobs:
           $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
           $workspaceMount = "type=bind,source=$scratch,target=/workspace"
           $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
-          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
-          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
+          $testLog = Join-Path $env:RUNNER_TEMP "agent-preflight-offline-test.log"
+          $testOutput = & docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks 2>&1
+          $testExitCode = $LASTEXITCODE
+          $testOutput | ForEach-Object { Write-Host "$_" }
+          $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
+          if ($testExitCode -ne 0) { throw "Patched candidate failed isolated offline tests (exit $testExitCode). See the uploaded diagnostic artifact." }
           Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+      - name: Preserve synthetic offline test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-preflight-synthetic-offline-test-${{ github.run_id }}
+          path: ${{ runner.temp }}/agent-preflight-offline-test.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Validate draft PR publisher without API writes
         env:
@@ -689,9 +701,21 @@ jobs:
           $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
           $workspaceMount = "type=bind,source=$scratch,target=/workspace"
           $checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"
-          docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks
-          if ($LASTEXITCODE -ne 0) { throw "Patched candidate failed isolated offline tests." }
+          $testLog = Join-Path $env:RUNNER_TEMP "agent-preflight-offline-test.log"
+          $testOutput = & docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc $checks 2>&1
+          $testExitCode = $LASTEXITCODE
+          $testOutput | ForEach-Object { Write-Host "$_" }
+          $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
+          if ($testExitCode -ne 0) { throw "Patched candidate failed isolated offline tests (exit $testExitCode). See the uploaded diagnostic artifact." }
           Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+      - name: Preserve candidate offline test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-preflight-candidate-offline-test-${{ github.run_id }}
+          path: ${{ runner.temp }}/agent-preflight-offline-test.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Transition task to publishing
         if: steps.reserve-task.outcome == 'success'

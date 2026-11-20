@@ -1,3 +1,13 @@
+## 2.0.33 — 2026-11-20
+
+### Improved — Preserve offline candidate-test diagnostics
+- Capture Docker offline-test stdout/stderr and its native exit code before failing the preflight step.
+- Upload synthetic-validation and real-task test logs independently with failure-safe artifact steps.
+- Add CI policy regression coverage for both diagnostic paths.
+
+### Verification
+- Targeted static policy assertions are added; full CI on the exact commit remains required for acceptance.
+
 ## 2.0.32 — 2026-11-20
 
 ### Fixed — Verify complete workflow evidence before recovering expired worker leases
