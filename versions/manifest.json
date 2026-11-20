@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.43",
+  "overall": "0.3.44",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -37,7 +37,7 @@
     },
     "G": {
       "name": "Release, QA & Integration",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "status": "planned",
       "responsibility": "Cross-track integration sequencing, compatibility checks, regression gates, release evidence and rollback readiness."
     },
