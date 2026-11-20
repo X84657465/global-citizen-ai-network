@@ -1,8 +1,16 @@
+## 0.3.103 — 2026-11-21
+
+- Carry forward Agent Factory V2 2.0.71 exact-head CI integration repair while retaining the isolated migration-chain verification scope.
+- Confirm the reviewed 24-file migration inventory and 10 required SQL regression-suite files remain represented in the candidate.
+- Keep static repository checks explicitly separate from disposable local PostgreSQL/Supabase migration, grants, RLS, trigger and RPC runtime acceptance.
+- No hosted/production database access or production-data changes.
+
 ## 0.3.102 — 2026-11-21
 
-- Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
-- Add regression coverage for the precise target-branch allowlist; preserve owner/same-repository checks, exact-SHA resolver, self-hosted Runner queue, security audits, build and database gates.
-- No wildcard branch expansion, permission changes, production data or automatic merge/deployment behavior.
+- Add an exact, sorted 24-file Supabase migration inventory regression and verify the required 10 SQL security/lifecycle suites remain present.
+- Document the distinction between repository-static checks and disposable local PostgreSQL/Supabase runtime evidence; no hosted database or production data is accessed.
+- Shared verification-only release; Agent Factory and GCAN Product track versions remain unchanged.
+- Exact-head CI and disposable local Supabase migration/RLS execution remain required before database runtime acceptance.
 
 ## 0.3.101 — 2026-11-21
 
