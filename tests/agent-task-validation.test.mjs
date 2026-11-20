@@ -172,19 +172,20 @@ test("requires a human approval label before allowing factory control-plane path
 
 
 test("extracts the actual multiline Issue #96 dependency section and ignores unrelated or fenced references", () => {
-  const body = `## Goal
-Unrelated context mentions #999 but it is not a dependency.
-```md
-Dependencies: #777
-```
-
-## Dependencies
-Dependencies: #74, #75, #81, #94
-#74 task discovery; #75 submission/review status; #81 RLS tests; #94 migration-chain validation.
-
-## Acceptance criteria
-Do not collect #555 from this section.
-`;
+  const body = [
+    "## Goal",
+    "Unrelated context mentions #999 but it is not a dependency.",
+    "```md",
+    "Dependencies: #777",
+    "```",
+    "",
+    "## Dependencies",
+    "Dependencies: #74, #75, #81, #94",
+    "#74 task discovery; #75 submission/review status; #81 RLS tests; #94 migration-chain validation.",
+    "",
+    "## Acceptance criteria",
+    "Do not collect #555 from this section.",
+  ].join("\n");
   assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75, 81, 94]);
 });
 
