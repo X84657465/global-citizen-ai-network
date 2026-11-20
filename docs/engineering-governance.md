@@ -1,7 +1,7 @@
 # A–P Engineering Governance
 
-**Governance revision: 2.0.2**  
-**Repository release baseline: 0.3.50**  
+**Governance revision: 2.0.3**  
+**Repository release baseline: 0.3.51**  
 **Architecture detail:** [A–P Engineering Workstream Architecture](engineering-workstreams.md)
 
 ## 1. Track ownership
