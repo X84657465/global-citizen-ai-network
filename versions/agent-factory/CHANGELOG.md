@@ -1,5 +1,16 @@
 # Agent Factory V2 changelog
 
+## 2.0.9 — 2026-11-20
+
+### Fixed
+- Tighten durable state timestamp validation to reject impossible calendar dates, out-of-range clock and timezone fields, and timezone-less values.
+
+### Tests
+- Add malformed timestamp regressions for factory state update and lease-related validation.
+
+### Verification
+- Exact-head Windows Runner CI required before acceptance.
+
 ## 2.0.0
 
 - Introduce the durable task lifecycle with explicit state transitions and a persistent state store.
