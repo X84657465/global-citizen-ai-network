@@ -42,10 +42,10 @@ test("root and Agent Factory numeric release metadata stay synchronized", () => 
   assert.equal(manifest.tracks.C.version, predictiveCodingVersion);
 });
 
-test("full CI runs on main and Agent Factory pushes plus pull-request lifecycle events", () => {
+test("full CI runs on main and Agent Factory pushes plus pull requests targeting both active A-line bases", () => {
   assert.ok(workflow.includes("  push:\n    branches: [main, feat/agent-factory-v2]\n"));
   assert.ok(workflow.includes("run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}"));
-  assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/github-project-showcase]\n    types: [opened, reopened, synchronize]\n"));
+  assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/github-project-showcase, feat/agent-factory-v2, fix/issue-164-candidate-success-scope]\n    types: [opened, reopened, synchronize]\n"));
   assert.ok(workflow.includes("  repository_dispatch:\n    types: [ai-task-ci]\n"));
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
