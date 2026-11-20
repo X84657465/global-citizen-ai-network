@@ -1,3 +1,13 @@
+## 2.0.64 — 2026-11-21
+
+### Fixed — Preserve the pre-initialization retry clock
+- Capture the migrated state's updated_at before creating a missing state Issue.
+- Normalize legacy retry_wait deadlines from that original snapshot, so first-time state initialization cannot delay retries.
+- Add a controller regression for the no-state-Issue migration path.
+
+### Verification
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
 ## 2.0.63 — 2026-11-21
 
 ### Fixed — Persist legacy retry deadlines once
