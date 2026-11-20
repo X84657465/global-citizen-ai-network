@@ -1,6 +1,6 @@
 # H Track — Runner Observability & Quota Contract
 
-**Contract revision:** 1.0.0  
+**Contract revision:** 1.0.1  
 **Status:** implementation candidate; advisory only.
 
 ## Purpose
@@ -23,7 +23,7 @@ Unknown fields are rejected. Quota usage may exceed the configured limit because
 
 `evaluateRunnerHealth` validates the snapshot and applies configurable thresholds for heartbeat age, queue depth, failure rate and quota utilization. It returns `normal`, `warning`, `critical` or `invalid`, plus findings and advisory actions.
 
-Critical conditions may recommend pausing new tasks or quota-consuming work pending operator review. The evaluator does not pause, cancel, restart, scale or mutate any Runner. A trusted orchestration layer must independently authenticate source telemetry and enforce permissions before taking action.
+An offline Runner is critical regardless of heartbeat clock skew; future-dated heartbeats also raise a clock-synchronization finding and must not suppress the offline finding. Critical conditions may recommend pausing new tasks or quota-consuming work pending operator review. The evaluator does not pause, cancel, restart, scale or mutate any Runner. A trusted orchestration layer must independently authenticate source telemetry and enforce permissions before taking action.
 
 ## Initial default thresholds
 
