@@ -267,3 +267,38 @@ test("accepts the Dependencies/context section alias in task preflight", () => {
   const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
   assert.deepEqual(task.dependencies, [75]);
 });
+
+test("rejects indented code-block bullets instead of treating them as task directives", () => {
+  const allowedPathExample = validIssue({
+    body: validIssue().body.replace(
+      "- app/settings/page.tsx",
+      "    - app/hidden-example.ts",
+    ),
+  });
+  assert.throws(
+    () => validateAndBuildTask(allowedPathExample, "X84657465/global-citizen-ai-network"),
+    /indented code-block directives/,
+  );
+
+  const acceptanceExample = validIssue({
+    body: validIssue().body.replace(
+      "- Empty state is accessible",
+      "    - Hidden acceptance criterion",
+    ),
+  });
+  assert.throws(
+    () => validateAndBuildTask(acceptanceExample, "X84657465/global-citizen-ai-network"),
+    /indented code-block directives/,
+  );
+
+  const exclusionExample = validIssue({
+    body: validIssue().body.replace(
+      "- No production deployment",
+      "    - Hidden exclusion directive",
+    ),
+  });
+  assert.throws(
+    () => validateAndBuildTask(exclusionExample, "X84657465/global-citizen-ai-network"),
+    /indented code-block directives/,
+  );
+});
