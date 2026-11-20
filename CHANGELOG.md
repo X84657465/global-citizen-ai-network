@@ -1,3 +1,10 @@
+## 0.3.103 — 2026-11-21
+
+- K Knowledge Base/Docs advances to 0.1.5: synchronize the public A–P registry's K version with the authoritative manifest and independent track version.
+- Align README, K VERSION/CHANGELOG, root VERSION, package metadata, manifest and governance baseline.
+- Documentation/version metadata only; no application runtime, factory behavior, B product logic, production data or deployment settings changed.
+- Exact-head full CI and independent formal review are required for this updated candidate SHA.
+
 ## 0.3.102 — 2026-11-21
 
 - K Knowledge Base/Docs advances to 0.1.4: make the A–P candidate homepage status SHA-neutral so it cannot claim a previous exact-head CI result for a newer commit.
