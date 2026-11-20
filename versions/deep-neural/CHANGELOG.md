@@ -1,5 +1,16 @@
 # Deep Neural Changelog
 
+## 0.3.5 — 2026-11-20
+
+### Fixed
+- Harden shared knowledge-artifact and evidence-record timestamps against invalid calendar dates, impossible clock values, invalid timezone offsets and missing timezone designators.
+
+### Tests
+- Add regression coverage for impossible dates, times and timezone-less values.
+
+### Verification
+- Exact-head CI required before acceptance.
+
 ## 0.2.0 — 2026-11-20
 
 ### Added
