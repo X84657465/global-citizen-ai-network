@@ -104,10 +104,13 @@ export default function WorkspaceClient() {
         if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
         if (!cancelled) {
           setConversations(Array.isArray(data.conversations)
-            ? data.conversations.filter(conversation => isValidTimestamp(conversation.updated_at))
+            ? data.conversations.filter(conversation =>
+              conversation && typeof conversation === "object" && isValidTimestamp(conversation.updated_at),
+            )
             : []);
           setProjects(Array.isArray(projectData.projects)
             ? projectData.projects.filter(project =>
+              project && typeof project === "object" &&
               (project.archived_at === null || isValidTimestamp(project.archived_at)) && !project.archived_at,
             )
             : []);
