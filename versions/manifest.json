@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.29",
+  "overall": "0.3.30",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -25,7 +25,7 @@
     },
     "E": {
       "name": "Deep Research（深度研究）",
-      "version": "0.1.13",
+      "version": "0.1.14",
       "status": "implementation-candidate",
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
     }
