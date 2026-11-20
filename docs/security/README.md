@@ -29,6 +29,7 @@ F does not replace secure engineering ownership in other tracks. Every track rem
 | C — Predictive Coding | Prediction inputs, observations, metrics and feedback loops | Data poisoning, manipulation, provenance, anomaly signal quality and false positives |
 | D — Deep Neural | Memory, retrieval, reasoning and knowledge integration | Memory poisoning, instruction/data separation, provenance and sensitive-data leakage |
 | E — Deep Research | Retrieval, browsing, source ingestion and report generation | Malicious sources, prompt injection, citation integrity, SSRF and exfiltration paths |
+| F — Cyber Security & Defense | Cross-track assurance, threat modeling, security tests and incident readiness | Independent review of privileged boundaries, attack paths, control evidence and remediation closure |
 
 ## Non-negotiable security principles
 
@@ -71,7 +72,7 @@ Targets below are internal response objectives, not guarantees. Start the clock 
 
 ## Current maturity and explicit limitations
 
-This charter creates the F workstream and governance baseline. It does **not** certify GCAN as secure, prove that all listed controls are implemented, or authorize production penetration testing. The existing baseline headers now include HSTS (`max-age=31536000`) in addition to MIME, clickjacking, referrer and browser-capability protections; the application CI also runs dependency audits. These are only partial controls. Each control must be mapped to implementation and tested evidence before it can be marked implemented.
+This charter creates the F workstream and governance baseline. It does **not** certify GCAN as secure, prove that all listed controls are implemented, or authorize production penetration testing. The existing baseline headers now include HSTS (`max-age=31536000`) in addition to MIME, clickjacking, referrer and browser-capability protections. CI runs a blocking production dependency audit and includes regression checks for the privileged self-hosted Runner trust boundary. Dependabot is configured for weekly npm and monthly GitHub Actions updates. The repository-level `SECURITY.md` defines private vulnerability-disclosure guidance, response expectations and testing boundaries. These controls are partial and do not replace code review, runtime monitoring or penetration testing. Each control must be mapped to implementation and tested evidence before it can be marked implemented.
 
 ## Working documents
 
