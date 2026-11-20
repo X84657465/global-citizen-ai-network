@@ -207,3 +207,10 @@ test("message history returns the newest bounded window in chronological order",
   assert.match(messageRoute, /messages: \[\.\.\.data\]\.reverse\(\)/);
   assert.doesNotMatch(messageRoute, /\.order\("created_at", \{ ascending: true \}\)[\s\S]*?\.limit\(500\)/);
 });
+
+test("homepage typography keeps body and supporting copy readable on desktop and mobile", () => {
+  assert.match(homeCss, /\.heroLead\{font-size:clamp\(16px,1\.25vw,18px\)/);
+  assert.match(homeCss, /\.sectionHeading>p,[\s\S]*?font-size:15px/);
+  assert.match(homeCss, /\.pillarCard p\{font-size:13px/);
+  assert.match(homeCss, /@media\(max-width:620px\)[\s\S]*?\.heroLead\{font-size:16px\}/);
+});
