@@ -863,7 +863,7 @@ test("check mode prefers task failure history over the state-level fallback", as
     code: "LEGACY_FAILURE", summary: "historical timestamp", at: new Date(100_000).toISOString(),
   };
   const store = fakeStore(state);
-  let now = 160_000;
+  let now = 159_999;
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => now });
 
   const early = await controller.run({ AGENT_FACTORY_MODE: "check" });
