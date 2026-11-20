@@ -1,3 +1,7 @@
+## 0.3.52 — 2026-11-20
+
+- Replaced fragile escaped-regex matching in the exact-SHA concurrency regression with literal workflow-expression assertions.
+
 ## 0.3.51 — 2026-11-20
 
 - Corrected the exact-SHA concurrency regression assertion to match the literal GitHub Actions expression without requiring a backslash in the workflow source.

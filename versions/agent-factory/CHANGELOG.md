@@ -1,3 +1,7 @@
+## 2.0.25 — 2026-11-20
+
+- Stabilized the exact-SHA concurrency policy test by matching the literal workflow expression.
+
 ## 2.0.24 — 2026-11-20
 
 - Corrected the exact-SHA concurrency policy test's escaped-expression matcher; no workflow behavior changed.

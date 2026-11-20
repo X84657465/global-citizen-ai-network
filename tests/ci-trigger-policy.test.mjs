@@ -424,5 +424,5 @@ test("Agent Factory runbook makes the default-branch schedule gate explicit", ()
   assert.ok(runbook.includes("schema version 2"));
 });
 
-test("CI concurrency is fenced per exact head SHA",()=>{assert.match(workflowLevelConcurrency,/github\.event\\.pull_request\\.head\\.sha/);assert.match(workflowLevelConcurrency,/github\.event\\.client_payload\\.head_sha/);});
+test("CI concurrency is fenced per exact head SHA",()=>{assert.ok(workflowLevelConcurrency.includes("github.event.pull_request.head.sha"));assert.ok(workflowLevelConcurrency.includes("github.event.client_payload.head_sha"));});
 test("CI diagnostics use Ubuntu, read-only Actions access and redacted evidence",()=>{const x=findJobSection(workflow,"ci-diagnostics");const s=workflow.slice(x.start,x.end);assert.ok(s.includes("runs-on: ubuntu-latest"));assert.ok(s.includes("actions: read"));assert.ok(s.includes("gh run view"));assert.ok(s.includes("CI_EXPECTED_HEAD_SHA"));assert.ok(s.includes("ci-failure-diagnostics.json"));assert.ok(s.includes("retention-days: 90"));assert.equal(s.includes("issues: write"),false);});
