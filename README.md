@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.23` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.26` · [版本紀錄](CHANGELOG.md) · [六線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -382,13 +382,13 @@ http://localhost:3000
 
 ## 🎬 圖片與影片介紹｜Visual & Video Tour
 
-### GCAN 五線總覽
+### GCAN 六線總覽
 
 <p align="center">
-  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN 五線架構圖" width="100%" />
+  <img src="docs/assets/gcan-six-track-architecture.svg" alt="GCAN 六線架構圖：A 至 E 研發主線與 F 資安防禦" width="100%" />
 </p>
 
-五條開發線各自擁有獨立工作台，透過來源追蹤、版本管理、測試與接收線審核互相協作。
+A～E 五條研發主線各自擁有獨立工作台；F 資安防禦橫向覆蓋所有主線，負責威脅模型、安全控制、攻擊驗證與事件應變。
 
 ### 影片導覽
 
@@ -397,7 +397,7 @@ http://localhost:3000
 - [影片分鏡與旁白稿](docs/media/gcan-introduction-storyboard.md)
 - [即時 CI 與開發紀錄](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-### 五線工作台與進度
+### 六線工作台與進度
 
 > D、E 兩線以五線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
 
@@ -408,18 +408,19 @@ http://localhost:3000
 | C｜Predictive Coding | 預測分析工作台 | 已加入可測試的殘差、MAE、Brier 指標核心；未連接即時遙測或模型訓練 | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
 | D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
 | E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
+| F｜Cyber Security & Defense | 資安防禦中心 | 首批威脅模型、事件應變及安全驗收規範已建立；程式與 CI 控制仍待逐項落實 | [F 線分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/cyber-security-defense-integration) |
 
 > CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
 
-## 🧠 五線協作與持續學習
+## 🧠 六線協作與持續學習
 
-本專案採五線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經（Deep Neural）、E 深度研究（Deep Research）。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
+本專案採六線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經（Deep Neural）、E 深度研究（Deep Research）、F 資安防禦（Cyber Security & Defense）。A～E 負責各自產品與技術能力；F 橫向制定最低安全要求、攻擊測試、漏洞應變與安全驗收。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。
 
-所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [五線工程治理規範](docs/engineering-governance.md)。
+所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [六線工程治理規範](docs/engineering-governance.md)。
 
-## 🔄 五線互輔互成｜Predict → Learn → Build → Validate
+## 🔄 六線互輔互成｜Predict → Learn → Build → Validate
 
-五線不是五個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
+六線不是六個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
 
 | 線別 | 核心責任 | 支援其他線的方式 |
 |---|---|---|
@@ -428,8 +429,9 @@ http://localhost:3000
 | C｜預測編碼（Predictive Coding） | 預測、觀測、預測誤差、校準與模型更新 | 提供可量測的預測誤差、漂移訊號與改進依據 |
 | D｜深度神經（Deep Neural） | 記憶、推理、知識整合與評估 | 將跨線證據整理為可追溯知識、推理策略及評估建議 |
 | E｜深度研究（Deep Research） | 多來源研究、來源查核、反證與引用報告 | 提供可追溯的研究證據、方法、來源可信度與可執行建議 |
+| F｜資安防禦（Cyber Security & Defense） | 威脅模型、安全控制、攻擊驗證、事件應變 | 為 A～E 提供安全規範、攻擊測試、漏洞處理與復原驗收 |
 
-共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋五線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
+共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋六線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
 
 ### 第三線架構
 
