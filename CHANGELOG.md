@@ -1,3 +1,11 @@
+## 0.3.93 — 2026-11-21
+
+- Harden task preflight section parsing to use matching Markdown fence characters and lengths, so headings inside examples cannot become real task sections.
+- Reject invalid backtick-fence info strings as openers, preventing malformed examples from hiding required sections.
+- Add regression tests for matching, mismatched, undersized and invalid fence markers in task validation.
+- Agent Factory V2 advances to 2.0.62; B track remains 0.1.13.
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; dispatch acceptance is not claimed until all required checks pass.
+
 ## 0.3.92 — 2026-11-21
 
 - Harden Agent Factory dependency parsing against invalid backtick-fence info strings; malformed examples can no longer suppress subsequent explicit dependency references.
