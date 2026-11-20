@@ -181,6 +181,7 @@ test("section parsing ignores headings inside matching Markdown fences", () => {
     "```",
     "~~~",
     "```",
+    "````",
     "## Allowed paths",
     "- app/settings/page.tsx",
     "- tests/settings-page.test.ts",
