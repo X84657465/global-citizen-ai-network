@@ -163,10 +163,10 @@ The task goal mentions #999 but that is not a dependency.
 ## Acceptance criteria
 - Do not collect #123 from this section.
 
-```md
+\`\`\`md
 ## Dependencies
 - #456 inside a code example is not active metadata
-```
+\`\`\`
 
 ## Dependencies/context
 Context references #81 and #74.
@@ -177,11 +177,11 @@ Context references #81 and #74.
 test("parses inline and multiline dependency declarations together without reading fenced examples", () => {
   const body = `Dependencies: #3, #84
 Dependencies/context: #94
-```
+\`\`\`
 Dependencies: #777
 ## Dependencies
 - #778
-```
+\`\`\`
 ## Dependencies
 - #84 provider adapter
 - #97 migration recovery
