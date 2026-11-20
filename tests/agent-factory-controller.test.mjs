@@ -803,7 +803,8 @@ test("check mode does not requeue a migrated task before its fallback backoff ex
 
   assert.equal(result.outputs.requeued_tasks, 0);
   assert.equal(result.state.tasks["94"].status, "retry_wait");
-  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(result.state.tasks["94"].next_attempt_at, new Date(220_000).toISOString());
+  assert.equal(store.state.state_version, initial.state_version + 1);
 });
 
 
