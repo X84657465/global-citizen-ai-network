@@ -7,7 +7,7 @@ const evidence = () => ({
   schemaVersion: 1,
   repository: "X84657465/global-citizen-ai-network",
   track: "G",
-  pullRequestNumber: 147,
+  pullRequestNumber: 148,
   baseSha: "b".repeat(40),
   headSha: sha,
   generatedAt: "2026-11-20T08:30:00Z",
