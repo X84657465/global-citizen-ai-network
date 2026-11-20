@@ -31,3 +31,8 @@ test("package lock metadata matches the resolved eslint-import-resolver-node tar
   const resolvedTarball = entry.resolved.split("/").at(-1);
   assert.equal(resolvedTarball, "eslint-import-resolver-node-" + entry.version + ".tgz");
 });
+
+test("Windows Supabase CI allocates ports outside the default dynamic TCP range", () => {
+  assert.ok(workflow.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)"));
+  assert.equal(workflow.includes("$candidate = 55000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 9000)"), false);
+});

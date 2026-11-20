@@ -1,3 +1,11 @@
+## 0.3.10 — 2026-11-20
+
+### Fixed
+- Allocate Windows Supabase CI ports from 20000–39999, outside the default dynamic TCP range, and guard the formula with a regression test.
+
+### Verification
+- Exact-head CI required.
+
 ## 0.3.9 — 2026-11-20
 
 ### Fixed
