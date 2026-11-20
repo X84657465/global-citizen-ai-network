@@ -1,3 +1,14 @@
+## 0.3.32 — 2026-11-20
+
+### Fixed
+- Validate capability input/output schema types against the supported JSON Schema type vocabulary instead of accepting arbitrary non-empty strings.
+
+### Tests
+- Add negative cases for unsupported type names in both schema positions.
+
+### Verification
+- Exact-head CI required; no live capability execution or production data mutation is claimed.
+
 ## 0.3.31 — 2026-11-20
 
 ### Fixed
