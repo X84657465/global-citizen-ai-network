@@ -206,7 +206,7 @@ test("dependency resolver fails closed for unresolved multiline references", () 
 - #94
 
 ## Goal
-#999 is unrelated.`
+#999 is unrelated.`;
   const issues = new Map([
     [74, { number: 74, state: "closed", state_reason: "completed" }],
     [75, { number: 75, state: "closed", state_reason: "not_planned" }],
