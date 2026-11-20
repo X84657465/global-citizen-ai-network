@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.26",
+  "overall": "0.3.27",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -31,7 +31,7 @@
     },
     "F": {
       "name": "Cyber Security & Defense",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "foundation",
       "responsibility": "Cross-track threat modeling, security controls, adversarial validation, vulnerability response and incident readiness."
     }
