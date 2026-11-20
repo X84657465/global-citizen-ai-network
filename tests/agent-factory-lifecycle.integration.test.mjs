@@ -259,7 +259,9 @@ test("durable scheduler completes a 24-task lifecycle simulation with idempotent
   assert.equal(Object.keys(finalState.state.tasks).length, taskCount);
   assert.equal(Object.values(finalState.state.tasks).filter((task) => task.status === "completed").length, taskCount);
   assert.equal(finalState.state.active_task, null);
-  assert.equal(finalState.state.processed_events.length, taskCount * 3);
+  // Only candidate-start and candidate-result callbacks enter the deduplication ledger;
+  // reserve and lifecycle transitions are state changes, not processed callback events.
+  assert.equal(finalState.state.processed_events.length, taskCount * 2);
   assert.equal(api.issues.filter((issue) => issue.title === FACTORY_STATE_ISSUE_TITLE).length, 1);
 });
 
