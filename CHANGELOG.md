@@ -147,3 +147,13 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - New exact-head CI required.
+
+
+## 0.3.6 — 2026-11-20
+
+### Fixed
+- Synchronize the GCAN Product track VERSION file with the 0.1.3 manifest version introduced by the homepage redesign.
+- Synchronize package metadata, lockfile, root VERSION and integration manifest to 0.3.6.
+
+### Verification
+- Exact-head CI is required; this commit does not imply a production release or deployment.

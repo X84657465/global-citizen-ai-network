@@ -30,3 +30,15 @@
 ### Verification boundary
 - Reads remain authenticated, owner-scoped, bounded and non-cacheable; no RLS, schema, auth or production data behavior is broadened.
 - Exact-head CI is required before acceptance.
+
+## 0.1.3 — 2026-11-20
+
+### Added
+- Redesign the GCAN public homepage with responsive dark-technology visual identity and accessible workstream navigation.
+- Distinguish four product value pillars from the five engineering workstreams and disclose preview/demo maturity per workbench.
+- Add the five-track architecture visual, shared learning loop, trust/governance section and technical documentation routes.
+- Expand page metadata and social preview information for the public product entry point.
+
+### Verification boundary
+- Homepage and linked workbenches remain development candidates; Vercel preview links do not imply production availability.
+- Exact-head CI is required before acceptance. No production database schema, payment flow or account permission change is included.
