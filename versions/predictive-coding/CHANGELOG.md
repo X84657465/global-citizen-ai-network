@@ -1,5 +1,17 @@
 # Predictive Coding Changelog
 
+## 0.3.4 — 2026-11-20
+
+### Fixed
+- Reject arithmetic overflow in signed prediction residuals and MAE instead of emitting non-finite metrics.
+- Avoid intermediate MAE sum overflow by accumulating normalized absolute-error contributions.
+
+### Tests
+- Cover overflow rejection and large finite MAE calculations.
+
+### Verification
+- Exact-head CI required before acceptance.
+
 ## 0.3.3 — 2026-11-20
 
 ### Fixed
