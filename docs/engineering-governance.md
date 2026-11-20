@@ -1,9 +1,9 @@
-# Five-Track Engineering Governance
+# Six-Track Engineering Governance
 
-**Governance revision: 1.4.0**  
-**Repository release baseline: 0.3.22**
+**Governance revision: 1.5.0**  
+**Repository release baseline: 0.3.26**
 
-## 1. Five development tracks
+## 1. Six development tracks
 
 | Track | Scope | Primary responsibility |
 |---|---|---|
@@ -12,6 +12,7 @@
 | C — Predictive Coding（預測編碼） | Predictive processing and prediction-error learning | Build explicit prediction, observation, error comparison and model-update loops; publish measurable signals to the other tracks |
 | D — Deep Neural | Neural intelligence foundation | Memory, reasoning, evaluation, knowledge integration and cross-track learning |
 | E — Deep Research（深度研究） | Research and evidence synthesis | Multi-source retrieval, source provenance and quality, corroboration, counter-evidence, cited synthesis and actionable research reports |
+| F — Cyber Security & Defense | Cross-track security assurance | Threat modeling, secure defaults, adversarial validation, vulnerability response, incident readiness and release security gates |
 
 Each track owns its own branch, work items, version history, tests and acceptance evidence. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
 
@@ -31,21 +32,23 @@ A version bump is not evidence of completion. Acceptance requires exact commit S
 
 ## 3. Cross-track learning and support
 
-Tracks A, B, C, D and E must exchange reusable knowledge through reviewed, versioned artifacts:
+Tracks A, B, C, D, E and F must exchange reusable knowledge through reviewed, versioned artifacts:
 
 1. A publishes engineering patterns, test fixtures, failure classifications, recovery playbooks and verified automation capabilities.
 2. B contributes real product workflows, user-facing requirements, usability findings and operational constraints.
 3. C (Predictive Coding) publishes explicit predictions, observed outcomes, prediction-error measurements, confidence/calibration data and tested model-update rules. It helps A anticipate task failures, B anticipate user/product needs and D prioritize memory/reasoning updates.
 4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C/E.
-5. E (Deep Research) conducts multi-source research, checks source provenance and freshness, seeks corroboration and counter-evidence, and publishes cited findings and actionable recommendations to A/B/C/D.
+5. E (Deep Research) conducts multi-source research, checks source provenance and freshness, seeks corroboration and counter-evidence, and publishes cited findings and actionable recommendations to A/B/C/D/F.
+6. F (Cyber Security & Defense) maintains the cross-track threat model, minimum security controls, adversarial regression tests, vulnerability triage and incident-response readiness; each track remains responsible for fixing its own code and operations.
 
-### Five-track mutual-support loop
+### Six-track mutual-support loop
 
 - **A → B/C/D:** verified automation, reproducible builds, test evidence, failure taxonomy and recovery playbooks.
 - **B → A/C/D:** real product workflows, user feedback, operational constraints, usage patterns and measurable outcomes.
 - **C → A/B/D:** predictions, prediction errors, uncertainty/calibration signals, drift indicators and experimentally validated update rules.
 - **D → A/B/C/E:** reviewed memory, cross-domain synthesis, reasoning plans, evidence retrieval and evaluation recommendations.
-- **E → A/B/C/D:** sourced research, verification methods, counter-evidence, source-quality assessments and cited synthesis.
+- **E → A/B/C/D/F:** sourced research, verification methods, counter-evidence, source-quality assessments and cited synthesis.
+- **F → A/B/C/D/E:** threat intelligence, security requirements, adversarial fixtures, vulnerability findings and incident lessons.
 - **All tracks → all tracks:** changes are proposed as versioned artifacts, reviewed by the receiving owner, tested against that track's acceptance criteria and adopted explicitly.
 
 The shared loop is **observe → predict → act → measure outcome → calculate prediction error → explain/store evidence → revise model or plan → test → publish → adopt → monitor**. Prediction error is a learning signal, not automatic permission to mutate production systems.
@@ -85,6 +88,7 @@ A change is not accepted merely because code was committed or a PR exists.
 - Failure must be classified as code, test, dependency, infrastructure or unknown; unknown is not reported as passed.
 - No automatic approval, merge, production database mutation or production deployment.
 - Draft PRs remain Draft until all stated acceptance criteria are evidenced and reviewed.
+- F review is mandatory for authentication, authorization, RLS, secrets, AI tool permissions, Runner isolation, deployment permissions and other privileged-boundary changes.
 
 ## 7. Required change record
 
@@ -103,6 +107,6 @@ Every improvement, including a small one, records:
 
 Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
 
-## 9. Five-track baseline
+## 9. Six-track baseline
 
 Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.8`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
