@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.15 — 2026-11-20
+
+### Fixed
+- Enforce strict timezone-qualified ISO-8601 validation for durable Agent Factory state, including actual calendar dates and bounded clock/offset fields.
+- Reject malformed lease, cooldown and event timestamps before state transitions can be accepted.
+
+### Verification
+- Added regression tests for impossible dates, impossible times, missing timezone and invalid offsets. Exact-head Windows Runner CI required.
+
 All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` only.
 
 ## 0.3.10 — 2026-11-20
