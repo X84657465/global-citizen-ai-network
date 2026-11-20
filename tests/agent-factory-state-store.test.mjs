@@ -134,6 +134,31 @@ test("persists a V1-to-V2 migration on the existing state Issue", async () => {
   assert.equal((await store.read()).migrated, false);
 });
 
+test("serializes concurrent V1 migrations across separate store instances", async () => {
+  const legacy = {
+    consecutive_failures: 1,
+    cooldown_until: null,
+    task_failures: { "81": 1 },
+    skipped_issue_numbers: [],
+    last_error: "legacy failure",
+    updated_at: "2026-11-19T05:00:00.000Z",
+  };
+  const body = "Machine-managed scheduler state. <!-- agent-factory-state:" +
+    Buffer.from(JSON.stringify(legacy)).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const firstStore = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const secondStore = createFactoryStateStore(fake.client, { repository: "OWNER/REPO" });
+
+  const results = await Promise.all([firstStore.migrate(), secondStore.migrate()]);
+
+  assert.equal(results.every((result) => result.state.schema_version === 2), true);
+  assert.equal(results.every((result) => result.state.state_version === 1), true);
+  assert.equal(results.every((result) => result.migrated === true), true);
+  assert.equal(fake.issues.length, 1);
+  assert.equal((await firstStore.read()).migrated, false);
+  assert.equal((await secondStore.read()).state.tasks["81"].failures, 1);
+});
+
 test("uses a supplied state Issue number without scanning the full issue list", async () => {
   const body = "Machine-managed V2 factory state. <!-- agent-factory-state:" +
     Buffer.from(JSON.stringify(createInitialFactoryState())).toString("base64") + " -->";
