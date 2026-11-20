@@ -858,3 +858,154 @@ test("check mode persists legacy retry deadlines before later state writes can s
   assert.equal(second.state.tasks["94"].next_attempt_at, deadline);
   assert.equal(second.state.state_version, first.state.state_version);
 });
+
+test("task publication success is a non-mutating callback and cannot reset the global breaker", async () => {
+  const initial = awaitingCandidate();
+  initial.system = {
+    consecutive_failures: 2,
+    cooldown_until: new Date(120_000).toISOString(),
+    last_error_code: "RUNNER_UNAVAILABLE",
+    last_error: "Shared Runner is still unavailable.",
+    last_success_at: new Date(500).toISOString(),
+  };
+  initial.tasks["99"] = {
+    status: "quarantined",
+    attempts: 3,
+    failures: 3,
+    candidate_failures: 0,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: { code: "TASK_FAILURE", summary: "Independent task repeatedly failed.", at: new Date(1000).toISOString() },
+  };
+  const expectedSystem = structuredClone(initial.system);
+  const expectedTasks = structuredClone(initial.tasks);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+
+  const first = await controller.run({ AGENT_FACTORY_MODE: "success" });
+  const replay = await controller.run({ AGENT_FACTORY_MODE: "success" });
+
+  assert.equal(first.outputs.task_publication_success, true);
+  assert.equal(first.outputs.breaker_reset, false);
+  assert.equal(first.outputs.ignored, true);
+  assert.equal(first.state.state_version, initial.state_version);
+  assert.equal(replay.state.state_version, initial.state_version);
+  assert.deepEqual(first.state.system, expectedSystem);
+  assert.deepEqual(replay.state.system, expectedSystem);
+  assert.deepEqual(first.state.tasks, expectedTasks);
+  assert.deepEqual(replay.state.tasks, expectedTasks);
+});
+
+test("system-health success requires verified exact-head CI evidence and resets only global breaker fields", async () => {
+  const initial = awaitingCandidate();
+  initial.system = {
+    consecutive_failures: 2,
+    cooldown_until: new Date(120_000).toISOString(),
+    last_error_code: "RUNNER_UNAVAILABLE",
+    last_error: "Shared Runner is still unavailable.",
+    last_success_at: new Date(500).toISOString(),
+  };
+  initial.tasks["99"] = {
+    status: "quarantined",
+    attempts: 3,
+    failures: 3,
+    candidate_failures: 0,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: { code: "TASK_FAILURE", summary: "Independent task repeatedly failed.", at: new Date(1000).toISOString() },
+  };
+  const expectedTasks = structuredClone(initial.tasks);
+  const sha = "d".repeat(40);
+  const requests = [];
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        requests.push(path);
+        return {
+          id: 555009,
+          run_attempt: 2,
+          head_sha: sha,
+          status: "completed",
+          conclusion: "success",
+          path: ".github/workflows/ci.yml",
+          event: "pull_request",
+        };
+      },
+    },
+  });
+  const env = {
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555009",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "2",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  };
+
+  const first = await controller.run(env);
+  const replay = await controller.run(env);
+
+  assert.equal(first.outputs.breaker_reset, true);
+  assert.equal(first.outputs.duplicate, false);
+  assert.equal(first.outputs.cooldown_active, false);
+  assert.equal(first.state.system.consecutive_failures, 0);
+  assert.equal(first.state.system.cooldown_until, null);
+  assert.equal(first.state.system.last_error_code, null);
+  assert.equal(first.state.system.last_error, null);
+  assert.equal(first.state.system.last_success_at, new Date(3000).toISOString());
+  assert.deepEqual(first.state.tasks, expectedTasks);
+  assert.equal(replay.outputs.duplicate, true);
+  assert.equal(replay.outputs.breaker_reset, false);
+  assert.equal(replay.state.state_version, first.state.state_version);
+  assert.deepEqual(replay.state.tasks, expectedTasks);
+  assert.deepEqual(requests, [
+    "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/actions/runs/555009",
+  ]);
+});
+
+test("system-health success fails closed for missing or mismatched health evidence", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request() {
+        return {
+          id: 555010,
+          run_attempt: 1,
+          head_sha: "e".repeat(40),
+          status: "completed",
+          conclusion: "success",
+          path: ".github/workflows/ci.yml",
+          event: "pull_request",
+        };
+      },
+    },
+  });
+
+  await assert.rejects(
+    controller.run({ AGENT_FACTORY_MODE: "system-health-success" }),
+    /System health workflow run ID must be a positive integer/,
+  );
+  await assert.rejects(
+    controller.run({
+      AGENT_FACTORY_MODE: "system-health-success",
+      SYSTEM_HEALTH_RUN_ID: "555010",
+      SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_HEAD_SHA: "f".repeat(40),
+    }),
+    /exact-head CI pull_request run/,
+  );
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
+});
+
