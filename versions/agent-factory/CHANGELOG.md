@@ -1,3 +1,14 @@
+## 2.0.42 — 2026-11-20
+
+### Changed — Enable safe A-line synthetic Runner preflight
+- Allow owner pushes to `feat/agent-factory-v2` to execute the existing synthetic factory validation workflow.
+- Keep live task processing and publication excluded from push events; only the read-only validation job is eligible.
+- Add regression coverage for the trigger boundary and shared Runner serialization.
+
+### Verification
+- Previous exact head `17ca58d106c464e31ead51af7af041d55cc0e184` passed full CI run [#44721263122](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44721263122).
+- New exact-head CI and Windows synthetic preflight are required before this change is accepted.
+
 ## 2.0.41 — 2026-11-20
 
 ### Fixed — Align PostgreSQL integration policy guard with port-based container discovery

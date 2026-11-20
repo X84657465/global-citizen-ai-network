@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.33` · A 線 Agent Factory V2 `2.0.18`（Ollama 不完整串流重試與排程佇列隔離；新版本 exact-head CI 待驗證） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.70` · A 線 Agent Factory V2 `2.0.42`（A 線功能分支已加入安全的 synthetic Runner preflight 觸發；新 SHA 驗收中） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -26,7 +26,7 @@
 
 | 主線 | PR | 最新已查核 CI | 狀態 |
 |---|---:|---|---|
-| A｜Agent Factory V2 | [#134](https://github.com/X84657465/global-citizen-ai-network/pull/134) | [Run #44641219370](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44641219370) | 已加入可供 C/D 審查的精確 SHA 候選 CI 證據匯出；仍需 Runner soak 與人工驗收|
+| A｜Agent Factory V2 | [#134](https://github.com/X84657465/global-citizen-ai-network/pull/134) | [Run #44721263122](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44721263122) | 前一 exact SHA 完整 CI 通過；本次新增的 A 線 synthetic Runner preflight 觸發仍待驗收 |
 | B｜GCAN Product | [#137](https://github.com/X84657465/global-citizen-ai-network/pull/137) | [Run #44580554679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580554679) | 該提交 CI 通過 |
 | C｜Predictive Coding | [#139](https://github.com/X84657465/global-citizen-ai-network/pull/139) | [Run #44580087470](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580087470) | 該提交 CI 通過 |
 | D｜Deep Neural | [#140](https://github.com/X84657465/global-citizen-ai-network/pull/140) | [Run #44580264020](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580264020) | 該提交 CI 通過 |

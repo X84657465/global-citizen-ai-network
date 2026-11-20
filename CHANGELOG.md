@@ -1,3 +1,13 @@
+## 0.3.70 — 2026-11-20
+
+- Enable the Agent Factory V2 feature branch to run the synthetic Windows Runner preflight on owner pushes, including real local Ollama plan generation, bounded patch proposal, isolated candidate checks and publisher dry-run.
+- Add a policy regression proving that feature-branch pushes run only the read-only synthetic validation job; live task reservation, Issue mutation and PR publication remain excluded from push events.
+- Synchronize repository and Agent Factory numeric release metadata.
+
+### Verification
+- Previous exact head `17ca58d106c464e31ead51af7af041d55cc0e184` passed complete GitHub Actions CI run [#44721263122](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44721263122), including Windows Runner, real Ollama inference, Supabase migrations, PostgreSQL and RLS.
+- This trigger-policy change requires a fresh exact-head full CI and the newly enabled Windows synthetic factory preflight. No acceptance is claimed until both complete successfully.
+
 ## 0.3.68 — 2026-11-20
 
 - Resolve the isolated Supabase PostgreSQL container from its published database port instead of relying on version-dependent Compose names.

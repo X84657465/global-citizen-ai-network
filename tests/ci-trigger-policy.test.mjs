@@ -62,7 +62,7 @@ test("CI coalesces pending commits and serializes every job on the available Win
   assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 });
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
-  assert.equal(preflight.includes("      - feat/agent-factory-v2\n"), false, "full Windows preflight must not duplicate the active feature-branch CI run");
+  assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
   assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must remain runnable on the active development branch");
 
   const workflowHeader = preflight.slice(0, preflight.indexOf("\njobs:"));
@@ -71,6 +71,15 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   assert.equal(workflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false);
 
   const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\njobs:".length);
+  const validationStart = jobsSource.indexOf("  validation-tests:\n");
+  const prepareStart = jobsSource.indexOf("  prepare-task:\n");
+  const prepareNext = jobsSource.indexOf("\n  ", prepareStart + 4);
+  const validationSection = jobsSource.slice(validationStart, prepareStart);
+  const prepareSection = jobsSource.slice(prepareStart, prepareNext < 0 ? jobsSource.length : prepareNext);
+  assert.ok(validationSection.includes("if: github.event_name == 'push' && github.actor == github.repository_owner"));
+  assert.equal(prepareSection.includes("github.event_name == 'push'"), false,
+    "A-line push validation must never activate live task reservation or PR publication");
+
   const jobHeaders = [...jobsSource.matchAll(/^  ([A-Za-z0-9_-]+): *$/gm)];
   const requiredRunnerJobs = new Set(["validation-tests", "prepare-task"]);
   const verifiedRunnerJobs = new Set();
