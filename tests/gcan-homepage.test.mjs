@@ -140,7 +140,9 @@ test("workspace rejects malformed UUIDs, blank conversation titles, and invalid 
   assert.ok(workspaceClient.includes("function isUuid(value: unknown): value is string"));
   assert.ok(workspaceClient.includes("import { isValidTimestamp, isWorkspaceMessage }"));
   const timestampValidator = readFileSync(new URL("../lib/workspace/message-validation.ts", import.meta.url), "utf8");
-  assert.ok(timestampValidator.includes("T" + String.fromCharCode(92) + "d{2}:"));
+  assert.ok(timestampValidator.includes("export function isValidTimestamp"));
+  assert.ok(timestampValidator.includes("const daysInMonth"));
+  assert.ok(timestampValidator.includes("offsetHour > 14"));
   assert.ok(workspaceClient.includes("title.trim().length > 0"));
   assert.ok(workspaceClient.includes("isValidTimestamp((item as Conversation).updated_at)"));
   assert.ok(workspaceClient.includes("isUuid((item as Conversation).project_id)"));
