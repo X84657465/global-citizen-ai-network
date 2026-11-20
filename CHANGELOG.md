@@ -1,3 +1,9 @@
+## 0.3.87 — 2026-11-20
+
+- Integrate the GCAN public homepage, five-track architecture visuals and login entry on top of Agent Factory V2 without replacing the factory-owned Workspace client, API, validation or RLS contracts.
+- Route A and C workbenches to first-party `/factory` and `/predictive-coding` paths; keep D and E as explicitly isolated previews until their in-repository routes are available.
+- Preserve exact-head CI, human review and no-auto-merge safeguards; no production deployment or task completion is claimed.
+
 ## 0.3.86 — 2026-11-20
 
 - Include tests/agent-failure-scope.test.mjs in the Agent Factory preflight path filter so isolated changes to the task-failure regression suite still execute Windows factory validation.

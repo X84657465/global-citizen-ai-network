@@ -1,3 +1,13 @@
+## 0.1.13 — 2026-11-20
+
+### Integrated
+- Add the public GCAN homepage, five-track architecture visuals and login entry on the Agent Factory V2 integration base.
+- Route A and C workbenches to first-party application routes while preserving D and E as clearly labeled standalone previews until their routes are integrated.
+- Preserve the factory-owned Workspace recovery, message API, validation and owner-security implementation.
+
+### Verification
+- Exact-head integration CI and browser visual acceptance remain required; no production deployment is claimed.
+
 ## 0.1.12 — 2026-11-20
 
 ### Accessibility and readability
