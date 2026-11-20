@@ -1,3 +1,10 @@
+## 0.3.93 — 2026-11-21
+
+- Recover migrated Agent Factory V2 `retry_wait` tasks whose legacy records have no `next_attempt_at`, preferring task failure time and using one immutable state timestamp only when task history is absent.
+- Preserve bounded exponential backoff, explicit retry timestamps and quarantine; add multi-task same-pass and no-premature-requeue regression coverage.
+- Agent Factory V2 advances to 2.0.62; B remains unchanged at 0.1.13.
+- Exact-head full CI and controlled Windows factory validation remain required; no production state Issue edit or live task completion is claimed.
+
 ## 0.3.92 — 2026-11-21
 
 - Correct the 24-task Agent Factory lifecycle soak assertion: the deduplication ledger records candidate-start and candidate-result callbacks, not reserve/state-transition operations (48 unique callback events for 24 completed tasks).
