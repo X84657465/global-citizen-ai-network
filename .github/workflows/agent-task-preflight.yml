@@ -801,7 +801,6 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: failure
           FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
-          AGENT_FACTORY_LEASE_ID: ${{ env.AGENT_FACTORY_LEASE_ID }}
           FAILURE_STAGE: preflight
           FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number || inputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
