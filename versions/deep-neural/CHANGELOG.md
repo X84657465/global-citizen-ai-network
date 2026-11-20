@@ -1,3 +1,11 @@
+## 0.3.13 — 2026-11-20
+
+### Fixed
+- Preserve the existing explicit-type validation error for missing schema types while separately rejecting unsupported non-empty JSON Schema type names.
+
+### Verification
+- Existing missing-type regression and new unsupported-type regressions remain compatible; exact-head CI required.
+
 ## 0.3.12 — 2026-11-20
 
 ### Fixed
