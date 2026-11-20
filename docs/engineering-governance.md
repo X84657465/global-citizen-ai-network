@@ -1,9 +1,9 @@
-# A–H Workstream Engineering Governance
+# A–P Workstream Engineering Governance
 
-**Governance revision: 1.4.3**  
+**Governance revision: 1.4.4**  
 **Repository release baseline: 0.3.88**
 
-## 1. A–H workstream governance
+## 1. A–P workstream governance
 
 | Track | Scope | Primary responsibility |
 |---|---|---|
@@ -16,11 +16,11 @@
 | G — Release, QA & Integration | Integration quality | Compatibility checks, regression gates, exact-SHA release evidence and rollback readiness |
 | H — Observability, Telemetry & Cost/Quota Governance | Operations visibility | Queue/Runner telemetry, failure metrics, cost provenance, quota thresholds and safe-pause alerts |
 
-The governance and versioning model covers the full A–P architecture, with A–H as the currently prioritized operating workstreams. Each workstream owns its own branch, work items, independent version history, tests and acceptance evidence. A–H are defined as follows: A Agent Factory V2; B Global Citizen AI Network; C Predictive Coding; D Deep Neural; E Deep Research; F Cyber Security & Defense; G Release, QA & Integration; H Observability, Telemetry & Cost/Quota Governance. I–P remain separately defined roadmap workstreams in the manifest and architecture plan. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
+The governance and versioning model covers all A–P workstreams. A–H are currently prioritized operating workstreams; I–P are independently versioned planned workstreams. Every workstream owns its own branch, work items, independent version history, tests and acceptance evidence. A–H are defined as follows: A Agent Factory V2; B Global Citizen AI Network; C Predictive Coding; D Deep Neural; E Deep Research; F Cyber Security & Defense; G Release, QA & Integration; H Observability, Telemetry & Cost/Quota Governance. I–P remain separately defined roadmap workstreams in the manifest and architecture plan. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
 
-## 2. Independent A–H version and generation policy
+## 2. Independent A–P version and generation policy
 
-Every workstream A–H uses its own independent numeric `MAJOR.MINOR.PATCH` version. The canonical version is numeric only; do not put a literal `v` prefix or words such as alpha, beta or rc inside `VERSION`, package metadata or the manifest. The human-facing generation name is `v1`, `v2`, `v3`, and so on, represented by the MAJOR component (for example, generation `v3` is canonical version `3.0.0` or later `3.x.y`).
+Every workstream A–P uses its own independent numeric `MAJOR.MINOR.PATCH` version. The canonical version is numeric only; do not put a literal `v` prefix or words such as alpha, beta or rc inside `VERSION`, package metadata or the manifest. The human-facing generation name is `v1`, `v2`, `v3`, and so on, represented by the MAJOR component (for example, generation `v3` is canonical version `3.0.0` or later `3.x.y`).
 
 - **MAJOR / generation vN**: a major architectural reform, core capability redesign, reliability/security model overhaul, or breaking ownership/interface contract change. Increment MAJOR by exactly one and reset MINOR/PATCH to zero (for example `2.4.7 → 3.0.0`, entering generation `v3`).
 - **MINOR**: backward-compatible capability or subsystem addition; reset PATCH to zero.
@@ -28,13 +28,13 @@ Every workstream A–H uses its own independent numeric `MAJOR.MINOR.PATCH` vers
 
 Examples: `1.2.4 → 2.0.0`, `1.2.4 → 1.3.0`, `1.2.4 → 1.2.5`.
 
-Every A–H change, including a small patch, must update the affected track's version, that track's changelog, and `versions/manifest.json`. Cross-track changes must list every affected track and each old→new version; do not bump unaffected tracks. Update the overall integration version when shared behavior/contracts or repository-level governance changes. The authoritative values are in `VERSION` and `versions/manifest.json`. Git tags may use the `v` prefix with the exact numeric version (for example `v3.0.0`), but the canonical stored version remains `3.0.0`. Tags are created only after required checks and formal review.
+Every A–P change, including a small patch, must update the affected track's version, that track's changelog, and `versions/manifest.json`. Cross-track changes must list every affected track and each old→new version; do not bump unaffected tracks. Update the overall integration version when shared behavior/contracts or repository-level governance changes. The authoritative values are in `VERSION` and `versions/manifest.json`. Git tags may use the `v` prefix with the exact numeric version (for example `v3.0.0`), but the canonical stored version remains `3.0.0`. Tags are created only after required checks and formal review.
 
 A version bump is not evidence of completion. Acceptance requires exact commit SHA, tests, CI outcome, reviewer decision and rollback instructions.
 
 ## 3. Cross-track learning and support
 
-Tracks A–H exchange reusable knowledge through reviewed, versioned artifacts, with I–P joining as their roadmap work is activated:
+Tracks A–P exchange reusable knowledge through reviewed, versioned artifacts. Planned status limits implementation claims, not version ownership or the obligation to record changes.
 
 1. A publishes engineering patterns, test fixtures, failure classifications, recovery playbooks and verified automation capabilities.
 2. B contributes real product workflows, user-facing requirements, usability findings and operational constraints.
@@ -42,7 +42,7 @@ Tracks A–H exchange reusable knowledge through reviewed, versioned artifacts, 
 4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C/E.
 5. E (Deep Research) conducts multi-source research, checks source provenance and freshness, seeks corroboration and counter-evidence, and publishes cited findings and actionable recommendations to A/B/C/D.
 
-### A–H mutual-support loop
+### A–P mutual-support loop
 
 - **A → B/C/D:** verified automation, reproducible builds, test evidence, failure taxonomy and recovery playbooks.
 - **B → A/C/D:** real product workflows, user feedback, operational constraints, usage patterns and measurable outcomes.
@@ -111,4 +111,4 @@ Each change must identify the smallest safe rollback unit. Application changes s
 
 ## 9. Registered-track baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All A–H workstreams have explicit ownership boundaries and independent version histories. I–P remain planned roadmap tracks until their implementation and acceptance evidence are delivered. The overall integration baseline is tracked in `VERSION` and `versions/manifest.json`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All A–P workstreams have explicit ownership boundaries and independent version histories. I–P remain planned roadmap tracks until their implementation and acceptance evidence are delivered; planned status does not suspend their versioning rules. The overall integration baseline is tracked in `VERSION` and `versions/manifest.json`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
