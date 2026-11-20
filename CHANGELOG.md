@@ -1,3 +1,9 @@
+## 0.3.96 — 2026-11-21
+
+- Fix the first-time state-Issue test double to implement the durable store read contract required by Agent Factory controller construction; retain the no-Issue initialization and retry-clock regression.
+- Agent Factory V2 advances to 2.0.65; root, package, lockfile, manifest, homepage and track changelog are synchronized.
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
 ## 0.3.95 — 2026-11-21
 
 - Preserve the pre-initialization durable state timestamp when normalizing migrated retry_wait records; first-time state Issue creation must not shift legacy retry deadlines.
