@@ -1,3 +1,10 @@
+## 2.0.50 — 2026-11-20
+
+### Improved — Exact-head CI on A-line pushes
+- Trigger the full quality, build, Ollama and Supabase integration workflow for pushes to `feat/agent-factory-v2`.
+- Label CI runs with the exact candidate SHA so old and current evidence cannot be confused.
+- Keep CI validation distinct from Draft PR readiness; no completion is claimed until the exact current SHA passes all required jobs.
+
 ## 2.0.49 — 2026-11-20
 
 ### Harden — Preserve the original Supabase CLI exit code

@@ -1,4 +1,5 @@
 name: CI
+run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}
 # Keep one active run per PR/ref; GitHub coalesces pending runs. Never cancel an active state writer.
 
 concurrency:
@@ -7,7 +8,7 @@ concurrency:
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/agent-factory-v2]
   pull_request:
     branches: [main, feat/github-project-showcase]
     types: [opened, reopened, synchronize]

@@ -1,3 +1,10 @@
+## 0.3.78 — 2026-11-20
+
+- Run the full CI workflow on Agent Factory branch pushes, not only on main and pull-request lifecycle events, so every latest A-line head can receive exact-SHA quality, build, Ollama and Supabase validation.
+- Include the candidate execution SHA in CI run names to distinguish current-head evidence from stale runs.
+- Update release metadata atomically with the workflow and policy-test changes; do not expose partially synchronized version trees to CI.
+- No CI pass is claimed until the new exact-head run completes all required jobs.
+
 ## 0.3.77 — 2026-11-20
 
 - Extend the Supabase startup workflow regression guard to require the CLI exit code to be captured before the redaction process changes PowerShell's `$LASTEXITCODE`.
