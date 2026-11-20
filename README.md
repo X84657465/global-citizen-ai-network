@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.92` · A 線 Agent Factory V2 `2.0.57`（工廠失敗分類與完整觸發路徑回歸防護） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.93` · A 線 Agent Factory V2 `2.0.57`（工廠失敗分類與完整觸發路徑回歸防護） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -91,7 +91,7 @@ A–H 是目前優先推進的工作線；I–P 是已登錄、各自獨立版�
 - **GitHub 專案展示線：** [PR #139（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
 - **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
 - **第四線深度神經：** [PR #140（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/140) · [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
-- **第A–P 工作線深度研究：** [PR #141（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/141) · [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
+- **E｜Deep Research 深度研究工作線：** [PR #141（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/141) · [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
 - **A–P 工作線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
 - **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
@@ -419,11 +419,7 @@ http://localhost:3000
 
 ### GCAN A–P 工作線總覽
 
-<p align="center">
-  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN A–P 工作線架構圖" width="100%" />
-</p>
-
-各條工作線依責任邊界擁有獨立工作台或規劃範圍，透過來源追蹤、版本管理、測試與接收線審核互相協作。
+上方 A–P 職責表是目前完整的 16 線架構清單；舊版圖檔僅涵蓋部分工作線，因此不再以舊圖冒充完整架構。各線依責任邊界獨立版本化，透過來源追蹤、版本管理、測試與接收線審核互相協作。
 
 ### 影片導覽
 
@@ -432,9 +428,9 @@ http://localhost:3000
 - [影片分鏡與旁白稿](docs/media/gcan-introduction-storyboard.md)
 - [即時 CI 與開發紀錄](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-### A–P 工作線工作台與進度
+### A–E 工作台與 PR 進度（僅列目前有可查核入口的線別）
 
-> D、E 兩線以A–P 工作線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
+> D、E 兩線目前以 `feat/github-project-showcase` 作為暫時整合基底；此表只呈現目前可查核的 PR 入口，不代表 A–P 只有五條線。
 
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
@@ -448,13 +444,13 @@ http://localhost:3000
 
 ## 🧠 A–P 工作線協作與持續學習
 
-本專案採A–P 工作線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經（Deep Neural）、E 深度研究（Deep Research）。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
+本專案由 A–P 共 16 條工作線協作：A–B 負責自動化工廠與主產品；C–E 建立預測、推理及研究能力；F–H 提供資安、品質整合與可觀測性；I–P 擴展連接器、韌性、知識治理、多節點、合規、產品營運、生命週期及信任政策。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。任何線都不直接取得其他線的寫入權限，也不以模型信心取代測試。
 
 A–P 每條工作線都維持獨立版本與變更歷史；所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [A–P 工作線工程治理規範](docs/engineering-governance.md)。
 
 ## 🔄 A–P 工作線互輔互成｜Predict → Learn → Build → Validate
 
-A–P 工作線不是五個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
+A–P 是 16 條各有責任邊界的工作線，不是五個互不相干的專案；各線透過明確介面提供輸入、回饋與驗證：
 
 | 線別 | 核心責任 | 支援其他線的方式 |
 |---|---|---|
@@ -463,6 +459,17 @@ A–P 工作線不是五個互不相干的專案，而是彼此提供輸入、�
 | C｜預測編碼（Predictive Coding） | 預測、觀測、預測誤差、校準與模型更新 | 提供可量測的預測誤差、漂移訊號與改進依據 |
 | D｜深度神經（Deep Neural） | 記憶、推理、知識整合與評估 | 將跨線證據整理為可追溯知識、推理策略及評估建議 |
 | E｜深度研究（Deep Research） | 多來源研究、來源查核、反證與引用報告 | 提供可追溯的研究證據、方法、來源可信度與可執行建議 |
+| F｜Cyber Security & Defense | 跨線資安與防禦 | 提供威脅模型、安全基線、對抗測試與事件應變控制 |
+| G｜Release, QA & Integration | 發布、品質與整合 | 提供相容性矩陣、回歸門檻、發布證據與回滾驗證 |
+| H｜Observability & Cost/Quota Governance | 可觀測性與資源治理 | 提供 Runner/佇列遙測、失敗指標、成本歸因與配額告警 |
+| I｜Ecosystem & Connectors | 生態連接與流程自動化 | 提供外部 API、Webhook、通知與安全事件同步 |
+| J｜Self-Healing & Continuity | 自我修復與持續性 | 提供有界復原、熔斷、降級、備份還原與故障注入 |
+| K｜Knowledge Base & Docs | 知識庫與治理手冊 | 提供架構紀錄、操作手冊、交接模板與故障排除知識 |
+| L｜Multi-Node Federation | 多節點與聯邦協調 | 規劃節點身分、能力排程、租約與跨節點協調 |
+| M｜Compliance & Risk Governance | 合規與風險治理 | 提供操作稽核、政策證據、風險清單與例外管理 |
+| N｜Productization & Growth | 產品化與生態成長 | 提供隱私友善產品指標、採用分析、回饋與營運 |
+| O｜Lifecycle & Deprecation | 生命週期與舊系統退場 | 管理淘汰、遷移期限、相容性契約與舊系統退場 |
+| P｜Governance, Ethics & Trust | 治理、倫理與信任 | 定義自主等級、人類核准門檻、信任原則與政策演進 |
 
 共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋A–P 工作線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
 
