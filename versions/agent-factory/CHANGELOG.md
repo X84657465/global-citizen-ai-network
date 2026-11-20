@@ -1,4 +1,13 @@
-## 2.0.15 — 2026-11-20
+## 2.0.16 — 2026-11-20
+
+### Reliability
+- Add a regression test for V1-to-V2 migration through the configured state-Issue ID used by the production workflow.
+- Verify migration updates the existing state Issue in place, preserves failure/quarantine history, and does not create a duplicate Issue.
+
+### Verification
+- Exact-head Windows Runner CI and a real controller migration remain required; the test fixture is synthetic and does not mutate production Issue #100.
+
+
 
 ### Reliability
 - Isolate five-minute scheduled pollers from issue, repository-dispatch and manual task triggers at workflow concurrency level.
