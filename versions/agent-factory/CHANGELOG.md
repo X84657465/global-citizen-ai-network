@@ -1,3 +1,7 @@
+## 2.0.24 — 2026-11-20
+
+- Corrected the exact-SHA concurrency policy test's escaped-expression matcher; no workflow behavior changed.
+
 ## 2.0.23 — 2026-11-20
 
 - Added exact-SHA CI failure diagnostics, failed-step extraction, failure-domain classification, queue diagnosis and redacted evidence artifacts.

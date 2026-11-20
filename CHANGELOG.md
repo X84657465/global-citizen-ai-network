@@ -1,3 +1,7 @@
+## 0.3.51 — 2026-11-20
+
+- Corrected the exact-SHA concurrency regression assertion to match the literal GitHub Actions expression without requiring a backslash in the workflow source.
+
 ## 0.3.50 — 2026-11-20
 
 - Added exact-head SHA fencing to CI concurrency groups so stale queued commits cannot block current-head validation.
