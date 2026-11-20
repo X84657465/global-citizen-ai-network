@@ -51,3 +51,12 @@
 ### Verification boundary
 - Source URLs are validated, not fetched or authenticated. No automatic knowledge persistence, vector embedding or adoption is enabled.
 - Exact-head CI and independent review are required.
+
+
+## 0.3.1 — 2026-11-20
+
+### Fixed
+- Register the new Track E source-provenance validator in the contract test module import list so the added compatibility cases execute rather than fail at test setup.
+
+### Verification
+- Exact-head CI remains required.

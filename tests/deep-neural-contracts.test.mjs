@@ -7,6 +7,7 @@ import {
   validateCapabilityManifest,
   validateLearningProposal,
   validateEvaluationResult,
+  validateResearchSourceRecord,
 } from "../lib/deep-neural-contracts.mjs";
 
 const sha = "a".repeat(40);

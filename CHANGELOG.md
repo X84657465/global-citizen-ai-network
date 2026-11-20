@@ -141,3 +141,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Add source compatibility and adversarial-input tests. Exact-head CI is required; no live page retrieval or automatic memory ingestion is implied.
+
+
+## 0.3.6 — 2026-11-20
+
+### Fixed
+- Correct the Deep Neural Track E compatibility test import and synchronize D to 0.3.1 / overall integration to 0.3.6.
+
+### Verification
+- Exact-head CI required; no automatic research ingestion or production memory changes are enabled.
