@@ -1,7 +1,7 @@
 # F — Cyber Security & Defense
 
-**Track version:** 0.1.0  
-**Status:** foundation / implementation candidate  
+**Track version:** 0.1.1  
+**Status:** foundation with first runtime hardening control; broader controls remain implementation candidates  
 **Owner:** dedicated security workstream; product and platform owners retain responsibility for fixes in their code.
 
 ## Mission
@@ -71,7 +71,7 @@ Targets below are internal response objectives, not guarantees. Start the clock 
 
 ## Current maturity and explicit limitations
 
-This charter creates the F workstream and governance baseline. It does **not** certify GCAN as secure, prove that all listed controls are implemented, or authorize production penetration testing. Existing baseline security headers and dependency-audit steps are only partial controls. Each control must be mapped to implementation and tested evidence before it can be marked implemented.
+This charter creates the F workstream and governance baseline. It does **not** certify GCAN as secure, prove that all listed controls are implemented, or authorize production penetration testing. The existing baseline headers now include HSTS (`max-age=31536000`) in addition to MIME, clickjacking, referrer and browser-capability protections; the application CI also runs dependency audits. These are only partial controls. Each control must be mapped to implementation and tested evidence before it can be marked implemented.
 
 ## Working documents
 
