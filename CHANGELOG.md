@@ -1,3 +1,9 @@
+## 0.3.61 — 2026-11-20
+
+- Align the Predictive Coding ECE malformed-options regression assertion with the stricter plain-object validation error emitted by the implementation.
+- Synchronize root package, lockfile, manifest, and Predictive Coding track version metadata.
+- This is a test-contract correction; the ECE validation behavior is unchanged.
+
 ## 0.3.60 — 2026-11-20
 
 - Preserve synthetic and real Agent Factory offline-test stdout/stderr as separate CI artifacts, including when container tests fail.

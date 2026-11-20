@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.60",
+  "overall": "0.3.61",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -14,7 +14,7 @@
     },
     "C": {
       "name": "Predictive Coding（預測編碼）",
-      "version": "0.3.8",
+      "version": "0.3.9",
       "status": "implementation-candidate",
       "responsibility": "Prediction, observation, prediction-error measurement, uncertainty calibration and evidence-based model updates."
     },

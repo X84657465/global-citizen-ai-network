@@ -1,3 +1,12 @@
+## 0.3.9 — 2026-11-20
+
+### Verification contract correction
+- Align the malformed ECE options test with the implementation's explicit plain-object validation message.
+- No prediction metric behavior or input acceptance policy changed.
+
+### Verification
+- Full exact-head Agent Factory CI remains required before acceptance.
+
 ## 0.3.8 — 2026-11-20
 
 ### Contract hardening
