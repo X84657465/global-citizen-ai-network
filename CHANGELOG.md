@@ -1,3 +1,9 @@
+## 0.3.95 — 2026-11-21
+
+- Preserve the pre-initialization durable state timestamp when normalizing migrated retry_wait records; first-time state Issue creation must not shift legacy retry deadlines.
+- Agent Factory V2 advances to 2.0.64; root, package, lockfile, manifest, homepage and track changelog are synchronized.
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
 ## 0.3.94 — 2026-11-21
 
 - Persist legacy Agent Factory retry deadlines once, preventing unrelated state writes from shifting retry eligibility between check cycles.
