@@ -1,3 +1,11 @@
+## 0.3.82 — 2026-11-20
+
+- Fix an Agent Factory throughput blocker: large approved source files could exhaust the calculated Ollama output-token budget and be rejected before scratch testing.
+- Raise the bounded per-file generation budget to a 16,384-token floor and 24,576-token ceiling, scaled to source bytes; keep the shared timeout, one-file batches, strict manifest validation and no-truncation acceptance.
+- Add deterministic unit coverage for budget scaling, cap and invalid inputs.
+- No database schema, production data, dependency or deployment changes.
+- Exact-head full CI and Windows synthetic preflight are required; no completion is claimed until both pass.
+
 ## 0.3.81 — 2026-11-20
 
 - Correct the stale README root/A release labels and engineering-governance baseline so public release metadata matches the authoritative VERSION files and manifest.

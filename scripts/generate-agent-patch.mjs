@@ -12,7 +12,7 @@ import { resolve, sep } from "node:path";
 import { resolveSafeExistingParent } from "../lib/agent-path-safety.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStreamWithRetry } from "../lib/ollama-generate-stream.mjs";
-import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
+import { calculatePatchOutputTokenBudget, selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 
 const fail = (message, scope = "system") => {
   if (scope === "task" && process.env.GITHUB_ENV) {
@@ -198,7 +198,7 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
   const batchSourceFiles = selectPatchBatchSourceFiles(fileContext, batchPaths);
   const batchSourceBytes = batchSourceFiles
     .reduce((total, file) => total + (file.content === null ? 0 : Buffer.byteLength(file.content, "utf8")), 0);
-  const outputTokenBudget = Math.min(16384, Math.max(8192, Math.ceil(batchSourceBytes / 1.5)));
+  const outputTokenBudget = calculatePatchOutputTokenBudget(batchSourceBytes);
   const remainingMs = timeoutMs - (Date.now() - generationStartedAt);
   if (remainingMs < 10000) {
     fail("The total Ollama patch-generation time budget expired before batch " + (batchIndex + 1) + ".");

@@ -1,3 +1,11 @@
+## 2.0.53 — 2026-11-20
+
+### Fixed — Prevent premature truncation of larger task patches
+- Scale the Ollama patch-generation output budget to the approved source file size, with a 16,384-token floor and a 24,576-token ceiling.
+- Preserve one-file batches, shared timeout, strict JSON/path validation and rejection of any response ending at the token limit.
+- Add unit coverage for minimum, scaled and capped budgets.
+- No database schema or production data changes. Exact-head CI and Windows preflight remain mandatory.
+
 ## 2.0.52 — 2026-11-20
 
 ### Fixed — Enforce release-label consistency
