@@ -1,3 +1,10 @@
+## 0.3.101 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.70: new-file generation now uses the validated plan output allowance instead of a 16,384-token floor for empty source files.
+- Add-file proposals are constrained by the plan's UTF-8 byte budget; existing-file replacements retain source-scaled token budgets and truncation rejection.
+- Add regression coverage for bounded output-token budgets. No database, RLS, dependency or production-data changes.
+- Exact-head full CI, Windows Runner/local Ollama, and independent formal review remain required.
+
 ## 0.3.100 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.69: system-health recovery now requires exact same-repository PR evidence targeting main, in addition to completed successful exact-head CI, run ID and attempt.
