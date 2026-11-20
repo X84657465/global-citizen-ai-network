@@ -1,5 +1,16 @@
 # GCAN Product changelog
 
+## 0.1.7 — 2026-11-20
+
+### Improved
+- Increase small homepage text sizes and establish readable mobile typography floors across hero, navigation, cards, governance and documentation copy.
+
+### Tests
+- Add CSS regression checks for desktop and mobile typography sizing.
+
+### Verification
+- Exact-head CI required before acceptance.
+
 ## 0.1.6 — 2026-11-20
 
 ### Fixed
