@@ -42,3 +42,11 @@
 ### Verification boundary
 - Homepage and linked workbenches remain development candidates; Vercel preview links do not imply production availability.
 - Exact-head CI is required before acceptance. No production database schema, payment flow or account permission change is included.
+
+
+## 0.1.4
+
+- Run full CI on the explicit A-E development-branch push allowlist.
+- Keep push execution restricted to repository-owner events and verify the five workstream branches in the CI policy test.
+
+Verification: exact-head CI and database/RLS validation required; no merge or deployment implied.

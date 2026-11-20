@@ -157,3 +157,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Exact-head CI is required; this commit does not imply a production release or deployment.
+
+
+## 0.3.7
+
+- Run full CI on all explicitly controlled A-E feature branch pushes, not only on main or PR lifecycle events.
+- Retain repository-owner push gating and the five-workstream branch allowlist.
+- Synchronize GCAN Product to 0.1.4 and repository metadata to 0.3.7.
+
+Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or deployment implied.
