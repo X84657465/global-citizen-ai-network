@@ -245,3 +245,26 @@ test("rejects impossible ISO-8601 dates and timezone offsets beyond ±14:00", ()
     assert.throws(() => validateKnowledgeArtifact(knowledge({ created_at })), /timezone-qualified ISO-8601/);
   }
 });
+
+test("capability schemas must be plain data-only objects", () => {
+  const base = {
+    capability_id: "memory.write", version: "1.0.0",
+    input_schema: { type: "object" }, output_schema: { type: "object" },
+    permissions: ["memory:write"], risk_class: "high", tests: ["contract"],
+  };
+  class SchemaLike { constructor() { this.type = "object"; } }
+  assert.throws(() => validateCapabilityManifest({ ...base, input_schema: new SchemaLike() }), /plain JSON Schema object/);
+  assert.throws(() => validateCapabilityManifest({ ...base, output_schema: Object.create({ type: "object" }) }), /plain JSON Schema object/);
+  assert.throws(() => validateCapabilityManifest({ ...base, input_schema: { type: "object", [Symbol("hidden")]: true } }), /symbol keys/);
+
+  let getterCalls = 0;
+  const accessorSchema = {};
+  Object.defineProperty(accessorSchema, "type", { enumerable: true, get() { getterCalls += 1; return "object"; } });
+  assert.throws(() => validateCapabilityManifest({ ...base, input_schema: accessorSchema }), /accessor properties/);
+  assert.equal(getterCalls, 0);
+
+  const typeGetter = {};
+  Object.defineProperty(typeGetter, "type", { enumerable: true, get() { getterCalls += 1; return "object"; } });
+  assert.throws(() => validateCapabilityManifest({ ...base, output_schema: typeGetter }), /accessor properties/);
+  assert.equal(getterCalls, 0);
+});
