@@ -150,3 +150,13 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 - Synchronize Predictive Coding to 0.3.1 and repository metadata to 0.3.6.
 
 Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or deployment implied.
+
+
+## 0.3.7 — 2026-11-20
+
+### Fixed
+- Align CI push policy regression coverage with the exact five-branch allowlist without a duplicate `main` entry.
+- Synchronize Predictive Coding to 0.3.2 and repository metadata to 0.3.7.
+
+### Verification
+- Exact-head CI required; no merge or deployment is implied.
