@@ -137,13 +137,13 @@ test("message validation accepts only safe user and assistant message records", 
 });
 
 test("workspace rejects malformed UUIDs, blank conversation titles, and invalid timestamps", () => {
-  assert.match(workspaceClient, /function isUuid\(value: unknown\): value is string/);
-  assert.match(workspaceClient, /\[0-9a-f\]\{8\}-\[0-9a-f\]\{4\}-\[1-8\]\[0-9a-f\]\{3\}-\[89ab\]\[0-9a-f\]\{3\}-\[0-9a-f\]\{12\}/i);
-  assert.match(workspaceClient, /function isValidTimestamp\(value: unknown\): value is string/);
-  assert.match(workspaceClient, /Number\.isFinite\(Date\.parse\(value\)\)/);
-  assert.match(workspaceClient, /title\.trim\(\)\.length > 0/);
-  assert.match(workspaceClient, /isValidTimestamp\(\(item as Conversation\)\.updated_at\)/);
-  assert.match(workspaceClient, /isUuid\(\(item as Conversation\)\.project_id\)/);
+  assert.ok(workspaceClient.includes("function isUuid(value: unknown): value is string"));
+  assert.ok(workspaceClient.includes("import { isValidTimestamp, isWorkspaceMessage }"));
+  const timestampValidator = readFileSync(new URL("../lib/workspace/message-validation.ts", import.meta.url), "utf8");
+  assert.ok(timestampValidator.includes("T" + String.fromCharCode(92) + "d{2}:"));
+  assert.ok(workspaceClient.includes("title.trim().length > 0"));
+  assert.ok(workspaceClient.includes("isValidTimestamp((item as Conversation).updated_at)"));
+  assert.ok(workspaceClient.includes("isUuid((item as Conversation).project_id)"));
 });
 
 

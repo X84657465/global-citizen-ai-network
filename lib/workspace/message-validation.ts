@@ -12,7 +12,7 @@ function isUuid(value: unknown): value is string {
 
 export function isValidTimestamp(value: unknown): value is string {
   if (typeof value !== "string") return false;
-  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,9}))?(Z|([+-])(\\d{2}):(\\d{2}))$/.exec(value);
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,9}))?(Z|([+-])(\d{2}):(\d{2}))$/.exec(value);
   if (!match) return false;
 
   const [, yearText, monthText, dayText, hourText, minuteText, secondText, , zone, , offsetHourText, offsetMinuteText] = match;
@@ -35,7 +35,7 @@ export function isValidTimestamp(value: unknown): value is string {
     (offsetHour === 14 && offsetMinute !== 0)
   ) return false;
 
-  return zone === "Z" || Number.isFinite(Date.parse(value));
+  return Number.isFinite(Date.parse(value));
 }
 
 export function isWorkspaceMessage(value: unknown): value is WorkspaceMessage {

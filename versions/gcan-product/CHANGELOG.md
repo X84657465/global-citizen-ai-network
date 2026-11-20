@@ -1,5 +1,13 @@
 # GCAN Product Changelog
 
+## 0.1.9 — 2026-11-20
+
+### Fixed
+- Correct timestamp-validator regex escaping and validate every accepted timezone-qualified timestamp through the runtime date parser.
+
+### Verification
+- Exact-head CI required.
+
 ## 0.1.8 — 2026-11-20
 
 ### Security

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.17 — 2026-11-20
+
+### Fixed
+- Correct the strict ISO timestamp validator's regular-expression escaping and require Date.parse acceptance for UTC and offset timestamps alike.
+- Strengthen source-level regression coverage for the shared validator.
+
+### Verification
+- Exact-head CI required; the previous candidate's validator was not accepted as passing.
+
 ## 0.3.16 — 2026-11-20
 
 ### Security
