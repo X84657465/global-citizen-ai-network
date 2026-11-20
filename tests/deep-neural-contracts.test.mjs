@@ -75,6 +75,24 @@ test("validates least-privilege capability manifests", () => {
   assert.deepEqual(result.permissions, ["knowledge:read"]);
 });
 
+test("rejects unsupported JSON Schema type names in capability manifests", () => {
+  const base = {
+    capability_id: "memory.lookup", version: "1.0.0",
+    input_schema: { type: "object" }, output_schema: { type: "string" },
+    permissions: ["knowledge:read"], risk_class: "low", tests: ["tests/deep-neural-contracts.test.mjs"],
+  };
+  for (const invalidType of ["function", "constructor", "undefined", ""]) {
+    assert.throws(
+      () => validateCapabilityManifest({ ...base, input_schema: { type: invalidType } }),
+      /supported JSON Schema type/,
+    );
+    assert.throws(
+      () => validateCapabilityManifest({ ...base, output_schema: { type: invalidType } }),
+      /supported JSON Schema type/,
+    );
+  }
+});
+
 test("rejects capability manifests without schemas, permissions shape or tests", () => {
   const base = { capability_id: "memory.write", version: "1.0.0", input_schema: {}, output_schema: { type: "object" }, permissions: ["memory:write"], risk_class: "high", tests: ["test"] };
   assert.throws(() => validateCapabilityManifest(base), /explicit type/);
