@@ -122,3 +122,16 @@ The initial metrics module provides three pure calculations:
 - `calculateBrierScore(probabilities, outcomes)`: computes mean squared probability error for binary outcomes. Probabilities must be within [0, 1] and outcomes must be 0 or 1.
 
 Missing observations are not converted to zero and are not scored. Invalid, non-finite or structurally mismatched values fail explicitly. These are deterministic building blocks only: they do not ingest telemetry, train a model or trigger operational decisions.
+
+## 9. Expected Calibration Error (ECE) — 0.3.0
+
+Track C now includes a deterministic binary-forecast ECE calculation:
+
+`ECE = Σᵦ (nᵦ / N) × | mean(confidenceᵦ) − observed_frequencyᵦ |`
+
+- Inputs must be equally sized, non-empty arrays of finite probabilities in [0, 1] and binary outcomes (0 or 1).
+- The configurable bin count defaults to 10 and is bounded to 2–100. A probability of exactly 1 is assigned to the final bin.
+- Empty bins contribute zero. Each non-empty bin is weighted by its share of the full sample.
+- ECE is sensitive to bin count, sample size and distribution. It is a calibration diagnostic, not a standalone measure of discrimination, accuracy or model reliability.
+- Missing outcomes must remain missing; they must not be converted to zero. Only verified, observed binary outcomes belong in this calculation.
+- The dashboard uses a tiny synthetic dataset to demonstrate the formula and labels it as demo data. It is not connected to CI telemetry or live forecasts.

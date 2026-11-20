@@ -65,3 +65,16 @@
 
 ### Verification
 - The deterministic metric implementation is unchanged; exact-head CI must pass the corrected regression suite before acceptance.
+
+
+## 0.3.0 — 2026-11-20
+
+### Added
+- Implement Expected Calibration Error (ECE) for binary probability forecasts with configurable, bounded bins.
+- Handle the p=1 boundary in the final bin and weight per-bin calibration gaps by sample share.
+- Reject non-finite values, mismatched/empty arrays, out-of-range probabilities, non-binary outcomes and invalid bin counts.
+- Replace the dashboard's hardcoded 0.91 calibration number with an explicitly labeled synthetic ECE calculation.
+
+### Verification boundary
+- ECE is a diagnostic that depends on binning and sample size; no live telemetry, predictive training or production decision automation is connected.
+- Exact-head CI is required before acceptance.

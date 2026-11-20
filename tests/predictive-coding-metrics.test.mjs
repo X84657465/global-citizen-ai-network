@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateBrierScore, calculateMeanAbsoluteError, calculatePredictionError } from "../lib/predictive-coding-metrics.mjs";
+import { calculateBrierScore, calculateExpectedCalibrationError, calculateMeanAbsoluteError, calculatePredictionError } from "../lib/predictive-coding-metrics.mjs";
 
 test("uses observed minus predicted as the signed residual", () => {
   assert.deepEqual(calculatePredictionError(92, 88), { signed: -4, absolute: 4 });
@@ -29,4 +29,24 @@ test("rejects probabilities outside zero to one and non-binary outcomes", () => 
   assert.throws(() => calculateBrierScore([1.01], [1]), /between 0 and 1/);
   assert.throws(() => calculateBrierScore([0.5], [0.5]), /0 or 1/);
   assert.throws(() => calculateBrierScore([], []), /non-empty arrays/);
+});
+
+test("calculates weighted Expected Calibration Error across probability bins", () => {
+  // Low-confidence group: mean probability 0.25, observed frequency 0.00.
+  // High-confidence group: mean probability 0.85, observed frequency 1.00.
+  assert.equal(calculateExpectedCalibrationError([0.2, 0.3, 0.8, 0.9], [0, 0, 1, 1], { bins: 2 }), 0.2);
+});
+test("handles the exact-one probability boundary in the final calibration bin", () => {
+  assert.equal(calculateExpectedCalibrationError([1, 1, 0, 0], [1, 1, 0, 0], { bins: 2 }), 0);
+  assert.equal(calculateExpectedCalibrationError([0, 0, 1, 1], [0, 0, 1, 1], { bins: 10 }), 0);
+});
+test("rejects malformed ECE arrays, probabilities, outcomes and bin counts", () => {
+  assert.throws(() => calculateExpectedCalibrationError([], [], { bins: 10 }), /non-empty arrays/);
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0, 1]), /equally sized/);
+  assert.throws(() => calculateExpectedCalibrationError([-0.1], [0]), /between 0 and 1/);
+  assert.throws(() => calculateExpectedCalibrationError([1.1], [1]), /between 0 and 1/);
+  assert.throws(() => calculateExpectedCalibrationError([0.5], [0.5]), /0 or 1/);
+  for (const bins of [1, 101, 2.5, NaN, "10"]) {
+    assert.throws(() => calculateExpectedCalibrationError([0.5], [1], { bins }), /bins must be an integer/);
+  }
 });

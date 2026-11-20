@@ -130,3 +130,14 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - New exact-head CI required.
+
+
+## 0.3.5 — 2026-11-20
+
+### Added
+- Add an Expected Calibration Error metric to Predictive Coding and make its binning and boundary semantics explicit.
+- Synchronize Track C to 0.3.0 and the repository integration version to 0.3.5.
+
+### Verification
+- Add unit coverage for weighted-bin calculation, perfect calibration, p=1 boundary handling and invalid input rejection.
+- Exact-head CI is required; dashboard figures remain synthetic and no production telemetry is claimed.

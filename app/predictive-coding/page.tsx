@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { calculatePredictionError } from "../../lib/predictive-coding-metrics.mjs";
+import { calculateExpectedCalibrationError, calculatePredictionError } from "../../lib/predictive-coding-metrics.mjs";
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BrainCircuit, Crosshair, Gauge, LineChart, ShieldCheck, Target } from "lucide-react";
 import styles from "./predictive.module.css";
 
@@ -9,6 +9,8 @@ const predictions = [
   { id: "P-2026-043", target: "回歸測試通過率", predicted: 98, observed: null, displayUnit: "%", errorUnit: "pp", state: "等待觀測" },
 ];
 const firstObservedError = calculatePredictionError(predictions[0].predicted, predictions[0].observed);
+// Synthetic probability/outcome pairs used only to demonstrate the ECE formula.
+const demoCalibrationError = calculateExpectedCalibrationError([0.2, 0.3, 0.8, 0.9], [0, 0, 1, 1], { bins: 2 });
 function formatPredictionError(prediction: (typeof predictions)[number]) {
   if (prediction.observed === null) return "待計算";
   const error = calculatePredictionError(prediction.predicted, prediction.observed);
@@ -24,7 +26,7 @@ export default function PredictiveCodingPage() {
   <section className={styles.metrics}>
    <article><span><Target/> 已登錄預測</span><b>43</b><small>版本化預測紀錄</small></article>
    <article><span><Gauge/> 單筆絕對誤差</span><b>{firstObservedError.absolute} pp</b><small>CI 成功率示範目標 · percentage points</small></article>
-   <article><span><Activity/> 校準狀態</span><b>0.91</b><small>示範校準分數</small></article>
+   <article><span><Activity/> 校準狀態</span><b>{demoCalibrationError.toFixed(2)}</b><small>示範 ECE · 越低越好，非正式遙測</small></article>
    <article><span><AlertTriangle/> 漂移警示</span><b>02</b><small className={styles.warning}>需要人工調查</small></article>
   </section>
   <section className={styles.columns}>
