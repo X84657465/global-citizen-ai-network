@@ -1,3 +1,12 @@
+## 0.3.32 — 2026-11-20
+
+### Changed
+- Improve homepage supporting-copy and metadata readability across desktop and mobile.
+- Add regression coverage for typography minimums and synchronize B track version 0.1.12.
+
+### Verification
+- Exact-head CI and browser visual validation remain required.
+
 ## 0.3.31 — 2026-11-20
 
 ### Changed
