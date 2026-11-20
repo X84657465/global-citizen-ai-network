@@ -1,3 +1,15 @@
+## 0.3.28 — 2026-11-20
+
+### Fixed
+- Reject duplicate numeric research project IDs, including aliases with different zero-padding such as DR-024 and DR-0024.
+- Prevent corrupted or ambiguous existing ID collections from silently producing new project identifiers.
+
+### Tests
+- Cover exact duplicates and equivalent numeric IDs with different padding widths.
+
+### Verification
+- Exact-head Windows Runner CI remains required; no runtime or database persistence is claimed.
+
 ## 0.3.27 — 2026-11-20
 
 ### Fixed
