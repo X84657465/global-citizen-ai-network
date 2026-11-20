@@ -1,3 +1,9 @@
+## 0.3.96 — 2026-11-21
+
+- Harden Agent Factory task preflight so four-space/tab-indented code examples cannot be interpreted as Allowed paths, Acceptance criteria or Explicit exclusions.
+- Add regression coverage for indented code-block directives; Agent Factory V2 advances to 2.0.65, B remains 0.1.13.
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; no dispatch acceptance is claimed until all required checks pass.
+
 ## 0.3.95 — 2026-11-21
 
 - Harden Agent Factory dependency extraction against four-space and tab-indented Markdown code blocks.
