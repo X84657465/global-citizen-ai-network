@@ -138,6 +138,17 @@ test("dependency extraction ignores mismatched and undersized closing fences", (
   assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75]);
 });
 
+test("invalid backtick fence info strings cannot hide subsequent dependencies", () => {
+  const body = [
+    "## Dependencies",
+    "```invalid`info",
+    "- #74 must remain visible to the dependency gate",
+    "## Acceptance criteria",
+    "- #12 unrelated reference",
+  ].join("\n");
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74]);
+});
+
 test("dependency resolution fails closed for open, missing, and non-completed closed issues", () => {
   const body = "## Dependencies\n- #74\n- #75\n- #81";
   const dependencies = new Map([
