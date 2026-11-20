@@ -1,7 +1,7 @@
 # GCAN A–P Engineering Workstream Architecture
 
-**Architecture revision:** 1.0.2  
-**Planning baseline:** repository release 0.3.50  
+**Architecture revision:** 1.0.3  
+**Planning baseline:** repository release 0.3.51  
 **Scope:** A–P workstream ownership, dependencies, implementation stages and acceptance evidence.
 
 > Status is deliberately explicit: A–E are the existing product/engineering tracks; F provides cross-track security assurance; G and H are implementation candidates pending exact-head CI and formal review; I–P remain planned workstreams. This document does not claim that a planned track has shipped or is operational.
