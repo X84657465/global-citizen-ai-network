@@ -1,3 +1,11 @@
+## 0.1.11 — 2026-11-20
+
+### Fixed
+- Restore the Windows Supabase test port allocator to the non-default dynamic range and add a regression guard against reverting to 55000–63999.
+
+### Verification
+- Exact-head CI must pass the workflow policy test, PostgreSQL migrations and RLS suite.
+
 # Deep Research changelog
 
 ## 0.1.10 — 2026-11-20

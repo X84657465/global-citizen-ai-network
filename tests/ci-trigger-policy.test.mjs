@@ -17,6 +17,11 @@ test("CI coalesces pending runs per pull request instead of queueing every super
   assert.equal(workflow.includes("queue: max"), false);
 });
 
+test("Windows Supabase CI allocates ports outside the default dynamic TCP range", () => {
+  assert.ok(workflow.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)"));
+  assert.equal(workflow.includes("$candidate = 55000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 9000)"), false);
+});
+
 test("CI never auto-approves or merges AI task pull requests; human approval is required", () => {
   assert.equal(workflow.includes("  auto-merge-ai-task:"), false);
   assert.equal(workflow.includes("markPullRequestReadyForReview"), false);

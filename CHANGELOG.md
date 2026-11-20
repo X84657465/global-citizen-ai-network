@@ -1,3 +1,16 @@
+## 0.3.27 — 2026-11-20
+
+### Fixed
+- Restore the Windows Supabase CI port allocator to the verified 20000–39999 base-port range and reinstate a regression test that rejects the 55000–63999 allocator.
+- Synchronize the five-track release manifest with current A–D track versions and Deep Research 0.1.11.
+
+### Verification
+- Static workflow and regression-test source updated; exact-head Windows Runner CI is required before acceptance.
+- No production database, deployment, or paid service was changed.
+
+### Rollback
+- Revert this exact commit; the change affects CI test port allocation and release metadata only.
+
 # Changelog
 
 ## 0.3.22 — 2026-11-20
