@@ -82,3 +82,19 @@ test("rejects sparse prediction and observation arrays instead of silently skipp
   assert.throws(() => calculateBrierScore(denseProbability, sparseOutcome), /finite number/);
   assert.throws(() => calculateExpectedCalibrationError(denseProbability, sparseOutcome), /finite number/);
 });
+
+test("ECE rejects inherited, symbol, non-enumerable and accessor option keys", () => {
+  const inherited = Object.create({ bins: 2 });
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0], inherited), /plain object/);
+
+  const symbolOption = { bins: 2, [Symbol("unexpected")]: true };
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0], symbolOption), /Unsupported ECE option/);
+
+  const hiddenOption = {};
+  Object.defineProperty(hiddenOption, "unexpected", { value: true, enumerable: false });
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0], hiddenOption), /Unsupported ECE option/);
+
+  const accessorOption = {};
+  Object.defineProperty(accessorOption, "bins", { get() { throw new Error("getter must not execute"); } });
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0], accessorOption), /data property/);
+});
