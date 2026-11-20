@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.9 — 2026-11-20
+
+### Security
+- Harden research-source URL validation against non-public IPv4/IPv6 literals, carrier-grade NAT, link-local, documentation and transition ranges, plus localhost subdomains and trailing-dot hostnames.
+- Require timezone-qualified ISO-8601 timestamps for publication and retrieval provenance.
+
+### Verification
+- Added regression cases for reserved address ranges and timezone-less dates. This validation is syntactic only; any future URL fetcher must still enforce DNS resolution and redirect checks at connection time.
+- Exact-head CI required before acceptance.
+
+
 All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` only.
 
 ## 0.3.8 — 2026-11-20

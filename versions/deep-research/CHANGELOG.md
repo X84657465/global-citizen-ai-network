@@ -1,5 +1,15 @@
 # Deep Research Changelog
 
+## 0.1.6 — 2026-11-20
+
+### Security
+- Reject additional non-public IP literals and localhost aliases in research source URLs.
+- Require explicit timezone offsets in ISO-8601 provenance timestamps.
+
+### Verification
+- Added regression cases; DNS rebinding and redirect validation remain responsibilities of a future network fetch layer. Exact-head CI required.
+
+
 ## 0.1.0 — 2026-11-20
 
 ### Added

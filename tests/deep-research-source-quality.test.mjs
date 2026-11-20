@@ -31,11 +31,17 @@ test("rejects unsafe URLs, unsupported source types and malformed provenance", (
     { url: "https://user:secret@example.org/source" },
     { url: "https://localhost/source" },
     { url: "https://192.168.1.20/source" },
+    { url: "https://0.0.0.0/source" },
+    { url: "https://100.64.0.1/source" },
+    { url: "https://[::1]/source" },
+    { url: "https://[::ffff:7f00:1]/source" },
     { url: "https://example.org:8443/source" },
     { source_type: "unknown" },
     { stance: "maybe" },
     { published_at: "not-a-date" },
     { retrieved_at: "not-a-date" },
+    { published_at: "2026-11-01" },
+    { retrieved_at: "2026-11-20T00:00:00" },
     { publisher_key: "Publisher With Spaces" },
   ]) assert.throws(() => validateResearchSourceRecord(source(patch)));
 });
