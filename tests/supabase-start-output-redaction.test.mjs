@@ -46,6 +46,28 @@ test("redacts JWT-shaped values and database URL passwords outside named rows", 
   assert.match(output, /postgresql:\/\/postgres:\[REDACTED\]@127\.0\.0\.1:54322/);
 });
 
+
+test("redacts Supabase Storage access and secret key values in bordered CLI table rows", () => {
+  const input = [
+    "? Access Key ? local_storage_access_value ?",
+    "? Secret Key ? local_storage_secret_value ?",
+    "│ Access Key │ local_unicode_access_value │",
+    "│ Secret Key │ local_unicode_secret_value │",
+  ].join("\n");
+  const output = redactSupabaseStartOutput(input);
+
+  for (const secret of [
+    "local_storage_access_value",
+    "local_storage_secret_value",
+    "local_unicode_access_value",
+    "local_unicode_secret_value",
+  ]) assert.equal(output.includes(secret), false, "table credential value must not survive redaction");
+
+  assert.match(output, /Access Key/);
+  assert.match(output, /Secret Key/);
+  assert.equal((output.match(/\[REDACTED\]/g) || []).length, 4);
+});
+
 test("redaction is idempotent", () => {
   const once = redactSupabaseStartOutput("secret key: sb_secret_example");
   assert.equal(redactSupabaseStartOutput(once), once);
