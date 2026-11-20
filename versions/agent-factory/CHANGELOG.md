@@ -1,3 +1,14 @@
+## 2.0.45 — 2026-11-20
+
+### Fixed — Redact ephemeral Supabase credentials from CI logs
+- Capture Supabase startup diagnostics before emitting them.
+- Redact named key rows, sb_secret/sb_publishable tokens, JWT-shaped values and URL passwords.
+- Fail closed if the redaction process cannot complete; retain sanitized failure diagnostics.
+- Add regression tests for secret classes, diagnostic preservation and workflow wiring.
+
+### Verification
+- Exact-head full CI and Windows synthetic preflight are required. No pass is claimed for this change.
+
 ## 2.0.44 — 2026-11-20
 
 ### Fixed — Preserve all V1 quarantine history during V2 migration

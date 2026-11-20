@@ -1,3 +1,11 @@
+## 0.3.73 — 2026-11-20
+
+- Capture local Supabase startup output before logging and redact ephemeral anon/service-role, publishable/secret, Storage access/secret keys, JWT-shaped tokens and URL passwords.
+- Add executable redaction logic and regression coverage; fail closed if the redaction process fails.
+
+### Verification
+- Exact-head full CI and Windows synthetic preflight are required. This change is not yet verified by CI.
+
 ## 0.3.72 — 2026-11-20
 
 - Preserve V1 skipped Issue numbers even when no failure-counter entry exists; reject malformed quarantine history rather than silently dropping it.
