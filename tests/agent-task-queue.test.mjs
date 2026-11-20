@@ -103,6 +103,7 @@ test("extracts inline and multiline dependency declarations, including the produ
 });
 
 test("dependency extraction is scoped to dependency sections, ignores code fences, and deduplicates", () => {
+  const fence = "\x60\x60\x60";
   const body = [
     "## Goal",
     "See unrelated issue #10.",
@@ -110,10 +111,10 @@ test("dependency extraction is scoped to dependency sections, ignores code fence
     "- #94 migration",
     "- #74 discovery",
     "- #94 duplicate",
-    "\`\`\`md",
+    fence + "md",
     "- #999 example only",
     "## Not a real heading",
-    "\`\`\`",
+    fence,
     "## Acceptance criteria",
     "Do not parse #12 from this section.",
   ].join("\n");
