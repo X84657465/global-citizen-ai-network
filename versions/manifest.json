@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.88",
+  "overall": "0.3.90",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -28,7 +28,73 @@
       "version": "0.1.11",
       "status": "implementation-candidate",
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
+    },
+    "F": {
+      "name": "Cyber Security & Defense",
+      "version": "0.1.1",
+      "status": "implementation-candidate",
+      "responsibility": "Cross-track threat modeling, security controls, adversarial validation, vulnerability response and incident readiness."
+    },
+    "G": {
+      "name": "Release, QA & Integration",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "跨線整合順序、相容性矩陣、回歸測試、發布關卡、精確 SHA 證據與回滾準備。"
+    },
+    "H": {
+      "name": "Observability, Telemetry & Cost/Quota Governance",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Queue／Runner 健康、任務耗時、失敗分類、成本來源、配額與安全暫停告警。"
+    },
+    "I": {
+      "name": "Ecosystem, Connectors & Workflow Automation",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "外部 API、Webhook、通知、資料同步、冪等處理與防重播工作流。"
+    },
+    "J": {
+      "name": "Self-Healing, Chaos & Continuity",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "有限重試、熔斷、安全降級、檢查點、備份還原及受控故障演練。"
+    },
+    "K": {
+      "name": "Knowledge Base, Docs & Governance Playbooks",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "架構紀錄、線別責任、操作手冊、交接模板、決策紀錄與故障排查。"
+    },
+    "L": {
+      "name": "Multi-Node, Federation & Edge/Cluster Coordination",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "未來自願加入節點的身分、能力排程、租約 fencing、健康檢查與跨節點協調。"
+    },
+    "M": {
+      "name": "Compliance, Policy Audit & Risk Governance",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "可稽核事件、政策證據、風險登錄、限時例外及資料保留控制。"
+    },
+    "N": {
+      "name": "Productization, Analytics & Growth/Ecosystem Ops",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "隱私友善的產品指標、採用與品質分析、回饋循環、新手導引及生態營運。"
+    },
+    "O": {
+      "name": "Lifecycle, Deprecation & Legacy Retirement",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "棄用清單、遷移窗口、相容性契約、移除核准及舊系統維護成本降低。"
+    },
+    "P": {
+      "name": "Governance, Ethics & Trust/Policy Evolution",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "自主權限分級、人類核准門檻、信任原則、政策演進及跨線優先級仲裁。"
     }
   },
-  "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
+  "policy": "MAJOR.MINOR.PATCH; every material change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Each A–P track has independent ownership, version, roadmap, tests and acceptance evidence. Cross-track changes require explicit receiving-owner review and compatibility evidence. Planned tracks do not imply shipped capability."
 }
