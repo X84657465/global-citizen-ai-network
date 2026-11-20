@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.41",
+  "overall": "0.3.42",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -34,7 +34,67 @@
       "version": "0.1.0",
       "status": "foundation",
       "responsibility": "Cross-track threat modeling, security controls, adversarial validation, vulnerability response and incident readiness."
+    },
+    "G": {
+      "name": "Release, QA & Integration",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Cross-track integration sequencing, compatibility checks, regression gates, release evidence and rollback readiness."
+    },
+    "H": {
+      "name": "Observability, Telemetry & Cost/Quota Governance",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Task and queue telemetry, Runner health, retry/failure metrics, cost provenance, quota thresholds and safe pause alerts."
+    },
+    "I": {
+      "name": "Ecosystem, Connectors & Workflow Automation",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Authenticated external APIs, webhooks, notifications, state synchronization, idempotency and replay-safe event processing."
+    },
+    "J": {
+      "name": "Self-Healing, Chaos & Continuity",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Bounded recovery, circuit breakers, safe degradation, checkpoints, backup/restore and controlled fault-injection exercises."
+    },
+    "K": {
+      "name": "Knowledge Base, Docs & Governance Playbooks",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Architecture records, track boundaries, operator runbooks, handoff templates, decision logs and troubleshooting playbooks."
+    },
+    "L": {
+      "name": "Multi-Node, Federation & Edge/Cluster Coordination",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Future opt-in node identity, capability-aware scheduling, leases, fencing, health checks and cross-node coordination."
+    },
+    "M": {
+      "name": "Compliance, Policy Audit & Risk Governance",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Auditable actor/action records, policy evidence, risk register, scoped exceptions, expiry and retention controls."
+    },
+    "N": {
+      "name": "Productization, Analytics & Growth/Ecosystem Ops",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Privacy-aware product metrics, adoption and quality analysis, feedback loops, onboarding and ecosystem operations."
+    },
+    "O": {
+      "name": "Lifecycle, Deprecation & Legacy Retirement",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Deprecation inventory, migration windows, compatibility contracts, removal approvals and legacy maintenance reduction."
+    },
+    "P": {
+      "name": "Governance, Ethics & Trust/Policy Evolution",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Autonomy levels, human approval thresholds, trust principles, policy evolution and cross-track priority arbitration."
     }
   },
-  "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
+  "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence. Planned tracks do not imply shipped capability."
 }
