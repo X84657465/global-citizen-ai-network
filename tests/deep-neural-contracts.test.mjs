@@ -50,8 +50,9 @@ test("rejects invalid confidence, dates, and expiry ordering", () => {
 });
 
 test("validates evidence records and rejects non-GitHub run URLs", () => {
-  const result = validateEvidenceRecord({ repository: "owner/repo", branch: "feat/test", commit_sha: sha, command: "npm test", result: "pass", run_url: "https://github.com/owner/repo/actions/runs/123", timestamp: "2026-11-20T00:00:00.000Z" });
+  const result = validateEvidenceRecord({ repository: "owner/repo", branch: "feat/test", commit_sha: sha, command: "npm test", result: "pass", run_url: " https://github.com/owner/repo/actions/runs/123 ", timestamp: "2026-11-20T00:00:00.000Z" });
   assert.equal(result.result, "pass");
+  assert.equal(result.run_url, "https://github.com/owner/repo/actions/runs/123", "validated run URLs must be returned in normalized form");
   assert.throws(() => validateEvidenceRecord({ repository: "owner/repo", branch: "main", commit_sha: sha, command: "npm test", result: "pass", run_url: "http://evil.example/run", timestamp: "2026-11-20T00:00:00.000Z" }), /GitHub over HTTPS/);
 });
 
