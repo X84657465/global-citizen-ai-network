@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.100` · A 線 Agent Factory V2 `2.0.69`（任務發布與全域斷路器隔離、精確 PR 健康證據） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.101` · A 線 Agent Factory V2 `2.0.69`（任務發布與全域斷路器隔離、精確 PR 健康證據） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -85,7 +85,7 @@ A–H 是目前優先推進的工作線；I–P 是已登錄、各自獨立版�
 核心應用、資料庫流程與 Agent Factory V2 正在持續開發及驗證。網站網址可供查看，但不代表所有功能已正式開放，也不代表已進入正式商業營運。
 </blockquote>
 
-- **A｜Agent Factory V2：** [PR #168（Draft；最新 exact-head CI 驗證中）](https://github.com/X84657465/global-citizen-ai-network/pull/168)
+- **A｜Agent Factory V2：** [PR #168（Ready for Review；exact-head 完整 CI 已通過，待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/168)
 - **A–P 治理與版本登錄：** [PR #167（最新 exact-head CI 已通過；待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/167)
 - **B｜GCAN 主產品：** [PR #174（Draft；等待 A–P 治理整合後重新銜接）](https://github.com/X84657465/global-citizen-ai-network/pull/174)
 - **C｜Predictive Coding：** [PR #139（已合併）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
@@ -395,7 +395,7 @@ http://localhost:3000
 - Windows Self-hosted Runner Toolchain Checks
 - Docker／Ollama Availability 與有界結構化推論
 
-最新 CI 請以各 PR 最新 exact-head 工作流程為準；#167 已完成 Windows 品質、Ollama、本機執行及 PostgreSQL/RLS 全部工作；#168 的品質與 Ollama 工作已通過，PostgreSQL/RLS 尚在執行。
+最新 CI 請以各 PR 最新 exact-head 工作流程為準；#167（`71607e3`）與 #168（`99d4020`）的 Windows 品質、Ollama／本機執行及 PostgreSQL/RLS 全部工作均已完成並通過；兩者仍須完成獨立正式審查，CI 通過不代表 PR 已合併。
 
 ## 📚 文件導覽
 
@@ -435,7 +435,7 @@ http://localhost:3000
 
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
-| A｜Agent Factory V2 | 工廠控制台 | 最新候選修復任務狀態、相依排程與健康熔斷；最新 exact-head CI 尚待 PostgreSQL/RLS 完成 | [PR #168](https://github.com/X84657465/global-citizen-ai-network/pull/168) |
+| A｜Agent Factory V2 | 工廠控制台 | 候選修復任務狀態、相依排程與健康熔斷；exact-head 完整 CI 已通過，待獨立正式審查 | [PR #168](https://github.com/X84657465/global-citizen-ai-network/pull/168) |
 | B｜GCAN Product | 全球產品平台 | 工作區 metadata 驗證與訊息 API payload 精簡；等待治理整合後 rebase 與完整驗收 | [PR #174](https://github.com/X84657465/global-citizen-ai-network/pull/174) |
 | C｜Predictive Coding | 預測分析工作台 | 首頁與技術總覽更新已合併；依現有工作線版本持續維護 | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
 | D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
