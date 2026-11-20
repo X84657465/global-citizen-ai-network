@@ -9,6 +9,19 @@ const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", imp
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const workflowLevelConcurrency = workflow.split("\non:\n", 1)[0];
 
+test("root and Agent Factory numeric release metadata stay synchronized", () => {
+  const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+  const packageLock = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url), "utf8"));
+  const manifest = JSON.parse(readFileSync(new URL("../versions/manifest.json", import.meta.url), "utf8"));
+  const rootVersion = readFileSync(new URL("../VERSION", import.meta.url), "utf8").trim();
+  const factoryVersion = readFileSync(new URL("../versions/agent-factory/VERSION", import.meta.url), "utf8").trim();
+  assert.equal(packageJson.version, rootVersion);
+  assert.equal(packageLock.version, rootVersion);
+  assert.equal(packageLock.packages[""].version, rootVersion);
+  assert.equal(manifest.overall, rootVersion);
+  assert.equal(manifest.tracks.A.version, factoryVersion);
+});
+
 test("full CI runs only on main pushes and pull-request lifecycle events", () => {
   assert.ok(workflow.includes("  push:\n    branches: [main]\n"));
   assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/github-project-showcase]\n    types: [opened, reopened, synchronize]\n"));
