@@ -432,7 +432,7 @@ test("preflight captures and uploads both synthetic and real candidate offline-t
   ]) {
     const start = preflight.indexOf("      - name: " + name);
     assert.ok(start >= 0, "missing diagnostic artifact step: " + name);
-    const next = preflight.indexOf("\\n      - name:", start + 1);
+    const next = preflight.indexOf("\n      - name:", start + 1);
     const section = preflight.slice(start, next < 0 ? preflight.length : next);
     assert.ok(section.includes("if: always()"), name + " must run after a failed test");
     assert.ok(section.includes("uses: actions/upload-artifact@v4"));
@@ -441,7 +441,7 @@ test("preflight captures and uploads both synthetic and real candidate offline-t
   }
 
   for (const match of offlineSteps) {
-    const next = preflight.indexOf("\\n      - name:", match.index + match[0].length);
+    const next = preflight.indexOf("\n      - name:", match.index + match[0].length);
     const section = preflight.slice(match.index, next < 0 ? preflight.length : next);
     assert.ok(section.includes("$testExitCode = $LASTEXITCODE"), "preserve the native Docker exit code");
     assert.ok(section.includes("Out-File -LiteralPath $testLog"), "persist stdout and stderr before raising failure");
