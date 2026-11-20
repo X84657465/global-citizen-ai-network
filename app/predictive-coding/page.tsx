@@ -8,7 +8,9 @@ const predictions = [
   { id: "P-2026-042", target: "工作佇列完成時間", predicted: 14, observed: 18, displayUnit: " min", errorUnit: "min", state: "偏差超標" },
   { id: "P-2026-043", target: "回歸測試通過率", predicted: 98, observed: null, displayUnit: "%", errorUnit: "pp", state: "等待觀測" },
 ];
-const firstObservedError = calculatePredictionError(predictions[0].predicted, predictions[0].observed);
+const firstObservedError = predictions[0].observed === null
+  ? null
+  : calculatePredictionError(predictions[0].predicted, predictions[0].observed);
 // Synthetic probability/outcome pairs used only to demonstrate the ECE formula.
 const demoCalibrationError = calculateExpectedCalibrationError([0.2, 0.3, 0.8, 0.9], [0, 0, 1, 1], { bins: 2 });
 function formatPredictionError(prediction: (typeof predictions)[number]) {
@@ -25,7 +27,7 @@ export default function PredictiveCodingPage() {
   <section className={styles.notice}><ShieldCheck size={17}/> 展示儀表板：以下數值為介面示範資料，尚未連接正式預測資料管線。</section>
   <section className={styles.metrics}>
    <article><span><Target/> 已登錄預測</span><b>43</b><small>版本化預測紀錄</small></article>
-   <article><span><Gauge/> 單筆絕對誤差</span><b>{firstObservedError.absolute} pp</b><small>CI 成功率示範目標 · percentage points</small></article>
+   <article><span><Gauge/> 單筆絕對誤差</span><b>{firstObservedError?.absolute ?? "—"} pp</b><small>CI 成功率示範目標 · percentage points</small></article>
    <article><span><Activity/> 校準狀態</span><b>{demoCalibrationError.toFixed(2)}</b><small>示範 ECE · 越低越好，非正式遙測</small></article>
    <article><span><AlertTriangle/> 漂移警示</span><b>02</b><small className={styles.warning}>需要人工調查</small></article>
   </section>

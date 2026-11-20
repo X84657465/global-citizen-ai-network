@@ -1,5 +1,15 @@
 # Predictive Coding Changelog
 
+## 0.3.3 — 2026-11-20
+
+### Fixed
+- Handle an unobserved prediction safely in the overview metric; show a placeholder until an observation exists.
+- Reconcile the track version file with the integration manifest.
+
+### Verification
+- The preceding candidate passed 136 unit tests and database/RLS tests; its TypeScript check exposed the nullable observation path. Exact-head CI must pass before acceptance.
+
+
 ## 0.1.0 — 2026-11-20
 
 ### Added

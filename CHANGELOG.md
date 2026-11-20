@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.9 — 2026-11-20
+
+### Fixed
+- Guard the Predictive Coding overview metric when its source prediction has not yet been observed; render an em dash instead of passing null to the numeric error calculator.
+- Reconcile the Predictive Coding track version with the manifest and synchronize the current GCAN Product track version.
+
+### Verification
+- The prior exact-head CI isolated this defect to TypeScript nullability after all 136 unit tests and database/RLS tests passed. This commit requires a fresh exact-head CI run.
+
+
 All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` only.
 
 ## 0.3.8 — 2026-11-20
