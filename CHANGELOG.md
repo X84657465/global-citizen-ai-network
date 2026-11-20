@@ -1,3 +1,10 @@
+## 0.3.50 — 2026-11-20
+
+- Added exact-head SHA fencing to CI concurrency groups so stale queued commits cannot block current-head validation.
+- Added Ubuntu CI failure diagnostics: failed-step extraction, failure classification, runner/concurrency queue diagnosis, stale-SHA rejection, credential redaction and machine-readable evidence artifacts.
+- Added regression coverage for exact-SHA binding, failure classification, queue diagnosis and secret redaction.
+- Diagnostics collect evidence only; automated code repair is not yet claimed.
+
 ## 0.3.49 — 2026-11-20
 
 - Added regression coverage proving Supabase startup, pgTAP and two-member RLS checks stay on Ubuntu and outside the shared Windows Runner queue.

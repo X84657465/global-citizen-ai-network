@@ -1,3 +1,9 @@
+## 2.0.23 — 2026-11-20
+
+- Added exact-SHA CI failure diagnostics, failed-step extraction, failure-domain classification, queue diagnosis and redacted evidence artifacts.
+- Reject stale workflow evidence before acceptance; diagnostic collection remains read-only.
+- Regression tests added; execution awaits exact-head CI.
+
 ## 2.0.22 — 2026-11-20
 
 ### Durable write confirmation

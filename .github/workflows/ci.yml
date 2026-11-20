@@ -3,7 +3,7 @@ name: CI
 # Keep one active run and coalesce superseded pending commits per PR.
 # This prevents a rapidly updated PR from filling the single Windows Runner queue.
 concurrency:
-  group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}
+  group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}-${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
   cancel-in-progress: false
 
 on:
@@ -542,3 +542,55 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: success
         run: node scripts/agent-factory-v2-controller.mjs
+
+  ci-diagnostics:
+    name: Exact-SHA CI failure diagnostics and evidence
+    needs: [resolve-candidate, quality, build, database]
+    if: >-
+      always() &&
+      (needs.resolve-candidate.result == 'failure' ||
+       needs.quality.result == 'failure' ||
+       needs.build.result == 'failure' ||
+       needs.database.result == 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout exact tested revision
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.head_sha || github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+      - name: Capture workflow metadata and failed-step logs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > "$RUNNER_TEMP/ci-run.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" > "$RUNNER_TEMP/ci-jobs.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?branch=$GITHUB_REF_NAME&per_page=30" > "$RUNNER_TEMP/ci-sibling-runs.json"
+          gh run view "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > "$RUNNER_TEMP/ci-failed.log" 2> "$RUNNER_TEMP/ci-log-error.txt" || true
+      - name: Classify failure and write redacted evidence
+        env:
+          CI_RUN_JSON: ${{ runner.temp }}/ci-run.json
+          CI_JOBS_JSON: ${{ runner.temp }}/ci-jobs.json
+          CI_SIBLING_RUNS_JSON: ${{ runner.temp }}/ci-sibling-runs.json
+          CI_FAILED_LOG: ${{ runner.temp }}/ci-failed.log
+          CI_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+          CI_DIAGNOSTICS_OUTPUT: artifacts/ci-failure-diagnostics.json
+        run: node scripts/ci-failure-diagnostics.mjs
+      - name: Upload redacted CI failure evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/ci-failure-diagnostics.json
+          if-no-files-found: error
+          retention-days: 90
