@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.22",
+  "overall": "0.3.23",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -9,7 +9,7 @@
     },
     "B": {
       "name": "Global Citizen AI Network",
-      "version": "0.1.9",
+      "version": "0.1.10",
       "status": "active"
     },
     "C": {

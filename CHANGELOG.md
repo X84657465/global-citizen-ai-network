@@ -1,3 +1,11 @@
+## 0.3.23 — 2026-11-20
+
+### Fixed
+- Replace the brittle timestamp-validator source-regex spelling assertion with implementation-contract checks; retain runtime tests for valid timezone-qualified instants and invalid dates, clock values and offsets.
+
+### Verification
+- Unit tests, TypeScript, ESLint and production build must pass on this exact commit before acceptance.
+
 # Changelog
 
 ## 0.3.22 — 2026-11-20
