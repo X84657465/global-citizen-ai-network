@@ -1,7 +1,7 @@
 # A–P Workstream Engineering Governance
 
-**Governance revision: 1.4.4**  
-**Repository release baseline: 0.3.88**
+**Governance revision: 1.4.5**  
+**Repository release baseline: 0.3.93**
 
 ## 1. A–P workstream governance
 
@@ -16,7 +16,7 @@
 | G — Release, QA & Integration | Integration quality | Compatibility checks, regression gates, exact-SHA release evidence and rollback readiness |
 | H — Observability, Telemetry & Cost/Quota Governance | Operations visibility | Queue/Runner telemetry, failure metrics, cost provenance, quota thresholds and safe-pause alerts |
 
-The governance and versioning model covers all A–P workstreams. A–H are currently prioritized operating workstreams; I–P are independently versioned planned workstreams. Every workstream owns its own branch, work items, independent version history, tests and acceptance evidence. A–H are defined as follows: A Agent Factory V2; B Global Citizen AI Network; C Predictive Coding; D Deep Neural; E Deep Research; F Cyber Security & Defense; G Release, QA & Integration; H Observability, Telemetry & Cost/Quota Governance. I–P remain separately defined roadmap workstreams in the manifest and architecture plan. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
+The governance and versioning model covers all A–P workstreams. A–H are currently prioritized operating workstreams; I–P are independently versioned planned workstreams. Every workstream owns its own branch, work items, independent version history, tests and acceptance evidence. A–H are defined as follows: A Agent Factory V2; B Global Citizen AI Network; C Predictive Coding; D Deep Neural; E Deep Research; F Cyber Security & Defense; G Release, QA & Integration; H Observability, Telemetry & Cost/Quota Governance. I–P have the following independent scopes and remain planned until implementation and acceptance evidence exist: I Ecosystem/Connectors/Workflow Automation; J Self-Healing/Chaos/Continuity; K Knowledge Base/Docs/Governance Playbooks; L Multi-Node/Federation/Edge Coordination; M Compliance/Policy Audit/Risk Governance; N Productization/Analytics/Growth Operations; O Lifecycle/Deprecation/Legacy Retirement; P Governance/Ethics/Trust/Policy Evolution. Their detailed responsibilities are recorded in the manifest and the repository homepage. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
 
 ## 2. Independent A–P version and generation policy
 
