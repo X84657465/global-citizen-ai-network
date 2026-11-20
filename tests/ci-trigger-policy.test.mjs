@@ -359,15 +359,20 @@ test("candidate install and offline test use separate least-network container pr
   assert.doesNotMatch(offlineTest, /GITHUB_TOKEN|GH_TOKEN/);
 });
 
-test("database job runs the two-member application RLS integration suite and classifies its failures as task failures", () => {
+test("database job discovers isolated PostgreSQL by Supabase DB port and separates infrastructure from RLS assertion failures", () => {
   assert.ok(workflow.includes("- name: Run two-member application RLS integration tests"));
   assert.ok(workflow.includes("SUPABASE_DB_URL"));
   assert.ok(workflow.includes("SUPABASE_DB_CONTAINER"));
   assert.ok(workflow.includes('Get-Command docker.exe -ErrorAction Stop'));
-  assert.ok(workflow.includes('$env:SUPABASE_DB_CONTAINER = $containerName'));
-  assert.ok(workflow.includes('& $env:DOCKER_BIN ps --filter "name=supabase_db_$projectId"'), "RLS integration must invoke the resolved Docker executable");
-  assert.ok(workflow.includes("APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}"));
-  assert.ok(workflow.includes('$env:APPLICATION_RLS_TESTS -eq "failure"'));
+  assert.ok(workflow.includes("$dbPort = ([uri]$dbUrl).Port"));
+  assert.ok(workflow.includes('$containerRows = @(& $docker.Source ps --format "{{.ID}}|{{.Names}}|{{.Ports}}")'));
+  assert.ok(workflow.includes('$portPattern = ":$dbPort->5432/tcp"'));
+  assert.ok(workflow.includes("$matchingContainers.Count -ne 1"));
+  assert.ok(workflow.includes("$env:SUPABASE_DB_CONTAINER = $containerId"));
+  assert.ok(workflow.includes('& $env:DOCKER_BIN inspect --format "{{.State.Running}}" $containerId'));
+  assert.ok(workflow.includes("failure_scope=task"));
+  assert.ok(workflow.includes("APPLICATION_RLS_SCOPE: ${{ steps.application-rls-tests.outputs.failure_scope }}"));
+  assert.ok(workflow.includes('$env:APPLICATION_RLS_TESTS -eq "failure" -and $env:APPLICATION_RLS_SCOPE -eq "task"'));
 });
 
 

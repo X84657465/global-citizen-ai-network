@@ -1,3 +1,13 @@
+## 2.0.41 — 2026-11-20
+
+### Fixed — Align PostgreSQL integration policy guard with port-based container discovery
+- Update the CI regression test to assert the current Supabase DB_URL published-port lookup rather than the removed container-name assumption.
+- Verify exactly one matching PostgreSQL container is selected and that discovery failures remain system-scoped while actual two-member RLS assertion failures remain task-scoped.
+- Synchronize numeric repository and Agent Factory release metadata.
+
+### Verification
+- This corrects a stale policy assertion identified by static comparison of the latest CI workflow and its regression test. Exact-head full CI is required; no pass is claimed before it completes.
+
 ## 2.0.40 — 2026-11-20
 
 ### Fixed — Make local PostgreSQL integration portable across Supabase CLI container naming
