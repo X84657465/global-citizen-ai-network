@@ -207,9 +207,28 @@ test("candidate failure callback persists rejection and delays retry without cou
   assert.equal(result.state.system.consecutive_failures, 0);
 });
 
-test("candidate success completes the exact PR and resets the system breaker", async () => {
+test("candidate success completes only its task and preserves the global breaker and unrelated quarantine", async () => {
   const initial = awaitingCandidate();
-  initial.system.consecutive_failures = 2;
+  initial.system.consecutive_failures = 3;
+  initial.system.cooldown_until = new Date(60_000).toISOString();
+  initial.system.last_error_code = "RUNNER_UNAVAILABLE";
+  initial.system.last_error = "shared runner outage";
+  initial.tasks["99"] = {
+    status: "quarantined",
+    attempts: 3,
+    failures: 0,
+    candidate_failures: 3,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: {
+      code: "CANDIDATE_CI_FAILED",
+      summary: "unrelated candidate remains quarantined",
+      at: new Date(2000).toISOString(),
+    },
+    last_success_at: null,
+  };
+  const breakerBefore = structuredClone(initial.system);
+  const quarantineBefore = structuredClone(initial.tasks["99"]);
   const store = fakeStore(initial);
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
   await startCandidate(controller, "555002");
@@ -228,7 +247,8 @@ test("candidate success completes the exact PR and resets the system breaker", a
   assert.equal(result.state.tasks["42"].status, "completed");
   assert.equal(JSON.parse(result.outputs.candidate_evidence_json).result, "pass");
   assert.equal(JSON.parse(result.outputs.candidate_evidence_json).commit_sha, "b".repeat(40));
-  assert.equal(result.state.system.consecutive_failures, 0);
+  assert.deepEqual(result.state.system, breakerBefore);
+  assert.deepEqual(result.state.tasks["99"], quarantineBefore);
   assert.equal(duplicate.outputs.duplicate, true);
   assert.equal(duplicate.state.state_version, result.state.state_version);
 });
@@ -503,10 +523,13 @@ test("transition mode remains idempotent after awaiting_ci has released the work
 });
 
 
-test("candidate success callback recovers when the system-breaker write fails after task completion", async () => {
+test("candidate success callback retries its task-only state write without resetting the system breaker", async () => {
   const initial = awaitingCandidate();
-  initial.system.consecutive_failures = 2;
-  const store = fakeStore(initial, { failWriteAt: 3 });
+  initial.system.consecutive_failures = 3;
+  initial.system.cooldown_until = new Date(60_000).toISOString();
+  initial.system.last_error_code = "RUNNER_UNAVAILABLE";
+  initial.system.last_error = "shared runner outage";
+  const store = fakeStore(initial, { failWriteAt: 2 });
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
   await startCandidate(controller, "555003");
   const env = {
@@ -520,12 +543,18 @@ test("candidate success callback recovers when the system-breaker write fails af
     CI_RUN_ATTEMPT: "1",
   };
   await assert.rejects(controller.run(env), /injected state write failure/);
-  assert.equal(store.state.tasks["42"].status, "completed");
-  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.system.consecutive_failures, 3);
+  assert.equal(store.state.system.cooldown_until, new Date(60_000).toISOString());
 
   const recovered = await controller.run(env);
   assert.equal(recovered.outputs.duplicate, false);
-  assert.equal(recovered.state.system.consecutive_failures, 0);
+  assert.equal(recovered.state.tasks["42"].status, "completed");
+  assert.equal(recovered.state.system.consecutive_failures, 3);
+  assert.equal(recovered.state.system.cooldown_until, new Date(60_000).toISOString());
+  const duplicate = await controller.run(env);
+  assert.equal(duplicate.outputs.duplicate, true);
+  assert.equal(duplicate.state.state_version, recovered.state.state_version);
 });
 
 test("candidate failure callback recovers after a transient durable-state write failure", async () => {
