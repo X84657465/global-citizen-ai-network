@@ -1,3 +1,12 @@
+## 0.3.25 — 2026-11-20
+
+### Fixed
+- Harden Predictive Coding ECE options against inherited and non-enumerable keys, symbols and accessor side effects.
+- Synchronize C track version 0.3.8 and repository package metadata.
+
+### Verification
+- Exact-head CI remains required; no test pass is claimed.
+
 ## 0.3.24 — 2026-11-20
 
 ### Fixed
