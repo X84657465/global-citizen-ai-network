@@ -1,3 +1,11 @@
+## 2.0.51 — 2026-11-20
+
+### Harden — Conversation message ownership and bounded history
+- Apply an explicit `owner_id = auth.user.id` predicate to message reads, in addition to database RLS.
+- Retrieve the newest 500 messages with deterministic timestamp/ID ordering, then reverse for chronological rendering.
+- Add pgTAP and route-contract regression coverage for member isolation and message role integrity.
+- No completion is claimed until the exact current SHA passes the full CI workflow.
+
 ## 2.0.50 — 2026-11-20
 
 ### Improved — Exact-head CI on A-line pushes

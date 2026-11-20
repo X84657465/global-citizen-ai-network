@@ -1,3 +1,10 @@
+## 0.3.79 — 2026-11-20
+
+- Harden the conversation message read API with an explicit authenticated owner filter and deterministic newest-500 pagination returned in chronological order.
+- Add pgTAP coverage for cross-member message reads, owner spoofing, cross-conversation writes and forged assistant messages.
+- Add a unit-level source contract to prevent regressions in the API query boundary.
+- Synchronize repository and Agent Factory numeric release metadata atomically. Exact-head full CI remains required.
+
 ## 0.3.78 — 2026-11-20
 
 - Run the full CI workflow on Agent Factory branch pushes, not only on main and pull-request lifecycle events, so every latest A-line head can receive exact-SHA quality, build, Ollama and Supabase validation.
