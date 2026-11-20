@@ -1,3 +1,9 @@
+## 0.3.62 — 2026-11-20
+
+- Correct stale Agent Factory CI policy assertions to match the current security-audit, Windows Runner and Ollama smoke-test step names.
+- Scope the candidate-evidence artifact assertion to the two exact-SHA callback uploads, excluding independent diagnostic artifacts.
+- No runtime behavior or security policy is relaxed; root package, lockfile, manifest and track versions are synchronized.
+
 ## 0.3.61 — 2026-11-20
 
 - Align the Predictive Coding ECE malformed-options regression assertion with the stricter plain-object validation error emitted by the implementation.

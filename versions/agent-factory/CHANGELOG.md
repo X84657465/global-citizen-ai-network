@@ -1,3 +1,13 @@
+## 2.0.34 — 2026-11-20
+
+### Fixed — Align CI regression guards with the current workflow contract
+- Update policy tests to match the active full dependency audit and Windows Runner/Ollama verification step names.
+- Assert exactly two candidate-evidence uploads by artifact path while allowing the separate CI diagnostic artifact.
+- Preserve all blocking security audits and the bounded local inference requirement; no runtime behavior is changed.
+
+### Verification
+- The latest exact-head CI isolated four stale static assertions; corrected tests require a fresh full CI run on the new commit before acceptance.
+
 ## 2.0.33 — 2026-11-20
 
 ### Improved — Preserve offline candidate-test diagnostics
