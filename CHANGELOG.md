@@ -1,3 +1,15 @@
+## 0.3.90 — 2026-11-21
+
+### Architecture — A–P workstream registry
+- Add the complete A–P engineering-line index to the repository homepage, including each line's purpose and maturity status.
+- Publish the detailed A–P responsibility, non-goal, dependency, stage-deliverable and exit-criteria architecture.
+- Extend the authoritative version manifest from A–E to A–P; F remains an implementation candidate and G–P remain planned, not operationally accepted.
+- Preserve A as the highest-priority factory line and B as the subsequent product integration line; retain independent ownership and numeric versions for every track.
+
+### Verification
+- Registry and manifest regression tests are added; exact-head CI and independent review are required before acceptance.
+- Documentation and metadata only; no runtime behavior, production data, secrets, deployment or database schema is changed.
+
 ## 0.3.88 — 2026-11-20
 
 - Restrict full CI push-triggered runs to `main`; development branches are validated by their pull-request lifecycle events, avoiding duplicate full-suite execution for the same PR head.
