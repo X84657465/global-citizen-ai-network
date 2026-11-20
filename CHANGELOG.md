@@ -1,3 +1,9 @@
+## 0.3.88 — 2026-11-21
+
+- Keep Agent Factory V2 candidate CI success task-scoped: completing one candidate no longer clears the global circuit breaker or unrelated task quarantine.
+- Preserve exact PR/SHA/run/attempt evidence and idempotent replay behavior; add active-cooldown, unrelated-quarantine and transient-write-retry regressions.
+- Agent Factory V2 advances to 2.0.58. Exact-head full CI and formal review remain required; no merge or deployment is claimed.
+
 ## 0.3.87 — 2026-11-20
 
 - Integrate the GCAN public homepage, five-track architecture visuals and login entry on top of Agent Factory V2 without replacing the factory-owned Workspace client, API, validation or RLS contracts.
