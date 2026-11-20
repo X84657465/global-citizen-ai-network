@@ -212,9 +212,9 @@ test("passes the reserved lease ID to the task-failure recorder", () => {
 
   assert.match(
     section,
-    /AGENT_FACTORY_LEASE_ID:\\s*\\$\\{\\{\\s*steps\\.reserve-task\\.outputs\\.lease_id\\s*\\}\\}/,
+    /AGENT_FACTORY_LEASE_ID:\s*\$\{\{\s*steps\.reserve-task\.outputs\.lease_id\s*\}\}/,
     "task-scoped failures require the exact lease that reserved the selected Issue"
   );
   assert.match(section, /FAILED_ISSUE_NUMBER:/);
-  assert.match(section, /AGENT_FACTORY_MODE:\\s*failure/);
+  assert.match(section, /AGENT_FACTORY_MODE:\s*failure/);
 });
