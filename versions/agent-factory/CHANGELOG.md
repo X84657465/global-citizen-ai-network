@@ -1,3 +1,12 @@
+## 2.0.47 — 2026-11-20
+
+### Fixed — Match the real PowerShell stderr-capture syntax
+- Validate that stderr redirection (`2>&1`) occurs before PowerShell output collection (`| Out-String`) without requiring a false contiguous token sequence.
+- Preserve checks for fail-closed redaction, sanitized-only logging, and redaction failure handling.
+
+### Verification
+- Corrected after exact-head Preflight #44735588641 reported 358/359 synthetic offline tests passing. A new exact-head full CI and Windows Runner preflight are still required; no pass is claimed.
+
 ## 2.0.46 — 2026-11-20
 
 ### Fixed — Capture Supabase CLI diagnostics safely on Windows PowerShell
