@@ -1,3 +1,16 @@
+## 0.1.14 — 2026-11-20
+
+### Security hardening
+- Reject special-use non-public hostname suffixes: .test, .example, .invalid, .onion and .arpa, alongside existing local/internal suffixes.
+- Preserve valid public domains such as research.example.org.
+
+### Regression coverage
+- Add blocked-host suffix tests and a positive public-domain control.
+
+### Verification
+- URL fetching remains disabled; DNS/redirect/connection-time IP validation is still required before any network fetch feature is enabled.
+- Exact-head CI remains required; no test pass is claimed.
+
 ## 0.1.13 — 2026-11-20
 
 ### Security
