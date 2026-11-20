@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.15 — 2026-11-20
+
+### Fixed
+- Align homepage accessibility regression assertions with minified CSS serialization while still requiring visible focus and reduced-motion hover suppression.
+- Keep the package-lock and five-track version metadata synchronized.
+
+### Verification
+- Corrected source-level assertions; exact-head Windows Runner CI remains required.
+
 ## 0.3.14 — 2026-11-20
 
 ### Fixed

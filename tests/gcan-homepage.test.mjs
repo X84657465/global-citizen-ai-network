@@ -98,7 +98,10 @@ test("public homepage provides visible keyboard focus and respects reduced-motio
   assert.ok(homeCss.includes("@media(prefers-reduced-motion:reduce)"));
   assert.ok(homeCss.includes("align-items:flex-end;"));
   assert.ok(homeCss.includes("transition:none!important"));
-  const reducedMotionCss = homeCss.slice(homeCss.indexOf("@media (prefers-reduced-motion: reduce)"));
+  const normalizedHomeCss = homeCss.replace(/\s+/g, "");
+  const reducedMotionStart = normalizedHomeCss.indexOf("@media(prefers-reduced-motion:reduce)");
+  assert.notEqual(reducedMotionStart, -1);
+  const reducedMotionCss = normalizedHomeCss.slice(reducedMotionStart);
   assert.ok(reducedMotionCss.includes(".pillarCard:hover"));
   assert.ok(reducedMotionCss.includes(".trackCard:hover"));
   assert.ok(reducedMotionCss.includes("transform:none"));
@@ -157,7 +160,7 @@ test("public homepage skip link targets the main landmark and mission navigation
   assert.ok(homepage.includes('<a href="#pillars">平台價值</a>'));
   assert.ok(!homepage.includes('<section className={styles.hero} id="main-content"'));
   assert.ok(homeCss.includes(".skipLink:focus-visible"));
-  assert.ok(homeCss.includes("transform: translateY(0)"));
+  assert.ok(homeCss.replace(/\s+/g, "").includes(".skipLink:focus-visible{transform:translateY(0)}"));
 });
 
 
