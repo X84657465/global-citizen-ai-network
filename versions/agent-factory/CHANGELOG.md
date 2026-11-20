@@ -1,3 +1,14 @@
+## 2.0.67 — 2026-11-21
+
+### Fixed — Preserve leading indentation in task preflight sections
+- Replace destructive section-body `trim()` normalization with trailing-only trimming so the first indented line retains its leading spaces or tab.
+- Prevent four-space/tab-indented examples at the beginning of Allowed paths, acceptance criteria or explicit exclusions from bypassing the fail-closed directive guard.
+- Preserve the existing `dependency_issue_numbers` output contract and all CommonMark dependency/fence hardening from 2.0.66.
+- Keep regression tests for first-line four-space and tab-indented task directives.
+
+### Verification
+- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent review required before acceptance.
+
 ## 2.0.66 — 2026-11-21
 
 ### Fixed — Harden task dependency parsing and preflight against Markdown code-block ambiguity

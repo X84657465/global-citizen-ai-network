@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.97` · A 線 Agent Factory V2 `2.0.66`（工廠失敗分類與完整觸發路徑回歸防護） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.98` · A 線 Agent Factory V2 `2.0.67`（任務前置驗證縮排保護修正） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -28,7 +28,7 @@ GCAN 由 A–P 共 16 條工作線組成。每條線有獨立責任邊界、版�
 
 | 線別 | 工作線 | 核心作用／負責事項 | 目前狀態 | 獨立版本 |
 |---|---|---|---|---:|
-| **A** | Agent Factory V2｜AI 自動開發工廠 | 將需求轉成受控工程任務，負責任務排程、隔離執行、候選程式碼、測試、PR 發布、精確 SHA/CI 驗證、失敗分類與復原；提升 GCAN 自我開發效率。 | 優先開發／持續驗收 | `2.0.66` |
+| **A** | Agent Factory V2｜AI 自動開發工廠 | 將需求轉成受控工程任務，負責任務排程、隔離執行、候選程式碼、測試、PR 發布、精確 SHA/CI 驗證、失敗分類與復原；提升 GCAN 自我開發效率。 | 優先開發／持續驗收 | `2.0.67` |
 | **B** | Global Citizen AI Network｜GCAN 主產品 | 面向使用者的核心平台，整合 AI 服務、工作空間、全球知識貢獻、任務審核、透明成本與貢獻帳本，是所有能力最終服務的產品主線。 | 優先開發／產品整合 | `0.1.13` |
 | **C** | Predictive Coding｜預測編碼 | 建立預測、觀測、預測誤差量測、不確定性校準與依證據更新模型的能力，讓系統能量化預測品質並辨識偏差。 | 優先開發／候選實作 | `0.3.9` |
 | **D** | Deep Neural｜深度神經 | 負責深層記憶、推理、知識整合與評估方法，將跨線經驗整理成可重用的知識與推理能力。 | 優先開發／候選實作 | `0.3.10` |

@@ -1,3 +1,9 @@
+## 0.3.98 — 2026-11-21
+
+- Synchronize the A–P homepage and governance registry with the current Agent Factory V2 baseline: A 2.0.67 / repository 0.3.98; preserve B 0.1.13, K 0.1.2 and all independent C–P versions.
+- The A–P registry remains 16 tracks with A–H prioritized and I–P planned; version synchronization does not imply implementation or production readiness.
+- Exact-head full CI and independent formal review remain required before merge.
+
 ## 0.3.97 — 2026-11-21
 
 - Synchronize the complete A–P registry with the current Agent Factory V2 release: A 2.0.66 / repository 0.3.97; preserve B 0.1.13 and independent C–P versions.
