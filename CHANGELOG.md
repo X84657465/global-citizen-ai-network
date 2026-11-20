@@ -1,3 +1,12 @@
+## 0.3.28 — 2026-11-20
+
+### Added — F Cyber Security & Defense
+- Add CI security-policy regression tests for read-only repository permissions, privileged self-hosted Runner trust boundaries, exact pull-request-head checkout, blocking production dependency audit and forbidden `pull_request_target` usage.
+- Register the new checks in the unit-test suite and advance F to 0.1.2.
+
+### Verification
+- Static read-back and workflow-triggered Windows Runner CI are required. The tests are registered but are not claimed as passing until the exact PR head completes CI.
+
 ## 0.3.27 — 2026-11-20
 
 ### Added — F Cyber Security & Defense
