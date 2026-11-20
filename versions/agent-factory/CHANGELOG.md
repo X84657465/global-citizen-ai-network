@@ -1,3 +1,14 @@
+## 2.0.68 — 2026-11-21
+
+### Fixed — Isolate task publication from global circuit-breaker recovery
+- Make the legacy task-publication `success` callback non-mutating; publishing one task can no longer clear shared infrastructure failures or cooldown.
+- Add a separate `system-health-success` mode that requires a completed, successful exact-head GitHub CI pull-request run from `.github/workflows/ci.yml`, with matching run ID and attempt.
+- Preserve task retry and quarantine history when verified system-health evidence resets only global breaker fields.
+- Add deterministic controller regressions for publication no-op/replay, evidence validation, task-history preservation and idempotent health recovery.
+
+### Verification
+- Exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable, and independent formal review required before acceptance.
+
 ## 2.0.67 — 2026-11-21
 
 ### Fixed — Preserve leading indentation in task preflight sections
