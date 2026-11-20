@@ -223,7 +223,7 @@ test("candidate success completes only its task and preserves the global breaker
     candidate_failures: 0,
     quarantined: true,
     next_attempt_at: null,
-    last_error: "Independent task repeatedly failed.",
+    last_error: { code: "TASK_FAILURE", summary: "Independent task repeatedly failed.", at: new Date(1000).toISOString() },
   };
   const expectedSystem = structuredClone(initial.system);
   const expectedQuarantine = structuredClone(initial.tasks["99"]);
