@@ -1,3 +1,13 @@
+## 2.0.65 — 2026-11-21
+
+### Fixed — Align first-time state-Issue test double with the durable store contract
+- Add the required read() method to the no-state-Issue test store fixture.
+- Preserve the regression proving initialization writes do not shift legacy retry deadlines.
+- No production store contract, persistence validation or runtime behavior is weakened.
+
+### Verification
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
 ## 2.0.64 — 2026-11-21
 
 ### Fixed — Preserve the pre-initialization retry clock
