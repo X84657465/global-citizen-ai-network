@@ -1,3 +1,16 @@
+## 0.3.42 — 2026-11-20
+
+### Architecture — G–P workstream expansion
+- Define A–P ownership boundaries, non-goals, cross-track interfaces and staged implementation dependencies.
+- Establish G/H/K as the first enabling foundations: integration gates, telemetry/resource governance and operational knowledge.
+- Defer I/N/O until the core controls are stable; defer L until measured capacity evidence and security approval exist.
+- Define J/M/P resilience, audit and autonomy acceptance gates without weakening F security controls.
+- Add regression coverage ensuring G–P remain explicitly planned until implementation evidence is delivered.
+
+### Verification
+- Static GitHub write/read-back is required for this branch.
+- Exact-head Windows Runner CI remains pending; no operational readiness is claimed.
+
 ## 0.3.41 — 2026-11-20
 
 ### Added — F Cyber Security & Defense
