@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.47",
+  "overall": "0.3.48",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -37,13 +37,13 @@
     },
     "G": {
       "name": "Release, QA & Integration",
-      "version": "0.1.5",
+      "version": "0.1.6",
       "status": "planned",
       "responsibility": "Cross-track integration sequencing, compatibility checks, regression gates, release evidence and rollback readiness."
     },
     "H": {
       "name": "Observability, Telemetry & Cost/Quota Governance",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "status": "implementation-candidate",
       "responsibility": "Task and queue telemetry, Runner health, retry/failure metrics, cost provenance, quota thresholds and safe pause alerts."
     },
