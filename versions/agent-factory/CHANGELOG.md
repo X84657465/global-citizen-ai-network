@@ -1,3 +1,16 @@
+## 2.0.17 — 2026-11-20
+
+### Reliability
+- Clarify the default-branch-only execution boundary for scheduled and manually dispatched GitHub Actions workflows.
+- Document the release dependency that prevents feature-branch V2 code from migrating production Issue #100 before the V2 workflow is incorporated into the default branch.
+- Specify exact-SHA Runner evidence and same-Issue schema-v2 read-back as migration acceptance criteria.
+
+### Tests
+- Add a CI policy regression assertion that keeps this operational boundary visible.
+
+### Verification
+- Documentation and policy-test changes only; no production Issue mutation or migration is claimed.
+
 ## 2.0.16 — 2026-11-20
 
 ### Reliability
