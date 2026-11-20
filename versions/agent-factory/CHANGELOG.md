@@ -1,3 +1,12 @@
+## 2.0.39 — 2026-11-20
+
+### Fixed — Synchronize lockfile root metadata
+- Align the package-lock root and root package entry with the repository release version.
+- Preserve fail-closed handling for unsupported future state schemas.
+
+### Verification
+- Exact-head full CI and live Runner validation remain required.
+
 ## 2.0.38 — 2026-11-20
 
 ### Changed — Keep migration regression coverage singular
