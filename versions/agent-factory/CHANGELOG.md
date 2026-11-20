@@ -1,3 +1,13 @@
+## 2.0.43 — 2026-11-20
+
+### Fixed — Correct the V2 manual-dispatch activation gate
+- Distinguish default-branch-only scheduled/issue events from manual `workflow_dispatch`.
+- Document the supported Actions UI branch selector for a controlled V2 feature-ref smoke test, including Issue #138 and exact-SHA verification.
+- Add regression assertions for owner-only dispatch, required issue input wiring, and the separation between manual V2 validation and default-branch scheduling.
+
+### Verification
+- Exact-head full CI and V2 Windows preflight are required. Issue #138 execution, V2 scheduler promotion, and state migration are not claimed by this documentation/policy correction.
+
 ## 2.0.42 — 2026-11-20
 
 ### Changed — Enable safe A-line synthetic Runner preflight

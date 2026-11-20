@@ -10,14 +10,26 @@ This runbook covers the GitHub Actions + Windows self-hosted Runner workflow on 
 - The scheduled workflow is defined in `.github/workflows/agent-task-preflight.yml` and currently polls every five minutes (`*/5 * * * *`). GitHub may delay scheduled events.
 - The Windows Runner is a single execution lane. Workflow concurrency serializes its work; this is not multi-host parallel capacity.
 
-## Default-branch scheduling gate
+## Default-branch scheduling gate and manual V2 dispatch
 
-GitHub evaluates scheduled workflows from the repository's default branch only. A copy of `.github/workflows/agent-task-preflight.yml` on `feat/agent-factory-v2` does **not** make its five-minute schedule or `workflow_dispatch` trigger operational while the default branch still contains the older workflow definition.
+GitHub evaluates scheduled workflows and issue events from the repository's default branch only. The V2 copy of `.github/workflows/agent-task-preflight.yml` on `feat/agent-factory-v2` does **not** activate its five-minute poller or its `issues: opened/reopened` handler while the default branch still contains the older V1 workflow.
+
+Manual dispatch is a separate path. The default branch already contains this workflow path with a `workflow_dispatch` trigger, so the Actions UI exposes **Run workflow**. The branch selector can target `feat/agent-factory-v2`; the manually dispatched run uses the selected ref and its commit SHA. This allows a controlled V2 smoke test without merging the feature branch or activating its scheduled poller.
+
+### Controlled V2 smoke dispatch
+
+1. Open **Actions → AI Agent Task Preflight → Run workflow**.
+2. Select branch `feat/agent-factory-v2`.
+3. Enter the approved task Issue number (for the bounded smoke test, `138`).
+4. Start the run once. Verify that the run event is `workflow_dispatch`, the branch is `feat/agent-factory-v2`, and the checked-out SHA is the intended feature-branch HEAD.
+5. Inspect the durable state gate before any retry. If a lease or cooldown blocks execution, do not dispatch duplicates; inspect Issue #100 and the existing run first.
+
+The V2 job also restricts manual dispatch to the repository owner and reserves a durable lease before task execution. Do not bypass those checks.
 
 Operational consequences:
 
-- Do not infer that V2's `check`/migration path is running merely because the feature-branch workflow contains `schedule: ` or `workflow_dispatch:`.
-- The V2 workflow must first be reviewed and incorporated into the default branch through the repository's approved integration/release process. PR #134 and PR #139 must remain Draft until their independent acceptance and release gates are satisfied.
+- Do not infer that V2's five-minute `check`/migration poller or issue-event handler is running merely because the feature-branch workflow contains `schedule:` or `issues:`.
+- The V2 workflow must be reviewed and incorporated into the default branch through the approved integration/release process before continuous V2 scheduling and issue-event processing become active. PR #134 and PR #139 must remain Draft until their independent acceptance and release gates are satisfied.
 - Until that release gate is met, Issue #100 remains on its existing V1 payload. Do not edit the machine-managed Issue manually, create a replacement state Issue, or claim that migration occurred.
 - The configured-issue migration regression test is synthetic. A real migration is accepted only after an exact-SHA Windows Runner run demonstrates the V2 controller reading and updating the same Issue #100, followed by a read-back confirming schema version 2 and preserved task/system history.
 

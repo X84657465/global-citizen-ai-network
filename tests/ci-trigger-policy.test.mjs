@@ -408,10 +408,16 @@ test("package lock metadata matches the resolved eslint-import-resolver-node tar
   assert.equal(resolvedTarball, "eslint-import-resolver-node-" + entry.version + ".tgz");
 });
 
-test("Agent Factory runbook makes the default-branch schedule gate explicit", () => {
+test("Agent Factory runbook separates default-branch polling from manual V2 dispatch", () => {
   const runbook = readFileSync(new URL("../docs/agent-factory-operations-runbook.md", import.meta.url), "utf8").replace(/\r\n/g, "\n");
   assert.ok(preflight.includes("  schedule:\n    - cron: \"*/5 * * * *\""));
-  assert.ok(runbook.includes("GitHub evaluates scheduled workflows from the repository's default branch only."));
+  assert.ok(preflight.includes("  workflow_dispatch:\n    inputs:\n      issue_number:"));
+  assert.ok(preflight.includes("github.event_name == 'workflow_dispatch' &&\n       github.actor == github.repository_owner"));
+  assert.ok(preflight.includes("ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}"));
+  assert.ok(runbook.includes("GitHub evaluates scheduled workflows and issue events from the repository's default branch only."));
+  assert.ok(runbook.includes("Run workflow"));
+  assert.ok(runbook.includes("`feat/agent-factory-v2`"));
+  assert.ok(runbook.includes("`138`"));
   assert.ok(runbook.includes("Issue #100 remains on its existing V1 payload."));
   assert.ok(runbook.includes("same Issue #100"));
   assert.ok(runbook.includes("schema version 2"));

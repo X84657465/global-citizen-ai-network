@@ -1,3 +1,12 @@
+## 0.3.71 — 2026-11-20
+
+- Correct the Agent Factory runbook: scheduled and issue events are default-branch-only, but manual `workflow_dispatch` can select the V2 feature ref because the workflow path and dispatch trigger already exist on the default branch.
+- Add a controlled Issue #138 dispatch procedure and regression assertions for the owner-only manual trigger, selected-ref input wiring, and the distinction between manual smoke tests and default-branch scheduling.
+- Synchronize repository and Agent Factory numeric release metadata.
+
+### Verification
+- Exact-head full CI and V2 Windows preflight are required. This change does not claim that Issue #138 has run or that the V2 scheduler has been promoted to the default branch.
+
 ## 0.3.70 — 2026-11-20
 
 - Enable the Agent Factory V2 feature branch to run the synthetic Windows Runner preflight on owner pushes, including real local Ollama plan generation, bounded patch proposal, isolated candidate checks and publisher dry-run.
