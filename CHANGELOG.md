@@ -1,3 +1,12 @@
+## 0.3.75 — 2026-11-20
+
+- Correct the Supabase startup workflow regression test to recognize PowerShell's actual command-boundary syntax: stderr redirection occurs inside the quoted cmd.exe command, followed by the PowerShell pipeline to Out-String.
+- Keep the assertion semantic and order-sensitive rather than requiring an invalid contiguous substring.
+- Synchronize repository and Agent Factory numeric release metadata.
+
+### Verification
+- The latest exact-head synthetic preflight exposed this assertion mismatch (358/359 tests passed). The corrected assertion requires a fresh exact-head full CI and Windows Runner preflight; no pass is claimed.
+
 ## 0.3.74 — 2026-11-20
 
 - Fix Windows PowerShell 5.1 handling of Supabase CLI stderr by capturing the native command through cmd.exe before applying fail-closed output redaction.
