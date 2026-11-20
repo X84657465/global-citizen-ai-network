@@ -363,6 +363,7 @@ jobs:
           $env:DOCKER_BIN = $dockerCommand.Source
           $containerName = & $env:DOCKER_BIN ps --filter "name=supabase_db_$projectId" --format "{{.Names}}" | Select-Object -First 1
           if (-not $containerName) { throw "The isolated Supabase PostgreSQL container was not found." }
+          $env:SUPABASE_DB_CONTAINER = $containerName
           [System.IO.File]::AppendAllText($env:GITHUB_ENV, "SUPABASE_DB_CONTAINER=$containerName" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           [System.IO.File]::AppendAllText($env:GITHUB_ENV, "DOCKER_BIN=$env:DOCKER_BIN" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           Write-Host "Running two-member RLS checks inside isolated container: $containerName"
