@@ -11,7 +11,7 @@ import { execFileSync } from "node:child_process";
 import { resolve, sep } from "node:path";
 import { resolveSafeExistingParent } from "../lib/agent-path-safety.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
-import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
+import { collectOllamaGenerateStreamWithRetry } from "../lib/ollama-generate-stream.mjs";
 import { selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 
 const fail = (message, scope = "system") => {
@@ -231,28 +231,6 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
     ", output_tokens=" + outputTokenBudget +
     ", remaining_timeout_ms=" + remainingMs);
 
-  let response;
-  try {
-    response = await fetch(baseUrl + "/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model,
-        system: systemPrompt,
-        prompt: JSON.stringify(planningInput),
-        format: patchSchema,
-        think: false,
-        stream: true,
-        keep_alive: "60s",
-        options: { temperature: 0, num_predict: outputTokenBudget },
-      }),
-      signal: AbortSignal.timeout(remainingMs),
-    });
-  } catch {
-    fail("Local model patch batch " + (batchIndex + 1) + " failed or the shared generation time budget expired.");
-  }
-  if (!response.ok) fail("Ollama patch batch " + (batchIndex + 1) + " returned HTTP " + response.status + ".");
-
   let latestProgress = { chunk_count: 0, response_characters: 0, eval_count: null };
   const heartbeat = setInterval(() => {
     console.log("Ollama patch batch " + (batchIndex + 1) + "/" + patchBatches.length +
@@ -263,14 +241,51 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
 
   let result;
   try {
-    result = await collectOllamaGenerateStream(response.body, (progress) => {
-      latestProgress = progress;
-      if (progress.done) {
-        console.log("Ollama patch batch " + (batchIndex + 1) + " stream completed: chunks=" +
-          progress.chunk_count + ", response_chars=" + progress.response_characters +
-          ", eval_count=" + (progress.eval_count ?? "pending"));
-      }
-    });
+    result = await collectOllamaGenerateStreamWithRetry(
+      async () => {
+        const attemptRemainingMs = timeoutMs - (Date.now() - generationStartedAt);
+        if (attemptRemainingMs < 10000) {
+          throw new Error("The shared Ollama patch-generation time budget expired before the next attempt.");
+        }
+        const response = await fetch(baseUrl + "/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model,
+            system: systemPrompt,
+            prompt: JSON.stringify(planningInput),
+            format: patchSchema,
+            think: false,
+            stream: true,
+            keep_alive: "60s",
+            options: { temperature: 0, num_predict: outputTokenBudget },
+          }),
+          signal: AbortSignal.timeout(attemptRemainingMs),
+        });
+        if (!response.ok) {
+          throw new Error("Ollama patch batch " + (batchIndex + 1) + " returned HTTP " + response.status + ".");
+        }
+        return response.body;
+      },
+      (progress) => {
+        latestProgress = progress;
+        if (progress.done) {
+          console.log("Ollama patch batch " + (batchIndex + 1) + " stream completed: chunks=" +
+            progress.chunk_count + ", response_chars=" + progress.response_characters +
+            ", eval_count=" + (progress.eval_count ?? "pending"));
+        }
+      },
+      {
+        maxAttempts: 2,
+        retryDelayMs: 1500,
+        onRetry: ({ attempt, nextAttempt }) => {
+          latestProgress = { chunk_count: 0, response_characters: 0, eval_count: null };
+          console.warn("Ollama patch batch " + (batchIndex + 1) +
+            " ended without a completion marker after attempt " + attempt +
+            "; discarding partial output and retrying once (attempt " + nextAttempt + ").");
+        },
+      },
+    );
   } catch (error) {
     clearInterval(heartbeat);
     fail("Local model patch stream failed in batch " + (batchIndex + 1) + ": " +

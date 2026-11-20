@@ -1,3 +1,19 @@
+## 0.3.23 — 2026-11-20
+
+### Fixed
+- Retry one incomplete Ollama patch-generation stream with a fresh bounded request.
+- Discard partial output from an interrupted attempt; retain strict completion-marker validation and reject malformed/provider-error streams without retry.
+
+### Changed
+- Advance Agent Factory V2 from 2.0.10 to 2.0.11.
+
+### Verification
+- Added deterministic regression coverage for successful retry, partial-output isolation, non-retryable malformed streams, and the two-attempt ceiling.
+- Exact-head CI and live Windows Runner/Ollama task acceptance are required before this change is considered verified.
+
+### Rollback
+- Revert the exact Agent Factory V2 commit; no database migration or production data change is involved.
+
 # Changelog
 
 ## 0.3.22 — 2026-11-20

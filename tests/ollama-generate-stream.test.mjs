@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { ReadableStream } from "node:stream/web";
-import { collectOllamaGenerateStream } from "../lib/ollama-generate-stream.mjs";
+import { collectOllamaGenerateStream, collectOllamaGenerateStreamWithRetry } from "../lib/ollama-generate-stream.mjs";
 
 function streamOf(chunks) {
   return new ReadableStream({
@@ -152,5 +152,66 @@ test("rejects a truncated UTF-8 code point when the stream ends", async () => {
   await assert.rejects(
     collectOllamaGenerateStream(body),
     /invalid UTF-8/,
+  );
+});
+
+
+test("retries one incomplete Ollama stream with a fresh request and discards partial output", async () => {
+  const bodies = [
+    streamOf(['{"response":"partial","done":false}\\n']),
+    streamOf(['{"response":"complete","done":true,"done_reason":"stop"}\\n']),
+  ];
+  const retries = [];
+  let requests = 0;
+  const result = await collectOllamaGenerateStreamWithRetry(
+    async () => { requests += 1; return bodies.shift(); },
+    () => {},
+    { retryDelayMs: 0, onRetry: (event) => retries.push(event) },
+  );
+  assert.equal(requests, 2);
+  assert.equal(result.response, "complete");
+  assert.equal(result.done_reason, "stop");
+  assert.equal(retries.length, 1);
+  assert.equal(retries[0].attempt, 1);
+  assert.equal(retries[0].nextAttempt, 2);
+});
+
+test("does not retry malformed streams or provider errors", async () => {
+  let requests = 0;
+  await assert.rejects(
+    collectOllamaGenerateStreamWithRetry(
+      async () => { requests += 1; return streamOf(["not-json\\n"]); },
+      () => {},
+      { retryDelayMs: 0 },
+    ),
+    /invalid NDJSON/,
+  );
+  assert.equal(requests, 1);
+});
+
+test("stops after the single bounded retry when both streams omit completion markers", async () => {
+  let requests = 0;
+  await assert.rejects(
+    collectOllamaGenerateStreamWithRetry(
+      async () => {
+        requests += 1;
+        return streamOf(['{"response":"partial","done":false}\\n']);
+      },
+      () => {},
+      { retryDelayMs: 0 },
+    ),
+    /without a completion marker/,
+  );
+  assert.equal(requests, 2);
+});
+
+test("validates the Ollama stream retry budget", async () => {
+  await assert.rejects(
+    collectOllamaGenerateStreamWithRetry(
+      async () => streamOf(['{"response":"ok","done":true}\\n']),
+      () => {},
+      { maxAttempts: 3 },
+    ),
+    /between 1 and 2/,
   );
 });
