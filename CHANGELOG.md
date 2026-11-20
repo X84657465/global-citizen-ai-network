@@ -1,3 +1,9 @@
+## 0.3.48 — 2026-11-20
+
+- Moved Supabase CLI startup, migration application, PostgreSQL pgTAP/RLS suite and two-member application RLS integration from the Windows Runner to GitHub-hosted Ubuntu.
+- Replaced PowerShell/Windows-specific orchestration with pinned Supabase CLI, isolated per-run project IDs, Linux Docker discovery and guaranteed Supabase teardown.
+- Kept Windows Runner reserved for the remaining Windows/Ollama integration path; no new Runner or server introduced.
+
 ## 0.3.47 — 2026-11-20
 
 - Corrected the Ubuntu quality job dependency graph: portable quality gates depend only on candidate resolution, while Windows build/database and both circuit-breaker callbacks explicitly depend on the quality result.

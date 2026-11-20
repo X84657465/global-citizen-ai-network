@@ -254,11 +254,7 @@ jobs:
       pull-requests: read
     env:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
-    name: Local Supabase migrations, PostgreSQL and RLS tests
+    name: Ubuntu Supabase migrations, PostgreSQL and RLS integration
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
     if: >-
@@ -278,10 +274,13 @@ jobs:
          github.event.client_payload.head_sha != '' &&
          needs.resolve-candidate.outputs.is_task_pr == 'true')
       )
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Checkout tested revision
+      - name: Checkout exact candidate revision
         uses: actions/checkout@v5
         with:
           persist-credentials: false
@@ -290,126 +289,57 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
-      - name: Register exact candidate CI run
-        if: needs.resolve-candidate.outputs.is_task_pr == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: candidate-start
-          ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.issue_number }}
-          PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}
-          HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
-          HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
-          CI_RUN_ID: ${{ github.run_id }}
-          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
-        run: node scripts/agent-factory-v2-controller.mjs
-      - name: Install verified Supabase CLI without symlink privileges
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install pinned Supabase CLI
+        id: supabase-cli
         run: |
-          $version = "3.2.0"
-          $expectedSha256 = "1ca731039b1537ee4cceb9ea757ebcccee109f5eddc39228001a853c1fbe8122"
-          $cacheRoot = Join-Path $env:RUNNER_TOOL_CACHE "supabase-cli/$version/x64"
-          $exe = Join-Path $cacheRoot "supabase.exe"
-          if (-not (Test-Path $exe)) {
-            $archive = Join-Path $env:RUNNER_TEMP "supabase-$version-windows-amd64.zip"
-            $extract = Join-Path $env:RUNNER_TEMP "supabase-$version-extract"
-            Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/supabase/cli/releases/download/v$version/supabase_$($version)_windows_amd64.zip" -OutFile $archive
-            $actualSha256 = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
-            if ($actualSha256 -ne $expectedSha256) { throw "Supabase CLI archive SHA-256 verification failed." }
-            if (Test-Path $extract) { Remove-Item $extract -Recurse -Force }
-            New-Item -ItemType Directory -Path $extract -Force | Out-Null
-            Expand-Archive -LiteralPath $archive -DestinationPath $extract -Force
-            $candidate = Get-ChildItem -LiteralPath $extract -Filter "supabase.exe" -Recurse | Select-Object -First 1
-            if (-not $candidate) { throw "Verified Supabase CLI executable was not found in the release archive." }
-            New-Item -ItemType Directory -Path $cacheRoot -Force | Out-Null
-            Copy-Item -LiteralPath $candidate.FullName -Destination $exe -Force
-          }
-          Add-Content -LiteralPath $env:GITHUB_PATH -Value $cacheRoot
-          & $exe --version
-          if ($LASTEXITCODE -ne 0) { throw "Supabase CLI version verification failed." }
-      - name: Initialize local Supabase config when absent
+          npm install --global supabase@3.2.0
+          supabase --version
+      - name: Initialize isolated local Supabase project
         run: |
-          if (-not (Test-Path "supabase/config.toml")) {
-            supabase init
-            if ($LASTEXITCODE -ne 0) { throw "Supabase CLI initialization failed." }
-          }
-      - name: Allocate isolated Supabase project and free local ports
-        run: |
-          $configPath = "supabase/config.toml"
-          if (-not (Test-Path $configPath)) { throw "Supabase config is missing after initialization." }
-          $config = Get-Content -LiteralPath $configPath -Raw
-          $projectId = "gcan-ci-" + $env:GITHUB_RUN_ID
-          $config = [regex]::Replace($config, '(?m)^project_id\s*=\s*"[^"]*"', "project_id = `"$projectId`"", 1)
-          if ($config -notmatch '(?m)^project_id\s*=') { throw "Supabase project_id setting was not found." }
-
-          function Set-TomlSectionValue([string]$Text, [string]$Section, [string]$Key, [int]$Value) {
-            $pattern = "(?ms)(^\[" + [regex]::Escape($Section) + "\]\s*\r?\n)(.*?)(?=^\[|\z)"
-            $match = [regex]::Match($Text, $pattern)
-            if (-not $match.Success) { throw "Supabase config section [$Section] was not found." }
-            $body = $match.Groups[2].Value
-            $keyPattern = "(?m)^" + [regex]::Escape($Key) + "\s*=\s*\d+\s*$"
-            if (-not [regex]::IsMatch($body, $keyPattern)) { throw "Supabase config key [$Section].$Key was not found." }
-            $body = [regex]::Replace($body, $keyPattern, "$Key = $Value", 1)
-            return $Text.Substring(0, $match.Index) + $match.Groups[1].Value + $body + $Text.Substring($match.Index + $match.Length)
-          }
-
-          function Test-PortAvailable([int]$Port) {
-            $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any, $Port)
-            try { $listener.Start(); return $true }
-            catch { return $false }
-            finally { $listener.Stop() }
-          }
-
-          # Windows commonly reserves the 49152-65535 dynamic TCP range. Keep
-          # Docker-published Supabase ports below that range to avoid false
-          # positives from a transient TcpListener availability probe.
-          $basePort = 0
-          for ($attempt = 0; $attempt -lt 500; $attempt++) {
-            $candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)
-            $available = $true
-            foreach ($port in @([int]$candidate, [int]($candidate + 1), [int]($candidate + 2))) {
-              if (-not (Test-PortAvailable $port)) { $available = $false; break }
-            }
-            if ($available) { $basePort = [int]$candidate; break }
-          }
-          if ($basePort -eq 0) { throw "Unable to allocate three consecutive local Supabase ports." }
-
-          $config = Set-TomlSectionValue $config "api" "port" $basePort
-          $config = Set-TomlSectionValue $config "db" "port" ($basePort + 1)
-          $config = Set-TomlSectionValue $config "db" "shadow_port" ($basePort + 2)
-          [System.IO.File]::WriteAllText((Join-Path (Get-Location) $configPath), $config, [System.Text.UTF8Encoding]::new($false))
-          Write-Host "Isolated Supabase project: $projectId"
-          Write-Host "Allocated API/DB/shadow ports: $basePort / $($basePort + 1) / $($basePort + 2)"
-      - name: Start local Supabase services and apply migrations
+          supabase init
+          test -f supabase/config.toml
+          project_id="gcan-ci-${GITHUB_RUN_ID}"
+          PROJECT_ID="$project_id" node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const path = 'supabase/config.toml';
+          const source = fs.readFileSync(path, 'utf8');
+          const projectId = process.env.PROJECT_ID;
+          if (!/^[a-z0-9-]{1,40}$/.test(projectId)) throw new Error('Invalid isolated Supabase project id');
+          const next = source.replace(/^project_id\s*=\s*"[^"]*"/m, `project_id = "${projectId}"`);
+          if (next === source) throw new Error('Supabase project_id setting was not found');
+          fs.writeFileSync(path, next);
+          NODE
+      - name: Start isolated Supabase and apply migrations
         id: supabase-start
-        run: |
-          supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
-          if ($LASTEXITCODE -ne 0) { throw "Local Supabase services failed to start or migrations failed." }
-      - name: Run PostgreSQL and RLS tests
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
+      - name: Run PostgreSQL and RLS pgTAP tests
         id: database-tests
-        run: |
-          supabase test db
-          if ($LASTEXITCODE -ne 0) { throw "PostgreSQL or RLS tests failed." }
+        run: supabase test db
       - name: Run two-member application RLS integration tests
         id: application-rls-tests
+        env:
+          PROJECT_ID: gcan-ci-${{ github.run_id }}
         run: |
-          $statusLines = supabase status -o env
-          if ($LASTEXITCODE -ne 0) { throw "Unable to read the isolated Supabase environment." }
-          $dbUrlLine = $statusLines | Where-Object { $_ -match '^DB_URL=' } | Select-Object -First 1
-          if (-not $dbUrlLine) { throw "Supabase status did not return DB_URL." }
-          $env:SUPABASE_DB_URL = $dbUrlLine.Substring(7).Trim().Trim('"').Trim("'")
-          if (-not $env:SUPABASE_DB_URL) { throw "The isolated Supabase DB_URL is empty." }
-          $projectId = "gcan-ci-" + $env:GITHUB_RUN_ID
-          $dockerCommand = Get-Command docker.exe -ErrorAction Stop
-          $env:DOCKER_BIN = $dockerCommand.Source
-          $containerName = & $env:DOCKER_BIN ps --filter "name=supabase_db_$projectId" --format "{{.Names}}" | Select-Object -First 1
-          if (-not $containerName) { throw "The isolated Supabase PostgreSQL container was not found." }
-          $env:SUPABASE_DB_CONTAINER = $containerName
-          [System.IO.File]::AppendAllText($env:GITHUB_ENV, "SUPABASE_DB_CONTAINER=$containerName" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
-          [System.IO.File]::AppendAllText($env:GITHUB_ENV, "DOCKER_BIN=$env:DOCKER_BIN" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
-          Write-Host "Running two-member RLS checks inside isolated container: $containerName"
-          Write-Host "Using Docker executable: $env:DOCKER_BIN"
+          status_output="$(supabase status -o env)"
+          db_url="$(printf '%s\n' "$status_output" | sed -n 's/^DB_URL=//p' | head -n 1 | tr -d '"')"
+          if [[ -z "$db_url" ]]; then
+            echo "::error::Supabase status did not return DB_URL"
+            exit 1
+          fi
+          container_name="$(docker ps --filter "name=supabase_db_$PROJECT_ID" --format '{{.Names}}' | head -n 1)"
+          if [[ -z "$container_name" ]]; then
+            echo "::error::Isolated Supabase PostgreSQL container was not found"
+            exit 1
+          fi
+          {
+            echo "SUPABASE_DB_URL=$db_url"
+            echo "SUPABASE_DB_CONTAINER=$container_name"
+            echo "DOCKER_BIN=$(command -v docker)"
+          } >> "$GITHUB_ENV"
           node --test tests/security/two-member-rls.test.mjs
-          if ($LASTEXITCODE -ne 0) { throw "Two-member application RLS integration tests failed." }
       - name: Stop Supabase services
         if: always() && steps.supabase-start.outcome != 'skipped'
         continue-on-error: true
@@ -418,17 +348,18 @@ jobs:
         id: classify-failure
         if: failure()
         env:
+          CLI_INSTALL: ${{ steps.supabase-cli.outcome }}
+          SUPABASE_START: ${{ steps.supabase-start.outcome }}
           DATABASE_TESTS: ${{ steps.database-tests.outcome }}
           APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}
         run: |
-          if ($env:DATABASE_TESTS -eq "failure" -or $env:APPLICATION_RLS_TESTS -eq "failure") {
-            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Database/RLS assertion failure is attributable to the task."
-          } else {
-            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Supabase startup, migration application, or runner failure is system-scoped."
-          }
-
+          if [[ "$DATABASE_TESTS" == "failure" || "$APPLICATION_RLS_TESTS" == "failure" ]]; then
+            echo "scope=task" >> "$GITHUB_OUTPUT"
+            echo "::error::Database/RLS assertion failed; preserve logs and isolate candidate."
+          else
+            echo "scope=system" >> "$GITHUB_OUTPUT"
+            echo "::error::Supabase CLI, Docker startup, migration bootstrap, or Runner infrastructure failed."
+          fi
 
   circuit-breaker:
     name: Persist candidate or system CI failures
