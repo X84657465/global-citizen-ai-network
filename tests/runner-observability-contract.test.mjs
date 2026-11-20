@@ -122,3 +122,14 @@ test("flags future heartbeat timestamps for clock review", () => {
   assert.ok(result.findings.some((finding) => finding.includes("later than")));
   assert.ok(result.recommendedActions.includes("verify_clock_synchronization"));
 });
+
+test("offline Runner remains critical when its heartbeat is future-dated", () => {
+  const value = snapshot();
+  value.runner.status = "offline";
+  value.runner.lastHeartbeatAt = "2026-11-20T10:01:00Z";
+  const result = evaluateRunnerHealth(value);
+  assert.equal(result.severity, "critical");
+  assert.ok(result.findings.some((finding) => finding.includes("later than")));
+  assert.ok(result.recommendedActions.includes("pause_new_tasks_pending_operator_review"));
+  assert.ok(result.recommendedActions.includes("verify_clock_synchronization"));
+});
