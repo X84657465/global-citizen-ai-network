@@ -1,3 +1,13 @@
+## 2.0.60 — 2026-11-21
+
+### Harden — Match Markdown code-fence delimiters during dependency extraction
+- Require closing fences to use the same marker character and at least the opening fence length.
+- Ignore dependency-looking Issue references inside malformed, mismatched or undersized fence delimiters.
+- Add regression coverage so examples cannot silently remove or introduce queue dependencies.
+
+### Verification
+- Exact-head full CI, TypeScript, lint and Windows factory validation are required; no dispatch acceptance is claimed before all required checks pass.
+
 ## 2.0.59 — 2026-11-20
 
 ### Fixed — Block tasks until multiline dependencies are completed
