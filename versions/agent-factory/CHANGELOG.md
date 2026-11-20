@@ -1,3 +1,11 @@
+## 2.0.18 — 2026-11-20
+
+### Fixed
+- Correct the default-branch schedule-gate regression assertion's newline handling so it tests the workflow YAML rather than a literal backslash sequence.
+
+### Verification
+- Exact-head Windows Runner CI remains required.
+
 ## 2.0.17 — 2026-11-20
 
 ### Reliability
