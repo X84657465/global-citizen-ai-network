@@ -141,3 +141,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 ### Verification
 - Add unit coverage for weighted-bin calculation, perfect calibration, p=1 boundary handling and invalid input rejection.
 - Exact-head CI is required; dashboard figures remain synthetic and no production telemetry is claimed.
+
+
+## 0.3.6
+
+- Run full CI on all explicitly controlled A-E feature branch pushes, not only on main or PR lifecycle events.
+- Retain repository-owner push gating and the five-workstream branch allowlist.
+- Synchronize Predictive Coding to 0.3.1 and repository metadata to 0.3.6.
+
+Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or deployment implied.
