@@ -1,3 +1,13 @@
+## 2.0.59 — 2026-11-21
+
+### Fixed — Recover legacy retry_wait tasks with missing deadlines
+- Persist deterministic retry deadlines once before controller requeue.
+- Prefer task-level last_error.at; use one captured durable state timestamp only when task history is absent.
+- Preserve bounded exponential backoff, explicit retry deadlines, quarantines and idempotent repeated checks.
+
+### Verification
+- Exact-head full CI, TypeScript, lint, release-metadata consistency and Windows Runner integration are required before acceptance.
+
 ## 2.0.58 — 2026-11-21
 
 ### Fixed — Isolate candidate success from global system recovery
