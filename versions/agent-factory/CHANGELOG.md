@@ -41,3 +41,12 @@
 - Extend CI policy coverage for isolated-container RLS execution.
 
 **Verification:** fresh exact-head CI required; previous run failed because the host Runner lacked `psql` and the factory CSS Module contained unscoped table selectors.
+
+
+## 2.0.5
+
+- Resolve the Docker executable explicitly on Windows Runner and pass the isolated Supabase container name into the current test process.
+- Improve subprocess diagnostics so missing executables, spawn errors and exit status are visible in RLS test output.
+- Update CI policy regression coverage for the current-step Docker/container environment.
+
+**Verification:** exact-head CI is required; this version is not accepted until the full build and database/RLS jobs pass.
