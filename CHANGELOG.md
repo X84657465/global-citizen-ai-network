@@ -1,3 +1,14 @@
+## 0.3.30 — 2026-11-20
+
+### Fixed
+- Reconcile the five-track integration manifest with the latest available workstream release versions: A 2.0.16, B 0.1.11, C 0.3.6, D 0.3.10 and E 0.1.11.
+- Keep the integration release version aligned across VERSION, package.json, package-lock.json and versions/manifest.json.
+
+### Verification
+- JSON parsing and exact version-field consistency are checked after the write.
+- Track C's current source branch was not discoverable during this audit; its 0.3.6 value is retained from the latest manifests on B, D and E branches. Exact-head CI remains required.
+- This is metadata synchronization only; no track merge, production migration, deployment or runtime acceptance is implied.
+
 ## 0.3.29 — 2026-11-20
 
 ### Reliability
