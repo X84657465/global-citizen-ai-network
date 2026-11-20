@@ -795,3 +795,82 @@ test("check mode fails closed when a completed workflow has a missing or unsuppo
     assert.equal(store.state.state_version, state.state_version);
   }
 });
+
+
+function legacyRetryState(now = 1000) {
+  const state = createInitialFactoryState(now);
+  state.tasks["81"] = {
+    status: "retry_wait", attempts: 1, failures: 1, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  state.tasks["94"] = {
+    status: "retry_wait", attempts: 2, failures: 2, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  state.tasks["95"] = {
+    status: "quarantined", attempts: 3, failures: 3, candidate_failures: 0,
+    quarantined: true, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  return state;
+}
+
+test("check mode persists one stable fallback clock and never requeues legacy retries early", async () => {
+  const store = fakeStore(legacyRetryState(1000));
+  let now = 60_999;
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => now });
+
+  const early = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(early.outputs.requeued_tasks, 0);
+  assert.equal(early.state.tasks["81"].status, "retry_wait");
+  assert.equal(early.state.tasks["81"].next_attempt_at, new Date(61_000).toISOString());
+  assert.equal(early.state.tasks["94"].next_attempt_at, new Date(121_000).toISOString());
+  assert.equal(early.state.tasks["95"].status, "quarantined");
+  const normalizedVersion = early.state.state_version;
+
+  now = 61_000;
+  const firstReady = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(firstReady.outputs.requeued_tasks, 1);
+  assert.equal(firstReady.state.tasks["81"].status, "queued");
+  assert.equal(firstReady.state.tasks["94"].status, "retry_wait");
+  assert.equal(firstReady.state.tasks["94"].next_attempt_at, new Date(121_000).toISOString());
+  assert.ok(firstReady.state.state_version > normalizedVersion);
+
+  now = 121_000;
+  const secondReady = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(secondReady.outputs.requeued_tasks, 1);
+  assert.equal(secondReady.state.tasks["94"].status, "queued");
+  assert.equal(secondReady.state.tasks["95"].status, "quarantined");
+});
+
+test("check mode requeues all eligible legacy retries in one pass using the same captured fallback timestamp", async () => {
+  const store = fakeStore(legacyRetryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 200_000 });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.requeued_tasks, 2);
+  assert.equal(result.state.tasks["81"].status, "queued");
+  assert.equal(result.state.tasks["94"].status, "queued");
+  assert.equal(result.state.tasks["95"].status, "quarantined");
+  assert.equal(result.state.tasks["95"].quarantined, true);
+  assert.equal(result.state.tasks["81"].next_attempt_at, null);
+  assert.equal(result.state.tasks["94"].next_attempt_at, null);
+});
+
+test("check mode prefers task failure history over the state-level fallback", async () => {
+  const state = legacyRetryState(1000);
+  state.tasks["81"].last_error = {
+    code: "LEGACY_FAILURE", summary: "historical timestamp", at: new Date(100_000).toISOString(),
+  };
+  const store = fakeStore(state);
+  let now = 160_000;
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => now });
+
+  const early = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(early.state.tasks["81"].status, "retry_wait");
+  assert.equal(early.state.tasks["81"].next_attempt_at, new Date(160_000).toISOString());
+
+  now = 160_000;
+  const ready = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(ready.state.tasks["81"].status, "queued");
+});
