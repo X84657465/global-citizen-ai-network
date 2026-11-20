@@ -1,3 +1,22 @@
+## 0.3.48 — 2026-11-20
+
+### Fixed — Stacked CI Trigger Policy
+- Correct the G integration branch allowlist syntax so the branch is a valid member of the pull-request target array.
+- Keep the H branch trigger-policy assertion aligned with the corrected YAML and synchronize the inherited G track version.
+
+### Verification
+- Exact-head Windows Runner CI remains mandatory; no passing CI result or operational telemetry integration is claimed.
+
+## 0.3.47 — 2026-11-20
+
+### Fixed — Quota Overshoot Observability
+- Preserve quota usage values above the configured limit so delayed metering or enforcement overshoot remains observable.
+- Treat quota overrun as a critical condition and recommend operator review rather than rejecting the telemetry snapshot.
+- Add regression coverage for over-limit readings and keep all health recommendations advisory-only.
+
+### Verification
+- Exact-head Windows Runner CI remains mandatory; no runtime quota enforcement or Runner pause is implemented.
+
 ## 0.3.46 — 2026-11-20
 
 ### Fixed — CI Base-Branch Allowlist
