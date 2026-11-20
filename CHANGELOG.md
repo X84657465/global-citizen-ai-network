@@ -1,3 +1,12 @@
+## 0.3.45 — 2026-11-20
+
+### Fixed — Stacked PR CI Dispatch
+- Allow pull requests targeting the G integration branch to run the same exact-head Windows Runner CI workflow.
+- Add a regression assertion so future dependent workstream PRs cannot silently miss the CI branch filter.
+
+### Verification
+- Exact-head CI is required on the updated G branch; this dispatch policy change is not itself a test pass.
+
 ## 0.3.44 — 2026-11-20
 
 ### Added — G Release Evidence Contract
