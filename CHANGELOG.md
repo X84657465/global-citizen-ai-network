@@ -1,3 +1,10 @@
+## 0.3.92 — 2026-11-21
+
+- Harden Agent Factory dependency parsing against invalid backtick-fence info strings; malformed examples can no longer suppress subsequent explicit dependency references.
+- Add regression coverage proving dependency references remain visible after an invalid fence opener.
+- Agent Factory V2 advances to 2.0.61; B track remains 0.1.13.
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; dispatch acceptance is not claimed until all required checks pass.
+
 ## 0.3.91 — 2026-11-21
 
 - Harden Agent Factory multiline dependency parsing to honor matching Markdown fence characters and opening fence lengths; mismatched and undersized fences no longer expose example Issue references to the queue dependency parser.
