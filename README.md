@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.91` · A 線 Agent Factory V2 `2.0.57`（工廠失敗分類與完整觸發路徑回歸防護） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.92` · A 線 Agent Factory V2 `2.0.57`（工廠失敗分類與完整觸發路徑回歸防護） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -22,25 +22,37 @@
 
 
 
-## 🔎 最新五線驗證狀態｜2026-11-20
+## 🧭 A–P 全部工作線｜職責、用途與目前狀態
 
-| 主線 | PR | 最新已查核 CI | 狀態 |
-|---|---:|---|---|
-| A｜Agent Factory V2 | [#134](https://github.com/X84657465/global-citizen-ai-network/pull/134) | [Run #44721263122](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44721263122) | 前一 exact SHA 完整 CI 通過；本次新增的 A 線 synthetic Runner preflight 觸發仍待驗收 |
-| B｜GCAN Product | [#137](https://github.com/X84657465/global-citizen-ai-network/pull/137) | [Run #44580554679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580554679) | 該提交 CI 通過 |
-| C｜Predictive Coding | [#139](https://github.com/X84657465/global-citizen-ai-network/pull/139) | [Run #44580087470](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580087470) | 該提交 CI 通過 |
-| D｜Deep Neural | [#140](https://github.com/X84657465/global-citizen-ai-network/pull/140) | [Run #44580264020](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580264020) | 該提交 CI 通過 |
-| E｜Deep Research | [#141](https://github.com/X84657465/global-citizen-ai-network/pull/141) | [Run #44580352440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580352440) | 該提交 CI 通過 |
+GCAN 由 A–P 共 16 條工作線組成。每條線有獨立責任邊界、版本號與變更紀錄；跨線合作必須保留來源、相容性與驗收證據。**「規劃中」代表尚未宣告完成或正式可用，不代表該線沒有明確職責。**
 
-**注意：** 上表 CI 結果只代表各自列出的 exact commit；任何後續更新都必須重新驗證。五個 PR 目前均為 Draft，尚未合併。介面中的示範資料不代表已接通正式資料來源或持久化服務。
+| 線別 | 工作線 | 核心作用／負責事項 | 目前狀態 | 獨立版本 |
+|---|---|---|---|---:|
+| **A** | Agent Factory V2｜AI 自動開發工廠 | 將需求轉成受控工程任務，負責任務排程、隔離執行、候選程式碼、測試、PR 發布、精確 SHA/CI 驗證、失敗分類與復原；提升 GCAN 自我開發效率。 | 優先開發／持續驗收 | `2.0.57` |
+| **B** | Global Citizen AI Network｜GCAN 主產品 | 面向使用者的核心平台，整合 AI 服務、工作空間、全球知識貢獻、任務審核、透明成本與貢獻帳本，是所有能力最終服務的產品主線。 | 優先開發／產品整合 | `0.1.13` |
+| **C** | Predictive Coding｜預測編碼 | 建立預測、觀測、預測誤差量測、不確定性校準與依證據更新模型的能力，讓系統能量化預測品質並辨識偏差。 | 優先開發／候選實作 | `0.3.9` |
+| **D** | Deep Neural｜深度神經 | 負責深層記憶、推理、知識整合與評估方法，將跨線經驗整理成可重用的知識與推理能力。 | 優先開發／候選實作 | `0.3.10` |
+| **E** | Deep Research｜深度研究 | 執行多來源研究、來源可信度與脈絡追蹤、交叉佐證、反證搜尋及附引用的研究綜整，提供可查核決策依據。 | 優先開發／候選實作 | `0.1.11` |
+| **F** | Cyber Security & Defense｜資安與防禦 | 建立跨線威脅模型、安全控制、對抗性驗證、弱點處理與事件應變能力，降低帳號、資料、供應鏈及執行環境風險。 | 基礎建置 | `0.1.5` |
+| **G** | Release, QA & Integration｜發布、品質與整合 | 管理跨線整合順序、介面相容性、回歸測試門檻、發布證據與回滾準備，確保功能整合不破壞既有能力。 | 優先開發／候選實作 | `0.1.7` |
+| **H** | Observability, Telemetry & Cost/Quota Governance｜可觀測性與成本配額治理 | 監控任務、佇列、Runner 健康度、重試與失敗指標、成本來源、配額門檻及安全暫停告警，避免資源失控。 | 優先開發／候選實作 | `0.1.5` |
+| **I** | Ecosystem, Connectors & Workflow Automation｜生態連接與流程自動化 | 管理外部 API、Webhook、通知與系統狀態同步，提供身分驗證、冪等處理及可安全重播的事件整合。 | 規劃中 | `0.1.0` |
+| **J** | Self-Healing, Chaos & Continuity｜自我修復、混沌測試與持續性 | 設計有界自動復原、熔斷、安全降級、檢查點、備份還原及受控故障注入，驗證系統在故障下仍可安全運作。 | 規劃中 | `0.1.0` |
+| **K** | Knowledge Base, Docs & Governance Playbooks｜知識庫、文件與治理手冊 | 維護架構決策、工作線邊界、操作手冊、交接模板、決策紀錄與故障排除流程，讓知識可追溯、可交接、可持續維護。 | 規劃中 | `0.1.1` |
+| **L** | Multi-Node, Federation & Edge/Cluster Coordination｜多節點聯邦與叢集協調 | 規劃使用者自願加入的節點身分、能力感知排程、租約、防止過期節點寫入的 fencing、健康檢查及跨節點協調。 | 規劃中 | `0.1.0` |
+| **M** | Compliance, Policy Audit & Risk Governance｜合規、政策稽核與風險治理 | 管理行為者與操作稽核紀錄、政策證據、風險清單、限縮例外、有效期限及資料保留控制。 | 規劃中 | `0.1.0` |
+| **N** | Productization, Analytics & Growth/Ecosystem Ops｜產品化、分析與生態營運 | 建立兼顧隱私的產品指標、採用率與品質分析、使用者回饋迴路、引導流程及生態系營運能力。 | 規劃中 | `0.1.0` |
+| **O** | Lifecycle, Deprecation & Legacy Retirement｜生命週期與舊系統退場 | 管理功能淘汰清單、遷移期限、相容性契約、移除核准及舊系統維護成本，避免技術債無限累積。 | 規劃中 | `0.1.0` |
+| **P** | Governance, Ethics & Trust/Policy Evolution｜治理、倫理、信任與政策演進 | 定義自動化自主等級、人類核准門檻、信任原則、政策演進與跨線優先級仲裁，確保平台發展符合透明、負責與可問責原則。 | 規劃中 | `0.1.1` |
 
-### 五線入口
+### A–P 如何協作
 
-- A｜[Agent Factory V2 工廠控制台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2)
-- B｜[GCAN Product 產品線](https://github.com/X84657465/global-citizen-ai-network/tree/feat/gcan-product-homepage)
-- C｜[Predictive Coding 預測編碼](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
-- D｜[Deep Neural 深度神經工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core)
-- E｜[Deep Research 深度研究工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
+- **產品與執行核心（A–B）：** A 提供可控的工程自動化；B 承接使用者需求並提供真實產品場景。
+- **智慧與研究能力（C–E）：** C 量化預測與誤差，D 整合記憶與推理，E 提供來源可查核的研究證據。
+- **品質與安全控制（F–H）：** F 管安全，G 管整合與發布品質，H 管運行狀態、資源、成本與配額。
+- **平台擴展與長期治理（I–P）：** I 串接外部生態，J 提升韌性，K 管理知識與操作制度，L 規劃多節點，M 管合規風險，N 管產品分析與成長，O 管生命週期，P 管倫理、信任與治理決策。
+
+A–H 是目前優先推進的工作線；I–P 是已登錄、各自獨立版本化的後續工作線。工作線狀態與版本號不等於功能完成、CI 通過或正式上線。每次變更仍須更新受影響工作線的版本與紀錄，並以最新提交的完整 CI 和正式審查作為驗收依據。
 
 ## 🧭 快速導覽
 
@@ -79,8 +91,8 @@
 - **GitHub 專案展示線：** [PR #139（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
 - **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
 - **第四線深度神經：** [PR #140（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/140) · [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
-- **第五線深度研究：** [PR #141（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/141) · [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
-- **五線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
+- **第A–P 工作線深度研究：** [PR #141（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/141) · [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
+- **A–P 工作線版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
 - **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
 
@@ -405,13 +417,13 @@ http://localhost:3000
 
 ## 🎬 圖片與影片介紹｜Visual & Video Tour
 
-### GCAN 五線總覽
+### GCAN A–P 工作線總覽
 
 <p align="center">
-  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN 五線架構圖" width="100%" />
+  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN A–P 工作線架構圖" width="100%" />
 </p>
 
-五條開發線各自擁有獨立工作台，透過來源追蹤、版本管理、測試與接收線審核互相協作。
+各條工作線依責任邊界擁有獨立工作台或規劃範圍，透過來源追蹤、版本管理、測試與接收線審核互相協作。
 
 ### 影片導覽
 
@@ -420,9 +432,9 @@ http://localhost:3000
 - [影片分鏡與旁白稿](docs/media/gcan-introduction-storyboard.md)
 - [即時 CI 與開發紀錄](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-### 五線工作台與進度
+### A–P 工作線工作台與進度
 
-> D、E 兩線以五線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
+> D、E 兩線以A–P 工作線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
 
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
@@ -434,15 +446,15 @@ http://localhost:3000
 
 > CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
 
-## 🧠 五線協作與持續學習
+## 🧠 A–P 工作線協作與持續學習
 
-本專案採五線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經（Deep Neural）、E 深度研究（Deep Research）。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
+本專案採A–P 工作線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經（Deep Neural）、E 深度研究（Deep Research）。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
 
-所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [五線工程治理規範](docs/engineering-governance.md)。
+A–P 每條工作線都維持獨立版本與變更歷史；所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [A–P 工作線工程治理規範](docs/engineering-governance.md)。
 
-## 🔄 五線互輔互成｜Predict → Learn → Build → Validate
+## 🔄 A–P 工作線互輔互成｜Predict → Learn → Build → Validate
 
-五線不是五個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
+A–P 工作線不是五個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
 
 | 線別 | 核心責任 | 支援其他線的方式 |
 |---|---|---|
@@ -452,7 +464,7 @@ http://localhost:3000
 | D｜深度神經（Deep Neural） | 記憶、推理、知識整合與評估 | 將跨線證據整理為可追溯知識、推理策略及評估建議 |
 | E｜深度研究（Deep Research） | 多來源研究、來源查核、反證與引用報告 | 提供可追溯的研究證據、方法、來源可信度與可執行建議 |
 
-共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋五線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
+共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋A–P 工作線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
 
 ### 第三線架構
 
