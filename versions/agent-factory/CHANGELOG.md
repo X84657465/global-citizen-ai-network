@@ -1,3 +1,9 @@
+## 2.0.26 — 2026-11-20
+
+- Set the Ubuntu candidate resolver to Bash instead of inheriting the Windows PowerShell default.
+- Align PR concurrency grouping with the policy test: serialize by PR/ref, not by individual head SHA, so pending superseded commits coalesce.
+- Added a regression assertion that Ubuntu-only control jobs use a Linux-compatible shell. Runtime verification remains pending exact-head CI.
+
 ## 2.0.25 — 2026-11-20
 
 - Stabilized the exact-SHA concurrency policy test by matching the literal workflow expression.
