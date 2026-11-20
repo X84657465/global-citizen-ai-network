@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.0` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.5` · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -88,6 +88,27 @@ AI 的價值不應只集中在少數大型平台。GCAN 希望建立一個開放
 | AI 服務成本與實際資源消耗不透明 | 區分供應商費用、推估成本、人工審核與營運支出 |
 | 社群貢獻難以驗證與公平評價 | 以明確驗收條件、審核紀錄及可稽核帳本管理 |
 | 分散式運算容易產生隱私與設備安全疑慮 | 採自願加入、明確授權、隔離執行及可退出原則 |
+
+
+## 🖥️ 產品首頁與五線工作台入口
+
+新版網站首頁將「四大平台價值」與「A–E 五條工程工作線」分層呈現，並提供各工作台入口、共享治理閉環、安全原則與版本文件導覽。
+
+| 工作線 | 核心責任 | 工作台入口 |
+|---|---|---|
+| A｜Agent Factory V2 | 任務派送、工程執行、隔離測試、修復與交付 | [A 線工廠預覽](https://global-citizen-ai-network-git-fe-c36d0b-acmes-projects-3dfbdf35.vercel.app/factory) |
+| B｜Global Citizen AI Network | AI 工作空間、知識貢獻、透明帳本與平台流程 | [B 線產品入口](https://global-citizen-ai-network.vercel.app/workspace)（需登入與環境設定） |
+| C｜Predictive Coding | 預測、觀測、誤差量測、校準與漂移 | [C 線預測工作台](https://global-citizen-ai-network-git-fe-2dd0a1-acmes-projects-3dfbdf35.vercel.app/predictive-coding)（示範資料） |
+| D｜Deep Neural | 可追溯記憶、證據檢索、推理與評估 | [D 線神經工作台](https://global-citizen-ai-network-git-fe-c5aecf-acmes-projects-3dfbdf35.vercel.app/deep-neural)（互動原型） |
+| E｜Deep Research | 多來源研究、來源查核、反證與引用報告 | [E 線研究工作台](https://global-citizen-ai-network-git-fe-fef10e-acmes-projects-3dfbdf35.vercel.app/deep-research)（候選介面） |
+
+![GCAN 五線架構](docs/assets/gcan-five-track-architecture.svg)
+
+> 各工作台網址屬於開發預覽，不代表正式服務已全面上線。示範資料、外部服務連線、持久化與登入狀態必須依各線文件及精確提交驗證。
+
+網站五線責任、閉環與驗收規則以 [五線工程治理規範](docs/engineering-governance.md) 為準。
+
+---
 
 ## 🧭 平台核心
 

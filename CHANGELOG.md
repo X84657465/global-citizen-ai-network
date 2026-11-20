@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.5 — 2026-11-20
+
+### Added
+- Redesign the actual GCAN public homepage with a cohesive dark technology brand and responsive desktop/mobile layouts.
+- Distinguish the four platform value pillars from the canonical A–E engineering workstreams.
+- Add five workbench entry cards with explicit development, preview and demo maturity labels.
+- Add the five-track architecture visual, shared prediction-error learning loop, product entry points, trust/governance rules and technical documentation links.
+- Publish the GCAN hero and five-track architecture SVGs under the website public asset path.
+- Expand page metadata and social preview information to match the five-workstream product definition.
+- Add homepage regression tests for track naming, workbench destinations, learning-loop stages, preview disclosures, responsive layout and accessibility.
+
+### Verification
+- Exact-head CI and review are required before this candidate is accepted.
+- Linked A/C/D/E workbench URLs are development previews, not production-service guarantees.
+- No database schema, account permissions, payment behavior or production data flow is changed.
+
+
 All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` only.
 
 ## 0.1.1 — 2026-11-20
