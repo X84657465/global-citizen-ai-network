@@ -1,3 +1,9 @@
+## 0.3.88 — 2026-11-21
+
+- Fix pull-request CI target-branch filters for the active Agent Factory base and its current dependent candidate branch, so exact-head quality, Windows Runner and database/RLS jobs can run on PR lifecycle events.
+- Add trigger-policy regression coverage. Preserve main, showcase and repository_dispatch triggers; no runner permissions, secrets, auto-merge or deployment behavior changed.
+- Exact-head full CI for the control-plane change and dependent A-line PRs remains required before acceptance.
+
 ## 0.3.87 — 2026-11-20
 
 - Integrate the GCAN public homepage, five-track architecture visuals and login entry on top of Agent Factory V2 without replacing the factory-owned Workspace client, API, validation or RLS contracts.
