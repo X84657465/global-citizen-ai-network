@@ -58,6 +58,11 @@ test("CI captures Supabase output and fails closed before emitting sanitized dia
   const section = workflow.slice(start, next < 0 ? workflow.length : next);
 
   assert.match(section, /supabase start\b[^\r\n]*2>&1\x27\s*\|\s*Out-String\b/, "cmd.exe must capture stderr before PowerShell collects the combined output");
+  const capture = section.indexOf("2>&1");
+  const exitCode = section.indexOf("$startExitCode = $LASTEXITCODE");
+  const redact = section.indexOf("$redactedOutput = $startOutput | node scripts/redact-supabase-start-output.mjs");
+  const redactionExit = section.indexOf("$redactionExitCode = $LASTEXITCODE");
+  assert.ok(capture >= 0 && exitCode > capture && redact > exitCode && redactionExit > redact, "capture the CLI exit code before redaction changes LASTEXITCODE");
   assert.ok(section.includes("node scripts/redact-supabase-start-output.mjs"));
   assert.ok(section.includes("$redactionExitCode -ne 0"), "redaction failure must fail closed");
   assert.ok(section.includes("refusing to emit unredacted output"));
