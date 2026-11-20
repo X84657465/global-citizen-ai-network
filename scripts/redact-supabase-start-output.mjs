@@ -13,6 +13,13 @@ export function redactSupabaseStartOutput(output) {
     /(^|\r?\n)([ \t]*(?:anon(?:ymous)?\s+key|service[_ -]?role\s+key|publishable\s+key|secret\s+key|(?:storage|s3)\s+(?:access|secret)\s+key)\s*[:=]\s*)[^\r\n]*/gi,
     "$1$2[REDACTED]"
   );
+  // Supabase CLI renders Storage S3 credentials in bordered table rows such as
+  // "? Access Key ? value ?" rather than a conventional key:value pair.
+  // Redact only the value cell while preserving the useful diagnostic label.
+  redacted = redacted.replace(
+    /(^|\r?\n)([^\r\n]*[?│|][ \t]*(?:storage[ \t]+)?(?:access|secret)[ \t]+key[ \t]*[?│|][ \t]*)([^?│|\r\n]+?)([ \t]*[?│|][^\r\n]*)/gi,
+    "$1$2[REDACTED]$4"
+  );
   redacted = redacted.replace(/\bsb_(?:secret|publishable)_[A-Za-z0-9_-]+\b/gi, "[REDACTED]");
   redacted = redacted.replace(
     /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g,
