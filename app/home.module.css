@@ -33,3 +33,35 @@
 @media(max-width:820px){.headerInner{min-height:76px;gap:13px}.nav{display:none}.headerActions{margin-left:auto}.heroInner{grid-template-columns:1fr;padding:56px 0 35px}.heroCopy{max-width:720px}.heroVisual{min-height:320px;margin:8px 24px 0}.visualTagTop{right:-17px}.visualTagBottom{left:-17px}.pillarGrid{grid-template-columns:repeat(2,1fr)}.architectureIntro,.docsHeading{display:block}.architectureLegend{margin-top:20px}.architectureNote{align-items:flex-start;flex-direction:column;gap:8px}}
 @media(max-width:620px){.headerInner,.heroInner,.heroBottom,.pillarsSection,.workstreamsSection,.architectureSection,.loopSection,.productSection,.governanceSection,.docsSection,.finalCta,.footerTop,.footerBottom{width:min(100% - 34px,540px)}.headerInner{min-height:72px}.brandMark{width:37px;height:37px;border-radius:11px}.brandText strong{font-size:10px}.brandText small{font-size:8px}.loginLink{display:none}.headerCta{min-height:38px;padding:0 12px;font-size:10px}.heroInner{padding:47px 0 29px}.hero h1{margin-top:20px;font-size:clamp(38px,10vw,49px)}.heroLead{font-size:12px;line-height:1.95}.heroActions{gap:15px}.primaryButton{min-height:42px;padding:0 13px;font-size:10px}.secondaryButton{font-size:10px}.heroPrinciples{gap:9px 13px;margin-top:24px}.heroPrinciples span{font-size:8px}.heroVisual{min-height:245px;margin:0 5px}.visualGlow{width:300px;height:300px}.visualFrame{border-radius:13px}.visualTagTop{top:8px;right:-8px;padding:7px 9px;font-size:8px}.visualTagBottom{bottom:6px;left:-8px;padding:7px 9px;font-size:6px}.heroBottom{grid-template-columns:repeat(2,1fr);gap:15px 10px;padding:15px 0 17px}.heroBottomLabel{grid-column:1/-1}.heroFact{padding-left:10px}.heroFact b{font-size:12px}.heroFact span{font-size:8px}.stageBar{justify-content:flex-start;padding:14px 17px;gap:8px 12px}.stageBar p{order:3;width:100%;font-size:9px}.stageBar a{margin-left:auto}.pillarsSection,.workstreamsSection,.architectureSection,.loopSection,.productSection,.governanceSection,.docsSection{padding:66px 0}.sectionHeading h2,.architectureIntro h2,.governanceHeader h2,.docsHeading h2{font-size:27px}.sectionHeading>p,.architectureIntro p,.governanceHeader p,.docsHeading p{font-size:10px}.pillarGrid{grid-template-columns:1fr;gap:9px;margin-top:24px}.pillarCard{min-height:0;padding:18px}.pillarCard h3{margin:14px 0 7px}.workstreamsTop{display:block}.workstreamsTop .textLink{margin-top:18px}.trackGrid{display:grid;grid-template-columns:1fr;gap:10px}.trackCard,.trackCard:nth-child(4),.trackCard:nth-child(5){grid-column:auto;min-height:0;padding:18px}.trackMission{min-height:0}.trackFooter{padding-top:17px}.trackFootnote{font-size:8px}.architectureLegend{gap:8px 11px}.architectureVisual{margin:0 -2px;border-radius:11px}.architectureNote{padding:12px}.architectureNote>div{white-space:normal}.loopRail{grid-template-columns:repeat(2,1fr);gap:8px}.loopStep{min-height:77px;padding:11px}.loopStep b{font-size:9px}.loopPrinciple{align-items:flex-start;padding:12px}.productGrid,.trustGrid,.docsGrid{grid-template-columns:1fr;gap:9px;margin-top:23px}.productCard{min-height:0;padding:16px}.trustCard{min-height:0;padding:15px}.docCard{min-height:0;padding:14px}.docsHeading .textLink{margin-top:16px}.finalCta{flex-wrap:wrap;gap:13px;margin-bottom:46px;padding:18px}.finalCtaMark{width:42px;height:42px}.finalCta>div:nth-child(2){flex-basis:calc(100% - 60px)}.finalCta h2{font-size:15px}.finalCta p{font-size:9px;line-height:1.7}.finalCtaButton{margin-left:55px}.footerTop,.footerBottom{align-items:flex-start;flex-direction:column;gap:9px;padding:17px 0}.footerTop{min-height:0}.footerTop p{font-size:8px}.footerBottom{min-height:0}.footerBottom>div{gap:13px}}
 @media(prefers-reduced-motion:reduce){.headerCta,.primaryButton,.finalCtaButton,.pillarCard,.trackCard,.productCard{transition:none!important;animation:none!important}.headerCta:hover,.primaryButton:hover,.finalCtaButton:hover,.pillarCard:hover,.trackCard:hover,.productCard:hover{transform:none}}
+
+/* Readability pass: keep supporting copy comfortably readable on desktop and mobile. */
+.brandText strong{font-size:13px}.brandText small{font-size:11px}
+.nav a,.loginLink,.headerCta,.primaryButton,.secondaryButton,.textLink{font-size:14px}
+.eyebrow,.sectionEyebrow{font-size:12px}
+.heroLead{font-size:clamp(16px,1.25vw,18px);line-height:1.9}
+.heroPrinciples span{font-size:12px}
+.visualTagTop{font-size:12px}.visualTagBottom{font-size:10px}
+.heroBottomLabel,.heroFact span{font-size:11px}
+.stageLabel,.stageBar a{font-size:11px}.stageBar p{font-size:13px}
+.sectionHeading>p,.architectureIntro p,.governanceHeader p,.docsHeading p,.finalCta p{font-size:15px;line-height:1.9}
+.pillarCard h3{font-size:18px}.pillarCard p{font-size:13px;line-height:1.85}
+.trackCode{font-size:11px}.trackTitleGroup h3{font-size:20px}.trackTitleGroup>span{font-size:12px}
+.trackMission{font-size:13px;line-height:1.8}.trackScope li{font-size:12px}.trackStatus{font-size:10px}.trackAction{font-size:12px}.trackFootnote{font-size:12px}
+.architectureLegend span{font-size:10px}
+.productCard h3{font-size:16px}.productCard p{font-size:13px}
+.trustCard h3{font-size:14px}.trustCard p{font-size:13px}
+.docCard b{font-size:13px}.docCard p{font-size:12px}
+.finalCta h2{font-size:21px}.finalCta p{font-size:13px}
+.footerBrand b{font-size:12px}.footerTop p,.footerBottom{font-size:11px}
+@media(max-width:1120px){.nav a{font-size:12px}}
+@media(max-width:620px){
+ .brandText strong{font-size:12px}.brandText small{font-size:10px}
+ .headerCta,.primaryButton,.secondaryButton{font-size:13px}
+ .heroLead{font-size:16px}.heroPrinciples span{font-size:11px}
+ .visualTagTop{font-size:10px}.visualTagBottom{font-size:9px}
+ .heroFact span{font-size:10px}.stageBar p{font-size:12px}
+ .sectionHeading>p,.architectureIntro p,.governanceHeader p,.docsHeading p{font-size:14px}
+ .pillarCard p{font-size:14px}.trackMission{font-size:13px}.trackScope li{font-size:12px}
+ .trackFootnote{font-size:11px}.productCard p,.trustCard p{font-size:13px}
+ .docCard p{font-size:12px}.footerTop p,.footerBottom{font-size:10px}
+}
