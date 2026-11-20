@@ -15,11 +15,13 @@ test("root and Agent Factory numeric release metadata stay synchronized", () => 
   const manifest = JSON.parse(readFileSync(new URL("../versions/manifest.json", import.meta.url), "utf8"));
   const rootVersion = readFileSync(new URL("../VERSION", import.meta.url), "utf8").trim();
   const factoryVersion = readFileSync(new URL("../versions/agent-factory/VERSION", import.meta.url), "utf8").trim();
+  const predictiveCodingVersion = readFileSync(new URL("../versions/predictive-coding/VERSION", import.meta.url), "utf8").trim();
   assert.equal(packageJson.version, rootVersion);
   assert.equal(packageLock.version, rootVersion);
   assert.equal(packageLock.packages[""].version, rootVersion);
   assert.equal(manifest.overall, rootVersion);
   assert.equal(manifest.tracks.A.version, factoryVersion);
+  assert.equal(manifest.tracks.C.version, predictiveCodingVersion);
 });
 
 test("full CI runs only on main pushes and pull-request lifecycle events", () => {

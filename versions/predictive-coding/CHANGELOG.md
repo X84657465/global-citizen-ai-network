@@ -1,3 +1,27 @@
+## 0.3.8 — 2026-11-20
+
+### Contract hardening
+- Require ECE options to be plain objects with only own string key `bins`.
+- Reject inherited, symbol, non-enumerable and accessor options before reading configuration.
+
+### Regression coverage
+- Add adversarial option-container tests, including a getter that must not execute.
+
+### Verification
+- Exact-head CI remains required; no test pass is claimed.
+
+## 0.3.7 — 2026-11-20
+
+### Fixed
+- Validate Expected Calibration Error option containers before reading configuration.
+- Reject null, arrays, primitive values and unsupported option keys instead of silently accepting misspelled settings and falling back to the default bin count.
+
+### Tests
+- Add malformed-container and unknown-option regression coverage.
+
+### Verification
+- Exact-head CI required; no production model or prediction records were changed.
+
 # Predictive Coding changelog
 
 ## 0.3.6 — 2026-11-20

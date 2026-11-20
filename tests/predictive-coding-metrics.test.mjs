@@ -40,6 +40,14 @@ test("handles the exact-one probability boundary in the final calibration bin", 
   assert.equal(calculateExpectedCalibrationError([1, 1, 0, 0], [1, 1, 0, 0], { bins: 2 }), 0);
   assert.equal(calculateExpectedCalibrationError([0, 0, 1, 1], [0, 0, 1, 1], { bins: 10 }), 0);
 });
+test("rejects malformed ECE option containers and unknown option keys", () => {
+  for (const options of [null, [], "10", 10]) {
+    assert.throws(() => calculateExpectedCalibrationError([0.5], [1], options), /options must be an object/);
+  }
+  assert.throws(() => calculateExpectedCalibrationError([0.5], [1], { bin: 2 }), /Unsupported ECE option: bin/);
+  assert.throws(() => calculateExpectedCalibrationError([0.5], [1], { bins: 2, strategy: "quantile" }), /Unsupported ECE option: strategy/);
+});
+
 test("rejects malformed ECE arrays, probabilities, outcomes and bin counts", () => {
   assert.throws(() => calculateExpectedCalibrationError([], [], { bins: 10 }), /non-empty arrays/);
   assert.throws(() => calculateExpectedCalibrationError([0.2], [0, 1]), /equally sized/);
@@ -73,4 +81,20 @@ test("rejects sparse prediction and observation arrays instead of silently skipp
   assert.throws(() => calculateMeanAbsoluteError(denseProbability, sparseOutcome), /finite number/);
   assert.throws(() => calculateBrierScore(denseProbability, sparseOutcome), /finite number/);
   assert.throws(() => calculateExpectedCalibrationError(denseProbability, sparseOutcome), /finite number/);
+});
+
+test("ECE rejects inherited, symbol, non-enumerable and accessor option keys", () => {
+  const inherited = Object.create({ bins: 2 });
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0], inherited), /plain object/);
+
+  const symbolOption = { bins: 2, [Symbol("unexpected")]: true };
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0], symbolOption), /Unsupported ECE option/);
+
+  const hiddenOption = {};
+  Object.defineProperty(hiddenOption, "unexpected", { value: true, enumerable: false });
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0], hiddenOption), /Unsupported ECE option/);
+
+  const accessorOption = {};
+  Object.defineProperty(accessorOption, "bins", { get() { throw new Error("getter must not execute"); } });
+  assert.throws(() => calculateExpectedCalibrationError([0.2], [0], accessorOption), /data property/);
 });

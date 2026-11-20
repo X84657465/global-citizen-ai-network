@@ -1,3 +1,13 @@
+## 0.3.42 — 2026-11-20
+
+### Integration — Agent Factory and Predictive Coding
+- Synchronize Agent Factory V2 with the latest B base through an explicit two-parent integration commit while preserving A's newer factory implementation.
+- Import Predictive Coding 0.3.8 ECE option hardening, adversarial regression tests, and the matching track version/changelog.
+- Keep repository package metadata and manifest aligned at 0.3.42; align Track C manifest with its 0.3.8 version file.
+
+### Verification
+- Merge ancestry and source read-back are checked; exact-head GitHub Actions CI remains required. No test pass is claimed.
+
 ## 0.3.41 — 2026-11-20
 
 ### Fixed — Agent Factory Release Metadata and Exact-Head Verification
