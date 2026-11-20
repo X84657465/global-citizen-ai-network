@@ -302,3 +302,16 @@ test("rejects indented code-block bullets instead of treating them as task direc
     /indented code-block directives/,
   );
 });
+
+test("rejects tab-indented code-block bullets in task directive sections", () => {
+  const issue = validIssue({
+    body: validIssue().body.replace(
+      "- app/settings/page.tsx",
+      "\t- app/tab-indented-example.ts",
+    ),
+  });
+  assert.throws(
+    () => validateAndBuildTask(issue, "X84657465/global-citizen-ai-network"),
+    /indented code-block directives/,
+  );
+});
