@@ -68,3 +68,12 @@
 - Keep push execution restricted to repository-owner events and verify the five workstream branches in the CI policy test.
 
 Verification: exact-head CI and database/RLS validation required; no merge or deployment implied.
+
+
+## 0.3.3 — 2026-11-20
+
+### Fixed
+- Register `tests/deep-neural-contracts.test.mjs` in the canonical unit-test command so all runtime contract and Track E adapter cases actually execute in CI.
+
+### Verification
+- Exact-head CI must execute the complete Deep Neural contract suite; registration alone is not acceptance evidence.

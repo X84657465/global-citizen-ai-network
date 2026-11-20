@@ -159,3 +159,13 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 - Synchronize Deep Neural to 0.3.2 and repository metadata to 0.3.7.
 
 Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or deployment implied.
+
+
+## 0.3.8 — 2026-11-20
+
+### Fixed
+- Ensure Deep Neural runtime contracts, including the Track E ResearchSourceRecord adapter, are part of the blocking CI unit-test suite.
+- Synchronize Track D to 0.3.3 and repository metadata to 0.3.8.
+
+### Verification
+- Exact-head CI must pass the full unit suite, type checking, lint, production build and PostgreSQL/RLS validation.
