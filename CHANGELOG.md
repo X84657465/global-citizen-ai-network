@@ -1,3 +1,11 @@
+## 0.3.80 — 2026-11-20
+
+- Port the B-line strict workspace message contract into the A integration branch: validate message UUID, role, content and timezone-qualified timestamp before rendering.
+- Reject malformed API envelopes and catch network/JSON parsing failures without crashing the workspace; preserve pending-request idempotency handling.
+- Add adversarial unit coverage for malformed messages, invalid calendar dates, clock fields and timezone offsets.
+- Align the integrated B product track metadata with its current release, 0.1.12. Agent Factory V2 remains 2.0.51.
+- Exact-head full CI on the resulting commit is mandatory; no completion is claimed before all required Actions jobs pass.
+
 ## 0.3.79 — 2026-11-20
 
 - Harden the conversation message read API with an explicit authenticated owner filter and deterministic newest-500 pagination returned in chronological order.
