@@ -8,6 +8,7 @@ const runnerSmoke = readFileSync(new URL("../.github/workflows/self-hosted-runne
 const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const resolver = readFileSync(new URL("../scripts/resolve-agent-task-pr.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const patchGenerator = readFileSync(new URL("../scripts/generate-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const workflowLevelConcurrency = workflow.split("\non:\n", 1)[0];
 
 function findJobSection(source, name) {
@@ -482,8 +483,11 @@ test("preflight captures and uploads both synthetic and real candidate offline-t
 
 test("Ollama output truncation is classified as task-scoped, not a system breaker failure", () => {
   assert.ok(patchGenerator.includes('const failTask = (message) => fail(message, "task");'));
-  const tokenLimitGuard = /if \\(result\\.done_reason === "length"\\) \\{[\\s\\S]*?failTask\\(/.exec(patchGenerator);
-  assert.ok(tokenLimitGuard, "token-limit output must use the task-scoped failure path");
+  const guardStart = patchGenerator.indexOf('if (result.done_reason === "length")');
+  const guardEnd = patchGenerator.indexOf("if (Buffer.byteLength", guardStart);
+  assert.ok(guardStart >= 0 && guardEnd > guardStart, "token-limit guard must exist");
+  assert.ok(patchGenerator.slice(guardStart, guardEnd).includes("failTask("),
+    "token-limit output must use the task-scoped failure path");
   assert.ok(preflight.includes('$env:AGENT_FACTORY_FAILURE_SCOPE -eq "task"'),
     "the preflight classifier must preserve the task scope before writing durable state");
 });

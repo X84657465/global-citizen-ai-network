@@ -15,13 +15,7 @@ import { calculatePatchOutputTokenBudget, selectPatchBatchSourceFiles, splitPatc
 import { markAgentFactoryTaskFailure } from "../lib/agent-failure-scope.mjs";
 
 const fail = (message, scope = "system") => {
-  if (scope === "task" && process.env.GITHUB_ENV) {
-    try {
-      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
-    } catch {
-      // Preserve the primary validation failure if the workflow environment file is unavailable.
-    }
-  }
+  if (scope === "task") markAgentFactoryTaskFailure(process.env.GITHUB_ENV);
   console.error("Agent patch generation failed: " + message);
   process.exit(1);
 };

@@ -1,3 +1,11 @@
+## 0.3.84 — 2026-11-20
+
+- Correct the task-scoped failure marker writer to emit a real newline in GitHub Actions' environment file; cover both successful propagation and safe failure behavior.
+- Add a CI policy assertion tying Ollama token-limit exhaustion to the task-scoped failure path so it cannot increment the global system breaker.
+- Agent Factory V2 advances to 2.0.55; root/package/lock/manifest metadata remains synchronized.
+- No production data, database schema, secrets, merge or deployment changes.
+- Exact-head full CI and controlled Windows factory smoke remain required; no live task acceptance is claimed.
+
 ## 0.3.83 — 2026-11-20
 
 - Extract task-failure scope persistence into a small tested helper so Ollama output truncation and invalid patch proposals cannot be misrecorded as global infrastructure failures.

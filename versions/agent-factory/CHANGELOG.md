@@ -1,3 +1,12 @@
+## 2.0.55 — 2026-11-20
+
+### Fixed — Ensure task failure scope reaches GitHub Actions
+- Emit a real newline in the GitHub Actions environment file when persisting task-scoped failure classification.
+- Add unit coverage for the marker writer and a CI policy assertion that token-limit truncation uses the task-scoped path.
+
+### Verification
+- Exact-head full CI and controlled V2 Windows smoke remain required. No live factory completion is claimed.
+
 ## 2.0.54 — 2026-11-20
 
 ### Reliability — Preserve task-scoped patch failures
