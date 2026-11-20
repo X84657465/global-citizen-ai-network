@@ -192,7 +192,11 @@ Dependencies: #777
 test("preflight accepts an optional Dependencies section and returns normalized issue numbers", () => {
   const body = validIssue().body.replace(
     "## Goal",
-    "## Dependencies\\n- #94 migration chain\\n- #74 task discovery\\n\\n## Goal",
+    `## Dependencies
+- #94 migration chain
+- #74 task discovery
+
+## Goal`,
   );
   const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
   assert.deepEqual(task.dependencies, [74, 94]);
