@@ -1,3 +1,9 @@
+## 0.3.94 — 2026-11-21
+
+- Persist legacy Agent Factory retry deadlines once, preventing unrelated state writes from shifting retry eligibility between check cycles.
+- Agent Factory V2 advances to 2.0.63; root, package, lockfile, manifest, homepage and track changelog are synchronized.
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
 ## 0.3.93 — 2026-11-21
 
 - Recover migrated Agent Factory V2 `retry_wait` tasks whose legacy records have no `next_attempt_at`, preferring task failure time and using one immutable state timestamp only when task history is absent.
