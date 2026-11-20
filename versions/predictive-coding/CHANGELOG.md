@@ -1,4 +1,15 @@
-# Predictive Coding Changelog
+# Predictive Coding changelog
+
+## 0.3.6 — 2026-11-20
+
+### Fixed
+- Make prediction metric pairing dense and index-complete; sparse arrays now fail validation instead of being skipped or producing inconsistent results.
+
+### Tests
+- Added sparse-array regressions for MAE, Brier score and Expected Calibration Error.
+
+### Verification
+- Exact-head CI required.
 
 ## 0.3.5 — 2026-11-20
 

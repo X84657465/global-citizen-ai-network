@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.20 — 2026-11-20
+
+### Fixed
+- Reject sparse prediction/observation arrays in MAE, Brier and ECE calculations instead of allowing inconsistent skipped-sample behavior.
+- Preserve strict finite-number validation for every sample index.
+
+### Verification
+- Added sparse prediction and sparse outcome regression cases across all three metrics; exact-head CI required.
+
 ## 0.3.19 — 2026-11-20
 
 ### Fixed

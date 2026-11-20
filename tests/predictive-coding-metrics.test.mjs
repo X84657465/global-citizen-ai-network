@@ -59,3 +59,18 @@ test("rejects arithmetic overflow instead of emitting infinite prediction errors
 test("computes large finite MAE values without overflowing an intermediate sum", () => {
   assert.equal(calculateMeanAbsoluteError([0, 0], [1e308, 1e308]), 1e308);
 });
+
+
+test("rejects sparse prediction and observation arrays instead of silently skipping missing samples", () => {
+  const sparsePrediction = new Array(2);
+  const sparseObservation = [0, 1];
+  const sparseOutcome = new Array(2);
+  const denseProbability = [0.2, 0.8];
+
+  assert.throws(() => calculateMeanAbsoluteError(sparsePrediction, sparseObservation), /finite number/);
+  assert.throws(() => calculateBrierScore(sparsePrediction, sparseObservation), /finite number/);
+  assert.throws(() => calculateExpectedCalibrationError(sparsePrediction, sparseObservation), /finite number/);
+  assert.throws(() => calculateMeanAbsoluteError(denseProbability, sparseOutcome), /finite number/);
+  assert.throws(() => calculateBrierScore(denseProbability, sparseOutcome), /finite number/);
+  assert.throws(() => calculateExpectedCalibrationError(denseProbability, sparseOutcome), /finite number/);
+});
