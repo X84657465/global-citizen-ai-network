@@ -1,3 +1,15 @@
+## 2.0.22 — 2026-11-20
+
+### Durable write confirmation
+- Verify GitHub returns the expected machine-managed Issue and exact persisted state payload after both creation and update.
+- Reject stale or misleading successful-looking responses; reread the durable record before treating an ambiguous write as recovered.
+
+### Regression coverage
+- Add a PATCH response fixture that returns the previous state and verify the store rejects it without reporting the new version as persisted.
+
+### Verification
+- Exact-head Windows Runner CI remains required; no test pass is claimed.
+
 ## 2.0.21 — 2026-11-20
 
 ### Lease recovery hardening
