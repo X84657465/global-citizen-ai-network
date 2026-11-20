@@ -1,3 +1,15 @@
+## 0.3.44 — 2026-11-20
+
+### Added — G Release Evidence Contract
+- Add a dependency-free validator for repository, track, PR, base/head SHA, timezone-qualified timestamp and exact CI run provenance.
+- Reject unknown fields, duplicate check names and required gates, stale expected identity, pending/failed checks, malformed run metadata and invalid timezone offsets.
+- Add regression tests and a documented trust boundary: evidence structure is validated locally; workflow authenticity must be independently verified by a trusted caller.
+- Rebase the G implementation slice onto the latest A–P governance integration baseline to avoid a stale stacked-PR base.
+
+### Verification
+- The new G branch is based on the current A–P governance head.
+- Exact-head Windows Runner CI remains required; no test pass or release acceptance is claimed.
+
 ## 0.3.43 — 2026-11-20
 
 ### Fixed — dependent-branch CI dispatch
