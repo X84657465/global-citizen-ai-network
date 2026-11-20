@@ -1,3 +1,9 @@
+## 0.3.97 — 2026-11-21
+
+- Synchronize the complete A–P registry with the current Agent Factory V2 release: A 2.0.66 / repository 0.3.97; preserve B 0.1.13 and independent C–P versions.
+- A–P responsibilities, planned/active status, README registry, manifest, governance baseline and repository package versions are aligned.
+- Exact-head CI and independent formal review remain required; no merge or production-readiness claim is implied.
+
 ## 0.3.93 — 2026-11-21
 
 - Refine the repository homepage so all A–P lines are explicitly explained as 16 distinct workstreams; correct stale five-track labels and remove the partial five-track graphic from the A–P overview.
