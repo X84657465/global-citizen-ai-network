@@ -216,6 +216,29 @@ test("invalid backtick fence info strings do not suppress required task sections
   assert.deepEqual(task.allowed_paths, ["app/settings/page.tsx", "tests/settings-page.test.ts"]);
 });
 
+test("indented code headings cannot create or replace task sections", () => {
+  const body = [
+    "## Goal",
+    "Implement a bounded settings improvement with accessible empty and error states.",
+    "    ## Allowed paths",
+    "    - app/hidden-example.ts",
+    "\t## Acceptance criteria",
+    "\t- This is an indented code example, not a section",
+    "## Allowed paths",
+    "- app/settings/page.tsx",
+    "- tests/settings-page.test.ts",
+    "## Acceptance criteria",
+    "- Empty state is accessible",
+    "- Error state has a retry action",
+    "## Explicit exclusions",
+    "- No database schema changes",
+    "- No production deployment",
+  ].join("\\n");
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, ["app/settings/page.tsx", "tests/settings-page.test.ts"]);
+  assert.match(task.goal, /app\\/hidden-example\\.ts/);
+});
+
 test("accepts a dependency section and carries normalized dependency issue numbers into the task bundle", () => {
   const body = validIssue().body.replace(
     "## Acceptance criteria",
