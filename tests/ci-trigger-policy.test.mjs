@@ -308,7 +308,7 @@ test("database job runs the two-member application RLS integration suite and cla
   assert.ok(workflow.includes("SUPABASE_DB_CONTAINER"));
   assert.ok(workflow.includes('Get-Command docker.exe -ErrorAction Stop'));
   assert.ok(workflow.includes('$env:SUPABASE_DB_CONTAINER = $containerName'));
-  assert.ok(workflow.includes('docker ps --filter "name=supabase_db_$projectId"'));
+  assert.ok(workflow.includes('& $env:DOCKER_BIN ps --filter "name=supabase_db_$projectId"'), "RLS integration must invoke the resolved Docker executable");
   assert.ok(workflow.includes("APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}"));
   assert.ok(workflow.includes('$env:APPLICATION_RLS_TESTS -eq "failure"'));
 });
