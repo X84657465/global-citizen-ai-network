@@ -1,3 +1,14 @@
+## 2.0.70 — 2026-11-21
+
+### Fixed — Bound new-file patch generation to the plan output budget
+- Avoid applying the 16,384-token minimum to empty/new files, which can cause local models to generate until the token ceiling.
+- Derive new-file token budgets from the validated implementer task's max_output_bytes, with a bounded minimum and ceiling.
+- Require concise complete new-file content and reject add proposals that exceed the plan's UTF-8 byte allowance.
+- Preserve larger source-scaled budgets for existing-file replacements and keep truncation fail-closed.
+
+### Verification
+- Exact-head full CI, Windows Runner/local Ollama, and independent formal review are required before acceptance.
+
 ## 2.0.69 — 2026-11-21
 
 ### Hardened — Bind system-health recovery to exact PR evidence
