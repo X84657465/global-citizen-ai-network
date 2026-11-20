@@ -27,3 +27,13 @@ test("Windows Supabase CI allocates ports outside the default dynamic TCP range"
   assert.ok(workflow.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 20000)"));
   assert.equal(workflow.includes("$candidate = 55000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 9000)"), false);
 });
+
+
+test("package lock metadata matches the resolved eslint-import-resolver-node tarball version", () => {
+  const lock = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url), "utf8"));
+  const entry = lock.packages["node_modules/eslint-import-resolver-node"];
+  assert.ok(entry, "eslint-import-resolver-node must be present in the lockfile");
+  const resolvedVersion = entry.resolved.match(/eslint-import-resolver-node-(\\d+\\.\\d+\\.\\d+)\\.tgz$/)?.[1];
+  assert.ok(resolvedVersion, "resolver tarball URL must include a semantic version");
+  assert.equal(entry.version, resolvedVersion, "lockfile package version must match its resolved tarball");
+});
