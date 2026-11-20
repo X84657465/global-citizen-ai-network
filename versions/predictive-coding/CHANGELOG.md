@@ -57,3 +57,11 @@
 ### Verification boundary
 - Deterministic utilities only; no live telemetry, model training or production decision automation is connected.
 - Exact-head CI is required before acceptance.
+
+## 0.2.1 — 2026-11-20
+
+### Fixed
+- Correct the MAE regression fixture expectation: absolute errors 4, 4 and 0 yield a mean of 8/3, not 2.
+
+### Verification
+- The deterministic metric implementation is unchanged; exact-head CI must pass the corrected regression suite before acceptance.

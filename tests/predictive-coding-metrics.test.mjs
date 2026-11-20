@@ -14,7 +14,7 @@ test("rejects non-finite and non-numeric prediction values", () => {
   }
 });
 test("calculates MAE only for equally sized non-empty homogeneous series", () => {
-  assert.equal(calculateMeanAbsoluteError([92, 80, 75], [88, 84, 75]), 2);
+  assert.equal(calculateMeanAbsoluteError([92, 80, 75], [88, 84, 75]), 8 / 3);
   assert.throws(() => calculateMeanAbsoluteError([], []), /non-empty arrays/);
   assert.throws(() => calculateMeanAbsoluteError([1], [1, 2]), /equally sized/);
   assert.throws(() => calculateMeanAbsoluteError([1, NaN], [1, 2]), /finite number/);
