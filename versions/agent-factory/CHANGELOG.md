@@ -1,3 +1,13 @@
+## 2.0.35 — 2026-11-20
+
+### Fixed — Restore local execution prerequisites to the factory CI
+- Verify Docker Engine and the local Ollama API/model inventory on the Windows Runner.
+- Execute the existing bounded structured-inference smoke test with a 180-second timeout before migration and database integration.
+- Preserve all dependency audits, candidate SHA checks, Runner serialization and fail-closed behavior.
+
+### Verification
+- Exact-head CI found two policy-test failures because the required runtime capability and inference steps were absent. A fresh complete CI run on this commit is required before acceptance.
+
 ## 2.0.34 — 2026-11-20
 
 ### Fixed — Align CI regression guards with the current workflow contract

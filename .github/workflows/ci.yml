@@ -106,6 +106,26 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Verify Windows Runner, Docker and Ollama
+        env:
+          OLLAMA_BASE_URL: "http://127.0.0.1:11434"
+        run: |
+          docker info
+          if ($LASTEXITCODE -ne 0) { throw "Docker Engine is unavailable on the Windows Runner." }
+          $tagsUrl = "$($env:OLLAMA_BASE_URL.TrimEnd('/'))/api/tags"
+          try {
+            $ollama = Invoke-RestMethod -Uri $tagsUrl -Method Get -TimeoutSec 10
+          } catch {
+            throw "Ollama API is unavailable on the Windows Runner."
+          }
+          $models = @($ollama.models | Where-Object { $_.name })
+          if ($models.Count -eq 0) { throw "No local Ollama model is installed." }
+          Write-Host ("Ollama models available: " + $models.Count)
+      - name: Verify bounded local Ollama inference
+        env:
+          OLLAMA_BASE_URL: "http://127.0.0.1:11434"
+          OLLAMA_SMOKE_TIMEOUT_MS: "180000"
+        run: node scripts/ollama-smoke-test.mjs
       - name: Migration filename safety guard
         id: migration-guard
         run: node scripts/check-migration-versions.mjs

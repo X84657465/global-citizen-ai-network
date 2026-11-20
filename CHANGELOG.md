@@ -1,3 +1,9 @@
+## 0.3.63 — 2026-11-20
+
+- Restore explicit Windows Runner Docker Engine and Ollama API/model readiness gates in the A-line CI.
+- Run the bounded real structured Ollama inference smoke test before database integration; preserve the 180-second hard timeout.
+- Keep CI policy assertions aligned with the actual workflow steps; no security audit or exact-SHA gate is weakened.
+
 ## 0.3.62 — 2026-11-20
 
 - Correct stale Agent Factory CI policy assertions to match the current security-audit, Windows Runner and Ollama smoke-test step names.

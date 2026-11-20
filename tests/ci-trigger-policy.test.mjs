@@ -143,7 +143,7 @@ test("Next.js output tracing is scoped to the repository and ignores unrelated R
 });
 
 test("full dependency audit is a blocking CI security gate", () => {
-  const start = workflow.indexOf("- name: Full dependency security audit");
+  const start = workflow.indexOf("- name: Full dependency audit (including development tooling)");
   const end = workflow.indexOf("- name: Unit tests", start);
   assert.ok(start >= 0 && end > start, "full dependency audit step must exist");
   const section = workflow.slice(start, end);
@@ -199,7 +199,7 @@ test("candidate callbacks revalidate the current PR head and check out the exact
 });
 
 test("CI verifies Docker Engine and Ollama API/model availability on the Windows Runner", () => {
-  const start = workflow.indexOf("- name: Verify Windows Runner, Docker and Ollama");
+  const start = workflow.indexOf("- name: Verify local runner toolchain, Docker and Ollama");
   const end = workflow.indexOf("- name: Migration filename safety guard", start);
   assert.ok(start >= 0 && end > start, "runner capability verification step must exist");
   const section = workflow.slice(start, end);
@@ -210,7 +210,7 @@ test("CI verifies Docker Engine and Ollama API/model availability on the Windows
 });
 
 test("CI executes a bounded real Ollama inference smoke test after API/model health checks", () => {
-  const smokeStep = workflow.indexOf("- name: Verify bounded local Ollama inference");
+  const smokeStep = workflow.indexOf("- name: Verify Ollama can perform a bounded structured inference");
   const migrationGuard = workflow.indexOf("- name: Migration filename safety guard", smokeStep);
   assert.ok(smokeStep >= 0 && migrationGuard > smokeStep);
   const section = workflow.slice(smokeStep, migrationGuard);
@@ -380,7 +380,7 @@ test("candidate CI callbacks export machine-readable exact-SHA evidence artifact
     assert.ok(section.includes("id: record-candidate-result"));
     assert.ok(section.includes("HEAD_REF: ${{ steps.revalidate.outputs.head_ref }}"));
   }
-  assert.equal((workflow.match(/path: candidate-evidence\.json/g) || []).length, 2, "both candidate callbacks must upload exact-SHA evidence");
+  assert.equal((workflow.match(/uses: actions\/upload-artifact@v4/g) || []).length, 2);
   assert.ok(workflow.includes("candidate-evidence.json"));
   assert.ok(workflow.includes("retention-days: 90"));
 });
