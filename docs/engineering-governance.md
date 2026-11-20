@@ -49,6 +49,9 @@ Tracks A–H exchange reusable knowledge through reviewed, versioned artifacts, 
 - **C → A/B/D:** predictions, prediction errors, uncertainty/calibration signals, drift indicators and experimentally validated update rules.
 - **D → A/B/C/E:** reviewed memory, cross-domain synthesis, reasoning plans, evidence retrieval and evaluation recommendations.
 - **E → A/B/C/D:** sourced research, verification methods, counter-evidence, source-quality assessments and cited synthesis.
+- **F → A/B/C/D/E/G/H:** threat models, security baselines, adversarial test findings, vulnerability triage and incident-response controls.
+- **G → A–H:** exact-SHA acceptance evidence, compatibility matrices, regression gates, release readiness and rollback verification.
+- **H → A–G:** Runner/queue telemetry, failure and retry signals, resource/cost attribution, quota thresholds and safe-pause alerts.
 - **All tracks → all tracks:** changes are proposed as versioned artifacts, reviewed by the receiving owner, tested against that track's acceptance criteria and adopted explicitly.
 
 The shared loop is **observe → predict → act → measure outcome → calculate prediction error → explain/store evidence → revise model or plan → test → publish → adopt → monitor**. Prediction error is a learning signal, not automatic permission to mutate production systems.
