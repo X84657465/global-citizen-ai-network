@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.88",
+  "overall": "0.3.90",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -30,5 +30,29 @@
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
     }
   },
-  "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
+  "policy": "Each governed workstream A-H owns an independent numeric MAJOR.MINOR.PATCH version. MAJOR is the human-facing vN generation; major reform increments MAJOR and resets MINOR/PATCH to zero. MINOR is backward-compatible capability; PATCH is every smaller improvement. Every change bumps affected track version(s) and changelog. Cross-track changes list each affected track and compatibility evidence; unaffected tracks are not bumped. F-H must be registered with approved name, owner and scope before activation.",
+  "governedTracks": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H"
+  ],
+  "registrationStatus": {
+    "registered": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ],
+    "pending": [
+      "F",
+      "G",
+      "H"
+    ]
+  }
 }
