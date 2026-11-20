@@ -1,5 +1,16 @@
 # Agent Factory V2 changelog
 
+## 2.0.10 — 2026-11-20
+
+### Fixed
+- Enforce the ISO-8601 maximum timezone offset of ±14:00 for persisted factory timestamps.
+
+### Tests
+- Accept the valid +14:00 boundary and reject +14:01 and -15:00.
+
+### Verification
+- Exact-head Windows Runner CI required.
+
 ## 2.0.9 — 2026-11-20
 
 ### Fixed

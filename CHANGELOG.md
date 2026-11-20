@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.18 — 2026-11-20
+
+### Fixed
+- Enforce the ISO-8601 maximum timezone offset of ±14:00 in Agent Factory durable state validation.
+- Reject offsets beyond 14 hours and non-zero minutes at the 14-hour boundary.
+
+### Verification
+- Added ±14-hour boundary regressions; exact-head Windows Runner CI required.
+
 ## 0.3.17 — 2026-11-20
 
 ### Fixed
