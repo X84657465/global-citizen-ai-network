@@ -1,3 +1,10 @@
+## 0.3.56 — 2026-11-20
+
+- Supersede stale ordinary PR CI runs so obsolete queued commits cannot block current-head validation.
+- Preserve AI-task workflow runs from cancellation to protect durable factory state writes; keep the shared Windows Runner queue non-cancelling.
+- Correct CI policy assertions to verify exact event-head SHA fencing instead of a removed SHA-based concurrency group.
+- Full exact-head CI remains the acceptance gate; no completion is claimed before all required jobs pass.
+
 ## 0.3.55 — 2026-11-20
 
 - Defer durable Agent Factory state lookup until a pull request is positively classified as an authorized AI-task PR.

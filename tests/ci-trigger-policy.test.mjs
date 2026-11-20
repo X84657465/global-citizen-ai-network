@@ -39,9 +39,10 @@ test("full CI runs only on main pushes and pull-request lifecycle events", () =>
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
-test("CI coalesces pending commits per PR while serializing self-hosted jobs globally", () => {
+test("CI supersedes stale ordinary PR runs but preserves AI-task runs and serializes self-hosted jobs", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
-  assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
+  assert.ok(/cancel-in-progress: \$\{\{ !startsWith\(github\.head_ref/.test(workflowLevelConcurrency));
+  assert.ok(workflowLevelConcurrency.includes("github.head_ref || github.event.client_payload.head_ref"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
 
   const qualitySection = findJobSection(workflow, "quality");
@@ -426,7 +427,11 @@ test("Agent Factory runbook makes the default-branch schedule gate explicit", ()
   assert.ok(runbook.includes("schema version 2"));
 });
 
-test("CI concurrency is fenced per exact head SHA",()=>{assert.ok(workflowLevelConcurrency.includes("github.event.pull_request.head.sha"));assert.ok(workflowLevelConcurrency.includes("github.event.client_payload.head_sha"));});
+test("CI candidate execution is fenced to the exact event head SHA", () => {
+  assert.ok(workflow.includes("EXPECTED_HEAD_SHA:"));
+  assert.ok(resolver.includes("pull.head?.sha === expectedSha"));
+  assert.ok(workflow.includes("github.event.client_payload.head_sha || github.event.pull_request.head.sha"));
+});
 test("CI diagnostics use Ubuntu, read-only Actions access and redacted evidence",()=>{const x=findJobSection(workflow,"ci-diagnostics");const s=workflow.slice(x.start,x.end);assert.ok(s.includes("runs-on: ubuntu-latest"));assert.ok(s.includes("actions: read"));assert.ok(s.includes("gh run view"));assert.ok(s.includes("CI_EXPECTED_HEAD_SHA"));assert.ok(s.includes("ci-failure-diagnostics.json"));assert.ok(s.includes("retention-days: 90"));assert.equal(s.includes("issues: write"),false);});
 
 

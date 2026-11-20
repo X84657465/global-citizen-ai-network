@@ -1,3 +1,14 @@
+## 2.0.29 — 2026-11-20
+
+### Fixed — Prevent stale ordinary PR runs from blocking current-head CI
+- Supersede older workflow runs for the same ordinary PR/ref when a newer commit arrives.
+- Keep AI-task PR workflow runs non-cancelling so durable factory state writes and Runner work are not interrupted.
+- Preserve the dedicated shared Windows Runner queue with queue:max and cancel-in-progress:false.
+
+### Verification
+- Updated CI policy tests for conditional workflow cancellation and exact event-head SHA fencing.
+- Exact-head full CI is mandatory; this release is not accepted until all required jobs pass.
+
 ## 2.0.28 — 2026-11-20
 
 ### Changed — Isolate PR metadata resolution
