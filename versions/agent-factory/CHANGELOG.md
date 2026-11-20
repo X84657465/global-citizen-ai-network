@@ -1,3 +1,13 @@
+## 2.0.44 — 2026-11-20
+
+### Fixed — Preserve all V1 quarantine history during V2 migration
+- Union V1 skipped Issue numbers with task-failure records so skipped-only Issues migrate as quarantined tasks with zero failures.
+- Normalize numeric and numeric-string Issue identifiers; reject malformed quarantine history fail-closed.
+- Add regression tests proving skipped-only records survive migration and malformed legacy state is never rewritten.
+
+### Verification
+- Exact-head full CI and Windows Runner preflight are required. Live Issue #100 migration remains unverified.
+
 ## 2.0.43 — 2026-11-20
 
 ### Fixed — Correct the V2 manual-dispatch activation gate

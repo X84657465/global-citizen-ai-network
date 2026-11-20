@@ -461,3 +461,35 @@ test("repository write queue recovers across store instances after a rejected st
   assert.equal((await secondStore.read()).state.state_version, 2);
   assert.equal(fake.issues.length, 1);
 });
+
+
+test("preserves skipped-only V1 Issue numbers as quarantined tasks during migration", async () => {
+  const legacy = {
+    consecutive_failures: 0,
+    cooldown_until: null,
+    task_failures: { "81": 1 },
+    skipped_issue_numbers: [95, "96"],
+    updated_at: "2026-11-20T04:09:57.622Z",
+  };
+  const body = "Machine-managed scheduler state. <!-- agent-factory-state:" +
+    Buffer.from(JSON.stringify(legacy)).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const migrated = await store.read();
+  assert.equal(migrated.state.tasks["81"].status, "retry_wait");
+  for (const issueNumber of ["95", "96"]) {
+    assert.equal(migrated.state.tasks[issueNumber].status, "quarantined");
+    assert.equal(migrated.state.tasks[issueNumber].quarantined, true);
+    assert.equal(migrated.state.tasks[issueNumber].failures, 0);
+  }
+});
+
+test("fails closed on malformed V1 skipped Issue history", async () => {
+  const legacy = { task_failures: { "81": 1 }, skipped_issue_numbers: [0, "not-an-issue"] };
+  const body = "Machine-managed scheduler state. <!-- agent-factory-state:" +
+    Buffer.from(JSON.stringify(legacy)).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  await assert.rejects(store.read(), /invalid Issue number/);
+  assert.equal(fake.issues[0].body, body, "invalid legacy state must not be rewritten");
+});

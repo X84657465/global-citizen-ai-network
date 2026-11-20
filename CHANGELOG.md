@@ -1,3 +1,12 @@
+## 0.3.72 — 2026-11-20
+
+- Preserve V1 skipped Issue numbers even when no failure-counter entry exists; reject malformed quarantine history rather than silently dropping it.
+- Add migration regression tests for skipped-only numeric/string Issue identifiers and invalid legacy history.
+- Synchronize numeric repository and Agent Factory versions.
+
+### Verification
+- Exact-head full CI and Windows Runner preflight are required; live Issue #100 migration remains unverified.
+
 ## 0.3.71 — 2026-11-20
 
 - Correct the Agent Factory runbook: scheduled and issue events are default-branch-only, but manual `workflow_dispatch` can select the V2 feature ref because the workflow path and dispatch trigger already exist on the default branch.
