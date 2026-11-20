@@ -725,3 +725,19 @@ test("rejects normalized impossible dates, timezone-less values and out-of-range
     assert.throws(() => validateFactoryState(invalid), /update timestamp/);
   }
 });
+
+
+test("legacy retry_wait fallback prefers task failure time and applies bounded exponential backoff", () => {
+  const legacy = {
+    status: "retry_wait",
+    failures: 2,
+    next_attempt_at: null,
+    last_error: { code: "LEGACY_FAILURE", summary: "old failure", at: new Date(1_000).toISOString() },
+  };
+  assert.equal(getTaskRetryAt(legacy, new Date(50_000).toISOString()), 121_000);
+
+  const migrated = { ...legacy, last_error: null };
+  assert.equal(getTaskRetryAt(migrated, new Date(1_000).toISOString()), 121_000);
+  assert.equal(getTaskRetryAt({ ...migrated, failures: 10 }, new Date(1_000).toISOString()), 1_801_000);
+  assert.equal(getTaskRetryAt({ ...migrated, failures: 1 }, null), Number.NaN);
+});
