@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { taskPriority, compareTaskIssues, sortTaskIssues, isMergedTaskPullRequest, isTaskAlreadyPublished } from "../lib/agent-task-queue.mjs";
+import { taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
 
 const selectorSource = readFileSync(new URL("../scripts/select-agent-task.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflightWorkflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -81,4 +82,19 @@ test("workflow supersedes changed candidate branches instead of overwriting an e
   assert.ok(preflightWorkflow.includes("$publish.different_candidate_branch -eq $true"));
   assert.ok(preflightWorkflow.includes('$env:NEXT_TASK_STATE = "superseded"'));
   assert.ok(preflightWorkflow.includes("Publisher did not return exact candidate commit and PR evidence."));
+});
+
+
+test("queue selector gates dispatch on resolved dependencies before priority sorting", () => {
+  assert.ok(selectorSource.includes("const dependencyReady = ready.filter((issue) => taskDependenciesResolved(issue.body, issuesByNumber, mergedTaskIssueNumbers));"));
+  assert.ok(selectorSource.includes("const orderedTasks = sortTaskIssues(dependencyReady);"));
+  assert.ok(selectorSource.includes("blocked_by_dependencies="));
+  const issues = new Map([
+    [74, { number: 74, state: "closed", state_reason: "completed" }],
+    [75, { number: 75, state: "open" }],
+  ]);
+  assert.equal(taskDependenciesResolved("## Dependencies\n- #74 complete\n", issues), true);
+  assert.equal(taskDependenciesResolved("## Dependencies\n- #75 still open\n", issues), false);
+  assert.equal(taskDependenciesResolved("## Dependencies\n- #94 missing\n", issues), false);
+  assert.equal(taskDependenciesResolved("## Dependencies\n- #75 merged PR\n", issues, new Set([75])), true);
 });
