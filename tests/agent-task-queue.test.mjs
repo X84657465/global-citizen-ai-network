@@ -121,6 +121,23 @@ test("dependency extraction is scoped to dependency sections, ignores code fence
   assert.deepEqual(extractTaskDependencyNumbers(body), [74, 94]);
 });
 
+test("dependency extraction ignores mismatched and undersized closing fences", () => {
+  const body = [
+    "## Dependencies",
+    "- #74 required",
+    "````md",
+    "- #999 inside fenced example",
+    "```",
+    "~~~",
+    "- #998 still inside fenced example",
+    "````",
+    "- #75 required after the real closing fence",
+    "## Acceptance criteria",
+    "- #12 unrelated reference",
+  ].join("\n");
+  assert.deepEqual(extractTaskDependencyNumbers(body), [74, 75]);
+});
+
 test("dependency resolution fails closed for open, missing, and non-completed closed issues", () => {
   const body = "## Dependencies\n- #74\n- #75\n- #81";
   const dependencies = new Map([
