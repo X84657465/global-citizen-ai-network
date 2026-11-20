@@ -1,3 +1,13 @@
+## 2.0.54 — 2026-11-20
+
+### Reliability — Preserve task-scoped patch failures
+- Extract GitHub Actions task-failure scope persistence into a dedicated helper and cover its environment-file behavior.
+- Add a CI policy regression guard ensuring Ollama token-limit truncation uses the task-scoped path rather than incrementing the global system breaker.
+- Keep provider/Runner availability failures system-scoped; only bounded generation/validation failures are classified as task-scoped.
+
+### Verification
+- Exact-head full CI and the controlled V2 Windows smoke remain required. No live factory completion is claimed.
+
 ## 2.0.53 — 2026-11-20
 
 ### Fixed — Prevent premature truncation of larger task patches

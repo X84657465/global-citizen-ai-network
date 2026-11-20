@@ -1,3 +1,11 @@
+## 0.3.83 — 2026-11-20
+
+- Extract task-failure scope persistence into a small tested helper so Ollama output truncation and invalid patch proposals cannot be misrecorded as global infrastructure failures.
+- Add regression coverage for GitHub Actions environment-file propagation and the token-limit task-classification path.
+- Agent Factory V2 advances to 2.0.54; root/package/lock/manifest metadata stays synchronized.
+- No production data, database schema, secrets, merge or deployment changes.
+- Exact-head full CI and the controlled Windows factory smoke remain required; this commit does not claim live task acceptance.
+
 ## 0.3.82 — 2026-11-20
 
 - Fix an Agent Factory throughput blocker: large approved source files could exhaust the calculated Ollama output-token budget and be rejected before scratch testing.

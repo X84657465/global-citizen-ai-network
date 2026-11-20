@@ -479,3 +479,11 @@ test("preflight captures and uploads both synthetic and real candidate offline-t
   }
 });
 
+
+test("Ollama output truncation is classified as task-scoped, not a system breaker failure", () => {
+  assert.ok(patchGenerator.includes('const failTask = (message) => fail(message, "task");'));
+  const tokenLimitGuard = /if \\(result\\.done_reason === "length"\\) \\{[\\s\\S]*?failTask\\(/.exec(patchGenerator);
+  assert.ok(tokenLimitGuard, "token-limit output must use the task-scoped failure path");
+  assert.ok(preflight.includes('$env:AGENT_FACTORY_FAILURE_SCOPE -eq "task"'),
+    "the preflight classifier must preserve the task scope before writing durable state");
+});

@@ -1,5 +1,4 @@
 import {
-  appendFileSync,
   existsSync,
   readFileSync,
   lstatSync,
@@ -13,6 +12,7 @@ import { resolveSafeExistingParent } from "../lib/agent-path-safety.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStreamWithRetry } from "../lib/ollama-generate-stream.mjs";
 import { calculatePatchOutputTokenBudget, selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
+import { markAgentFactoryTaskFailure } from "../lib/agent-failure-scope.mjs";
 
 const fail = (message, scope = "system") => {
   if (scope === "task" && process.env.GITHUB_ENV) {
