@@ -4,6 +4,8 @@ import test from "node:test";
 
 const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
 const headers = readFileSync(new URL("../lib/security/headers.ts", import.meta.url), "utf8");
+const dependabot = readFileSync(new URL("../.github/dependabot.yml", import.meta.url), "utf8");
+const securityPolicy = readFileSync(new URL("../SECURITY.md", import.meta.url), "utf8");
 
 test("CI grants only read access to repository contents by default", () => {
   assert.match(workflow, /permissions:\s*\n\s+contents:\s*read/);
@@ -32,4 +34,17 @@ test("baseline security headers retain HSTS and clickjacking protection", () => 
   assert.match(headers, /Strict-Transport-Security/);
   assert.match(headers, /max-age=31536000/);
   assert.match(headers, /X-Frame-Options.*DENY/);
+});
+
+test("Dependabot monitors npm and GitHub Actions on a scheduled basis", () => {
+  assert.match(dependabot, /package-ecosystem: npm/);
+  assert.match(dependabot, /package-ecosystem: github-actions/);
+  assert.match(dependabot, /interval: weekly/);
+  assert.match(dependabot, /interval: monthly/);
+});
+
+test("security policy provides private disclosure and safe testing boundaries", () => {
+  assert.match(securityPolicy, /Report a vulnerability/);
+  assert.match(securityPolicy, /Do not disclose exploitable vulnerabilities in public/);
+  assert.match(securityPolicy, /destructive testing/);
 });
