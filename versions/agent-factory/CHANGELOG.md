@@ -1,3 +1,13 @@
+## 2.0.58 — 2026-11-21
+
+### Fixed — Keep candidate task success isolated from global infrastructure health
+- Candidate CI success now completes only the exact task and preserves the global circuit-breaker state.
+- Explicit system-health success remains the only path that clears the global breaker.
+- Add regression coverage for an active cooldown, an unrelated quarantined task, and duplicate candidate-success callbacks.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation are required before acceptance.
+
 ## 2.0.57 — 2026-11-20
 
 ### Fixed — Validate failure-scope regression test changes
