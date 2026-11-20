@@ -17,3 +17,16 @@
 
 ### Verification
 - Existing exact-head CI for the previous product candidate passed; this documentation/version update requires a new exact-head CI result.
+
+## 0.1.2 — 2026-11-20
+
+### Fixed
+- Return the newest 500 conversation messages rather than the oldest 500, which previously hid all later history once a conversation exceeded the cap.
+- Keep the response in chronological order for the workspace UI and use message ID as a deterministic tie-break for identical timestamps.
+
+### Tests
+- Add a regression guard for descending bounded retrieval followed by chronological response ordering.
+
+### Verification boundary
+- Reads remain authenticated, owner-scoped, bounded and non-cacheable; no RLS, schema, auth or production data behavior is broadened.
+- Exact-head CI is required before acceptance.

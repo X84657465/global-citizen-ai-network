@@ -22,11 +22,14 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     .select("id,role,content,created_at")
     .eq("conversation_id", id)
     .eq("owner_id", auth.user.id)
-    .order("created_at", { ascending: true })
+    // Fetch the newest bounded window first, then return it chronologically.
+    // Ascending + limit(500) would permanently hide every message after the first 500.
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
     .limit(500);
 
   if (error) return NextResponse.json({ error: "目前無法讀取訊息。" }, { status: 500 });
-  return NextResponse.json({ messages: data }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ messages: [...data].reverse() }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {

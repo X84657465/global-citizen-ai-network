@@ -199,3 +199,10 @@ test("message creation derives owner and role from the authenticated server cont
   assert.match(messageRoute, /Cache-Control": "no-store"/);
   assert.doesNotMatch(messageRoute, /input\.role|input\.owner_id|input\.model/);
 });
+
+
+test("message history returns the newest bounded window in chronological order", () => {
+  assert.match(messageRoute, /\.order\("created_at", \{ ascending: false \}\)[\s\S]*?\.order\("id", \{ ascending: false \}\)[\s\S]*?\.limit\(500\)/);
+  assert.match(messageRoute, /messages: \[\.\.\.data\]\.reverse\(\)/);
+  assert.doesNotMatch(messageRoute, /\.order\("created_at", \{ ascending: true \}\)[\s\S]*?\.limit\(500\)/);
+});
