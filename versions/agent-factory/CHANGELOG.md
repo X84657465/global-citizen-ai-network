@@ -1,3 +1,9 @@
+## 2.0.49 — 2026-11-20
+
+### Harden — Preserve the original Supabase CLI exit code
+- Regression guard now checks the command capture, original CLI exit-code snapshot, redaction invocation and redaction exit-code snapshot in execution order.
+- Exact-head CI remains required; no pass is claimed.
+
 ## 2.0.48 — 2026-11-20
 
 ### Fixed — Assert the actual Supabase stderr capture pipeline
