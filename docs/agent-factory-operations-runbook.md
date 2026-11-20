@@ -106,3 +106,12 @@ Candidate code is executed in disposable Docker containers. The workflow does no
 ## Evidence record
 
 Record each rehearsal with UTC start/end time, commit SHA, workflow run URL, runner state, test outcome, incident, recovery action, and operator. Do not describe simulated time as elapsed wall-clock time.
+
+
+## Cross-track CI evidence export
+
+- Candidate success/failure callbacks emit a machine-readable `EvidenceRecord v1.0.0` containing repository, exact task branch, 40-character commit SHA, result, canonical GitHub Actions run URL, timestamp and task/PR/run identifiers in the command label.
+- The seven-field record is compatible with the Deep Neural `EvidenceRecord` validator introduced in Track D 0.2.0 and unchanged through D 0.2.3. Terminal CI success/failure map to `pass`/`fail`; cancelled or non-terminal runs are not scored.
+- GitHub Actions uploads `candidate-evidence.json` for 90 days. Predictive Coding may ingest it only after checking repository, branch, SHA, run URL, timestamp and source provenance. It is evidence, never a production command.
+- Duplicate callback replays do not emit another artifact. Durable task state and callback idempotency remain authoritative.
+- This creates an export path only; live C/D ingestion still requires an explicit receiver and compatibility tests.

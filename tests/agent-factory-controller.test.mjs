@@ -182,6 +182,7 @@ test("candidate failure callback persists rejection and delays retry without cou
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
     HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_CONCLUSION: "failure",
     CI_RUN_ID: "555001",
     CI_RUN_ATTEMPT: "1",
@@ -193,6 +194,13 @@ test("candidate failure callback persists rejection and delays retry without cou
   assert.equal(duplicate.outputs.duplicate, true);
   assert.equal(duplicate.state.state_version, result.state.state_version);
   assert.equal(result.state.tasks["42"].candidate_status, "failure");
+  assert.deepEqual(JSON.parse(result.outputs.candidate_evidence_json), {
+    repository: "owner/repo", branch: "ai-task/issue-42-abcdef123456", commit_sha: "b".repeat(40),
+    command: "Agent Factory candidate CI evidence v1.0.0; Issue #42; PR #88; run #555001; attempt 1",
+    result: "fail", run_url: "https://github.com/owner/repo/actions/runs/555001",
+    timestamp: new Date(3000).toISOString(),
+  });
+  assert.equal(duplicate.outputs.candidate_evidence_json, "");
   assert.equal(result.state.tasks["42"].next_attempt_at, new Date(63_000).toISOString());
   assert.equal(result.state.tasks["42"].candidate_failures, 1);
   assert.equal(result.state.tasks["42"].failures, 0);
@@ -210,6 +218,7 @@ test("candidate success completes the exact PR and resets the system breaker", a
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
     HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_CONCLUSION: "success",
     CI_RUN_ID: "555002",
     CI_RUN_ATTEMPT: "1",
@@ -217,6 +226,8 @@ test("candidate success completes the exact PR and resets the system breaker", a
   const result = await controller.run(env);
   const duplicate = await controller.run(env);
   assert.equal(result.state.tasks["42"].status, "completed");
+  assert.equal(JSON.parse(result.outputs.candidate_evidence_json).result, "pass");
+  assert.equal(JSON.parse(result.outputs.candidate_evidence_json).commit_sha, "b".repeat(40));
   assert.equal(result.state.system.consecutive_failures, 0);
   assert.equal(duplicate.outputs.duplicate, true);
   assert.equal(duplicate.state.state_version, result.state.state_version);
@@ -503,6 +514,7 @@ test("candidate success callback recovers when the system-breaker write fails af
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
     HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_CONCLUSION: "success",
     CI_RUN_ID: "555003",
     CI_RUN_ATTEMPT: "1",
@@ -525,6 +537,7 @@ test("candidate failure callback recovers after a transient durable-state write 
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
     HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_CONCLUSION: "failure",
     CI_RUN_ID: "555004",
     CI_RUN_ATTEMPT: "1",
@@ -575,6 +588,7 @@ test("candidate outcome from a stale CI run attempt is rejected", async () => {
     ISSUE_NUMBER: "42",
     PULL_REQUEST_NUMBER: "88",
     HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
     CI_CONCLUSION: "failure",
     CI_RUN_ID: "555007",
     CI_RUN_ATTEMPT: "1",

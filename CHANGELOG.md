@@ -157,3 +157,14 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - The prior exact-head run exposed the missing current-process environment variable and one stale CI policy assertion. This release candidate requires a fresh exact-head CI run; it is not accepted until all checks pass.
+
+
+## 0.3.7 — 2026-11-20
+
+### Added
+- Add a versioned cross-track candidate CI evidence export compatible with the Deep Neural `EvidenceRecord` contract.
+- Upload exact-commit candidate CI evidence as a 90-day GitHub Actions artifact for downstream Predictive Coding research and review.
+
+### Verification
+- New helper and controller tests cover result mapping, exact branch/SHA/run provenance, malformed evidence rejection and callback replay behavior.
+- Exact-head CI is required before acceptance; no live C/D ingestion or production deployment is implied.

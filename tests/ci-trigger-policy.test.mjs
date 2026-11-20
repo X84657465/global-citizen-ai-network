@@ -312,3 +312,18 @@ test("database job runs the two-member application RLS integration suite and cla
   assert.ok(workflow.includes("APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}"));
   assert.ok(workflow.includes('$env:APPLICATION_RLS_TESTS -eq "failure"'));
 });
+
+
+test("candidate CI callbacks export machine-readable exact-SHA evidence artifacts", () => {
+  for (const callback of ["Record task candidate CI rejection", "Record exact candidate CI success"]) {
+    const start = workflow.indexOf("- name: " + callback);
+    assert.ok(start >= 0, "missing callback: " + callback);
+    const next = workflow.indexOf("- name:", start + 1);
+    const section = workflow.slice(start, next < 0 ? workflow.length : next);
+    assert.ok(section.includes("id: record-candidate-result"));
+    assert.ok(section.includes("HEAD_REF: ${{ steps.revalidate.outputs.head_ref }}"));
+  }
+  assert.equal((workflow.match(/uses: actions\/upload-artifact@v4/g) || []).length, 2);
+  assert.ok(workflow.includes("candidate-evidence.json"));
+  assert.ok(workflow.includes("retention-days: 90"));
+});

@@ -26,7 +26,7 @@
 
 | 主線 | PR | 最新已查核 CI | 狀態 |
 |---|---:|---|---|
-| A｜Agent Factory V2 | [#134](https://github.com/X84657465/global-citizen-ai-network/pull/134) | [Run #44641219370](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44641219370) | 已定位 `SUPABASE_DB_CONTAINER` 未注入當前 Node 程序及舊 CI 靜態斷言；新修正已提交，最新 exact-head CI 待驗證 |
+| A｜Agent Factory V2 | [#134](https://github.com/X84657465/global-citizen-ai-network/pull/134) | [Run #44641219370](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44641219370) | 已加入可供 C/D 審查的精確 SHA 候選 CI 證據匯出；仍需 Runner soak 與人工驗收|
 | B｜GCAN Product | [#137](https://github.com/X84657465/global-citizen-ai-network/pull/137) | [Run #44580554679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580554679) | 該提交 CI 通過 |
 | C｜Predictive Coding | [#139](https://github.com/X84657465/global-citizen-ai-network/pull/139) | [Run #44580087470](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580087470) | 該提交 CI 通過 |
 | D｜Deep Neural | [#140](https://github.com/X84657465/global-citizen-ai-network/pull/140) | [Run #44580264020](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580264020) | 該提交 CI 通過 |

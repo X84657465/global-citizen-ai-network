@@ -50,3 +50,12 @@
 - Update CI policy regression coverage for the current-step Docker/container environment.
 
 **Verification:** exact-head CI is required; this version is not accepted until the full build and database/RLS jobs pass.
+
+## 2.0.6
+
+- Emit a validated `EvidenceRecord v1.0.0` for exact candidate CI success/failure callbacks.
+- Bind evidence to the deterministic task branch, exact 40-character candidate SHA, PR number, workflow run ID and run attempt.
+- Publish a machine-readable `candidate-evidence.json` workflow artifact with a 90-day retention window; do not emit duplicate artifacts for replayed callback events.
+- Keep cancelled and non-terminal runs out of the scored evidence stream.
+
+**Verification:** exact-head CI required. Export is not a live Predictive Coding ingestion or production decision.

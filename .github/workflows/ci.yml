@@ -445,6 +445,7 @@ jobs:
           EXPECTED_HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
         run: node scripts/resolve-agent-task-pr.mjs
       - name: Record task candidate CI rejection
+        id: record-candidate-result
         if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true' && env.CI_FAILURE_SCOPE == 'task'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -453,11 +454,27 @@ jobs:
           ISSUE_NUMBER: ${{ steps.revalidate.outputs.issue_number }}
           PULL_REQUEST_NUMBER: ${{ steps.revalidate.outputs.pull_request_number }}
           HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}
+          HEAD_REF: ${{ steps.revalidate.outputs.head_ref }}
           CI_CONCLUSION: failure
           CI_RUN_ID: ${{ github.run_id }}
           CI_RUN_ATTEMPT: ${{ github.run_attempt }}
           FAILURE_SUMMARY: "Candidate CI run ${{ github.run_id }} failed for PR #${{ needs.resolve-candidate.outputs.pull_request_number }}."
         run: node scripts/agent-factory-v2-controller.mjs
+      - name: Write candidate evidence JSON
+        if: steps.record-candidate-result.outputs.candidate_evidence_json != ''
+        env:
+          CANDIDATE_EVIDENCE_JSON: ${{ steps.record-candidate-result.outputs.candidate_evidence_json }}
+        run: |
+          $path = Join-Path (Get-Location) "candidate-evidence.json"
+          [System.IO.File]::WriteAllText($path, $env:CANDIDATE_EVIDENCE_JSON, [System.Text.UTF8Encoding]::new($false))
+      - name: Upload machine-readable candidate evidence
+        if: steps.record-candidate-result.outputs.candidate_evidence_json != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-factory-evidence-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: candidate-evidence.json
+          if-no-files-found: error
+          retention-days: 90
       - name: Record system CI failure
         if: needs.resolve-candidate.result == 'failure' || needs.resolve-candidate.outputs.is_task_pr != 'true' || env.CI_FAILURE_SCOPE != 'task'
         env:
@@ -524,6 +541,7 @@ jobs:
           EXPECTED_HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
         run: node scripts/resolve-agent-task-pr.mjs
       - name: Record exact candidate CI success
+        id: record-candidate-result
         if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -532,10 +550,26 @@ jobs:
           ISSUE_NUMBER: ${{ steps.revalidate.outputs.issue_number }}
           PULL_REQUEST_NUMBER: ${{ steps.revalidate.outputs.pull_request_number }}
           HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}
+          HEAD_REF: ${{ steps.revalidate.outputs.head_ref }}
           CI_CONCLUSION: success
           CI_RUN_ID: ${{ github.run_id }}
           CI_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: node scripts/agent-factory-v2-controller.mjs
+      - name: Write candidate evidence JSON
+        if: steps.record-candidate-result.outputs.candidate_evidence_json != ''
+        env:
+          CANDIDATE_EVIDENCE_JSON: ${{ steps.record-candidate-result.outputs.candidate_evidence_json }}
+        run: |
+          $path = Join-Path (Get-Location) "candidate-evidence.json"
+          [System.IO.File]::WriteAllText($path, $env:CANDIDATE_EVIDENCE_JSON, [System.Text.UTF8Encoding]::new($false))
+      - name: Upload machine-readable candidate evidence
+        if: steps.record-candidate-result.outputs.candidate_evidence_json != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-factory-evidence-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: candidate-evidence.json
+          if-no-files-found: error
+          retention-days: 90
       - name: Reset global breaker after healthy non-task CI
         if: needs.resolve-candidate.outputs.is_task_pr != 'true'
         env:
