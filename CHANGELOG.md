@@ -1,3 +1,13 @@
+## 0.3.30 — 2026-11-20
+
+### Improved — F Cyber Security & Defense
+- Complete the F ownership matrix with an explicit independent security-assurance responsibility.
+- Document current controls: HSTS and baseline headers, blocking production dependency audit, CI Runner trust-boundary regression tests, scheduled Dependabot updates and vulnerability disclosure policy.
+- Clarify that these are partial controls, not a security certification; advance F to 0.1.4.
+
+### Verification
+- Repository read-back confirms the control inventory and version metadata. Exact-head Windows Runner CI is still required to execute regression tests.
+
 ## 0.3.29 — 2026-11-20
 
 ### Added — F Cyber Security & Defense
