@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, feat/github-project-showcase, feat/cyber-security-defense]
+    branches: [main, feat/github-project-showcase, feat/cyber-security-defense, feat/g-p-workstream-governance]
     types: [opened, reopened, synchronize]
   repository_dispatch:
     types: [ai-task-ci]
