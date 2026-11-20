@@ -1,3 +1,14 @@
+## 2.0.58 — 2026-11-20
+
+### Harden — Exact scheduler workflow path authorization
+- Permit only the exact existing `.github/workflows/agent-task-preflight.yml` path in task and patch validation.
+- Register the workflow as a factory control-plane file and require the existing `factory-control-plane-approved` Issue label at both validation layers.
+- Add adversarial regression coverage for non-exact paths, case variants, traversal, secret-like segments, and add-versus-modify semantics.
+- Document the end-to-end approval and review boundary.
+
+### Verification
+- Full exact-head CI, type checks, lint, and isolated Windows factory validation are required. No acceptance is claimed until all required jobs pass.
+
 ## 2.0.57 — 2026-11-20
 
 ### Fixed — Validate failure-scope regression test changes
