@@ -1,3 +1,9 @@
+## 0.3.59 — 2026-11-20
+
+- Fix the Agent Factory expired-lease lifecycle regression fixture: require a complete GitHub workflow identity, attempt, completed status, and conclusion before recovery is authorized.
+- Add an explicit fail-closed assertion for completed workflow responses that omit their conclusion.
+- Keep root package, lockfile, version manifest, and Agent Factory release metadata synchronized.
+
 ## 0.3.58 — 2026-11-20
 
 - Align every CI job with the repository's verified Windows self-hosted Runner; the current Ubuntu-hosted jobs failed before starting any steps because no hosted runner was assigned.

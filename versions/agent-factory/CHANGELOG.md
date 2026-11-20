@@ -1,3 +1,12 @@
+## 2.0.32 — 2026-11-20
+
+### Fixed — Verify complete workflow evidence before recovering expired worker leases
+- Strengthen the lifecycle integration test to ensure a completed workflow response without a conclusion cannot authorize lease recovery.
+- Confirm recovery succeeds only after the same run ID, newer attempt, completed status, and terminal conclusion are all present.
+
+### Verification
+- This is a targeted regression fix. Full CI on the exact branch head remains required before acceptance.
+
 ## 2.0.31 — 2026-11-20
 
 ### Fixed — Align CI execution with the available Windows Runner

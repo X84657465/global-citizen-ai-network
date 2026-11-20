@@ -470,7 +470,17 @@ test("recovers an expired worker lease only after a restarted controller confirm
   assert.equal(result.state.active_task.lease_id, leaseId);
   assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
 
+  // A completed status without its conclusion is not sufficient evidence
+  // that GitHub has finalized the workflow attempt; preserve the lease.
   api.workflows.set("700001", { id: 700001, run_attempt: 2, status: "completed" });
+  result = await invoke({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(result.outputs.lease_recovered, false);
+  assert.equal(result.state.active_task.lease_id, leaseId);
+  assert.equal(result.state.tasks[String(issueNumber)].status, "reserved");
+
+  // Only the complete run identity, attempt, status, and conclusion authorize
+  // reclaiming the expired lease after a rerun.
+  api.workflows.set("700001", { id: 700001, run_attempt: 2, status: "completed", conclusion: "failure" });
   result = await invoke({ AGENT_FACTORY_MODE: "check" });
   assert.equal(result.outputs.lease_recovered, true);
   assert.equal(result.outputs.recovered_issue_number, issueNumber);
