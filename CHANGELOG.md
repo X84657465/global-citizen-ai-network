@@ -1,3 +1,16 @@
+## 0.3.26 — 2026-11-20
+
+### Changed
+- Record the successful Agent Factory V2 isolated end-to-end preflight: Ollama plan and patch proposal, disposable-container isolation, scratch patch application, offline candidate tests, publisher dry-run, locked dependency installation, full unit tests, TypeScript, ESLint and cleanup.
+- Synchronize the five-track manifest with B 0.1.10 and D 0.3.9; no PR merge or production deployment is implied.
+
+### Verification
+- Exact-head AI Agent Task Preflight passed on `eb35c272b268d03a9f914ba12d39fd08f1dd31f9`.
+- Full PR CI, including production build and database/RLS jobs, remains required on the new metadata commit.
+
+### Rollback
+- Revert this metadata-only release record; no runtime code or database schema changed.
+
 ## 0.3.25 — 2026-11-20
 
 ### Changed
