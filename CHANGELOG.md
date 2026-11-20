@@ -1,12 +1,13 @@
-## 0.3.43 — 2026-11-20
+## 0.3.44 — 2026-11-20
 
 ### Added — G Release, QA & Integration
 - Add a strict, dependency-free release-evidence contract for repository, track, PR, base/head SHA, timestamp and exact CI run provenance.
 - Reject unknown evidence fields, duplicate checks, missing required checks, pending/failed conclusions and evidence bound to a different candidate SHA.
 - Add regression coverage for malformed identities, stale heads, invalid timestamps and incomplete CI evidence.
+- Enable the G implementation PR to receive exact-head validation through the A–P integration-branch CI policy.
 
 ### Verification
-- Source and test files were committed to the dedicated G branch.
+- Source, tests, documentation and synchronized release metadata are committed to the dedicated G branch.
 - Exact-head Windows Runner CI has not yet completed; no test pass or release acceptance is claimed.
 - The validator is not yet wired into the Agent Factory publisher and does not authenticate GitHub workflow runs.
 
