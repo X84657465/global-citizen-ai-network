@@ -1,5 +1,10 @@
 # K — Knowledge Base, Docs & Governance Playbooks
 
+## 0.1.5 — 2026-11-21
+
+- Correct the A–P homepage K version label to match the independent manifest and track version.
+- Synchronize the repository release baseline and K track history; no application runtime behavior changed.
+
 ## 0.1.4 — 2026-11-21
 
 - Remove a stale exact-head CI success assertion from the A–P PR homepage link; require readers to verify the live candidate SHA before acceptance.
