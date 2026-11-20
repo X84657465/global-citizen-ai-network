@@ -1,3 +1,13 @@
+## 2.0.59 — 2026-11-21
+
+### Fixed — Block tasks with unresolved multiline dependencies
+- Parse explicit inline dependency declarations and Markdown Dependencies/Dependencies-context sections.
+- Ignore fenced code and unrelated sections; deduplicate and sort dependency issue numbers.
+- Keep missing, open and not-completed dependencies blocked; expose normalized dependencies in the read-only preflight bundle.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation are required before acceptance.
+
 ## 2.0.58 — 2026-11-21
 
 ### Fixed — Keep candidate task success isolated from global infrastructure health
