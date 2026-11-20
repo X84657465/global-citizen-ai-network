@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.79",
+  "overall": "0.3.80",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -9,7 +9,7 @@
     },
     "B": {
       "name": "Global Citizen AI Network",
-      "version": "0.1.11",
+      "version": "0.1.12",
       "status": "active"
     },
     "C": {
@@ -31,4 +31,4 @@
     }
   },
   "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
-}
+}\n
