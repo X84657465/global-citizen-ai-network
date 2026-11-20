@@ -1,3 +1,11 @@
+## 0.3.33 — 2026-11-20
+
+### Fixed
+- Correct the schedule-gate regression assertion to compare the actual YAML newline sequence and normalize CRLF correctly.
+
+### Verification
+- Exact-head Windows Runner CI remains required; no test pass is claimed.
+
 ## 0.3.32 — 2026-11-20
 
 ### Reliability
