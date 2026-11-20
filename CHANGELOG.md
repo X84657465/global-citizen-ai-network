@@ -1,3 +1,12 @@
+## 0.3.37 — 2026-11-20
+
+### Reliability
+- Verify the exact durable GitHub Issue state after factory state creation and updates.
+- Reject stale successful-looking write responses instead of advancing controller state on unconfirmed persistence.
+
+### Verification
+- Exact-head CI and live Runner validation remain required.
+
 ## 0.3.36 — 2026-11-20
 
 ### Reliability
