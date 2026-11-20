@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.91",
+  "overall": "0.3.92",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -61,9 +61,9 @@
     },
     "K": {
       "name": "Knowledge Base, Docs & Governance Playbooks",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "planned",
-      "responsibility": "Architecture records, track boundaries, operator runbooks, handoff templates, decision logs and troubleshooting playbooks."
+      "responsibility": "Architecture records, track boundaries, operator runbooks, handoff templates, decision logs, troubleshooting playbooks and the public A-P workstream registry."
     },
     "L": {
       "name": "Multi-Node, Federation & Edge/Cluster Coordination",
@@ -91,9 +91,9 @@
     },
     "P": {
       "name": "Governance, Ethics & Trust/Policy Evolution",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "planned",
-      "responsibility": "Autonomy levels, human approval thresholds, trust principles, policy evolution and cross-track priority arbitration."
+      "responsibility": "Autonomy levels, human approval thresholds, trust principles, policy evolution, cross-track priority arbitration and transparent A-P governance."
     }
   },
   "policy": "Every workstream A-P owns an independent numeric MAJOR.MINOR.PATCH version and its own version history. This rule applies to planned tracks I-P as well as prioritized tracks A-H; planned status limits implementation/production-readiness claims, not version tracking. MAJOR is the human-facing vN generation; a major reform increments MAJOR by one and resets MINOR/PATCH to zero. MINOR is a backward-compatible capability addition; PATCH is every smaller improvement. Every change bumps affected track version(s) and changelog. Cross-track changes list each affected track and compatibility evidence; unaffected tracks are not bumped.",
