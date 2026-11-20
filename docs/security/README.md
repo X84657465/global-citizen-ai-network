@@ -1,7 +1,7 @@
 # F — Cyber Security & Defense
 
-**Track version:** 0.1.2  
-**Status:** foundation with runtime hardening and CI privilege-boundary regression coverage; broader controls remain implementation candidates  
+**Track version:** 0.1.3  
+**Status:** foundation with runtime hardening, CI privilege-boundary regression coverage, scheduled dependency updates and private vulnerability-disclosure guidance; broader controls remain implementation candidates  
 **Owner:** dedicated security workstream; product and platform owners retain responsibility for fixes in their code.
 
 ## Mission
