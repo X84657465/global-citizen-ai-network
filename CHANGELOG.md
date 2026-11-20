@@ -1,3 +1,11 @@
+## 0.3.33 — 2026-11-20
+
+### Fixed
+- Preserve the existing missing-schema-type validation contract while rejecting unsupported JSON Schema type names in capability manifests.
+
+### Verification
+- Existing and new schema validation regressions are covered by the updated test suite; exact-head CI required.
+
 ## 0.3.32 — 2026-11-20
 
 ### Fixed
