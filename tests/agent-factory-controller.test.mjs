@@ -207,9 +207,26 @@ test("candidate failure callback persists rejection and delays retry without cou
   assert.equal(result.state.system.consecutive_failures, 0);
 });
 
-test("candidate success completes the exact PR and resets the system breaker", async () => {
+test("candidate success completes only its task and preserves the global breaker and unrelated quarantine", async () => {
   const initial = awaitingCandidate();
-  initial.system.consecutive_failures = 2;
+  initial.system = {
+    consecutive_failures: 2,
+    cooldown_until: new Date(120_000).toISOString(),
+    last_error_code: "RUNNER_UNAVAILABLE",
+    last_error: "Shared Runner is still unavailable.",
+    last_success_at: new Date(500).toISOString(),
+  };
+  initial.tasks["99"] = {
+    status: "quarantined",
+    attempts: 3,
+    failures: 3,
+    candidate_failures: 0,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: "Independent task repeatedly failed.",
+  };
+  const expectedSystem = structuredClone(initial.system);
+  const expectedQuarantine = structuredClone(initial.tasks["99"]);
   const store = fakeStore(initial);
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
   await startCandidate(controller, "555002");
@@ -228,11 +245,12 @@ test("candidate success completes the exact PR and resets the system breaker", a
   assert.equal(result.state.tasks["42"].status, "completed");
   assert.equal(JSON.parse(result.outputs.candidate_evidence_json).result, "pass");
   assert.equal(JSON.parse(result.outputs.candidate_evidence_json).commit_sha, "b".repeat(40));
-  assert.equal(result.state.system.consecutive_failures, 0);
+  assert.deepEqual(result.state.system, expectedSystem);
+  assert.deepEqual(result.state.tasks["99"], expectedQuarantine);
   assert.equal(duplicate.outputs.duplicate, true);
   assert.equal(duplicate.state.state_version, result.state.state_version);
+  assert.deepEqual(duplicate.state.system, expectedSystem);
 });
-
 test("check mode requeues retry-wait tasks only after their backoff expires", async () => {
   let state = reserveTask(createInitialFactoryState(1000), {
     issue_number: 42, lease_id: "lease-retry", lease_owner: "runner",
@@ -503,30 +521,6 @@ test("transition mode remains idempotent after awaiting_ci has released the work
 });
 
 
-test("candidate success callback recovers when the system-breaker write fails after task completion", async () => {
-  const initial = awaitingCandidate();
-  initial.system.consecutive_failures = 2;
-  const store = fakeStore(initial, { failWriteAt: 3 });
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
-  await startCandidate(controller, "555003");
-  const env = {
-    AGENT_FACTORY_MODE: "candidate",
-    ISSUE_NUMBER: "42",
-    PULL_REQUEST_NUMBER: "88",
-    HEAD_SHA: "b".repeat(40),
-    HEAD_REF: "ai-task/issue-42-abcdef123456",
-    CI_CONCLUSION: "success",
-    CI_RUN_ID: "555003",
-    CI_RUN_ATTEMPT: "1",
-  };
-  await assert.rejects(controller.run(env), /injected state write failure/);
-  assert.equal(store.state.tasks["42"].status, "completed");
-  assert.equal(store.state.system.consecutive_failures, 2);
-
-  const recovered = await controller.run(env);
-  assert.equal(recovered.outputs.duplicate, false);
-  assert.equal(recovered.state.system.consecutive_failures, 0);
-});
 
 test("candidate failure callback recovers after a transient durable-state write failure", async () => {
   const store = fakeStore(awaitingCandidate(), { failWriteAt: 2 });
