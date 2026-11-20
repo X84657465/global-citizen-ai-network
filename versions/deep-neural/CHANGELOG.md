@@ -1,3 +1,16 @@
+## 0.3.14 — 2026-11-20
+
+### Contract hardening
+- Require capability input/output schemas to be plain JSON Schema objects with data properties only.
+- Reject class instances, inherited prototypes, symbol keys and accessor properties before reading schema types.
+- Preserve the existing explicit-type error contract and supported JSON Schema type allowlist.
+
+### Regression coverage
+- Add adversarial schema-object tests and assert getters are never invoked.
+
+### Verification
+- Exact-head CI and capability integration tests remain required; no test pass is claimed.
+
 ## 0.3.13 — 2026-11-20
 
 ### Fixed
