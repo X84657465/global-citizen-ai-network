@@ -36,17 +36,26 @@ test("CI coalesces pending commits per PR while serializing self-hosted jobs glo
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
 
-  const jobs = ["resolve-candidate", "build", "database", "circuit-breaker", "circuit-breaker-success"];
-  for (let index = 0; index < jobs.length; index += 1) {
-    const job = jobs[index];
+  const runnerJobs = ["build", "database"];
+  for (let index = 0; index < runnerJobs.length; index += 1) {
+    const job = runnerJobs[index];
     const start = workflow.indexOf("  " + job + ":\n");
     assert.ok(start >= 0, "missing CI job: " + job);
-    const next = index + 1 < jobs.length
-      ? workflow.indexOf("  " + jobs[index + 1] + ":\n", start + 1)
-      : workflow.length;
+    const next = index + 1 < runnerJobs.length
+      ? workflow.indexOf("  " + runnerJobs[index + 1] + ":\n", start + 1)
+      : workflow.indexOf("\n  circuit-breaker:", start + 1);
     const section = workflow.slice(start, next < 0 ? workflow.length : next);
     assert.ok(section.includes("group: global-citizen-ai-network-self-hosted-runner"), job + " must use the shared Runner group");
     assert.ok(section.includes("queue: max"), job + " must preserve pending Runner jobs");
+    assert.ok(section.includes("runs-on: [self-hosted, Windows, X64]"), job + " requires the Windows Runner toolchain");
+  }
+
+  for (const job of ["resolve-candidate", "circuit-breaker", "circuit-breaker-success"]) {
+    const start = workflow.indexOf("  " + job + ":\n");
+    const next = workflow.indexOf("\n  ", start + 4);
+    const section = workflow.slice(start, next < 0 ? workflow.length : next);
+    assert.ok(section.includes("runs-on: ubuntu-latest"), job + " must not consume the Windows Runner");
+    assert.equal(section.includes("global-citizen-ai-network-self-hosted-runner"), false, job + " must not queue behind Windows-only work");
   }
 });
 

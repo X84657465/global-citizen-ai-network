@@ -1,3 +1,8 @@
+## 0.3.43 — 2026-11-20
+
+- Moved GitHub API-only candidate resolution and CI result persistence to GitHub-hosted Ubuntu runners, reserving the single Windows self-hosted Runner for Windows, Docker, Ollama and database validation.
+- Kept build and database validation serialized through the shared Windows Runner queue; added CI policy assertions for runner placement.
+
 ## 0.3.42 — 2026-11-20
 
 ### Integration — Agent Factory and Predictive Coding
