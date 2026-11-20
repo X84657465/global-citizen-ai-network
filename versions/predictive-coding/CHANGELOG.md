@@ -1,3 +1,15 @@
+## 0.3.8 — 2026-11-20
+
+### Contract hardening
+- Require ECE options to be plain objects with only own string key `bins`.
+- Reject inherited, symbol, non-enumerable and accessor options before reading configuration.
+
+### Regression coverage
+- Add adversarial option-container tests, including a getter that must not execute.
+
+### Verification
+- Exact-head CI remains required; no test pass is claimed.
+
 ## 0.3.7 — 2026-11-20
 
 ### Fixed
