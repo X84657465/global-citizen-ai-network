@@ -1,3 +1,12 @@
+## 2.0.40 — 2026-11-20
+
+### Fixed — Make local PostgreSQL integration portable across Supabase CLI container naming
+- Locate the ephemeral PostgreSQL container by the DB port reported by Supabase, not an assumed container name.
+- Distinguish container-discovery/infrastructure failures from actual two-member RLS assertion failures in the CI circuit-breaker classification.
+
+### Verification
+- Exact-head full CI and live Runner validation are required; no pass is claimed before the new SHA completes.
+
 ## 2.0.39 — 2026-11-20
 
 ### Fixed — Synchronize lockfile root metadata

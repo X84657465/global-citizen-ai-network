@@ -428,6 +428,7 @@ jobs:
           $env:DOCKER_BIN = $docker.Source
           & $env:DOCKER_BIN inspect --format "{{.State.Running}}" $containerId
           if ($LASTEXITCODE -ne 0) { throw "Resolved PostgreSQL container verification failed." }
+          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "failure_scope=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           node --test tests/security/two-member-rls.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Two-member application RLS integration tests failed." }
       - name: Stop Supabase services
@@ -442,8 +443,9 @@ jobs:
           SUPABASE_START: ${{ steps.supabase-start.outcome }}
           DATABASE_TESTS: ${{ steps.database-tests.outcome }}
           APPLICATION_RLS_TESTS: ${{ steps.application-rls-tests.outcome }}
+          APPLICATION_RLS_SCOPE: ${{ steps.application-rls-tests.outputs.failure_scope }}
         run: |
-          if ($env:DATABASE_TESTS -eq "failure" -or $env:APPLICATION_RLS_TESTS -eq "failure") {
+          if ($env:DATABASE_TESTS -eq "failure" -or ($env:APPLICATION_RLS_TESTS -eq "failure" -and $env:APPLICATION_RLS_SCOPE -eq "task")) {
             [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
             Write-Host "::error::Database/RLS assertion failed; preserve logs and isolate candidate."
           } else {

@@ -1,3 +1,11 @@
+## 0.3.68 — 2026-11-20
+
+- Resolve the isolated Supabase PostgreSQL container from its published database port instead of relying on version-dependent Compose names.
+- Classify database-container discovery failures as CI infrastructure errors; only failures after application RLS assertions begin are candidate defects.
+
+### Verification
+- Exact-head full CI is required; no pass is claimed before the new SHA completes.
+
 ## 0.3.67 — 2026-11-20
 
 - Correct the package-lock root package metadata so both lockfile version fields match the repository release version.
