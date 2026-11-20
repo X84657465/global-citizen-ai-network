@@ -1,4 +1,4 @@
-## 0.3.90 — 2026-11-21
+## 0.3.91 — 2026-11-21
 
 ### Architecture — A–P workstream registry
 - Add the complete A–P engineering-line index to the repository homepage, including each line's purpose and maturity status.
