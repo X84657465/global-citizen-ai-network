@@ -17,7 +17,7 @@ A schema version 1 snapshot contains:
 - Completed, failed and retried counters over a bounded observation window.
 - Quota limit, usage, unit and optional reset timestamp.
 
-Unknown fields are rejected. Do not include tokens, environment variables, secrets, host filesystem paths, raw job payloads, user prompts or unrestricted log excerpts. Runner identifiers and labels must be treated as operational metadata, not authorization credentials.
+Unknown fields are rejected. Quota usage may exceed the configured limit because metering and enforcement can lag; such readings must remain valid so the evaluator can raise a critical alert. Do not include tokens, environment variables, secrets, host filesystem paths, raw job payloads, user prompts or unrestricted log excerpts. Runner identifiers and labels must be treated as operational metadata, not authorization credentials.
 
 ## Health evaluation
 
