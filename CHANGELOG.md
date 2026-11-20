@@ -1,3 +1,17 @@
+## 0.3.24 — 2026-11-20
+
+### Fixed
+- Correct newline escaping in the Ollama retry regression fixtures so tests exercise actual NDJSON line boundaries rather than literal backslash sequences.
+
+### Changed
+- Advance Agent Factory V2 from 2.0.11 to 2.0.12; retain the bounded one-time incomplete-stream retry introduced in 0.3.23.
+
+### Verification
+- The retry tests must pass against the exact branch head in CI before acceptance; live Windows Runner/Ollama task acceptance remains required.
+
+### Rollback
+- Revert the exact test-fixture correction commit; no database migration or production data change is involved.
+
 ## 0.3.23 — 2026-11-20
 
 ### Fixed

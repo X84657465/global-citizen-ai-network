@@ -158,8 +158,8 @@ test("rejects a truncated UTF-8 code point when the stream ends", async () => {
 
 test("retries one incomplete Ollama stream with a fresh request and discards partial output", async () => {
   const bodies = [
-    streamOf(['{"response":"partial","done":false}\\n']),
-    streamOf(['{"response":"complete","done":true,"done_reason":"stop"}\\n']),
+    streamOf(['{"response":"partial","done":false}\n']),
+    streamOf(['{"response":"complete","done":true,"done_reason":"stop"}\n']),
   ];
   const retries = [];
   let requests = 0;
@@ -180,7 +180,7 @@ test("does not retry malformed streams or provider errors", async () => {
   let requests = 0;
   await assert.rejects(
     collectOllamaGenerateStreamWithRetry(
-      async () => { requests += 1; return streamOf(["not-json\\n"]); },
+      async () => { requests += 1; return streamOf(["not-json\n"]); },
       () => {},
       { retryDelayMs: 0 },
     ),
@@ -195,7 +195,7 @@ test("stops after the single bounded retry when both streams omit completion mar
     collectOllamaGenerateStreamWithRetry(
       async () => {
         requests += 1;
-        return streamOf(['{"response":"partial","done":false}\\n']);
+        return streamOf(['{"response":"partial","done":false}\n']);
       },
       () => {},
       { retryDelayMs: 0 },
@@ -208,7 +208,7 @@ test("stops after the single bounded retry when both streams omit completion mar
 test("validates the Ollama stream retry budget", async () => {
   await assert.rejects(
     collectOllamaGenerateStreamWithRetry(
-      async () => streamOf(['{"response":"ok","done":true}\\n']),
+      async () => streamOf(['{"response":"ok","done":true}\n']),
       () => {},
       { maxAttempts: 3 },
     ),
