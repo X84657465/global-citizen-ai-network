@@ -1,3 +1,10 @@
+## 2.0.48 — 2026-11-20
+
+### Fixed — Assert the actual Supabase stderr capture pipeline
+- Validate that `2>&1` is inside the quoted cmd.exe command and that `| Out-String` follows the closing quote on the same command line.
+- Preserve fail-closed redaction and sanitized-only logging assertions.
+- Fresh exact-head CI is required; no pass is claimed.
+
 ## 2.0.47 — 2026-11-20
 
 ### Fixed — Match the real PowerShell stderr-capture syntax
