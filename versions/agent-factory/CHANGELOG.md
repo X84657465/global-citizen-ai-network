@@ -1,3 +1,14 @@
+## 2.0.62 — 2026-11-21
+
+### Fixed — Recover migrated retry-wait tasks without timestamps
+- Prefer the task's original failure timestamp; otherwise use the controller's immutable state.updated_at snapshot.
+- Preserve bounded exponential backoff, explicit next_attempt_at precedence and quarantine.
+- Requeue multiple eligible migrated tasks in one check without later state writes shifting the fallback clock.
+- Add deterministic tests for fallback timing, explicit timestamps, quarantine, multi-task recovery and no premature retry.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation remain required before acceptance.
+
 ## 2.0.61 — 2026-11-21
 
 ### Test — Align lifecycle soak event accounting with the durable deduplication contract
