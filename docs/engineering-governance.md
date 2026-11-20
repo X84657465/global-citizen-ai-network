@@ -72,7 +72,7 @@ No track may silently rewrite another track's code, configuration, database or p
 
 ## 5. Integration-branch CI policy
 
-- The integration branch `feat/github-project-showcase` is an approved base for dependent workstreams D and E while the five-track integration PR is under review.
+- The integration branch `feat/github-project-showcase` is an approved base for dependent workstreams D and E while the six-track integration PR is under review.
 - Pull requests targeting either `main` or the integration branch must run the same build, unit-test, type-check, lint, production-build and database/RLS verification workflow.
 - A dependent branch must include the current integration branch as an ancestor; its PR diff must contain only its own workstream files.
 - After the integration PR is merged, dependent PRs are retargeted to `main` only after their diff and exact-head CI are revalidated.
@@ -109,4 +109,4 @@ Each change must identify the smallest safe rollback unit. Application changes s
 
 ## 9. Six-track baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.8`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All six tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.26`. Track F is Cyber Security & Defense and its initial version is recorded in `versions/manifest.json`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
