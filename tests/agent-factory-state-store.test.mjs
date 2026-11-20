@@ -383,9 +383,10 @@ test("rejects a successful-looking PATCH response that does not contain the requ
 });
 
 
-test("repository write queue remains usable after a rejected stale write", async () => {
+test("repository write queue recovers across store instances after a rejected stale write", async () => {
   const fake = fakeApi();
-  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const firstStore = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const secondStore = createFactoryStateStore(fake.client, { repository: "OWNER/REPO" });
   const initial = createInitialFactoryState(1000);
   const first = recordSystemFailure(
     initial,
@@ -394,7 +395,7 @@ test("repository write queue remains usable after a rejected stale write", async
     "first accepted write",
     2000,
   ).state;
-  await store.write(0, first);
+  await firstStore.write(0, first);
 
   const stale = recordSystemFailure(
     initial,
@@ -403,7 +404,7 @@ test("repository write queue remains usable after a rejected stale write", async
     "stale write must fail",
     2500,
   ).state;
-  await assert.rejects(store.write(0, stale), /version conflict/);
+  await assert.rejects(secondStore.write(0, stale), /version conflict/);
 
   const next = recordSystemFailure(
     first,
@@ -412,9 +413,9 @@ test("repository write queue remains usable after a rejected stale write", async
     "queue must continue after rejection",
     3000,
   ).state;
-  const result = await store.write(1, next);
+  const result = await firstStore.write(1, next);
 
   assert.equal(result.state.state_version, 2);
-  assert.equal((await store.read()).state.state_version, 2);
+  assert.equal((await secondStore.read()).state.state_version, 2);
   assert.equal(fake.issues.length, 1);
 });
