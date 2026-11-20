@@ -1,3 +1,12 @@
+## 0.3.34 — 2026-11-20
+
+### Security
+- Harden Deep Neural capability schema inputs against class instances, inherited prototypes, symbol keys and accessors.
+- Synchronize D track version 0.3.14 and repository package metadata.
+
+### Verification
+- Exact-head CI and runtime capability integration remain required.
+
 ## 0.3.33 — 2026-11-20
 
 ### Fixed
