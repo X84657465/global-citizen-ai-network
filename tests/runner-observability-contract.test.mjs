@@ -40,7 +40,6 @@ test("rejects invalid identity, timestamp, queue and quota boundaries", () => {
   value.observedAt = "2026-02-30T25:61:00";
   value.queue.queued = 2;
   value.queue.oldestQueuedAt = null;
-  value.quota.used = 1001;
   const result = validateRunnerSnapshot(value);
   assert.ok(result.errors.some((error) => error.includes("repository")));
   assert.ok(result.errors.some((error) => error.includes("observedAt")));
@@ -48,7 +47,6 @@ test("rejects invalid identity, timestamp, queue and quota boundaries", () => {
   const negativeQueue = snapshot();
   negativeQueue.queue.queued = -1;
   assert.ok(validateRunnerSnapshot(negativeQueue).errors.some((error) => error.includes("queue.queued")));
-  assert.ok(result.errors.some((error) => error.includes("quota.used")));
 });
 
 test("requires queue age metadata only when queued work exists", () => {
@@ -99,7 +97,7 @@ test("detects queue pressure, failure rate and quota pressure without performing
   assert.equal(Object.hasOwn(result, "executedActions"), false);
 });
 
-test("rejects invalid thresholds and inverted critical thresholds", () => {
+test("accepts quota overrun telemetry and recommends an operator pause", () => {\n  const value = snapshot();\n  value.quota.used = 1100;\n  const validation = validateRunnerSnapshot(value);\n  assert.equal(validation.valid, true);\n  const health = evaluateRunnerHealth(value);\n  assert.equal(health.severity, "critical");\n  assert.ok(health.recommendedActions.includes("pause_quota_consuming_work_pending_operator_review"));\n});\n\ntest("rejects invalid thresholds and inverted critical thresholds", () => {
   const value = snapshot();
   assert.equal(evaluateRunnerHealth(value, { queueWarningDepth: 0 }).valid, false);
   assert.equal(evaluateRunnerHealth(value, { queueWarningDepth: 10, queueCriticalDepth: 5 }).valid, false);
