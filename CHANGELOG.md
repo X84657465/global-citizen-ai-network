@@ -1,3 +1,10 @@
+## 0.3.89 — 2026-11-21
+
+- Prevent successful candidate CI for one task from clearing the factory-wide infrastructure circuit breaker.
+- Add regression coverage proving global cooldown fields and unrelated task quarantine remain unchanged, including duplicate callback replay.
+- Agent Factory V2 advances to 2.0.58; B track remains unchanged at 0.1.13.
+- Exact-head full CI and controlled Windows factory validation are required; no live factory completion or deployment is claimed.
+
 ## 0.3.88 — 2026-11-20
 
 - Restrict full CI push-triggered runs to `main`; development branches are validated by their pull-request lifecycle events, avoiding duplicate full-suite execution for the same PR head.
