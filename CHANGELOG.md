@@ -1,3 +1,12 @@
+## 0.3.35 — 2026-11-20
+
+### Reliability
+- Add Agent Factory regression coverage for same-ID GitHub Actions reruns and stale attempt responses.
+- Synchronize package.json and package-lock.json root package versions at 0.3.35.
+
+### Verification
+- Exact-head Windows Runner CI remains required; no test pass is claimed.
+
 ## 0.3.33 — 2026-11-20
 
 ### Fixed
