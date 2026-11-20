@@ -40,6 +40,14 @@ test("handles the exact-one probability boundary in the final calibration bin", 
   assert.equal(calculateExpectedCalibrationError([1, 1, 0, 0], [1, 1, 0, 0], { bins: 2 }), 0);
   assert.equal(calculateExpectedCalibrationError([0, 0, 1, 1], [0, 0, 1, 1], { bins: 10 }), 0);
 });
+test("rejects malformed ECE option containers and unknown option keys", () => {
+  for (const options of [null, [], "10", 10]) {
+    assert.throws(() => calculateExpectedCalibrationError([0.5], [1], options), /options must be an object/);
+  }
+  assert.throws(() => calculateExpectedCalibrationError([0.5], [1], { bin: 2 }), /Unsupported ECE option: bin/);
+  assert.throws(() => calculateExpectedCalibrationError([0.5], [1], { bins: 2, strategy: "quantile" }), /Unsupported ECE option: strategy/);
+});
+
 test("rejects malformed ECE arrays, probabilities, outcomes and bin counts", () => {
   assert.throws(() => calculateExpectedCalibrationError([], [], { bins: 10 }), /non-empty arrays/);
   assert.throws(() => calculateExpectedCalibrationError([0.2], [0, 1]), /equally sized/);
