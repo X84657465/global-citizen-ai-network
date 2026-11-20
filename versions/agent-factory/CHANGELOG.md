@@ -1,3 +1,13 @@
+## 2.0.63 — 2026-11-21
+
+### Fixed — Persist legacy retry deadlines once
+- Normalize legacy retry_wait records missing next_attempt_at before later controller writes.
+- Prefer task-level last_error.at; use one captured durable state timestamp only as a migration fallback.
+- Keep retry deadlines stable across subsequent check cycles and unrelated task-state writes.
+
+### Verification
+- Exact-head full CI, database/RLS and Windows Runner integration are required before acceptance.
+
 ## 2.0.62 — 2026-11-21
 
 ### Fixed — Recover migrated retry-wait tasks without timestamps
