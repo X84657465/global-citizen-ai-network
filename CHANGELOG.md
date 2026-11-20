@@ -1,3 +1,10 @@
+## 0.3.94 — 2026-11-21
+
+- Prevent four-space and tab-indented Markdown code examples from being interpreted as task section headings during preflight validation.
+- Add regression coverage ensuring indented examples cannot replace allowed-path or acceptance sections.
+- Agent Factory V2 advances to 2.0.63; B track remains 0.1.13.
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; dispatch acceptance is not claimed until all required checks pass.
+
 ## 0.3.93 — 2026-11-21
 
 - Harden task preflight section parsing to use matching Markdown fence characters and lengths, so headings inside examples cannot become real task sections.
