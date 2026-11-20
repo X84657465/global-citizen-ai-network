@@ -7,6 +7,15 @@
 ### Verification
 - Exact-head Windows Runner CI is required. The test uses a synthetic fixture and does not modify production state.
 
+## 0.3.29 — 2026-11-20
+
+### Reliability
+- Add a production-path regression test for configured Agent Factory V1 state-Issue migration.
+- Verify legacy failure and quarantine counters survive migration and the existing Issue is updated in place without duplicate creation.
+
+### Verification
+- Exact-head Windows Runner CI is required. The test uses a synthetic fixture and does not modify production state.
+
 ## 0.3.26 — 2026-11-20
 
 ### Changed
