@@ -1,3 +1,15 @@
+## 0.3.12 — 2026-11-20
+
+### Fixed
+- Restrict capability input/output schema types to the supported JSON Schema primitive type set: object, array, string, number, integer, boolean and null.
+- Reject arbitrary strings such as function, constructor and undefined before a capability manifest can be accepted.
+
+### Tests
+- Add invalid-type regressions for both input and output schemas.
+
+### Verification
+- Exact-head CI required; no capability execution or production knowledge store mutation is claimed.
+
 ## 0.3.11 — 2026-11-20
 
 ### Fixed
