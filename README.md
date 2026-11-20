@@ -20,7 +20,7 @@ Keep every capability label aligned with shipped code. Demo and planned features
 [![Supabase](https://img.shields.io/badge/Backend-Supabase-3ecf8e?logo=supabase)](https://supabase.com/)
 [![License](https://img.shields.io/badge/License-Not%20selected-lightgrey)](#授權與使用)
 
-**專案狀態：早期開發 / MVP 建置中**  
+**版本：0.1.1** · **研發架構：A–P 十六線**  \n**專案狀態：早期開發 / MVP 建置中**  
 目前不是正式商用服務；各項功能是否可用，請以本文件的「功能現況」及實際部署環境為準。
 
 </div>
@@ -50,42 +50,77 @@ GCAN 的核心方向：
 | 分散式運算網路 | 自願提供閒置 CPU/GPU 資源 | 延後至安全模型完成；不得暗中使用裝置資源 |
 | 貢獻獎勵與治理 | 貢獻帳本、獎勵規則與治理流程 | 不承諾投資報酬；獎勵須有驗證與實際可分配來源 |
 
-## 🏗️ 五線並行研發架構
+## 🏗️ A–P 十六線研發架構
 
-GCAN 採用五條研發線並行推進。各線有自己的工作範圍、驗收標準與測試責任；共享成果必須經過接收方檢查，不因單一線路受阻而停止其他工作。
+GCAN 已由早期 A–E 五線擴展為 **A–P 十六條工程研發線**。這是分階段的工程治理架構，不代表十六條線都已完成或正式上線。每條線有明確責任邊界、依賴順序、驗收條件與安全限制。
 
 ```mermaid
 flowchart TB
-    U["使用者 / 貢獻者"] --> P["GCAN 平台"]
-    P --> A["A｜Agent Factory<br/>自動化工廠"]
-    P --> B["B｜GCAN Product<br/>產品平台"]
-    P --> C["C｜Predictive Coding<br/>預測與誤差校正"]
-    P --> D["D｜Deep Neural<br/>知識與推理核心"]
-    P --> E["E｜Deep Research<br/>深度研究工作台"]
-    A <--> B
-    B <--> C
-    C <--> D
-    D <--> E
-    E <--> A
-    A --> Q["共同治理與驗收"]
-    B --> Q
-    C --> Q
-    D --> Q
-    E --> Q
-    Q --> M["監控、證據、版本與回饋"]
+    U["使用者 / 貢獻者"] --> B["GCAN Product"]
+    B --> A["A｜Agent Factory V2"]
+    B --> C["C｜Predictive Coding"]
+    B --> D["D｜Deep Neural"]
+    B --> E["E｜Deep Research"]
+    B --> F["F｜Cyber Security & Defense"]
+    A --> G["G｜Release, QA & Integration"]
+    G --> H["H｜Observability, Telemetry & Cost"]
+    H --> K["K｜Knowledge Base & Playbooks"]
+    G --> J["J｜Self-Healing & Continuity"]
+    G --> M["M｜Compliance & Risk Audit"]
+    H --> I["I｜Connectors & Workflow Automation"]
+    I --> N["N｜Productization & Analytics"]
+    K --> O["O｜Lifecycle & Deprecation"]
+    F --> L["L｜Multi-Node & Federation"]
+    F --> P["P｜Governance, Ethics & Trust"]
+    A --> G
+    C --> D
+    D --> E
+    E --> G
+    F -. "跨線安全控制" .-> A
+    F -. "跨線安全控制" .-> B
+    F -. "跨線安全控制" .-> G
 ```
 
-| 研發線 | 主要責任 | 目標工作台 |
+### 十六條研發線職責
+
+| 線別 | 研發線 | 責任範圍 |
 |---|---|---|
-| **A — Agent Factory V2** | 任務派送、執行、測試、復原與交付 | 工廠控制台 |
-| **B — GCAN Product** | 公開入口、會員體驗、工作區與貢獻流程 | 產品平台 |
-| **C — Predictive Coding** | 預測、觀測、誤差計算、校準與漂移分析 | 預測工作台 |
-| **D — Deep Neural** | 知識記憶、證據來源、推理與跨線學習提案 | 知識推理工作台 |
-| **E — Deep Research** | 研究任務、來源查核、反證與報告整理 | 深度研究工作台 |
+| **A** | Agent Factory V2 | 任務生命週期、計畫、隔離式程式碼變更、候選 CI、發布證據與復原 |
+| **B** | GCAN Product | 公開產品、會員體驗、AI 工作區、貢獻流程與平台 UX |
+| **C** | Predictive Coding | 預測／觀測契約、預測誤差量測、校準與漂移分析 |
+| **D** | Deep Neural | 有來源追溯的記憶、推理、知識整合與評估後的學習提案 |
+| **E** | Deep Research | 研究流程、來源可信度、交叉佐證、反證與引用式研究成果 |
+| **F** | Cyber Security & Defense | 跨線威脅模型、最低安全控制、對抗測試、弱點應變與事件準備 |
+| **G** | Release, QA & Integration | 整合順序、相容性矩陣、回歸測試、發布關卡與精確 SHA 證據 |
+| **H** | Observability, Telemetry & Cost/Quota Governance | 任務／佇列／Runner 遙測、失敗分類、成本來源、配額門檻與告警 |
+| **I** | Ecosystem, Connectors & Workflow Automation | 外部 API、Webhook、通知、狀態同步、冪等與安全事件處理 |
+| **J** | Self-Healing, Chaos & Continuity | 有界復原、熔斷、安全降級、檢查點、備份還原與受控故障演練 |
+| **K** | Knowledge Base, Docs & Governance Playbooks | 架構紀錄、操作手冊、交接範本、決策紀錄與故障排除 |
+| **L** | Multi-Node, Federation & Edge/Cluster Coordination | 未來選擇加入的節點身分、能力排程、租約、fencing 與跨節點協調 |
+| **M** | Compliance, Policy Audit & Risk Governance | 稽核軌跡、政策證據、風險登錄、例外範圍與到期控管 |
+| **N** | Productization, Analytics & Growth/Ecosystem Ops | 隱私友善產品指標、採用與品質分析、回饋迴路、導入與生態系營運 |
+| **O** | Lifecycle, Deprecation & Legacy Retirement | 棄用清單、遷移窗口、相容性契約、移除審核與舊系統退場 |
+| **P** | Governance, Ethics & Trust/Policy Evolution | 自主權限分級、人工核准門檻、信任原則、政策演進與跨線仲裁 |
 
-**共同閉環：** 觀察 → 預測 → 行動 → 量測 → 計算預測誤差 → 保存證據與解釋 → 更新模型或計畫 → 測試 → 發布 → 跨線覆核 → 持續監控。
+### 分階段推進與依賴順序
 
-AI 的建議或預測不得自行取得正式環境的資料庫、帳號、金流、權限或部署變更權。高風險操作必須有明確授權、人工審核與可回復機制。
+1. **Stage 0 — 基礎線穩定：** 保留 A–E 既有責任範圍，完成 F 的精確 SHA CI、安全審查與驗收。
+2. **Stage 1 — 整合與可觀測性：** 優先建立 G、H、K；讓整合驗收、Runner／成本觀測與可交接知識先具備可信證據。
+3. **Stage 2 — 韌性與問責：** 推進 J、M、P；建立有界復原、稽核證據與自主權限人工核准制度。
+4. **Stage 3 — 外部生態系：** 在安全與整合契約穩定後推進 I、N、O。
+5. **Stage 4 — 條件式分散協調：** L 延後；只有在 H 證明現有容量不足、F 完成獨立安全審查並取得明確核准後才啟動。
+
+### 架構狀態與驗收原則
+
+| 範圍 | 架構狀態 | 正確解讀 |
+|---|---|---|
+| A–E | 既有研發線 | 各功能仍須以對應 PR、精確 SHA 與測試證據判定成熟度 |
+| F | 資安基礎線 | 獨立 PR 與 exact-head 安全驗收仍須完成 |
+| G–P | 已定義、分階段規劃 | 架構與責任已定義；不得宣稱尚未實作的能力已上線 |
+
+**共同發布關卡：** 任何必要檢查只要 Pending、Failure、Missing，或檢查 SHA 與 PR 最新 head 不一致，就不得視為通過。禁止自動核准、合併、正式部署、破壞性操作或未經核准的正式資料庫遷移。L 不代表已授權新增 Runner、伺服器或使用參與者裝置資源。
+
+完整責任邊界、跨線介面、階段交付物、退出條件與資源限制請見 [A–P 十六線工程藍圖](docs/engineering-workstreams.md)。
 
 ## 🖥️ 功能現況與產品入口
 
@@ -166,7 +201,7 @@ npm run build
 
 | 文件 | 說明 |
 |---|---|
-| [產品範圍與階段路線圖](docs/product-scope.md) | 產品目標、MVP 邊界與分階段規劃 |
+| [A–P 十六線工程藍圖](docs/engineering-workstreams.md) | 十六線責任、依賴、階段交付與驗收條件 |\n| [產品範圍與階段路線圖](docs/product-scope.md) | 產品目標、MVP 邊界與分階段規劃 |
 | [系統架構](docs/architecture.md) | 應用程式與服務架構 |
 | [安全與隱私基線](docs/security-baseline.md) | 權限、資料保護與安全原則 |
 | [資料模型與成本帳本](docs/data-model.md) | 核心資料與成本分類 |
@@ -199,15 +234,32 @@ Global Citizen AI Network (GCAN) is a people-centered AI collaboration platform.
 3. **Distributed Compute Network** — a future opt-in capability, deferred until independent security review.
 4. **Contribution Rewards & Governance** — transparent contribution records and rules; no guaranteed returns.
 
-### Five parallel workstreams
+### Sixteen engineering workstreams (A–P)
 
-- **A — Agent Factory V2:** task dispatch, execution, testing, recovery, and delivery.
-- **B — GCAN Product:** public entry, member experience, workspace, and contribution workflows.
-- **C — Predictive Coding:** predictions, observations, error calculation, calibration, and drift analysis.
-- **D — Deep Neural:** knowledge provenance, evidence, reasoning, and reviewed learning proposals.
-- **E — Deep Research:** research tasks, source verification, counter-evidence, and reports.
+GCAN has expanded from the original A–E tracks to a staged **A–P, sixteen-workstream architecture**. This defines ownership and dependencies; it does not claim that every workstream is implemented or production-ready.
 
-The workstreams follow a shared observe → predict → act → measure → explain → improve → test → review → monitor loop. Cross-workstream changes require receiving-owner review and compatibility checks. AI recommendations must not autonomously change production permissions, billing, databases, or deployments.
+- **A — Agent Factory V2:** task lifecycle, planning, isolated patch generation, candidate CI, publication evidence, and recovery.
+- **B — GCAN Product:** public product, member experience, AI workspace, contribution workflows, and platform UX.
+- **C — Predictive Coding:** prediction/observation contracts, error measurement, calibration, and drift analysis.
+- **D — Deep Neural:** provenance-aware memory, reasoning, knowledge integration, and evaluated learning proposals.
+- **E — Deep Research:** research workflow, source quality, corroboration, counter-evidence, and cited synthesis.
+- **F — Cyber Security & Defense:** cross-track threat modeling, security controls, adversarial validation, vulnerability response, and incident readiness.
+- **G — Release, QA & Integration:** integration sequencing, compatibility matrix, regression gates, release evidence, and rollback readiness.
+- **H — Observability, Telemetry & Cost/Quota Governance:** task/queue/Runner telemetry, failure taxonomy, cost provenance, quota thresholds, and alerts.
+- **I — Ecosystem, Connectors & Workflow Automation:** authenticated APIs, webhooks, notifications, synchronization, idempotency, and replay-safe events.
+- **J — Self-Healing, Chaos & Continuity:** bounded recovery, circuit breakers, safe degradation, checkpoints, backup/restore, and controlled fault drills.
+- **K — Knowledge Base, Docs & Governance Playbooks:** architecture records, runbooks, handoffs, decision logs, and troubleshooting.
+- **L — Multi-Node, Federation & Edge/Cluster Coordination:** future opt-in node identity, capability scheduling, leases, fencing, health, and coordination.
+- **M — Compliance, Policy Audit & Risk Governance:** audit trails, policy evidence, risk register, scoped exceptions, and expiry.
+- **N — Productization, Analytics & Growth/Ecosystem Ops:** privacy-aware product metrics, adoption/quality analysis, feedback, onboarding, and ecosystem operations.
+- **O — Lifecycle, Deprecation & Legacy Retirement:** deprecation inventory, migration windows, compatibility, approvals, and legacy retirement.
+- **P — Governance, Ethics & Trust/Policy Evolution:** autonomy levels, human approval thresholds, trust principles, policy evolution, and cross-track arbitration.
+
+**Implementation sequence:** preserve A–E and complete F security acceptance; establish G/H/K; then J/M/P; then I/N/O; defer L until measured capacity need, explicit approval, and independent security review.
+
+**Status boundary:** A–E are existing workstream scopes; F remains subject to its separate security acceptance; G–P are defined/planned and do not imply shipped capabilities. Any required check that is pending, failed, missing, or bound to a different head SHA blocks release. No automatic merge, production deployment, destructive action, or production migration is authorized by this roadmap.
+
+See the [A–P engineering workstream architecture](docs/engineering-workstreams.md) for dependencies, deliverables, exit criteria, interfaces, and resource constraints.
 
 ### Current status
 
