@@ -358,3 +358,26 @@ test("migrates the configured production state-Issue path without creating a rep
   assert.equal(fake.issues.length, 1, "migration must update the existing state Issue, not create another");
   assert.equal((await store.read()).migrated, false);
 });
+
+test("rejects a successful-looking PATCH response that does not contain the requested durable state", async () => {
+  const fake = fakeApi();
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const initial = recordSystemFailure(createInitialFactoryState(1000), "run-confirm-initial-1", "ERR_INITIAL", "initial", 2000).state;
+  await store.write(0, initial);
+  const currentBody = fake.issues[0].body;
+  const next = recordSystemFailure(initial, "run-confirm-next-1", "ERR_NEXT", "next", 3000).state;
+  const originalRequest = fake.client.request;
+  fake.client.request = async (path, options = {}) => {
+    if (/\/issues\/\d+$/.test(path) && options.method === "PATCH") {
+      // Simulate a stale/misleading API response: HTTP succeeded but the
+      // returned Issue still carries the previous durable payload.
+      return { ...fake.issues[0], body: currentBody };
+    }
+    return originalRequest(path, options);
+  };
+
+  await assert.rejects(store.write(1, next), /does not confirm the requested state/);
+  const persisted = await store.read();
+  assert.equal(persisted.state.state_version, 1);
+  assert.equal(persisted.state.system.last_error_code, "ERR_INITIAL");
+});
