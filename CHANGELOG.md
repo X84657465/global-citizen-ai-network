@@ -150,3 +150,12 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 
 ### Verification
 - Exact-head CI required; no automatic research ingestion or production memory changes are enabled.
+
+
+## 0.3.7
+
+- Run full CI on all explicitly controlled A-E feature branch pushes, not only on main or PR lifecycle events.
+- Retain repository-owner push gating and the five-workstream branch allowlist.
+- Synchronize Deep Neural to 0.3.2 and repository metadata to 0.3.7.
+
+Verification: exact-head CI and PostgreSQL/RLS validation required. No merge or deployment implied.
