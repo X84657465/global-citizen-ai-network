@@ -153,7 +153,8 @@ test("serializes concurrent V1 migrations across separate store instances", asyn
 
   assert.equal(results.every((result) => result.state.schema_version === 2), true);
   assert.equal(results.every((result) => result.state.state_version === 1), true);
-  assert.equal(results.every((result) => result.migrated === true), true);
+  assert.equal(results.filter((result) => result.migrated === true).length, 1);
+  assert.equal(results.filter((result) => result.migrated === false).length, 1);
   assert.equal(fake.issues.length, 1);
   assert.equal((await firstStore.read()).migrated, false);
   assert.equal((await secondStore.read()).state.tasks["81"].failures, 1);
