@@ -1,3 +1,9 @@
+## 0.3.91 — 2026-11-21
+
+- Extend independent MAJOR.MINOR.PATCH and vN generation governance from A–H to every workstream A–P, including planned I–P.
+- Planned status does not suspend version tracking; every track maintains its own version and change history.
+- Governance revision 1.4.4; no track's capability maturity or production readiness is implied.
+
 ## 0.3.90 — 2026-11-21
 
 - Formalize independent A–H workstream versioning and major generations (v1, v2, v3...) using numeric MAJOR.MINOR.PATCH as the canonical value.
