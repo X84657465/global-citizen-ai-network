@@ -1,3 +1,12 @@
+## 0.3.39 — 2026-11-20
+
+### Reliability
+- Strengthen the durable-state write-queue regression across two independent store instances using differently-cased repository identifiers.
+- Prove that a stale write rejection does not poison the shared repository queue and that a subsequent valid write persists state version 2 without creating a duplicate Issue.
+
+### Verification
+- Static read-back is required; exact-head Windows Runner CI remains the acceptance gate.
+
 ## 0.3.38 — 2026-11-20
 
 ### Reliability
