@@ -146,3 +146,14 @@ All notable changes are recorded here. Versions use numeric `MAJOR.MINOR.PATCH` 
 ### Verification
 - Previous A exact-head CI failed on the missing host `psql` executable and one CSS Module selector regression.
 - This repair is pending fresh exact-head CI; no release acceptance is implied.
+
+
+## 0.3.6 — 2026-11-20
+
+### Fixed
+- Pass the isolated Supabase container name into the current Windows Runner process so the RLS integration suite invokes Docker instead of falling back to a missing host-side psql executable.
+- Resolve docker.exe explicitly and expose subprocess execution errors for actionable diagnostics.
+- Update CI policy regression coverage to assert the current-step container environment contract.
+
+### Verification
+- The prior exact-head run exposed the missing current-process environment variable and one stale CI policy assertion. This release candidate requires a fresh exact-head CI run; it is not accepted until all checks pass.
