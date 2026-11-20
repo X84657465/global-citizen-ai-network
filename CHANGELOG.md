@@ -1,3 +1,9 @@
+## 0.3.77 — 2026-11-20
+
+- Extend the Supabase startup workflow regression guard to require the CLI exit code to be captured before the redaction process changes PowerShell's `$LASTEXITCODE`.
+- Synchronize repository and Agent Factory numeric release metadata.
+- Exact-head CI remains required; no pass is claimed.
+
 ## 0.3.76 — 2026-11-20
 
 - Tighten the Supabase startup redaction regression guard to verify the actual single-line cmd.exe-to-PowerShell pipeline, including the closing quote before the PowerShell pipe.
