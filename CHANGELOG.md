@@ -1,15 +1,38 @@
+## 0.3.105 — 2026-11-21
+
+- Reconcile A–P governance metadata with Agent Factory V2 2.0.71 and the exact-head CI integration trigger repair.
+- Preserve B 0.1.13 and independent C–P versions, including K 0.1.6.
+- Synchronize root/package/lock/manifest/README and governance release baseline.
+- No B runtime code, production data, secrets, permissions or automatic deployment behavior changed.
+
+## 0.3.104 — 2026-11-21
+
+- Reconcile the complete A–P governance registry onto the current Agent Factory V2 candidate baseline without importing stale A 2.0.69 metadata.
+- Advance A to 2.0.70 (bounded new-file patch generation), retain B 0.1.13 and all independent C–P versions, and advance K Knowledge Base/Docs to 0.1.6 for this governance reconciliation.
+- Synchronize the A–P homepage, governance baseline, root/package versions, manifest and independent K history.
+- No production data, secrets, workflow/control-plane settings or B runtime code changed.
+- Exact-head full CI and independent formal review are required before acceptance.
+
+## 0.3.103 — 2026-11-21
+
+- K Knowledge Base/Docs advances to 0.1.5: synchronize the public A–P registry's K version with the authoritative manifest and independent track version.
+- Align README, K VERSION/CHANGELOG, root VERSION, package metadata, manifest and governance baseline.
+- Documentation/version metadata only; no application runtime, factory behavior, B product logic, production data or deployment settings changed.
+- Exact-head full CI and independent formal review are required for this updated candidate SHA.
+
 ## 0.3.102 — 2026-11-21
 
-- Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
-- Add regression coverage for the precise target-branch allowlist; preserve owner/same-repository checks, exact-SHA resolver, self-hosted Runner queue, security audits, build and database gates.
-- No wildcard branch expansion, permission changes, production data or automatic merge/deployment behavior.
+- K Knowledge Base/Docs advances to 0.1.4: make the A–P candidate homepage status SHA-neutral so it cannot claim a previous exact-head CI result for a newer commit.
+- Synchronize README, root release metadata, manifest, governance baseline/revision, package lock and K track history.
+- No application runtime behavior, factory state, B product code, production data, secrets or deployment settings changed.
+- Verification: fresh exact-head CI and independent formal review are required for the resulting candidate SHA.
 
 ## 0.3.101 — 2026-11-21
 
-- Agent Factory V2 advances to 2.0.70: new-file generation now uses the validated plan output allowance instead of a 16,384-token floor for empty source files.
-- Add-file proposals are constrained by the plan's UTF-8 byte budget; existing-file replacements retain source-scaled token budgets and truncation rejection.
-- Add regression coverage for bounded output-token budgets. No database, RLS, dependency or production-data changes.
-- Exact-head full CI, Windows Runner/local Ollama, and independent formal review remain required.
+- K Knowledge Base/Docs advances to 0.1.3: correct A/ A–P homepage operational status against completed exact-head CI for PR #168 and #167; clearly distinguish CI success from pending independent formal review and merge.
+- Synchronize README, governance baseline, manifest, root/package versions and the independent K version history.
+- No A factory runtime behavior, B product code, production data, secrets or deployment settings changed.
+- Verification: fresh exact-head full CI and independent formal review remain required; rollback by reverting this documentation/version metadata commit.
 
 ## 0.3.100 — 2026-11-21
 
@@ -20,75 +43,50 @@
 
 ## 0.3.99 — 2026-11-21
 
-- Agent Factory V2 advances to 2.0.68: task-publication success is now non-mutating and cannot reset the global circuit breaker.
+- Agent Factory V2 advances to 2.0.68: task-publication success is non-mutating and cannot reset the global circuit breaker.
 - Add separately verified system-health success using completed exact-head GitHub CI evidence; preserve task retry and quarantine history.
-- Add controller regressions for non-mutating publication callbacks, fail-closed evidence validation and idempotent health recovery.
+- Add controller regressions for publication isolation, fail-closed evidence validation and idempotent health recovery.
 - Exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable and independent formal review remain required.
 
 ## 0.3.98 — 2026-11-21
 
-- Fix a preflight normalization gap: preserve leading whitespace in task section bodies so first-line four-space/tab-indented examples cannot be trimmed into executable task directives.
-- Keep the fail-closed bullet parser guard and add exact regression coverage for Allowed paths, acceptance criteria, exclusions and tab-indented directives.
-- Agent Factory V2 advances to 2.0.67; root VERSION, package.json, package-lock.json, manifest, README, governance baseline and Agent Factory changelog are synchronized.
-- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent formal review remain required before acceptance.
+- Synchronize the A–P homepage and governance registry with the current Agent Factory V2 baseline: A 2.0.67 / repository 0.3.98; preserve B 0.1.13, K 0.1.2 and all independent C–P versions.
+- The A–P registry remains 16 tracks with A–H prioritized and I–P planned; version synchronization does not imply implementation or production readiness.
+- Exact-head full CI and independent formal review remain required before merge.
 
 ## 0.3.97 — 2026-11-21
 
-- Agent Factory V2 advances to 2.0.66 with CommonMark-aware dependency parsing and fail-closed task preflight hardening: matching fence markers and lengths, invalid backtick opener handling, four-space/tab-indented code exclusion, and protection against indented example bullets becoming task directives.
-- Preserve the existing `dependency_issue_numbers` preflight contract and unresolved-dependency dispatch gate.
-- Root VERSION, package.json, package-lock.json, manifest, README, governance baseline and Agent Factory track version/changelog are synchronized.
-- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent formal review remain required before acceptance.
-
-## 0.3.96 — 2026-11-21
-
-- Fix the first-time state-Issue test double to implement the durable store read contract required by Agent Factory controller construction; retain the no-Issue initialization and retry-clock regression.
-- Agent Factory V2 advances to 2.0.65; root, package, lockfile, manifest, homepage and track changelog are synchronized.
-- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
-
-## 0.3.95 — 2026-11-21
-
-- Preserve the pre-initialization durable state timestamp when normalizing migrated retry_wait records; first-time state Issue creation must not shift legacy retry deadlines.
-- Agent Factory V2 advances to 2.0.64; root, package, lockfile, manifest, homepage and track changelog are synchronized.
-- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
-
-## 0.3.94 — 2026-11-21
-
-- Persist legacy Agent Factory retry deadlines once, preventing unrelated state writes from shifting retry eligibility between check cycles.
-- Agent Factory V2 advances to 2.0.63; root, package, lockfile, manifest, homepage and track changelog are synchronized.
-- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+- Synchronize the complete A–P registry with the current Agent Factory V2 release: A 2.0.66 / repository 0.3.97; preserve B 0.1.13 and independent C–P versions.
+- A–P responsibilities, planned/active status, README registry, manifest, governance baseline and repository package versions are aligned.
+- Exact-head CI and independent formal review remain required; no merge or production-readiness claim is implied.
 
 ## 0.3.93 — 2026-11-21
 
-- Recover migrated Agent Factory V2 `retry_wait` tasks whose legacy records have no `next_attempt_at`, preferring task failure time and using one immutable state timestamp only when task history is absent.
-- Preserve bounded exponential backoff, explicit retry timestamps and quarantine; add multi-task same-pass and no-premature-requeue regression coverage.
-- Agent Factory V2 advances to 2.0.62; B remains unchanged at 0.1.13.
-- Exact-head full CI and controlled Windows factory validation remain required; no production state Issue edit or live task completion is claimed.
+- Refine the repository homepage so all A–P lines are explicitly explained as 16 distinct workstreams; correct stale five-track labels and remove the partial five-track graphic from the A–P overview.
+- Clarify that the A–E dashboard lists currently verifiable workbench/PR entries only, not the full architecture.
+- Expand governance documentation with explicit I–P scope descriptions and synchronize its repository baseline to 0.3.93.
+- K Knowledge Base/Docs advances to 0.1.2; other track versions remain unchanged.
+- Exact-head full CI and formal review remain required; no implementation maturity is implied.
 
 ## 0.3.92 — 2026-11-21
 
-- Correct the 24-task Agent Factory lifecycle soak assertion: the deduplication ledger records candidate-start and candidate-result callbacks, not reserve/state-transition operations (48 unique callback events for 24 completed tasks).
-- Agent Factory V2 advances to 2.0.61; B remains unchanged at 0.1.13.
-- Exact-head full CI and controlled Windows factory validation remain required; no merge or deployment is claimed.
+- Publish the complete A–P workstream registry on the repository homepage, including each track's purpose, responsibilities, status and independent version.
+- Explain the A–P collaboration model and distinguish prioritized A–H tracks from planned I–P tracks without implying unimplemented capabilities are production-ready.
+- K Knowledge Base/Docs advances to 0.1.1; P Governance/Ethics/Trust advances to 0.1.1. Other track versions remain unchanged.
+- Exact-head full CI and formal review remain required; documentation does not imply feature completion.
 
 ## 0.3.91 — 2026-11-21
 
-- Add queue-selector integration regression coverage for dependency gating before dispatch, including completed, open, missing, and merged-PR prerequisites.
-- Agent Factory V2 advances to 2.0.60; B remains unchanged at 0.1.13.
-- Exact-head full CI and controlled Windows factory validation remain required; no merge or deployment is claimed.
+- Extend independent MAJOR.MINOR.PATCH and vN generation governance from A–H to every workstream A–P, including planned I–P.
+- Planned status does not suspend version tracking; every track maintains its own version and change history.
+- Governance revision 1.4.4; no track's capability maturity or production readiness is implied.
 
 ## 0.3.90 — 2026-11-21
 
-- Fix the P0 factory queue dependency parser: Issue #96-style multiline dependency sections are now recognized before task dispatch.
-- Preflight accepts optional dependency sections and returns normalized dependency issue numbers; queue selection remains the authoritative completion gate.
-- Agent Factory V2 advances to 2.0.59; B remains unchanged at 0.1.13.
-- Exact-head full CI and Windows factory validation remain required; no merge or deployment is claimed.
-
-## 0.3.89 — 2026-11-21
-
-- Prevent successful candidate CI for one task from clearing the factory-wide infrastructure circuit breaker.
-- Add regression coverage proving global cooldown fields and unrelated task quarantine remain unchanged, including duplicate callback replay.
-- Agent Factory V2 advances to 2.0.58; B track remains unchanged at 0.1.13.
-- Exact-head full CI and controlled Windows factory validation are required; no live factory completion or deployment is claimed.
+- Formalize independent A–H workstream versioning and major generations (v1, v2, v3...) using numeric MAJOR.MINOR.PATCH as the canonical value.
+- Require every change to bump affected track versions and changelogs; cross-track changes record each affected version and leave unaffected tracks unchanged.
+- Register current A–E manifest tracks and mark F–H pending registration without inventing track identities.
+- Governance revision 1.4.3. This policy change does not claim any track has completed a major-generation reform.
 
 ## 0.3.88 — 2026-11-20
 
