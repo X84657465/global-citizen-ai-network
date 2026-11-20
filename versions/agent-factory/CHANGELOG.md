@@ -1,3 +1,13 @@
+## 2.0.37 — 2026-11-20
+
+### Fixed — Fail closed on unsupported durable-state schemas
+- Accept only supported V2 and known legacy V1/unversioned payloads for migration.
+- Reject unknown future schema versions to prevent accidental downgrade and silent loss of scheduler metadata.
+- Add regression coverage confirming the existing Issue payload is not mutated on rejection.
+
+### Verification
+- Exact-head full CI and live Runner validation are required; production Issue #100 was not modified.
+
 ## 2.0.36 — 2026-11-20
 
 ### Fixed — Preserve CI contract regression coverage

@@ -125,6 +125,22 @@ test("rejects unknown future state schemas instead of downgrading them as V1", a
   assert.equal(fake.issues[0].body, body);
 });
 
+test("rejects unknown future state schemas instead of downgrading them as V1", async () => {
+  const future = {
+    schema_version: 3,
+    task_failures: { "81": 1 },
+    skipped_issue_numbers: [],
+    future_scheduler_metadata: { partition: "north" },
+  };
+  const body = "Machine-managed state. <!-- agent-factory-state:" +
+    Buffer.from(JSON.stringify(future)).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+
+  await assert.rejects(store.read(), /Unsupported factory state schema version; refusing downgrade/);
+  assert.equal(fake.issues[0].body, body);
+});
+
 test("migrates the existing Issue #100 V1 payload without losing failure and quarantine counters", async () => {
   const legacy = { consecutive_failures: 2, cooldown_until: null, task_failures: { "81": 1, "95": 3 }, skipped_issue_numbers: [95], last_error: "old failure", updated_at: "2026-11-19T05:00:00.000Z" };
   const body = "Machine-managed scheduler state. <!-- agent-factory-state:" + Buffer.from(JSON.stringify(legacy)).toString("base64") + " -->";
