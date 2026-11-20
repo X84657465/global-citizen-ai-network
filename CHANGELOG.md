@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.13 — 2026-11-20
+
+### Fixed
+- Reject prediction residuals and MAE terms that overflow IEEE-754 finite numeric range instead of returning Infinity.
+- Compute MAE from per-sample normalized terms to avoid overflowing a large intermediate sum when the true mean remains finite.
+
+### Verification
+- Added arithmetic-overflow and large-finite-value regression cases. Exact-head CI is required.
+
 ## 0.3.9 — 2026-11-20
 
 ### Fixed
