@@ -209,7 +209,10 @@ test("normalizes Track E publisher keys and defaults omitted limitations", () =>
   assert.deepEqual(result.limitations, []);
 });
 
-test("rejects impossible ISO-8601 calendar dates and timezone-less timestamps", () => {
+test("rejects impossible ISO-8601 dates and timezone offsets beyond ±14:00", () => {
+  const validBoundary = validateKnowledgeArtifact(knowledge({ created_at: "2026-11-20T00:00:00+14:00" }));
+  assert.equal(validBoundary.created_at, "2026-11-19T10:00:00.000Z");
+
   for (const created_at of [
     "2026-02-30T00:00:00.000Z",
     "2026-13-01T00:00:00.000Z",
@@ -217,6 +220,8 @@ test("rejects impossible ISO-8601 calendar dates and timezone-less timestamps", 
     "2026-11-20T00:60:00.000Z",
     "2026-11-20T00:00:00",
     "2026-11-20T00:00:00+00:60",
+    "2026-11-20T00:00:00+14:01",
+    "2026-11-20T00:00:00-15:00",
   ]) {
     assert.throws(() => validateKnowledgeArtifact(knowledge({ created_at })), /timezone-qualified ISO-8601/);
   }

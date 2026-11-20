@@ -1,5 +1,16 @@
 # Deep Neural Changelog
 
+## 0.3.8 — 2026-11-20
+
+### Fixed
+- Enforce the ISO-8601 ±14:00 timezone-offset boundary for knowledge artifacts and evidence records.
+
+### Tests
+- Add valid +14:00 and invalid +14:01/-15:00 regression cases.
+
+### Verification
+- Exact-head CI required.
+
 ## 0.3.6 — 2026-11-20
 
 ### Security

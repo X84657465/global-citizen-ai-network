@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.18",
+  "overall": "0.3.19",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -20,7 +20,7 @@
     },
     "D": {
       "name": "Deep Neural",
-      "version": "0.3.7",
+      "version": "0.3.8",
       "status": "implementation-candidate"
     },
     "E": {
