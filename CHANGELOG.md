@@ -1,3 +1,14 @@
+## 0.3.31 — 2026-11-20
+
+### Fixed
+- Normalize validated Deep Neural EvidenceRecord GitHub run URLs before returning them, preventing whitespace-padded input from leaking into persisted evidence references.
+
+### Tests
+- Add a regression assertion that accepts a valid padded URL but returns the canonical trimmed URL.
+
+### Verification
+- Exact-head Windows Runner CI remains required; no local or remote test pass is claimed.
+
 ## 0.3.30 — 2026-11-20
 
 ### Fixed
