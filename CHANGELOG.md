@@ -1,3 +1,10 @@
+## 0.3.85 — 2026-11-20
+
+- Include the new Agent Factory task-failure scope helper in the V2 preflight push path filter, ensuring helper-only changes cannot bypass Windows factory validation.
+- Add a CI policy assertion that protects the helper-to-validation trigger contract.
+- Agent Factory V2 advances to 2.0.56; root/package/lock/manifest metadata stays synchronized.
+- Exact-head CI remains required; no live task completion is claimed.
+
 ## 0.3.84 — 2026-11-20
 
 - Correct the task-scoped failure marker writer to emit a real newline in GitHub Actions' environment file; cover both successful propagation and safe failure behavior.

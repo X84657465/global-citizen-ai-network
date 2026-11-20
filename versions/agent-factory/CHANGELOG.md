@@ -1,3 +1,12 @@
+## 2.0.56 — 2026-11-20
+
+### Fixed — Trigger factory validation for failure-scope helper changes
+- Add lib/agent-failure-scope.mjs to the V2 preflight push path filters.
+- Enforce the path-to-validation relationship in CI policy tests.
+
+### Verification
+- Exact-head full CI and controlled Windows factory smoke remain required.
+
 ## 2.0.55 — 2026-11-20
 
 ### Fixed — Ensure task failure scope reaches GitHub Actions
