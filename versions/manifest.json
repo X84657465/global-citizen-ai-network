@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.40",
+  "overall": "0.3.41",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -28,6 +28,12 @@
       "version": "0.1.11",
       "status": "implementation-candidate",
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
+    },
+    "F": {
+      "name": "Cyber Security & Defense",
+      "version": "0.1.0",
+      "status": "foundation",
+      "responsibility": "Cross-track threat modeling, security controls, adversarial validation, vulnerability response and incident readiness."
     }
   },
   "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
