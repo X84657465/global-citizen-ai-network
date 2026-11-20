@@ -62,8 +62,8 @@ function fixture() {
       ('${conversationA}', '${a}', '${projectA}', 'member-a conversation'),
       ('${conversationB}', '${b}', '${projectB}', 'member-b conversation');
     insert into public.messages (id, conversation_id, owner_id, role, content) values
-      ('${messageA}', '${conversationA}', '${a}', 'user', 'fixture-a'),
-      ('${messageB}', '${conversationB}', '${b}', 'user', 'fixture-b');
+      ('${messageA}', '${conversationA}', '${a}', 'user', 'Valid contribution fixture from member A.'),
+      ('${messageB}', '${conversationB}', '${b}', 'user', 'Valid contribution fixture from member B.');
     insert into public.ai_requests (id, owner_id, project_id, conversation_id, provider, model, feature)
     values
       ('${requestA}', '${a}', '${projectA}', '${conversationA}', 'fixture', 'fixture', 'rls-test'),
@@ -72,8 +72,8 @@ function fixture() {
     values ('${task}', 'RLS fixture task', 'Disposable test fixture', 'security', 'published');
     insert into public.task_submissions (id, task_id, contributor_id, content)
     values
-      ('${submissionA}', '${task}', '${a}', 'fixture-a'),
-      ('${submissionB}', '${task}', '${b}', 'fixture-b');
+      ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.'),
+      ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.');
     `;
   return { a, b, projectA, projectB, conversationA, conversationB, messageA, messageB, requestA, requestB, submissionA, submissionB, setup };
 }
