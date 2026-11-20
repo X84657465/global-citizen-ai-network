@@ -76,3 +76,22 @@ test("rejects arrays, nulls and non-plain evidence inputs", () => {
   assert.equal(validateReleaseEvidence(null).valid, false);
   assert.equal(validateReleaseEvidence([]).valid, false);
 });
+
+test("rejects duplicate required checks and empty expected identities", () => {
+  const value = evidence();
+  const duplicate = validateReleaseEvidence(value, { requiredChecks: ["unit", "unit"] });
+  assert.ok(duplicate.errors.includes("requiredChecks must not contain duplicate names"));
+  const emptyRepository = validateReleaseEvidence(value, { expectedRepository: "" });
+  assert.ok(emptyRepository.errors.includes("repository does not match the expected repository"));
+  const emptyHead = validateReleaseEvidence(value, { expectedHeadSha: "" });
+  assert.ok(emptyHead.errors.includes("headSha does not match the expected tested commit"));
+});
+
+test("accepts valid timezone offsets and rejects impossible offset values", () => {
+  const valid = evidence();
+  valid.generatedAt = "2026-11-20T16:30:00+08:00";
+  assert.equal(validateReleaseEvidence(valid).valid, true);
+  const invalid = evidence();
+  invalid.generatedAt = "2026-11-20T16:30:00+14:01";
+  assert.equal(validateReleaseEvidence(invalid).valid, false);
+});
