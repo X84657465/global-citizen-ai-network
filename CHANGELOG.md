@@ -1,3 +1,14 @@
+## 0.3.41 — 2026-11-20
+
+### Added — F Cyber Security & Defense
+- Establish the sixth independent workstream with cross-track security ownership and review requirements.
+- Add the GCAN threat model covering identity, tenant isolation, AI prompt injection, Runner isolation, supply-chain compromise and availability abuse.
+- Add incident-response, containment, recovery and security release-gate runbooks.
+- Add regression tests for the six-track manifest, governance and security-control documentation.
+
+### Verification
+- Exact-head unit tests and Windows Runner CI remain required; documentation and policy tests are not claimed as executed.
+
 ## 0.3.40 — 2026-11-20
 
 ### Reliability
