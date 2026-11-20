@@ -413,6 +413,7 @@ http://localhost:3000
 | [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 自動開發工廠、Runner 與故障處理 |
 | [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 任務排程與執行機制 |
 | [Claude 獨立審查簡報](docs/claude-review-brief.md) | 架構與安全審查清單 |
+| [K 線版本紀錄](versions/knowledge-base/CHANGELOG.md) | 知識庫、文件與治理手冊的獨立版本歷史 |
 
 
 ## 🎬 圖片與影片介紹｜Visual & Video Tour
