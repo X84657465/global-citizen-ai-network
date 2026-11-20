@@ -1,3 +1,14 @@
+## 0.3.11 — 2026-11-20
+
+### Fixed
+- Return the normalized GitHub run URL from EvidenceRecord validation instead of retaining the caller's untrimmed input.
+
+### Tests
+- Verify whitespace-padded valid GitHub URLs are normalized in the validated record.
+
+### Verification
+- Exact-head Windows Runner CI required.
+
 ## 0.3.10 — 2026-11-20
 
 ### Fixed
