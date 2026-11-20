@@ -1,3 +1,10 @@
+## 0.3.90 — 2026-11-20
+
+- Harden Agent Factory queue selection so multiline Markdown dependency sections are parsed before dispatch; tasks with unresolved or missing dependencies remain blocked.
+- Add regression coverage for the production Issue #96 dependency format, inline declarations, section boundaries, code fences, duplicate references and fail-closed dependency resolution.
+- Agent Factory V2 advances to 2.0.59; B track remains 0.1.13.
+- Exact-head full CI, TypeScript, lint and Windows factory validation remain mandatory; no production task state was manually changed and no live task completion is claimed.
+
 ## 0.3.89 — 2026-11-20
 
 - Recover migrated Agent Factory V2 retry-wait tasks whose legacy state has no per-task retry timestamp; preserve explicit retry schedules, bounded backoff, quarantine and same-pass idempotency.
