@@ -1,3 +1,13 @@
+## 0.3.26 — 2026-11-20
+
+### Added — F Cyber Security & Defense
+- Establish an independent sixth workstream for cross-track threat modeling, security assurance, adversarial validation and incident readiness.
+- Add threat-model, incident-response, and security release-gate documents covering AI prompt injection, tenant isolation, Runner execution, credentials and supply-chain risks.
+- Add security governance regression tests and register them in the unit-test command.
+
+### Verification
+- Exact-head unit tests and Windows Runner CI remain required. No test or deployment pass is claimed by this documentation and policy release.
+
 ## 0.3.25 — 2026-11-20
 
 ### Fixed
