@@ -1,3 +1,15 @@
+## 2.0.69 — 2026-11-21
+
+### Hardened — Bind system-health recovery to exact PR evidence
+- Keep task-publication success non-mutating; it cannot reset global circuit-breaker state.
+- Require the health CI run ID, attempt, full head SHA and explicit pull-request number.
+- Verify the completed successful run belongs to the same repository, targets `main`, and its PR head SHA matches the supplied exact SHA.
+- Preserve task retry/quarantine history; retain idempotent recovery semantics.
+- Add regression coverage for missing and mismatched PR identity in addition to exact-head CI evidence.
+
+### Verification
+- Fresh exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable, and independent formal review required before acceptance.
+
 ## 2.0.68 — 2026-11-21
 
 ### Fixed — Isolate task publication from global circuit-breaker recovery
