@@ -1,3 +1,10 @@
+## 0.3.98 — 2026-11-21
+
+- Fix a preflight normalization gap: preserve leading whitespace in task section bodies so first-line four-space/tab-indented examples cannot be trimmed into executable task directives.
+- Keep the fail-closed bullet parser guard and add exact regression coverage for Allowed paths, acceptance criteria, exclusions and tab-indented directives.
+- Agent Factory V2 advances to 2.0.67; root VERSION, package.json, package-lock.json, manifest, README, governance baseline and Agent Factory changelog are synchronized.
+- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent formal review remain required before acceptance.
+
 ## 0.3.97 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.66 with CommonMark-aware dependency parsing and fail-closed task preflight hardening: matching fence markers and lengths, invalid backtick opener handling, four-space/tab-indented code exclusion, and protection against indented example bullets becoming task directives.
