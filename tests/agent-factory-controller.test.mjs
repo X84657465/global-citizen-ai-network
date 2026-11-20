@@ -818,6 +818,7 @@ test("check mode preserves the pre-initialization retry clock when creating the 
   let state = initial;
   const store = {
     async migrate() { return { issue: null, state, migrated: false }; },
+    async read() { return { issue: null, state }; },
     getStateIssueNumber() { return null; },
     async write(expectedVersion, nextState) {
       assert.equal(state.state_version, expectedVersion);
