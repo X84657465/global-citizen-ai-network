@@ -169,3 +169,24 @@ test("requires a human approval label before allowing factory control-plane path
   assert.equal(task.control_plane_authorized, true);
   assert.deepEqual(task.allowed_paths, ["lib/agent-factory-state-machine.mjs", "tests/settings-page.test.ts"]);
 });
+
+
+test("accepts a dependency section and carries normalized dependency issue numbers into the task bundle", () => {
+  const body = validIssue().body.replace(
+    "## Acceptance criteria",
+    "## Dependencies\n- #94 migration-chain validation\n- #74 task discovery\n- #94 duplicate reference\n\n## Acceptance criteria",
+  );
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.dependencies, [74, 94]);
+});
+
+test("keeps dependency declarations optional and rejects duplicate dependency sections", () => {
+  const task = validateAndBuildTask(validIssue(), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.dependencies, []);
+  const duplicate = validIssue({ body: validIssue().body + "\n## Dependencies\n- #74\n" });
+  const withOne = validIssue({ body: validIssue().body.replace("## Acceptance criteria", "## Dependencies\n- #74\n\n## Acceptance criteria") });
+  assert.throws(
+    () => validateAndBuildTask(validIssue({ body: withOne.body + "\n## Dependencies\n- #75\n" }), "X84657465/global-citizen-ai-network"),
+    /Duplicate section/,
+  );
+});
