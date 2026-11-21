@@ -102,5 +102,5 @@
 | Candidate | Exact SHA | CI | Acceptance |
 |---|---|---|---|
 | P permission provider PR #251 | merged as `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Run [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871) was still pending at merge | Merged but unverified |
-| P path-validation and handover follow-up PR #252 | `5ca035183256a0b3c6f2ac8b4b3e5c81f7b00873` | Run [44932422571](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44932422571) pending at resolver, no steps started | Not accepted; waiting for Windows runner and independent review |
+| P path-validation and handover follow-up PR #252 | Current head: see PR metadata | Exact-head run: see PR Checks; pending/cancelled attempts are not passes | Not accepted; waiting for Windows runner and independent review |
 | Main baseline | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Mainline CI must be refreshed for this SHA | Not certified by this checklist |

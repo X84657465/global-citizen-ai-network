@@ -22,10 +22,10 @@
 [Open PR #252](https://github.com/X84657465/global-citizen-ai-network/pull/252)
 
 - Branch: `feat/p-trusted-review-permission-provider-20261122`
-- Exact head: `5ca035183256a0b3c6f2ac8b4b3e5c81f7b00873`
+- Exact head: use the current head SHA shown in PR #252 metadata; do not rely on an older run after any branch update.
 - Changes: stricter Repository validation in both P permission and review-collection entry points; regression tests for traversal and malformed path inputs; five F–P handover documents.
-- CI run: [44932422571](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44932422571)
-- Last observed CI state: pending at `Resolve exact candidate PR metadata`; no job steps have started. This is a runner/queue blocker, not a test pass or code failure.
+- CI run: use the latest exact-head run shown in PR #252 Checks.
+- Last observed state before this documentation sync: the self-hosted Windows resolver had not started. New commits supersede earlier runs; pending/cancelled runs are not passes.
 - PR state: Draft; not accepted or merged.
 
 PR #251 remains merged-but-unverified. Do not treat its merge as acceptance.
@@ -34,7 +34,7 @@ A local isolated smoke test initially found that the permission adapter accepted
 
 ## 3. Immediate continuation procedure
 
-1. Refresh PR #252 and exact-head run [44932422571](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44932422571); resolve the queued Windows runner before treating downstream jobs as available.
+1. Refresh PR #252's current exact head and Checks; resolve the Windows self-hosted runner queue before interpreting any downstream jobs as code evidence.
 2. Inspect resolver output and every downstream job; do not interpret skipped jobs as success.
 3. If a code/test failure exists, fix only the F–P branch and rerun against the new exact head.
 4. When all required CI jobs pass, obtain independent review and resolve comments.

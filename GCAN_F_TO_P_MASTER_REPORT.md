@@ -46,7 +46,7 @@ P permission provider PR #251 was merged at `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1
 - PR #248 merged P's exact-head review collector at merge commit `f1c10a92ec7ffca510c0d42210062a52334dde94`.
 - PR #250 merged the P review-decision precedence correction before PR #251; PR #251 then advanced main to `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
 - Main push CI run [44931253584](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931253584) was pending at audit time.
-- PR #251 merged the two additive permission-provider files, but it merged before exact-head CI run [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871) completed. The PR also received a Vercel deployment-rate-limit comment; this is an external preview blocker, not a test result. PR #252 now contains stricter path validation in both the permission adapter and review collector, regression tests for traversal/malformed repository inputs, and the five handover documents. Current follow-up head: `5ca035183256a0b3c6f2ac8b4b3e5c81f7b00873`; exact-head CI run [44932422571](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44932422571) is pending at the resolver because the self-hosted Windows runner has not started the job.
+PR #252's current exact candidate SHA and active workflow run are authoritative in the pull request metadata and Checks tab. The Windows self-hosted resolver had not started at the last check; pending or cancelled runs are not acceptance evidence.
 - A completed workflow with skipped quality/database jobs is not a pass. A pending resolver is not a pass. A historical pass for another SHA is not a pass for the current candidate.
 
 ## 5. Current risks and blockers
