@@ -96,3 +96,13 @@ test("primary navigation exposes the product workspace and Agent Factory directl
   assert.ok(homepage.includes('<Link href="/workspace">AI 工作空間</Link>'));
   assert.ok(homepage.includes('<Link href="/factory">A 線工廠</Link>'));
 });
+
+
+test("repository and product homepages expose task-oriented workspace, factory, and contribution entry points", () => {
+  assert.match(readme, /快速入口｜依使用目的開始/);
+  assert.ok(readme.includes("[Agent Factory V2](https://global-citizen-ai-network.vercel.app/factory)"));
+  assert.ok(homepage.includes('<Link href="/factory" className={styles.productCard}>'));
+  assert.ok(homepage.includes("<h3>Agent Factory 工廠</h3>"));
+  assert.ok(homepage.includes('<Link href="/factory">A 線工廠</Link>'));
+  assert.ok(homepage.includes('<Link href="/contribute">全球貢獻中心</Link>'));
+});
