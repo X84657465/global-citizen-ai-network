@@ -127,3 +127,10 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 5. **B preparation:** prepare a selective-port contract map without activating B as the development priority. B must consume only versioned, explicitly exposed A interfaces; no direct Factory DB/state/lease/Runner access.
 
 **Factory-first charter remains:** stabilize Agent Factory V2, then enable GCAN Product to create revenue, then expand the global AI ecosystem.
+
+## B adapter design handoff (2026-11-22)
+
+- Added [Agent Factory → GCAN Product read adapter proposal](architecture/agent-factory-product-read-adapter.md). This is a documentation-only design; no B runtime/API/database or Factory permissions were activated.
+- Verified source contracts: A `EvidenceRecord v1.0.0` is currently model-independent C/D evidence, not a structured B API; F–P `FPCapabilityEnvelope` uses opaque actor/resource references and does not authenticate or authorize.
+- The proposed B view is versioned, read-only, exact-SHA/run-ID/run-attempt bound, tenant-scoped by B's own identity/workspace authorization, and excludes raw Issue bodies, prompts, patches, logs, secrets and host paths.
+- Do not implement or expose this adapter until A is accepted and integrated. A must provide a structured server-side projection; B must not parse the descriptive EvidenceRecord command string or access A's internal Issue state, lease or Runner controls.
