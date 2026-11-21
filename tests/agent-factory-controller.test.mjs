@@ -40,6 +40,24 @@ function fakeStore(initialState, options = {}) {
   };
 }
 
+test("rejects malformed and dot-segment repository names before controller use", () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  for (const repository of [
+    "owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo",
+    "owner/..repo", "owner./repo", "owner/repo.",
+    "owner/repo/extra", "/repo", "owner/", "owner\\\\repo",
+  ]) {
+    assert.throws(
+      () => createAgentFactoryController({ store, repository }),
+      /A valid repository name is required/,
+      repository,
+    );
+  }
+  assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo" }));
+  assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo.v2" }));
+  assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/foo..bar" }));
+});
+
 const leaseEnv = {
   AGENT_FACTORY_MODE: "reserve",
   ISSUE_NUMBER: "42",
@@ -813,7 +831,7 @@ test("candidate-start rejects a PR head that moved after metadata resolution wit
   }), /Candidate start rejected: PR must be the current open same-repository AI Task PR/);
 
   assert.deepEqual(requests, ["/repos/owner/repo/pulls/88"]);
-  assert.equal(store.state.state_version, 0);
+  assert.equal(store.state.state_version, awaitingCandidate().state_version);
   assert.equal(store.state.tasks["42"].status, "awaiting_ci");
   assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
@@ -1666,7 +1684,7 @@ test("system-health success rejects a successful CI run when the PR has advanced
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "169",
     SYSTEM_HEALTH_HEAD_SHA: testedSha,
-  }), /current same-repository PR head no longer matches/);
+  }), /current open same-repository PR head no longer matches/);
 
   assert.equal(store.state.state_version, initial.state_version);
   assert.equal(store.state.system.consecutive_failures, 2);
