@@ -37,6 +37,6 @@ test("factory navigation has accessible labels and responsive layout rules", () 
 test("factory homepage does not misrepresent an older Preview as the current candidate", () => {
   assert.match(page, /最新 SHA Preview 未部署 · 待額度恢復/);
   assert.match(page, /舊 SHA，不能作為本版驗收證據/);
-  assert.ok(page.includes("CANDIDATE · 0.3.121"));
+  assert.ok(page.includes("CANDIDATE · 0.3.123"));
   assert.ok(page.includes("版本 2.0.81"));
 });
