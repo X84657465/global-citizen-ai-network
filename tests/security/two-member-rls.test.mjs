@@ -198,6 +198,18 @@ test("member cannot appeal or probe another member's rejected submission", () =>
     expectSqlState: "42501",
     expectMessage: "appeal submission is unavailable",
   });
+  const forgedAppellantError = sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.task_appeals (submission_id, appellant_id, reason)
+      values ('${f.submissionB}', '${f.b}', 'Attempt to spoof the appellant identity.');
+    `)}
+    rollback;
+  `, {
+    expectFailure: true,
+    expectSqlState: "42501",
+    expectMessage: "appeal submission is unavailable",
+  });
   const missingSubmissionError = sql(`
     ${f.setup}
     ${asMember(f.a, `
@@ -219,6 +231,11 @@ test("member cannot appeal or probe another member's rejected submission", () =>
     denialIdentity(foreignSubmissionError),
     denialIdentity(missingSubmissionError),
     "foreign-owned and nonexistent submission IDs must not be distinguishable by their appeal error",
+  );
+  assert.equal(
+    denialIdentity(forgedAppellantError),
+    denialIdentity(missingSubmissionError),
+    "a caller must not spoof the appellant ID to probe a foreign submission's lifecycle",
   );
 });
 
