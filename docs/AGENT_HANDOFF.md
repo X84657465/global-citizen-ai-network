@@ -5,7 +5,7 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Current main commit:** `0cdec289fb967e478ca871212af318d1c5c233d7`
+**Current main commit:** `4d3653b3da766ae3910aeef39bd840d2e6de30dd`
 
 ## 1. Highest-level execution strategy
 
@@ -20,10 +20,10 @@ No automatic merge or production deployment is authorized by CI success alone. E
 
 ### Main and Actions
 
-- Main HEAD: `0cdec289fb967e478ca871212af318d1c5c233d7`.
-- Latest main CI run observed: [#44927985312](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44927985312), exact SHA above, conclusion **cancelled**, with no jobs returned. This is not a pass or code failure.
+- Main HEAD: `4d3653b3da766ae3910aeef39bd840d2e6de30dd`.
+- Latest main CI run observed: [#44928069201](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069201), exact SHA above, still pending at last check but with **zero jobs assigned**. This is not a pass or code failure.
 - Several older `Agent Factory System Health Recovery` workflow_run events remain pending; recent events #44927990475 and #44927991471 completed as **skipped**.
-- PR CI runs listed below are still pending. Some have no jobs assigned; #236 has only `Resolve exact candidate PR metadata` pending. No exact-head Windows quality/database/Ollama run has been verified green for these candidates.
+- PR CI runs listed below are still pending. Most have no jobs assigned; #236 and #237 have only `Resolve exact candidate PR metadata` pending. No exact-head Windows quality/database/Ollama run has been verified green for these candidates.
 - Do not infer Runner online/offline from an empty jobs list. It means no job assignment is visible for that run.
 - Vercel has reported `Deployment rate limited — retry in 24 hours` on recent PR statuses. This is a Preview/deployment quota blocker, not a substitute for GitHub CI evidence. Do not claim a Preview build or Production deployment from that status.
 
@@ -31,17 +31,18 @@ No automatic merge or production deployment is authorized by CI success alone. E
 
 | PR | Scope | Exact head SHA | Latest CI evidence | Integration note |
 |---|---|---|---|---|
-| [#231](https://github.com/X84657465/global-citizen-ai-network/pull/231) | A: candidate outcome and health recovery exact-head verification | `33d772a72505cdcc40c320363b74329b3b28858b` | Run #44927531225 pending; jobs empty | A-critical. Touches `lib/agent-factory-controller.mjs` and its tests. |
+| [#231](https://github.com/X84657465/global-citizen-ai-network/pull/231) | A: candidate outcome and health recovery exact-head verification | `794bcd20df635580d80da512de12a59015041037` | Run #44928183277 pending; jobs empty | A-critical. Touches `lib/agent-factory-controller.mjs` and its tests. |
 | [#233](https://github.com/X84657465/global-citizen-ai-network/pull/233) | H: request/response correlation context and integration ledger | `f409b829bbe9a57051261da88e75f751fbc275cc` | Run #44926765076 pending; jobs empty | Necessary H handoff, but not a release gate by itself. |
 | [#234](https://github.com/X84657465/global-citizen-ai-network/pull/234) | Account Server Component CSS module build fix | `ded0087abee322586b886d735c3e05717b8832d6` | Run #44927536106 pending; resolver job pending | Narrow build repair; validate exact-head Windows quality/build before merge. |
 | [#235](https://github.com/X84657465/global-citizen-ai-network/pull/235) | A: scope health-recovery concurrency to eligible job and restrict it to trusted AI-task PR branches | `c0014d6a1267cf0569fb110c87288a3317597731` | Run #44927965451 pending; jobs empty | Main already has job-level concurrency. This PR additionally adds `ai-task/issue-` branch filtering so ordinary PRs do not consume the state-writer queue. Keep serialized state writes. |
-| [#236](https://github.com/X84657465/global-citizen-ai-network/pull/236) | A: require all critical exact-run CI jobs before system-breaker recovery | `9ecf758dcb5314c5405ca50fcfc6838440d2c92a` | Run #44927962267 pending; resolver job pending | Overlaps #231 in controller/tests; based on older main and is 2 commits behind current main. Integrate/rebase only after reviewing #231 to avoid losing its exact-head safeguards. |
+| [#236](https://github.com/X84657465/global-citizen-ai-network/pull/236) | A: require all critical exact-run CI jobs before system-breaker recovery | `9ecf758dcb5314c5405ca50fcfc6838440d2c92a` | Run #44927962267 pending; resolver job pending | Overlaps #231 in controller/tests; based on older main. Integrate/rebase only after reviewing #231 to avoid losing its exact-head safeguards. |
+| [#237](https://github.com/X84657465/global-citizen-ai-network/pull/237) | K: refresh the single-source handoff with verified A/B/F–P state | `c00f24aefd1025281405379d9564455ee8efec92` | Run #44928173078 pending; resolver job pending | Documentation only; current handoff refresh, no runtime or production changes. |
 
 No submitted reviews or inline review threads were present on PRs #231, #233, #234, #235, or #236 at the last check. All remain Draft/open/unmerged.
 
 ### Important mainline correction
 
-Main commit `0cdec289` is titled `revert: restore main CI policy tests pending PR review`. Its change is limited to `tests/ci-trigger-policy.test.mjs`: it restores the test expectations for job-level queue scoping while removing the PR #235-specific AI-task branch filter expectation. The main workflow itself already places concurrency under `jobs.reset-system-breaker`, not at workflow scope. Therefore PR #235's remaining functional delta is the AI-task branch filter, not the job-level concurrency move alone.
+Latest main commit `4d3653b` is titled `revert: restore pre-PR-235 CI trigger tests on main`; it changes only `tests/ci-trigger-policy.test.mjs`. The current main workflow still places concurrency under `jobs.reset-system-breaker`, not at workflow scope, and does not include PR #235's `ai-task/issue-` branch filter. Therefore PR #235's functional delta is the trusted AI-task branch filter plus its regression assertion; the job-level concurrency placement is already present on main.
 
 ## 3. A — Agent Factory V2 operating constraints
 
