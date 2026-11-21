@@ -55,3 +55,25 @@
 ## Initial Git safety observation
 
 The remote audit branch was used to add documentation through GitHub's contents API. This session did not inspect any developer's local worktree, uncommitted files, or active local agents. Therefore local cleanliness and local agent collision status remain UNKNOWN. No claim of local-worktree safety is made.
+
+
+## Live status update — 2026-11-21
+
+The following remote PR/head/workflow facts were rechecked. They update task evidence only; owners remain unassigned and no task is marked accepted.
+
+| Task ID | Rechecked evidence | Updated state | Next action |
+|---|---|---|---|
+| GCAN-F-01 | PR #145 head `27d31444d8fb8d57040e60aa554e5d8e905d00e4`, open, mergeable=false; no PR-triggered workflow run returned | Blocked / CI unknown | Resolve ancestry/mergeability; run security suite on final exact head |
+| GCAN-G-01 | #147 head `6f735c1251907c5016e7eea32ea0253142e537ec` no run returned; #148 head `273eb012f7558c1223c3af3d4543c6745d6aaefa` CI failure | Blocked / competing candidates | Compare diffs and ancestry, select one, repair and rerun |
+| GCAN-H-01 | #150 head `d2bd6d49edae549dde319750a64a101bd7b5fabf`, CI failure; depends on G #148 | Blocked | Wait for selected G acceptance, then rebase and validate H |
+| GCAN-L-01 | #66 CI failure; #67 no PR-triggered run returned; #67 mirror tests are author-reported only | Deferred / not accepted | Keep execution disabled; meet F/H/security/consent gates |
+| GCAN-P-01 | #68 CI + AI Security Static Checks failed; #206 exact-head CI passed | Partial documentation/UI candidate; enforcement unproven | Reconcile canonical A–P architecture language; prove actual server/CI controls |
+| GCAN-I-01 | No independently accepted implementation found | Planned | Define connector contract and tests |
+| GCAN-J-01 | No J-owned acceptance found | Planned | Define recovery/fault-drill contract |
+| GCAN-K-01 | Documentation assets exist; no K acceptance | Docs-only partial | Assign owners and validate runbooks |
+| GCAN-M-01 | No independent acceptance found | Planned | Define audit/risk/exception contract |
+| GCAN-N-01 | No independent acceptance found | Planned | Define consent-aware analytics contract |
+| GCAN-O-01 | No independent acceptance found | Planned | Define deprecation/compatibility contract |
+
+PR #206 is CI-green on its exact head but remains open and unmerged. Do not mark P accepted or integrated on that basis. The P PR text positions P as a cross-cutting Governance, Ethics & Trust layer and calls A–E the five currently active feature tracks; this must be reconciled with the A–P sixteen-workstream registry. No owner or policy enforcement authority is assigned by this ledger.
+
