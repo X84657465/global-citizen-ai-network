@@ -213,6 +213,37 @@ test("publishing transition from sandbox_testing performs only the publishing wr
   assert.equal(result.state.active_task.state, "publishing");
 });
 
+test("failed publishing persistence resumes from the durable sandbox_testing state", async () => {
+  const store = fakeStore(createInitialFactoryState(1000), { failWriteAt: 6 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const leaseId = await advanceActiveTaskTo(controller, "patching");
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  }), /injected state write failure/);
+
+  assert.equal(store.state.active_task.state, "sandbox_testing");
+  assert.equal(store.state.active_task.issue_number, 42);
+  assert.equal(store.state.active_task.lease_id, leaseId);
+  assert.equal(store.state.tasks["42"].status, "sandbox_testing");
+
+  const retried = await controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  });
+
+  assert.equal(store.history.at(-1).task_state, "publishing");
+  assert.equal(store.history.at(-1).issue_number, 42);
+  assert.equal(store.history.at(-1).lease_id, leaseId);
+  assert.equal(retried.state.active_task.state, "publishing");
+  assert.equal(retried.state.tasks["42"].status, "publishing");
+});
+
 test("failed sandbox_testing persistence never reports publishing success or loses the lease", async () => {
   const store = fakeStore(createInitialFactoryState(1000), { failWriteAt: 5 });
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
