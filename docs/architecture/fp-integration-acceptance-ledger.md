@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `4bf472881ea4afabd9f29c4d58365c3ae6c3d2af`  
+**Baseline:** `main` at `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` (PR #259 base at the 2026-11-22 integration refresh)  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -93,3 +93,12 @@ This initial slice is additive test and documentation work. Revert the integrati
 - Added regression coverage for invalid workstream IDs, unknown outcomes, offset timestamps and unsafe free-form error strings, while preserving valid bounded operational error codes.
 - This prevents malformed or arbitrary runtime values from corrupting health counters and reduces the chance that raw error text or secret-bearing strings enter the telemetry buffer.
 - This remains process-local operational evidence, not durable metrics/traces or a production alerting sink. Exact-head CI and independent review remain required.
+
+
+## 8. Shared CI baseline and exact-head integration refresh (2026-11-22)
+
+- PR #267 is the shared CI baseline candidate at exact HEAD `6baa233e30192d5b360617d7f0079d840c78821a`. It synchronizes the package-lock root metadata with `VERSION`, `package.json` and `versions/manifest.json` at `0.3.124`, without changing dependency ranges or resolved package artifacts. Exact-head Actions run `44944336578` (#3179) is still pending at candidate metadata resolution; no quality, database/RLS or Ollama gate is recorded as passed for this run.
+- PR #259 is the Agent Factory V2 / F–P integration candidate at exact HEAD `b5713d42935a0fe8cb019cecbca5f1a6b1628bb1`. Its schema guard was synchronized with the exact shared-baseline implementation from #267: it checks that the declared pgTAP plan equals the actual `ok()` assertion count (minimum 15), while retaining the required table privilege, internal-table RLS and public-sequence assertions. The change does not relax database policies or runtime authorization.
+- Exact-head Actions run `44944539621` for #259 is pending at candidate metadata resolution. The previous run `44944042121` targets the superseded pre-synchronization SHA and is not acceptance evidence for the current HEAD.
+- #267 and #259 have no formal review submissions or inline review threads recorded at this refresh. Both remain Draft and unmerged. CI pending status, GitHub mergeability and source-level checks are not acceptance or approval.
+- Integration order remains: establish and validate #267 shared CI baseline; then revalidate #259 on its exact current SHA; then integrate F/G/H/P and remaining F–P workstreams in the dependency order above. Do not merge or deploy until required exact-head gates and independent review are recorded.
