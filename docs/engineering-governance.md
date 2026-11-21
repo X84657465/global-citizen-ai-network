@@ -1,7 +1,7 @@
 # A–O Workstream Engineering Governance
 
 **Governance revision: 1.4.12**  
-**Repository release baseline: 0.3.120**
+**Repository release baseline: 0.3.121**
 
 ## 1. Core workstreams and roadmap ownership
 
@@ -118,4 +118,4 @@ Each change must identify the smallest safe rollback unit. Application changes s
 
 ## 9. Core integration baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. A–O each retain independent responsibility and staged maturity; the currently versioned A–E engineering tracks have independent interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.120`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. A–O each retain independent responsibility and staged maturity; the currently versioned A–E engineering tracks have independent interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.121`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
