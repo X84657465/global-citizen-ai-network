@@ -1,8 +1,8 @@
 # GCAN F–P Acceptance Checklist
 
-**Audited main baseline:** `88ef18c6a2be53da2066a271ce0bddb280900da8`  
-**Current P candidate:** PR #251, head `12ea0a4b23bd75e470da92e2b9d6ab5440062d80`  
-**Status:** In progress. No track is marked fully accepted here.
+**Audited main baseline:** `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
+**Merged-but-unverified P provider:** PR #251, merge `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
+**Status:** In progress. No track is marked fully accepted here. PR #251 was merged before its exact-head CI completed; that merge is not acceptance.
 
 ## Global hard gates
 
@@ -101,5 +101,5 @@
 
 | Candidate | Exact SHA | CI | Acceptance |
 |---|---|---|---|
-| P permission provider PR #251 | `12ea0a4b23bd75e470da92e2b9d6ab5440062d80` | Run [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871), pending at resolver when audited | Not accepted |
-| Main baseline | `88ef18c6a2be53da2066a271ce0bddb280900da8` | Push run [44931253584](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931253584), pending when audited | Not certified by this checklist |
+| P permission provider PR #251 | merged as `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Run [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871) was still pending at merge | Merged but unverified; follow-up fix requires fresh CI |
+| Main baseline | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Mainline CI must be refreshed for this SHA | Not certified by this checklist |
