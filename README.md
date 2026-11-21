@@ -22,7 +22,7 @@
 
 
 
-> **Preview 注意：** 目前 README 所列 Preview 網址僅供參考，仍指向舊 SHA `173c74406de3d6fa72a123eb50eaedd678fafdf5`，不是本分支最新候選提交。本分支最新候選尚無可用 Preview；Vercel 回報 Build Rate Limit，恢復部署額度並成功部署後才會更新入口。
+> **Preview 注意：** 舊 Preview SHA `173c74406de3d6fa72a123eb50eaedd678fafdf5` 不代表本分支最新候選。本分支最新候選 `1cbb20e70a3fb0beb3e40c36a234fba137c401bd` 尚未取得 Vercel Preview 部署；取得對應 SHA 的部署與驗收證據後才更新預覽入口。
 
 ## 🧭 專案架構與驗證原則｜2026-11-21
 
@@ -499,11 +499,11 @@ A–O 各工作線各自擁有獨立責任、版本與驗收紀錄；P 提供共
 
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
-| A｜Agent Factory V2 | 工廠控制台 | PR #134 已合併，該提交 CI 通過；本輪工廠首頁銜接修改納入 PR #207，最新 exact-head CI 待完成 | [工廠分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [首頁整合 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) |
-| B｜GCAN Product | 全球產品平台 | PR #137 仍開啟；目前 head 尚無可確認的 CI 執行紀錄，待 exact-head 驗證與產品驗收 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) · [首頁整合 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) |
-| C｜Predictive Coding | 預測分析工作台 | PR #139 已合併；對應 head CI 通過，後續仍以 main 最新提交與產品驗收為準 | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
-| D｜Deep Neural | 深度神經工作台 | PR #140 仍開啟；目前 head 尚無可確認的 CI 執行紀錄，待 exact-head 驗證 | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
-| E｜Deep Research | 深度研究工作台 | PR #141 仍開啟；目前 head 尚無可確認的 CI 執行紀錄，待 exact-head 驗證 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
+| A｜Agent Factory V2 | 工廠控制台 | 工廠主線持續優先開發；首頁入口銜接納入 PR #207，須以最新 exact-head CI 與 Preview 驗收 | [工廠分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [首頁整合 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) |
+| B｜GCAN Product | 全球產品平台 | 產品主線持續建置；首頁產品入口已納入 PR #207，正式整合前仍須完成 exact-head CI、Preview 與產品流程驗收 | [產品線工程入口](https://github.com/X84657465/global-citizen-ai-network/tree/feat/gcan-product-homepage) · [首頁整合 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) |
+| C｜Predictive Coding | 預測分析工作台 | 預測、觀測、誤差量測與校準能力逐步建置；以整合分支與目前工作台驗收為準 | [C 線工程入口](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase) |
+| D｜Deep Neural | 深度神經工作台 | 整合候選；待精確 SHA CI、來源追溯與知識推理流程驗收 | [D 線工程入口](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) |
+| E｜Deep Research | 深度研究工作台 | 整合候選；待來源查核、交叉驗證、引用輸出與精確 SHA CI 驗收 | [E 線工程入口](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench) |
 
 > CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
 
