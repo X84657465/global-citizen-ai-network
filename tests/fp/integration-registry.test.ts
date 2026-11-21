@@ -119,15 +119,24 @@ test("requires idempotency keys for write operations", async () => {
 test("rejects unknown connectors, unregistered operations and unsafe credential references", async () => {
   const f = fixture();
   await assert.rejects(
-    f.executor.execute({ ...request, connectorId: "unknown-api" }, { correlationId: "request-123" }),
+    f.host.invoke(
+      { workstream: "I", capability: "execute", input: { ...request, connectorId: "unknown-api" } },
+      context(true),
+    ),
     (error: unknown) => error instanceof FPIntegrationError && error.code === "CONNECTOR_NOT_FOUND",
   );
   await assert.rejects(
-    f.executor.execute({ ...request, operation: "delete-all" }, { correlationId: "request-123" }),
+    f.host.invoke(
+      { workstream: "I", capability: "execute", input: { ...request, operation: "delete-all" } },
+      context(true),
+    ),
     (error: unknown) => error instanceof FPIntegrationError && error.code === "OPERATION_NOT_ALLOWED",
   );
   await assert.rejects(
-    f.executor.execute({ ...request, credentialRef: "../secret" }, { correlationId: "request-123" }),
+    f.host.invoke(
+      { workstream: "I", capability: "execute", input: { ...request, credentialRef: "../secret" } },
+      context(true),
+    ),
     (error: unknown) => error instanceof FPIntegrationError && error.code === "INVALID_REQUEST",
   );
   assert.equal(f.calls.length, 0);
@@ -177,11 +186,17 @@ test("aborts timed-out connector work and records a sanitized timeout", async ()
     { record(event) { auditEvents.push(event); } },
     100,
   );
+  const host = new FPHostAdapter();
+  registerFPIntegrationCapability({ host, executor });
 
   await assert.rejects(
-    executor.execute(
-      { connectorId: "slow-api", operation: "read-record", credentialRef: "vault-record-1", input: null },
-      { correlationId: "request-123" },
+    host.invoke(
+      {
+        workstream: "I",
+        capability: "execute",
+        input: { connectorId: "slow-api", operation: "read-record", credentialRef: "vault-record-1", input: null },
+      },
+      context(true),
     ),
     (error: unknown) => error instanceof FPIntegrationError && error.code === "TIMEOUT",
   );
@@ -195,7 +210,7 @@ test("sanitizes connector exceptions and does not leak credential or input data 
     execute: async () => { throw new Error("secret-value-never-audit payload=private"); },
   });
   await assert.rejects(
-    f.executor.execute(request, { correlationId: "request-123" }),
+    f.host.invoke({ workstream: "I", capability: "execute", input: request }, context(true)),
     (error: unknown) => error instanceof FPIntegrationError && error.code === "CONNECTOR_FAILURE",
   );
   assert.equal(f.auditEvents[0].errorCode, "CONNECTOR_FAILURE");
@@ -215,13 +230,17 @@ test("audit sink failures do not change the connector result", async () => {
     { async resolve() { return "secret"; } },
     { record() { throw new Error("sink unavailable"); } },
   );
-  assert.equal(
-    await executor.execute(
-      { connectorId: "sample-api", operation: "read-record", credentialRef: "vault-record-1", input: null },
-      { correlationId: "request-123" },
-    ),
-    "ok",
+  const host = new FPHostAdapter();
+  registerFPIntegrationCapability({ host, executor });
+  const result = await host.invoke(
+    {
+      workstream: "I",
+      capability: "execute",
+      input: { connectorId: "sample-api", operation: "read-record", credentialRef: "vault-record-1", input: null },
+    },
+    context(true),
   );
+  assert.equal(result.envelope.payload, "ok");
 });
 
 test("keeps registered adapter and operation catalogues immutable", () => {
