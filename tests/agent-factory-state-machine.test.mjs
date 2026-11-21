@@ -447,6 +447,8 @@ test("explicitly requeues a candidate CI rejection for a new worker attempt", ()
   state = reserveTask(state, metadata({
     lease_id: "lease-attempt-2", workflow_run_id: "run-123457", run_attempt: 2,
   }), 62_000);
+  assert.equal(state.tasks["42"].candidate_status, undefined);
+  assert.equal(state.tasks["42"].candidate_failures, 1);
   assert.equal(state.active_task.issue_number, 42);
   assert.equal(state.active_task.attempt, 2);
 });
