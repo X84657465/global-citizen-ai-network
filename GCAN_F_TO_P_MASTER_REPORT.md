@@ -219,3 +219,15 @@ The current PR metadata reports #145/#147/#66/#67/#68 as not mergeable. “merge
 5. P: treat #206 as CI-validated documentation/UI synchronization only; resolve canonical A–P registry language and separately demonstrate enforceable controls.
 6. I/J/K/M/N/O: create scoped contracts and acceptance tests with named owners rather than marking planned items implemented.
 
+
+
+### 6.3 Job-level CI evidence detail
+
+A second read of the workflow job records clarifies which gates failed or passed:
+
+- **G #148, run #44703057912:** exact candidate metadata resolution passed; the combined build/unit/type/lint/production-build job failed specifically at the **Unit tests** step; the local Supabase migrations/PostgreSQL/RLS job passed.
+- **H #150, run #44781690181:** exact candidate metadata resolution passed; the combined quality job failed specifically at **Unit tests**; the local Supabase migrations/PostgreSQL/RLS job passed. This does not make H accepted because its required quality gate is red and its parent G candidate is not accepted.
+- **L #66, run #44297572047:** both the **build** and **database** jobs failed. The job records alone do not expose the root cause; do not infer whether this was source failure or runner/setup failure without logs.
+- **P #68:** the queried head check-runs include failures in **database**, **build**, and **UltraProbe** checks across the associated runs. No successful P #68 acceptance is established.
+- **P #206, run #44903614946, exact head `11869f21745efc88064487a167cd0296cfe21edc`:** exact candidate metadata resolution passed; **Windows Runner quality gates — tests, types, lint, audit and production build** passed; **Windows Ollama/local execution integration** passed; **Windows Supabase migrations, PostgreSQL and RLS integration** passed. This is stronger than a generic CI-green label, but it remains acceptance evidence for PR #206's documentation/homepage synchronization scope only.
+
