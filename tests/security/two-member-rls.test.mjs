@@ -81,7 +81,10 @@ function fixture() {
     insert into public.task_submissions (id, task_id, contributor_id, content, status)
     values
       ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.', 'submitted'),
-      ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.', 'rejected');
+      ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.', 'submitted');
+    -- Submission INSERT triggers deliberately force the initial lifecycle state to submitted.
+    -- Seed the rejected state as the trusted database owner for appeal/authorization tests.
+    update public.task_submissions set status = 'rejected' where id = '${submissionB}';
     insert into public.task_reviews (submission_id, reviewer_id, decision, rationale)
     values ('${submissionB}', '${b}', 'reject', 'Private review rationale belonging to member B.');
     `;
