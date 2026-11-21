@@ -14,6 +14,7 @@ import { createAgentFactoryController } from "../lib/agent-factory-controller.mj
 function fakeStore(initialState, options = {}) {
   let state = initialState;
   let writes = 0;
+  const history = [];
   return {
     async migrate() { return { issue: { number: 100 }, state, migrated: false }; },
     async read() { return { issue: { number: 100 }, state }; },
@@ -23,10 +24,19 @@ function fakeStore(initialState, options = {}) {
       if (options.failWriteAt === writes) throw new Error("injected state write failure");
       if (state.state_version !== expectedVersion) throw new Error("state version conflict");
       if (nextState.state_version !== expectedVersion + 1) throw new Error("invalid next state version");
+      history.push({
+        expectedVersion,
+        state_version: nextState.state_version,
+        issue_number: nextState.active_task?.issue_number ?? null,
+        lease_id: nextState.active_task?.lease_id ?? null,
+        task_state: nextState.active_task?.state ?? null,
+      });
       state = nextState;
       return { state };
     },
     get state() { return state; },
+    get writes() { return writes; },
+    get history() { return history; },
   };
 }
 
@@ -38,6 +48,21 @@ const leaseEnv = {
   GITHUB_SHA: "a".repeat(40),
   RUNNER_NAME: "DESKTOP-S2S4BM9",
 };
+
+async function advanceActiveTaskTo(controller, targetState) {
+  const leaseId = "gcan-123456-1-42";
+  await controller.run(leaseEnv);
+  for (const nextState of ["preparing", "planning", "patching", "sandbox_testing"]) {
+    await controller.run({
+      AGENT_FACTORY_MODE: "transition",
+      ISSUE_NUMBER: "42",
+      AGENT_FACTORY_LEASE_ID: leaseId,
+      NEXT_TASK_STATE: nextState,
+    });
+    if (nextState === targetState) return leaseId;
+  }
+  throw new Error("Unsupported target state for test setup: " + targetState);
+}
 
 async function startCandidate(controller, ciRunId) {
   return controller.run({
@@ -138,6 +163,116 @@ test("transition mode is idempotent for a repeated exact lease transition", asyn
   const second = await controller.run(env);
   assert.equal(first.state.tasks["42"].status, "preparing");
   assert.equal(second.state.state_version, first.state.state_version);
+});
+
+test("publishing transition durably records sandbox_testing first under the same lease", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const leaseId = await advanceActiveTaskTo(controller, "patching");
+  const result = await controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  });
+
+  assert.deepEqual(store.history.slice(-2).map((entry) => entry.task_state), ["sandbox_testing", "publishing"]);
+  assert.deepEqual(store.history.slice(-2).map((entry) => entry.issue_number), [42, 42]);
+  assert.deepEqual(store.history.slice(-2).map((entry) => entry.lease_id), [leaseId, leaseId]);
+  assert.equal(result.state.active_task.state, "publishing");
+  assert.equal(result.state.tasks["42"].status, "publishing");
+
+  const writesAfterPublish = store.writes;
+  const replay = await controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  });
+  assert.equal(replay.state.state_version, result.state.state_version);
+  assert.equal(store.writes, writesAfterPublish);
+});
+
+test("publishing transition from sandbox_testing performs only the publishing write", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const leaseId = await advanceActiveTaskTo(controller, "sandbox_testing");
+  const writesBeforePublish = store.writes;
+
+  const result = await controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  });
+
+  assert.equal(store.writes, writesBeforePublish + 1);
+  assert.equal(store.history.at(-1).task_state, "publishing");
+  assert.equal(store.history.at(-1).issue_number, 42);
+  assert.equal(store.history.at(-1).lease_id, leaseId);
+  assert.equal(result.state.active_task.state, "publishing");
+});
+
+test("failed publishing persistence resumes from the durable sandbox_testing state", async () => {
+  const store = fakeStore(createInitialFactoryState(1000), { failWriteAt: 6 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const leaseId = await advanceActiveTaskTo(controller, "patching");
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  }), /injected state write failure/);
+
+  assert.equal(store.state.active_task.state, "sandbox_testing");
+  assert.equal(store.state.active_task.issue_number, 42);
+  assert.equal(store.state.active_task.lease_id, leaseId);
+  assert.equal(store.state.tasks["42"].status, "sandbox_testing");
+
+  const retried = await controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  });
+
+  assert.equal(store.history.at(-1).task_state, "publishing");
+  assert.equal(store.history.at(-1).issue_number, 42);
+  assert.equal(store.history.at(-1).lease_id, leaseId);
+  assert.equal(retried.state.active_task.state, "publishing");
+  assert.equal(retried.state.tasks["42"].status, "publishing");
+});
+
+test("failed sandbox_testing persistence never reports publishing success or loses the lease", async () => {
+  const store = fakeStore(createInitialFactoryState(1000), { failWriteAt: 5 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const leaseId = await advanceActiveTaskTo(controller, "patching");
+  const versionBeforePublish = store.state.state_version;
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  }), /injected state write failure/);
+
+  assert.equal(store.state.active_task.state, "patching");
+  assert.equal(store.state.active_task.issue_number, 42);
+  assert.equal(store.state.active_task.lease_id, leaseId);
+  assert.equal(store.state.tasks["42"].status, "patching");
+  assert.equal(store.state.state_version, versionBeforePublish);
+  assert.notEqual(store.state.tasks["42"].status, "publishing");
+
+  const retried = await controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  });
+  assert.deepEqual(store.history.slice(-2).map((entry) => entry.task_state), ["sandbox_testing", "publishing"]);
+  assert.deepEqual(store.history.slice(-2).map((entry) => entry.lease_id), [leaseId, leaseId]);
+  assert.equal(retried.state.active_task.state, "publishing");
 });
 
 test("failure event identity rejects a missing workflow run attempt", async () => {
