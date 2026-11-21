@@ -790,6 +790,29 @@ test("candidate-start fails closed when GitHub PR verification is unavailable ev
   assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
 
+test("candidate-start fails closed when the GitHub PR API request throws for a task with a persisted PR number", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request() {
+        throw new Error("GitHub API temporarily unavailable");
+      },
+    },
+  });
+
+  await assert.rejects(startCandidate(controller, "555012"),
+    /GitHub API temporarily unavailable/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].pull_request_number, 88);
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+});
+
 test("candidate outcome from a stale CI run attempt is rejected", async () => {
   const store = fakeStore(awaitingCandidate());
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
