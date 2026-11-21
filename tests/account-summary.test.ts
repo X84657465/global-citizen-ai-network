@@ -15,7 +15,7 @@ test("account summary groups profile details with explicit semantic labels", () 
 });
 
 test("account actions expose an accessible navigation name and keyboard focus styles", () => {
-  assert.match(component, /<nav className="account-actions" aria-label="帳戶功能">/);
+  assert.match(component, /<nav className={styles.accountActions} aria-label="帳戶功能">/);
   assert.match(component, /:focus-visible/);
   assert.match(component, /aria-label="安全登出會員帳戶"/);
 });
