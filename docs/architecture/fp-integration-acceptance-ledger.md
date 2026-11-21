@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `7a20ea23fd908c02ac6096dfbc10b376f8c0af81`  
+**Baseline:** `main` at `ef543ebeecf56785dc752fdb8ac9305862bb269e`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -53,14 +53,24 @@
 - Release metadata advanced to `0.3.120` (governance revision `1.4.16`). This slice is implemented on an isolated branch; it is not accepted until exact-head CI and review complete.
 - CI limitation remains: GitHub Actions jobs are queued/pending on the Windows self-hosted Runner. No exact-head job result has been produced for the current documentation or feature candidates.
 
-## 6. Current blockers and known limitations
+## 6. Latest H implementation slice (2026-11-22)
+
+- Added `createCorrelationContext` to the existing request-context helper. It validates or generates one bounded correlation ID, forwards it to route handlers, and returns the same ID in a separate response-header collection.
+- Updated the existing Next.js middleware to consume the paired context for both downstream request headers and response headers. Existing Supabase session refresh and cookie propagation remain intact.
+- Expanded request-context regression tests for valid ID reuse, absent/malformed/oversized IDs, consistency between request and response, preservation of unrelated request headers, and isolation from header mutation.
+- Extended the mainline F–P integration guard to verify that the middleware uses the paired contract. No route payload, identity, authorization, or secret is included in correlation metadata.
+- Release metadata advanced to `0.3.121` (governance revision `1.4.17`). This slice is on an isolated branch and is not accepted until exact-head quality CI and independent review complete.
+- PR #229 F–G implementation is merged at `ef543ebeecf56785dc752fdb8ac9305862bb269e`, but remains unaccepted: exact-head PR CI run `44926059712` is pending and main push CI run `44926070210` is pending.
+- Agent Factory V2 candidate revalidation is under development in PR #231; its exact-head run `44926300314` is pending. Preserve that A-line work rather than creating a competing controller implementation.
+
+## 7. Current blockers and known limitations
 
 - Recent mainline Vercel status checks have reported a provider build-rate-limit failure. This is an infrastructure/deployment blocker, not evidence that application tests failed.
 - GitHub Actions results must be inspected per exact candidate SHA; a missing result or an empty workflow-run lookup is not a pass.
-- The process-local F–P recorder is not a centralized persistent telemetry backend.
+- The process-local F–P recorder is not a centralized persistent telemetry backend. Correlation propagation is now paired at the middleware edge, but end-to-end route/job logging and a durable telemetry sink remain unimplemented.
 - The registry and host adapter do not themselves authenticate principals; the existing trusted host must supply authorization and approval decisions.
 - No production database migration, secret change, branch-protection change, automatic merge, or deployment is authorized by this ledger.
 
-## 7. Rollback
+## 8. Rollback
 
 This initial slice is additive test and documentation work. Revert the integration PR to remove it. No schema, secret, runtime execution, or production deployment changes are included.
