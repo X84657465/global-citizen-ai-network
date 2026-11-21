@@ -91,11 +91,30 @@ F–P manifest registration or a “ready” label is not implementation accepta
 
 ## 5. B-line handoff plan
 
-Only after A is fully accepted and integrated into main:
+B remains preparation-only until A is fully accepted and integrated into main. The current repository contracts do **not** yet expose a dedicated accepted A-to-B product API.
 
-1. Rebase/rebuild B candidate from the resulting accepted main SHA; do not wholesale merge stale/diverged branches.
-2. Map stable A contracts and evidence interfaces needed by B; keep Factory state mutation and privileged Runner authority private to A.
-3. Selectively port B/product and necessary governance work, reconciling README, package lock, manifests and release metadata.
+### Verified interface inventory
+
+- A's `createFactoryCandidateEvidenceRecord` emits a model-independent `EvidenceRecord v1.0.0` intended for C/D consumption. It binds repository, deterministic task branch, candidate commit SHA, PR number, CI run ID/attempt, terminal conclusion and timestamp. It is not declared as a B product API.
+- `FPCapabilityEnvelope` uses `contractVersion: "1"` for F–P capability events/results. Its actor/resource references are opaque; the envelope does not authenticate identities or grant permissions. Do not reuse it as a B authorization contract.
+- A's controller, state machine and state store are Factory internals. The durable state currently resides behind the A-owned GitHub Issue store; B must not import these internals, edit that Issue, manage leases, or invoke privileged Runner/Sandbox operations.
+- Current main has no verified B workspace/product service path at the candidate paths checked in this review. Do not assume a product API exists until its implementation and tests are located on the accepted base.
+
+### B adapter contract to define after A acceptance
+
+Create a separate, versioned, read-only adapter boundary for B. Its schema should be agreed and tested before implementation; it should expose only the minimum product-safe view needed by B:
+
+1. Stable opaque task/candidate reference and lifecycle status.
+2. Candidate SHA plus terminal CI run ID, attempt, conclusion and evidence reference.
+3. Bounded timestamps and allowlisted failure categories; never raw logs, secrets, token values, local paths or unrestricted Issue bodies.
+4. Explicit ownership/authorization checks at B's product boundary; an opaque actor/resource reference is not proof of identity.
+5. Idempotent read-only retrieval and compatibility/version tests. B cannot change A state or use returned evidence as merge/deploy authorization.
+
+### Integration sequence
+
+1. Rebase/rebuild B from the accepted A main SHA; do not wholesale merge stale/diverged branches.
+2. Define and review the B adapter schema against the verified A evidence model; add contract tests before connecting product routes.
+3. Selectively port B/product and only necessary governance work, reconciling README, package lock, manifests and release metadata.
 4. Run exact-head unit/type/lint/audit/build/database/RLS and applicable integration checks, then current-SHA Preview and rendered-device acceptance.
 5. Require independent review before merge. Product monetization, public registration, live AI spend and payouts retain separate security, privacy, legal and cost gates.
 
