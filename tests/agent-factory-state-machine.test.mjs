@@ -449,6 +449,7 @@ test("explicitly requeues a candidate CI rejection for a new worker attempt", ()
   }), 62_000);
   assert.equal(state.active_task.issue_number, 42);
   assert.equal(state.active_task.attempt, 2);
+  assert.equal(state.tasks["42"].candidate_status, undefined);
 });
 
 
