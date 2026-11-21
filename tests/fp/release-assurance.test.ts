@@ -38,6 +38,32 @@ const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle =
   ...overrides,
 });
 
+test("rejects malformed repository path segments in candidate and run identity", () => {
+  for (const candidateRepository of [
+    "../repo",
+    "owner/../repo",
+    ".owner/repo",
+    "owner/.repo",
+    "owner/repo/extra",
+    "owner//repo",
+  ]) {
+    assert.throws(
+      () => assessGExactHeadEvidence(bundle({ candidateRepository })),
+      TypeError,
+    );
+  }
+
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, repository: "../repo" },
+  })), TypeError);
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, headRepository: "owner/../repo" },
+  })), TypeError);
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, runUrl: "https://github.com/../repo/actions/runs/123" },
+  })), TypeError);
+});
+
 test("requires all four mainline CI jobs to pass for the exact candidate SHA", () => {
   const result = assessGExactHeadEvidence(bundle());
   assert.equal(result.status, "ready-for-review");
