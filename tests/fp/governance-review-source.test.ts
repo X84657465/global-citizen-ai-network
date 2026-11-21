@@ -215,16 +215,18 @@ test("rejects malformed IDs, unsupported states, reviewer identities, timestamps
 });
 
 test("rejects duplicate review IDs and non-array review responses", async () => {
+  const duplicateResponses = new Map<string, unknown>();
+  duplicateResponses.set(prPath, pull());
+  duplicateResponses.set(reviewsPath(), [review(), review({ user: { login: "reviewer-two" } })]);
   await assert.rejects(
-    collectFPGovernanceReviewEvidence(makeInput(new Map<string, unknown>([
-      [prPath, pull()], [reviewsPath(), [review(), review({ user: { login: "reviewer-two" } })]],
-    ]))),
+    collectFPGovernanceReviewEvidence(makeInput(duplicateResponses)),
     (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INVALID_REVIEW_DATA",
   );
+  const malformedResponses = new Map<string, unknown>();
+  malformedResponses.set(prPath, pull());
+  malformedResponses.set(reviewsPath(), { reviews: [review()] });
   await assert.rejects(
-    collectFPGovernanceReviewEvidence(makeInput(new Map<string, unknown>([
-      [prPath, pull()], [reviewsPath(), { reviews: [review()] }],
-    ]))),
+    collectFPGovernanceReviewEvidence(makeInput(malformedResponses)),
     (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INCOMPLETE_REVIEW_HISTORY",
   );
 });
