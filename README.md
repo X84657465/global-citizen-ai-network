@@ -6,7 +6,7 @@
 
 **一個結合 AI 服務、全球知識協作、透明貢獻帳本與自願式運算願景的長期平台。**
 
-[正式產品網站](https://global-citizen-ai-network.vercel.app) · [候選官網 Preview](https://global-citizen-ai-network-git-co-55b18e-acmes-projects-3dfbdf35.vercel.app/) · [正式工廠控制中心](https://global-citizen-ai-network.vercel.app/factory) · [候選工廠 Preview](https://global-citizen-ai-network-git-co-55b18e-acmes-projects-3dfbdf35.vercel.app/factory) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.80）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [官網首頁更新 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
+[正式產品網站](https://global-citizen-ai-network.vercel.app) · [前一版官網 Preview（SHA 173c744）](https://global-citizen-ai-network-git-co-55b18e-acmes-projects-3dfbdf35.vercel.app/) · [正式工廠控制中心](https://global-citizen-ai-network.vercel.app/factory) · [前一版工廠 Preview（SHA 173c744）](https://global-citizen-ai-network-git-co-55b18e-acmes-projects-3dfbdf35.vercel.app/factory) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.80）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [官網首頁更新 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
 ![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
@@ -21,6 +21,8 @@
 ---
 
 
+
+> **Preview 注意：** 目前 README 所列 Preview 網址仍指向前一版 SHA `173c74406de3d6fa72a123eb50eaedd678fafdf5`，不是本分支最新候選提交；最新 SHA 的 Preview 受 Vercel 部署額度限制，待可部署後再更新入口。
 
 ## 🧭 專案架構與驗證原則｜2026-11-21
 
