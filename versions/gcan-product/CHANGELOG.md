@@ -1,3 +1,13 @@
+## 0.1.21 — 2026-11-21
+
+### Improved — Align public homepage candidate status and release metadata
+- Keep the early-development / preview-stage disclosure visible and explicit on the public homepage.
+- Align the B-line version with the repository manifest and require exact-head CI plus a current Preview before visual acceptance.
+- Record that the current candidate has no available Preview while Vercel reports a build-rate limit; older Preview URLs are not acceptance evidence.
+
+### Verification
+- Static source and metadata checks only. Exact-head CI, successful current-SHA Preview and desktop/tablet/mobile browser acceptance remain outstanding; no Production deployment is claimed.
+
 ## 0.1.19 — 2026-11-21
 
 ### Fixed — Responsive governance card alignment
