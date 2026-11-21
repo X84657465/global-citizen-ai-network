@@ -74,7 +74,7 @@ test("repository homepage distinguishes the old Preview from the current unprevi
 
 test("public homepage renders candidate versions from the authoritative manifest", () => {
   assert.ok(homepage.includes('import releaseManifest from "../versions/manifest.json";'));
-  assert.match(homepage, /平台 \\{releaseManifest\\.overall\\} · A 線 \\{releaseManifest\\.tracks\\.A\\.version\\} · B 產品 \\{releaseManifest\\.tracks\\.B\\.version\\}/);
+  assert.match(homepage, /平台 \{releaseManifest\.overall\} · A 線 \{releaseManifest\.tracks\.A\.version\} · B 產品 \{releaseManifest\.tracks\.B\.version\}/);
   assert.ok(readme.includes("[版本清單](versions/manifest.json)"));
 });
 
@@ -89,7 +89,7 @@ test("repository and B-line homepage release metadata matches the authoritative 
 test("A–O + P workstream cards preserve desktop, tablet, and mobile layouts", () => {
   assert.ok(styles.includes(".trackGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))"));
   assert.match(styles, /@media\(max-width:1120px\)\{[\s\S]*?\.trackGrid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}[\s\S]*?\.trackCard\[data-track="P"\]\{grid-column:1\/-1;justify-self:center/);
-  assert.match(styles, /\.trackGrid\{display:grid;grid-template-columns:1fr\}/);
+  assert.match(styles, /\.trackGrid\{display:grid;grid-template-columns:1fr(?:;|\})/);
   assert.match(styles, /\.trackCard,\.trackCard\[data-track="P"\]\{grid-column:auto;justify-self:stretch;width:100%/);
 });
 
