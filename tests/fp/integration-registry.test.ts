@@ -43,8 +43,12 @@ function fixture(operation: {
   });
   const executor = new FPIntegrationExecutor(
     registry,
-    { async resolve(reference) {
+    { async resolve(reference, scope) {
       assert.equal(reference, "vault-record-1");
+      assert.equal(scope.connectorId, "sample-api");
+      assert.equal(scope.operation, operation.name ?? "get-record");
+      assert.equal(scope.principal.actorRef, "host-user:123");
+      assert.equal(scope.principal.resourceRef, "workspace:456");
       return "secret-value-never-audit";
     } },
     { record(event) { auditEvents.push(event); } },
@@ -110,10 +114,21 @@ test("requires idempotency keys for write operations", async () => {
       workstream: "I",
       capability: "execute",
       input: { ...request, idempotencyKey: "sync-record-7" },
+      idempotencyKey: "sync-record-7",
     },
     context(true),
   );
   assert.equal(f.calls.length, 1);
+  const accepted = await f.host.invoke(
+    {
+      workstream: "I",
+      capability: "execute",
+      input: { ...request, idempotencyKey: "sync-record-8" },
+      idempotencyKey: "sync-record-8",
+    },
+    context(true),
+  );
+  assert.equal(accepted.envelope.idempotencyKey, "sync-record-8");
 });
 
 test("rejects unknown connectors, unregistered operations and unsafe credential references", async () => {
