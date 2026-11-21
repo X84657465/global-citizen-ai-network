@@ -67,3 +67,15 @@ Do not merge F–P into B yet. B can consume the security requirements, evidence
 5. Create owned scopes, contracts and tests for I/J/K/M/N/O/P.
 6. Have B owner select one parent stack and rerun required checks on final SHA.
 7. Obtain local checkout/isolated CI to run the acceptance checklist; update the acceptance record with exact run IDs and outcomes.
+
+
+## Current evidence refresh — 2026-11-21
+
+- F #145 current head `27d31444d8fb8d57040e60aa554e5d8e905d00e4`: open, non-mergeable; no PR-triggered workflow run returned. Keep F unaccepted.
+- G #147 has no workflow run returned; G #148 exact-head CI fails. Select one candidate only after diff/ancestry review.
+- H #150 exact-head CI fails and depends on G #148; no live telemetry.
+- L #66 CI fails; #67 has only author-reported isolated mirror tests and no workflow run returned. Keep federation execution disabled.
+- P #68 checks fail; P #206 exact-head CI passes but remains open/unmerged. This validates only its CI scope, not P enforcement.
+- P #206 frames P as a cross-cutting governance layer, while the larger registry names sixteen A–P workstreams. Canonical wording must be reconciled.
+- I/J/M/N/O remain planned; K has docs assets only. No F–P line is fully accepted by this audit.
+- All evidence remains remote GitHub evidence. No local build/test, merge, deployment or production mutation occurred.
