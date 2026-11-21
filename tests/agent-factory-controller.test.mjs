@@ -850,6 +850,57 @@ test("candidate failure callback rejects a PR head that moved after CI without p
   assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
 
+test("candidate outcome fails closed when current PR verification API request throws", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  let requests = 0;
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        assert.equal(path, "/repos/owner/repo/pulls/88");
+        requests += 1;
+        if (requests === 1) {
+          return {
+            number: 88,
+            state: "open",
+            body: "<!-- ai-task:42 -->",
+            user: { login: "owner" },
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: {
+              ref: "ai-task/issue-42-abcdef123456",
+              sha: "b".repeat(40),
+              repo: { full_name: "owner/repo" },
+            },
+          };
+        }
+        throw new Error("GitHub PR verification temporarily unavailable");
+      },
+    },
+  });
+  await startCandidate(controller, "555022");
+  const versionAfterStart = store.state.state_version;
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555022",
+    CI_RUN_ATTEMPT: "1",
+  }), /GitHub PR verification temporarily unavailable/);
+
+  assert.equal(requests, 2);
+  assert.equal(store.state.state_version, versionAfterStart);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+  assert.equal(store.state.tasks["42"].candidate_status, "pending");
+});
+
 test("candidate outcome from a stale CI run attempt is rejected", async () => {
   const store = fakeStore(awaitingCandidate());
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
