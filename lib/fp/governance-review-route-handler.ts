@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
 import { FPGovernanceReviewCollectionError } from "./governance-review-source.ts";
 import { isSafeGitHubRepositoryName } from "../github-repository-name.mjs";
 
