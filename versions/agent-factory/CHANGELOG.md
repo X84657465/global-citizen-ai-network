@@ -1,3 +1,74 @@
+## 2.0.84 — 2026-11-21
+
+### Fixed — Bind generator source in patch-validation regression tests
+- Define the patch-generator source fixture at module scope so the earlier path-validation test can assert that the obsolete unrestricted-source prompt is absent.
+- Preserve the focused generator policy assertions and all existing task-context/path-safety controls.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, disposable PostgreSQL/RLS, Vercel Preview verification and independent formal review remain required.
+
+## 2.0.83 — 2026-11-21
+
+### Fixed — Synchronize the clean main-based A integration candidate
+- Restack supplemental task-context hardening on accepted main after the parent output-budget fix was squash-merged.
+- Align the exact pull-request CI base allowlist and regression test with the new main-based A branch used for dependent B work.
+- Synchronize repository links, governance baseline and release metadata.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, disposable PostgreSQL/RLS, Vercel Preview verification and independent formal review remain required.
+
+## 2.0.82 — 2026-11-21
+
+### Hardened — Bind model context to the files actually supplied
+- Replace the misleading prompt allowance to read arbitrary repository files with an explicit statement that only supplied source_files are available.
+- Require fail-closed behavior when a needed component/API contract is absent from supplied context.
+- Add a regression assertion preventing the prompt from implying unprovided source access.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, PostgreSQL/RLS integration, Vercel verification and independent formal review remain required. No task retry or durable state reset is performed.
+
+## 2.0.81 — 2026-11-21
+
+### Hardened — Fail closed when UI integration context is missing
+- Require the patch generator to stop rather than invent an integration point when supplied source files do not expose the component/API contract needed by a requested UI change.
+- Prevent disconnected parallel components from being proposed as if they completed the requested feature.
+- Add a prompt regression assertion for this missing-context guard.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, PostgreSQL/RLS integration, Vercel verification and independent formal review remain required. No task retry or durable state reset is performed.
+
+## 2.0.80 — 2026-11-21
+
+### Hardened — Align generated patches with repository implementation and test contracts
+- Instruct the patch generator to use the actual Node built-in test runner and installed dependencies; prohibit assumed Jest, Vitest, Playwright component testing, jsdom, and undeclared globals.
+- Explicitly prohibit JSX in .ts files under the Node type-stripping test runner.
+- Require component names, exports, imports, API fields and response shapes to be grounded in supplied source context.
+- Require new UI to integrate into the existing page/component/data flow and derive filter choices from actual API data.
+- Add a regression test protecting these prompt constraints.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, PostgreSQL/RLS integration, Vercel verification and independent formal review remain required. This change does not reset or retry any task.
+
+## 2.0.79 — 2026-11-21
+
+### Fixed — Enable exact-head CI for the active stacked integration branch
+- Add the current Agent Factory 2.0.78 integration branch as one explicit pull-request base target so dependent B work receives the normal exact-head quality and integration gates.
+- Extend the CI trigger-policy regression assertion for the exact branch; retain the explicit allowlist, owner/same-repository checks, Windows Runner queue, permissions and all quality/database gates.
+
+### Verification
+- Exact-head CI for this workflow/control-plane change and its dependent PR is required. No wildcard branch expansion, permission change, production data mutation or auto-merge behavior.
+
+## 2.0.78 — 2026-11-21
+
+### Fixed — Preserve approved supplemental task context across model stages
+- Preserve the explicitly supported `Confirmed evidence`, `Finding and required behavior`, and valid dated `Retry scope refinement — YYYY-MM-DD` sections.
+- Keep the four mandatory task sections, path allowlists, duplicate/unknown-heading rejection and untrusted-data boundaries unchanged.
+- Share a single validated context projection between planning and patch generation so approved evidence is not dropped between stages.
+- Rebase onto A 2.0.77, retaining strictest per-path output byte limits and malformed patch-manifest shape guards.
+
+### Verification
+- Fresh exact-head CI, Windows Runner/Ollama, disposable PostgreSQL/RLS, Vercel and independent formal review remain required.
+
 ## 2.0.77 — 2026-11-21
 
 ### Fixed — Classify malformed model manifest shapes as task failures

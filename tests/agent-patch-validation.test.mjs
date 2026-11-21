@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { getPatchManifestFiles, PatchValidationError, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 const task = {
@@ -7,6 +8,7 @@ const task = {
   allowed_paths: ["app/settings/page.tsx", "tests/settings-page.test.ts"],
 };
 const existing = ["app/settings/page.tsx"];
+const generator = readFileSync(new URL("../scripts/generate-agent-patch.mjs", import.meta.url), "utf8");
 
 const manifest = (files, extra = {}) => ({ schema_version: 1, files, ...extra });
 const file = (path, operation = "modify", content = "export const value = 1;") => ({
@@ -49,6 +51,7 @@ test("rejects path traversal, absolute paths, protected roots, and hidden files"
       PatchValidationError,
     );
   }
+  assert.equal(generator.includes("Other source files may be read for context"), false);
 });
 
 test("enforces add versus modify semantics against the base checkout", () => {
@@ -160,4 +163,21 @@ test("rejects malformed model manifest roots before patch generation iterates fi
     assert.throws(() => getPatchManifestFiles(malformed), /object containing a files array/);
   }
   assert.deepEqual(getPatchManifestFiles({ schema_version: 1, files: [] }), []);
+});
+
+ 
+test("patch generation prompt follows the repository test and UI integration contracts", () => {
+  const generator = readFileSync(new URL("../scripts/generate-agent-patch.mjs", import.meta.url), "utf8");
+  for (const requiredRule of [
+    "node:test and node:assert/strict",
+    "Do not assume Jest, Vitest, Playwright component testing, jsdom, browser globals, jest.fn",
+    "Never put JSX syntax in a .ts file",
+    "Do not invent component names, exports, imports, API fields, response shapes, or test fixtures",
+    "If supplied source_files do not expose the existing component/API contract needed to integrate requested UI, do not guess or create a disconnected parallel component",
+    "Only the supplied source_files are available as repository context",
+    "New UI must be wired into the existing page, component, and data flow",
+    "Derive choices and displayed values from real API fields, never fabricated categories or statuses",
+  ]) {
+    assert.ok(generator.includes(requiredRule), "Missing patch-generation policy: " + requiredRule);
+  }
 });

@@ -1,5 +1,6 @@
 import { appendFileSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+import { buildAgentTaskContext } from "../lib/agent-task-validation.mjs";
 import { evaluateAgentDecision } from "../lib/agent-neural-decision.mjs";
 
 const fail = (message, scope = "system") => {
@@ -45,10 +46,8 @@ models.sort((a, b) => (a.size ?? Number.MAX_SAFE_INTEGER) - (b.size ?? Number.MA
 const model = models[0].name;
 
 const planningInput = {
-  goal: task.goal,
+  ...buildAgentTaskContext(task),
   allowed_paths: task.allowed_paths,
-  acceptance_criteria: task.acceptance_criteria,
-  explicit_exclusions: task.explicit_exclusions,
 };
 
 const systemPrompt = [
