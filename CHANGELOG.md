@@ -1,3 +1,11 @@
+## 0.3.110 — 2026-11-21
+
+- Advance B GCAN Product to 0.1.17 on the Agent Factory V2 2.0.78 baseline.
+- Validate conversation/project workspace metadata before client state updates and minimize message API projections to consumed fields.
+- Add behavioral regressions for malformed UUID relationships, invalid timestamps, archived projects and exact API field selection.
+- Preserve A 2.0.78; no schema, RLS, production data, secrets, workflow permissions or deployment settings changed.
+- Exact-head full CI and independent cross-track review remain required.
+
 ## 0.3.109 — 2026-11-21
 
 - Align the five-track governance document's overall integration baseline with the authoritative repository release `0.3.109`.
