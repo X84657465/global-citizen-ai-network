@@ -18,6 +18,12 @@ export const FP_SECURITY_CONTROLS = [
     requiredJob: "database",
   },
   {
+    id: "api-role-inheritance",
+    title: "API roles cannot inherit privileged database roles",
+    evidencePath: "supabase/tests/public_table_grants.test.sql",
+    requiredJob: "database",
+  },
+  {
     id: "security-headers",
     title: "Baseline browser security headers",
     evidencePath: "tests/security-headers.test.ts",

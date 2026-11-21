@@ -1,3 +1,9 @@
+## 0.3.119 — 2026-11-22
+
+- Extend F security assurance to explicitly require exact-head evidence for the regression that prevents API roles from inheriting SUPERUSER or BYPASSRLS privileges.
+- Add cross-line assertions that bind the role-inheritance SQL guard to the registered F control and database CI job.
+- Preserve the existing RLS policies and database schema; this is evidence registration and regression coverage only.
+
 ## 0.3.118 — 2026-11-22
 
 - Begin the F–P shared-core integration phase with a cross-line regression guard for security evidence paths, required exact-head CI jobs, request correlation propagation, and the F–P authority ceiling.

@@ -18,7 +18,7 @@
 
 | Line | Existing implementation evidence | Remaining acceptance work | Authority / guard |
 |---|---|---|---|
-| F — Security | Security assurance evaluator; RLS/privilege SQL tests; two-member RLS harness; security headers and route checks | Verify every registered control against exact-head database/quality job evidence; close threat-model and vulnerability-scan coverage gaps | Advisory only; no identity or RLS policy redesign |
+| F — Security | Security assurance evaluator; RLS/privilege SQL tests (including transitive API-role membership); two-member RLS harness; security headers and route checks | Verify every registered control against exact-head database/quality job evidence; close threat-model and vulnerability-scan coverage gaps | Advisory only; no identity or RLS policy redesign |
 | G — Release quality | Exact-head release evidence evaluator and required CI job contract | Verify all required jobs against live Actions API evidence; add compatibility checks and documented rollback evidence | Advisory only; never merge/deploy |
 | H — Observability | Request correlation middleware/helper; bounded process-local F–P outcome recorder; Runner snapshot contract | Prove end-to-end correlation across actual routes/jobs; distinguish local counters from persistent metrics/traces; add alert evidence only where a real sink exists | Advisory only; no telemetry vendor or secret-bearing payload |
 | I — External integration | Bounded capability registry and host approval check | Define one approved connector at a time, credential reference contract, timeout/retry/idempotency and mock contract tests | Bounded; explicit approval required; no live credential or external write in this phase |
