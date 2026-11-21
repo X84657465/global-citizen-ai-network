@@ -38,8 +38,10 @@ export interface FPObservabilitySink {
  */
 export class FPObservabilityRecorder implements FPObservabilitySink {
   private readonly events: FPOperationEvent[] = [];
+  private readonly capacity: number;
 
-  constructor(private readonly capacity = 250) {
+  constructor(capacity = 250) {
+    this.capacity = capacity;
     if (!Number.isInteger(capacity) || capacity < 1 || capacity > 10_000) {
       throw new RangeError("Observability capacity must be an integer from 1 to 10000.");
     }
