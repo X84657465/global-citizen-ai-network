@@ -494,3 +494,31 @@ test("Ollama output truncation is classified as task-scoped, not a system breake
   assert.ok(preflight.includes('$env:AGENT_FACTORY_FAILURE_SCOPE -eq "task"'),
     "the preflight classifier must preserve the task scope before writing durable state");
 });
+
+
+test("system breaker recovery waits for a completed successful exact-head CI workflow run", () => {
+  const recovery = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
+  assert.ok(recovery.includes("github.event.workflow_run.conclusion == 'success'"));
+  assert.ok(recovery.includes("github.event.workflow_run.event == 'pull_request'"));
+  assert.ok(recovery.includes("github.event.workflow_run.head_repository.full_name == github.repository"));
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].number != ''"));
+  assert.ok(recovery.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(recovery.includes("queue: max"));
+  assert.ok(recovery.includes("cancel-in-progress: false"));
+  assert.ok(recovery.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.ok(recovery.includes("actions: read"));
+  assert.ok(recovery.includes("contents: read"));
+  assert.ok(recovery.includes("issues: write"));
+  assert.ok(recovery.includes("pull-requests: read"));
+  assert.ok(recovery.includes("ref: main"));
+  assert.ok(recovery.includes("persist-credentials: false"));
+  assert.ok(recovery.includes("AGENT_FACTORY_MODE: system-health-success"));
+  assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ID: \${{ github.event.workflow_run.id }}"));
+  assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ATTEMPT: \${{ github.event.workflow_run.run_attempt }}"));
+  assert.ok(recovery.includes("SYSTEM_HEALTH_PULL_REQUEST_NUMBER: \${{ github.event.workflow_run.pull_requests[0].number }}"));
+  assert.ok(recovery.includes("SYSTEM_HEALTH_HEAD_SHA: \${{ github.event.workflow_run.head_sha }}"));
+  assert.ok(recovery.includes("run: node scripts/agent-factory-v2-controller.mjs"));
+  assert.equal(recovery.includes("ref: \${{ github.event.workflow_run.head_sha }}"), false,
+    "the privileged workflow must execute trusted mainline controller code, never PR code");
+});
