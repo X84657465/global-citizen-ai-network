@@ -123,6 +123,29 @@ function awaitingCandidate(now = 1000) {
   return state;
 }
 
+const SYSTEM_HEALTH_JOB_NAMES = [
+  "Resolve exact candidate PR metadata",
+  "Windows Runner quality gates — tests, types, lint, audit and production build",
+  "Windows Ollama and local execution integration",
+  "Windows Supabase migrations, PostgreSQL and RLS integration",
+];
+
+function systemHealthJobs(runId, runAttempt, headSha, overrides = {}) {
+  return {
+    total_count: SYSTEM_HEALTH_JOB_NAMES.length,
+    jobs: SYSTEM_HEALTH_JOB_NAMES.map((name, index) => ({
+      id: index + 1,
+      name,
+      run_id: runId,
+      run_attempt: runAttempt,
+      head_sha: headSha,
+      status: "completed",
+      conclusion: "success",
+      ...overrides[name],
+    })),
+  };
+}
+
 test("reserve mode rejects a missing workflow attempt before persisting a lease", async () => {
   const store = fakeStore(createInitialFactoryState(1000));
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
@@ -1361,6 +1384,9 @@ test("system-health success requires verified exact-head CI evidence and resets 
     api: {
       async request(path) {
         requests.push(path);
+        if (path === "/repos/owner/repo/actions/runs/555009/attempts/2/jobs?per_page=100") {
+          return systemHealthJobs(555009, 2, sha);
+        }
         if (path === "/repos/owner/repo/actions/runs/555009") {
           return {
             id: 555009,
@@ -1415,10 +1441,120 @@ test("system-health success requires verified exact-head CI evidence and resets 
   assert.deepEqual(replay.state.tasks, expectedTasks);
   assert.deepEqual(requests, [
     "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/actions/runs/555009/attempts/2/jobs?per_page=100",
     "/repos/owner/repo/pulls/168",
     "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/actions/runs/555009/attempts/2/jobs?per_page=100",
     "/repos/owner/repo/pulls/168",
   ]);
+});
+
+test("system-health success rejects an overall successful run when required CI jobs were skipped", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555030") {
+          return {
+            id: 555030,
+            run_attempt: 1,
+            head_sha: sha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 170,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/actions/runs/555030/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555030, 1, sha, {
+            "Windows Runner quality gates — tests, types, lint, audit and production build": {
+              conclusion: "skipped",
+            },
+            "Windows Ollama and local execution integration": { conclusion: "skipped" },
+            "Windows Supabase migrations, PostgreSQL and RLS integration": { conclusion: "skipped" },
+          });
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555030",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "170",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  }), /every resolver, quality, build, and database job to succeed/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
+});
+
+test("system-health success rejects a required CI job from another attempt or SHA", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555031") {
+          return {
+            id: 555031,
+            run_attempt: 2,
+            head_sha: sha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 171,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/actions/runs/555031/attempts/2/jobs?per_page=100") {
+          return systemHealthJobs(555031, 2, sha, {
+            "Windows Runner quality gates — tests, types, lint, audit and production build": {
+              head_sha: "e".repeat(40),
+            },
+          });
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555031",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "2",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "171",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  }), /every resolver, quality, build, and database job to succeed/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
 });
 
 test("system-health success rejects a successful CI run when the PR has advanced to a newer head", async () => {
@@ -1434,6 +1570,9 @@ test("system-health success rejects a successful CI run when the PR has advanced
     now: () => 3000,
     api: {
       async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555011/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555011, 1, testedSha);
+        }
         if (path === "/repos/owner/repo/actions/runs/555011") {
           return {
             id: 555011,
