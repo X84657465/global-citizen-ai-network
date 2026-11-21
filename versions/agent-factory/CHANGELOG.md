@@ -1,3 +1,152 @@
+## 2.0.71 — 2026-11-21
+
+### Fixed — Restore exact-head CI for active A-line integration PR bases
+- Add the current Agent Factory candidate branch and its governance child branch to the pull_request base-branch allowlist.
+- Preserve exact-head candidate resolution, same-repository/owner authorization, task marker checks, Runner serialization and all quality/database gates.
+- Extend CI trigger-policy regression coverage for both active integration targets.
+- No wildcard branch expansion, permission changes, secret exposure, auto-merge or deployment behavior added.
+
+### Verification
+- The change is covered by the CI trigger-policy test; exact-head full CI for this control-plane change and dependent PRs remains required.
+
+## 2.0.70 — 2026-11-21
+
+### Fixed — Bound new-file patch generation to the plan output budget
+- Avoid applying the 16,384-token minimum to empty/new files, which can cause local models to generate until the token ceiling.
+- Derive new-file token budgets from the validated implementer task's max_output_bytes, with a bounded minimum and ceiling.
+- Require concise complete new-file content and reject add proposals that exceed the plan's UTF-8 byte allowance.
+- Preserve larger source-scaled budgets for existing-file replacements and keep truncation fail-closed.
+
+### Verification
+- Exact-head full CI, Windows Runner/local Ollama, and independent formal review are required before acceptance.
+
+## 2.0.69 — 2026-11-21
+
+### Hardened — Bind system-health recovery to exact PR evidence
+- Keep task-publication success non-mutating; it cannot reset global circuit-breaker state.
+- Require the health CI run ID, attempt, full head SHA and explicit pull-request number.
+- Verify the completed successful run belongs to the same repository, targets `main`, and its PR head SHA matches the supplied exact SHA.
+- Preserve task retry/quarantine history; retain idempotent recovery semantics.
+- Add regression coverage for missing and mismatched PR identity in addition to exact-head CI evidence.
+
+### Verification
+- Fresh exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable, and independent formal review required before acceptance.
+
+## 2.0.68 — 2026-11-21
+
+### Fixed — Isolate task publication from global circuit-breaker recovery
+- Make the legacy task-publication `success` callback non-mutating; publishing one task can no longer clear shared infrastructure failures or cooldown.
+- Add a separate `system-health-success` mode that requires a completed, successful exact-head GitHub CI pull-request run from `.github/workflows/ci.yml`, with matching run ID and attempt.
+- Keep task and quarantine history unchanged when verified system-health evidence resets only global breaker fields.
+- Add deterministic tests for task-publication no-op behavior, invalid health evidence, and idempotent verified health recovery.
+
+### Verification
+- Fresh exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable, and independent formal review required before acceptance.
+
+## 2.0.67 — 2026-11-21
+
+### Fixed — Preserve leading indentation in task preflight sections
+- Replace destructive section-body `trim()` normalization with trailing-only trimming so the first indented line retains its leading spaces or tab.
+- Prevent four-space/tab-indented examples at the beginning of Allowed paths, acceptance criteria or explicit exclusions from bypassing the fail-closed directive guard.
+- Preserve the existing `dependency_issue_numbers` output contract and all CommonMark dependency/fence hardening from 2.0.66.
+- Keep regression tests for first-line four-space and tab-indented task directives.
+
+### Verification
+- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent review required before acceptance.
+
+## 2.0.66 — 2026-11-21
+
+### Fixed — Harden task dependency parsing and preflight against Markdown code-block ambiguity
+- Match CommonMark fence character and minimum closing-fence length; malformed backtick info strings cannot hide real task sections or dependency references.
+- Ignore four-space and tab-indented code blocks during dependency extraction and task-section parsing.
+- Reject indented code-block bullets before normalization so examples cannot become Allowed paths, acceptance criteria or exclusions.
+- Preserve the existing `dependency_issue_numbers` preflight field and fail-closed unresolved dependency gate.
+- Add regression coverage for mismatched/short fences, malformed openers, indented dependency references, fake headings and indented task directives.
+
+### Verification
+- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent review required before acceptance.
+
+## 2.0.65 — 2026-11-21
+
+### Fixed — Align first-time state-Issue test double with the durable store contract
+- Add the required read() method to the no-state-Issue test store fixture.
+- Preserve the regression proving initialization writes do not shift legacy retry deadlines.
+- No production store contract, persistence validation or runtime behavior is weakened.
+
+### Verification
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
+## 2.0.64 — 2026-11-21
+
+### Fixed — Preserve the pre-initialization retry clock
+- Capture the migrated state's updated_at before creating a missing state Issue.
+- Normalize legacy retry_wait deadlines from that original snapshot, so first-time state initialization cannot delay retries.
+- Add a controller regression for the no-state-Issue migration path.
+
+### Verification
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
+## 2.0.63 — 2026-11-21
+
+### Fixed — Persist legacy retry deadlines once
+- Normalize legacy retry_wait records missing next_attempt_at before later controller writes.
+- Prefer task-level last_error.at; use one captured durable state timestamp only as a migration fallback.
+- Keep retry deadlines stable across subsequent check cycles and unrelated task-state writes.
+
+### Verification
+- Exact-head full CI, database/RLS and Windows Runner integration are required before acceptance.
+
+## 2.0.62 — 2026-11-21
+
+### Fixed — Recover migrated retry-wait tasks without timestamps
+- Prefer the task's original failure timestamp; otherwise use the controller's immutable state.updated_at snapshot.
+- Preserve bounded exponential backoff, explicit next_attempt_at precedence and quarantine.
+- Requeue multiple eligible migrated tasks in one check without later state writes shifting the fallback clock.
+- Add deterministic tests for fallback timing, explicit timestamps, quarantine, multi-task recovery and no premature retry.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation remain required before acceptance.
+
+## 2.0.61 — 2026-11-21
+
+### Test — Align lifecycle soak event accounting with the durable deduplication contract
+- Count the two idempotently recorded candidate callbacks per completed task.
+- Explicitly document that reservation and task-state transitions are durable state changes but are not processed callback events.
+- Preserve duplicate callback idempotency and the 24-task completion assertions.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation remain required before acceptance.
+
+## 2.0.60 — 2026-11-21
+
+### Test — Verify dependency gating at the queue dispatch boundary
+- Add selector-level regression coverage proving dependency filtering occurs before priority sorting and dispatch.
+- Cover completed prerequisites, open prerequisites, missing prerequisites, and verified merged task PRs.
+- Retain the 2.0.58 candidate/global-breaker isolation and 2.0.59 multiline dependency parser fixes.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation remain required before acceptance.
+
+## 2.0.59 — 2026-11-21
+
+### Fixed — Block tasks with unresolved multiline dependencies
+- Parse explicit inline dependency declarations and Markdown Dependencies/Dependencies-context sections.
+- Ignore fenced code and unrelated sections; deduplicate and sort dependency issue numbers.
+- Keep missing, open and not-completed dependencies blocked; expose normalized dependencies in the read-only preflight bundle.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation are required before acceptance.
+
+## 2.0.58 — 2026-11-21
+
+### Fixed — Keep candidate task success isolated from global infrastructure health
+- Candidate CI success now completes only the exact task and preserves the global circuit-breaker state.
+- Explicit system-health success remains the only path that clears the global breaker.
+- Add regression coverage for an active cooldown, an unrelated quarantined task, and duplicate candidate-success callbacks.
+
+### Verification
+- Exact-head full CI and controlled Windows factory validation are required before acceptance.
+
 ## 2.0.57 — 2026-11-20
 
 ### Fixed — Validate failure-scope regression test changes

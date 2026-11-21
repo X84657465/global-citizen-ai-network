@@ -169,3 +169,149 @@ test("requires a human approval label before allowing factory control-plane path
   assert.equal(task.control_plane_authorized, true);
   assert.deepEqual(task.allowed_paths, ["lib/agent-factory-state-machine.mjs", "tests/settings-page.test.ts"]);
 });
+
+
+test("section parsing ignores headings inside matching Markdown fences", () => {
+  const body = [
+    "## Goal",
+    "Implement a bounded settings improvement with accessible empty and error states.",
+    "````md",
+    "## Allowed paths",
+    "- app/should-not-be-accepted.ts",
+    "```",
+    "~~~",
+    "```",
+    "````",
+    "## Allowed paths",
+    "- app/settings/page.tsx",
+    "- tests/settings-page.test.ts",
+    "## Acceptance criteria",
+    "- Empty state is accessible",
+    "- Error state has a retry action",
+    "## Explicit exclusions",
+    "- No database schema changes",
+    "- No production deployment",
+  ].join("\n");
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, ["app/settings/page.tsx", "tests/settings-page.test.ts"]);
+  assert.match(task.goal, /app\/should-not-be-accepted\.ts/);
+});
+
+test("invalid backtick fence info strings do not suppress required task sections", () => {
+  const body = [
+    "## Goal",
+    "Implement a bounded settings improvement with accessible empty and error states.",
+    "```invalid`info",
+    "## Allowed paths",
+    "- app/settings/page.tsx",
+    "- tests/settings-page.test.ts",
+    "## Acceptance criteria",
+    "- Empty state is accessible",
+    "- Error state has a retry action",
+    "## Explicit exclusions",
+    "- No database schema changes",
+    "- No production deployment",
+  ].join("\n");
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, ["app/settings/page.tsx", "tests/settings-page.test.ts"]);
+});
+
+test("indented code headings cannot create or replace task sections", () => {
+  const body = [
+    "## Goal",
+    "Implement a bounded settings improvement with accessible empty and error states.",
+    "    ## Allowed paths",
+    "    - app/hidden-example.ts",
+    "\t## Acceptance criteria",
+    "\t- This is an indented code example, not a section",
+    "## Allowed paths",
+    "- app/settings/page.tsx",
+    "- tests/settings-page.test.ts",
+    "## Acceptance criteria",
+    "- Empty state is accessible",
+    "- Error state has a retry action",
+    "## Explicit exclusions",
+    "- No database schema changes",
+    "- No production deployment",
+  ].join("\n");
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, ["app/settings/page.tsx", "tests/settings-page.test.ts"]);
+  assert.ok(task.goal.includes("app/hidden-example.ts"));
+});
+
+test("accepts a dependency section and carries normalized dependency issue numbers into the task bundle", () => {
+  const body = validIssue().body.replace(
+    "## Acceptance criteria",
+    "## Dependencies\n- #94 migration-chain validation\n- #74 task discovery\n- #94 duplicate reference\n\n## Acceptance criteria",
+  );
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.dependency_issue_numbers, [74, 94]);
+});
+
+test("keeps dependency declarations optional and rejects duplicate dependency sections", () => {
+  const task = validateAndBuildTask(validIssue(), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.dependency_issue_numbers, []);
+  const withOne = validIssue({ body: validIssue().body.replace("## Acceptance criteria", "## Dependencies\n- #74\n\n## Acceptance criteria") });
+  assert.throws(
+    () => validateAndBuildTask(validIssue({ body: withOne.body + "\n## Dependencies\n- #75\n" }), "X84657465/global-citizen-ai-network"),
+    /Duplicate section/,
+  );
+});
+
+
+test("accepts the Dependencies/context section alias in task preflight", () => {
+  const body = validIssue().body.replace(
+    "## Acceptance criteria",
+    "## Dependencies/context\n- #75 submission/review status\n\n## Acceptance criteria",
+  );
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.dependency_issue_numbers, [75]);
+});
+
+test("rejects indented code-block bullets instead of treating them as task directives", () => {
+  const allowedPathExample = validIssue({
+    body: validIssue().body.replace(
+      "- app/settings/page.tsx",
+      "    - app/hidden-example.ts",
+    ),
+  });
+  assert.throws(
+    () => validateAndBuildTask(allowedPathExample, "X84657465/global-citizen-ai-network"),
+    /indented code-block directives/,
+  );
+
+  const acceptanceExample = validIssue({
+    body: validIssue().body.replace(
+      "- Empty state is accessible",
+      "    - Hidden acceptance criterion",
+    ),
+  });
+  assert.throws(
+    () => validateAndBuildTask(acceptanceExample, "X84657465/global-citizen-ai-network"),
+    /indented code-block directives/,
+  );
+
+  const exclusionExample = validIssue({
+    body: validIssue().body.replace(
+      "- No production deployment",
+      "    - Hidden exclusion directive",
+    ),
+  });
+  assert.throws(
+    () => validateAndBuildTask(exclusionExample, "X84657465/global-citizen-ai-network"),
+    /indented code-block directives/,
+  );
+});
+
+test("rejects tab-indented code-block bullets in task directive sections", () => {
+  const issue = validIssue({
+    body: validIssue().body.replace(
+      "- app/settings/page.tsx",
+      "\t- app/tab-indented-example.ts",
+    ),
+  });
+  assert.throws(
+    () => validateAndBuildTask(issue, "X84657465/global-citizen-ai-network"),
+    /indented code-block directives/,
+  );
+});

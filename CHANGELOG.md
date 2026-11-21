@@ -1,3 +1,95 @@
+## 0.3.102 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
+- Add regression coverage for the precise target-branch allowlist; preserve owner/same-repository checks, exact-SHA resolver, self-hosted Runner queue, security audits, build and database gates.
+- No wildcard branch expansion, permission changes, production data or automatic merge/deployment behavior.
+
+## 0.3.101 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.70: new-file generation now uses the validated plan output allowance instead of a 16,384-token floor for empty source files.
+- Add-file proposals are constrained by the plan's UTF-8 byte budget; existing-file replacements retain source-scaled token budgets and truncation rejection.
+- Add regression coverage for bounded output-token budgets. No database, RLS, dependency or production-data changes.
+- Exact-head full CI, Windows Runner/local Ollama, and independent formal review remain required.
+
+## 0.3.100 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.69: system-health recovery now requires exact same-repository PR evidence targeting main, in addition to completed successful exact-head CI, run ID and attempt.
+- Task-publication success remains non-mutating; task retry/quarantine history is preserved.
+- Added regression coverage for missing or mismatched PR identity and health evidence.
+- Exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable and independent formal review remain required.
+
+## 0.3.99 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.68: task-publication success is now non-mutating and cannot reset the global circuit breaker.
+- Add separately verified system-health success using completed exact-head GitHub CI evidence; preserve task retry and quarantine history.
+- Add controller regressions for non-mutating publication callbacks, fail-closed evidence validation and idempotent health recovery.
+- Exact-head full CI, Windows Runner/local Ollama, PostgreSQL/RLS where applicable and independent formal review remain required.
+
+## 0.3.98 — 2026-11-21
+
+- Fix a preflight normalization gap: preserve leading whitespace in task section bodies so first-line four-space/tab-indented examples cannot be trimmed into executable task directives.
+- Keep the fail-closed bullet parser guard and add exact regression coverage for Allowed paths, acceptance criteria, exclusions and tab-indented directives.
+- Agent Factory V2 advances to 2.0.67; root VERSION, package.json, package-lock.json, manifest, README, governance baseline and Agent Factory changelog are synchronized.
+- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent formal review remain required before acceptance.
+
+## 0.3.97 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.66 with CommonMark-aware dependency parsing and fail-closed task preflight hardening: matching fence markers and lengths, invalid backtick opener handling, four-space/tab-indented code exclusion, and protection against indented example bullets becoming task directives.
+- Preserve the existing `dependency_issue_numbers` preflight contract and unresolved-dependency dispatch gate.
+- Root VERSION, package.json, package-lock.json, manifest, README, governance baseline and Agent Factory track version/changelog are synchronized.
+- Exact-head full CI, Windows Runner, Ollama/local execution, PostgreSQL/RLS and independent formal review remain required before acceptance.
+
+## 0.3.96 — 2026-11-21
+
+- Fix the first-time state-Issue test double to implement the durable store read contract required by Agent Factory controller construction; retain the no-Issue initialization and retry-clock regression.
+- Agent Factory V2 advances to 2.0.65; root, package, lockfile, manifest, homepage and track changelog are synchronized.
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
+## 0.3.95 — 2026-11-21
+
+- Preserve the pre-initialization durable state timestamp when normalizing migrated retry_wait records; first-time state Issue creation must not shift legacy retry deadlines.
+- Agent Factory V2 advances to 2.0.64; root, package, lockfile, manifest, homepage and track changelog are synchronized.
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
+## 0.3.94 — 2026-11-21
+
+- Persist legacy Agent Factory retry deadlines once, preventing unrelated state writes from shifting retry eligibility between check cycles.
+- Agent Factory V2 advances to 2.0.63; root, package, lockfile, manifest, homepage and track changelog are synchronized.
+- Exact-head full CI, database/RLS and Windows Runner integration remain required before acceptance.
+
+## 0.3.93 — 2026-11-21
+
+- Recover migrated Agent Factory V2 `retry_wait` tasks whose legacy records have no `next_attempt_at`, preferring task failure time and using one immutable state timestamp only when task history is absent.
+- Preserve bounded exponential backoff, explicit retry timestamps and quarantine; add multi-task same-pass and no-premature-requeue regression coverage.
+- Agent Factory V2 advances to 2.0.62; B remains unchanged at 0.1.13.
+- Exact-head full CI and controlled Windows factory validation remain required; no production state Issue edit or live task completion is claimed.
+
+## 0.3.92 — 2026-11-21
+
+- Correct the 24-task Agent Factory lifecycle soak assertion: the deduplication ledger records candidate-start and candidate-result callbacks, not reserve/state-transition operations (48 unique callback events for 24 completed tasks).
+- Agent Factory V2 advances to 2.0.61; B remains unchanged at 0.1.13.
+- Exact-head full CI and controlled Windows factory validation remain required; no merge or deployment is claimed.
+
+## 0.3.91 — 2026-11-21
+
+- Add queue-selector integration regression coverage for dependency gating before dispatch, including completed, open, missing, and merged-PR prerequisites.
+- Agent Factory V2 advances to 2.0.60; B remains unchanged at 0.1.13.
+- Exact-head full CI and controlled Windows factory validation remain required; no merge or deployment is claimed.
+
+## 0.3.90 — 2026-11-21
+
+- Fix the P0 factory queue dependency parser: Issue #96-style multiline dependency sections are now recognized before task dispatch.
+- Preflight accepts optional dependency sections and returns normalized dependency issue numbers; queue selection remains the authoritative completion gate.
+- Agent Factory V2 advances to 2.0.59; B remains unchanged at 0.1.13.
+- Exact-head full CI and Windows factory validation remain required; no merge or deployment is claimed.
+
+## 0.3.89 — 2026-11-21
+
+- Prevent successful candidate CI for one task from clearing the factory-wide infrastructure circuit breaker.
+- Add regression coverage proving global cooldown fields and unrelated task quarantine remain unchanged, including duplicate callback replay.
+- Agent Factory V2 advances to 2.0.58; B track remains unchanged at 0.1.13.
+- Exact-head full CI and controlled Windows factory validation are required; no live factory completion or deployment is claimed.
+
 ## 0.3.88 — 2026-11-20
 
 - Restrict full CI push-triggered runs to `main`; development branches are validated by their pull-request lifecycle events, avoiding duplicate full-suite execution for the same PR head.

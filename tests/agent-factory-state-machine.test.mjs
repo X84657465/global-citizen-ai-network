@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import {
   createInitialFactoryState, reserveTask, transitionTask, recordTaskFailure,
   recordSystemFailure, recordTaskSuccess, recordSystemSuccess,
-  recoverExpiredLease, requeueTask, recordCandidateFailure, recordCandidateStarted, isSystemCooldownActive, validateFactoryState,
+  recoverExpiredLease, requeueTask, recordCandidateFailure, recordCandidateStarted, isSystemCooldownActive, validateFactoryState, getTaskRetryAt,
+  normalizeLegacyRetryTimestamps,
 } from "../lib/agent-factory-state-machine.mjs";
 
 const metadata = (overrides = {}) => ({
@@ -724,4 +725,64 @@ test("rejects normalized impossible dates, timezone-less values and out-of-range
     invalid.updated_at = updated_at;
     assert.throws(() => validateFactoryState(invalid), /update timestamp/);
   }
+});
+
+
+test("derives legacy retry_wait timing from task history and a state-level fallback", () => {
+  const task = {
+    status: "retry_wait",
+    failures: 2,
+    next_attempt_at: null,
+    last_error: { code: "TASK_FAILURE", summary: "legacy retry", at: new Date(10_000).toISOString() },
+  };
+  assert.equal(getTaskRetryAt(task, 100_000), 130_000);
+
+  task.last_error = null;
+  assert.equal(getTaskRetryAt(task, 100_000), 220_000);
+  assert.equal(getTaskRetryAt(task), Number.NaN);
+
+  task.next_attempt_at = new Date(250_000).toISOString();
+  assert.equal(getTaskRetryAt(task, 100_000), 250_000);
+});
+
+test("legacy retry fallback remains bounded and quarantined tasks cannot be requeued", () => {
+  const state = createInitialFactoryState(100_000);
+  state.tasks["81"] = {
+    status: "retry_wait", attempts: 99, failures: 99, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  assert.equal(getTaskRetryAt(state.tasks["81"], 100_000), 1_900_000);
+
+  state.tasks["95"] = {
+    status: "quarantined", attempts: 3, failures: 3, candidate_failures: 0,
+    quarantined: true, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  assert.throws(() => requeueTask(state, 95, 10_000_000, 100_000), /not eligible/);
+});
+
+
+test("normalizes legacy retry deadlines once and keeps them stable across later state timestamps", () => {
+  const state = createInitialFactoryState(100_000);
+  state.tasks["81"] = {
+    status: "retry_wait", attempts: 1, failures: 2, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  state.tasks["95"] = {
+    status: "quarantined", attempts: 3, failures: 3, candidate_failures: 0,
+    quarantined: true, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+
+  const normalized = normalizeLegacyRetryTimestamps(state, state.updated_at, 400_000);
+  assert.notEqual(normalized, state);
+  assert.equal(normalized.tasks["81"].next_attempt_at, new Date(220_000).toISOString());
+  assert.equal(normalized.tasks["95"].next_attempt_at, null);
+  assert.equal(state.tasks["81"].next_attempt_at, null);
+
+  const repeated = normalizeLegacyRetryTimestamps(
+    normalized,
+    new Date(400_000).toISOString(),
+    500_000,
+  );
+  assert.equal(repeated, normalized);
+  assert.equal(repeated.tasks["81"].next_attempt_at, new Date(220_000).toISOString());
 });

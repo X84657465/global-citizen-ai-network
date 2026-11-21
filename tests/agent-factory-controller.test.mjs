@@ -207,9 +207,26 @@ test("candidate failure callback persists rejection and delays retry without cou
   assert.equal(result.state.system.consecutive_failures, 0);
 });
 
-test("candidate success completes the exact PR and resets the system breaker", async () => {
+test("candidate success completes only its task and preserves the global breaker and unrelated quarantine", async () => {
   const initial = awaitingCandidate();
-  initial.system.consecutive_failures = 2;
+  initial.system = {
+    consecutive_failures: 2,
+    cooldown_until: new Date(120_000).toISOString(),
+    last_error_code: "RUNNER_UNAVAILABLE",
+    last_error: "Shared Runner is still unavailable.",
+    last_success_at: new Date(500).toISOString(),
+  };
+  initial.tasks["99"] = {
+    status: "quarantined",
+    attempts: 3,
+    failures: 3,
+    candidate_failures: 0,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: { code: "TASK_FAILURE", summary: "Independent task repeatedly failed.", at: new Date(1000).toISOString() },
+  };
+  const expectedSystem = structuredClone(initial.system);
+  const expectedQuarantine = structuredClone(initial.tasks["99"]);
   const store = fakeStore(initial);
   const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
   await startCandidate(controller, "555002");
@@ -228,11 +245,12 @@ test("candidate success completes the exact PR and resets the system breaker", a
   assert.equal(result.state.tasks["42"].status, "completed");
   assert.equal(JSON.parse(result.outputs.candidate_evidence_json).result, "pass");
   assert.equal(JSON.parse(result.outputs.candidate_evidence_json).commit_sha, "b".repeat(40));
-  assert.equal(result.state.system.consecutive_failures, 0);
+  assert.deepEqual(result.state.system, expectedSystem);
+  assert.deepEqual(result.state.tasks["99"], expectedQuarantine);
   assert.equal(duplicate.outputs.duplicate, true);
   assert.equal(duplicate.state.state_version, result.state.state_version);
+  assert.deepEqual(duplicate.state.system, expectedSystem);
 });
-
 test("check mode requeues retry-wait tasks only after their backoff expires", async () => {
   let state = reserveTask(createInitialFactoryState(1000), {
     issue_number: 42, lease_id: "lease-retry", lease_owner: "runner",
@@ -503,30 +521,6 @@ test("transition mode remains idempotent after awaiting_ci has released the work
 });
 
 
-test("candidate success callback recovers when the system-breaker write fails after task completion", async () => {
-  const initial = awaitingCandidate();
-  initial.system.consecutive_failures = 2;
-  const store = fakeStore(initial, { failWriteAt: 3 });
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
-  await startCandidate(controller, "555003");
-  const env = {
-    AGENT_FACTORY_MODE: "candidate",
-    ISSUE_NUMBER: "42",
-    PULL_REQUEST_NUMBER: "88",
-    HEAD_SHA: "b".repeat(40),
-    HEAD_REF: "ai-task/issue-42-abcdef123456",
-    CI_CONCLUSION: "success",
-    CI_RUN_ID: "555003",
-    CI_RUN_ATTEMPT: "1",
-  };
-  await assert.rejects(controller.run(env), /injected state write failure/);
-  assert.equal(store.state.tasks["42"].status, "completed");
-  assert.equal(store.state.system.consecutive_failures, 2);
-
-  const recovered = await controller.run(env);
-  assert.equal(recovered.outputs.duplicate, false);
-  assert.equal(recovered.state.system.consecutive_failures, 0);
-});
 
 test("candidate failure callback recovers after a transient durable-state write failure", async () => {
   const store = fakeStore(awaitingCandidate(), { failWriteAt: 2 });
@@ -766,3 +760,274 @@ test("check mode fails closed when a completed workflow has a missing or unsuppo
     assert.equal(store.state.state_version, state.state_version);
   }
 });
+
+
+test("check mode requeues migrated retry tasks using one immutable state timestamp", async () => {
+  const initial = createInitialFactoryState(100_000);
+  const retryTask = (failures) => ({
+    status: "retry_wait", attempts: failures, failures, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  });
+  initial.tasks["81"] = retryTask(1);
+  initial.tasks["94"] = retryTask(2);
+  initial.tasks["95"] = {
+    status: "quarantined", attempts: 3, failures: 3, candidate_failures: 0,
+    quarantined: true, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 400_000,
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.requeued_tasks, 2);
+  assert.equal(result.state.tasks["81"].status, "queued");
+  assert.equal(result.state.tasks["94"].status, "queued");
+  assert.equal(result.state.tasks["95"].status, "quarantined");
+  assert.equal(result.state.tasks["95"].quarantined, true);
+});
+
+test("check mode does not requeue a migrated task before its fallback backoff expires", async () => {
+  const initial = createInitialFactoryState(100_000);
+  initial.tasks["94"] = {
+    status: "retry_wait", attempts: 2, failures: 2, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 150_000,
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.outputs.requeued_tasks, 0);
+  assert.equal(result.state.tasks["94"].status, "retry_wait");
+  assert.equal(result.state.tasks["94"].next_attempt_at, new Date(220_000).toISOString());
+  assert.equal(store.state.state_version, initial.state_version + 1);
+});
+
+
+
+test("check mode preserves the pre-initialization retry clock when creating the state issue", async () => {
+  const initial = createInitialFactoryState(100_000);
+  initial.tasks["94"] = {
+    status: "retry_wait", attempts: 2, failures: 2, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  let state = initial;
+  const store = {
+    async migrate() { return { issue: null, state, migrated: false }; },
+    async read() { return { issue: null, state }; },
+    getStateIssueNumber() { return null; },
+    async write(expectedVersion, nextState) {
+      assert.equal(state.state_version, expectedVersion);
+      assert.equal(nextState.state_version, expectedVersion + 1);
+      state = nextState;
+      return { state };
+    },
+  };
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 150_000,
+  });
+
+  const result = await controller.run({ AGENT_FACTORY_MODE: "check" });
+
+  assert.equal(result.state.tasks["94"].status, "retry_wait");
+  assert.equal(result.state.tasks["94"].next_attempt_at, new Date(220_000).toISOString());
+  assert.equal(result.state.updated_at, new Date(150_000).toISOString());
+});
+
+test("check mode persists legacy retry deadlines before later state writes can shift the fallback clock", async () => {
+  const initial = createInitialFactoryState(100_000);
+  initial.tasks["94"] = {
+    status: "retry_wait", attempts: 2, failures: 2, candidate_failures: 0,
+    quarantined: false, next_attempt_at: null, last_error: null, last_success_at: null,
+  };
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 150_000,
+  });
+
+  const first = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  const deadline = new Date(220_000).toISOString();
+  assert.equal(first.state.tasks["94"].status, "retry_wait");
+  assert.equal(first.state.tasks["94"].next_attempt_at, deadline);
+
+  const second = await controller.run({ AGENT_FACTORY_MODE: "check" });
+  assert.equal(second.state.tasks["94"].next_attempt_at, deadline);
+  assert.equal(second.state.state_version, first.state.state_version);
+});
+
+test("task publication success is a non-mutating callback and cannot reset the global breaker", async () => {
+  const initial = awaitingCandidate();
+  initial.system = {
+    consecutive_failures: 2,
+    cooldown_until: new Date(120_000).toISOString(),
+    last_error_code: "RUNNER_UNAVAILABLE",
+    last_error: "Shared Runner is still unavailable.",
+    last_success_at: new Date(500).toISOString(),
+  };
+  initial.tasks["99"] = {
+    status: "quarantined",
+    attempts: 3,
+    failures: 3,
+    candidate_failures: 0,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: { code: "TASK_FAILURE", summary: "Independent task repeatedly failed.", at: new Date(1000).toISOString() },
+  };
+  const expectedSystem = structuredClone(initial.system);
+  const expectedTasks = structuredClone(initial.tasks);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+
+  const first = await controller.run({ AGENT_FACTORY_MODE: "success" });
+  const replay = await controller.run({ AGENT_FACTORY_MODE: "success" });
+
+  assert.equal(first.outputs.task_publication_success, true);
+  assert.equal(first.outputs.breaker_reset, false);
+  assert.equal(first.outputs.ignored, true);
+  assert.equal(first.state.state_version, initial.state_version);
+  assert.equal(replay.state.state_version, initial.state_version);
+  assert.deepEqual(first.state.system, expectedSystem);
+  assert.deepEqual(replay.state.system, expectedSystem);
+  assert.deepEqual(first.state.tasks, expectedTasks);
+  assert.deepEqual(replay.state.tasks, expectedTasks);
+});
+
+test("system-health success requires verified exact-head CI evidence and resets only global breaker fields", async () => {
+  const initial = awaitingCandidate();
+  initial.system = {
+    consecutive_failures: 2,
+    cooldown_until: new Date(120_000).toISOString(),
+    last_error_code: "RUNNER_UNAVAILABLE",
+    last_error: "Shared Runner is still unavailable.",
+    last_success_at: new Date(500).toISOString(),
+  };
+  initial.tasks["99"] = {
+    status: "quarantined",
+    attempts: 3,
+    failures: 3,
+    candidate_failures: 0,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: { code: "TASK_FAILURE", summary: "Independent task repeatedly failed.", at: new Date(1000).toISOString() },
+  };
+  const expectedTasks = structuredClone(initial.tasks);
+  const sha = "d".repeat(40);
+  const requests = [];
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        requests.push(path);
+        return {
+          id: 555009,
+          run_attempt: 2,
+          head_sha: sha,
+          status: "completed",
+          conclusion: "success",
+          path: ".github/workflows/ci.yml",
+          event: "pull_request",
+          pull_requests: [{
+            number: 168,
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { sha, repo: { full_name: "owner/repo" } },
+          }],
+        };
+      },
+    },
+  });
+  const env = {
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555009",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "2",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "168",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  };
+
+  const first = await controller.run(env);
+  const replay = await controller.run(env);
+
+  assert.equal(first.outputs.breaker_reset, true);
+  assert.equal(first.outputs.duplicate, false);
+  assert.equal(first.outputs.cooldown_active, false);
+  assert.equal(first.state.system.consecutive_failures, 0);
+  assert.equal(first.state.system.cooldown_until, null);
+  assert.equal(first.state.system.last_error_code, null);
+  assert.equal(first.state.system.last_error, null);
+  assert.equal(first.state.system.last_success_at, new Date(3000).toISOString());
+  assert.deepEqual(first.state.tasks, expectedTasks);
+  assert.equal(replay.outputs.duplicate, true);
+  assert.equal(replay.outputs.breaker_reset, false);
+  assert.equal(replay.state.state_version, first.state.state_version);
+  assert.deepEqual(replay.state.tasks, expectedTasks);
+  assert.deepEqual(requests, [
+    "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/actions/runs/555009",
+  ]);
+});
+
+test("system-health success fails closed for missing or mismatched health evidence", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request() {
+        return {
+          id: 555010,
+          run_attempt: 1,
+          head_sha: "e".repeat(40),
+          status: "completed",
+          conclusion: "success",
+          path: ".github/workflows/ci.yml",
+          event: "pull_request",
+          pull_requests: [{
+            number: 168,
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { sha: "e".repeat(40), repo: { full_name: "owner/repo" } },
+          }],
+        };
+      },
+    },
+  });
+
+  await assert.rejects(
+    controller.run({ AGENT_FACTORY_MODE: "system-health-success" }),
+    /System health workflow run ID must be a positive integer/,
+  );
+  await assert.rejects(
+    controller.run({
+      AGENT_FACTORY_MODE: "system-health-success",
+      SYSTEM_HEALTH_RUN_ID: "555010",
+      SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "168",
+      SYSTEM_HEALTH_HEAD_SHA: "f".repeat(40),
+    }),
+    /exact-head CI pull_request run/,
+  );
+  await assert.rejects(
+    controller.run({
+      AGENT_FACTORY_MODE: "system-health-success",
+      SYSTEM_HEALTH_RUN_ID: "555010",
+      SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "999",
+      SYSTEM_HEALTH_HEAD_SHA: "e".repeat(40),
+    }),
+    /same-repository PR targeting main/,
+  );
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
+});
+
