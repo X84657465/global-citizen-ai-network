@@ -21,12 +21,9 @@ permissions:
 jobs:
   review-gate:
     name: review-gate
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
-    runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 5
+    # This policy check only calls GitHub APIs; do not consume the scarce Windows factory runner.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Evaluate independent review policy
         uses: actions/github-script@v7
@@ -82,18 +79,26 @@ jobs:
                 }
               }
 
-              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
-                owner, repo, head_sha: headSha, event: "pull_request", per_page: 100
-              });
-              const exactCiRuns = runs.workflow_runs.filter(r =>
-                r.head_sha === headSha &&
-                (r.name === "CI" || (r.name || "").startsWith("CI —") || (r.display_title || "").startsWith("CI —"))
-              ).sort((a, b) =>
-                new Date(b.run_started_at || b.created_at || 0) - new Date(a.run_started_at || a.created_at || 0)
-              );
-              const exactCi = exactCiRuns[0];
+              let exactCi = null;
+              for (let attempt = 0; attempt <= 30; attempt += 1) {
+                const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                  owner, repo, head_sha: headSha, event: "pull_request", per_page: 100
+                });
+                const exactCiRuns = runs.workflow_runs.filter(r =>
+                  r.head_sha === headSha &&
+                  (r.name === "CI" || (r.name || "").startsWith("CI —") || (r.display_title || "").startsWith("CI —"))
+                ).sort((a, b) =>
+                  new Date(b.run_started_at || b.created_at || 0) - new Date(a.run_started_at || a.created_at || 0)
+                );
+                exactCi = exactCiRuns[0] ?? null;
+                if (exactCi?.status === "completed") break;
+                if (attempt < 30) {
+                  core.info(`Waiting for exact-HEAD CI to complete (attempt ${attempt + 1}/30)${exactCi ? `; run ${exactCi.id} is ${exactCi.status}.` : "; run not visible yet."}`);
+                  await new Promise(resolve => setTimeout(resolve, 30000));
+                }
+              }
               if (!exactCi || exactCi.status !== "completed" || exactCi.conclusion !== "success") {
-                failures.push(`Latest exact-HEAD CI run is missing or not successful for ${headSha}${exactCi ? ` (run ${exactCi.id}: ${exactCi.status}/${exactCi.conclusion || "pending"}).` : "."}`);
+                failures.push(`Latest exact-HEAD CI run did not complete successfully for ${headSha}${exactCi ? ` (run ${exactCi.id}: ${exactCi.status}/${exactCi.conclusion || "pending"}).` : " (no run found after 15 minutes)."}`);
               } else notes.push(`Latest exact-HEAD CI passed: run ${exactCi.id}.`);
 
               const commits = await github.paginate(github.rest.pulls.listCommits, {
