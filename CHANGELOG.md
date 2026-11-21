@@ -2,6 +2,7 @@
 
 - Update the public homepage's workstream status note to explicitly distinguish roadmap scope from modules not yet integrated into the production product flow.
 - Replace the obsolete five-track homepage test contract with A–O + P governance assertions, responsive-layout checks and production-readiness disclosure checks.
+- Remove stale five-track wording and the outdated release baseline from the engineering governance guide; clarify that A–O own their roadmaps while P governs across them.
 - Synchronize repository and B-line release metadata to `0.3.117` / `0.1.20`; retain Agent Factory V2 at `2.0.79`.
 - Exact-head CI, Preview build and desktop/tablet/mobile visual acceptance are required; no Production deployment is claimed.
 
