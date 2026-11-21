@@ -19,7 +19,7 @@ const pull = (overrides: Record<string, unknown> = {}) => ({
 });
 const review = (overrides: Record<string, unknown> = {}) => ({
   id: 100, commit_id: sha, state: "APPROVED",
-  submitted_at: "2026-11-22T12:00:00Z", user: { login: "reviewer-one" },
+  submitted_at: "2026-11-20T12:00:00Z", user: { login: "reviewer-one" },
   ...overrides,
 });
 function makeInput(responses: Map<string, unknown>, overrides: Partial<FPGovernanceReviewCollectionInput> = {}): FPGovernanceReviewCollectionInput {
@@ -54,7 +54,7 @@ test("collects exact-head submitted reviews and host-verifies reviewer permissio
     reviewedSha: sha, decision: "approved", reviewRef: "pull/42/reviews/100",
     reviewerRef: "github:reviewer-one",
     reviewerAuthorizationRef: "permissions/reviewer-one/maintain",
-    reviewerAuthorizationStatus: "verified", submittedAt: "2026-11-22T12:00:00Z",
+    reviewerAuthorizationStatus: "verified", submittedAt: "2026-11-20T12:00:00Z",
   }]);
 });
 
