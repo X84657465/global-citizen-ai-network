@@ -28,6 +28,72 @@
       "version": "0.1.11",
       "status": "implementation-candidate",
       "responsibility": "Multi-source research, source provenance and quality, corroboration, counter-evidence, cited synthesis and cross-track research support."
+    },
+    "F": {
+      "name": "Cyber Security & Defense",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Cross-track threat modeling, minimum security controls, adversarial validation, vulnerability response and incident readiness."
+    },
+    "G": {
+      "name": "Release, QA & Integration",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Integration sequencing, compatibility matrices, regression suites, release gates and exact-SHA evidence."
+    },
+    "H": {
+      "name": "Observability, Telemetry & Cost/Quota Governance",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Queue and Runner telemetry, task timing, failure taxonomy, cost accounting and quota alerts."
+    },
+    "I": {
+      "name": "Ecosystem, Connectors & Workflow Automation",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "External APIs, webhooks, notifications, synchronization and event adapters with least-privilege boundaries."
+    },
+    "J": {
+      "name": "Self-Healing, Chaos & Continuity",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Bounded recovery, circuit breakers, checkpointing, backup and restore verification, and controlled fault drills."
+    },
+    "K": {
+      "name": "Knowledge Base, Docs & Governance Playbooks",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Architecture records, runbooks, handoff templates, decision logs and operator playbooks."
+    },
+    "L": {
+      "name": "Multi-Node, Federation & Edge/Cluster Coordination",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Capability-aware node registration, scheduling, leases, health and cross-node coordination, gated by demonstrated need."
+    },
+    "M": {
+      "name": "Compliance, Policy Audit & Risk Governance",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Evidence retention, change and audit trails, policy checks, exception ownership and risk register."
+    },
+    "N": {
+      "name": "Productization, Analytics & Growth/Ecosystem Ops",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Product outcomes, adoption and quality metrics, feedback loops, onboarding and ecosystem operations."
+    },
+    "O": {
+      "name": "Lifecycle, Deprecation & Legacy Retirement",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Deprecation policy, migration windows, compatibility and controlled removal of obsolete components."
+    },
+    "P": {
+      "name": "Governance, Ethics & Trust/Policy Evolution",
+      "version": "0.1.0",
+      "status": "planned",
+      "responsibility": "Cross-track autonomy boundaries, human-approval thresholds, trust principles and governance arbitration."
     }
   },
   "policy": "MAJOR.MINOR.PATCH; every change increments at least PATCH; breaking architecture increments MAJOR; additive capability increments MINOR. Cross-track changes require explicit owner review and compatibility evidence."
