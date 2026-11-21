@@ -1140,6 +1140,20 @@ test("system-health success requires verified exact-head CI evidence and resets 
             }],
           };
         }
+        if (path === "/repos/owner/repo/actions/runs/555009/jobs?per_page=100") {
+          return {
+            jobs: [
+              "Resolve exact candidate PR metadata",
+              "Windows Runner quality gates — tests, types, lint, audit and production build",
+              "Windows Supabase migrations, PostgreSQL and RLS integration",
+              "Windows Ollama and local execution integration",
+              "Persist candidate success or reset system breaker",
+            ].map((name) => ({
+              name, run_id: 555009, run_attempt: 2, head_sha: sha,
+              status: "completed", conclusion: "success",
+            })),
+          };
+        }
         if (path === "/repos/owner/repo/pulls/168") {
           return {
             number: 168,
@@ -1179,9 +1193,74 @@ test("system-health success requires verified exact-head CI evidence and resets 
   assert.deepEqual(requests, [
     "/repos/owner/repo/actions/runs/555009",
     "/repos/owner/repo/pulls/168",
+    "/repos/owner/repo/actions/runs/555009/jobs?per_page=100",
     "/repos/owner/repo/actions/runs/555009",
     "/repos/owner/repo/pulls/168",
+    "/repos/owner/repo/actions/runs/555009/jobs?per_page=100",
   ]);
+});
+
+test("system-health success fails closed when any required exact-run CI job is skipped", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const requiredNames = [
+    "Resolve exact candidate PR metadata",
+    "Windows Runner quality gates — tests, types, lint, audit and production build",
+    "Windows Supabase migrations, PostgreSQL and RLS integration",
+    "Windows Ollama and local execution integration",
+    "Persist candidate success or reset system breaker",
+  ];
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555012") {
+          return {
+            id: 555012, run_attempt: 1, head_sha: sha, status: "completed",
+            conclusion: "success", path: ".github/workflows/ci.yml", event: "pull_request",
+            pull_requests: [{
+              number: 170,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/pulls/170") {
+          return {
+            number: 170, state: "open",
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { sha, repo: { full_name: "owner/repo" } },
+          };
+        }
+        if (path === "/repos/owner/repo/actions/runs/555012/jobs?per_page=100") {
+          return {
+            jobs: requiredNames.map((name, index) => ({
+              name, run_id: 555012, run_attempt: 1, head_sha: sha,
+              status: "completed", conclusion: index === 2 ? "skipped" : "success",
+            })),
+          };
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555012",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "170",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  }), /required CI job 'Windows Supabase migrations, PostgreSQL and RLS integration'.*same run, attempt and head SHA/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
 });
 
 test("system-health success rejects a successful CI run when the PR has advanced to a newer head", async () => {
