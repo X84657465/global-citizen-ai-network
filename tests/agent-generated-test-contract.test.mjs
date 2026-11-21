@@ -165,3 +165,26 @@ test("rejects dynamically imported and CommonJS Playwright runners", () => {
     /Playwright test APIs/,
   );
 });
+
+
+test("checks executable template code after regex literals containing closing braces", () => {
+  const source = [
+    'import test from "node:test";',
+    'const value = \`\${(() => { const matcher = /}/; return jest.fn(); })()}\`;',
+  ].join("\n");
+  assert.match(
+    getGeneratedTestContractViolation("tests/regex-brace-template.test.ts", source),
+    /Jest\/Vitest APIs/,
+  );
+});
+
+test("keeps regex character-class braces inside the template expression", () => {
+  const source = [
+    'import test from "node:test";',
+    'const value = \`\${(() => { const matcher = /[{}]/; return jest.fn(); })()}\`;',
+  ].join("\n");
+  assert.match(
+    getGeneratedTestContractViolation("tests/regex-character-class-template.test.ts", source),
+    /Jest\/Vitest APIs/,
+  );
+});
