@@ -97,6 +97,22 @@ test("double-negated risk language remains high risk instead of being treated as
   }
 });
 
+test("absence of a prohibition or restriction remains positive high-risk intent", () => {
+  for (const title of [
+    "There is no prohibition on deploying to production",
+    "There is no restriction against changing billing",
+    "There is no ban on rotating credentials",
+    "Without any restriction on production deployment",
+    "Credentials are not prevented from being rotated",
+    "Deployment is not disallowed to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
 test("a direct prohibition still suppresses prose-only risk while keeping the decision bounded", () => {
   const result = evaluateAgentDecision(withImplementerText("No deployment is allowed"), task);
   assert.equal(result.signals.no_high_risk_scope, true);
