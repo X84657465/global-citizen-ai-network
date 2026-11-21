@@ -219,9 +219,9 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 
 ### Main / Factory-first
 - Current `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`; release baseline `0.3.125`.
-- A PR #273 remains Draft/open at exact HEAD `ec8e4b163fed238c7d554cf42815b59cfdc60dcd`. Exact-head run #3273 (`44952848627`) failed the full unit suite (518/531 passed; 13 failures); typecheck, lint, production build and downstream integration were skipped. No A acceptance is inferred.
-- G PR #278 is the active consolidated candidate, Draft/open at exact HEAD `cba7efd25b12377de5e4d1edd25be51dd6e4de68`. It consolidates the narrow Node/FP compatibility fixes and verified G-owned blockers; exact-head CI #3285 (`44954473597`) is pending. The previous #3277 run on superseded SHA `01c08027cc60ce2fe7d1c77ba1684d90f6133bd8` failed 14/589 tests (575 passed); the 8 Factory lifecycle failures remain A-owned and are not to be duplicated into G.
-- Mainline repair PR #277 exact HEAD `040c57cc36c1306230ff2c89f63088a95b4fa781`; run #3276 (`44953591204`) failed one stale runbook assertion at `tests/ci-trigger-policy.test.mjs:435`. Do not duplicate A/G runbook changes into this separate patch; revalidate after accepted changes reach main.
+- Integrated A/G acceptance PR #279 is the sole active code candidate, Draft/open at exact HEAD `edf0b86c15d599c772f51f31dc4030874ea27d9b`, based on current main `fc1933e669dd2d49300e45fa5d69bf63e906141f`. It combines A Factory lifecycle/repository-validation changes with only the required G/FP test and integration repairs. Exact-head CI #3287 (`44954636255`) is pending; no test result is inferred yet.
+- The earlier A-only #273, G-only #278 and test-repair #277 candidates are closed unmerged as superseded by #279. Their historical failures remain diagnostic evidence only; none is acceptance evidence for #279.
+- #279 must pass full unit tests, typecheck, lint, audits, production build, PostgreSQL/RLS and Ollama integration on its exact SHA. Exact-SHA Vercel Preview and independent Issue #136 review remain separate required gates.
 - Exact-SHA Vercel status for the current candidates remains build-rate-limited; no READY Preview or same-SHA smoke evidence is available.
 - Issue #136 remains open. Its required independent, read-only adversarial audit is outstanding; owner-authored static traces and CI results are not independent approval.
 - PR #259 remains open/unmerged and targets stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its broad diff is diverged from current main. Do not merge, retarget, or transplant wholesale.
@@ -232,11 +232,10 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 - Do not merge #275 until A acceptance and a fresh exact-head revalidation against the resulting main. Its previous exact-head quality run failed the legacy CI runbook assertion because the A/G contract correction is not yet on main.
 
 ### Next execution order
-1. Finish G #278 exact-head CI #3285; classify any remaining failures by owning workstream and preserve all security and behavior assertions.
-2. Repair only the proven G blockers and rerun the updated exact SHA.
-3. Revalidate A #273 on the updated baseline; complete unit, type, lint, audit, production build, PostgreSQL/RLS and Ollama/local checks.
-4. Obtain the independent Issue #136 audit and triage findings; do not substitute owner review.
-5. Resolve Vercel Preview quota through the normal provider cycle; no bypass.
-6. After A is accepted and integrated, refresh and revalidate B #275, then implement only the reviewed read-only projection plus B-owned tenant authorization.
+1. Finish integrated A/G #279 exact-head CI and resolve only verified blockers without weakening policy or tests.
+2. Obtain the independent Issue #136 read-only audit and triage findings; do not substitute owner review.
+3. Resolve Vercel Preview quota through the normal provider cycle; no bypass, and obtain same-SHA READY Preview/smoke evidence.
+4. Only after A/G acceptance and integration, refresh and revalidate B #275 against the resulting main.
+5. Implement only the reviewed versioned read-only projection and B-owned workspace authorization; keep B Runtime inactive until accepted.
 
 **Safety:** no production deployment/data mutation, secret or permission changes, workflow-policy changes, or machine-managed Factory state edits are authorized by these documentation updates.
