@@ -62,16 +62,16 @@
 - PR: https://github.com/X84657465/global-citizen-ai-network/pull/265
 - Exact HEAD: 6ccaeeda5b4fd43c72f51792d814ab949d42ace0; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
 - Diff is limited to README.md and tests/ci-trigger-policy.test.mjs. It synchronizes the README release label to 0.3.124 and updates the policy test to match current mainline runbook language, removing obsolete V1 assertions.
-- Exact-head run [44941725749](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941725749) was pending at metadata resolver; no job steps had started at last inspection.
+- Exact-head run [44941725749](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941725749): metadata resolver completed successfully; the Windows Runner quality-gates job is pending. No full CI pass is claimed.
 - Vercel reported the free daily deployment quota limit. This is not a successful Preview. Do not retry deployments repeatedly or bypass the quota.
 - Formal reviews and inline threads: zero. Keep Draft/unmerged until exact-head CI and required review pass.
 
 ### Broad integration candidate — PR #259
 
 - PR: https://github.com/X84657465/global-citizen-ai-network/pull/259
-- Current exact HEAD: 6e5909bb8ea9de84462a48a1dd8fa4a03ad9f0a7; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
-- Current exact-head run [44941958891](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941958891) is pending with zero jobs created at last inspection. The prior HEAD and run 44941626126 are superseded and must not be used as acceptance evidence. Older run 44941213950 used superseded HEAD d265000684e0238934a90e77f41d5992a1cc1de9 and is not evidence for the current HEAD.
-- Current diff contains 27 files across A state/controller changes, F–P host/governance/observability, repository-name validation, a PostgreSQL appeal-authorization migration, tests and release metadata. It is materially broader than the P0 schema repair.
+- Current exact HEAD: 63408495d7fc66dbf0ad03041140cfebf7ff9a3e; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
+- Current exact-head run [44942184888](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942184888) is pending with zero jobs created at last inspection. A source review found that the new H UTC timestamp regex was double-escaped and would reject valid ISO timestamps; this was corrected on the current PR branch in commit 63408495d7fc66dbf0ad03041140cfebf7ff9a3e. The fix awaits exact-head CI. All earlier PR #259 heads and runs are superseded and must not be used as acceptance evidence. Older run 44941213950 used superseded HEAD d265000684e0238934a90e77f41d5992a1cc1de9 and is not evidence for the current HEAD.
+- Current diff contains 27 files across A state/controller changes, F–P host/governance/observability, repository-name validation, a PostgreSQL appeal-authorization migration, tests and release metadata. The UTC timestamp regex correction is included in the current head. It is materially broader than the P0 schema repair.
 - Formal reviews and inline threads: zero. Keep Draft; do not merge merely because it includes the baseline fixes. Require a complete diff/scope review, exact-head CI including database/RLS and Ollama, independent review, and explicit dependency ordering.
 
 ### Other open Draft candidates
