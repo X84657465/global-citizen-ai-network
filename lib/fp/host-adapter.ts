@@ -199,17 +199,34 @@ export class FPHostAdapter {
       throw new FPHostError("INVALID_CONTEXT", "Host clock returned an invalid date.");
     }
 
-    const output = await handler(request.input, context);
+    // Snapshot trusted host metadata before handing context to a capability.
+    // A handler must not be able to mutate the caller's identity/correlation
+    // fields and thereby rewrite the envelope that represents this invocation.
+    const principal = Object.freeze({
+      actorRef: context.principal.actorRef,
+      ...(context.principal.resourceRef !== undefined
+        ? { resourceRef: context.principal.resourceRef }
+        : {}),
+      authorized: context.principal.authorized,
+      approved: context.principal.approved,
+    });
+    const handlerContext: FPHostRequestContext = Object.freeze({
+      principal,
+      correlationId: context.correlationId,
+      ...(context.now !== undefined ? { now: context.now } : {}),
+    });
+
+    const output = await handler(request.input, handlerContext);
     const envelope: FPCapabilityEnvelope<TOutput> = Object.freeze({
       contractVersion: "1",
       workstream: request.workstream,
       capability: request.capability,
       eventId: globalThis.crypto.randomUUID(),
       occurredAt: now.toISOString(),
-      correlationId: context.correlationId,
-      actorRef: context.principal.actorRef,
-      ...(context.principal.resourceRef
-        ? { resourceRef: context.principal.resourceRef }
+      correlationId: handlerContext.correlationId,
+      actorRef: handlerContext.principal.actorRef,
+      ...(handlerContext.principal.resourceRef !== undefined
+        ? { resourceRef: handlerContext.principal.resourceRef }
         : {}),
       ...(request.idempotencyKey
         ? { idempotencyKey: request.idempotencyKey }
