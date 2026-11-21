@@ -44,7 +44,7 @@ F–P is not a parallel application, database, identity provider, task runner, q
 | H correlation | `lib/observability/request-context.ts`, `middleware.ts` | Paired request/response correlation ID | Route/job end-to-end proof still required |
 | P dossier | `lib/fp/governance-assurance.ts` | Completeness and review provenance | Does not grant approval or authority |
 | P review collector | `lib/fp/governance-review-source.ts` | Exact-head PR check and paginated submitted-review collection | Trusted-host permission callback must be supplied |
-| P permission provider | PR #251: `lib/fp/github-review-permission.ts` | Read-only collaborator permission adapter using existing authenticated API client | Merged before exact-head CI completed; PR #252 hardens both the adapter and review collector path validation and adds regression tests; still not wired to a production route |
+| P permission provider | PR #251: `lib/fp/github-review-permission.ts` | Read-only collaborator permission adapter using existing authenticated API client | PR #252 hardens both entry points, adds traversal regression tests, and normalizes GitHub's real `admin/write/read/none` plus `role_name` response into GCAN's internal permission enum; not wired to a production route |
 
 ## 3. Dependency and call order
 
@@ -64,6 +64,12 @@ F–P is not a parallel application, database, identity provider, task runner, q
 - Permission lookup failure is unverified, never implicitly approved.
 - A review marked approved is descriptive evidence only. P cannot authorize merge, execution or deployment.
 - I side effects require explicit host approval. J remains dry-run/advisory. L remains disabled.
+
+### P permission API normalization
+
+GitHub's collaborator-permission endpoint returns legacy base roles `admin`, `write`, `read`, and `none`; `role_name` identifies `maintain` and `triage` (mapped by GitHub to `write` and `read`, respectively). The adapter normalizes these values into the internal GCAN vocabulary: `write + maintain → maintain`, other `write → push`, `read + triage → triage`, other `read → pull`. Unknown or contradictory payloads fail closed. Only internal `admin`, `maintain`, and `push` are eligible for verified reviewer authorization.
+
+Source: [GitHub REST API — Get repository permissions for a user](https://docs.github.com/en/rest/collaborators/collaborators#get-repository-permissions-for-a-user).
 
 ## 5. Data flow constraints
 
