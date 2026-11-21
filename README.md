@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.111` · A 線 Agent Factory V2 `2.0.78`（工廠首頁資訊架構與操作入口更新） · B 線 GCAN Product `0.1.15`（官網首頁 A–O 工作線與 P 橫向治理架構更新） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.112` · A 線 Agent Factory V2 `2.0.78`（工廠首頁資訊架構與操作入口更新） · B 線 GCAN Product `0.1.16`（官網首頁 A–O 工作線與 P 橫向治理架構更新） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -52,7 +52,7 @@
 - C｜[Predictive Coding 預測編碼](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
 - D｜[Deep Neural 深度神經工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core)
 - E｜[Deep Research 深度研究工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
-- F–O｜[完整工作線責任與架構總表](#-a–o-十五條工作線--p-橫向治理完整架構)（依成熟度分階段建置，不代表全部已上線）
+- F–O｜[完整工作線責任與架構總表](#workstream-registry)（依成熟度分階段建置，不代表全部已上線）
 - P｜[工程治理規範](docs/engineering-governance.md)（橫向適用於 A–O 全部工作線與正式產品流程）
 
 ## 🧭 快速導覽
@@ -78,6 +78,8 @@
 </div>
 
 > **核心信念：AI 不應只是少數人的工具；知識貢獻應該被尊重，成本與規則應該透明，設備資源只能在使用者知情且自願的情況下參與。**
+
+<a id="workstream-registry"></a>
 
 ## 🧭 A–O 十五條工作線 + P 橫向治理完整架構
 
