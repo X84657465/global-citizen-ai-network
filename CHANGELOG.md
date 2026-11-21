@@ -1,3 +1,10 @@
+## 0.3.116 — 2026-11-21
+
+- Fix the production build blocker in `app/factory/page.tsx`: replace invalid nested button/anchor markup with a semantic external link for GitHub Actions.
+- Add matching accessible link styling in the factory module stylesheet; the malformed JSX previously prevented Next.js compilation and blocked all Preview validation.
+- Synchronize Agent Factory V2 to `2.0.79`; repository release to `0.3.116`.
+- Exact-head CI and a fresh Preview build are required to confirm the repair. No Production deployment is claimed.
+
 ## 0.3.115 — 2026-11-21
 
 - Fix the P governance card alignment at tablet widths by centering it across the grid with a controlled half-width.
