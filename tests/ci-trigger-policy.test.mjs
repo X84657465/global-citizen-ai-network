@@ -51,11 +51,19 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
-test("CI coalesces pending commits and serializes every job on the available Windows Runner", () => {
+test("CI resolves read-only candidate metadata on hosted Linux and serializes machine-dependent jobs on Windows", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
-  const jobs = ["resolve-candidate", "quality", "build", "database", "circuit-breaker", "circuit-breaker-success", "ci-diagnostics"];
+  const { start: resolverStart, end: resolverEnd } = findJobSection(workflow, "resolve-candidate");
+  const resolver = workflow.slice(resolverStart, resolverEnd);
+  assert.ok(resolver.includes("runs-on: ubuntu-latest"), "read-only metadata resolution must not consume the Windows Runner");
+  assert.equal(resolver.includes("global-citizen-ai-network-self-hosted-runner"), false, "metadata resolution must not reserve the state-writer queue");
+  assert.ok(resolver.includes("contents: read"));
+  assert.ok(resolver.includes("issues: read"));
+  assert.ok(resolver.includes("pull-requests: read"));
+  assert.ok(resolver.includes("shell: bash"));
+  const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success", "ci-diagnostics"];
   for (const job of jobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
