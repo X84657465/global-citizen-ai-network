@@ -210,3 +210,29 @@ test("observability sink failures do not change capability results", async () =>
   );
   assert.equal(result.envelope.payload, "still-available");
 });
+
+
+test("passes an immutable snapshot of trusted host identity and correlation to handlers", async () => {
+  const host = new FPHostAdapter();
+  let receivedContext: FPHostRequestContext | undefined;
+  host.register("H", "health-snapshot", (_input, handlerContext) => {
+    receivedContext = handlerContext;
+    assert.equal(Object.isFrozen(handlerContext), true);
+    assert.equal(Object.isFrozen(handlerContext.principal), true);
+    return "healthy";
+  });
+
+  const callerContext = context();
+  const result = await host.invoke(
+    { workstream: "H", capability: "health-snapshot", input: null },
+    callerContext,
+  );
+
+  assert.ok(receivedContext);
+  assert.notEqual(receivedContext, callerContext);
+  assert.notEqual(receivedContext.principal, callerContext.principal);
+  assert.equal(result.envelope.actorRef, "host-user:123");
+  assert.equal(result.envelope.resourceRef, "workspace:456");
+  assert.equal(result.envelope.correlationId, "request-123");
+  assert.equal(callerContext.principal.actorRef, "host-user:123");
+});
