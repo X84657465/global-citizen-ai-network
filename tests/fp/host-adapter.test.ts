@@ -93,3 +93,43 @@ test("rejects missing and unsafe host identity references", async () => {
     (error: unknown) => error instanceof FPHostError && error.code === "INVALID_CONTEXT",
   );
 });
+
+
+test("rejects unsafe idempotency metadata before invoking a handler", async () => {
+  const host = new FPHostAdapter();
+  let invoked = false;
+  host.register("H", "health-snapshot", () => {
+    invoked = true;
+    return "healthy";
+  });
+  await assert.rejects(
+    host.invoke(
+      {
+        workstream: "H",
+        capability: "health-snapshot",
+        input: null,
+        idempotencyKey: "bad\\nkey",
+      },
+      context(),
+    ),
+    (error: unknown) => error instanceof FPHostError && error.code === "INVALID_CONTEXT",
+  );
+  assert.equal(invoked, false);
+});
+
+test("validates host clock before invoking a capability handler", async () => {
+  const host = new FPHostAdapter();
+  let invoked = false;
+  host.register("H", "health-snapshot", () => {
+    invoked = true;
+    return "healthy";
+  });
+  await assert.rejects(
+    host.invoke(
+      { workstream: "H", capability: "health-snapshot", input: null },
+      { ...context(), now: () => new Date(Number.NaN) },
+    ),
+    (error: unknown) => error instanceof FPHostError && error.code === "INVALID_CONTEXT",
+  );
+  assert.equal(invoked, false);
+});
