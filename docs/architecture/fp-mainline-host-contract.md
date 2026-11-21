@@ -160,3 +160,10 @@ The F evaluator now maps each registered control to the existing CI job that act
 Each evidence record must identify the same repository, PR number, candidate head SHA, `pull_request` event, `main` base, canonical CI workflow, run ID/attempt, and run URL. The job URL must belong to that run, and the control must reference its registered job category. All four controls must refer to one shared run and attempt. Skipped, cancelled, failed, or otherwise non-success CI jobs cannot support a passing F control.
 
 This tightens evidence traceability; it still does not execute tests or authenticate the evidence source. The caller must obtain metadata from the trusted GitHub Actions API and must not accept caller-authored evidence as authoritative.
+
+
+## F baseline: future-table RLS regression guard
+
+The existing `supabase/tests/database_security.test.sql` previously described its fixed initial-table allowlist as proving that no public table lacked RLS. That assertion could miss a newly introduced public table. The F hardening change keeps the separate 16-table baseline check and changes the general guard to enumerate every ordinary or partitioned table in the `public` schema from PostgreSQL catalogs. Any such table with `relrowsecurity = false` now fails the existing database security suite.
+
+This is a regression guard, not proof that every policy is semantically correct. The two-member integration harness and table-specific privilege/policy assertions remain necessary. It does not enable or alter RLS on production tables; it only strengthens the disposable-database test.
