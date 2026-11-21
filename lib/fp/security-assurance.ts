@@ -84,9 +84,13 @@ export function assessFPSecurityEvidence(
 
   const byControl = new Map<FPSecurityControlId, FPSecurityEvidence>();
   for (const item of bundle.evidence) {
+    const expectedControl = item
+      ? FP_SECURITY_CONTROLS.find((control) => control.id === item.controlId)
+      : undefined;
     if (
       !item ||
-      !FP_SECURITY_CONTROLS.some((control) => control.id === item.controlId) ||
+      !expectedControl ||
+      item.evidenceRef !== expectedControl.evidencePath ||
       byControl.has(item.controlId) ||
       !SHA_PATTERN.test(item.testedSha) ||
       !["passed", "failed", "not-run"].includes(item.status) ||
