@@ -236,3 +236,21 @@ test("passes an immutable snapshot of trusted host identity and correlation to h
   assert.equal(result.envelope.correlationId, "request-123");
   assert.equal(callerContext.principal.actorRef, "host-user:123");
 });
+
+
+test("keeps envelope capability metadata stable if the caller mutates its request during execution", async () => {
+  const host = new FPHostAdapter();
+  const request = {
+    workstream: "H" as const,
+    capability: "health-snapshot",
+    input: null,
+  };
+  host.register("H", "health-snapshot", () => {
+    request.capability = "mutated-capability";
+    return "healthy";
+  });
+
+  const result = await host.invoke(request, context());
+  assert.equal(request.capability, "mutated-capability");
+  assert.equal(result.envelope.capability, "health-snapshot");
+});
