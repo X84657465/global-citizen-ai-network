@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server.js";
 import { createCorrelationContext } from "./lib/observability/request-context.ts";
 
 export async function middleware(request: NextRequest) {
