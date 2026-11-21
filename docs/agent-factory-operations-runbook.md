@@ -40,13 +40,12 @@ Operational consequences:
 
 The current mainline CI resolver `resolve-candidate` performs GitHub PR/Issue metadata verification and reads the Factory state Issue for authorized AI-task candidates. It is currently configured on the Windows self-hosted Runner and takes the same shared concurrency group as machine-dependent CI. This means metadata-only work can wait behind the Windows execution lane before the quality, Ollama and database jobs even become eligible.
 
-The proposed separation is tracked in [PR #243](https://github.com/X84657465/global-citizen-ai-network/pull/243):
+The hosted separation experiment was attempted in [PR #243](https://github.com/X84657465/global-citizen-ai-network/pull/243) and closed without merge:
 
-- Run only the read-only resolver on `ubuntu-latest`, with contents/issues/pull-requests read permissions and an explicit Bash shell for the Node step.
-- Remove the resolver's Windows concurrency reservation. Keep its exact live PR, base, author, task marker, branch and HEAD SHA checks; its outputs continue to gate every downstream job.
-- Keep quality/build, Ollama/local execution, Supabase/PostgreSQL/RLS, candidate outcome persistence, breaker recovery and diagnostics on the Windows self-hosted Runner with the shared serialized queue.
+- PR #243's exact-head run #44929303631 failed before recording any resolver steps; the job had no runner assignment and no retrievable log artifact. The available evidence does not establish the failure cause.
+- The PR was closed without merge. No downstream Windows job ran, so this did not validate the hosted resolver or unblock the Windows queue.
+- Keep the current resolver on the Windows self-hosted Runner until hosted-runner availability can be confirmed through an authorized minimal diagnostic and the usage/billing boundary is known.
 - Do not move candidate execution, privileged writes or state mutation to a hosted runner.
-- Treat this as a proposal until exact-head CI verifies hosted resolver behavior for ordinary trusted PRs and AI Task PRs. Confirm actual hosted job assignment and any applicable runner usage limits from the workflow run; do not infer execution from a pending status.
 
 ## Recovery queue scope and state-writer serialization
 
@@ -141,7 +140,7 @@ Candidate code is executed in disposable Docker containers. The workflow does no
 - Main CI run [#44928069201](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069201) remains pending with zero jobs assigned.
 - Main Agent Task Preflight run [#44928069246](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069246) was pending at the last inspection; run creation alone does not prove task execution.
 - Main Agent Factory System Health Recovery run [#44928736338](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928736338) remains pending; no job assignment was observed.
-- Clean-base active PRs and exact head/run IDs are listed in `docs/AGENT_HANDOFF.md`: #239 A candidate/recovery evidence, #240 A health-recovery queue correction, #241 account CSS-module build repair, #242 H correlation context, #243 proposed hosted metadata resolver and #238 K documentation. At the last inspection, #239–#242 resolver jobs were pending without runner assignment; #238 had no jobs assigned. Verify #243's actual hosted job assignment separately.
+- Clean-base active PRs and exact head/run IDs are listed in `docs/AGENT_HANDOFF.md`: #239 A candidate/recovery evidence, #240 A health-recovery queue correction, #241 account CSS-module build repair, #242 H correlation context and #238 K documentation. PR #243's hosted-resolver experiment is closed without merge. At the last inspection, #239–#242 resolver jobs were pending without runner assignment; #238 had no jobs assigned. Verify #243's actual hosted job assignment separately.
 - No active PR has produced a complete successful exact-head Windows quality/build, isolated Supabase/PostgreSQL/RLS and Ollama evidence set.
 - Main's recovery workflow still has workflow-level concurrency. PR #240 contains the correction; do not describe it as merged or active until main contains that exact change.
 - Recent Vercel statuses report `Deployment rate limited — retry in 24 hours`. This is an external Preview capacity limitation, not GitHub CI evidence. No Preview or Production deployment is claimed.
