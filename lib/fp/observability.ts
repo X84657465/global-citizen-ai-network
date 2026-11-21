@@ -65,7 +65,7 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
   }
 
   list(): readonly FPOperationEvent[] {
-    return this.events.slice();
+    return this.events.map((event) => ({ ...event }));
   }
 
   snapshot(now: Date = new Date()): FPHealthSnapshot {
