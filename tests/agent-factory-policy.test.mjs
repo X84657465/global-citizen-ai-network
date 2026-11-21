@@ -157,7 +157,6 @@ test("resets the global breaker only after successful CI for main or a tracked f
   assert.ok(job.includes("needs.build.result == 'success'"));
   assert.ok(job.includes("needs.database.result == 'success'"));
   assert.ok(job.includes("AGENT_FACTORY_MODE: candidate"));
-  assert.ok(job.includes("AGENT_FACTORY_MODE: candidate"));
   assert.ok(job.includes("CI_CONCLUSION: success"));
   assert.ok(job.includes("PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}"));
   assert.ok(job.includes("HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}"));
