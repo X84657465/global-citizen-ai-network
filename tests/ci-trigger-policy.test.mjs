@@ -429,13 +429,13 @@ test("Agent Factory runbook separates default-branch polling from manual V2 disp
   assert.ok(preflight.includes("  workflow_dispatch:\n    inputs:\n      issue_number:"));
   assert.ok(preflight.includes("github.event_name == 'workflow_dispatch' &&\n       github.actor == github.repository_owner"));
   assert.ok(preflight.includes("ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}"));
-  assert.ok(runbook.includes("GitHub evaluates scheduled workflows and issue events from the repository's default branch only."));
+  assert.ok(runbook.includes("GitHub evaluates scheduled and issue-event workflows from the repository's default branch."));
   assert.ok(runbook.includes("Run workflow"));
-  assert.ok(runbook.includes("`feat/agent-factory-v2`"));
-  assert.ok(runbook.includes("`138`"));
-  assert.ok(runbook.includes("Issue #100 remains on its existing V1 payload."));
-  assert.ok(runbook.includes("same Issue #100"));
-  assert.ok(runbook.includes("schema version 2"));
+  assert.ok(runbook.includes("For normal operation, use `main`."));
+  assert.ok(runbook.includes("The old instruction to select `feat/agent-factory-v2` for normal operation is historical"));
+  assert.ok(runbook.includes("configured triggers, not proof that a scheduled run was dispatched"));
+  assert.ok(runbook.includes("Enter the explicitly approved task Issue number."));
+  assert.ok(runbook.includes("Never dispatch duplicates to bypass a lease, backoff, quarantine or pending queue."));
 });
 
 test("CI candidate execution is fenced to the exact event head SHA", () => {
