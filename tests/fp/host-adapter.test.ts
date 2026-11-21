@@ -5,6 +5,7 @@ import {
   FPHostError,
   type FPHostRequestContext,
 } from "../../lib/fp/host-adapter.ts";
+import { FPObservabilityRecorder } from "../../lib/fp/observability.ts";
 
 const context = (overrides: Partial<FPHostRequestContext["principal"]> = {}): FPHostRequestContext => ({
   principal: {
@@ -167,4 +168,45 @@ test("rejects malformed request and principal context without invoking handlers"
     (error: unknown) => error instanceof FPHostError && error.code === "INVALID_CONTEXT",
   );
   assert.equal(invoked, false);
+});
+
+
+test("publishes success and denial outcomes to the H recorder without payload data", async () => {
+  const recorder = new FPObservabilityRecorder();
+  const host = new FPHostAdapter(recorder);
+  host.register("H", "health-snapshot", (input: { secret: string }) => ({ accepted: Boolean(input.secret) }));
+
+  await host.invoke(
+    { workstream: "H", capability: "health-snapshot", input: { secret: "must-not-be-recorded" } },
+    context(),
+  );
+  await assert.rejects(
+    host.invoke(
+      { workstream: "H", capability: "health-snapshot", input: null },
+      context({ authorized: false }),
+    ),
+    (error: unknown) => error instanceof FPHostError && error.code === "UNAUTHORIZED",
+  );
+
+  const events = recorder.list();
+  assert.equal(events.length, 2);
+  assert.equal(events[0].outcome, "succeeded");
+  assert.equal(events[1].outcome, "denied");
+  assert.equal(events[0].correlationId, "request-123");
+  assert.equal(JSON.stringify(events).includes("must-not-be-recorded"), false);
+  assert.equal(recorder.snapshot().totalOutcomes, 2);
+});
+
+test("observability sink failures do not change capability results", async () => {
+  const host = new FPHostAdapter({
+    record() {
+      throw new Error("sink unavailable");
+    },
+  });
+  host.register("H", "health-snapshot", () => "still-available");
+  const result = await host.invoke(
+    { workstream: "H", capability: "health-snapshot", input: null },
+    context(),
+  );
+  assert.equal(result.envelope.payload, "still-available");
 });
