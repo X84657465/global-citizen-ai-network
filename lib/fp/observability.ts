@@ -65,7 +65,9 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
   }
 
   list(): readonly FPOperationEvent[] {
-    return this.events.slice();
+    // Return detached records so callers can inspect or mutate their copies
+    // without exposing the recorder's immutable retained events.
+    return this.events.map((event) => ({ ...event }));
   }
 
   snapshot(now: Date = new Date()): FPHealthSnapshot {
