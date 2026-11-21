@@ -50,6 +50,7 @@ test("rejects malformed and dot-segment repository names before controller use",
     );
   }
   assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo" }));
+  assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo.v2" }));
 });
 
 const leaseEnv = {
