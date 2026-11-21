@@ -110,3 +110,11 @@ This initial slice is additive test and documentation work. Revert the integrati
 - Only `admin` and `write` count as verified review authority; `read` and `none` remain insufficient. Permission lookup failures remain unverified.
 - Regression tests cover all four API base permission values and the end-to-end trusted-host composition. This is a compatibility correction, not a permission expansion or automatic approval.
 - Exact-head CI and independent review are still required; this change does not grant governance approval, merge, execution, or deployment authority.
+
+
+## 8. Strict governance review timestamp validation (2026-11-22)
+
+- Hardened the P dossier evaluator to validate UTC timestamp calendar and clock components, not merely rely on `Date.parse` (which can normalize impossible dates such as February 30).
+- Added regression coverage for impossible month/day combinations, hour 24, minute/second 60, and fractional precision beyond milliseconds.
+- This mirrors the collector's strict timestamp validation and prevents malformed manually supplied review evidence from entering the latest-decision ordering logic.
+- Exact-head CI remains the acceptance authority; no review or merge decision is inferred from these local source changes.
