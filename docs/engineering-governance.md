@@ -1,7 +1,7 @@
 # Five-Track Engineering Governance
 
-**Governance revision: 1.4.14**  
-**Repository release baseline: 0.3.118**
+**Governance revision: 1.4.15**  
+**Repository release baseline: 0.3.119**
 
 ## 1. Five development tracks
 
