@@ -831,7 +831,7 @@ test("candidate-start rejects a PR head that moved after metadata resolution wit
   }), /Candidate start rejected: PR must be the current open same-repository AI Task PR/);
 
   assert.deepEqual(requests, ["/repos/owner/repo/pulls/88"]);
-  assert.equal(store.state.state_version, 0);
+  assert.equal(store.state.state_version, awaitingCandidate().state_version);
   assert.equal(store.state.tasks["42"].status, "awaiting_ci");
   assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
@@ -1684,7 +1684,7 @@ test("system-health success rejects a successful CI run when the PR has advanced
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "169",
     SYSTEM_HEALTH_HEAD_SHA: testedSha,
-  }), /current same-repository PR head no longer matches/);
+  }), /current open same-repository PR head no longer matches/);
 
   assert.equal(store.state.state_version, initial.state_version);
   assert.equal(store.state.system.consecutive_failures, 2);
