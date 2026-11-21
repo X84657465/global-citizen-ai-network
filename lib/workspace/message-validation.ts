@@ -18,6 +18,10 @@ export type WorkspaceProjectMetadata = {
   archived_at: string | null;
 };
 
+function isNonEmptyTitle(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0 && value.length <= 160;
+}
+
 function isUuid(value: unknown): value is string {
   return typeof value === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -58,7 +62,7 @@ export function filterWorkspaceConversations(value: unknown): WorkspaceConversat
     const candidate = item as Record<string, unknown>;
     return isUuid(candidate.id) &&
       (candidate.project_id === null || isUuid(candidate.project_id)) &&
-      typeof candidate.title === "string" &&
+      isNonEmptyTitle(candidate.title) &&
       isValidTimestamp(candidate.updated_at);
   });
 }
@@ -69,7 +73,7 @@ export function filterWorkspaceProjects(value: unknown): WorkspaceProjectMetadat
     if (!item || typeof item !== "object" || Array.isArray(item)) return false;
     const candidate = item as Record<string, unknown>;
     return isUuid(candidate.id) &&
-      typeof candidate.title === "string" &&
+      isNonEmptyTitle(candidate.title) &&
       candidate.archived_at === null;
   });
 }
