@@ -1,3 +1,9 @@
+## 0.3.107 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.76: validate the parsed model manifest root and `files` array before iteration so malformed structured output is classified as a task-scoped failure rather than an uncaught system-scoped exception.
+- Add regression coverage for null, array, primitive, missing and non-array manifest shapes; preserve the independent strict manifest validator and all path/write-policy checks.
+- No workflow/control-plane, database, RLS, secrets, production data, deployment or durable factory-state changes.
+
 ## 0.3.102 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
