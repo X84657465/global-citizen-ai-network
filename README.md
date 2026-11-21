@@ -86,7 +86,7 @@ A–H 是目前優先推進的工作線；I–P 是已登錄、各自獨立版�
 </blockquote>
 
 - **A｜Agent Factory V2：** [PR #178（Ready for Review；exact-head 完整 CI 已通過，待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/178)
-- **A–P 治理與版本登錄：** [PR #179（A–P 架構與版本登錄候選；精確 SHA 完整 CI 已通過，待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/179)
+- **A–P 治理與版本登錄：** [PR #189（A–P 架構與版本登錄候選；新 SHA CI 排隊中，待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/189)
 - **B｜GCAN 主產品：** [PR #181（Draft；B 0.1.16 候選，待 A–P 治理正式整合及自身 exact-head CI）](https://github.com/X84657465/global-citizen-ai-network/pull/181)
 - **C｜Predictive Coding：** [PR #139（已合併）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
 - **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
@@ -395,7 +395,7 @@ http://localhost:3000
 - Windows Self-hosted Runner Toolchain Checks
 - Docker／Ollama Availability 與有界結構化推論
 
-最新 CI 請以各 PR 最新 exact-head 工作流程為準；A 工廠 PR #178（`58c88e348264d34dd0ecf83b3bba68fbc83c1370`，Run #44837733094）及 A–P 治理 PR #179（`b3bd16e9fd69586ce11511eb10765ae041187df0`，Run #44838299359）的 Windows 品質、Ollama／本機執行及 PostgreSQL/RLS 工作均已完成並通過。兩者仍待獨立正式審查；CI 通過不代表 PR 已合併。
+最新 CI 請以各 PR 最新 exact-head 工作流程為準；A 工廠 PR #178（`58c88e348264d34dd0ecf83b3bba68fbc83c1370`，Run #44837733094）完整 CI 通過，仍待獨立正式審查；A–P 治理 PR #189 的最新 SHA `4c28d2c1b38d2ba9c508d61e0c63c3b398d0ed58` 正等待 Runner 執行。B PR #181 仍待治理基線接受後重新銜接及新 SHA 驗收。CI 通過不代表 PR 已合併。
 
 ## 📚 文件導覽
 
@@ -436,7 +436,7 @@ http://localhost:3000
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
 | A｜Agent Factory V2 | 工廠控制台 | 候選修復任務狀態、相依排程與健康熔斷；exact-head 完整 CI 已通過，待獨立正式審查 | [PR #178](https://github.com/X84657465/global-citizen-ai-network/pull/178) |
-| B｜GCAN Product | 全球產品平台 | B 0.1.16 候選已選擇性移植至 A–P 基底；維持 Draft，等待治理正式接受後重新銜接與完整驗收 | [PR #181](https://github.com/X84657465/global-citizen-ai-network/pull/181) |
+| B｜GCAN Product | 全球產品平台 | B 0.1.16 候選已選擇性移植；目前仍基於舊治理分支，待 #189 接受後重新銜接與新 SHA 完整驗收 | [PR #181](https://github.com/X84657465/global-citizen-ai-network/pull/181) |
 | C｜Predictive Coding | 預測分析工作台 | 首頁與技術總覽更新已合併；依現有工作線版本持續維護 | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
 | D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
 | E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
