@@ -1,3 +1,11 @@
+## 0.3.118 — 2026-11-21
+
+- Redraw the public-site and repository hero artwork to represent all fifteen A–O workstreams and the cross-cutting P Governance layer; remove the obsolete five-workstream graphic.
+- Clarify on both homepages that PR #207 is an unmerged candidate, not a released or production deployment.
+- Add direct homepage-review and CI-history links with responsive layout behavior.
+- Update CI metadata tests to accept the explicitly disclosed candidate-version label and synchronize the package lockfile with the repository version.
+- Exact-head CI, Preview deployment and desktop/tablet/mobile acceptance remain required; no Production deployment is claimed.
+
 ## 0.3.117 — 2026-11-21
 
 - Update the public homepage's workstream status note to explicitly distinguish roadmap scope from modules not yet integrated into the production product flow.
