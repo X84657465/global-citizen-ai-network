@@ -197,11 +197,12 @@ function assessReviews(
       results,
     };
   }
+  if (currentReviews.some((review) =>
+    review.reviewerAuthorizationStatus === "verified" && review.decision === "changes-requested")) {
+    return { status: "changes-requested", results };
+  }
   if (currentReviews.some((review) => review.reviewerAuthorizationStatus !== "verified")) {
     return { status: "unverified-reviewer", results };
-  }
-  if (currentReviews.some((review) => review.decision === "changes-requested")) {
-    return { status: "changes-requested", results };
   }
   if (currentReviews.some((review) => review.decision === "approved")) {
     return { status: "reviewed-approved", results };
