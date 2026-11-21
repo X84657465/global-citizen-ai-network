@@ -98,7 +98,7 @@ GCAN 以 A–O 十五條具獨立責任、版本與驗收紀錄的工作線建�
 | **G** | **Release, QA & Integration** | 發布、品質保證與跨線整合：版本與變更影響分析、單元／整合／回歸／相容性測試、精確 SHA CI、發布候選、人工核准、回滾計畫與整合驗收。 | 跨線品質關卡；未通過驗收不得宣稱完成 |
 | **H** | **Observability, Telemetry & Cost/Quota Governance** | 可觀測性、遙測、成本與配額治理：Logs／Metrics／Traces、健康與效能、Runner 與工作流監控、AI 用量與供應商成本、資源配額、預算告警、硬停止及成本稽核。 | 監控與成本治理中心，分階段擴充 |
 
-### I–P｜生態系擴展、韌性、知識、合規與治理
+### I–O｜生態系擴展、韌性、知識、合規與生命週期
 
 | 線別 | 正式名稱 | 使命與主要職責 | 目前定位 |
 |---|---|---|---|
@@ -479,7 +479,7 @@ http://localhost:3000
 ### GCAN A–O 十五條工作線與 P 橫向治理總覽
 
 <p align="center">
-  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN A–P 十六條工作線與 P 橫向治理架構圖" width="100%" />
+  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN A–O 十五條工作線與 P 橫向治理架構圖" width="100%" />
 </p>
 
 A–O 各工作線各自擁有獨立責任、版本與驗收紀錄；P 提供共同治理底線，透過來源追蹤、版本管理、測試與接收線審核互相協作。
