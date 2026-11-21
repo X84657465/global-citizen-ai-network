@@ -1,3 +1,9 @@
+## 0.3.118 — 2026-11-22
+
+- Begin the F–P shared-core integration phase with a cross-line regression guard for security evidence paths, required exact-head CI jobs, request correlation propagation, and the F–P authority ceiling.
+- Add the F–P integration acceptance ledger, recording implementation maturity, deferred work, dependencies, acceptance evidence and rollback boundaries.
+- Preserve A–E ownership and Agent Factory V2 runtime boundaries; no database migration, secrets, branch protection, production data or deployment settings changed.
+
 ## 0.3.117 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.84: fix the patch-validation regression test's generator source binding so the exact-head suite can execute without a ReferenceError.
