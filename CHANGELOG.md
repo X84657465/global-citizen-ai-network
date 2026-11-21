@@ -1,3 +1,10 @@
+## 0.3.121 — 2026-11-21
+
+- Correct the Agent Factory homepage's stale candidate version and Preview gate: the current SHA has no Preview, and the previous Preview belongs to an older SHA.
+- Align the root release metadata to `0.3.121` and Agent Factory V2 (A) to `2.0.81` across package, lockfile, VERSION, manifest, README and governance baseline.
+- Update regression coverage to reject stale Preview-ready claims and outdated factory version labels.
+- Exact-head CI and a current-SHA Preview with desktop/tablet/mobile acceptance remain required; no merge or Production deployment is claimed.
+
 ## 0.3.120 — 2026-11-21
 
 - Align repository and B-line version metadata with the homepage candidate: overall `0.3.120`, GCAN Product `0.1.21`.
