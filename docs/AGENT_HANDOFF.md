@@ -52,15 +52,13 @@ F–P manifest registration or a “ready” label is not implementation accepta
 ### PR #259 — P0 A / F–P consolidated acceptance candidate
 
 - Branch: `fix/ci-schema-grant-test-count-20261122`; base main SHA: `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
-- **Current exact PR head: `9da2369747cb9ea21c5b8bb65cefa2351f14790e`** (40 changed files; Draft/open/unmerged).
-- Previous exact-head run [44946781541](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946781541), run #3224, failed one CI-trigger-policy assertion on its then-current SHA; the required runbook sentence was restored without weakening the test. The replacement exact-head run [44947378275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44947378275), run #3231, is now terminal **success** on `9da2369747cb9ea21c5b8bb65cefa2351f14790e`. All four required jobs passed: exact-head metadata resolution; Windows quality gates (full unit suite, typecheck, lint, dependency/security audits, Factory syntax/policy, migration/schema guards and production build); isolated Supabase/PostgreSQL migrations, pgTAP and two-member RLS integration; and Windows Ollama/local-execution integration.
-- This round selectively ported A's deterministic negated/high-risk plan-intent classifier and its regression suite from PR #261 into this consolidated candidate. Exact file blobs match the source PR's two files.
-- PR #261 is closed as redundant; no feature was discarded. Its old run [44940637761](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44940637761) failed at the pre-existing schema-guard/pgTAP-plan synchronization assertion on its older main-based branch. The ported changes must be validated only on #259's new exact SHA.
-- The candidate also contains the corrected RLS fixtures, appeal authorization SQLSTATE handling, strict UTC timestamp validation, GitHub repository-name validation, F–P host/observability fixes, release metadata synchronization, and the four F/G repository-identity hardening files selectively ported from PR #255 (`security-assurance`, `release-assurance`, and their regression suites).
-- The previously READY Vercel Preview (`dpl_AL3xTHq8xxNsTmxqriFEChHLADYN`) belongs to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6`; its root, `/factory`, `/workspace` and `/login` HTTP 200 smoke checks are historical only. No Preview deployment record exists for current SHA `9da2369747cb9ea21c5b8bb65cefa2351f14790e`; Vercel reports provider `build-rate-limit`.
-- PR #255's four F/G repository-identity hardening files are now included in #259; PR #255's earlier CI failed before unit tests at the old-base schema-guard assertion, so its run is not evidence for the port. Revalidate all four files on #259's current exact SHA.
-- No independent formal review submissions or inline review threads are recorded.
-- Exact-SHA GitHub Actions acceptance is complete for #259. Keep Draft/unmerged until a READY Preview for the same SHA is available and smoke-tested, and an independent formal review is recorded. The Vercel provider quota and missing independent review remain release blockers; do not substitute an older-SHA Preview.
+- **Current exact PR head: `3330cd04a77358cf0ff780940d09f938cab1dc3a`** (40 changed files; Draft/open/unmerged).
+- Exact-head Actions run #3237 (`44949425719`) is pending with zero allocated jobs. The previous-head run #3236 (`44949068991`) on `557eb86c290d06345c6eed7d2dfea63cacebce48` was cancelled.
+- Earlier run #3235 (`44948965775`) on `35d5811710079ddb980054a7ff96520832801e72` is not a complete pass: metadata resolution and Windows quality gates succeeded, but the Supabase/PostgreSQL/RLS integration job remains in progress (only setup was observed) and Ollama/local execution remains pending. Do not transfer those results to the current head.
+- The latest commit adds P governance-route regression coverage for all private response branches. The consolidated candidate also contains A Factory lifecycle/state fixes, high-risk negation classifier tests, the schema guard alignment from `plan(15)` to the authoritative `plan(18)`, F–P integration work and selectively ported F/G repository-identity hardening. These remain candidate changes until validated on the current exact SHA.
+- Current exact-head combined status reports Vercel failure with provider `build-rate-limit`. No READY Preview or smoke test is evidenced for the current SHA. Do not change billing or reuse an older-SHA Preview.
+- Independent formal reviews: zero; inline review threads: zero.
+- **Disposition:** keep Draft/unmerged. Require all exact-head CI jobs to finish successfully, current-SHA Preview and smoke evidence where applicable, and an independent formal review before acceptance or merge.
 
 ### PR #267 — shared CI baseline (closed as redundant)
 
@@ -74,10 +72,11 @@ F–P manifest registration or a “ready” label is not implementation accepta
 
 ## Factory runtime checkpoint — 2026-11-22
 
-- Read-only durable-state Issue #100 snapshot: state version 141, updated `2026-11-21T18:29:34Z`; active lease was null. Task #204 was `queued`, attempts 3, failures 2, not quarantined; the recorded global cooldown ended `2026-11-21T18:44:34Z`. This is a historical snapshot, not a live lease check; never edit Issue #100 or reset its counters.
-- Latest scheduled preflight run found in the most recently queried 1,000 Actions runs: [44924441333](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44924441333), event `schedule`, `2026-11-21T16:24:52Z`. Runner was assigned, selected #204, acquired its lease, then correctly failed before model invocation because the issue contained unsupported heading `Dependency readiness refresh — 2026-11-21`.
-- Issue #204 was subsequently updated at `2026-11-21T19:54:42Z`; its extra evidence is now consolidated under the validator-supported `## Confirmed evidence` section. Its dependency #205 is closed with `state_reason=completed`. Do not weaken the section parser or manually dispatch around the queue; the next attempt must use normal selection against current main.
-- Issue #202 remains the schedule-continuity tracker. The queried recent Actions history contains no scheduled run later than #44924441333; a fresh scheduled event is still required before claiming continuous factory operation.
+- Main `.github/workflows/agent-task-preflight.yml` declares `schedule: "*/5 * * * *"`, `issues: opened/reopened`, `repository_dispatch` and `workflow_dispatch`. This verifies configuration only, not recent cron delivery.
+- The latest documented scheduled preflight remains run #44924441333 at `2026-11-21T16:24:52Z`. Its task selection and lease acquisition succeeded; it then failed at safe handoff-bundle validation because issue #204 contained an unsupported heading. Issue #202 records the diagnosis and states that the task description was corrected under the supported `## Confirmed evidence` section. No newer scheduled event has been verified in the available read-only records.
+- A later successful push-triggered workflow or PR CI run is not proof of scheduled cron continuity. Do not claim the factory is fully operational until a fresh `event=schedule` run demonstrates normal selection and expected task progression.
+- Machine-managed Issue #100 is strictly read-only. Do not edit its body, counters, leases, cooldowns or quarantine state. Do not dispatch tasks manually, duplicate queue events, alter Runner/workflow settings or bypass policy.
+- PR #259 remains the A acceptance candidate, but its current exact-head run #3237 is pending with no jobs allocated; previous-head CI is not acceptance evidence.
 
 ## 4. Acceptance rules and operating safety
 
