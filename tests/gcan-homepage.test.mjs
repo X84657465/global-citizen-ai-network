@@ -122,3 +122,16 @@ test("four product entry cards use a balanced desktop grid and collapse cleanly 
   assert.ok(styles.includes(".productGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))"));
   assert.match(styles, /@media\(max-width:620px\)[\s\S]*?\.productGrid,\.trustGrid,\.docsGrid\{grid-template-columns:1fr/);
 });
+
+
+test("homepage makes the factory-first, B-next, ecosystem-last strategy the highest development principle", () => {
+  assert.ok(homepage.includes('id="priority-charter"'));
+  assert.match(homepage, /最高核心價值：[\\s\\S]*?先穩定工廠，再讓產品創造價值/);
+  assert.match(homepage, /A｜Agent Factory V2 工廠優先/);
+  assert.match(homepage, /A–P｜治理與必要銜接/);
+  assert.match(homepage, /B｜GCAN Product 接棒/);
+  assert.match(homepage, /全球 AI 生態系｜最後擴張/);
+  assert.match(homepage, /必要線只解卡、不搶主線/);
+  assert.ok(styles.includes(".priorityGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}"));
+  assert.match(styles, /@media\\(max-width:620px\\)[\\s\\S]*?\\.priorityGrid\\{grid-template-columns:1fr/);
+});
