@@ -16,7 +16,6 @@ test("public homepage represents all fifteen A-O workstreams and P as cross-cutt
     assert.ok(workstreams.includes(`| ${code} |`), `architecture missing workstream ${code}`);
   }
   assert.ok(homepage.includes('code:"P"'));
-  assert.ok(homepage.includes('code:"P"'));
   assert.ok(readme.includes("| P |"));
   assert.ok(workstreams.includes("| P |"));
   assert.match(homepage, /P is the cross-cutting governance layer|P｜治理/);
