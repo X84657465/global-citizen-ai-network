@@ -30,10 +30,10 @@ function sql(query, { expectFailure = false, expectSqlState } = {}) {
     if (result.error) throw new Error(`Database subprocess could not execute: ${diagnostic}`);
     const failureOutput = result.stderr || result.stdout;
     if (expectSqlState) {
-      const expectedStates = Array.isArray(expectSqlState) ? expectSqlState : [expectSqlState];
-      assert.ok(
-        expectedStates.some((state) => new RegExp("ERROR:\\s+" + state + ":").test(failureOutput)),
-        `Expected PostgreSQL SQLSTATE ${expectedStates.join(" or ")}; received a different failure: ${diagnostic}`,
+      assert.match(
+        failureOutput,
+        new RegExp("ERROR:\\s+" + expectSqlState + ":"),
+        `Expected PostgreSQL SQLSTATE ${expectSqlState}; received a different failure: ${diagnostic}`,
       );
     }
     return failureOutput;
@@ -185,7 +185,7 @@ test("member cannot appeal another member's rejected submission", () => {
       values ('${f.submissionB}', '${f.a}', 'Attempt to appeal another member submission.');
     `)}
     rollback;
-  `, { expectFailure: true, expectSqlState: ["42501", "P0001"] });
+  `, { expectFailure: true, expectSqlState: "42501" });
 });
 
 test("member cannot submit contribution work on behalf of another member", () => {
