@@ -32,6 +32,15 @@ const resources = [
     action: "查看工廠防護",
   },
   {
+    id: "B · PRODUCT HANDOFF",
+    title: "GCAN Product B 主線銜接",
+    description: "B 的 workspace metadata 基線已合併；後續整合只接收 A 工廠正式驗收的能力契約。",
+    detail: "已合併 · PR #201",
+    tone: "green",
+    href: "https://github.com/X84657465/global-citizen-ai-network/pull/201",
+    action: "查看 B 主線基線",
+  },
+  {
     id: "CI / EVIDENCE",
     title: "自動化驗證與交付證據",
     description: "以實際 workflow run 與精確 commit SHA 判斷測試結果，不複製或推測即時狀態。",
@@ -86,6 +95,7 @@ const stages = [
   { title: "工廠優先範圍確認", note: "真實狀態呈現已確認", done: true },
   { title: "工程入口與驗收資訊更新", note: "工廠首頁候選已提交", done: true },
   { title: "精確 SHA 自動測試", note: "等待最新結果", done: false },
+  { title: "B 主線能力銜接", note: "等待 A 工廠契約正式驗收後承接", done: false },
   { title: "Preview 視覺驗收", note: "最新 SHA Preview 尚未部署；舊 SHA 不作為驗收證據", done: false },
   { title: "人工核准", note: "保留人工決策", done: false },
   { title: "正式發布", note: "尚未授權", done: false },
