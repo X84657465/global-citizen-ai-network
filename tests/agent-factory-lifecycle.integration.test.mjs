@@ -39,6 +39,29 @@ function createFakeGitHubApi() {
         issues.push(created);
         return structuredClone(created);
       }
+      const pullMatch = /^\\/repos\\/owner\\/repo\\/pulls\\/(\\d+)$/.exec(url.pathname);
+      if (pullMatch && method === "GET") {
+        const pullRequestNumber = Number(pullMatch[1]);
+        const stateIssue = issues.find((issue) => issue.title === FACTORY_STATE_ISSUE_TITLE);
+        const stateMarker = stateIssue?.body?.match(/<!-- agent-factory-state:([A-Za-z0-9+/=]+) -->/);
+        if (!stateMarker) throw new Error("Factory state fixture is unavailable for PR verification.");
+        const state = JSON.parse(Buffer.from(stateMarker[1], "base64").toString("utf8"));
+        const taskEntry = Object.entries(state.tasks).find(([, task]) => task.pull_request_number === pullRequestNumber);
+        if (!taskEntry) throw new Error("Candidate PR fixture not found: " + pullRequestNumber);
+        const [taskIssueNumber, task] = taskEntry;
+        return {
+          number: pullRequestNumber,
+          state: "open",
+          body: "<!-- ai-task:" + taskIssueNumber + " -->",
+          user: { login: "owner" },
+          base: { ref: "main", repo: { full_name: repository } },
+          head: {
+            ref: "ai-task/issue-" + taskIssueNumber + "-abcdef123456",
+            sha: task.head_sha,
+            repo: { full_name: repository },
+          },
+        };
+      }
       const workflowMatch = /^\/repos\/owner\/repo\/actions\/runs\/(\d+)$/.exec(url.pathname);
       if (workflowMatch && method === "GET") {
         const workflow = workflows.get(workflowMatch[1]);
@@ -226,7 +249,7 @@ test("durable scheduler completes a 24-task lifecycle simulation with idempotent
       ISSUE_NUMBER: String(issue),
       PULL_REQUEST_NUMBER: String(pullRequestNumber),
       HEAD_SHA: headSha,
-      HEAD_REF: "ai-task/issue-" + issue + "-" + index.toString(16).padStart(12, "0"),
+      HEAD_REF: "ai-task/issue-" + issue + "-abcdef123456",
       CI_RUN_ID: ciRunId,
       CI_RUN_ATTEMPT: "1",
     });
@@ -237,7 +260,7 @@ test("durable scheduler completes a 24-task lifecycle simulation with idempotent
       ISSUE_NUMBER: String(issue),
       PULL_REQUEST_NUMBER: String(pullRequestNumber),
       HEAD_SHA: headSha,
-      HEAD_REF: "ai-task/issue-" + issue + "-" + index.toString(16).padStart(12, "0"),
+      HEAD_REF: "ai-task/issue-" + issue + "-abcdef123456",
       CI_CONCLUSION: "success",
       CI_RUN_ID: ciRunId,
       CI_RUN_ATTEMPT: "1",
