@@ -137,3 +137,14 @@ G assessment states are `blocked`, `stale`, `incomplete`, and `ready-for-review`
 This is a pure evaluator: it does not call GitHub, run tests, modify branch protection, change CI workflows, grant approvals, merge, or deploy. The caller must obtain run/job metadata from the trusted GitHub Actions API; untrusted user-supplied evidence must not be passed as authoritative CI evidence.
 
 Tests cover exact-head success, missing jobs, failed/skipped/cancelled jobs, stale SHA, foreign repositories, wrong PR number, untrusted workflow/event/base branch, pending jobs, duplicate job evidence, and forged run/job URLs.
+
+
+## P advisory governance dossier
+
+`lib/fp/governance-assurance.ts` adds a versioned, read-only governance dossier evaluator for all eleven F–P workstreams. It requires an opaque accountable-owner reference and exactly one registered evidence category per workstream, with evidence bound to the exact candidate SHA.
+
+The policy catalogue requires security assurance (F), exact-head CI (G), observability tests (H), bounded-integration approval evidence (I), advisory-only review (J), documentation provenance (K), a federation deferral record (L), compliance/risk review (M), privacy/analytics review (N), lifecycle/compatibility review (O), and governance review (P).
+
+The evaluator distinguishes missing, stale, not-run, failed, and complete evidence. L is rejected if its lifecycle is anything other than deferred. Records for A–E, duplicate workstreams, unknown policy versions, unregistered evidence kinds, unsafe references, and malformed owner references are rejected.
+
+A `ready-for-human-review` dossier is only a completeness result. P does not grant governance approval, user permission, execution authority, merge authorization, deployment authorization, or federation activation. Owner references and evidence references are opaque metadata supplied by the trusted host; this evaluator does not authenticate their source or independently verify the referenced artifacts.
