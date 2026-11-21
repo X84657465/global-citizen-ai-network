@@ -228,3 +228,10 @@ This section supersedes older candidate-head and CI snapshots above where they c
 - Fixed `lib/fp/observability.ts` on the #259 candidate branch at commit `b13376b33357749cd046ba5732923593b55b3e41`; `record()` now uses `isStrictUtcTimestamp(event.occurredAt)`.
 - Existing regression cases cover `2026-02-31T12:00:00.000Z` and `2026-11-21T25:00:00Z`.
 - Current exact-head Actions run was not yet visible at the time of this note; Vercel status was pending. This fix is not yet CI-verified. PR remains Draft, unmerged, with no formal independent reviews.
+
+
+### P governance review timestamp validation — 2026-11-22
+
+- Found the same parse-normalization weakness in `lib/fp/governance-review-source.ts`: regex shape plus `Date.parse()` could accept impossible dates such as February 31.
+- Added component-level UTC validation at commit `9f7da2115644ac52c9d29c22f8a6546600644c9b`; added impossible-date/hour regression cases at `6853dedb7e6583d7dc3f2185bc0931cac422d5e6`.
+- Current PR #259 exact HEAD is `6853dedb7e6583d7dc3f2185bc0931cac422d5e6`. No exact-head Actions run was visible at this checkpoint; Vercel is provider-rate-limited; formal reviews remain 0. Keep Draft/unmerged.
