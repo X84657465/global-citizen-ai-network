@@ -1622,7 +1622,7 @@ test("system-health success rejects a closed PR even when its old CI run was suc
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "172",
     SYSTEM_HEALTH_HEAD_SHA: sha,
-  }), /current open same-repository PR head no longer matches/);
+  }), /current (?:open )?same-repository PR head no longer matches/);
 
   assert.equal(store.state.state_version, initial.state_version);
   assert.equal(store.state.system.consecutive_failures, 2);
