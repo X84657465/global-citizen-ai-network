@@ -5,14 +5,15 @@ on:
     workflows: ["CI"]
     types: [completed]
 
-concurrency:
-  group: global-citizen-ai-network-self-hosted-runner
-  cancel-in-progress: false
-  queue: max
-
 jobs:
   reset-system-breaker:
     name: Verify completed exact-head CI before resetting system breaker
+    # Only successful, trusted PR CI runs should reserve the shared state-writer queue.
+    # Cancelled/failed/non-PR workflow_run events are skipped without queueing.
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      cancel-in-progress: false
+      queue: max
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'pull_request' &&
