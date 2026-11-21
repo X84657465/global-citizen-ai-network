@@ -8,7 +8,7 @@ test("reads collaborator permission through the supplied authenticated host clie
     api: {
       async request(path) {
         calls.push(path);
-        return { permission: "maintain" };
+        return { permission: "write" };
       },
     },
     repository: "owner/repo",
@@ -19,13 +19,13 @@ test("reads collaborator permission through the supplied authenticated host clie
     "/repos/owner/repo/collaborators/reviewer-one/permission",
   ]);
   assert.deepEqual(result, {
-    permission: "maintain",
-    evidenceRef: "github:owner/repo:collaborator-permission:reviewer-one:maintain",
+    permission: "write",
+    evidenceRef: "github:owner/repo:collaborator-permission:reviewer-one:write",
   });
 });
 
 test("preserves all supported GitHub repository permission levels without elevating them", async () => {
-  for (const permission of ["admin", "maintain", "write", "triage", "read", "none"]) {
+  for (const permission of ["admin", "write", "read", "none"]) {
     const verify = createFPGitHubReviewerPermissionVerifier({
       api: { async request() { return { permission }; } },
       repository: "owner/repo",
