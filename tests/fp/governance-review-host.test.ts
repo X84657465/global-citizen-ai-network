@@ -25,7 +25,7 @@ test("trusted-host composition always verifies current reviewers through the sam
           id: 100,
           commit_id: sha,
           state: "APPROVED",
-          submitted_at: "2026-11-22T12:00:00Z",
+          submitted_at: "2026-11-20T12:00:00Z",
           user: { login: "reviewer-one" },
         }];
       }
