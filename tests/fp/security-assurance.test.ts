@@ -56,6 +56,22 @@ const bundle = (overrides: {
   ...overrides,
 });
 
+test("rejects malformed repository path segments before assessing F evidence", () => {
+  for (const candidateRepository of [
+    "../repo",
+    "owner/../repo",
+    ".owner/repo",
+    "owner/.repo",
+    "owner/repo/extra",
+    "owner//repo",
+  ]) {
+    assert.throws(
+      () => assessFPSecurityEvidence(bundle({ candidateRepository })),
+      TypeError,
+    );
+  }
+});
+
 test("requires all F controls on the exact candidate SHA and trusted CI run", () => {
   const result = assessFPSecurityEvidence(bundle());
   assert.equal(result.status, "ready-for-review");
