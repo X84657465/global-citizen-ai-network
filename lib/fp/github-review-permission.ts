@@ -28,7 +28,7 @@ export function createFPGitHubReviewerPermissionVerifier(input: {
     !input.api ||
     typeof input.api.request !== "function" ||
     typeof input.repository !== "string" ||
-    !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(input.repository)
+    !/^[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(input.repository)
   ) {
     throw new TypeError("A valid repository and authenticated GitHub API client are required.");
   }
