@@ -129,7 +129,8 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
   if (ci.runUrl !== expectedRunUrl && ci.runUrl !== expectedAttemptUrl) {
     throw new TypeError("F CI run URL does not match its repository, run ID, and attempt.");
   }
-  if (!new RegExp(`^https://github\\.com/${repository.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}/actions/runs/${ci.runId}/job/\\d+$`).test(ci.jobUrl)) {
+  const expectedJobPrefix = `${expectedRunUrl}/job/`;
+  if (!ci.jobUrl.startsWith(expectedJobPrefix) || !/\\/job\\/\\d+$/.test(ci.jobUrl)) {
     throw new TypeError("F CI job URL does not belong to the evidence run.");
   }
 }
