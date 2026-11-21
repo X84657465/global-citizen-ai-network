@@ -108,5 +108,5 @@ This initial slice is additive test and documentation work. Revert the integrati
 
 - The P trusted-host permission adapter now consumes GitHub's collaborator API base permission values: `admin`, `write`, `read`, and `none`. GitHub maps the `maintain` role to `write` and the `triage` role to `read` in this response.
 - Only `admin` and `write` count as verified review authority; `read` and `none` remain insufficient. Permission lookup failures remain unverified.
-- Regression tests cover all native API permission values and the end-to-end trusted-host composition. This is a compatibility correction, not a permission expansion or automatic approval.
+- Regression tests cover all four API base permission values and the end-to-end trusted-host composition. This is a compatibility correction, not a permission expansion or automatic approval.
 - Exact-head CI and independent review are still required; this change does not grant governance approval, merge, execution, or deployment authority.
