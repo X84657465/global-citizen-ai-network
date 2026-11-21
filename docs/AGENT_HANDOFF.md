@@ -96,9 +96,9 @@ B remains preparation-only until A is fully accepted and integrated into main.
 ### A→B contract alignment checkpoint (2026-11-22)
 
 - Compared `docs/architecture/agent-factory-product-read-adapter.md` against `lib/agent-factory-state-machine.mjs` on the current A candidate.
-- Corrected the proposed `FactoryTaskStatus` enum to match A's real states: `queued`, `reserved`, `preparing`, `planning`, `patching`, `sandbox_testing`, `publishing`, `draft_pr_created`, `awaiting_ci`, `completed`, `retry_wait`, `candidate_rejected`, `quarantined`, `superseded`. Removed invented `failed` and `cancelled` task states.
-- Added the separate candidate status enum: `pending`, `success`, `failure`, `retry_queued`. Candidate CI conclusions are terminal `success` or `failure`; pending is not success evidence.
-- A durable state stores `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt` structurally. B's future adapter must use that structured tuple from an A-owned projection and never parse the EvidenceRecord's descriptive `command` string.
+- The first proposal mirrored A's private lifecycle and candidate enums. A security review identified that this would expose internal operational states such as `quarantined` and `retry_wait` to B.
+- Updated the product DTO to a bounded public status vocabulary: `queued`, `in_progress`, `candidate_ready`, `verification_pending`, `completed`, `needs_attention`, and `closed`; private A states map to these values and are never serialized directly.
+- Candidate states are projected as `pending`, `passed`, or `not_passed`. The A projection verifies the structured `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt` tuple server-side; CI run IDs and attempts are not exposed in B's public DTO. The projection never parses EvidenceRecord's descriptive `command` string.
 - This is documentation-only preparation. No B route, table, workspace mapping, runtime adapter or Factory access was activated.
  The current repository contracts do **not** yet expose a dedicated accepted A-to-B product API.
 
@@ -114,7 +114,7 @@ B remains preparation-only until A is fully accepted and integrated into main.
 Create a separate, versioned, read-only adapter boundary for B. Its schema should be agreed and tested before implementation; it should expose only the minimum product-safe view needed by B:
 
 1. Stable opaque task/candidate reference and lifecycle status.
-2. Candidate SHA plus terminal CI run ID, attempt, conclusion and evidence reference.
+2. Candidate SHA plus verified terminal conclusion and opaque evidence reference; CI run ID and attempt remain server-side verification inputs.
 3. Bounded timestamps and allowlisted failure categories; never raw logs, secrets, token values, local paths or unrestricted Issue bodies.
 4. Explicit ownership/authorization checks at B's product boundary; an opaque actor/resource reference is not proof of identity.
 5. Idempotent read-only retrieval and compatibility/version tests. B cannot change A state or use returned evidence as merge/deploy authorization.
@@ -142,18 +142,35 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 
 - Added [Agent Factory → GCAN Product read adapter proposal](architecture/agent-factory-product-read-adapter.md). This is a documentation-only design; no B runtime/API/database or Factory permissions were activated.
 - Verified source contracts: A `EvidenceRecord v1.0.0` is currently model-independent C/D evidence, not a structured B API; F–P `FPCapabilityEnvelope` uses opaque actor/resource references and does not authenticate or authorize.
-- The proposed B view is versioned, read-only, exact-SHA/run-ID/run-attempt bound, tenant-scoped by B's own identity/workspace authorization, and excludes raw Issue bodies, prompts, patches, logs, secrets and host paths.
+- The proposed B view is versioned, read-only, tenant-scoped by B's own identity/workspace authorization, and backed by server-side exact-SHA/run-ID/run-attempt verification. Public DTOs expose only the verified conclusion and opaque evidence reference, not internal run identifiers or private A lifecycle states.
 - Do not implement or expose this adapter until A is accepted and integrated. A must provide a structured server-side projection; B must not parse the descriptive EvidenceRecord command string or access A's internal Issue state, lease or Runner controls.
 
 
 ## Current checkpoint — 2026-11-22 (latest verified)
 
-- Main remains at base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; `VERSION` and `package.json` are `0.3.124`. README's mainline label remains `0.3.121`; PR #259 carries the correction.
-- PR #259 exact head is `9da2369747cb9ea21c5b8bb65cefa2351f14790e` (40 changed files). Run [44947378275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44947378275), run #3231, is terminal **success**; all four required jobs passed, including full Windows quality gates, isolated Supabase migrations/pgTAP/two-member RLS and Ollama/local execution. Earlier run #3224 failed a CI-trigger-policy assertion on its prior SHA; the runbook sentence was restored without weakening the test. Vercel reports provider `build-rate-limit`; no Preview exists for the current SHA, and the older READY Preview belongs to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6`.
-- A risk-intent classification and regression tests were ported exactly from PR #261 into #259. PR #261 is now closed as redundant; its prior schema-guard failure is not evidence against the new consolidated SHA.
-- PR #267 is closed as redundant; its README/package metadata correction is carried in #259 and is not yet on main.
-- PR #259 has zero independent formal reviews and zero inline review threads. No Vercel Preview deployment exists for its current SHA; provider status is blocked by `build-rate-limit`. The earlier READY deployment and HTTP 200 smoke checks belong to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` and are historical only.
-- PR #268 remains documentation-only and Draft. This handoff refresh advances its branch from the prior exact head; the new exact SHA must receive its own terminal-successful CI and independent review. At the previous exact head `d65233a18050676ece6d4288155401d09738da21`, run [44947550045](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44947550045), run #3233, had only begun its metadata-resolver job; that run is not acceptance evidence for the updated documentation commit.
-- PR #266 is closed as superseded by #268; do not reopen or merge its stale snapshot.
-- B adapter remains proposal-only. B cannot access Factory state, leases, Runner or privileged execution.
-- Acceptance rule unchanged: terminal success for all required checks on the final exact SHA, current Preview, and independent review. Pending, cancelled, skipped, stale-SHA success, resolver-only success and mergeability are not acceptance.
+### Main and A — factory first
+- Main remains `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; `VERSION` and `package.json` remain `0.3.124`.
+- PR #259 current HEAD is `3330cd04a77358cf0ff780940d09f938cab1dc3a`; it is open, Draft, and unmerged. Its exact-head Actions run #3237 (`44949425719`) remains pending with zero jobs returned. Vercel status is failure `build-rate-limit`. Formal reviews and inline threads are zero.
+- The schema guard fix on #259 changes the expected SQL test plan from 15 to 18, matching `supabase/tests/public_table_grants.test.sql`; the existing table privilege, internal-table RLS and public sequence assertions remain intact. This resolves the known deterministic guard mismatch in the candidate, but does not constitute CI acceptance.
+- Earlier exact-head success on SHA `9da2369747cb9ea21c5b8bb65cefa2351f14790` is stale and cannot validate the current HEAD. Do not infer integration success from it.
+- No current-SHA READY Preview/smoke evidence or independent review exists. Keep #259 Draft/unmerged.
+
+### F–P dependent work
+- PR #252 is 30 commits ahead and 10 commits behind main; it is stale and must not be merged or rebased onto an unaccepted A baseline.
+- PRs #256, #257, #260 and #262 are not behind main, but their latest recorded exact-head CI runs all fail at the Windows `Schema safety guard` before database/Ollama integration jobs; no formal reviews exist. Their failures are consistent with the old main guard expecting plan(15) while SQL declares plan(18). Rebase/port only after A is accepted and integrated, then rerun each exact final SHA.
+- These lines remain bounded integration support; no broad parallel expansion.
+
+### B and K handoff
+- PR #268 is documentation-only, open, Draft and unmerged. Its adapter proposal was updated in commit `7838618597e2ca36c2d0648e4d0fde44c9ef6b40` to prevent private A lifecycle states and internal CI run identifiers from leaking through the proposed product DTO.
+- The product projection now maps internal A states into a bounded public status vocabulary and verifies SHA/PR/run/attempt server-side. It exposes only verified conclusions and opaque evidence references. This remains a proposal; no B runtime/API/database or Factory permission was activated.
+- The latest handoff update itself changes #268's head. Verify PR metadata and exact-head Actions after this commit; no matching Actions run has yet been returned for the adapter-only commit. Vercel remains blocked by `build-rate-limit`; no formal review exists.
+- #266 remains closed as superseded by #268.
+
+### Acceptance and next execution order
+1. Keep A #259 first. Wait for complete terminal success of every required exact-head CI job, including Windows quality, isolated Supabase/PostgreSQL/RLS and Ollama/local execution.
+2. Require a READY Preview and smoke test for the same exact A SHA, plus independent formal review. Until then, no merge or A acceptance.
+3. After A is integrated, rebase/rebuild dependent F–P lines selectively, resolve the shared schema guard baseline, and rerun each final SHA. Do not merge stale #252.
+4. Rebase/rebuild B from accepted main; implement the A-owned sanitized projection and B-owned tenant authorization only after the contract and tests are independently reviewed.
+5. Preserve the factory's scheduled queue/Runner path. Do not manually dispatch tasks, duplicate work, alter workflow settings, or mutate Issue #100 counters, leases, cooldowns or quarantine.
+
+**Factory-first charter remains:** stabilize Agent Factory V2, then enable GCAN Product to create revenue, then expand the global AI ecosystem.
