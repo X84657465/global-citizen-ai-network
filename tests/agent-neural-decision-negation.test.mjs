@@ -83,3 +83,24 @@ test("a standalone discourse no cannot negate a later actionable production depl
     assert.equal(result.decision, "reject_and_replan", title);
   }
 });
+
+test("double-negated risk language remains high risk instead of being treated as a prohibition", () => {
+  for (const title of [
+    "There is no reason not to deploy to production",
+    "Credentials are not prohibited from being rotated",
+    "Production is not out of scope for this task",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("a direct prohibition still suppresses prose-only risk while keeping the decision bounded", () => {
+  const result = evaluateAgentDecision(withImplementerText("No deployment is allowed"), task);
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
+  assert.equal(result.authority.may_execute_code, false);
+  assert.equal(result.authority.may_publish_changes, false);
+});
