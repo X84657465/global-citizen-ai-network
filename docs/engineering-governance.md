@@ -1,9 +1,9 @@
-# Five-Track Engineering Governance
+# A–O Workstream Engineering Governance
 
-**Governance revision: 1.4.8**  
-**Repository release baseline: 0.3.116**
+**Governance revision: 1.4.9**  
+**Repository release baseline: 0.3.117**
 
-## 1. Five development tracks
+## 1. Core workstreams and roadmap ownership
 
 | Track | Scope | Primary responsibility |
 |---|---|---|
@@ -52,7 +52,7 @@ Tracks A, B, C, D and E must exchange reusable knowledge through reviewed, versi
 4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C/E.
 5. E (Deep Research) conducts multi-source research, checks source provenance and freshness, seeks corroboration and counter-evidence, and publishes cited findings and actionable recommendations to A/B/C/D.
 
-### Five-track mutual-support loop
+### A–O mutual-support loop
 
 - **A → B/C/D:** verified automation, reproducible builds, test evidence, failure taxonomy and recovery playbooks.
 - **B → A/C/D:** real product workflows, user feedback, operational constraints, usage patterns and measurable outcomes.
