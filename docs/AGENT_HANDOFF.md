@@ -55,7 +55,8 @@ F–P manifest registration or a “ready” label is not implementation accepta
 - **Current exact branch HEAD verified from GitHub: `d9073d51155de384be18e660c03923b0b0f424d0`.**
 - Prior exact-head run [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889) targeted superseded SHA `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`; its 543/549 unit result is historical only.
 - Corrective review timestamp validation and stable historical test fixtures were committed in `2b4b1edf6b19c5c3e058f2aca1bb0ced8cd569df` and `d9073d51155de384be18e660c03923b0b0f424d0`.
-- Current exact-head Actions run [44944042121](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944042121) is pending; latest jobs query returned no jobs. No test, type, lint, build, PostgreSQL/RLS or Ollama pass is claimed for this SHA.
+- Intermediate commit `f718499241fd905a12688498373a467cd3538ce1` had run [44942456757](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942456757) cancelled; it is not the branch head and is not acceptance evidence.
+- Current branch-head run [44944042121](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944042121) targets `d9073d51155de384be18e660c03923b0b0f424d0`; latest jobs query shows only the metadata resolver pending. No quality, unit, type, lint, build, PostgreSQL/RLS or Ollama result is claimed.
 - No independent review is recorded. Keep Draft/unmerged until all exact-head gates and independent review pass.
 - The PR changes shared files including README, `scripts/check-schema.mjs` and `tests/ci-trigger-policy.test.mjs`; reconcile overlap with PR #267 before any merge.
 
@@ -65,7 +66,7 @@ F–P manifest registration or a “ready” label is not implementation accepta
 - Previous exact-head run [44943780150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943780150) passed dependency install, Windows/Docker/Ollama preflight, bounded Ollama inference, migration/schema guards and both dependency audits, then failed the CI trigger/Runner policy test. Unit tests, typecheck, lint, production build and database/RLS were skipped after that failure.
 - Root cause identified by checking the exact tested tree: `package-lock.json` still advertised root/package version `0.3.121` while `VERSION`, `package.json`, manifest and README were `0.3.124`. The CI policy test explicitly checks lockfile version parity.
 - Corrective commit `6baa233e30192d5b360617d7f0079d840c78821a` changes only the two package-lock root version fields to `0.3.124`; dependency graph and resolved package entries are unchanged.
-- New exact-head Actions run [44944336578](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944336578) is pending; no jobs reported yet. No acceptance is claimed for the corrected SHA.
+- New exact-head Actions run [44944336578](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944336578) targets corrected SHA `6baa233e30192d5b360617d7f0079d840c78821a`; it remains pending and latest jobs query returned no jobs. No acceptance is claimed for the corrected SHA.
 - No independent review is recorded. Keep Draft/unmerged.
 - #259 and #267 both touch README, schema guard and CI policy test. Do not merge them sequentially as-is. Reconcile overlapping files and rerun every required gate against the final exact SHA.
 
@@ -99,10 +100,10 @@ Only after A is fully accepted and integrated into main:
 
 ## 6. Next execution order
 
-1. **A first:** monitor #259 exact-head run `44943280889`; inspect unit-test results, then type/lint/build and all remaining integration jobs on the same SHA.
-2. **Shared baseline:** monitor #267 run `44943780150`; reconcile overlapping files with #259 rather than merging overlapping candidates independently.
-3. **K support:** keep this handoff and the operations runbook synchronized with verified main/PR state; avoid stale-base documentation merges.
+1. **A first:** monitor #259 current-head run `44944042121` for SHA `d9073d51155de384be18e660c03923b0b0f424d0`; only the metadata resolver is pending at latest check, so do not infer Runner health or test outcome.
+2. **Shared baseline:** monitor #267 corrected-head run `44944336578` for SHA `6baa233e30192d5b360617d7f0079d840c78821a`; jobs have not appeared yet. Reconcile shared files with #259 before any merge.
+3. **K support:** keep this handoff synchronized with verified main/PR state; this docs branch is 8 commits ahead and 0 behind main, but remains Draft pending exact-head CI and review.
 4. **F–P:** address only demonstrated blockers to A acceptance or B contracts.
-5. **B preparation:** prepare contract mapping and selective-port plan without activating B as the development priority.
+5. **B preparation:** prepare a selective-port contract map without activating B as the development priority. B must consume only versioned, explicitly exposed A interfaces; no direct Factory DB/state/lease/Runner access.
 
 **Factory-first charter remains:** stabilize Agent Factory V2, then enable GCAN Product to create revenue, then expand the global AI ecosystem.
