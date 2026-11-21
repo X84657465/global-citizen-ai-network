@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
 import { FPGovernanceReviewCollectionError } from "./governance-review-source.ts";
 import { isSafeGitHubRepositoryName } from "../github-repository-name.mjs";
 
@@ -6,7 +6,7 @@ const SHA = /^[a-f0-9]{40}$/i;
 
 export interface GovernanceReviewsRouteDependencies {
   readonly getAuthenticatedClient: () => Promise<unknown | null>;
-  readonly getProfile: (auth: any) => Promise<{ data: unknown; error: unknown }>;
+  readonly getProfile: (auth: unknown) => Promise<{ data: unknown; error: unknown }>;
   readonly isActiveAdminProfile: (profile: unknown) => boolean;
   readonly repository: string;
   readonly token: string;
