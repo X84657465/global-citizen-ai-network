@@ -29,7 +29,7 @@ interface FactoryTaskReadModelV1 {
   contractVersion: "1";
   taskRef: string;
   workspaceRef: string; // B-owned tenancy binding; never trusted from A alone
-  status: FactoryTaskStatus; // mirrors A's durable state-machine enum exactly
+  status: FactoryTaskStatus; // A maps private durable states to this bounded public vocabulary
   createdAt: string;        // RFC 3339 UTC; sourced by A's projection
   updatedAt: string;        // RFC 3339 UTC; sourced by A's projection
   candidate?: {
