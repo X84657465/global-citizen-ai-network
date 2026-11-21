@@ -57,7 +57,7 @@
 .gateCopy b{font-size:11px;line-height:1.5}
 .gateCopy small{font-size:10px;color:#8a97a9;line-height:1.65;margin-top:4px}
 .gateItem>span{margin-left:auto}
-.stages{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
+.stages{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}
 .stage{padding:14px 9px;border-radius:9px;background:#f8f9fc;text-align:center;min-width:0}
 .stage>span{display:grid;place-items:center;width:27px;height:27px;margin:0 auto 9px;border-radius:50%;font-size:11px}
 .stageDone{background:#e5f6ef;color:#249574}.stagePending{background:#eef1f6;color:#8996a9}
