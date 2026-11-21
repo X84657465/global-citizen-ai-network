@@ -44,8 +44,8 @@ test("D and E remain explicitly isolated previews until their in-repository rout
 
 test("homepage labels early-stage and demo capabilities without fabricating activity", () => {
   assert.match(homepage, /早期建置與預覽階段/);
-  assert.match(homepage, /最新候選 SHA 尚無可用 Preview/);
-  assert.match(homepage, /舊版 Preview 不作為本版驗收證據/);
+  assert.match(homepage, /Preview 必須與目前候選 SHA 完全一致/);
+  assert.match(homepage, /舊 SHA 部署不得作為本版驗收證據/);
   assert.match(homepage, /示範數據/);
   assert.doesNotMatch(homepage, /\b(?:1,?000|10,?000)\s*\+?\s*(?:members|contributors|tasks completed)\b/i);
   assert.doesNotMatch(homepage, /NT\$\s*[\d,]+\s*(?:earned|rewards? paid)/i);
@@ -66,9 +66,9 @@ test("public homepage section navigation remains available on mobile", () => {
   assert.match(styles, /@media\(max-width:820px\)\{[\s\S]*?\.nav\{display:flex;[\s\S]*?overflow-x:auto/);
 });
 
-test("repository homepage distinguishes the old Preview from the current unpreviewed candidate", () => {
-  assert.match(readme, /舊 Preview SHA `3821354dd50d6045604688bf1117a668f3a37cc0`/);
-  assert.match(readme, /本分支最新候選尚未取得 Vercel Preview 部署/);
+test("repository homepage explains exact-SHA Preview acceptance without stale deployment claims", () => {
+  assert.match(readme, /Preview 部署必須與目前 PR HEAD 的完整 SHA 完全一致/);
+  assert.match(readme, /不同 SHA 的舊部署不得作為目前候選的驗收證據/);
   assert.doesNotMatch(readme, /Build Rate Limit/);
 });
 
@@ -98,7 +98,7 @@ test("repository landing page exposes the product workspace, factory, and curren
   assert.ok(readme.includes("[AI 工作空間](https://global-citizen-ai-network.vercel.app/workspace)"));
   assert.ok(readme.includes("[正式工廠控制中心](https://global-citizen-ai-network.vercel.app/factory)"));
   assert.ok(readme.includes("PR #207（尚未發布）"));
-  assert.match(readme, /本分支最新候選尚未取得 Vercel Preview 部署/);
+  assert.match(readme, /Preview 部署必須與目前 PR HEAD 的完整 SHA 完全一致/);
 });
 
 
