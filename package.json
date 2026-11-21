@@ -1,6 +1,6 @@
 {
   "name": "global-citizen-ai-network",
-  "version": "0.3.110",
+  "version": "0.3.111",
   "private": true,
   "scripts": {
     "dev": "next dev",
