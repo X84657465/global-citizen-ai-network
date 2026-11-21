@@ -417,6 +417,49 @@ test("candidate CI failure is recorded separately from worker task retries", () 
   assert.equal(result.state.active_task, null);
 });
 
+test("candidate CI reruns cannot bypass retry requeue for the same rejected SHA", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "f".repeat(40), pull_request_number: 78,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+  const firstEvidence = {
+    head_sha: "f".repeat(40), pull_request_number: 78,
+    ci_conclusion: "failure", ci_run_id: "ci-789", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, firstEvidence, 1750);
+  state = recordCandidateFailure(
+    state, 42, event("same-sha-retry-backoff"), firstEvidence,
+    "lint failed", 1800,
+  ).state;
+
+  assert.throws(
+    () => startCandidate(state, 42, {
+      ...firstEvidence, ci_run_id: "ci-789-rerun", ci_run_attempt: 2,
+    }, 2000),
+    /explicit worker requeue.*cannot bypass retry backoff/,
+  );
+  assert.equal(state.tasks["42"].status, "candidate_rejected");
+  assert.equal(state.tasks["42"].ci_run_id, "ci-789");
+  assert.equal(state.tasks["42"].candidate_failure_history.length, 1);
+
+  // A new commit SHA is different candidate content and may be validated;
+  // the prior rejection is snapshotted before the active candidate changes.
+  const revised = startCandidate(state, 42, {
+    ...firstEvidence, head_sha: "e".repeat(40),
+    ci_run_id: "ci-790", ci_run_attempt: 1,
+  }, 2001);
+  assert.equal(revised.tasks["42"].status, "awaiting_ci");
+  assert.equal(revised.tasks["42"].head_sha, "e".repeat(40));
+  assert.equal(revised.tasks["42"].candidate_failure_history.length, 1);
+  assert.equal(revised.tasks["42"].candidate_failure_history[0].ci_run_id, "ci-789");
+});
+
 test("explicitly requeues a candidate CI rejection for a new worker attempt", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
   state = move(state, 42, "preparing", {}, 1100);
