@@ -27,7 +27,7 @@ export class FPGovernanceReviewCollectionError extends Error {
 
 const SHA = /^[a-f0-9]{40}$/i;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-const LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37})$/;
+const LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
 const UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
 const PAGE_SIZE = 100;
 const MAX_PAGES = 10;
