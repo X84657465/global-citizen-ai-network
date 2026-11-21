@@ -213,3 +213,10 @@ This section supersedes older candidate-head and CI snapshots above where they c
 - No pull-request Actions run is currently returned for exact HEAD `e7bfe23...`. The in-progress Windows quality job observed on run `44942853489` belongs to the earlier `581af4e...` snapshot and must not be credited to the new head.
 - Exact-head Vercel status remains failure due to the provider build-rate limit.
 - PR #259 remains Draft with zero formal reviews and zero inline review threads. Keep it unmerged until a new exact-head run reaches terminal success across all required jobs and independent review/release gates are met.
+
+
+### Subsequent exact-head poll
+
+- PR #259 advanced again to `e52f22df3cd148ed0914550205656b367e915971`.
+- Exact-head Actions run [44943147734](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943147734) is pending. The immediately prior moving-head run [44943133760](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943133760) for superseded SHA `e7bfe23...` is cancelled and cannot validate the current head.
+- Current-head Vercel remains rate-limited; PR remains Draft, unmerged, with zero formal reviews. Recheck the live PR HEAD before accepting any later run result.
