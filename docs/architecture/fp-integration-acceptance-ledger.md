@@ -102,3 +102,11 @@ This initial slice is additive test and documentation work. Revert the integrati
 - Exact-head Actions run `44944539621` for #259 is pending at candidate metadata resolution. The previous run `44944042121` targets the superseded pre-synchronization SHA and is not acceptance evidence for the current HEAD.
 - #267 and #259 have no formal review submissions or inline review threads recorded at this refresh. Both remain Draft and unmerged. CI pending status, GitHub mergeability and source-level checks are not acceptance or approval.
 - Integration order remains: establish and validate #267 shared CI baseline; then revalidate #259 on its exact current SHA; then integrate F/G/H/P and remaining F–P workstreams in the dependency order above. Do not merge or deploy until required exact-head gates and independent review are recorded.
+
+
+## 7. GitHub collaborator permission API compatibility correction (2026-11-22)
+
+- The P trusted-host permission adapter now consumes GitHub's native collaborator permission values: `admin`, `maintain`, `write`, `triage`, `read`, and `none`.
+- Only `admin`, `maintain`, and `write` count as verified review authority; `triage`, `read`, and `none` remain insufficient. Permission lookup failures remain unverified.
+- Regression tests cover all native API permission values and the end-to-end trusted-host composition. This is a compatibility correction, not a permission expansion or automatic approval.
+- Exact-head CI and independent review are still required; this change does not grant governance approval, merge, execution, or deployment authority.
