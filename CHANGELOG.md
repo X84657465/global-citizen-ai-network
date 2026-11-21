@@ -1,3 +1,8 @@
+## 0.3.106 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.75: allow the three explicitly supported supplemental task sections through both parser validation passes and carry them as untrusted context into plan and patch generation.
+- Add a shared task-context builder and regression coverage; retain required-section, duplicate/unknown-heading, path allowlist, and output-budget protections.
+
 ## 0.3.105 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.74: preserve approved supplemental task context headings (`Confirmed evidence`, `Finding and required behavior`, and dated retry-scope refinements) in the preflight bundle.
