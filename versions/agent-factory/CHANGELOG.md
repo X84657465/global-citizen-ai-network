@@ -1,3 +1,13 @@
+## 2.0.79 — 2026-11-21
+
+### Fixed — Restore factory homepage production build
+- Replace malformed nested `<button><a>` task-queue action markup with a semantic external anchor.
+- Add consistent focusable link styling while retaining the GitHub Actions destination.
+- Fix the JSX syntax error that prevented the Next.js production build from compiling.
+
+### Verification
+- Exact-head CI and fresh Preview build remain required; no Production deployment is claimed.
+
 ## 2.0.78 — 2026-11-21
 
 ### Improved — Clarify the factory operations overview
