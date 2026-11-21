@@ -438,12 +438,12 @@ test("candidate CI reruns cannot bypass retry requeue for the same rejected SHA"
     "lint failed", 1800,
   ).state;
 
-  assert.throws(
-    () => startCandidate(state, 42, {
-      ...firstEvidence, ci_run_id: "ci-789-rerun", ci_run_attempt: 2,
-    }, 2000),
-    /explicit worker requeue.*cannot bypass retry backoff/,
-  );
+  const rerun = startCandidate(state, 42, {
+    ...firstEvidence, ci_run_id: "ci-789-rerun", ci_run_attempt: 2,
+  }, 2000);
+  assert.equal(rerun.ignored, true);
+  assert.equal(rerun.reason, "candidate_retry_backoff");
+  assert.equal(rerun.state, state);
   assert.equal(state.tasks["42"].status, "candidate_rejected");
   assert.equal(state.tasks["42"].ci_run_id, "ci-789");
   assert.equal(state.tasks["42"].candidate_failure_history.length, 1);
