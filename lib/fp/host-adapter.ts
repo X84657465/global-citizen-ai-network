@@ -57,7 +57,7 @@ export class FPHostError extends Error {
 }
 
 function assertSafeReference(value: string | undefined, label: string): void {
-  if (typeof value !== "string" || value.length === 0 || value.length > 256 || /[\r\n\0]/.test(value)) {
+  if (typeof value !== "string" || value.length === 0 || value.length > 256 || /[\r\n\0\\]/.test(value)) {
     throw new FPHostError("INVALID_CONTEXT", `Invalid host ${label}.`);
   }
 }
