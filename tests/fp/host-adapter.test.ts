@@ -254,3 +254,22 @@ test("keeps envelope capability metadata stable if the caller mutates its reques
   assert.equal(request.capability, "mutated-capability");
   assert.equal(result.envelope.capability, "health-snapshot");
 });
+
+
+test("records outcome correlation from the trusted snapshot, not a mutated caller context", async () => {
+  const recorder = new FPObservabilityRecorder();
+  const host = new FPHostAdapter(recorder);
+  const callerContext = context();
+  host.register("H", "health-snapshot", () => {
+    callerContext.correlationId = "tampered-correlation";
+    return "healthy";
+  });
+
+  await host.invoke(
+    { workstream: "H", capability: "health-snapshot", input: null },
+    callerContext,
+  );
+
+  assert.equal(callerContext.correlationId, "tampered-correlation");
+  assert.equal(recorder.list()[0].correlationId, "request-123");
+});
