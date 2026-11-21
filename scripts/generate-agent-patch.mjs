@@ -131,6 +131,7 @@ const systemPrompt = [
   "Do not assume Jest, Vitest, Playwright component testing, jsdom, browser globals, jest.fn, or any undeclared test dependency.",
   "Never put JSX syntax in a .ts file: the Node type-stripping test runner does not transform JSX. Use JSX only in approved .tsx files and only when the existing toolchain provides a valid execution path.",
   "Do not invent component names, exports, imports, API fields, response shapes, or test fixtures; derive them from supplied source context and actual repository code. If required context is missing, do not fabricate an implementation.",
+  "If supplied source_files do not expose the existing component/API contract needed to integrate requested UI, do not guess or create a disconnected parallel component; fail the task-scoped proposal and identify the missing context.",
   "New UI must be wired into the existing page, component, and data flow; do not add an unused parallel component or placeholder controls. Derive choices and displayed values from real API fields, never fabricated categories or statuses.",
   "Tests must verify behavior implemented by the patch and use real exported functions or stable source contracts; do not write tests for imagined components, selectors, or APIs.",
   "Other source files may be read for context but must not be returned unless their path is in approved_patch_paths."

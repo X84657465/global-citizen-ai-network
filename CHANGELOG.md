@@ -1,3 +1,9 @@
+## 0.3.114 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.81: fail closed when the supplied source context cannot establish the existing component/API contract required for a requested UI integration, rather than generating disconnected parallel components.
+- Add regression coverage for the missing-context integration guard; preserve the 2.0.80 test-runner, JSX, dependency, API provenance and UI data-flow constraints.
+- No workflow permissions, production data, database schema, secrets, durable task state, retry/quarantine state, or deployment settings changed.
+
 ## 0.3.113 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.80: constrain local patch generation to the repository's actual Node test runner, TypeScript/JSX file semantics, installed dependencies, real component/API contracts, and integration into existing UI data flows.
