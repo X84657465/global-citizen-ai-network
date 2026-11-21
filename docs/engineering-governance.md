@@ -1,9 +1,9 @@
-# Five-Track Engineering Governance
+# A–P Workstream Engineering Governance
 
-**Governance revision: 1.4.4**  
-**Repository release baseline: 0.3.102**
+**Governance revision: 1.4.10**  
+**Repository release baseline: 0.3.106**
 
-## 1. Five development tracks
+## 1. A–P workstream governance
 
 | Track | Scope | Primary responsibility |
 |---|---|---|
@@ -12,26 +12,29 @@
 | C — Predictive Coding（預測編碼） | Predictive processing and prediction-error learning | Build explicit prediction, observation, error comparison and model-update loops; publish measurable signals to the other tracks |
 | D — Deep Neural | Neural intelligence foundation | Memory, reasoning, evaluation, knowledge integration and cross-track learning |
 | E — Deep Research（深度研究） | Research and evidence synthesis | Multi-source retrieval, source provenance and quality, corroboration, counter-evidence, cited synthesis and actionable research reports |
+| F — Cyber Security & Defense | Cross-track security | Threat modeling, security controls, adversarial validation, vulnerability response and incident readiness |
+| G — Release, QA & Integration | Integration quality | Compatibility checks, regression gates, exact-SHA release evidence and rollback readiness |
+| H — Observability, Telemetry & Cost/Quota Governance | Operations visibility | Queue/Runner telemetry, failure metrics, cost provenance, quota thresholds and safe-pause alerts |
 
-Each track owns its own branch, work items, version history, tests and acceptance evidence. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
+The governance and versioning model covers all A–P workstreams. A–H are currently prioritized operating workstreams; I–P are independently versioned planned workstreams. Every workstream owns its own branch, work items, independent version history, tests and acceptance evidence. A–H are defined as follows: A Agent Factory V2; B Global Citizen AI Network; C Predictive Coding; D Deep Neural; E Deep Research; F Cyber Security & Defense; G Release, QA & Integration; H Observability, Telemetry & Cost/Quota Governance. I–P have the following independent scopes and remain planned until implementation and acceptance evidence exist: I Ecosystem/Connectors/Workflow Automation; J Self-Healing/Chaos/Continuity; K Knowledge Base/Docs/Governance Playbooks; L Multi-Node/Federation/Edge Coordination; M Compliance/Policy Audit/Risk Governance; N Productization/Analytics/Growth Operations; O Lifecycle/Deprecation/Legacy Retirement; P Governance/Ethics/Trust/Policy Evolution. Their detailed responsibilities are recorded in the manifest and the repository homepage. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
 
-## 2. Numeric version policy
+## 2. Independent A–P version and generation policy
 
-Use numeric `MAJOR.MINOR.PATCH` only. Do not use words such as alpha, beta or rc as version identifiers.
+Every workstream A–P uses its own independent numeric `MAJOR.MINOR.PATCH` version. The canonical version is numeric only; do not put a literal `v` prefix or words such as alpha, beta or rc inside `VERSION`, package metadata or the manifest. The human-facing generation name is `v1`, `v2`, `v3`, and so on, represented by the MAJOR component (for example, generation `v3` is canonical version `3.0.0` or later `3.x.y`).
 
-- **MAJOR**: incompatible architecture or contract change; reset MINOR and PATCH to zero.
+- **MAJOR / generation vN**: a major architectural reform, core capability redesign, reliability/security model overhaul, or breaking ownership/interface contract change. Increment MAJOR by exactly one and reset MINOR/PATCH to zero (for example `2.4.7 → 3.0.0`, entering generation `v3`).
 - **MINOR**: backward-compatible capability or subsystem addition; reset PATCH to zero.
 - **PATCH**: every smaller improvement, defect fix, documentation correction that changes an operational rule, or test/quality improvement.
 
 Examples: `1.2.4 → 2.0.0`, `1.2.4 → 1.3.0`, `1.2.4 → 1.2.5`.
 
-Every release must update the relevant track version, the overall integration version when shared behavior/contracts change, and `CHANGELOG.md`. The authoritative current values are in `VERSION` and `versions/manifest.json`. Git tags use the exact numeric version, for example `v0.1.1`; tags are created only after the release candidate has passed its required checks and human review.
+Every A–P change, including a small patch, must update the affected track's version, that track's changelog, and `versions/manifest.json`. Cross-track changes must list every affected track and each old→new version; do not bump unaffected tracks. Update the overall integration version when shared behavior/contracts or repository-level governance changes. The authoritative values are in `VERSION` and `versions/manifest.json`. Git tags may use the `v` prefix with the exact numeric version (for example `v3.0.0`), but the canonical stored version remains `3.0.0`. Tags are created only after required checks and formal review.
 
 A version bump is not evidence of completion. Acceptance requires exact commit SHA, tests, CI outcome, reviewer decision and rollback instructions.
 
 ## 3. Cross-track learning and support
 
-Tracks A, B, C, D and E must exchange reusable knowledge through reviewed, versioned artifacts:
+Tracks A–P exchange reusable knowledge through reviewed, versioned artifacts. Planned status limits implementation claims, not version ownership or the obligation to record changes.
 
 1. A publishes engineering patterns, test fixtures, failure classifications, recovery playbooks and verified automation capabilities.
 2. B contributes real product workflows, user-facing requirements, usability findings and operational constraints.
@@ -39,13 +42,16 @@ Tracks A, B, C, D and E must exchange reusable knowledge through reviewed, versi
 4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C/E.
 5. E (Deep Research) conducts multi-source research, checks source provenance and freshness, seeks corroboration and counter-evidence, and publishes cited findings and actionable recommendations to A/B/C/D.
 
-### Five-track mutual-support loop
+### A–P mutual-support loop
 
 - **A → B/C/D:** verified automation, reproducible builds, test evidence, failure taxonomy and recovery playbooks.
 - **B → A/C/D:** real product workflows, user feedback, operational constraints, usage patterns and measurable outcomes.
 - **C → A/B/D:** predictions, prediction errors, uncertainty/calibration signals, drift indicators and experimentally validated update rules.
 - **D → A/B/C/E:** reviewed memory, cross-domain synthesis, reasoning plans, evidence retrieval and evaluation recommendations.
 - **E → A/B/C/D:** sourced research, verification methods, counter-evidence, source-quality assessments and cited synthesis.
+- **F → A/B/C/D/E/G/H:** threat models, security baselines, adversarial test findings, vulnerability triage and incident-response controls.
+- **G → A–H:** exact-SHA acceptance evidence, compatibility matrices, regression gates, release readiness and rollback verification.
+- **H → A–G:** Runner/queue telemetry, failure and retry signals, resource/cost attribution, quota thresholds and safe-pause alerts.
 - **All tracks → all tracks:** changes are proposed as versioned artifacts, reviewed by the receiving owner, tested against that track's acceptance criteria and adopted explicitly.
 
 The shared loop is **observe → predict → act → measure outcome → calculate prediction error → explain/store evidence → revise model or plan → test → publish → adopt → monitor**. Prediction error is a learning signal, not automatic permission to mutate production systems.
@@ -69,7 +75,7 @@ No track may silently rewrite another track's code, configuration, database or p
 
 ## 5. Integration-branch CI policy
 
-- The integration branch `feat/github-project-showcase` is an approved base for dependent workstreams D and E while the five-track integration PR is under review.
+- The integration branch `feat/github-project-showcase` is an approved base for dependent workstreams D and E while the integration PR is under review.
 - Pull requests targeting either `main` or the integration branch must run the same build, unit-test, type-check, lint, production-build and database/RLS verification workflow.
 - A dependent branch must include the current integration branch as an ancestor; its PR diff must contain only its own workstream files.
 - After the integration PR is merged, dependent PRs are retargeted to `main` only after their diff and exact-head CI are revalidated.
@@ -103,6 +109,6 @@ Every improvement, including a small one, records:
 
 Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
 
-## 9. Five-track baseline
+## 9. Registered-track baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.79`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All A–P workstreams have explicit ownership boundaries and independent version histories. I–P remain planned roadmap tracks until their implementation and acceptance evidence are delivered; planned status does not suspend their versioning rules. The overall integration baseline is tracked in `VERSION` and `versions/manifest.json`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
