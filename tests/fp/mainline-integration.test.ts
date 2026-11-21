@@ -17,6 +17,7 @@ const middleware = readRepositoryFile("middleware.ts");
 const correlationHelper = readRepositoryFile("lib/observability/request-context.ts");
 const databasePrivilegeRegression = readRepositoryFile("supabase/tests/public_table_grants.test.sql");
 const schedulerRunbook = readRepositoryFile("docs/ai-agent-scheduler-operations.md");
+const governanceReviewRoute = readRepositoryFile("app/api/admin/fp/governance-reviews/route.ts");
 
 test("F–G shared-run evaluator and its regression suite are present in the mainline integration", () => {
   assert.ok(existsSync(new URL("../../lib/fp/f-g-integration-assurance.ts", import.meta.url)));
@@ -77,6 +78,20 @@ test("F–P registry owns only F–P and retains the approved authority ceiling"
     O: "advisory",
     P: "advisory",
   });
+});
+
+test("P production entry point reuses authenticated admin and GitHub host boundaries", () => {
+  assert.ok(governanceReviewRoute.includes("getAuthenticatedClient()"));
+  assert.ok(governanceReviewRoute.includes("isActiveAdminProfile(profile)"));
+  assert.ok(governanceReviewRoute.includes("GCAN_GITHUB_READ_TOKEN"));
+  assert.ok(governanceReviewRoute.includes("GCAN_GITHUB_REPOSITORY"));
+  assert.ok(governanceReviewRoute.includes("createGitHubApiClient"));
+  assert.ok(governanceReviewRoute.includes("collectFPGovernanceReviewEvidenceFromTrustedHost"));
+  assert.ok(governanceReviewRoute.includes('governanceApprovalGranted: false'));
+  assert.ok(governanceReviewRoute.includes('mergeAuthorized: false'));
+  assert.ok(governanceReviewRoute.includes('deploymentAuthorized: false'));
+  assert.equal(governanceReviewRoute.includes("SUPABASE_SERVICE_ROLE_KEY"), false);
+  assert.equal(governanceReviewRoute.includes("NextResponse.json({ reviews"), false);
 });
 
 test("P governance requirements cover every F–P line and keep L explicitly deferred", () => {
