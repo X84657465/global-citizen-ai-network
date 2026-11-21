@@ -3,7 +3,7 @@ run-name: Review gate — ${{ github.event.pull_request.number || github.event.p
 
 on:
   pull_request:
-    branches: [main, feat/github-project-showcase, fix/agent-factory-new-file-output-budget-20261121]
+    # Run for every target branch, including stacked Governance/Migration/B integration bases.
     types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled, edited]
   pull_request_review:
     types: [submitted, edited, dismissed]
