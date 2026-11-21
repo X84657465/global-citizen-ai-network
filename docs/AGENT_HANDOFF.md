@@ -220,3 +220,11 @@ This section supersedes older candidate-head and CI snapshots above where they c
 - PR #259 advanced again to `e52f22df3cd148ed0914550205656b367e915971`.
 - Exact-head Actions run [44943147734](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943147734) is pending. The immediately prior moving-head run [44943133760](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943133760) for superseded SHA `e7bfe23...` is cancelled and cannot validate the current head.
 - Current-head Vercel remains rate-limited; PR remains Draft, unmerged, with zero formal reviews. Recheck the live PR HEAD before accepting any later run result.
+
+
+### H recorder strict timestamp call-path repair — 2026-11-22
+
+- Static review of PR #259 found the strict UTC calendar helper `isStrictUtcTimestamp()` was present, and tests covered impossible dates/out-of-range hours, but `FPObservabilityRecorder.record()` did not call the helper; it only checked regex shape and `Date.parse()`, which can normalize invalid calendar dates.
+- Fixed `lib/fp/observability.ts` on the #259 candidate branch at commit `b13376b33357749cd046ba5732923593b55b3e41`; `record()` now uses `isStrictUtcTimestamp(event.occurredAt)`.
+- Existing regression cases cover `2026-02-31T12:00:00.000Z` and `2026-11-21T25:00:00Z`.
+- Current exact-head Actions run was not yet visible at the time of this note; Vercel status was pending. This fix is not yet CI-verified. PR remains Draft, unmerged, with no formal independent reviews.
