@@ -1,3 +1,12 @@
+## 0.1.22 — 2026-11-21
+
+### Fixed — Make current Preview availability explicit on the public homepage
+- Clarify that the current candidate SHA has no available Preview and older Preview deployments are not acceptance evidence.
+- Keep the early-development, unmerged-candidate and staged workstream-maturity disclosures visible.
+
+### Verification
+- Exact-head CI, a current-SHA Preview and desktop/tablet/mobile browser acceptance remain outstanding; no Production deployment is claimed.
+
 ## 0.1.21 — 2026-11-21
 
 ### Improved — Align public homepage candidate status and release metadata
