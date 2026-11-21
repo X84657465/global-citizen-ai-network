@@ -69,6 +69,7 @@ test("maps RLS and database privilege controls to database CI; route and header 
   const result = assessFPSecurityEvidence(bundle());
   assert.equal(result.controls.find((item) => item.controlId === "member-isolation")?.status, "passed");
   assert.equal(result.controls.find((item) => item.controlId === "database-privileges")?.status, "passed");
+  assert.equal(result.controls.find((item) => item.controlId === "api-role-inheritance")?.status, "passed");
   assert.equal(result.controls.find((item) => item.controlId === "security-headers")?.status, "passed");
   assert.equal(result.controls.find((item) => item.controlId === "route-authorization")?.status, "passed");
 });
@@ -78,6 +79,7 @@ test("marks missing or unexecuted controls incomplete", () => {
     evidence: [
       evidence("member-isolation", { status: "not-run" }),
       evidence("database-privileges"),
+      evidence("api-role-inheritance"),
       evidence("security-headers"),
     ],
   }));
