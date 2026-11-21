@@ -174,6 +174,14 @@ test("full dependency audit is a blocking CI security gate", () => {
   assert.equal(section.includes("continue-on-error: true"), false);
 });
 
+test("same-SHA candidate reruns are ignored without candidate success or system-breaker mutation", () => {
+  const build = workflow.slice(findJobSection(workflow, "build").start, findJobSection(workflow, "build").end);
+  const success = workflow.slice(findJobSection(workflow, "circuit-breaker-success").start);
+  assert.ok(build.includes("candidate_start_ignored: ${{ steps.register-candidate.outputs.ignored || 'false' }}"));
+  assert.ok(build.includes("id: register-candidate"));
+  assert.ok(success.includes("needs.build.outputs.candidate_start_ignored != 'true'"));
+});
+
 test("CI never auto-approves or merges AI task pull requests; human approval is required", () => {
   assert.equal(workflow.includes("  auto-merge-ai-task:"), false);
   assert.equal(workflow.includes("markPullRequestReadyForReview"), false);
