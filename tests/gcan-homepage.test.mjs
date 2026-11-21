@@ -68,6 +68,12 @@ test("repository homepage distinguishes the old Preview from the current unprevi
   assert.doesNotMatch(readme, /Build Rate Limit/);
 });
 
+test("public homepage renders candidate versions from the authoritative manifest", () => {
+  assert.ok(homepage.includes('import releaseManifest from "../versions/manifest.json";'));
+  assert.match(homepage, /GCAN \{releaseManifest\.overall\} · A \{releaseManifest\.tracks\.A\.version\} · B \{releaseManifest\.tracks\.B\.version\}/);
+  assert.ok(readme.includes("[版本清單](versions/manifest.json)"));
+});
+
 test("repository and B-line homepage release metadata matches the authoritative manifest", () => {
   assert.equal(rootVersion, "0.3.123");
   assert.equal(manifest.overall, rootVersion);
