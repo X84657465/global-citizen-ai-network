@@ -273,3 +273,68 @@ test("does not expose a direct executor method that could bypass host approval",
   const f = fixture();
   assert.equal("execute" in f.executor, false);
 });
+
+test("credential resolution receives trusted actor and resource scope", async () => {
+  const f = fixture();
+  await assert.rejects(
+    f.host.invoke(
+      { workstream: "I", capability: "execute", input: request },
+      {
+        ...context(true),
+        principal: {
+          ...context(true).principal,
+          actorRef: "different-host-user:999",
+        },
+      },
+    ),
+    (error: unknown) => error instanceof FPIntegrationError && error.code === "CREDENTIAL_UNAVAILABLE",
+  );
+  assert.equal(f.calls.length, 0);
+  assert.equal(f.auditEvents[0].errorCode, "CREDENTIAL_UNAVAILABLE");
+});
+
+test("aborts a credential resolver that exceeds the operation timeout", async () => {
+  const registry = new FPIntegrationRegistry();
+  registry.register({
+    id: "slow-credential-api",
+    version: "1.0.0",
+    operations: [{
+      name: "read-record",
+      effect: "read",
+      async execute() { return "should-not-run"; },
+    }],
+  });
+  let signal: AbortSignal | undefined;
+  const executor = new FPIntegrationExecutor(
+    registry,
+    {
+      resolve(_reference, _scope, abortSignal) {
+        signal = abortSignal;
+        return new Promise((_resolve, reject) => {
+          abortSignal.addEventListener("abort", () => reject(new Error("credential lookup cancelled")), { once: true });
+        });
+      },
+    },
+    { record() {} },
+    100,
+  );
+  const host = new FPHostAdapter();
+  registerFPIntegrationCapability({ host, executor });
+  await assert.rejects(
+    host.invoke(
+      {
+        workstream: "I",
+        capability: "execute",
+        input: {
+          connectorId: "slow-credential-api",
+          operation: "read-record",
+          credentialRef: "vault-record-1",
+          input: null,
+        },
+      },
+      context(true),
+    ),
+    (error: unknown) => error instanceof FPIntegrationError && error.code === "TIMEOUT",
+  );
+  assert.equal(signal?.aborted, true);
+});
