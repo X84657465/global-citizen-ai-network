@@ -162,7 +162,7 @@ test("resets the global breaker only after successful CI for main or a tracked f
   assert.ok(job.includes("HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}"));
   assert.ok(job.includes("CI_RUN_ID: ${{ github.run_id }}"));
   assert.ok(job.includes("CI_RUN_ATTEMPT: ${{ github.run_attempt }}"));
-  assert.ok(job.includes("Reset global breaker after healthy non-task CI"));
+  assert.ok(job.includes("name: Persist candidate success or reset system breaker"));
   assert.ok(job.includes("contents: read"));
   assert.ok(job.includes("github.ref == 'refs/heads/main'"));
   assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
