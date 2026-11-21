@@ -506,12 +506,11 @@ test("system breaker recovery waits for a completed successful exact-head CI wor
   assert.ok(recovery.includes("github.event.workflow_run.event == 'pull_request'"));
   assert.ok(recovery.includes("github.event.workflow_run.head_repository.full_name == github.repository"));
   assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].number != ''"));
-  const recoveryWorkflowHeader = recovery.slice(0, recovery.indexOf("\\njobs:"));
+  const recoveryWorkflowHeader = recovery.slice(0, recovery.indexOf("\njobs:"));
   assert.equal(recoveryWorkflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false,
     "cancelled/failed workflow_run events must not reserve the shared Runner queue at workflow scope");
-  const recoveryJobStart = recovery.indexOf("  reset-system-breaker:\\n");
-  const recoveryJobEnd = recovery.indexOf("\\n  ", recoveryJobStart + 4);
-  const recoveryJob = recovery.slice(recoveryJobStart, recoveryJobEnd < 0 ? recovery.length : recoveryJobEnd);
+  const recoveryJobStart = recovery.indexOf("  reset-system-breaker:\n");
+  const recoveryJob = recovery.slice(recoveryJobStart);
   assert.ok(recoveryJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
   assert.ok(recoveryJob.includes("queue: max"));
   assert.ok(recoveryJob.includes("cancel-in-progress: false"));
