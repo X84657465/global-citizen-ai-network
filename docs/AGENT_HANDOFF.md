@@ -270,3 +270,10 @@ This section supersedes older candidate-head and CI snapshots above where they c
 - Read-only source audit confirmed the factory durable-state validator rejects impossible calendar dates and out-of-range UTC offsets; regression coverage includes normalized impossible dates. The state-machine transition graph keeps `publishing` behind `sandbox_testing`, and does not permit direct publication from planning/patching.
 - Read-only B route audit reconfirmed authenticated-client gating, bounded JSON body, title/UUID validation, project ownership/archive checks, and minimal response projection. Runtime authenticated smoke test and cross-member RLS evidence remain outstanding.
 - No production state mutation, lease/retry/quarantine reset, CI bypass, or PR merge was performed in this checkpoint.
+
+
+### Factory CI failure-path follow-up — 2026-11-22
+
+- Read the actual Windows quality-gates log for PR #264 exact-head run `44941251669`. Its unit-test failure was the stale runbook sentence assertion in `tests/ci-trigger-policy.test.mjs`; the log showed 30/32 tests passing, with the runbook assertion among the failures. Schema guard, migration guard, production audit and full audit reported success; downstream unit/type/lint/build gates were skipped after the test failure.
+- Rechecked the current PR #259 branch files at HEAD `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`: the runbook now states that GitHub evaluates scheduled and issue-event workflows from the default branch, and the paired test asserts that same wording. This confirms the specific stale-sentence mismatch from #264 is corrected in the #259 candidate source; it does not establish that #259's still-pending exact-head run passed.
+- PR #259 exact-head run `44943280889` remains pending with its Windows quality-gates job pending. Keep Draft/unmerged until the exact-head workflow completes, all required integration jobs pass, and independent review/release gates are satisfied.
