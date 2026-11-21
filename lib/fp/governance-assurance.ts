@@ -113,16 +113,16 @@ export function assessFPGovernanceDossier(
       throw new TypeError("L federation must remain deferred.");
     }
     const expected = FP_GOVERNANCE_REQUIREMENTS.find((item) => item.workstream === record.workstream)!;
-    if (record.evidence.length !== 1) {
-      throw new TypeError("Each F–P workstream must provide exactly one required evidence record.");
+    if (record.evidence.length > 1) {
+      throw new TypeError("Each F–P workstream may provide only its one registered evidence record.");
     }
     const evidence = record.evidence[0];
     if (
-      !evidence ||
-      evidence.kind !== expected.evidenceKind ||
+      evidence &&
+      (evidence.kind !== expected.evidenceKind ||
       !SHA_PATTERN.test(evidence.testedSha) ||
       !["passed", "failed", "not-run"].includes(evidence.status) ||
-      !isSafeEvidenceRef(evidence.evidenceRef)
+      !isSafeEvidenceRef(evidence.evidenceRef))
     ) {
       throw new TypeError("Invalid F–P governance evidence record.");
     }
@@ -133,6 +133,9 @@ export function assessFPGovernanceDossier(
     const record = byWorkstream.get(requirement.workstream);
     if (!record) return { workstream: requirement.workstream, status: "missing-evidence", evidenceKind: requirement.evidenceKind };
     const evidence = record.evidence[0];
+    if (!evidence) {
+      return { workstream: requirement.workstream, status: "missing-evidence", evidenceKind: requirement.evidenceKind };
+    }
     if (evidence.testedSha.toLowerCase() !== dossier.candidateSha.toLowerCase()) {
       return {
         workstream: requirement.workstream,
