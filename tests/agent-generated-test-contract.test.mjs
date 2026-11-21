@@ -70,3 +70,33 @@ test("does not impose the unit-test contract on non-test or non-TypeScript files
   assert.equal(getGeneratedTestContractViolation("app/page.tsx", "export default () => <main />;"), null);
   assert.equal(getGeneratedTestContractViolation("tests/example.test.mjs", "jest.fn();"), null);
 });
+
+
+test("does not accept fake node:test imports in comments or string literals", () => {
+  const commentOnly = [
+    '// import test from "node:test";',
+    'const example = "import test from \\"node:test\\";";',
+    'test("not actually imported", () => {});',
+  ].join("\\n");
+  assert.match(
+    getGeneratedTestContractViolation("tests/fake-import.test.ts", commentOnly),
+    /must use Node's built-in node:test/,
+  );
+});
+
+test("does not accept fake Playwright or Jest APIs in comments and strings", () => {
+  const source = [
+    'import test from "node:test";',
+    '// import { test } from "@playwright/test";',
+    'const example = "jest.fn()";',
+  ].join("\\n");
+  assert.equal(getGeneratedTestContractViolation("tests/fake-runner.test.ts", source), null);
+});
+
+test("accepts constrained TypeScript generic arrow functions", () => {
+  const source = [
+    'import test from "node:test";',
+    'const identity = <T extends object>(value: T): T => value;',
+  ].join("\\n");
+  assert.equal(getGeneratedTestContractViolation("tests/generic.test.ts", source), null);
+});
