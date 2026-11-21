@@ -167,3 +167,34 @@ This section supersedes older candidate-head and CI snapshots above where they c
 - B is in handoff/verification preparation only; do not start another parallel B feature branch or rewrite migrations/RLS.
 - F–P remain support-only. #255's F/G-only work stays separate; #259 now contains the shared A repository identity validator but does not make unrelated F–P candidates eligible.
 - No merge, deployment, production data mutation, secret/permission change, durable factory-state edit, retry/quarantine reset or circuit-breaker reset was performed in this continuation.
+
+
+## 8. Fresh continuation — controller repair integrated; current A gate remains pending (2026-11-22)
+
+### Controller lifecycle P0 — Issue #205 / PR #208
+
+- Issue #205 is now closed and carries the `factory-control-plane-approved` authorization label.
+- PR #208 is merged. Its exact HEAD was `c19f3136be61fc61811a9923d8a7247f4c7317fa`; merge commit `5f35019f7877edb5f5a661c14abdabf84915b30a`.
+- Exact-head Actions run [44910780005](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44910780005) has terminal success for metadata resolution, Windows quality gates (unit tests/typecheck/lint/audit/build), Ollama/local execution, and disposable Supabase/PostgreSQL/RLS integration. Vercel exact-head status is success.
+- Current main's `lib/agent-factory-controller.mjs` and `tests/agent-factory-controller.test.mjs` contain the two-step `patching → sandbox_testing → publishing` path and regression coverage. Main is 272 commits ahead of the #208 merge commit and 0 behind, confirming the merged controller repair is in current main ancestry.
+- Formal independent review records on #208 are zero. Record the merge and technical CI evidence accurately; do not retrospectively describe this as independently reviewed. Do not reopen or duplicate the completed issue unless a new defect is evidenced.
+
+### Current #259 exact-head state — authoritative refresh
+
+- Live PR metadata currently reports HEAD `581af4e606ea65162435915139da9dac982d4333`, base main `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, Draft/open, 27 changed files.
+- Exact-head Actions run [44942853489](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942853489) is pending; its metadata resolver job is queued. There are no completed substantive jobs, so no quality, type/lint/build, Ollama, PostgreSQL, pgTAP or RLS pass is claimed for this SHA.
+- Current exact-head Vercel status is failure due to provider build-rate limiting. Do not retry repeatedly or call it a Preview success.
+- Formal PR reviews and inline review threads: zero.
+- The #259 branch adds shared repository-name validation and dot-prefixed segment regression tests; the helper is not present on current main. It also carries A lifecycle/retry/state changes, F–P host/observability/governance changes, a database migration and shared release/CI baseline edits. Treat it as a broad integration candidate, not a narrow isolated fix.
+- Keep Draft. Do not merge #259 or sequentially merge overlapping #264/#265. Reconcile/split the diff against the accepted main ancestor, then require new exact-head full CI and the applicable independent review/release gates.
+
+### Independent review and P2 recovery
+
+- Issue #136 remains open. Its latest relevant material is owner-side source tracing explicitly labeled as not an independent audit; no independent adversarial report was found in the issue comments. Do not self-certify this gate.
+- Issue #188's evidence-gated system-breaker recovery wiring remains dependent on completion of #136. No workflow/control-plane edit, manual breaker reset, lease/retry/quarantine mutation or production state change is authorized by this continuation.
+- B remains preparation/verification only. Current main already contains Workspace metadata filters and minimal Message API projection, but this does not replace disposable authenticated API smoke testing and cross-track review. Do not wholesale transplant stale B branches.
+
+### Actions taken in this continuation
+
+- Read-only verification of PR #208 merge, exact-head CI, Vercel status, current-main ancestry and current PR #259 HEAD/Actions/review state.
+- No runtime code, workflow, schema, production data, secrets, permissions, Runner settings or machine-managed factory state was changed in this continuation.
