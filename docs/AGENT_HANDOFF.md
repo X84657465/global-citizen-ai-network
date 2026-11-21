@@ -52,11 +52,12 @@ F–P manifest registration or a “ready” label is not implementation accepta
 ### PR #259 — P0 A / F–P shared acceptance candidate
 
 - Branch: `fix/ci-schema-grant-test-count-20261122`.
-- **Current exact PR head verified from GitHub PR metadata: `968d14256ce9a53b8e72ca5145722042619d9d4d`.**
+- **Current exact PR head verified from GitHub PR metadata: `14f7a87347713863afb6fb74cc962d67f1972be9`.**
 - Prior exact-head run [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889) targeted superseded SHA `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`; its 543/549 unit result is historical only.
 - Corrective review timestamp validation and stable historical test fixtures were committed in `2b4b1edf6b19c5c3e058f2aca1bb0ced8cd569df` and `d9073d51155de384be18e660c03923b0b0f424d0`.
 - Intermediate commit `f718499241fd905a12688498373a467cd3538ce1` had run [44942456757](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942456757) cancelled; it is not the branch head and is not acceptance evidence.
-- Current-head run [44944625272](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944625272) targets `968d14256ce9a53b8e72ca5145722042619d9d4d`; only the metadata resolver is pending at latest check. No quality, unit, type, lint, build, PostgreSQL/RLS or Ollama result is claimed.
+- Previous run [44944625272](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944625272) targeted superseded SHA `968d14256ce9a53b8e72ca5145722042619d9d4d`; its Windows job had started but is now stale after the fixture correction.
+- Current head `14f7a87347713863afb6fb74cc962d67f1972be9` has exact-head run [44945158137](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945158137) pending at latest check; no jobs have appeared yet. No quality/test/type/lint/build/PostgreSQL/RLS/Ollama pass is claimed.
 - Run [44944042121](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944042121) targeted the superseded `d9073d5...` SHA. Its resolver log confirms the PR head had advanced and the stale event was intentionally ignored; all substantive jobs were skipped. This is not a Runner failure.
 - No independent review is recorded. Keep Draft/unmerged until all exact-head gates and independent review pass.
 - The PR changes shared files including README, `scripts/check-schema.mjs` and `tests/ci-trigger-policy.test.mjs`; reconcile overlap with PR #267 before any merge.
@@ -121,7 +122,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ## 6. Next execution order
 
 1. **A first:** monitor #259 current-head run `44944625272` for SHA `968d14256ce9a53b8e72ca5145722042619d9d4d`; earlier run `44944042121` was correctly ignored as stale after the PR head advanced.
-2. **Shared baseline:** monitor #267 corrected-head run `44944336578` for SHA `6baa233e30192d5b360617d7f0079d840c78821a`; resolver succeeded and the Windows quality job is currently installing locked dependencies. Reconcile shared files with #259 before any merge.
+2. **Shared baseline:** #267 run `44944336578` failed at 14 unit tests on base main. Its four changed file blobs are identical to #259, so it is fully content-subsumed; do not merge it independently. After #259 is accepted/merged, close #267 as redundant.
 3. **K support:** keep this handoff synchronized with verified main/PR state. PR #268 is documentation-only; its exact current head and run are tracked in the PR body because each handoff update necessarily changes its own SHA. Prior docs-head run [44944676236](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944676236) applies only to superseded SHA `abeb8ff82d06065c3bb490036027e15d4b1b4c46`.
 4. **F–P:** address only demonstrated blockers to A acceptance or B contracts.
 5. **B preparation:** prepare a selective-port contract map without activating B as the development priority. B must consume only versioned, explicitly exposed A interfaces; no direct Factory DB/state/lease/Runner access.
