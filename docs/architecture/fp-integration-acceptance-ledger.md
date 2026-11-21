@@ -118,3 +118,12 @@ This initial slice is additive test and documentation work. Revert the integrati
 - Added regression coverage for impossible month/day combinations, hour 24, minute/second 60, and fractional precision beyond milliseconds.
 - This mirrors the collector's strict timestamp validation and prevents malformed manually supplied review evidence from entering the latest-decision ordering logic.
 - Exact-head CI remains the acceptance authority; no review or merge decision is inferred from these local source changes.
+
+
+## 9. P production host read-path integration (2026-11-22)
+
+- Added `GET /api/admin/fp/governance-reviews` as a read-only production entry point. It authenticates through the existing Supabase session helper, checks the caller's active admin profile, and composes the existing authenticated GitHub API client with the P exact-head review collector and collaborator-permission verifier.
+- The route accepts one PR number and one 40-character candidate SHA, rejects malformed/duplicate query parameters, and the collector independently verifies the open same-repository PR still targets `main` at that exact SHA before reading paginated reviews.
+- GitHub access is server-only via `GCAN_GITHUB_READ_TOKEN` and `GCAN_GITHUB_REPOSITORY`; missing configuration fails closed. The token must be restricted to read-only repository metadata and pull-request permissions. No service-role database key is used.
+- Response metadata explicitly keeps governance approval, merge authorization and deployment authorization false. The endpoint cannot approve, mutate policy, merge, or deploy.
+- Added a mainline integration regression guard for the route's trusted auth/client/collector composition and documented the required environment contract. Runtime validation still requires the host secret to be provisioned and exact-head CI; no credential was created or exposed by this change.
