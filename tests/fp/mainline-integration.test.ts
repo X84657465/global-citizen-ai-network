@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
 import {
   FP_WORKSTREAM_CONTRACTS,
   type WorkstreamId,
@@ -10,7 +9,6 @@ import { FP_SECURITY_CONTROLS } from "../../lib/fp/security-assurance.ts";
 import { G_REQUIRED_CI_JOBS } from "../../lib/fp/release-assurance.ts";
 import { FP_GOVERNANCE_REQUIREMENTS } from "../../lib/fp/governance-assurance.ts";
 
-const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 const readRepositoryFile = (path: string) =>
   readFileSync(new URL(`../../${path}`, import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const ciWorkflow = readRepositoryFile(".github/workflows/ci.yml");
