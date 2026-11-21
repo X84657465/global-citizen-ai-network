@@ -1,3 +1,12 @@
+## 2.0.79 — 2026-11-21
+
+### Fixed — Enable exact-head CI for the active stacked integration branch
+- Add the current Agent Factory 2.0.78 integration branch as one explicit pull-request base target so dependent B work receives the normal exact-head quality and integration gates.
+- Extend the CI trigger-policy regression assertion for the exact branch; retain the explicit allowlist, owner/same-repository checks, Windows Runner queue, permissions and all quality/database gates.
+
+### Verification
+- Exact-head CI for this workflow/control-plane change and its dependent PR is required. No wildcard branch expansion, permission change, production data mutation or auto-merge behavior.
+
 ## 2.0.78 — 2026-11-21
 
 ### Fixed — Preserve approved supplemental task context across model stages
