@@ -77,8 +77,11 @@ function assertCorrelationId(value: string): void {
  */
 export class FPHostAdapter {
   private readonly handlers = new Map<string, FPCapabilityHandler>();
+  private readonly observability?: FPObservabilitySink;
 
-  constructor(private readonly observability?: FPObservabilitySink) {}
+  constructor(observability?: FPObservabilitySink) {
+    this.observability = observability;
+  }
 
   private recordOutcome(
     request: FPCapabilityRequest,
