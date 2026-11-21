@@ -1,3 +1,13 @@
+## 2.0.81 — 2026-11-21
+
+### Hardened — Fail closed when UI integration context is missing
+- Require the patch generator to stop rather than invent an integration point when supplied source files do not expose the component/API contract needed by a requested UI change.
+- Prevent disconnected parallel components from being proposed as if they completed the requested feature.
+- Add a prompt regression assertion for this missing-context guard.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, PostgreSQL/RLS integration, Vercel verification and independent formal review remain required. No task retry or durable state reset is performed.
+
 ## 2.0.80 — 2026-11-21
 
 ### Hardened — Align generated patches with repository implementation and test contracts
