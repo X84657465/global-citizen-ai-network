@@ -1,3 +1,8 @@
+## 0.3.116 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.83: synchronize the clean main-based A candidate's exact CI allowlist, active PR link, governance baseline and release metadata.
+- Preserve supplemental task-context validation and all existing fail-closed boundaries.
+
 ## 0.3.115 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.82: correct the patch-generation context contract so the model is explicitly limited to supplied source_files and must fail closed when required repository context is absent.

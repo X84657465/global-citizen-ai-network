@@ -1,3 +1,13 @@
+## 2.0.83 — 2026-11-21
+
+### Fixed — Synchronize the clean main-based A integration candidate
+- Restack supplemental task-context hardening on accepted main after the parent output-budget fix was squash-merged.
+- Align the exact pull-request CI base allowlist and regression test with the new main-based A branch used for dependent B work.
+- Synchronize repository links, governance baseline and release metadata.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, disposable PostgreSQL/RLS, Vercel Preview verification and independent formal review remain required.
+
 ## 2.0.82 — 2026-11-21
 
 ### Hardened — Bind model context to the files actually supplied
