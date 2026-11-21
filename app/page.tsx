@@ -51,7 +51,7 @@ export default function HomePage() {
   <a className={styles.skipLink} href="#main-content">跳至主要內容</a>
   <header className={styles.header}><div className={styles.headerInner}>
    <Link href="/" className={styles.brand} aria-label="Global Citizen AI Network 首頁"><span className={styles.brandMark}><Globe2 size={22}/></span><span className={styles.brandText}><strong>GLOBAL CITIZEN</strong><small>AI NETWORK</small></span></Link>
-   <nav className={styles.nav} aria-label="主要導覽"><a href="#pillars">平台價值</a><a href="#workstreams">A–O 工作線</a><Link href="/factory">A 線工廠</Link><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
+   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#workstreams">A–O 工作線</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
    <div className={styles.headerActions}><Link href="/login" className={styles.loginLink}>會員登入</Link><Link href="/workspace" className={styles.headerCta}>進入平台 <ArrowUpRight size={15}/></Link></div>
   </div></header>
   <main id="main-content" tabIndex={-1}>
