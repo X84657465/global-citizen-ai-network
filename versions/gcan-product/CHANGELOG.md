@@ -1,3 +1,12 @@
+## 0.1.23 — 2026-11-21
+
+### Improved — Synchronize public release metadata
+- Align the B-line release version with the authoritative repository manifest.
+- Preserve public homepage disclosure that the current candidate has no Preview and older deployments are not acceptance evidence.
+
+### Verification
+- Exact-head CI and current-SHA Preview remain required; no Production deployment is claimed.
+
 ## 0.1.22 — 2026-11-21
 
 ### Fixed — Make current Preview availability explicit on the public homepage
