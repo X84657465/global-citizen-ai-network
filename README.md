@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.111` · A 線 Agent Factory V2 `2.0.78`（工廠首頁資訊架構與操作入口更新） · B 線 GCAN Product `0.1.15`（官網首頁 A–P 十六線架構與 P 治理導覽更新） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.111` · A 線 Agent Factory V2 `2.0.78`（工廠首頁資訊架構與操作入口更新） · B 線 GCAN Product `0.1.15`（官網首頁 A–O 工作線與 P 橫向治理架構更新） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -31,18 +31,28 @@
 | C｜Predictive Coding | 預測、觀測、誤差量測、校準與更新提案 | 工作台／研究能力逐步建置，示範資料不代表正式資料服務 |
 | D｜Deep Neural | 知識記憶、證據檢索、推理與品質評估 | 原型與整合候選；不宣稱已完成正式持久化 |
 | E｜Deep Research | 多來源研究、佐證與反證、引用式綜整 | 工作台候選；外部服務與來源查核依驗收結果開放 |
+| F｜Cyber Security & Defense | 威脅建模、弱點管理、存取控制、安全監控與事件應變 | 共同安全防線，依風險逐項落實 |
+| G｜Release, QA & Integration | 版本管理、精確 SHA CI、整合／回歸測試、發布與回復驗收 | 跨線品質關卡，未通過不得宣稱完成 |
+| H｜Observability, Telemetry & Cost/Quota Governance | Logs／Metrics／Traces、效能監控、AI 成本、配額與預算告警 | 監控與成本治理逐步建置 |
+| I｜Ecosystem, Connectors & Workflow Automation | API、Webhook、Connector、授權、排程、跨平台工作流與錯誤隔離 | 依產品需求分階段建置 |
+| J｜Self-Healing, Chaos & Continuity | 健康檢查、故障隔離、自動復原、混沌測試、備份與災難復原 | 研究與設計，須在受控環境驗證 |
+| K｜Knowledge Base, Docs & Governance Playbooks | 架構決策、知識來源、Runbook、SOP、文件版本與跨線交接 | 文件與知識資產持續整理 |
+| L｜Multi-Node, Federation & Edge/Cluster Coordination | 節點身分、工作排程、資源調度、聯邦通訊、資料邊界與故障隔離 | 長期研究方向，尚非公開運算服務 |
+| M｜Compliance, Policy Audit & Risk Governance | 隱私與法規盤點、政策控制、稽核軌跡、風險登錄與例外管理 | 政策設計與風險盤點，待專業審查 |
+| N｜Productization, Analytics & Growth/Ecosystem Ops | 產品方案、使用分析、留存、單位經濟、付費試點與合作夥伴營運 | 先取得真實使用與付費證據 |
+| O｜Lifecycle, Deprecation & Legacy Retirement | 支援週期、棄用公告、遷移、資料封存、相容性與舊系統退役 | 治理規劃，隨系統成熟逐步啟用 |
 | P｜Governance, Ethics & Trust | 對 A–O 與整體產品適用的安全、隱私、倫理、稽核與人工責任 | 橫向治理規範，不是已全面上線的獨立產品功能 |
 
 **驗證原則：** CI 必須對應實際候選提交的精確 SHA；舊提交通過不代表新提交通過。網站預覽、示範數據與工作台原型均不等於正式營運或正式部署。
 
-### A–P 工作線入口與 P 橫向治理
+### A–O 工作線入口與 P 橫向治理
 
 - A｜[Agent Factory V2 工廠控制台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2)
 - B｜[GCAN Product 產品線](https://github.com/X84657465/global-citizen-ai-network/tree/feat/gcan-product-homepage)
 - C｜[Predictive Coding 預測編碼](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
 - D｜[Deep Neural 深度神經工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core)
 - E｜[Deep Research 深度研究工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
-- F–O｜[完整工作線責任與架構總表](#-a-p-十六條工作線完整架構)（依成熟度分階段建置，不代表全部已上線）
+- F–O｜[完整工作線責任與架構總表](#-a–o-十五條工作線--p-橫向治理完整架構)（依成熟度分階段建置，不代表全部已上線）
 - P｜[工程治理規範](docs/engineering-governance.md)（橫向適用於 A–O 全部工作線與正式產品流程）
 
 ## 🧭 快速導覽
@@ -69,9 +79,9 @@
 
 > **核心信念：AI 不應只是少數人的工具；知識貢獻應該被尊重，成本與規則應該透明，設備資源只能在使用者知情且自願的情況下參與。**
 
-## 🧭 A–P 十六條工作線完整架構
+## 🧭 A–O 十五條工作線 + P 橫向治理完整架構
 
-GCAN 以十六條具獨立責任、版本與驗收紀錄的工作線共同建設全球 AI 協作生態系。A–O 負責不同工程、產品與營運能力；P 是橫向治理層，適用於全部工作線。**工作線列入架構不代表功能已完成或正式開放**，實際成熟度以各線版本、精確提交 SHA、測試與審查證據為準。
+GCAN 以 A–O 十五條具獨立責任、版本與驗收紀錄的工作線建設全球 AI 協作生態系；P 是橫向治理層，適用於 A–O 全部工作線與整體產品。**工作線列入架構不代表功能已完成或正式開放**，實際成熟度以各線版本、精確提交 SHA、測試與審查證據為準。
 
 ### A–H｜核心工程與平台能力
 
@@ -464,13 +474,13 @@ http://localhost:3000
 
 ## 🎬 圖片與影片介紹｜Visual & Video Tour
 
-### GCAN A–P 十六線總覽
+### GCAN A–O 十五條工作線與 P 橫向治理總覽
 
 <p align="center">
   <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN A–P 十六條工作線與 P 橫向治理架構圖" width="100%" />
 </p>
 
-A–P 各工作線各自擁有獨立責任、版本與驗收紀錄，透過來源追蹤、版本管理、測試與接收線審核互相協作。
+A–O 各工作線各自擁有獨立責任、版本與驗收紀錄；P 提供共同治理底線，透過來源追蹤、版本管理、測試與接收線審核互相協作。
 
 ### 影片導覽
 
@@ -493,7 +503,7 @@ A–P 各工作線各自擁有獨立責任、版本與驗收紀錄，透過來�
 
 > CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
 
-## 🧠 A–P 工作線協作與持續學習
+## 🧠 A–O 工作線協作與 P 橫向治理
 
 A–O 各工作線依自身責任獨立開發與驗收，P 則橫向約束安全、隱私、倫理、成本、稽核與人工責任。各線透過經審核、具版本及來源證據的成果互相支援；任何跨線成果都必須由接收線決定是否採用，不得以模型信心取代測試。
 
