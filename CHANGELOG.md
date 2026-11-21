@@ -1,3 +1,10 @@
+## 0.3.107 — 2026-11-21
+
+- Carry the exact 24-file Supabase migration inventory guard and disposable-database verification documentation onto the current A–P governance baseline.
+- Separate historical exact-head PostgreSQL/RLS evidence from the new candidate; do not reuse a prior SHA's passing CI as current acceptance.
+- Preserve the complete A–P manifest and repository release metadata; no hosted database, production data, secrets or deployment settings changed.
+- Current candidate exact-head CI and independent formal review remain required.
+
 ## 0.3.106 — 2026-11-21
 
 - Reconcile the A–P governance parent candidate against its authoritative manifest: A 2.0.71, B 0.1.13 (current registered baseline), and governance revision 1.4.10.
