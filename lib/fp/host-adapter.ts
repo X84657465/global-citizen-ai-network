@@ -230,7 +230,7 @@ export class FPHostAdapter {
     });
     auditContext = handlerContext;
 
-    const output = await handler(invocation.input, handlerContext);
+    const output = await handler(invocation.input, handlerContext) as TOutput;
     const envelope: FPCapabilityEnvelope<TOutput> = Object.freeze({
       contractVersion: "1",
       workstream: invocation.workstream,
