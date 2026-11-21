@@ -242,3 +242,22 @@ This section supersedes older candidate-head and CI snapshots above where they c
 - PR #259 live HEAD advanced to `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`; exact-head Actions run [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889) is pending with no jobs exposed.
 - The current branch tip was directly checked to retain both timestamp call-path fixes: H recorder calls `isStrictUtcTimestamp()`; P governance review collector calls `isValidUtcTimestamp()`. Both corresponding impossible-date/hour regression cases are present.
 - Current Vercel status is rate-limited; formal reviews and inline review threads are 0. PR remains Draft/unmerged. Do not transfer prior-SHA CI evidence to this SHA.
+
+
+### Factory / B bridge refresh — 2026-11-22
+
+#### A Factory — issue #204 / PR #261
+- Controller lifecycle dependency #205 is satisfied through merged PR #208; do not replay the old controller fix.
+- Current #204 candidate PR #261 is exact HEAD `69eb7ad72c2130041359045441e36c2c20e73946`, based on main `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, and changes only the two issue-allowlisted paths: `lib/agent-neural-decision.mjs` and `tests/agent-neural-decision-negation.test.mjs`.
+- The targeted Node-native regression suite was independently reproduced in an isolated harness: 9/9 passed. This is not the full offline unit suite.
+- Exact-head Actions run `44940637761` failed at the repository-wide schema guard (`scripts/check-schema.mjs:590`), which requires least-privilege regression coverage for full table privileges, internal-table RLS, and public sequence grants. Later unit/type/lint/audit/build stages were skipped. This blocker is outside #204's two-path allowlist; do not modify unrelated schema/test/workflow files to bypass it. PR #261 remains Draft/unmerged.
+- The Vercel rate limit is a separate Preview blocker and must not be bypassed.
+
+#### B Product bridge
+- PR #200 (A candidate) and PR #201 (B bridge candidate) now report merged in GitHub; #201 merge commit is `1b5ea0a3773d444929424c0110456ac9db6097a5`, with exact-head Actions runs `44920146290` and `44894406266` both successful.
+- Mainline source inspection confirms the authenticated conversations API requires a Supabase authenticated client, validates bounded JSON/title/project UUID, checks project ownership and archive status, and returns a minimal conversation projection. Workspace message validation retains strict UUID/timestamp/type filtering.
+- This source inspection does not establish a disposable authenticated API smoke test or production readiness. Keep B bridge acceptance pending that runtime test and its permission/RLS evidence.
+
+#### Review / recovery gates
+- Issue #136 remains open; no independent adversarial audit evidence has been established. Issue #188 remains blocked on that dependency. Do not alter workflow/controller recovery wiring or reset machine-managed breaker/lease/retry state without the required independent audit.
+- PR #259 remains a separate broad Draft candidate with exact-head CI unresolved and Vercel rate-limited; do not merge it or transfer prior-SHA results.
