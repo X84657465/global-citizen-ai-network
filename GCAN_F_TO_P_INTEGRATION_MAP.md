@@ -44,14 +44,14 @@ F–P is not a parallel application, database, identity provider, task runner, q
 | H correlation | `lib/observability/request-context.ts`, `middleware.ts` | Paired request/response correlation ID | Route/job end-to-end proof still required |
 | P dossier | `lib/fp/governance-assurance.ts` | Completeness and review provenance | Does not grant approval or authority |
 | P review collector | `lib/fp/governance-review-source.ts` | Exact-head PR check and paginated submitted-review collection | Trusted-host permission callback must be supplied |
-| P permission provider | PR #251: `lib/fp/github-review-permission.ts` | Read-only collaborator permission adapter using existing authenticated API client | PR #252 hardens both entry points, adds traversal regression tests, and normalizes GitHub's real `admin/write/read/none` plus `role_name` response into GCAN's internal permission enum; not wired to a production route |
+| P permission provider | `lib/fp/github-review-permission.ts`; `lib/fp/register-governance-review-capability.ts` | Normalizes real GitHub collaborator permissions and registers `P:collect-review-evidence` on the existing `FPHostAdapter` | Repository and authenticated API client are captured at registration; host authorization is required before GitHub reads; read-only and not wired to a production route |
 
 ## 3. Dependency and call order
 
 1. F defines the security evidence and real test/job mapping.
 2. G verifies exact candidate CI and binds its run ID/attempt to F.
 3. H carries correlation across the existing middleware edge and capability outcomes.
-4. P collects exact-head review provenance and asks the trusted host to verify reviewer permissions.
+4. P collects exact-head review provenance through the registered `P:collect-review-evidence` host capability and verifies reviewer permissions using the injected authenticated GitHub client.
 5. I/J/M/N/O/K consume stable contracts and remain within their stated authority limits.
 6. L remains deferred.
 
@@ -60,7 +60,7 @@ F–P is not a parallel application, database, identity provider, task runner, q
 - Existing host authenticates the user/session and determines whether the caller may invoke a capability.
 - F–P receives opaque actor/resource references and a host authorization decision; it does not infer identity from those references.
 - The P review collector verifies the current PR and review history through the existing GitHub API client.
-- The P permission provider candidate reads the collaborator permission endpoint. The caller must inject an authenticated client and an independently authenticated host context.
+- The P host capability reads the collaborator permission endpoint through the injected authenticated client. The host supplies the authorization context; unauthorized calls are rejected before any GitHub request. The capability cannot approve, merge, execute, deploy, or mutate repository state.
 - Permission lookup failure is unverified, never implicitly approved.
 - A review marked approved is descriptive evidence only. P cannot authorize merge, execution or deployment.
 - I side effects require explicit host approval. J remains dry-run/advisory. L remains disabled.
