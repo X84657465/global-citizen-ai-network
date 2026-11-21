@@ -57,7 +57,8 @@ F–P manifest registration or a “ready” label is not implementation accepta
 - This round selectively ported A's deterministic negated/high-risk plan-intent classifier and its regression suite from PR #261 into this consolidated candidate. Exact file blobs match the source PR's two files.
 - PR #261 is closed as redundant; no feature was discarded. Its old run [44940637761](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44940637761) failed at the pre-existing schema-guard/pgTAP-plan synchronization assertion on its older main-based branch. The ported changes must be validated only on #259's new exact SHA.
 - The candidate also contains the corrected RLS fixtures, appeal authorization SQLSTATE handling, strict UTC timestamp validation, GitHub repository-name validation, F–P host/observability fixes, and release metadata synchronization.
-- No independent formal review submissions or inline review threads are recorded. Vercel Preview remains blocked by provider `build-rate-limit`; do not repeatedly trigger builds or bypass the quota.
+- Vercel Preview for the current #259 SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` is READY (deployment `dpl_AL3xTHq8xxNsTmxqriFEChHLADYN`). Root, `/factory`, `/workspace` and `/login` returned HTTP 200. This is Preview smoke evidence only, not full authenticated E2E or production acceptance.
+- No independent formal review submissions or inline review threads are recorded.
 - Keep Draft/unmerged until exact-head Windows quality gates, unit tests, typecheck, lint, security audits, production build, PostgreSQL/migrations/pgTAP/RLS, Ollama/local execution, current-SHA Preview and independent review are all verified. Do not infer success from resolver-only completion.
 
 ### PR #267 — shared CI baseline (closed as redundant)
@@ -137,7 +138,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 - PR #259 exact head is `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6`; run [44945855587](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945855587) is pending at candidate resolver metadata. No substantive CI result is available yet.
 - A risk-intent classification and regression tests were ported exactly from PR #261 into #259. PR #261 is now closed as redundant; its prior schema-guard failure is not evidence against the new consolidated SHA.
 - PR #267 is closed as redundant; its shared metadata changes are carried in #259.
-- PR #259 has no independent formal reviews or inline review threads. Vercel Preview remains externally blocked by provider `build-rate-limit`.
+- PR #259 has no independent formal reviews or inline review threads. Its current exact-SHA Preview is READY and the root plus `/factory`, `/workspace` and `/login` routes returned HTTP 200; authenticated end-to-end and production acceptance remain unverified.
 - PR #268 remains documentation-only and Draft. Its exact head is `127de3547edebedd1265bee7082959dd804d8ded`; run [44945572523](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945572523) is pending with no jobs returned.
 - PR #266 remains a separate Draft documentation candidate; do not merge stale or overlapping documentation branches wholesale.
 - B adapter remains proposal-only. B cannot access Factory state, leases, Runner or privileged execution.
