@@ -2,45 +2,70 @@
 
 ## Scope and release boundary
 
-This runbook covers the GitHub Actions + Windows self-hosted Runner workflow on `feat/agent-factory-v2` and PR #134.
+This runbook covers the current mainline Agent Factory V2 operations defined by:
 
-- PR #134 must remain Draft until a separate human release decision.
-- Do not merge, deploy, change production secrets, or run production migrations as part of this runbook.
-- CI database tests create an isolated local Supabase/PostgreSQL environment. They are not production database tests.
-- The scheduled workflow is defined in `.github/workflows/agent-task-preflight.yml` and currently polls every five minutes (`*/5 * * * *`). GitHub may delay scheduled events.
-- The Windows Runner is a single execution lane. Workflow concurrency serializes its work; this is not multi-host parallel capacity.
+- `.github/workflows/agent-task-preflight.yml` — task intake, five-minute scheduled preflight, durable state/lease gates, controlled dispatch and candidate publication.
+- `.github/workflows/ci.yml` — exact-head candidate metadata resolution, Windows quality/build, database/RLS, Ollama integration and candidate outcome evidence.
+- `.github/workflows/agent-factory-system-health.yml` — post-CI global breaker recovery, which must use trusted mainline controller code and verified exact-run evidence.
 
-## Default-branch scheduling gate and manual V2 dispatch
+The current mainline workflow declares `schedule: "*/5 * * * *"`, `issues: opened/reopened`, `repository_dispatch: ai-task-next`, and `workflow_dispatch` with an explicit `issue_number`. These are configured triggers, not proof that a scheduled run was dispatched, that the Runner is online, or that a task executed successfully. Verify each fact from the exact GitHub Actions run and job records.
 
-GitHub evaluates scheduled workflows and issue events from the repository's default branch only. The V2 copy of `.github/workflows/agent-task-preflight.yml` on `feat/agent-factory-v2` does **not** activate its five-minute poller or its `issues: opened/reopened` handler while the default branch still contains the older V1 workflow.
+- The Windows self-hosted Runner is one execution lane, not multi-host parallel capacity. Preserve shared Runner serialization for all state writers.
+- CI database tests use isolated local Supabase/PostgreSQL. They are not production database tests.
+- This runbook does not authorize merges, production deployments, production migrations, secret changes, or live paid AI activation.
+- The current handoff file `docs/AGENT_HANDOFF.md` records the latest main SHA, active PRs, run IDs and blockers. Refresh it after every development round; this runbook records durable operating procedures.
 
-Manual dispatch is a separate path. The default branch already contains this workflow path with a `workflow_dispatch` trigger, so the Actions UI exposes **Run workflow**. The branch selector can target `feat/agent-factory-v2`; the manually dispatched run uses the selected ref and its commit SHA. This allows a controlled V2 smoke test without merging the feature branch or activating its scheduled poller.
+## Mainline scheduling and controlled dispatch
 
-### Controlled V2 smoke dispatch
+GitHub evaluates scheduled and issue-event workflows from the repository's default branch. The current mainline `.github/workflows/agent-task-preflight.yml` declares the five-minute schedule and `issues: opened/reopened` trigger. The old instruction to select `feat/agent-factory-v2` for normal operation is historical and must not be followed as the default operating path.
+
+### Controlled manual dispatch
 
 1. Open **Actions → AI Agent Task Preflight → Run workflow**.
-2. Select branch `feat/agent-factory-v2`.
-3. Enter the approved task Issue number (for the bounded smoke test, `138`).
-4. Start the run once. Verify that the run event is `workflow_dispatch`, the branch is `feat/agent-factory-v2`, and the checked-out SHA is the intended feature-branch HEAD.
-5. Inspect the durable state gate before any retry. If a lease or cooldown blocks execution, do not dispatch duplicates; inspect Issue #100 and the existing run first.
-
-The V2 job also restricts manual dispatch to the repository owner and reserves a durable lease before task execution. Do not bypass those checks.
+2. Select the intended branch only after confirming it contains the reviewed controller/workflow version. For normal operation, use `main`.
+3. Enter the explicitly approved task Issue number.
+4. Before starting, verify no active task lease, cooldown, quarantine, or duplicate workflow already owns that task.
+5. After dispatch, record the run URL, run ID, attempt, branch and exact checked-out SHA. Confirm the Windows job is actually assigned and inspect its steps.
+6. Read back durable state and the candidate PR metadata before any retry. Never dispatch duplicates to bypass a lease, backoff, quarantine or pending queue.
 
 Operational consequences:
 
-- Do not infer that V2's five-minute `check`/migration poller or issue-event handler is running merely because the feature-branch workflow contains `schedule:` or `issues:`.
-- The V2 workflow must be reviewed and incorporated into the default branch through the approved integration/release process before continuous V2 scheduling and issue-event processing become active. PR #134 and PR #139 must remain Draft until their independent acceptance and release gates are satisfied.
-- Until that release gate is met, Issue #100 remains on its existing V1 payload. Do not edit the machine-managed Issue manually, create a replacement state Issue, or claim that migration occurred.
-- The configured-issue migration regression test is synthetic. A real migration is accepted only after an exact-SHA Windows Runner run demonstrates the V2 controller reading and updating the same Issue #100, followed by a read-back confirming schema version 2 and preserved task/system history.
+- A configured cron or issue trigger is not evidence of a live scheduler or successful Runner execution. Inspect Actions.
+- The durable state Issue is machine-managed. Do not edit its JSON manually, create a replacement state Issue, or clear processed-event keys to force progress.
+- The task selector, state machine, exact-head candidate resolver, and publisher are one controlled workflow. Do not bypass the durable lease, candidate branch naming, task marker, isolation or evidence checks.
+- Pull-request CI can validate code without proving that the default-branch scheduler or state writer is operational.
+- Any migration of the durable state format requires exact-SHA regression evidence and a read-back proving schema version and preserved task/system history.
 
-This gate is separate from branch CI: pull-request CI can validate feature-branch code without activating that branch's scheduled production workflow.
+## Candidate metadata resolver and Windows queue boundary
+
+The current mainline CI resolver `resolve-candidate` performs GitHub PR/Issue metadata verification and reads the Factory state Issue for authorized AI-task candidates. It is currently configured on the Windows self-hosted Runner and takes the same shared concurrency group as machine-dependent CI. This means metadata-only work can wait behind the Windows execution lane before the quality, Ollama and database jobs even become eligible.
+
+The hosted separation experiment was attempted in [PR #243](https://github.com/X84657465/global-citizen-ai-network/pull/243) and closed without merge:
+
+- PR #243's exact-head run #44929303631 failed before recording any resolver steps; the job had no runner assignment and no retrievable log artifact. The available evidence does not establish the failure cause.
+- The PR was closed without merge. No downstream Windows job ran, so this did not validate the hosted resolver or unblock the Windows queue.
+- Keep the current resolver on the Windows self-hosted Runner until hosted-runner availability can be confirmed through an authorized minimal diagnostic and the usage/billing boundary is known.
+- Do not move candidate execution, privileged writes or state mutation to a hosted runner.
+
+## Recovery queue scope and state-writer serialization
+
+The current mainline `.github/workflows/agent-factory-system-health.yml` still declares the shared concurrency group at workflow scope. A `workflow_run: completed` event starts the workflow for successful, failed, cancelled, skipped and unrelated PR CI completions; workflow-level concurrency can reserve the shared Windows queue before the job-level `if` condition skips ineligible events. This is a queue-efficiency defect, not permission to remove serialization.
+
+The proposed A-line correction is tracked in [PR #240](https://github.com/X84657465/global-citizen-ai-network/pull/240):
+
+- Move the same `global-citizen-ai-network-self-hosted-runner` group under `jobs.reset-system-breaker.concurrency`, so only an eligible job reserves it.
+- Keep `cancel-in-progress: false` and `queue: max`; durable state writes remain serialized.
+- Require a successful `pull_request` workflow_run from the same repository and an `ai-task/issue-` branch prefix before the recovery job can enter the queue.
+- The publisher's exact branch form is `ai-task/issue-${issueNumber}-${digest}`, with a 12-character lowercase hex digest. The controller also performs full PR/issue/branch/SHA verification; the prefix is a queue eligibility filter, not an authorization substitute.
+- Keep Windows self-hosted execution and trusted `main` checkout. Do not move the state writer to an untrusted runner or remove the shared queue.
+- Existing runs already queued under the old workflow-level configuration are not retroactively changed by merging PR #240. Verify newly triggered eligible and ineligible workflow_run events after merge.
 
 ## Normal health checks
 
 Before treating an Agent Factory failure as an application defect, verify in this order:
 
 1. **GitHub Actions:** inspect the latest CI and Agent Task Preflight runs. Record the run URL, run ID, attempt, branch and exact tested commit SHA.
-2. **Runner:** confirm the Windows self-hosted Runner is online and has the expected `self-hosted`, `Windows`, `X64` labels. Confirm the job is queued for the expected runner rather than silently waiting for an unavailable host.
+2. **Runner:** inspect whether the job has actually been assigned to a runner and record `runner_name`, labels, queue delay and job steps. A pending job with no runner assignment is not evidence that the Runner is offline; do not infer host availability from an empty job record.
 3. **Host toolchain:** verify Node.js/npm, Docker Desktop/Engine, and the local Ollama API are available. The CI smoke checks exercise these dependencies.
 4. **Isolation:** candidate dependency installation and candidate tests must remain inside the pinned disposable Docker image. Do not run generated candidate code directly in the normal Windows host session.
 5. **Durable state:** inspect the Agent Factory state issue and candidate PR metadata before manually retrying. Do not edit state JSON or create a second PR to bypass a lease, backoff, quarantine, or superseded state.
@@ -105,28 +130,41 @@ Candidate code is executed in disposable Docker containers. The workflow does no
 
 - Before any future Production release, confirm a recent recoverable Supabase backup/PITR point in the Supabase Dashboard and record its timestamp. This runbook does not claim that a backup was created or restore-tested.
 - Keep schema migrations backward-compatible with the currently deployed application where practical. Review migration forward/rollback implications before release; do not assume every migration is safely reversible.
-- For a bad feature-branch change, prefer a new revert commit on `feat/agent-factory-v2`. Do not force-push or rewrite shared branch history.
+- For a bad feature-branch change, prefer a new revert commit on the affected branch. For a mainline change, use a reviewed revert PR and verify the exact reverted SHA. Do not force-push or rewrite shared branch history.
 - For a future Production incident, stop further rollout first, identify the exact Vercel deployment and database migration state, then follow the separately approved application rollback and database recovery plan. Do not blindly roll back the database after writes have occurred.
 - A restore is not proven until a controlled restore test has completed and the restored application has passed health, authentication, and data-integrity checks.
 
-## Latest verified evidence (2026-11-19 UTC)
+## Latest verified evidence (2026-11-22)
 
-- PR #134 head `7dfa22be7cd2624badfd57b269fd9f2894669017` completed CI run [#44507769727](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44507769727) successfully. The run passed 249/249 unit tests, local Supabase migrations and PostgreSQL/RLS checks, Ollama structured inference, TypeScript, ESLint, production build, and dependency audits (0 reported vulnerabilities).
-- Latest runbook commit `f8afc46c833a67311e93ffd4638981396750a8b0` completed CI run [#44508384407](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44508384407) successfully. Both the Windows build/test/security job and the isolated local Supabase migration plus PostgreSQL/RLS job completed with success. PR #134 remains Draft and unmerged.
-- Windows Runner read-only smoke run [#44507755044](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44507755044) passed on the same development branch, verifying Runner identity, Windows/x64, Node.js/npm, checkout, and workspace presence. This is not a restart/reconnect rehearsal.
-- All workflow Checkout steps disable persisted Git credentials; the policy test enforces the rule.
-- The preflight `prepare-task` job explicitly denies Actions API permissions (`actions: none`) while retaining the repository-content, issue, and pull-request write scopes required by its current publisher/state-update operations.
-- The Vercel Preview quota issue remains external and unresolved; no deployment was performed.
+- Main HEAD: `4d3653b3da766ae3910aeef39bd840d2e6de30dd`.
+- Main CI run [#44928069201](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069201) remains pending with zero jobs assigned.
+- Main Agent Task Preflight run [#44928069246](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069246) was pending at the last inspection; run creation alone does not prove task execution.
+- Latest inspected main Agent Factory System Health Recovery run [#44929343777](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929343777) remains pending with no jobs assigned; older recovery runs are also pending.
+- Clean-base active PRs and exact head/run IDs are listed in `docs/AGENT_HANDOFF.md`: #239 A candidate/recovery evidence, #240 A health-recovery queue correction, #241 account CSS-module build repair, #242 H correlation context and #238 K documentation. PR #243's hosted-resolver experiment is closed without merge. At the last inspection, #239–#242 resolver jobs were pending without runner assignment; #238 had no jobs assigned. The #243 hosted resolver failed before any step ran and is closed without merge.
+- No active PR has produced a complete successful exact-head Windows quality/build, isolated Supabase/PostgreSQL/RLS and Ollama evidence set.
+- Main's recovery workflow still has workflow-level concurrency. PR #240 contains the correction; do not describe it as merged or active until main contains that exact change.
+- Recent Vercel statuses report `Deployment rate limited — retry in 24 hours`. This is an external Preview capacity limitation, not GitHub CI evidence. No Preview or Production deployment is claimed.
+- Workflow Checkout steps set `persist-credentials: false`; the repository policy test enforces this.
+- The preflight workflow still has a combined trusted orchestration/publisher job with write-capable token scopes. The scopes are job-scoped; step-scoped environment injection reduces accidental exposure but does not create true least privilege. Do not claim least-privilege completion.
+- No Production database mutation, secret change, or Production deployment was performed as part of this verification.
+
+## Historical evidence (2026-11-19 and earlier)
+
+- PR #134 head `7dfa22be7cd2624badfd57b269fd9f2894669017` completed CI run [#44507769727](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44507769727) successfully. That run passed 249/249 unit tests, isolated local Supabase migrations and PostgreSQL/RLS checks, Ollama structured inference, TypeScript, ESLint, production build, and dependency audits (0 reported vulnerabilities).
+- Runbook commit `f8afc46c833a67311e93ffd4638981396750a8b0` completed CI run [#44508384407](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44508384407) successfully. These results are historical evidence for those exact SHAs; they do not prove the current main or active PR heads pass.
+- Windows Runner read-only smoke run [#44507755044](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44507755044) passed on the development branch. It verified Runner identity, Windows/x64, Node.js/npm, checkout, and workspace presence; it was not a restart/reconnect rehearsal.
 
 ## Release gates still outstanding
 
-1. Complete an actual unattended 24-hour Runner soak. The existing 24-hour lifecycle test is simulated time and is not a wall-clock soak.
-2. Verify runner restart/reconnect and Docker/Ollama recovery with recorded workflow evidence; the read-only smoke run above does not prove recovery after interruption.
-3. Obtain owner confirmation of branch protection, required status checks, Actions workflow permissions, secrets and environment protections.
-4. Trace all publisher API calls and evaluate splitting task preparation from a narrow write-only publisher job.
-5. Verify backup/PITR readiness and perform a controlled restore rehearsal.
-6. Resolve Vercel Preview capacity and complete a separate Preview smoke test.
-7. Obtain explicit human approval before changing PR #134 from Draft, merging, or deploying.
+1. Obtain complete exact-head Windows CI evidence for the current A-line candidate/recovery changes: resolver, quality/tests/types/lint/audit/production build, isolated database/RLS, Ollama/local execution, and required outcome evidence.
+2. Verify the health-recovery controller rejects missing, skipped, duplicated, wrong-attempt and wrong-SHA required jobs before any durable breaker reset.
+3. Complete an actual unattended 24-hour Runner soak. The existing 24-hour lifecycle test is simulated time and is not a wall-clock soak.
+4. Verify Runner restart/reconnect and Docker/Ollama recovery with recorded workflow evidence; the historical read-only smoke run does not prove recovery after interruption.
+5. Obtain owner confirmation of branch protection, required status checks, Actions workflow permissions, secrets and environment protections.
+6. Trace all publisher API calls and evaluate splitting task preparation from narrow write-only publisher/state-writer jobs. Preserve artifact integrity, lease recovery, exact candidate evidence and single-runner serialization.
+7. Verify backup/PITR readiness and perform a controlled restore rehearsal.
+8. Resolve Vercel Preview capacity and complete a separate Preview smoke test.
+9. Obtain explicit human release approval before promoting any Draft PR, merging, or deploying.
 
 ## Evidence record
 
