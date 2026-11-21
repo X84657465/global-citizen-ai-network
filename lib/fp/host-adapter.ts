@@ -118,12 +118,19 @@ export class FPHostAdapter {
       throw new FPHostError("APPROVAL_REQUIRED", "Explicit host approval is required.");
     }
 
-    const output = await handler(request.input, context);
+    if (
+      request.idempotencyKey !== undefined &&
+      (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(request.idempotencyKey))
+    ) {
+      throw new FPHostError("INVALID_CONTEXT", "Invalid idempotency key.");
+    }
+
     const now = (context.now ?? (() => new Date()))();
     if (Number.isNaN(now.getTime())) {
       throw new FPHostError("INVALID_CONTEXT", "Host clock returned an invalid date.");
     }
 
+    const output = await handler(request.input, context);
     const envelope: FPCapabilityEnvelope<TOutput> = Object.freeze({
       contractVersion: "1",
       workstream: request.workstream,
