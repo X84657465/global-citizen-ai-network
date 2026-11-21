@@ -75,7 +75,7 @@ test("does not impose the unit-test contract on non-test or non-TypeScript files
 test("does not accept fake node:test imports in comments or string literals", () => {
   const commentOnly = [
     '// import test from "node:test";',
-    'const example = "import test from \\"node:test\\";";',
+    `const example = String.raw\`import test from "node:test";\`;`,
     'test("not actually imported", () => {});',
   ].join("\n");
   assert.match(
