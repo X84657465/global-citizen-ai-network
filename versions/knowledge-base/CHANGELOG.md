@@ -2,7 +2,7 @@
 
 ### Fixed — Reconcile A–P governance registry and B handoff metadata
 - Align the public A workstream version with the authoritative Agent Factory manifest.
-- Replace superseded governance/product PR links with active PR #179 and dependent B candidate PR #181.
+- Replace superseded governance references with replacement candidate PR #189; retain B candidate PR #181 as a dependent, not-yet-rebased candidate.
 - Distinguish the currently registered B 0.1.13 baseline from the unaccepted B 0.1.16 candidate.
 - Synchronize governance revision 1.4.10 and repository baseline 0.3.106.
 
