@@ -18,7 +18,11 @@ permissions:
 jobs:
   review-gate:
     name: review-gate
-    runs-on: ubuntu-latest
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 5
     steps:
       - name: Evaluate independent review policy
