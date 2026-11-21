@@ -88,5 +88,5 @@ test("repository landing page exposes the product workspace, factory, and curren
   assert.ok(readme.includes("[AI 工作空間](https://global-citizen-ai-network.vercel.app/workspace)"));
   assert.ok(readme.includes("[正式工廠控制中心](https://global-citizen-ai-network.vercel.app/factory)"));
   assert.ok(readme.includes("PR #207（尚未發布）"));
-  assert.match(readme, /本分支最新候選尚無可用 Preview/);
+  assert.match(readme, /本分支最新候選尚未取得 Vercel Preview 部署/);
 });
