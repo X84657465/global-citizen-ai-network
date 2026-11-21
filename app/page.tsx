@@ -59,7 +59,8 @@ export default function HomePage() {
     <div className={styles.heroCopy}><div className={styles.eyebrow}><span/> 15 WORKSTREAMS · ONE GOVERNANCE LAYER</div>
      <h1>讓 AI 成為<br/><em>每個人都能參與</em><br/>的全球協作網路</h1>
      <p className={styles.heroLead}>Global Citizen AI Network（GCAN）不只是一個 AI 聊天介面。我們正在建立結合 AI 服務、全球知識貢獻、預測學習、知識推理與深度研究的協作平台，讓每一項成果都能被追蹤、驗證與持續改善。</p>
-     <div className={styles.heroActions}><a href="#workstreams" className={styles.primaryButton}>探索 A–O 十五條工作線與 P 治理層 <ArrowRight size={17}/></a><a href="#architecture" className={styles.secondaryButton}>查看整體架構 <ChevronRight size={15}/></a></div>
+     <div className={styles.heroActions}><Link href="/workspace" className={styles.primaryButton}>進入 AI 工作空間 <ArrowRight size={17}/></Link><Link href="/factory" className={styles.secondaryButton}>查看 Agent Factory 工廠 <ChevronRight size={15}/></Link></div>
+     <a href="#workstreams" className={styles.heroExplore}>或先探索 A–O 十五條工作線與 P 治理層 <ArrowRight size={14}/></a>
      <div className={styles.heroPrinciples}><span><ShieldCheck size={15}/> 明確授權</span><span><GitBranch size={15}/> 版本可追溯</span><span><CheckCircle2 size={15}/> 結果可驗證</span></div>
     </div>
     <div className={styles.heroVisual}><div className={styles.visualGlow}/><div className={styles.visualFrame}><Image src="/brand/gcan-hero.svg" alt="GCAN 全球 AI 協作網路品牌主視覺" width={1600} height={520} priority className={styles.heroImage} sizes="(max-width: 900px) 100vw, 52vw"/></div><div className={styles.visualTagTop}><span className={styles.liveDot}/> A–O 十五條工作線 + P 治理層</div><div className={styles.visualTagBottom}><Network size={15}/> INDEPENDENT · CONNECTED · REVIEWED</div></div>
