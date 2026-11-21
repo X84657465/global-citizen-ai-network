@@ -1,7 +1,7 @@
 # Five-Track Engineering Governance
 
-**Governance revision: 1.4.18**  
-**Repository release baseline: 0.3.122**
+**Governance revision: 1.4.19**  
+**Repository release baseline: 0.3.123**
 
 ## 1. Five development tracks
 
@@ -89,7 +89,7 @@ A change is not accepted merely because code was committed or a PR exists.
 ## 7. Governance review provenance
 
 - Review evidence must identify the exact candidate commit SHA, review reference, reviewer reference, submission time and an authorization reference supplied by the trusted host.
-- The trusted host must independently authenticate the reviewer and verify repository permissions before marking reviewer authorization as verified. A reference string or model-generated assertion is not authentication.
+- The trusted host must independently authenticate the reviewer and verify repository permissions before marking reviewer authorization as verified. The accepted GitHub repository permission levels are `admin`, `maintain`, or `push`; `triage`, `pull`, and failed lookups remain unverified. A reference string or model-generated assertion is not authentication.
 - Only the latest review per reviewer for the exact candidate SHA is considered. Stale reviews do not count; conflicting decisions at the same timestamp are surfaced rather than resolved by order.
 - A recorded `approved` decision is descriptive evidence only. It does not create governance approval, satisfy branch protection, authorize a merge, or authorize execution/deployment.
 - The review collector must verify that the live PR is open, same-repository, targets `main`, and still has the exact candidate HEAD; it must read all review pages before assessment. The trusted host supplies the permission-check callback; lookup errors are unverified, never implicitly approved.
