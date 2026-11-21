@@ -27,7 +27,7 @@ test("root and Agent Factory numeric release metadata stay synchronized", () => 
   const predictiveCodingVersion = readFileSync(new URL("../versions/predictive-coding/VERSION", import.meta.url), "utf8").trim();
   const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
   const governance = readFileSync(new URL("../docs/engineering-governance.md", import.meta.url), "utf8");
-  const readme候選版本（PR #207，尚未合併／正式發布）|Release = /\*\*Release:\*\* `([^`]+)` · A 線 Agent Factory V2 `([^`]+)`/.exec(readme);
+  const readmeRelease = /\*\*(?:Release|候選版本（PR #207，尚未合併／正式發布）):\*\* `([^`]+)` · A 線 Agent Factory V2 `([^`]+)`/.exec(readme);
   assert.ok(readmeRelease, "README must expose root and Agent Factory release versions");
   assert.equal(readmeRelease[1], rootVersion);
   assert.equal(readmeRelease[2], factoryVersion);
