@@ -51,7 +51,7 @@
 - Added focused regression tests for a shared exact run, mismatched run IDs/attempts, absent F evidence, failed G jobs and failed F controls; the mainline integration guard checks that the evaluator and test are present.
 - The evaluator is advisory only. It explicitly returns `acceptanceGranted: false`, `mergeAuthorized: false` and `deploymentAuthorized: false`.
 - Release metadata advanced to `0.3.120` (governance revision `1.4.16`). PR #229 merged this implementation at `ef543ebeecf56785dc752fdb8ac9305862bb269e`; it remains unaccepted pending exact-head CI and independent review.
-- Exact PR run `44926059712` completed with overall `success`, but only `Resolve exact candidate PR metadata` succeeded; quality, Ollama/build, database/RLS, diagnostics and persistence jobs were skipped. This is not valid F–G acceptance evidence. Main push run `44926070210` was cancelled; no exact-head mainline quality evidence is available.
+- Exact PR run `44926059712` completed with overall `success`, but its resolver log explicitly reported `Stale or closed pull-request event ignored; current PR head differs from the event SHA/ref.` Quality, Ollama/build, database/RLS, diagnostics and persistence jobs were all skipped. This is not valid F–G acceptance evidence. Main push run `44926070210` was cancelled; no exact-head mainline quality evidence is available.
 
 ## 6. Latest H implementation slice (2026-11-22)
 
