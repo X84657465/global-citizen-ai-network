@@ -47,12 +47,12 @@ export type FPHostErrorCode =
   | "EXECUTION_DISABLED";
 
 export class FPHostError extends Error {
-  constructor(
-    readonly code: FPHostErrorCode,
-    message: string,
-  ) {
+  readonly code: FPHostErrorCode;
+
+  constructor(code: FPHostErrorCode, message: string) {
     super(message);
     this.name = "FPHostError";
+    this.code = code;
   }
 }
 
@@ -77,8 +77,11 @@ function assertCorrelationId(value: string): void {
  */
 export class FPHostAdapter {
   private readonly handlers = new Map<string, FPCapabilityHandler>();
+  private readonly observability?: FPObservabilitySink;
 
-  constructor(private readonly observability?: FPObservabilitySink) {}
+  constructor(observability?: FPObservabilitySink) {
+    this.observability = observability;
+  }
 
   private recordOutcome(
     request: FPCapabilityRequest,
