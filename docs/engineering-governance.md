@@ -1,6 +1,6 @@
 # Five-Track Engineering Governance
 
-**Governance revision: 1.4.4**  
+**Governance revision: 1.4.5**  
 **Repository release baseline: 0.3.102**
 
 ## 1. Five development tracks
@@ -103,6 +103,10 @@ Every improvement, including a small one, records:
 
 Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
 
-## 9. Five-track baseline
+## 9. Independent pull-request review
+
+All pull requests follow [Independent Pull Request Review and Approval Policy](pull-request-review-policy.md). Low-risk changes require one independent approval after exact-HEAD CI and dependency checks pass. High-risk, cross-track and migration changes require at least two distinct independent approvals. Authors and latest-commit executors cannot approve their own changes. The companion workflow is advisory until repository administrators configure its status as required; see the policy for the verified GitHub plan and permission limitations.
+
+## 10. Five-track baseline
 
 Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.79`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
