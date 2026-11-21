@@ -3,6 +3,7 @@ import {
   type FPCapabilityEnvelope,
   type WorkstreamId,
 } from "./integration-contract.ts";
+import type { FPObservabilitySink } from "./observability.ts";
 
 export interface FPHostPrincipal {
   /** Opaque identity reference issued by the existing host. */
@@ -75,6 +76,36 @@ function assertCorrelationId(value: string): void {
  */
 export class FPHostAdapter {
   private readonly handlers = new Map<string, FPCapabilityHandler>();
+
+  constructor(private readonly observability?: FPObservabilitySink) {}
+
+  private recordOutcome(
+    request: FPCapabilityRequest,
+    context: FPHostRequestContext,
+    outcome: "succeeded" | "denied" | "rejected" | "failed",
+    startedAt: number,
+    errorCode?: string,
+  ): void {
+    if (!this.observability) return;
+    const correlationId = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(context.correlationId)
+      ? context.correlationId
+      : "invalid-context";
+    try {
+      this.observability.record({
+        schemaVersion: "1",
+        eventType: "fp.capability.outcome",
+        workstream: request.workstream,
+        capability: request.capability,
+        correlationId,
+        outcome,
+        occurredAt: new Date().toISOString(),
+        durationMs: Math.max(0, Date.now() - startedAt),
+        ...(errorCode ? { errorCode } : {}),
+      });
+    } catch {
+      // Observability is best-effort and must never change capability behavior.
+    }
+  }
 
   register<TInput, TOutput>(
     workstream: WorkstreamId,
