@@ -348,6 +348,7 @@ test("task retry enters backoff and cannot be reserved until requeued", () => {
   assert.equal(state.tasks["42"].status, "queued");
   state = reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 63_000);
   assert.equal(state.active_task.attempt, 2);
+  assert.equal(state.tasks["42"].candidate_status, undefined);
 });
 
 test("task success cannot clear a quarantine without owning the active lease", () => {
