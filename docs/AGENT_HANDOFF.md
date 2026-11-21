@@ -54,8 +54,8 @@ F–P manifest registration or a “ready” label is not implementation accepta
 - Branch: `fix/ci-schema-grant-test-count-20261122`.
 - Current exact HEAD: `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`.
 - Exact-head Actions run: [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889).
-- Resolver passed. Windows quality job is running. At latest inspection: Runner/Docker/Ollama preflight, bounded Ollama inference, migration filename guard, schema guard, production and full dependency audits, script syntax and CI policy checks passed; unit tests are in progress. Type check, lint and production build have not yet run.
-- PostgreSQL/RLS integration and remaining required jobs are not accepted for this SHA. No independent review is recorded. Keep Draft/unmerged.
+- Previous exact-head run `44943280889` on `38e5e5f312a1d3eaeedec9117ae1d6b46d779691` failed the unit suite: 543/549 passed, 6 failed in P governance-review source/host tests. Root cause was a double-escaped digit matcher in `isValidUtcTimestamp`, causing valid GitHub UTC review timestamps to be rejected as `INVALID_REVIEW_DATA`.
+- Corrective commit `2b4b1edf6b19c5c3e058f2aca1bb0ced8cd569df` fixes the regex in `lib/fp/governance-review-source.ts`. The corrected exact HEAD has not yet been verified by a new full CI run; require all unit/type/lint/build and PostgreSQL/RLS/Ollama jobs on that new SHA. No independent review is recorded. Keep Draft/unmerged.
 - The PR changes shared files including README, `scripts/check-schema.mjs` and `tests/ci-trigger-policy.test.mjs`; reconcile overlap with PR #267 before any merge.
 
 ### PR #267 — shared CI acceptance baseline
