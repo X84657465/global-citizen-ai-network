@@ -13,6 +13,17 @@ declare
   v_submission_status public.submission_status;
   v_task_id uuid;
 begin
+  -- Authenticated/anonymous JWT callers cannot spoof the appellant identity
+  -- to get past the ownership check. A trusted service-role caller may act
+  -- on behalf of the member; RLS remains the member-facing authorization gate.
+  if auth.role() is not null
+     and auth.role() <> 'service_role'
+     and new.appellant_id is distinct from auth.uid() then
+    raise exception using
+      errcode = '42501',
+      message = 'appeal submission is unavailable';
+  end if;
+
   select s.task_id, s.contributor_id, s.status
     into v_task_id, v_contributor_id, v_submission_status
   from public.task_submissions s
