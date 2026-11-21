@@ -13,10 +13,10 @@ const safePlan = {
   ],
 };
 
-function withImplementerText(title, acceptance_criteria = []) {
+function withImplementerText(title, acceptance_criteria = [], allowedPath = "docs/example.md") {
   return {
     ...safePlan,
-    tasks: safePlan.tasks.map((item) => item.id === "patch" ? { ...item, title, acceptance_criteria } : item),
+    tasks: safePlan.tasks.map((item) => item.id === "patch" ? { ...item, title, acceptance_criteria, allowed_paths: [allowedPath] } : item),
   };
 }
 
@@ -68,7 +68,7 @@ test("ordinary words such as author do not match the auth risk token", () => {
   const authorTask = { allowed_paths: ["docs/author-guide.md"] };
   const plan = withImplementerText("Author the documentation", [
     "Explain the author workflow and authorship metadata",
-  ]);
+  ], "docs/author-guide.md");
   const result = evaluateAgentDecision(plan, authorTask);
   assert.equal(result.signals.no_high_risk_scope, true);
   assert.equal(result.evidence.high_risk_scope_detected, false);
