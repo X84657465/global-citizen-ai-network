@@ -473,8 +473,7 @@ http://localhost:3000
 | [後端環境建置清單](docs/backend-setup.md) | 後端服務準備 |
 | [API 文件](docs/api.md) | 應用 API 說明 |
 | [AI 預算超額保護](docs/ai-budget-overrun-hard-stop.md) | AI 預算硬性停止機制 |
-| [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 自動開發工廠、Runner 與故障處理 |
-| [AI Agent Scheduler](docs/ai-agent-scheduler.md) | 任務排程與執行機制 |
+| [AI Agent Scheduler](docs/ai-agent-scheduler.md) | Agent Factory V2 任務排程、Runner 執行、重試與故障處理 |
 | [Claude 獨立審查簡報](docs/claude-review-brief.md) | 架構與安全審查清單 |
 
 
