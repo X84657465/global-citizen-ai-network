@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { getGeneratedTestContractViolation } from "../lib/agent-generated-test-contract.mjs";
+import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 test("accepts repository-native Node unit tests", () => {
   const source = [
@@ -42,8 +43,27 @@ test("does not mistake HTML strings and TypeScript generics for JSX", () => {
     'import test from "node:test";',
     'const html = "<div><span>safe</span></div>";',
     'const identity = <T,>(value: T): T => value;',
-  ].join("\\n");
+  ].join("\n");
   assert.equal(getGeneratedTestContractViolation("tests/example.test.ts", source), null);
+});
+
+test("patch validation rejects invalid generated tests before sandboxing", () => {
+  const task = {
+    schema_version: 1,
+    allowed_paths: ["tests/contribution-task-filters.test.ts"],
+  };
+  const patch = {
+    schema_version: 1,
+    files: [{
+      path: "tests/contribution-task-filters.test.ts",
+      operation: "add",
+      content: 'import { test } from "node:test"; page.mount(<ContributionTaskList />);',
+    }],
+  };
+  assert.throws(
+    () => validatePatchManifest(patch, task, []),
+    /JSX is not supported/,
+  );
 });
 
 test("does not impose the unit-test contract on non-test or non-TypeScript files", () => {
