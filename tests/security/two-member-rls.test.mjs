@@ -8,7 +8,7 @@ const psql = process.env.PSQL_BIN || "psql";
 const databaseContainer = process.env.SUPABASE_DB_CONTAINER;
 const docker = process.env.DOCKER_BIN || "docker";
 
-function sql(query, { expectFailure = false, expectSqlState } = {}) {
+function sql(query, { expectFailure = false, expectSqlState, expectMessage } = {}) {
   if (!databaseUrl) throw new Error("SUPABASE_DB_URL is required. Use a disposable local Supabase database; never point this test at production.");
   const command = databaseContainer ? docker : psql;
   const args = databaseContainer ? ["exec", "-e", "PGAPPNAME=gcan-two-member-rls-test", databaseContainer, "psql", "-U", "postgres", "-d", "postgres"] : [databaseUrl];
@@ -34,6 +34,12 @@ function sql(query, { expectFailure = false, expectSqlState } = {}) {
         failureOutput,
         new RegExp("ERROR:\\s+" + expectSqlState + ":"),
         `Expected PostgreSQL SQLSTATE ${expectSqlState}; received a different failure: ${diagnostic}`,
+      );
+    }
+    if (expectMessage) {
+      assert.ok(
+        failureOutput.includes(expectMessage),
+        `Expected database rejection message "${expectMessage}"; received a different failure: ${diagnostic}`,
       );
     }
     return failureOutput;
@@ -82,6 +88,10 @@ function fixture() {
     values
       ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.', 'submitted'),
       ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.', 'rejected');
+    -- The BEFORE INSERT trigger normalizes every new submission to submitted.
+    -- Move B's fixture to rejected using the trusted test connection so the
+    -- appeal and cross-member resubmission checks exercise their intended guards.
+    update public.task_submissions set status = 'rejected' where id = '${submissionB}';
     insert into public.task_reviews (submission_id, reviewer_id, decision, rationale)
     values ('${submissionB}', '${b}', 'reject', 'Private review rationale belonging to member B.');
     `;
@@ -182,7 +192,11 @@ test("member cannot appeal another member's rejected submission", () => {
       values ('${f.submissionB}', '${f.a}', 'Attempt to appeal another member submission.');
     `)}
     rollback;
-  `, { expectFailure: true, expectSqlState: "42501" });
+  `, {
+    expectFailure: true,
+    expectSqlState: "P0001",
+    expectMessage: "only the submission owner can appeal",
+  });
 });
 
 test("member cannot submit contribution work on behalf of another member", () => {
