@@ -245,7 +245,9 @@ export class FPHostAdapter {
       ...(invocation.idempotencyKey
         ? { idempotencyKey: invocation.idempotencyKey }
         : {}),
-      payload: output,
+      // The registry stores handlers behind an erased generic boundary.
+      // Restore the invoke caller's declared output type at the envelope edge.
+      payload: output as TOutput,
     });
 
     this.recordOutcome(invocation, auditContext, "succeeded", startedAt);
