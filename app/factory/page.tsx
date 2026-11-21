@@ -33,7 +33,7 @@ export default function FactoryPage() {
           <article><span>需要人工覆核</span><b>03</b><small className={styles.warn}>發布前必須確認</small></article>
         </div>
         <div className={styles.grid}>
-          <section className={styles.panel} id="tasks"><div className={styles.panelHead}><div><h2>跨線任務佇列</h2><p>任務狀態示意（非即時資料）</p></div><button type="button"><a href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">查看 GitHub Actions ↗</a></div>
+          <section className={styles.panel} id="tasks"><div className={styles.panelHead}><div><h2>跨線任務佇列</h2><p>任務狀態示意（非即時資料）</p></div><a className={styles.panelAction} href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">查看 GitHub Actions ↗</a></div>
             <div className={styles.tableWrap}><table><thead><tr><th>任務 ID</th><th>任務內容</th><th>工作線</th><th>狀態</th><th>更新</th></tr></thead><tbody>{tasks.map(t=><tr key={t.id}><td className={styles.id}>{t.id}</td><td>{t.name}</td><td>{t.track}</td><td><span className={styles[t.tone]}>{t.status}</span></td><td>{t.time}</td></tr>)}</tbody></table></div>
           </section>
           <section className={styles.panel} id="quality"><div className={styles.panelHead}><div><h2>品質閘門</h2><p>發布前的治理閘門示意</p></div><ShieldCheck size={20}/></div>
