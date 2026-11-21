@@ -205,3 +205,11 @@ This section supersedes older candidate-head and CI snapshots above where they c
 - A fresh poll of #259 run [44942853489](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942853489) shows the exact-candidate metadata resolver completed successfully and the Windows Runner quality-gates job has started and is `in_progress`. This is progress only; terminal quality success and the separate Ollama/PostgreSQL/RLS jobs remain unverified.
 - The log endpoint for the in-progress job returned BlobNotFound at this checkpoint; no step-level result is inferred.
 - The handoff document update itself is now at commit `b8482c72280bdcf212834805151e7bed5e2dd3f0` on the documentation PR branch. No Actions run for this new documentation HEAD was observed at the time of the refresh; prior docs-head runs do not transfer.
+
+
+### Final live-head correction — PR #259 advanced during verification
+
+- A later fresh GitHub read reports PR #259 HEAD `e7bfe23dd624c4b9c3af64876ea6d8aadc85eba2`, superseding the previously observed `581af4e...`.
+- No pull-request Actions run is currently returned for exact HEAD `e7bfe23...`. The in-progress Windows quality job observed on run `44942853489` belongs to the earlier `581af4e...` snapshot and must not be credited to the new head.
+- Exact-head Vercel status remains failure due to the provider build-rate limit.
+- PR #259 remains Draft with zero formal reviews and zero inline review threads. Keep it unmerged until a new exact-head run reaches terminal success across all required jobs and independent review/release gates are met.
