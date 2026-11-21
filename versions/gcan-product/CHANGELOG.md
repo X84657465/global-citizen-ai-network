@@ -1,3 +1,12 @@
+## 0.1.19 — 2026-11-21
+
+### Fixed — Responsive governance card alignment
+- Center the P governance card on tablet layouts and reset it to full width on mobile.
+- Clarify README architecture wording so P is not described as a sixth feature workstream.
+
+### Verification
+- Static source validation only. Exact-head CI, Preview build and desktop/tablet/mobile browser acceptance remain outstanding; no Production deployment is claimed.
+
 ## 0.1.18 — 2026-11-21
 
 ### Improved — Distinguish P governance from A–O workstreams
