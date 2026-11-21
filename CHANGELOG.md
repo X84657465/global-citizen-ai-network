@@ -1,3 +1,11 @@
+## 0.3.113 — 2026-11-21
+
+- Correct public architecture semantics: A–O are fifteen independent workstreams; P is the cross-cutting governance layer, not a sixteenth peer workstream.
+- Complete the repository landing-page summary for F–O and repair the registry anchor and architecture alt text.
+- Rework homepage workstream cards into consistent three-column desktop, two-column tablet and one-column mobile layouts; visually distinguish P governance.
+- Update homepage navigation, card labels, architecture copy, SEO description and metadata to remove the legacy five-track description and accurately describe A–O + P.
+- Synchronize public and documentation architecture SVG titles/descriptions. Static source checks only; exact-head CI, Preview build and browser visual acceptance remain required.
+
 ## 0.3.112 — 2026-11-21
 
 - Correct the architecture model across the repository and public homepage: A–O are 15 independently owned workstreams; P is the cross-cutting Governance, Ethics & Trust layer, not a peer workstream.
