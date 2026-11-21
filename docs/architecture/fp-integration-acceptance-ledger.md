@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `4d3653b3da766ae3910aeef39bd840d2e6de30dd`  
+**Baseline:** `main` at `40e0e6902ccd35e6daa77f2f7a339ba00f92fab3`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -28,7 +28,7 @@
 | M — Compliance/risk | Governance evidence types and security/audit foundations | Build a scoped control map and risk register; distinguish engineering controls from legal certification | Advisory only; no compliance certification claim |
 | N — Product analytics | Privacy-minimized event concepts only | Define approved aggregate events, retention and privacy review before collection or dashboards | No collection pipeline or user-level profiling enabled |
 | O — Lifecycle | Numeric root/track version metadata and release evidence | Define support windows, deprecation notices, compatibility tests and migration rollback evidence | Advisory only; no automatic retirement |
-| P — Governance/trust | Governance dossier evaluator and approval/evidence requirements | Connect owner records, exact-SHA evidence and review decisions; verify policies are enforced rather than merely documented | Advisory only; no policy mutation or automatic approval |
+| P — Governance/trust | Governance dossier evaluator, exact-SHA workstream evidence, and host-attested review provenance | Added review provenance bound to candidate SHA; latest decision per reviewer, stale-review rejection, conflicting-decision detection and explicit host-verified reviewer authorization reference. Still requires a trusted host to authenticate reviewer permissions; the pure evaluator grants no approval, execution, merge or deployment authority | Advisory only; no policy mutation or automatic approval |
 
 ## 3. Five-stage execution ledger
 
@@ -44,7 +44,14 @@
 
 `F → G → H → P` establishes the security, release-evidence, observability and governance floor. I/J/M/N/O/K then integrate against those stable contracts. L remains deferred and is not on the activation critical path.
 
-## 5. Latest F–G implementation slice (2026-11-22)
+## 5. P governance review provenance slice (2026-11-22)
+
+- Governance policy v2 binds review records to the exact candidate SHA and stores opaque review, reviewer and host authorization references plus a UTC submission timestamp.
+- The evaluator selects each reviewer's latest decision, rejects stale review evidence, flags conflicting decisions at the same timestamp and does not count unverified reviewer attestations as verified.
+- Reviewer authentication remains the trusted host's responsibility. The evaluator does not fetch GitHub permissions or authenticate identities; an approved review remains descriptive and grants no governance, execution, merge or deployment authority.
+- Regression tests cover stale approvals, unverified reviewers, latest-decision semantics, fractional timestamp ordering, conflicting decisions, unsafe/duplicate references and bounded input size.
+
+## 6. Latest F–G implementation slice (2026-11-22)
 
 - Added `lib/fp/f-g-integration-assurance.ts` to evaluate F security controls and G required release jobs as one evidence bundle.
 - The evaluator rejects mismatched repository/PR/candidate SHA and mismatched GitHub Actions run ID or attempt. Missing F evidence remains incomplete; failed registered F controls or required G jobs block the integrated result.

@@ -7,7 +7,7 @@ import {
 } from "../../lib/fp/integration-contract.ts";
 import { FP_SECURITY_CONTROLS } from "../../lib/fp/security-assurance.ts";
 import { G_REQUIRED_CI_JOBS } from "../../lib/fp/release-assurance.ts";
-import { FP_GOVERNANCE_REQUIREMENTS } from "../../lib/fp/governance-assurance.ts";
+import { FP_GOVERNANCE_REQUIREMENTS, FP_GOVERNANCE_POLICY_VERSION } from "../../lib/fp/governance-assurance.ts";
 
 const readRepositoryFile = (path: string) =>
   readFileSync(new URL(`../../${path}`, import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -84,5 +84,11 @@ test("P governance requirements cover every F–P line and keep L explicitly def
     ["F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"],
   );
   assert.equal(FP_WORKSTREAM_CONTRACTS.find((item) => item.id === "L")?.executionAuthority, "none");
+  assert.equal(FP_GOVERNANCE_POLICY_VERSION, "gcan-fp-governance/2");
+  const governance = readRepositoryFile("lib/fp/governance-assurance.ts");
+  assert.ok(governance.includes("reviewerAuthorizationStatus"));
+  assert.ok(governance.includes("reviewedSha.toLowerCase() !== candidateSha.toLowerCase()"));
+  assert.ok(governance.includes("governanceApprovalGranted: false"));
+  assert.ok(governance.includes("mergeAuthorized: false"));
   assert.match(schedulerRunbook, /does not approve the candidate, authorize a merge, or deploy production/);
 });
