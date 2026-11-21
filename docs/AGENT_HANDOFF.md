@@ -35,10 +35,9 @@ No automatic merge or production deployment is authorized by CI success alone. E
 | [#233](https://github.com/X84657465/global-citizen-ai-network/pull/233) | H: request/response correlation context and integration ledger | `f409b829bbe9a57051261da88e75f751fbc275cc` | Run #44926765076 pending; jobs empty | Necessary H handoff, but not a release gate by itself. |
 | [#234](https://github.com/X84657465/global-citizen-ai-network/pull/234) | Account Server Component CSS module build fix | `ded0087abee322586b886d735c3e05717b8832d6` | Run #44927536106 pending; resolver job pending | Narrow build repair; validate exact-head Windows quality/build before merge. |
 | [#235](https://github.com/X84657465/global-citizen-ai-network/pull/235) | A: scope health-recovery concurrency to eligible job and restrict it to trusted AI-task PR branches | `c0014d6a1267cf0569fb110c87288a3317597731` | Run #44927965451 pending; jobs empty | Main already has job-level concurrency. This PR additionally adds `ai-task/issue-` branch filtering so ordinary PRs do not consume the state-writer queue. Keep serialized state writes. |
-| [#236](https://github.com/X84657465/global-citizen-ai-network/pull/236) | A: require all critical exact-run CI jobs before system-breaker recovery | `9ecf758dcb5314c5405ca50fcfc6838440d2c92a` | Run #44927962267 pending; resolver job pending | Overlaps #231 in controller/tests; based on older main. Integrate/rebase only after reviewing #231 to avoid losing its exact-head safeguards. |
-| [#237](https://github.com/X84657465/global-citizen-ai-network/pull/237) | K: refresh the single-source handoff with verified A/B/F–P state | `c00f24aefd1025281405379d9564455ee8efec92` | Run #44928173078 pending; resolver job pending | Documentation only; current handoff refresh, no runtime or production changes. |
+| [#237](https://github.com/X84657465/global-citizen-ai-network/pull/237) | K: refresh the single-source handoff with verified A/B/F–P state | `ce54facb8f93923425ea24a51c1ba8e5a9508424` | Run #44928173078 is for the prior head `c00f24a`; no CI run observed yet for this updated head | Documentation only; current handoff refresh, no runtime or production changes. |
 
-No submitted reviews or inline review threads were present on PRs #231, #233, #234, #235, or #236 at the last check. All remain Draft/open/unmerged.
+PR #236 was closed without merge after review confirmed its recovery-job verification was superseded by the stronger, attempt-specific implementation in #231. No submitted reviews or inline review threads were present on the remaining Draft PRs #231, #233, #234, #235, and #237 at the last check.
 
 ### Important mainline correction
 
@@ -53,8 +52,8 @@ Latest main commit `4d3653b` is titled `revert: restore pre-PR-235 CI trigger te
   - `Windows Ollama and local execution integration`
   - `Persist candidate success or reset system breaker`
 - A completed workflow with conclusion `success` is not sufficient if required jobs were skipped, missing, duplicated, failed, or executed against another run/attempt/SHA.
-- A real run #44926059712 at SHA `67daff6e07ab65f440410eea877021827b6c1971` reported workflow conclusion `success` while the quality, database/RLS, Ollama, and candidate-success persistence jobs were all `skipped`. This exposed the need for per-job recovery evidence.
-- PR #236 implements fail-closed verification of all five critical jobs against the same run ID, attempt, and HEAD SHA, and requires the current PR to remain open on that SHA. Its regression test asserts a skipped required job cannot clear the breaker or mutate durable state. This remains unverified until exact-head CI runs.
+- A real run #44926059712 at SHA `67daff6e07ab65f440410eea877021827b6c1971` reported workflow conclusion `success` while the quality, database/RLS, Ollama, and candidate-success persistence jobs were all `skipped`. This exposed the need for per-job recovery evidence. #231 now contains the required per-job and attempt-specific verification; #236 was closed as a duplicate.
+- PR #231 now implements fail-closed verification of all five critical jobs using the attempt-specific Jobs API endpoint, binding every required job to the same run ID, attempt, and HEAD SHA. It requires the current PR to remain open on that SHA and adds regression tests for skipped jobs and mismatched attempt/SHA evidence. This remains unverified until exact-head CI runs.
 - The shared Windows state-writer queue must remain serialized. Do not move state mutation to an untrusted runner, remove concurrency, or bypass durable leases/cooldowns/quarantine.
 - Do not manually edit the machine-managed factory state Issue, dispatch duplicate tasks to clear a queue, or claim a task completed from partial checks.
 
@@ -89,7 +88,7 @@ The F–P hosting contract explicitly keeps A–E runtime ownership unchanged. F
 ## 6. Current development order
 
 1. **A1:** get exact-head Windows CI to execute for #231/#235/#236; inspect actual job assignments, all steps, and exact SHA. Resolve queue starvation without weakening state-writer serialization.
-2. **A2:** review #231 and #236 together because both touch the Factory controller and tests. Preserve candidate start/outcome exact-head checks and per-job health recovery checks in one coherent final diff.
+2. **A2:** keep #231 as the sole authoritative Factory controller integration. #236 is closed as superseded; do not reopen or reintroduce its duplicate, weaker endpoint implementation.
 3. **A3:** verify #235's AI-task branch restriction against the real task branch naming contract and workflow event shape; keep the default branch's current job-level concurrency behavior.
 4. **A4:** accept only green exact-head Windows quality, database/RLS and Ollama gates; verify the recovery workflow itself uses trusted mainline controller code and cannot clear the breaker from skipped jobs.
 5. **Build handoff:** review #234 as a separate narrow build repair after CI capacity returns.
