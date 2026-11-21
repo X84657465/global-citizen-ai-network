@@ -7,8 +7,9 @@ J consumes sanitized runtime failure evidence and produces deterministic recover
 ## Host and policy boundary
 
 - The host must authenticate and authorize the caller before the J handler runs.
+- The request contains only an opaque evidence reference. A trusted evidence provider resolves the evidence within the host-issued actor/resource scope; callers cannot submit or forge failure codes or component metadata.
 - J obtains the policy decision from an injected trusted P policy provider. A policy decision is never accepted from the request payload.
-- The policy provider receives the validated evidence and the host-issued principal, allowing policy evaluation to bind the decision to actor/resource scope.
+- The policy provider receives the resolved evidence and host-issued principal, allowing policy evaluation to bind the decision to actor/resource scope.
 - A denied policy decision returns no proposal.
 - No proposal is executed, retried, scheduled, or persisted by this module.
 
@@ -38,6 +39,6 @@ Implemented in:
 - `lib/fp/resilience.ts`
 - `tests/fp/resilience.test.ts`
 
-Coverage includes trusted P policy lookup, host authorization ordering, policy denial, strict evidence validation, bounded output, and absence of free-form message propagation.
+Coverage includes host-scoped trusted evidence resolution, trusted P policy lookup, host authorization ordering, evidence-reference binding, policy denial, strict evidence validation, bounded output, and rejection of caller-forged failure metadata.
 
 The capability is not wired to a production route. A real P policy provider and trusted evidence source must be supplied by the owning host before any deployment integration. Full repository CI and independent review remain required before acceptance.
