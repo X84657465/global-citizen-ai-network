@@ -91,7 +91,8 @@
 - [ ] Candidate PR is open, same-repository, targets main and retains exact head SHA.
 - [ ] Complete paginated review history is collected within the safe bound.
 - [ ] Each review is bound to reviewer, review reference, timestamp and reviewed commit SHA.
-- [ ] Trusted host verifies reviewer permission through an authenticated GitHub client.
+- [x] P registers `collect-review-evidence` on the existing `FPHostAdapter`; repository/API client are bound at registration and host authorization is required before GitHub reads.
+- [ ] Trusted host verifies reviewer permission through an authenticated GitHub client in the full exact-head repository suite.
 - [ ] Adapter normalizes GitHub's actual `admin/write/read/none` base role plus `role_name` mapping (`maintain`/`triage`) and rejects unknown or contradictory payloads.
 - [ ] Only `admin`, `maintain` and `push` count as verified review permissions.
 - [ ] Failed permission lookup remains unverified; stale reviews do not count.
