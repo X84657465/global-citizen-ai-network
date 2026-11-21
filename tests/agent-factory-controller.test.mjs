@@ -76,6 +76,28 @@ async function startCandidate(controller, ciRunId) {
   });
 }
 
+function currentCandidatePullApi({ headSha = "b".repeat(40), headShaAfterFirstRequest, headRef = "ai-task/issue-42-abcdef123456", state = "open" } = {}) {
+  let requests = 0;
+  return {
+    async request(path) {
+      assert.equal(path, "/repos/owner/repo/pulls/88");
+      requests += 1;
+      return {
+        number: 88,
+        state,
+        body: "<!-- ai-task:42 -->",
+        user: { login: "owner" },
+        base: { ref: "main", repo: { full_name: "owner/repo" } },
+        head: {
+          ref: headRef,
+          sha: requests > 1 && headShaAfterFirstRequest ? headShaAfterFirstRequest : headSha,
+          repo: { full_name: "owner/repo" },
+        },
+      };
+    },
+  };
+}
+
 function awaitingCandidate(now = 1000) {
   const leaseId = "lease-candidate-42";
   let state = reserveTask(createInitialFactoryState(now), {
@@ -99,6 +121,30 @@ function awaitingCandidate(now = 1000) {
   }
   state = transitionTask(state, 42, leaseId, "awaiting_ci", {}, now + 700);
   return state;
+}
+
+const SYSTEM_HEALTH_JOB_NAMES = [
+  "Resolve exact candidate PR metadata",
+  "Windows Runner quality gates — tests, types, lint, audit and production build",
+  "Windows Ollama and local execution integration",
+  "Windows Supabase migrations, PostgreSQL and RLS integration",
+  "Persist candidate success or reset system breaker",
+];
+
+function systemHealthJobs(runId, runAttempt, headSha, overrides = {}) {
+  return {
+    total_count: SYSTEM_HEALTH_JOB_NAMES.length,
+    jobs: SYSTEM_HEALTH_JOB_NAMES.map((name, index) => ({
+      id: index + 1,
+      name,
+      run_id: runId,
+      run_attempt: runAttempt,
+      head_sha: headSha,
+      status: "completed",
+      conclusion: "success",
+      ...overrides[name],
+    })),
+  };
 }
 
 test("reserve mode rejects a missing workflow attempt before persisting a lease", async () => {
@@ -310,7 +356,7 @@ test("task-scoped failure requires and releases the exact active lease", async (
 
 test("candidate failure callback persists rejection and delays retry without counting infrastructure failure", async () => {
   const store = fakeStore(awaitingCandidate());
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
   await startCandidate(controller, "555001");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
@@ -363,7 +409,7 @@ test("candidate success completes only its task and preserves the global breaker
   const expectedSystem = structuredClone(initial.system);
   const expectedQuarantine = structuredClone(initial.tasks["99"]);
   const store = fakeStore(initial);
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
   await startCandidate(controller, "555002");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
@@ -659,7 +705,7 @@ test("transition mode remains idempotent after awaiting_ci has released the work
 
 test("candidate failure callback recovers after a transient durable-state write failure", async () => {
   const store = fakeStore(awaitingCandidate(), { failWriteAt: 2 });
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
   await startCandidate(controller, "555004");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
@@ -772,9 +818,224 @@ test("candidate-start rejects a PR head that moved after metadata resolution wit
   assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
 
+test("candidate-start fails closed when GitHub PR verification is unavailable for a persisted candidate", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+  });
+
+  await assert.rejects(startCandidate(controller, "555011"),
+    /Candidate start requires current GitHub PR verification/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].pull_request_number, 88);
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+});
+
+test("candidate-start fails closed when the current GitHub PR verification request throws", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        assert.equal(path, "/repos/owner/repo/pulls/88");
+        throw new Error("GitHub API temporarily unavailable");
+      },
+    },
+  });
+
+  await assert.rejects(startCandidate(controller, "555012"),
+    /GitHub API temporarily unavailable/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].pull_request_number, 88);
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+});
+
+test("candidate success callback rejects a PR head that moved after CI without completing the stale candidate", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: currentCandidatePullApi({ headShaAfterFirstRequest: "c".repeat(40) }),
+  });
+  await startCandidate(controller, "555020");
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555020",
+    CI_RUN_ATTEMPT: "1",
+  }), /Candidate outcome rejected: PR must remain the current open same-repository AI Task PR/);
+
+  assert.equal(store.state.state_version, initial.state_version + 1);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+});
+
+test("candidate failure callback rejects a PR head that moved after CI without penalizing the newer candidate", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: currentCandidatePullApi({ headShaAfterFirstRequest: "c".repeat(40) }),
+  });
+  await startCandidate(controller, "555021");
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "failure",
+    CI_RUN_ID: "555021",
+    CI_RUN_ATTEMPT: "1",
+    FAILURE_SUMMARY: "stale CI failure",
+  }), /Candidate outcome rejected: PR must remain the current open same-repository AI Task PR/);
+
+  assert.equal(store.state.state_version, initial.state_version + 1);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].candidate_failures, 0);
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+});
+
+test("candidate outcome rejects when the PR head moves after candidate-start", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const api = currentCandidatePullApi({
+    headShaAfterFirstRequest: "c".repeat(40),
+  });
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api,
+  });
+  await startCandidate(controller, "555024");
+  const versionAfterStart = store.state.state_version;
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555024",
+    CI_RUN_ATTEMPT: "1",
+  }), /Candidate outcome rejected: PR must remain the current open same-repository AI Task PR at the exact supplied head SHA and branch/);
+
+  assert.equal(store.state.state_version, versionAfterStart);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+  assert.equal(store.state.tasks["42"].candidate_status, "pending");
+});
+
+test("candidate outcome fails closed when the GitHub PR verification client is unavailable", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const startController = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: currentCandidatePullApi(),
+  });
+  await startCandidate(startController, "555023");
+  const versionAfterStart = store.state.state_version;
+  const outcomeController = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+  });
+
+  await assert.rejects(outcomeController.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555023",
+    CI_RUN_ATTEMPT: "1",
+  }), /Candidate outcome requires current GitHub PR verification/);
+
+  assert.equal(store.state.state_version, versionAfterStart);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+  assert.equal(store.state.tasks["42"].candidate_status, "pending");
+});
+
+test("candidate outcome fails closed when current PR verification API request throws", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  let requests = 0;
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        assert.equal(path, "/repos/owner/repo/pulls/88");
+        requests += 1;
+        if (requests === 1) {
+          return {
+            number: 88,
+            state: "open",
+            body: "<!-- ai-task:42 -->",
+            user: { login: "owner" },
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: {
+              ref: "ai-task/issue-42-abcdef123456",
+              sha: "b".repeat(40),
+              repo: { full_name: "owner/repo" },
+            },
+          };
+        }
+        throw new Error("GitHub PR verification temporarily unavailable");
+      },
+    },
+  });
+  await startCandidate(controller, "555022");
+  const versionAfterStart = store.state.state_version;
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555022",
+    CI_RUN_ATTEMPT: "1",
+  }), /GitHub PR verification temporarily unavailable/);
+
+  assert.equal(requests, 2);
+  assert.equal(store.state.state_version, versionAfterStart);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+  assert.equal(store.state.tasks["42"].candidate_status, "pending");
+});
+
 test("candidate outcome from a stale CI run attempt is rejected", async () => {
   const store = fakeStore(awaitingCandidate());
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
   await startCandidate(controller, "555006");
   await assert.rejects(controller.run({
     AGENT_FACTORY_MODE: "candidate",
@@ -1124,6 +1385,9 @@ test("system-health success requires verified exact-head CI evidence and resets 
     api: {
       async request(path) {
         requests.push(path);
+        if (path === "/repos/owner/repo/actions/runs/555009/attempts/2/jobs?per_page=100") {
+          return systemHealthJobs(555009, 2, sha);
+        }
         if (path === "/repos/owner/repo/actions/runs/555009") {
           return {
             id: 555009,
@@ -1178,10 +1442,177 @@ test("system-health success requires verified exact-head CI evidence and resets 
   assert.deepEqual(replay.state.tasks, expectedTasks);
   assert.deepEqual(requests, [
     "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/actions/runs/555009/attempts/2/jobs?per_page=100",
     "/repos/owner/repo/pulls/168",
     "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/actions/runs/555009/attempts/2/jobs?per_page=100",
     "/repos/owner/repo/pulls/168",
   ]);
+});
+
+test("system-health success rejects an overall successful run when required CI jobs were skipped", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555030") {
+          return {
+            id: 555030,
+            run_attempt: 1,
+            head_sha: sha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 170,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/actions/runs/555030/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555030, 1, sha, {
+            "Windows Runner quality gates — tests, types, lint, audit and production build": {
+              conclusion: "skipped",
+            },
+            "Windows Ollama and local execution integration": { conclusion: "skipped" },
+            "Windows Supabase migrations, PostgreSQL and RLS integration": { conclusion: "skipped" },
+          });
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555030",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "170",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  }), /every resolver, quality, build, and database job to succeed/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
+});
+
+test("system-health success rejects a required CI job from another attempt or SHA", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555031") {
+          return {
+            id: 555031,
+            run_attempt: 2,
+            head_sha: sha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 171,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/actions/runs/555031/attempts/2/jobs?per_page=100") {
+          return systemHealthJobs(555031, 2, sha, {
+            "Windows Runner quality gates — tests, types, lint, audit and production build": {
+              head_sha: "e".repeat(40),
+            },
+          });
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555031",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "2",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "171",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  }), /every resolver, quality, build, and database job to succeed/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
+});
+
+test("system-health success rejects a closed PR even when its old CI run was successful", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555032") {
+          return {
+            id: 555032,
+            run_attempt: 1,
+            head_sha: sha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 172,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/actions/runs/555032/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555032, 1, sha);
+        }
+        if (path === "/repos/owner/repo/pulls/172") {
+          return {
+            number: 172,
+            state: "closed",
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { sha, repo: { full_name: "owner/repo" } },
+          };
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555032",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "172",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  }), /current open same-repository PR head no longer matches/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
 });
 
 test("system-health success rejects a successful CI run when the PR has advanced to a newer head", async () => {
@@ -1197,6 +1628,9 @@ test("system-health success rejects a successful CI run when the PR has advanced
     now: () => 3000,
     api: {
       async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555011/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555011, 1, testedSha);
+        }
         if (path === "/repos/owner/repo/actions/runs/555011") {
           return {
             id: 555011,
