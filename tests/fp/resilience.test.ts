@@ -35,11 +35,22 @@ const context = (authorized = true) => ({
   now: () => new Date("2026-11-22T00:01:00.000Z"),
 });
 
-function host(policyDecision: FPResiliencePolicyDecision = allow) {
+function host(
+  policyDecision: FPResiliencePolicyDecision = allow,
+  resolvedEvidence: FPResilienceEvidence = evidence(),
+) {
   const adapter = new FPHostAdapter();
+  const evidenceCalls: string[] = [];
   const policyCalls: string[] = [];
   registerFPResilienceCapability({
     host: adapter,
+    evidence: {
+      resolve(reference, principal) {
+        evidenceCalls.push(principal.actorRef);
+        assert.equal(reference, "evidence:42");
+        return resolvedEvidence;
+      },
+    },
     policy: {
       evaluate(input, principal) {
         policyCalls.push(principal.actorRef);
@@ -48,7 +59,7 @@ function host(policyDecision: FPResiliencePolicyDecision = allow) {
       },
     },
   });
-  return { adapter, policyCalls };
+  return { adapter, evidenceCalls, policyCalls };
 }
 
 test("creates a deterministic advisory proposal from allowlisted evidence", () => {
@@ -77,44 +88,77 @@ test("trusted P policy denial suppresses diagnostic proposals", () => {
   ), null);
 });
 
-test("registers J through the existing host and obtains policy from trusted P provider", async () => {
+test("resolves evidence and policy through trusted providers bound to the host principal", async () => {
   const f = host();
-  const result = await f.adapter.invoke<FPResilienceEvidence, ReturnType<typeof createFPResilienceProposal>>(
-    { workstream: "J", capability: "diagnose", input: evidence() },
+  const result = await f.adapter.invoke< { evidenceRef: string }, ReturnType<typeof createFPResilienceProposal> >(
+    { workstream: "J", capability: "diagnose", input: { evidenceRef: "evidence:42" } },
     context(true),
   );
   assert.equal(result.envelope.payload?.classification, "TIMEOUT");
   assert.equal(result.envelope.payload?.executionPerformed, false);
+  assert.deepEqual(f.evidenceCalls, ["host-user:1"]);
   assert.deepEqual(f.policyCalls, ["host-user:1"]);
 });
 
-test("host authorization denial prevents policy lookup and J execution", async () => {
+test("host authorization denial prevents evidence and policy lookup", async () => {
   const f = host();
   await assert.rejects(
     f.adapter.invoke(
-      { workstream: "J", capability: "diagnose", input: evidence() },
+      { workstream: "J", capability: "diagnose", input: { evidenceRef: "evidence:42" } },
       context(false),
     ),
     (error: unknown) => error instanceof FPHostError && error.code === "UNAUTHORIZED",
   );
+  assert.deepEqual(f.evidenceCalls, []);
   assert.deepEqual(f.policyCalls, []);
 });
 
 test("trusted policy denial returns no proposal", async () => {
   const f = host({ decision: "deny", policyVersion: "policy-v3" });
-  const result = await f.adapter.invoke<FPResilienceEvidence, ReturnType<typeof createFPResilienceProposal>>(
-    { workstream: "J", capability: "diagnose", input: evidence() },
+  const result = await f.adapter.invoke<{ evidenceRef: string }, ReturnType<typeof createFPResilienceProposal>>(
+    { workstream: "J", capability: "diagnose", input: { evidenceRef: "evidence:42" } },
     context(true),
   );
   assert.equal(result.envelope.payload, null);
+  assert.deepEqual(f.policyCalls, ["host-user:1"]);
 });
 
-test("rejects free-form messages, extra fields, and malformed references", () => {
-  assert.throws(() => createFPResilienceProposal(
-    { ...evidence(), message: "sensitive raw provider response" } as FPResilienceEvidence,
-    allow,
-    { correlationId: "corr-123" },
-  ), TypeError);
+test("rejects forged evidence payload fields and malformed evidence references", async () => {
+  const f = host();
+  await assert.rejects(
+    f.adapter.invoke(
+      {
+        workstream: "J",
+        capability: "diagnose",
+        input: { evidenceRef: "evidence:42", failureCode: "PERMISSION_DENIED" },
+      },
+      context(true),
+    ),
+    TypeError,
+  );
+  await assert.rejects(
+    f.adapter.invoke(
+      { workstream: "J", capability: "diagnose", input: { evidenceRef: "../private" } },
+      context(true),
+    ),
+    TypeError,
+  );
+  assert.deepEqual(f.evidenceCalls, []);
+});
+
+test("rejects evidence provider results that do not match the requested reference", async () => {
+  const f = host(allow, evidence({ evidenceRef: "evidence:other" }));
+  await assert.rejects(
+    f.adapter.invoke(
+      { workstream: "J", capability: "diagnose", input: { evidenceRef: "evidence:42" } },
+      context(true),
+    ),
+    TypeError,
+  );
+  assert.deepEqual(f.policyCalls, []);
+});
+
+test("rejects malformed trusted evidence and policy metadata", () => {
   assert.throws(() => createFPResilienceProposal(
     evidence({ evidenceRef: "../private" }),
     allow,
@@ -130,9 +174,6 @@ test("rejects free-form messages, extra fields, and malformed references", () =>
     allow,
     { correlationId: "corr-123" },
   ), TypeError);
-});
-
-test("rejects unsupported failure codes and malformed trusted policy metadata", () => {
   assert.throws(() => createFPResilienceProposal(
     evidence({ failureCode: "RUN_ARBITRARY_COMMAND" as FPResilienceEvidence["failureCode"] }),
     allow,
