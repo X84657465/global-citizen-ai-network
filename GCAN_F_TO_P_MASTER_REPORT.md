@@ -181,3 +181,41 @@ A–P 註冊存在於 PR #185 head `6e76272623333201228d4ed82f63141f56dcb868` �
 ## 7. 結論
 
 F–P 已有正式架構定義，但不是 11 條都已實作。第一輪證據支持 F/G/H/L 存在部分候選成果，I/J/K/M/N/O/P 仍以規劃/治理文件為主；目前沒有任何依據可將 F–P 整體標記為「全部驗收完成」或「可直接整合 B」。本次最重要成果是確認真實工作線職責、候選程式碼位置、PR ancestry、CI 狀態與阻礙，並建立不覆蓋既有 Agent 成果的交接分支。
+
+
+## 6. Live GitHub recheck — 2026-11-21 (supersedes earlier PR metadata where different)
+
+A fresh read of the current PR records and exact-head workflow-run endpoints was performed after the initial report. These are remote GitHub observations only; no local code was executed.
+
+| Track | PR / current head | Current remote state | Exact-head workflow evidence returned | Updated assessment |
+|---|---|---|---|---|
+| F | #145, `27d31444d8fb8d57040e60aa554e5d8e905d00e4` | Open, non-draft, base `main`; mergeable=false; 20 files | No PR-triggered workflow run returned by the commit workflow-runs endpoint | Still UNKNOWN/BLOCKED for CI acceptance; ancestry and mergeability need investigation |
+| G | #147, `6f735c1251907c5016e7eea32ea0253142e537ec` | Open; base `feat/g-p-workstream-governance`; mergeable=false | No PR-triggered workflow run returned | UNKNOWN; not accepted |
+| G | #148, `273eb012f7558c1223c3af3d4543c6745d6aaefa` | Open; same governance base; mergeable=true | CI completed with failure | FAIL; still competing with #147 |
+| H | #150, `d2bd6d49edae549dde319750a64a101bd7b5fabf` | Open; base is G #148 head; mergeable=true | CI completed with failure | FAIL; dependent on unaccepted G v2 |
+| L | #66, `8e28ceb2a1ca0c992dc8304c8537ea50bf94584a` | Open; base `main`; mergeable=false | CI completed with failure | FAIL |
+| L | #67, `9b65d28f3939bdbd13aef76e3879079fd55653bf` | Open; base is #66 head; mergeable=false | No PR-triggered workflow run returned | Mirror-test author report remains non-acceptance evidence |
+| P | #68, `a277b7a78ae32182b14dec2f621258969ea85554` | Open; base `main`; mergeable=false | AI Security Static Checks and CI both completed with failure | FAIL |
+| P | #206, `11869f21745efc88064487a167cd0296cfe21edc` | Open; base `main`; mergeable=true | Exact-head CI completed successfully | CI PASS for this SHA only; does not establish P policy enforcement or deployment |
+
+The current PR metadata reports #145/#147/#66/#67/#68 as not mergeable. “mergeable=false” is a GitHub metadata observation and must not be translated into a specific conflict diagnosis without reading the mergeability details/diff. #148/#150/#206 currently report mergeable=true, which is not an approval or acceptance decision.
+
+### 6.1 F–P status corrections and scope clarifications
+
+- F #145 has moved from the earlier recorded head to `27d3144...`; its current changed-file inventory includes security policy/runbooks, Dependabot, security headers, package/version metadata and security regression tests. The PR's own change description says the security tests still require exact-head Runner execution. Do not call F certified or accepted.
+- G #147 and #148 remain duplicate/overlapping candidates. #147 is not simply a newer passing version; its exact-head workflow result is UNKNOWN. #148 has a failed CI run.
+- H #150 still has no connected live telemetry and its exact-head CI fails.
+- L #66/#67 remain design/contract candidates. #66 CI fails; #67 has no associated PR workflow run in the queried endpoint. No community worker or device execution is authorized by these artifacts.
+- P #206 now has a successful exact-head CI run (the earlier “pending” statement is superseded). The PR's content describes P as a cross-cutting Governance, Ethics & Trust layer, not a sixth feature-development track, and says A–E are the five currently active feature tracks. This wording must be reconciled with the broader A–P sixteen-workstream registry before the canonical architecture is published. A successful CI validates only the checks in that run, not governance enforcement, production readiness, or deployment.
+- P #68 remains failed. A policy document or static prompt scan does not prove server-side authorization, required branch protection, or runtime tool enforcement.
+- I, J, K, M, N and O still have no independently accepted track implementation established by this recheck. Existing integration code, A recovery, and documentation assets must not be relabelled as I/J/K acceptance without explicit ownership and criteria.
+
+### 6.2 Updated next priorities
+
+1. F: inspect why #145 is non-mergeable and compare its base/ancestry with the F branch used by the A–P governance stack; then execute security tests on the final exact SHA.
+2. G: diff #147 against #148, select one candidate, fix exact-head CI and prove the evidence publisher can authenticate GitHub run provenance.
+3. H: do not rebase/accept until G is selected and passing; keep telemetry integration read-only and privacy-minimized.
+4. L: hold both PRs; require F security review, H measured capacity, signed identity, sandbox/egress controls, revocation and explicit opt-in before any worker execution.
+5. P: treat #206 as CI-validated documentation/UI synchronization only; resolve canonical A–P registry language and separately demonstrate enforceable controls.
+6. I/J/K/M/N/O: create scoped contracts and acceptance tests with named owners rather than marking planned items implemented.
+
