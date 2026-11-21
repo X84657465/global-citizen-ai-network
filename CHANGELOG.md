@@ -1,3 +1,8 @@
+## 0.3.105 — 2026-11-21
+
+- Fix review-governance exact-HEAD CI discovery to recognize the actual `CI — <SHA>` workflow run name as well as the generic `CI` name and display title; preserve exact-SHA, successful-conclusion, and independent-approval requirements.
+- Bump repository release to 0.3.105 and Governance revision to 1.4.7.
+
 ## 0.3.104 — 2026-11-21
 
 - Fix independent review gate coverage: evaluate pull requests targeting every base branch, including stacked Governance, Migration and B integration branches; remove the incomplete target-branch allowlist.

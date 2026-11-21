@@ -80,7 +80,7 @@ jobs:
               });
               const exactCi = runs.workflow_runs.find(r =>
                 r.head_sha === headSha &&
-                (r.name === "CI" || (r.display_title || "").startsWith("CI —")) &&
+                (r.name === "CI" || (r.name || "").startsWith("CI —") || (r.display_title || "").startsWith("CI —")) &&
                 r.status === "completed" && r.conclusion === "success"
               );
               if (!exactCi) failures.push(`No completed successful CI workflow run found for exact HEAD ${headSha}.`);
