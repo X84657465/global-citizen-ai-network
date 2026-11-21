@@ -155,6 +155,7 @@ export class FPHostAdapter {
         : {}),
     });
 
+    let auditContext: FPHostRequestContext = context;
     const startedAt = Date.now();
     try {
     let contract;
@@ -224,6 +225,7 @@ export class FPHostAdapter {
       correlationId: context.correlationId,
       ...(context.now !== undefined ? { now: context.now } : {}),
     });
+    auditContext = handlerContext;
 
     const output = await handler(invocation.input, handlerContext);
     const envelope: FPCapabilityEnvelope<TOutput> = Object.freeze({
@@ -243,7 +245,7 @@ export class FPHostAdapter {
       payload: output,
     });
 
-    this.recordOutcome(invocation, context, "succeeded", startedAt);
+    this.recordOutcome(invocation, auditContext, "succeeded", startedAt);
     return { envelope };
     } catch (error) {
       const outcome = error instanceof FPHostError
@@ -252,7 +254,7 @@ export class FPHostAdapter {
       const errorCode = error instanceof FPHostError
         ? error.code
         : "HANDLER_FAILURE";
-      this.recordOutcome(invocation, context, outcome, startedAt, errorCode);
+      this.recordOutcome(invocation, auditContext, outcome, startedAt, errorCode);
       throw error;
     }
   }
