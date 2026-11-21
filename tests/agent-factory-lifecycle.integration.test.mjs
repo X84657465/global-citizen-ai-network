@@ -39,7 +39,7 @@ function createFakeGitHubApi() {
         issues.push(created);
         return structuredClone(created);
       }
-      const pullMatch = /^\\/repos\\/owner\\/repo\\/pulls\\/(\\d+)$/.exec(url.pathname);
+      const pullMatch = /^\/repos\/owner\/repo\/actions\/runs\/(\d+)$/.exec(url.pathname);
       if (pullMatch && method === "GET") {
         const pullRequestNumber = Number(pullMatch[1]);
         const stateIssue = issues.find((issue) => issue.title === FACTORY_STATE_ISSUE_TITLE);
