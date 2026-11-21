@@ -91,10 +91,13 @@ jobs:
                 owner, repo, pull_number: prNumber, per_page: 100
               });
               const latestCommit = commits[commits.length - 1];
+              const executionMatch = pr.body?.match(/^\\s*Execution identity\\s*:\\s*(.+)$/im);
+              const declaredExecutors = executionMatch ? [...executionMatch[1].matchAll(/@?([A-Za-z0-9-]+)/g)].map(m => m[1]) : [];
               const excluded = new Set([
                 pr.user.login,
                 latestCommit?.author?.login,
-                latestCommit?.committer?.login
+                latestCommit?.committer?.login,
+                ...declaredExecutors
               ].filter(Boolean));
               const { data: reviews } = await github.paginate(github.rest.pulls.listReviews, {
                 owner, repo, pull_number: prNumber, per_page: 100
