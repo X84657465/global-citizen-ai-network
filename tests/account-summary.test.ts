@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const component = readFileSync(resolve(process.cwd(), "components/account/account-summary.tsx"), "utf8");
-const styles = readFileSync(resolve(process.cwd(), "components/account/account-summary.module.css"), "utf8");
-const page = readFileSync(resolve(process.cwd(), "app/account/page.tsx"), "utf8");
+const component = readFileSync(new URL("../components/account/account-summary.tsx", import.meta.url), "utf8");
+const styles = readFileSync(new URL("../components/account/account-summary.module.css", import.meta.url), "utf8");
+const page = readFileSync(new URL("../app/account/page.tsx", import.meta.url), "utf8");
 
 test("account summary groups profile details with explicit semantic labels", () => {
   for (const label of ["電子郵件", "顯示名稱", "偏好語言", "帳戶角色", "帳戶狀態", "加入日期"]) {
