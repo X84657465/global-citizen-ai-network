@@ -129,7 +129,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 
 ## 6. Next execution order
 
-1. **A first:** #259 exact head `9da2369747cb9ea21c5b8bb65cefa2351f14790e` passed terminal exact-head GitHub Actions run [44947378275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44947378275), run #3231, including Windows quality, Supabase/PostgreSQL/RLS and Ollama/local-execution integration. The remaining release gates are same-SHA Preview/smoke and independent review.
+1. **A first:** #259 current HEAD is `3330cd04a77358cf0ff780940d09f938cab1dc3a`; exact-head run #3237 (`44949425719`) remains pending with zero jobs returned. The earlier #3231 success is stale. Keep #259 Draft until complete exact-head CI, same-SHA READY Preview/smoke and independent review all pass.
 2. **A risk-intent integration:** the two files from #261 are now included in #259; #261 is closed as redundant. Do not use its old failed CI as evidence for the consolidated candidate.
 3. **Shared baseline:** #267 is closed as redundant and its package-lock/version changes are carried by #259. No separate merge is required.
 4. **K support:** keep #268's handoff aligned with verified PR/main state. Because this handoff is itself committed on #268, its exact head changes whenever this file is refreshed; always read the current SHA from PR #268 metadata and verify its matching Actions run before considering a merge. No independent review is recorded.
