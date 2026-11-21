@@ -89,7 +89,7 @@ test("rejects missing and unsafe host identity references", async () => {
   await assert.rejects(
     host.invoke(
       { workstream: "H", capability: "health-snapshot", input: null },
-      context({ actorRef: "bad\\nactor" }),
+      context({ actorRef: "bad\nactor" }),
     ),
     (error: unknown) => error instanceof FPHostError && error.code === "INVALID_CONTEXT",
   );
