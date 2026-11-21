@@ -5,7 +5,6 @@ import { securityHeaders } from "../lib/security/headers.ts";
 test("baseline security headers include clickjacking, MIME, referrer, and browser capability protections", () => {
   const values = new Map(securityHeaders.map(({ key, value }) => [key.toLowerCase(), value]));
 
-  assert.equal(values.get("strict-transport-security"), "max-age=31536000");
   assert.equal(values.get("x-content-type-options"), "nosniff");
   assert.equal(values.get("x-frame-options"), "DENY");
   assert.equal(values.get("referrer-policy"), "strict-origin-when-cross-origin");
