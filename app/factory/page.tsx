@@ -26,7 +26,7 @@ const resources = [
     id: "A · GENERATED TEST CONTRACT",
     title: "生成測試契約防護",
     description: "在生成的 TypeScript 單元測試進入 Sandbox 前，檢查測試執行器、JSX 與不支援 API。",
-    detail: "候選 PR #217 · exact SHA CI 待完成",
+    detail: "已合併 · PR #217 · exact SHA CI 待補驗",
     tone: "amber",
     href: "https://github.com/X84657465/global-citizen-ai-network/pull/217",
     action: "查看工廠防護",
@@ -34,10 +34,10 @@ const resources = [
   {
     id: "B · PRODUCT HANDOFF",
     title: "GCAN Product B 主線銜接",
-    description: "B 的 workspace metadata 基線已合併；後續整合只接收 A 工廠正式驗收的能力契約。",
-    detail: "已合併 · PR #201",
+    description: "B 的 workspace metadata 已透過 mainline PR 合併；後續整合只接收 A 工廠正式驗收的能力契約。",
+    detail: "已合併至 main · PR #212",
     tone: "green",
-    href: "https://github.com/X84657465/global-citizen-ai-network/pull/201",
+    href: "https://github.com/X84657465/global-citizen-ai-network/pull/212",
     action: "查看 B 主線基線",
   },
   {
@@ -70,8 +70,8 @@ const gates = [
   },
   {
     title: "精確 SHA CI 驗證",
-    description: "必須確認最新提交的測試、型別、Lint、安全檢查與正式建置。",
-    state: "待最新 CI 證據",
+    description: "PR #218 的 exact-head Schema Guard 曾失敗；後續 #220/#224 已補入角色繼承權限回歸測試，但最新 main SHA 仍須重新跑完測試、型別、Lint、安全檢查與正式建置。",
+    state: "最新 main SHA 待完整驗收",
     tone: "amber",
     icon: Clock3,
   },
@@ -93,8 +93,8 @@ const gates = [
 
 const stages = [
   { title: "工廠優先範圍確認", note: "真實狀態呈現已確認", done: true },
-  { title: "工程入口與驗收資訊更新", note: "工廠首頁候選已提交", done: true },
-  { title: "精確 SHA 自動測試", note: "等待最新結果", done: false },
+  { title: "工程入口與驗收資訊更新", note: "PR #218 已合併；本次同步主線驗收狀態", done: true },
+  { title: "精確 SHA 自動測試", note: "最新 main 尚無完整綠燈；需重跑全套品質與資料庫關卡", done: false },
   { title: "B 主線能力銜接", note: "等待 A 工廠契約正式驗收後承接", done: false },
   { title: "Preview 視覺驗收", note: "最新 SHA Preview 尚未部署；舊 SHA 不作為驗收證據", done: false },
   { title: "人工核准", note: "保留人工決策", done: false },
