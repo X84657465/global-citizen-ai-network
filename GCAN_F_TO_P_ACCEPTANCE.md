@@ -92,6 +92,7 @@
 - [ ] Complete paginated review history is collected within the safe bound.
 - [ ] Each review is bound to reviewer, review reference, timestamp and reviewed commit SHA.
 - [ ] Trusted host verifies reviewer permission through an authenticated GitHub client.
+- [ ] Adapter normalizes GitHub's actual `admin/write/read/none` base role plus `role_name` mapping (`maintain`/`triage`) and rejects unknown or contradictory payloads.
 - [ ] Only `admin`, `maintain` and `push` count as verified review permissions.
 - [ ] Failed permission lookup remains unverified; stale reviews do not count.
 - [ ] Verified `changes-requested` remains blocking even if another reviewer is unverified.
