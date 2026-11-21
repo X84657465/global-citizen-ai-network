@@ -16,16 +16,18 @@ test("public homepage exposes first-party workspace, contribution, and login ent
 });
 
 test("hero prioritizes the real product and factory entry points", () => {
-  assert.match(homepage, /heroActions[\s\\S]*?href="\/workspace"[\s\\S]*?進入 AI 工作空間/);
-  assert.match(homepage, /heroActions[\s\\S]*?href="\/factory"[\s\\S]*?查看 Agent Factory 工廠/);
-  assert.match(homepage, /heroExplore[\s\\S]*?href="#workstreams"/);
+  assert.ok(homepage.includes('<Link href="/workspace" className={styles.primaryButton}>進入 AI 工作空間'));
+  assert.ok(homepage.includes('<Link href="/factory" className={styles.secondaryButton}>查看 Agent Factory 工廠'));
+  assert.ok(homepage.includes('className={styles.heroExplore}>或先探索 A–O'));
   assert.ok(styles.includes(".heroExplore"));
 });
 
 test("repository homepage points readers to current engineering tracks instead of retired PR numbers", () => {
-  assert.match(readme, /PR #207（Draft）/);
-  assert.match(readme, /Agent Factory V2（A 線）/);
-  assert.doesNotMatch(readme, /pull\/(?:134|137|139|140|141)/);
+  assert.ok(readme.includes("PR #207（Draft）"));
+  assert.ok(readme.includes("Agent Factory V2（A 線）"));
+  for (const retiredPr of ["pull/134", "pull/137", "pull/139", "pull/140", "pull/141"]) {
+    assert.ok(!readme.includes(retiredPr), `README still references retired PR: ${retiredPr}`);
+  }
 });
 
 test("A and C workbenches use first-party routes on the integrated application", () => {
