@@ -8,11 +8,11 @@ const psql = process.env.PSQL_BIN || "psql";
 const databaseContainer = process.env.SUPABASE_DB_CONTAINER;
 const docker = process.env.DOCKER_BIN || "docker";
 
-function sql(query, { expectFailure = false } = {}) {
+function sql(query, { expectFailure = false, expectSqlState } = {}) {
   if (!databaseUrl) throw new Error("SUPABASE_DB_URL is required. Use a disposable local Supabase database; never point this test at production.");
   const command = databaseContainer ? docker : psql;
   const args = databaseContainer ? ["exec", "-e", "PGAPPNAME=gcan-two-member-rls-test", databaseContainer, "psql", "-U", "postgres", "-d", "postgres"] : [databaseUrl];
-  args.push("-X", "-q", "-A", "-t", "-v", "ON_ERROR_STOP=1", "-c", query);
+  args.push("-X", "-q", "-A", "-t", "-v", "ON_ERROR_STOP=1", "-v", "VERBOSITY=verbose", "-c", query);
   const result = spawnSync(command, args, { encoding: "utf8", timeout: 30_000, env: process.env });
 
   const diagnostic = [
@@ -28,7 +28,15 @@ function sql(query, { expectFailure = false } = {}) {
   if (expectFailure) {
     assert.notEqual(result.status, 0, "Expected the database to reject this operation.");
     if (result.error) throw new Error(`Database subprocess could not execute: ${diagnostic}`);
-    return result.stderr || result.stdout;
+    const failureOutput = result.stderr || result.stdout;
+    if (expectSqlState) {
+      assert.match(
+        failureOutput,
+        new RegExp("ERROR:\\s+" + expectSqlState + ":"),
+        `Expected PostgreSQL SQLSTATE ${expectSqlState}; received a different failure: ${diagnostic}`,
+      );
+    }
+    return failureOutput;
   }
   assert.equal(result.status, 0, diagnostic || "psql command failed");
   return result.stdout.trim();
@@ -134,7 +142,7 @@ test("member cannot attach a conversation to another member's project", () => {
       values ('${conversation}', '${f.a}', '${f.projectB}', 'cross-member project attachment');
     `)}
     rollback;
-  `, { expectFailure: true });
+  `, { expectFailure: true, expectSqlState: "23514" });
 });
 
 test("member cannot insert a message into another member's conversation", () => {
@@ -146,7 +154,7 @@ test("member cannot insert a message into another member's conversation", () => 
       values ('${f.conversationB}', '${f.a}', 'user', 'cross-member conversation injection');
     `)}
     rollback;
-  `, { expectFailure: true });
+  `, { expectFailure: true, expectSqlState: "42501" });
 });
 
 test("member cannot submit contribution work on behalf of another member", () => {
@@ -159,7 +167,7 @@ test("member cannot submit contribution work on behalf of another member", () =>
       values ('${submission}', '${f.task}', '${f.b}', 'forged contributor identity');
     `)}
     rollback;
-  `, { expectFailure: true });
+  `, { expectFailure: true, expectSqlState: "42501" });
 });
 
 test("profile role and account-status escalation is rejected by the database trigger", () => {
