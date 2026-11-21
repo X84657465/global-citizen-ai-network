@@ -101,3 +101,21 @@ The host adapter accepts an optional `FPObservabilitySink`. When supplied, it em
 The recorder has a bounded retention capacity (default 250, maximum 10000), immutable event copies, and per-workstream outcome counters. This is local operational evidence only: it is not distributed tracing, durable monitoring, alert delivery, or production health certification.
 
 H's recorder and adapter integration are covered by tests for bounded retention, counters, invalid event rejection, payload exclusion, and non-blocking sink failure.
+
+
+## F security evidence implementation
+
+`lib/fp/security-assurance.ts` evaluates the existing mainline security evidence against one exact candidate commit SHA. The initial control catalogue references the repository's two-member RLS isolation harness, database security regression suite, security-header tests, and server-route query/ownership tests.
+
+Assessment states are deliberately conservative:
+
+- `blocked`: at least one control has failed.
+- `stale`: evidence was produced for a different commit SHA.
+- `incomplete`: one or more controls are missing or not run.
+- `ready-for-review`: all required controls have passing evidence for the exact candidate SHA.
+
+`ready-for-review` is not acceptance, integration, or deployment. The evaluator does not execute tests, connect to a database, inspect production, grant privileges, or alter existing RLS policies/migrations. It prevents parent-commit or stale-branch evidence from being silently treated as proof for a new candidate.
+
+### F baseline evidence caveat
+
+The merged RLS hardening PR #209's final head was `e1ec407c2df92404fc2fe710ba2ef95eb7a335fc`. Its surfaced workflow run completed with a successful resolver job, but the resolver explicitly identified the event as stale/closed and skipped the quality, database, and RLS jobs. This is not a passing exact-head test result. F therefore remains implemented/integrated where the merged code exists, but its exact-head test/acceptance evidence is unresolved.
