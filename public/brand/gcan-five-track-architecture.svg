@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
-<title id="title">GCAN A–P Sixteen Workstreams Architecture</title>
+<title id="title">GCAN A–O Fifteen Workstreams and P Governance Architecture</title>
 <desc id="desc">Fifteen independently owned workstreams A through O are coordinated under the cross-cutting P Governance, Ethics and Trust layer.</desc>
 <defs>
  <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#09172e"/><stop offset="1" stop-color="#20345b"/></linearGradient>
  <linearGradient id="governance" x2="1"><stop stop-color="#214d65"/><stop offset="1" stop-color="#4a3970"/></linearGradient>
 </defs>
 <rect width="1500" height="900" rx="28" fill="url(#bg)"/>
-<text x="750" y="62" fill="#fff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="34" font-weight="700" text-anchor="middle">GCAN · A–P SIXTEEN WORKSTREAMS</text>
+<text x="750" y="62" fill="#fff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="34" font-weight="700" text-anchor="middle">GCAN · 15 WORKSTREAMS + P GOVERNANCE</text>
 <text x="750" y="96" fill="#afc2df" font-family="Arial,'Noto Sans TC',sans-serif" font-size="17" text-anchor="middle">Independent ownership · Shared evidence · Reviewed integration</text>
 <g font-family="Arial,'Noto Sans TC',sans-serif">
  <g><rect x="55" y="135" width="325" height="100" rx="15" fill="#18365f" stroke="#77a5ff" stroke-width="2"/><text x="78" y="169" fill="#b8d1ff" font-size="16" font-weight="700">A · FACTORY</text><text x="78" y="205" fill="#fff" font-size="22" font-weight="700">Agent Factory V2</text></g>
