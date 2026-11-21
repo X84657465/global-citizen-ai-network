@@ -36,12 +36,25 @@ Operational consequences:
 - Pull-request CI can validate code without proving that the default-branch scheduler or state writer is operational.
 - Any migration of the durable state format requires exact-SHA regression evidence and a read-back proving schema version and preserved task/system history.
 
+## Recovery queue scope and state-writer serialization
+
+The current mainline `.github/workflows/agent-factory-system-health.yml` still declares the shared concurrency group at workflow scope. A `workflow_run: completed` event starts the workflow for successful, failed, cancelled, skipped and unrelated PR CI completions; workflow-level concurrency can reserve the shared Windows queue before the job-level `if` condition skips ineligible events. This is a queue-efficiency defect, not permission to remove serialization.
+
+The proposed A-line correction is tracked in [PR #240](https://github.com/X84657465/global-citizen-ai-network/pull/240):
+
+- Move the same `global-citizen-ai-network-self-hosted-runner` group under `jobs.reset-system-breaker.concurrency`, so only an eligible job reserves it.
+- Keep `cancel-in-progress: false` and `queue: max`; durable state writes remain serialized.
+- Require a successful `pull_request` workflow_run from the same repository and an `ai-task/issue-` branch prefix before the recovery job can enter the queue.
+- The publisher's exact branch form is `ai-task/issue-${issueNumber}-${digest}`, with a 12-character lowercase hex digest. The controller also performs full PR/issue/branch/SHA verification; the prefix is a queue eligibility filter, not an authorization substitute.
+- Keep Windows self-hosted execution and trusted `main` checkout. Do not move the state writer to an untrusted runner or remove the shared queue.
+- Existing runs already queued under the old workflow-level configuration are not retroactively changed by merging PR #240. Verify newly triggered eligible and ineligible workflow_run events after merge.
+
 ## Normal health checks
 
 Before treating an Agent Factory failure as an application defect, verify in this order:
 
 1. **GitHub Actions:** inspect the latest CI and Agent Task Preflight runs. Record the run URL, run ID, attempt, branch and exact tested commit SHA.
-2. **Runner:** confirm the Windows self-hosted Runner is online and has the expected `self-hosted`, `Windows`, `X64` labels. Confirm the job is queued for the expected runner rather than silently waiting for an unavailable host.
+2. **Runner:** inspect whether the job has actually been assigned to a runner and record `runner_name`, labels, queue delay and job steps. A pending job with no runner assignment is not evidence that the Runner is offline; do not infer host availability from an empty job record.
 3. **Host toolchain:** verify Node.js/npm, Docker Desktop/Engine, and the local Ollama API are available. The CI smoke checks exercise these dependencies.
 4. **Isolation:** candidate dependency installation and candidate tests must remain inside the pinned disposable Docker image. Do not run generated candidate code directly in the normal Windows host session.
 5. **Durable state:** inspect the Agent Factory state issue and candidate PR metadata before manually retrying. Do not edit state JSON or create a second PR to bypass a lease, backoff, quarantine, or superseded state.
@@ -112,11 +125,13 @@ Candidate code is executed in disposable Docker containers. The workflow does no
 
 ## Latest verified evidence (2026-11-22)
 
-- Main HEAD at the latest handoff check: `4d3653b3da766ae3910aeef39bd840d2e6de30dd`.
-- Main CI run [#44928069201](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069201) was pending with zero jobs assigned. This is queue/dispatch evidence only; it is neither a pass nor a test failure.
-- Main Agent Task Preflight run [#44928069246](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069246) was pending. Its existence does not prove the task job ran or completed.
-- Main Agent Factory System Health Recovery run [#44928172808](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928172808) was pending with no jobs assigned. Do not infer Runner offline from an empty job list.
-- The active PR heads, exact CI runs and review states are maintained in `docs/AGENT_HANDOFF.md`. At this check, the active A-line candidate/recovery PRs had not produced a complete successful exact-head Windows quality, database/RLS and Ollama evidence set.
+- Main HEAD: `4d3653b3da766ae3910aeef39bd840d2e6de30dd`.
+- Main CI run [#44928069201](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069201) remains pending with zero jobs assigned.
+- Main Agent Task Preflight run [#44928069246](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069246) was pending at the last inspection; run creation alone does not prove task execution.
+- Main Agent Factory System Health Recovery run [#44928736338](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928736338) remains pending; no job assignment was observed.
+- Clean-base active PRs and exact head/run IDs are listed in `docs/AGENT_HANDOFF.md`: #239 A candidate/recovery evidence, #240 A queue-scope correction, #241 account CSS-module build repair, #242 H correlation context and #238 K documentation. At the last inspection, all associated CI runs were pending; resolver jobs had no assigned runner, and #238 had no jobs assigned.
+- No active PR has produced a complete successful exact-head Windows quality/build, isolated Supabase/PostgreSQL/RLS and Ollama evidence set.
+- Main's recovery workflow still has workflow-level concurrency. PR #240 contains the correction; do not describe it as merged or active until main contains that exact change.
 - Recent Vercel statuses report `Deployment rate limited — retry in 24 hours`. This is an external Preview capacity limitation, not GitHub CI evidence. No Preview or Production deployment is claimed.
 - Workflow Checkout steps set `persist-credentials: false`; the repository policy test enforces this.
 - The preflight workflow still has a combined trusted orchestration/publisher job with write-capable token scopes. The scopes are job-scoped; step-scoped environment injection reduces accidental exposure but does not create true least privilege. Do not claim least-privilege completion.
