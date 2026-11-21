@@ -1,3 +1,9 @@
+## 0.3.114 — 2026-11-21
+
+- Refine the homepage's 15+1 architecture presentation: A–O cards are labeled as workstreams; the P card is explicitly labeled as the Governance Layer.
+- Clarify the operating-model summary that independent ownership and versioning apply to A–O, while P supplies cross-cutting controls.
+- Static source validation only; exact-head CI and deployment/browser acceptance remain outstanding.
+
 ## 0.3.113 — 2026-11-21
 
 - Correct public architecture semantics: A–O are fifteen independent workstreams; P is the cross-cutting governance layer, not a sixteenth peer workstream.
