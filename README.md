@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.117` · A 線 Agent Factory V2 `2.0.79`（工廠首頁資訊架構與操作入口更新） · B 線 GCAN Product `0.1.20`（官網首頁 A–O 工作線與 P 橫向治理架構更新） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**候選版本（PR #207，尚未合併／正式發布）：** GCAN `0.3.117` · A 線 Agent Factory V2 `2.0.79` · B 線 GCAN Product `0.1.20` · [候選 CI（精確 SHA）](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44906247087) · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -23,6 +23,8 @@
 
 
 ## 🧭 專案架構與驗證原則｜2026-11-21
+
+> **首頁候選更新：** PR [#207](https://github.com/X84657465/global-citizen-ai-network/pull/207) 尚未合併；目前線上正式版不代表此候選版本。請以 [精確 SHA CI](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44906247087) 與 PR 狀態判斷驗收進度。
 
 | 範圍 | 責任 | 公開狀態說明 |
 |---|---|---|
