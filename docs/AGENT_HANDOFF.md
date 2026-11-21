@@ -121,8 +121,8 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ## 6. Next execution order
 
 1. **A first:** monitor #259 current-head run `44944625272` for SHA `968d14256ce9a53b8e72ca5145722042619d9d4d`; earlier run `44944042121` was correctly ignored as stale after the PR head advanced.
-2. **Shared baseline:** monitor #267 corrected-head run `44944336578` for SHA `6baa233e30192d5b360617d7f0079d840c78821a`; jobs have not appeared yet. Reconcile shared files with #259 before any merge.
-3. **K support:** keep this handoff synchronized with verified main/PR state; this docs branch currently has 10 commits and remains Draft. Latest docs-head run [44944676236](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944676236) is pending at metadata resolution.
+2. **Shared baseline:** monitor #267 corrected-head run `44944336578` for SHA `6baa233e30192d5b360617d7f0079d840c78821a`; resolver succeeded and the Windows quality job is currently installing locked dependencies. Reconcile shared files with #259 before any merge.
+3. **K support:** keep this handoff synchronized with verified main/PR state. PR #268 is documentation-only; its exact current head and run are tracked in the PR body because each handoff update necessarily changes its own SHA. Prior docs-head run [44944676236](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944676236) applies only to superseded SHA `abeb8ff82d06065c3bb490036027e15d4b1b4c46`.
 4. **F–P:** address only demonstrated blockers to A acceptance or B contracts.
 5. **B preparation:** prepare a selective-port contract map without activating B as the development priority. B must consume only versioned, explicitly exposed A interfaces; no direct Factory DB/state/lease/Runner access.
 
