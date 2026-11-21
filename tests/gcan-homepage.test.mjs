@@ -4,6 +4,10 @@ import { readFileSync } from "node:fs";
 
 const homepage = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/home.module.css", import.meta.url), "utf8");
+const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
+const manifest = JSON.parse(readFileSync(new URL("../versions/manifest.json", import.meta.url), "utf8"));
+const rootVersion = readFileSync(new URL("../VERSION", import.meta.url), "utf8").trim();
+const productVersion = readFileSync(new URL("../versions/gcan-product/VERSION", import.meta.url), "utf8").trim();
 
 test("public homepage exposes first-party workspace, contribution, and login entry points", () => {
   assert.match(homepage, /href="\/workspace"/);
@@ -39,4 +43,18 @@ test("homepage retains keyboard focus and reduced-motion accessibility rules", (
 test("public homepage section navigation remains available on mobile", () => {
   assert.ok(styles.includes("Mobile navigation remains visible"));
   assert.match(styles, /@media\(max-width:820px\)\{[\s\S]*?\.nav\{display:flex;[\s\S]*?overflow-x:auto/);
+});
+
+test("repository homepage distinguishes the old Preview from the current unpreviewed candidate", () => {
+  assert.match(readme, /Preview 網址僅供參考/);
+  assert.match(readme, /舊 SHA/);
+  assert.match(readme, /本分支最新候選尚無可用 Preview/);
+  assert.match(readme, /Build Rate Limit/);
+});
+
+test("repository and B-line homepage release metadata matches the authoritative manifest", () => {
+  assert.equal(rootVersion, "0.3.120");
+  assert.equal(manifest.overall, rootVersion);
+  assert.equal(productVersion, "0.1.21");
+  assert.equal(manifest.tracks.B.version, productVersion);
 });
