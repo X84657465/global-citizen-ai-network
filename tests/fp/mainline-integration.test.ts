@@ -46,11 +46,14 @@ test("G required exact-head jobs remain real jobs in the shared CI workflow", ()
 });
 
 test("H request correlation is generated/reused at the existing platform edge", () => {
-  assert.ok(middleware.includes("getOrCreateCorrelationId(request.headers)"));
-  assert.ok(middleware.includes("requestHeaders.set(CORRELATION_ID_HEADER, correlationId)"));
-  assert.ok(middleware.includes("nextResponse.headers.set(CORRELATION_ID_HEADER, correlationId)"));
+  assert.ok(middleware.includes("createCorrelationContext(request.headers)"));
+  assert.ok(middleware.includes("request: { headers: new Headers(correlation.requestHeaders) }"));
+  assert.ok(middleware.includes("correlation.responseHeaders.forEach((value, key) =>"));
   assert.ok(correlationHelper.includes('export const CORRELATION_ID_HEADER = "x-correlation-id"'));
   assert.ok(correlationHelper.includes("globalThis.crypto.randomUUID()"));
+  assert.ok(correlationHelper.includes("export function createCorrelationContext(headers: Headers)"));
+  assert.ok(correlationHelper.includes("requestHeaders.set(CORRELATION_ID_HEADER, correlationId)"));
+  assert.ok(correlationHelper.includes("responseHeaders.set(CORRELATION_ID_HEADER, correlationId)"));
 });
 
 test("F–P registry owns only F–P and retains the approved authority ceiling", () => {
