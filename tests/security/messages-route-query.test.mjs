@@ -20,3 +20,12 @@ test("message history returns the newest bounded window in chronological order",
   assert.ok(limit > idOrder, "the descending query must be bounded to 500 messages");
   assert.ok(reverse > limit, "the newest bounded window must be reversed before returning chronological history");
 });
+
+test("message API selects only fields consumed by the workspace client", () => {
+  const selections = [...route.matchAll(/\.select\("([^"]+)"\)/g)].map((match) => match[1]);
+  assert.deepEqual(selections, [
+    "id,role,content,created_at",
+    "id,role,content,created_at",
+  ]);
+  assert.ok(selections.every((selection) => !selection.split(",").includes("model")));
+});
