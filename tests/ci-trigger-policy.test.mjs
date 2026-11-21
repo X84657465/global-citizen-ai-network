@@ -47,7 +47,7 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.equal(workflow.includes("  push:\n    branches: [main, feat/agent-factory-v2]\n"), false);
   assert.ok(workflow.includes("run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}"));
   const pullRequestSection = workflow.slice(workflow.indexOf("  pull_request:"), workflow.indexOf("  repository_dispatch:"));
-  const pullRequestBranchMatch = /^    branches: \\[(.*?)\\]$/m.exec(pullRequestSection);
+  const pullRequestBranchMatch = /^    branches: \[(.*?)\]$/m.exec(pullRequestSection);
   assert.ok(pullRequestBranchMatch, "full CI must validate pull-request lifecycle events");
   const pullRequestBranches = pullRequestBranchMatch[1].split(",").map((branch) => branch.trim());
   for (const requiredBranch of [
