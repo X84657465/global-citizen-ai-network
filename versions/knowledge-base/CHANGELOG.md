@@ -1,3 +1,14 @@
+## 0.1.7 — 2026-11-21
+
+### Fixed — Reconcile A–P governance registry and B handoff metadata
+- Align the public A workstream version with the authoritative Agent Factory manifest.
+- Replace superseded governance/product PR links with active PR #179 and dependent B candidate PR #181.
+- Distinguish the currently registered B 0.1.13 baseline from the unaccepted B 0.1.16 candidate.
+- Synchronize governance revision 1.4.10 and repository baseline 0.3.106.
+
+### Verification
+- Exact-head full CI and independent formal review remain required; no production deployment is claimed.
+
 # K — Knowledge Base, Docs & Governance Playbooks
 
 ## 0.1.6 — 2026-11-21
