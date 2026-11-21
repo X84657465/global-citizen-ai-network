@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `639cbc0aee89e9f97df2a9e664035be8d827f2e8`  
+**Baseline:** `main` at `aeb50da1bdc081688841f3a73b35fd054526a0da`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -52,6 +52,14 @@
 - The registry and host adapter do not themselves authenticate principals; the existing trusted host must supply authorization and approval decisions.
 - No production database migration, secret change, branch-protection change, automatic merge, or deployment is authorized by this ledger.
 
-## 6. Rollback
+## 6. Latest mainline development record (2026-11-22)
+
+- PR #223 and PR #224 were merged to main by repository owner before their PR-triggered GitHub Actions runs completed. Their exact-head runs remain pending; neither PR is accepted by this ledger.
+- PR #226 corrected the request-context unit test import path from `../lib/...` to `../../lib/...`. The correction is present in main at `aeb50da1bdc081688841f3a73b35fd054526a0da`.
+- The main push CI run `44925456773` for that exact SHA is pending and has not exposed job results. The separate Agent Factory system-health recovery run `44925471767` is also pending.
+- The Vercel status check reports `build-rate-limit`; this is a provider/deployment check failure and does not establish the result of the repository's unit, type, lint, build, or database gates.
+- Therefore F–P implementation is active, but integration acceptance remains blocked until the exact-SHA workflow jobs complete and their results are reviewed.
+
+## 7. Rollback
 
 This initial slice is additive test and documentation work. Revert the integration PR to remove it. No schema, secret, runtime execution, or production deployment changes are included.
