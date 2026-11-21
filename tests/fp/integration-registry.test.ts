@@ -223,3 +223,14 @@ test("audit sink failures do not change the connector result", async () => {
     "ok",
   );
 });
+
+test("keeps registered adapter and operation catalogues immutable", () => {
+  const f = fixture();
+  const adapter = (f.executor as unknown as { registry: FPIntegrationRegistry }).registry.getAdapter("sample-api");
+  const operation = (f.executor as unknown as { registry: FPIntegrationRegistry }).registry.getOperation("sample-api", "get-record");
+  assert.ok(adapter);
+  assert.ok(operation);
+  assert.equal(Object.isFrozen(adapter), true);
+  assert.equal(Object.isFrozen(adapter.operations), true);
+  assert.equal(Object.isFrozen(operation), true);
+});
