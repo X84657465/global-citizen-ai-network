@@ -50,8 +50,8 @@
 - The evaluator rejects mismatched repository/PR/candidate SHA and mismatched GitHub Actions run ID or attempt. Missing F evidence remains incomplete; failed registered F controls or required G jobs block the integrated result.
 - Added focused regression tests for a shared exact run, mismatched run IDs/attempts, absent F evidence, failed G jobs and failed F controls; the mainline integration guard checks that the evaluator and test are present.
 - The evaluator is advisory only. It explicitly returns `acceptanceGranted: false`, `mergeAuthorized: false` and `deploymentAuthorized: false`.
-- Release metadata advanced to `0.3.120` (governance revision `1.4.16`). This slice is implemented on an isolated branch; it is not accepted until exact-head CI and review complete.
-- CI limitation remains: GitHub Actions jobs are queued/pending on the Windows self-hosted Runner. No exact-head job result has been produced for the current documentation or feature candidates.
+- Release metadata advanced to `0.3.120` (governance revision `1.4.16`). PR #229 merged this implementation at `ef543ebeecf56785dc752fdb8ac9305862bb269e`; it remains unaccepted pending exact-head CI and independent review.
+- The exact PR run and main push run are pending on the Windows self-hosted Runner; no passing job-level evidence is available.
 
 ## 6. Latest H implementation slice (2026-11-22)
 
