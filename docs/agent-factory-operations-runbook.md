@@ -17,7 +17,7 @@ The current mainline workflow declares `schedule: "*/5 * * * *"`, `issues: opene
 
 ## Mainline scheduling and controlled dispatch
 
-GitHub evaluates scheduled and issue-event workflows from the repository's default branch. The current mainline `.github/workflows/agent-task-preflight.yml` declares the five-minute schedule and `issues: opened/reopened` trigger. The old instruction to select `feat/agent-factory-v2` for normal operation is historical and must not be followed as the default operating path.
+GitHub evaluates scheduled workflows and issue events from the repository's default branch only. The current mainline `.github/workflows/agent-task-preflight.yml` declares the five-minute schedule and `issues: opened/reopened` trigger. The old instruction to select `feat/agent-factory-v2` for normal operation is historical and must not be followed as the default operating path.
 
 ### Controlled manual dispatch
 
