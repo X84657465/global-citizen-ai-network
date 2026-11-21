@@ -850,6 +850,38 @@ test("candidate failure callback rejects a PR head that moved after CI without p
   assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
 
+test("candidate outcome rejects when the PR head moves after candidate-start", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const api = currentCandidatePullApi({
+    headShaAfterFirstRequest: "c".repeat(40),
+  });
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api,
+  });
+  await startCandidate(controller, "555024");
+  const versionAfterStart = store.state.state_version;
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555024",
+    CI_RUN_ATTEMPT: "1",
+  }), /Candidate outcome rejected: PR must remain the current open same-repository AI Task PR at the exact supplied head SHA and branch/);
+
+  assert.equal(store.state.state_version, versionAfterStart);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+  assert.equal(store.state.tasks["42"].candidate_status, "pending");
+});
+
 test("candidate outcome fails closed when the GitHub PR verification client is unavailable", async () => {
   const initial = awaitingCandidate();
   const store = fakeStore(initial);
