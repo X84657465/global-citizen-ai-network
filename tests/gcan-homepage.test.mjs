@@ -92,6 +92,7 @@ test("repository landing page exposes the product workspace, factory, and curren
 });
 
 
-test("primary navigation exposes the Agent Factory directly", () => {
+test("primary navigation exposes the product workspace and Agent Factory directly", () => {
+  assert.ok(homepage.includes('<Link href="/workspace">AI 工作空間</Link>'));
   assert.ok(homepage.includes('<Link href="/factory">A 線工廠</Link>'));
 });
