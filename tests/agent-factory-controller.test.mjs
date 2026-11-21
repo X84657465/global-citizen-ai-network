@@ -1060,20 +1060,31 @@ test("system-health success requires verified exact-head CI evidence and resets 
     api: {
       async request(path) {
         requests.push(path);
-        return {
-          id: 555009,
-          run_attempt: 2,
-          head_sha: sha,
-          status: "completed",
-          conclusion: "success",
-          path: ".github/workflows/ci.yml",
-          event: "pull_request",
-          pull_requests: [{
+        if (path === "/repos/owner/repo/actions/runs/555009") {
+          return {
+            id: 555009,
+            run_attempt: 2,
+            head_sha: sha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 168,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/pulls/168") {
+          return {
             number: 168,
+            state: "open",
             base: { ref: "main", repo: { full_name: "owner/repo" } },
             head: { sha, repo: { full_name: "owner/repo" } },
-          }],
-        };
+          };
+        }
+        throw new Error("Unexpected API request: " + path);
       },
     },
   });
@@ -1103,7 +1114,9 @@ test("system-health success requires verified exact-head CI evidence and resets 
   assert.deepEqual(replay.state.tasks, expectedTasks);
   assert.deepEqual(requests, [
     "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/pulls/168",
     "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/pulls/168",
   ]);
 });
 
