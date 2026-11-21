@@ -435,7 +435,7 @@ test("Agent Factory runbook separates default-branch polling from manual V2 disp
   assert.ok(runbook.includes("For normal operation, use `main`."));
   assert.ok(runbook.includes("Enter the explicitly approved task Issue number."));
   assert.ok(runbook.includes("The durable state Issue is machine-managed."));
-  assert.ok(runbook.includes("Do not merge or deploy from this runbook."));
+  assert.ok(runbook.includes("This runbook does not authorize merges, production deployments, production migrations, secret changes, or live paid AI activation."));
 });
 
 test("CI candidate execution is fenced to the exact event head SHA", () => {
