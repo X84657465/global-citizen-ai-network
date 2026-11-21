@@ -24,8 +24,10 @@ test("negated high-risk prohibitions do not independently trigger positive-risk 
   const result = evaluateAgentDecision(
     withImplementerText("Do not deploy to production", [
       "Do not modify billing or payout settings",
-      "Keep secrets, credentials and auth controls unchanged",
-      "Production changes remain out of scope",
+      "Secrets are not modified",
+      "Credentials remain unchanged",
+      "Auth is out of scope",
+      "Production remains out of scope",
     ]),
     task,
   );
