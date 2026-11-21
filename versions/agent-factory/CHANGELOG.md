@@ -1,3 +1,13 @@
+## 2.0.76 — 2026-11-21
+
+### Fixed — Fail closed on malformed model manifest shapes
+- Validate that parsed model output is a non-array object containing a `files` array before the generator iterates candidate files.
+- Convert malformed-but-valid-JSON output into an explicit task-scoped failure; retain the independent strict manifest validator, path allowlist, write policy and output-size checks.
+- Add regression coverage for null, array, primitive, missing and non-array manifest shapes.
+
+### Verification
+- Exact-head full CI and Windows Runner/local Ollama integration are required. This candidate does not claim live task execution, breaker recovery or production state mutation.
+
 ## 2.0.71 — 2026-11-21
 
 ### Fixed — Restore exact-head CI for active A-line integration PR bases
