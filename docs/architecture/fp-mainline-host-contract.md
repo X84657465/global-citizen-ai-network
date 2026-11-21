@@ -119,3 +119,21 @@ Assessment states are deliberately conservative:
 ### F baseline evidence caveat
 
 The merged RLS hardening PR #209's final head was `e1ec407c2df92404fc2fe710ba2ef95eb7a335fc`. Its surfaced workflow run completed with a successful resolver job, but the resolver explicitly identified the event as stale/closed and skipped the quality, database, and RLS jobs. This is not a passing exact-head test result. F therefore remains implemented/integrated where the merged code exists, but its exact-head test/acceptance evidence is unresolved.
+
+
+## G exact-head integration and release-quality evidence
+
+`lib/fp/release-assurance.ts` evaluates the existing `.github/workflows/ci.yml` result for one exact pull-request candidate. It requires all four current mainline CI jobs:
+
+- `resolve-candidate`: exact candidate and PR metadata resolution.
+- `quality`: locked install, unit tests, type checking, lint, audits, and production build.
+- `build`: Windows runner, Docker, and bounded local Ollama integration.
+- `database`: isolated Supabase migrations, PostgreSQL, and RLS integration.
+
+The evaluator binds the evidence to the candidate repository, head repository, PR number, exact 40-character head SHA, `pull_request` event, `main` base branch, canonical CI workflow path, run ID/attempt, and run/job URLs. A skipped, cancelled, missing, pending, stale, foreign-repository, or mismatched-PR result cannot be treated as a pass.
+
+G assessment states are `blocked`, `stale`, `incomplete`, and `ready-for-review`. The last state means only that the four required exact-head CI jobs passed and the candidate may proceed to independent review. It never authorizes merge or deployment.
+
+This is a pure evaluator: it does not call GitHub, run tests, modify branch protection, change CI workflows, grant approvals, merge, or deploy. The caller must obtain run/job metadata from the trusted GitHub Actions API; untrusted user-supplied evidence must not be passed as authoritative CI evidence.
+
+Tests cover exact-head success, missing jobs, failed/skipped/cancelled jobs, stale SHA, foreign repositories, wrong PR number, untrusted workflow/event/base branch, pending jobs, duplicate job evidence, and forged run/job URLs.
