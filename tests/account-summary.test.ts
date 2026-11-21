@@ -2,14 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const component = readFileSync(new URL("../../components/account/account-summary.tsx", import.meta.url), "utf8");
-const page = readFileSync(new URL("../../app/account/page.tsx", import.meta.url), "utf8");
+const component = readFileSync(new URL("../components/account/account-summary.tsx", import.meta.url), "utf8");
+const page = readFileSync(new URL("../app/account/page.tsx", import.meta.url), "utf8");
 
 test("account summary groups profile details with explicit semantic labels", () => {
   for (const label of ["電子郵件", "顯示名稱", "偏好語言", "帳戶角色", "帳戶狀態", "加入日期"]) {
     assert.ok(component.includes(label), `missing account detail label: ${label}`);
   }
-  assert.match(component, /<dl className="info-list">/);
+  assert.match(component, /<dl className={styles.infoList}>/);
   assert.match(component, /<dt>\{label\}<\/dt>/);
   assert.match(component, /aria-labelledby="account-title"/);
 });
