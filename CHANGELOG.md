@@ -1,3 +1,25 @@
+## 0.3.28 — 2026-11-21
+
+### Fixed — Put B-track Supabase redaction regression tests in the required CI path
+- Add `tests/supabase-start-output-redaction.test.mjs` to `npm run test:unit`.
+- Align the workflow-step assertion with the actual CI step name so the regression test executes and validates the intended Supabase startup block.
+- Add a self-check that fails if the test is removed from the standard unit-test command.
+- Advance B track to 0.1.13; other track versions remain unchanged.
+
+### Verification
+- Fresh exact-head Windows CI is required; previous #162 CI did not execute this test and is not acceptance evidence.
+
+## 0.3.27 — 2026-11-21
+
+### Fixed — Redact Supabase startup credentials on the B integration branch
+- Capture `supabase start` output before logging and pass it through the shared redactor.
+- Fail closed if redaction fails; preserve the original Supabase startup exit code and useful diagnostics.
+- Add the shared redaction regression suite to this branch.
+- B track advances to 0.1.12; other track versions remain unchanged.
+
+### Verification
+- Exact-head Windows CI for the B integration branch is required before acceptance. No test pass is claimed until the PR CI completes.
+
 ## 0.3.26 — 2026-11-20
 
 ### Fixed

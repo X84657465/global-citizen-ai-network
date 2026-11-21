@@ -204,8 +204,13 @@ jobs:
       - name: Start local Supabase services and apply migrations
         id: supabase-start
         run: |
-          supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit
-          if ($LASTEXITCODE -ne 0) { throw "Local Supabase services failed to start or migrations failed." }
+          $startOutput = & $env:ComSpec /d /s /c 'supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1' | Out-String
+          $startExitCode = $LASTEXITCODE
+          $redactedOutput = $startOutput | node scripts/redact-supabase-start-output.mjs
+          $redactionExitCode = $LASTEXITCODE
+          if ($redactionExitCode -ne 0) { throw "Supabase startup output redaction failed; refusing to emit unredacted output." }
+          if ($redactedOutput) { Write-Output ($redactedOutput -join [Environment]::NewLine) }
+          if ($startExitCode -ne 0) { throw "Supabase startup or migration application failed." }
       - name: Run PostgreSQL and RLS tests
         id: database-tests
         run: |
