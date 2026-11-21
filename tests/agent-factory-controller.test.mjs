@@ -44,7 +44,7 @@ test("rejects malformed and dot-segment repository names before controller use",
   const store = fakeStore(createInitialFactoryState(1000));
   for (const repository of [
     "owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo",
-    "owner/..repo", "owner./repo", "owner/foo..bar", "owner/repo.",
+    "owner/..repo", "owner./repo", "owner/repo.",
     "owner/repo/extra", "/repo", "owner/", "owner\\\\repo",
   ]) {
     assert.throws(
@@ -55,6 +55,7 @@ test("rejects malformed and dot-segment repository names before controller use",
   }
   assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo" }));
   assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo.v2" }));
+  assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/foo..bar" }));
 });
 
 const leaseEnv = {
