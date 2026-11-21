@@ -128,6 +128,7 @@ const SYSTEM_HEALTH_JOB_NAMES = [
   "Windows Runner quality gates — tests, types, lint, audit and production build",
   "Windows Ollama and local execution integration",
   "Windows Supabase migrations, PostgreSQL and RLS integration",
+  "Persist candidate success or reset system breaker",
 ];
 
 function systemHealthJobs(runId, runAttempt, headSha, overrides = {}) {
@@ -1551,6 +1552,63 @@ test("system-health success rejects a required CI job from another attempt or SH
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "171",
     SYSTEM_HEALTH_HEAD_SHA: sha,
   }), /every resolver, quality, build, and database job to succeed/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
+});
+
+test("system-health success rejects a closed PR even when its old CI run was successful", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555032") {
+          return {
+            id: 555032,
+            run_attempt: 1,
+            head_sha: sha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 172,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/actions/runs/555032/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555032, 1, sha);
+        }
+        if (path === "/repos/owner/repo/pulls/172") {
+          return {
+            number: 172,
+            state: "closed",
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { sha, repo: { full_name: "owner/repo" } },
+          };
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555032",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "172",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  }), /current open same-repository PR head no longer matches/);
 
   assert.equal(store.state.state_version, initial.state_version);
   assert.equal(store.state.system.consecutive_failures, 2);
