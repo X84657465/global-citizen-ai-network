@@ -1,3 +1,11 @@
+## 0.3.112 — 2026-11-21
+
+- Correct the architecture model across the repository and public homepage: A–O are 15 independently owned workstreams; P is the cross-cutting Governance, Ethics & Trust layer, not a peer workstream.
+- Complete the README's top-level workstream summary with F–O responsibilities and maturity caveats; add a stable registry anchor.
+- Rebalance the public homepage workstream grid into consistent desktop/tablet/mobile layouts and visually distinguish P governance from A–O workstream cards.
+- Update both architecture SVG assets and public-facing copy to match the 15 + 1 architecture model.
+- Static source checks only; exact-head CI, successful Preview build and browser visual acceptance remain required. No Production deployment is claimed.
+
 ## 0.3.111 — 2026-11-21
 
 - Align the repository landing page with the complete A–P workstream architecture and clarify P as cross-cutting governance over A–O.
