@@ -1,3 +1,13 @@
+## 0.1.16 — 2026-11-21
+
+### Improved — Clarify workstream and governance hierarchy
+- Present A–O as fifteen independently owned workstreams and P as the cross-cutting Governance, Ethics & Trust layer.
+- Improve desktop/tablet/mobile workstream card layout; visually separate the P governance card.
+- Synchronize public homepage copy and architecture SVG assets with the repository landing page.
+
+### Verification
+- Static source checks only. Exact-head CI, successful Preview build and desktop/mobile browser acceptance remain outstanding; no Production deployment is claimed.
+
 ## 0.1.15 — 2026-11-21
 
 ### Improved — Align homepage visuals with A–P architecture
