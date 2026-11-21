@@ -1,3 +1,10 @@
+## 0.3.123 — 2026-11-21
+
+- Fix the Agent Factory homepage candidate badge, which lagged behind the authoritative repository version.
+- Synchronize root release metadata to `0.3.123`, Agent Factory V2 (A) to `2.0.82`, and GCAN Product (B) to `0.1.23` across manifest, VERSION files, package metadata, README and governance baseline.
+- Correct regression tests so homepage candidate labels and B-line version assertions match the authoritative manifest.
+- Current-SHA CI and Preview remain separate acceptance gates; no merge or Production deployment is claimed.
+
 ## 0.3.122 — 2026-11-21
 
 - Update the public homepage stage bar to disclose that the current candidate has no Preview and that older Preview deployments are not acceptance evidence.
