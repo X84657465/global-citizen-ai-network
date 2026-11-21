@@ -52,7 +52,7 @@ F–P manifest registration or a “ready” label is not implementation accepta
 ### PR #259 — P0 A / F–P shared acceptance candidate
 
 - Branch: `fix/ci-schema-grant-test-count-20261122`.
-- **Current exact branch HEAD verified from GitHub: `d9073d51155de384be18e660c03923b0b0f424d0`.**
+- **Current exact PR head verified from GitHub PR metadata: `968d14256ce9a53b8e72ca5145722042619d9d4d`.**
 - Prior exact-head run [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889) targeted superseded SHA `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`; its 543/549 unit result is historical only.
 - Corrective review timestamp validation and stable historical test fixtures were committed in `2b4b1edf6b19c5c3e058f2aca1bb0ced8cd569df` and `d9073d51155de384be18e660c03923b0b0f424d0`.
 - Intermediate commit `f718499241fd905a12688498373a467cd3538ce1` had run [44942456757](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942456757) cancelled; it is not the branch head and is not acceptance evidence.
@@ -100,7 +100,7 @@ Only after A is fully accepted and integrated into main:
 
 ## 6. Next execution order
 
-1. **A first:** monitor #259 current-head run `44944042121` for SHA `d9073d51155de384be18e660c03923b0b0f424d0`; only the metadata resolver is pending at latest check, so do not infer Runner health or test outcome.
+1. **A first:** monitor #259 current-head run `44944625272` for SHA `968d14256ce9a53b8e72ca5145722042619d9d4d`; earlier run `44944042121` was correctly ignored as stale after the PR head advanced.
 2. **Shared baseline:** monitor #267 corrected-head run `44944336578` for SHA `6baa233e30192d5b360617d7f0079d840c78821a`; jobs have not appeared yet. Reconcile shared files with #259 before any merge.
 3. **K support:** keep this handoff synchronized with verified main/PR state; this docs branch is 8 commits ahead and 0 behind main, but remains Draft pending exact-head CI and review.
 4. **F–P:** address only demonstrated blockers to A acceptance or B contracts.
