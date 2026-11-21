@@ -41,7 +41,7 @@ jobs:
               const failures = [];
               const notes = [];
             
-              const { data: files } = await github.paginate(github.rest.pulls.listFiles, {
+              const files = await github.paginate(github.rest.pulls.listFiles, {
                 owner, repo, pull_number: prNumber, per_page: 100
               });
               const highRiskPattern = /(^\.github\/workflows\/|^supabase\/migrations\/|(^|\/)(schema|rls|polic|auth|security|payment)(\/|\.|-)|^lib\/agent-factory-|^scripts\/|^package(-lock)?\.json$|^middleware\.)/i;
@@ -86,7 +86,7 @@ jobs:
               if (!exactCi) failures.push(`No completed successful CI workflow run found for exact HEAD ${headSha}.`);
               else notes.push(`Exact-HEAD CI passed: run ${exactCi.id}.`);
 
-              const { data: commits } = await github.paginate(github.rest.pulls.listCommits, {
+              const commits = await github.paginate(github.rest.pulls.listCommits, {
                 owner, repo, pull_number: prNumber, per_page: 100
               });
               const latestCommit = commits[commits.length - 1];
@@ -98,7 +98,7 @@ jobs:
                 latestCommit?.committer?.login,
                 ...declaredExecutors
               ].filter(Boolean));
-              const { data: reviews } = await github.paginate(github.rest.pulls.listReviews, {
+              const reviews = await github.paginate(github.rest.pulls.listReviews, {
                 owner, repo, pull_number: prNumber, per_page: 100
               });
               const latestByReviewer = new Map();
