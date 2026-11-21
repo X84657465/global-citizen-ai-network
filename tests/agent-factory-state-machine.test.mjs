@@ -815,6 +815,7 @@ test("validates persisted candidate provenance metadata instead of accepting mal
     ["CI run ID", task => { task.ci_run_id = " "; }],
     ["CI run attempt", task => { task.ci_run_attempt = 0; }],
     ["candidate status", task => { task.candidate_status = "passed-ish"; }],
+    ["inconsistent candidate lifecycle status", task => { task.candidate_status = "success"; }],
     ["candidate timestamp", task => { task.candidate_started_at = "yesterday"; }],
     ["candidate error bound", task => { task.candidate_error = "x".repeat(1201); }],
   ];
