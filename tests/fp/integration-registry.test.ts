@@ -253,3 +253,8 @@ test("keeps registered adapter and operation catalogues immutable", () => {
   assert.equal(Object.isFrozen(adapter.operations), true);
   assert.equal(Object.isFrozen(operation), true);
 });
+
+test("does not expose a direct executor method that could bypass host approval", () => {
+  const f = fixture();
+  assert.equal("execute" in f.executor, false);
+});
