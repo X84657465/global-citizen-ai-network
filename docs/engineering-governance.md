@@ -86,7 +86,14 @@ A change is not accepted merely because code was committed or a PR exists.
 - No automatic approval, merge, production database mutation or production deployment.
 - Draft PRs remain Draft until all stated acceptance criteria are evidenced and reviewed.
 
-## 7. Governance review provenance\n\n- Review evidence must identify the exact candidate commit SHA, review reference, reviewer reference, submission time and an authorization reference supplied by the trusted host.\n- The trusted host must independently authenticate the reviewer and verify repository permissions before marking reviewer authorization as verified. A reference string or model-generated assertion is not authentication.\n- Only the latest review per reviewer for the exact candidate SHA is considered. Stale reviews do not count; conflicting decisions at the same timestamp are surfaced rather than resolved by order.\n- A recorded `approved` decision is descriptive evidence only. It does not create governance approval, satisfy branch protection, authorize a merge, or authorize execution/deployment.\n\n## 8. Required change record
+## 7. Governance review provenance
+
+- Review evidence must identify the exact candidate commit SHA, review reference, reviewer reference, submission time and an authorization reference supplied by the trusted host.
+- The trusted host must independently authenticate the reviewer and verify repository permissions before marking reviewer authorization as verified. A reference string or model-generated assertion is not authentication.
+- Only the latest review per reviewer for the exact candidate SHA is considered. Stale reviews do not count; conflicting decisions at the same timestamp are surfaced rather than resolved by order.
+- A recorded `approved` decision is descriptive evidence only. It does not create governance approval, satisfy branch protection, authorize a merge, or authorize execution/deployment.
+
+## 8. Required change record
 
 Every improvement, including a small one, records:
 
