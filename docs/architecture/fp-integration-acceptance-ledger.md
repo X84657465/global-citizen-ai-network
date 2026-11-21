@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `7a20ea23fd908c02ac6096dfbc10b376f8c0af81`  
+**Baseline:** `main` at `ef543ebeecf56785dc752fdb8ac9305862bb269e`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -50,8 +50,10 @@
 - The evaluator rejects mismatched repository/PR/candidate SHA and mismatched GitHub Actions run ID or attempt. Missing F evidence remains incomplete; failed registered F controls or required G jobs block the integrated result.
 - Added focused regression tests for a shared exact run, mismatched run IDs/attempts, absent F evidence, failed G jobs and failed F controls; the mainline integration guard checks that the evaluator and test are present.
 - The evaluator is advisory only. It explicitly returns `acceptanceGranted: false`, `mergeAuthorized: false` and `deploymentAuthorized: false`.
-- Release metadata advanced to `0.3.120` (governance revision `1.4.16`). This slice is implemented on an isolated branch; it is not accepted until exact-head CI and review complete.
-- CI limitation remains: GitHub Actions jobs are queued/pending on the Windows self-hosted Runner. No exact-head job result has been produced for the current documentation or feature candidates.
+- Release metadata advanced to `0.3.120` (governance revision `1.4.16`). The F–G implementation was merged by the repository owner in PR #229 at `ef543ebeecf56785dc752fdb8ac9305862bb269e`; merge status is not acceptance.
+- Exact-head PR CI run `44926059712` for candidate `67daff6e07ab65f440410eea877021827b6c1971` remains pending at the resolver job; no quality/database/build job evidence is available yet. Main push CI run `44926070210` for merge SHA `ef543ebeecf56785dc752fdb8ac9305862bb269e` is also pending.
+- Therefore F–G is merged but not accepted. Do not infer test success from a merged PR, empty job list, or pending workflow.
+- The Windows self-hosted Runner queue is the current infrastructure blocker; the available GitHub connection cannot inspect Runner administration state.
 
 ## 6. Current blockers and known limitations
 
