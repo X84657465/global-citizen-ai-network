@@ -1,9 +1,14 @@
-# Five-Track Engineering Governance
+# A–P Workstream Engineering Governance
 
 **Governance revision: 1.4.20**  
-**Repository release baseline: 0.3.124**
+**Repository release baseline: 0.3.125**
 
-## 1. Five development tracks
+
+## A–P workstream registry
+
+The canonical ownership, non-goals, dependencies, staged deliverables and exit criteria are maintained in the [A–P engineering workstream architecture](engineering-workstreams.md). A is the highest-priority Agent Factory V2 line; B follows A capability acceptance. C–H are engaged only for required capability and integration dependencies. I–O retain independent ownership and are activated in dependency order. P is cross-cutting governance, not a peer feature track.
+
+## 1. A–E core development tracks
 
 | Track | Scope | Primary responsibility |
 |---|---|---|
@@ -111,6 +116,6 @@ Every improvement, including a small one, records:
 
 Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
 
-## 10. Five-track baseline
+## 10. A–P governance baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.122` A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. A–O are fifteen independently owned workstreams; P is the cross-cutting governance layer. Each track has independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.125` A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
