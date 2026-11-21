@@ -1,0 +1,146 @@
+import {
+  getWorkstreamContract,
+  type FPCapabilityEnvelope,
+  type WorkstreamId,
+} from "./integration-contract";
+
+export interface FPHostPrincipal {
+  /** Opaque identity reference issued by the existing host. */
+  readonly actorRef: string;
+  /** Opaque resource reference issued by the existing host. */
+  readonly resourceRef?: string;
+  /** Trusted host decision; never derive this from an event payload. */
+  readonly authorized: boolean;
+  /** Explicit host approval for capabilities with bounded side effects. */
+  readonly approved: boolean;
+}
+
+export interface FPHostRequestContext {
+  readonly principal: FPHostPrincipal;
+  readonly correlationId: string;
+  readonly now?: () => Date;
+}
+
+export interface FPCapabilityRequest<TInput = unknown> {
+  readonly workstream: WorkstreamId;
+  readonly capability: string;
+  readonly input: TInput;
+  readonly idempotencyKey?: string;
+}
+
+export interface FPCapabilityResult<TOutput = unknown> {
+  readonly envelope: FPCapabilityEnvelope<TOutput>;
+}
+
+export type FPCapabilityHandler<TInput = unknown, TOutput = unknown> = (
+  input: TInput,
+  context: FPHostRequestContext,
+) => Promise<TOutput> | TOutput;
+
+export type FPHostErrorCode =
+  | "INVALID_CONTEXT"
+  | "UNKNOWN_CAPABILITY"
+  | "UNAUTHORIZED"
+  | "APPROVAL_REQUIRED"
+  | "EXECUTION_DISABLED";
+
+export class FPHostError extends Error {
+  constructor(
+    readonly code: FPHostErrorCode,
+    message: string,
+  ) {
+    super(message);
+    this.name = "FPHostError";
+  }
+}
+
+function assertSafeReference(value: string | undefined, label: string): void {
+  if (!value || value.length > 256 || /[\r\n\0]/.test(value)) {
+    throw new FPHostError("INVALID_CONTEXT", `Invalid host ${label}.`);
+  }
+}
+
+function assertCorrelationId(value: string): void {
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value)) {
+    throw new FPHostError("INVALID_CONTEXT", "Invalid correlation ID.");
+  }
+}
+
+/**
+ * Host adapter for attaching F–P capability handlers to the existing platform.
+ *
+ * The caller must supply principal and authorization/approval decisions from
+ * the trusted host. No identity lookup, permission inference, persistence,
+ * queue, or side-effect mechanism is implemented here.
+ */
+export class FPHostAdapter {
+  private readonly handlers = new Map<string, FPCapabilityHandler>();
+
+  register<TInput, TOutput>(
+    workstream: WorkstreamId,
+    capability: string,
+    handler: FPCapabilityHandler<TInput, TOutput>,
+  ): void {
+    if (!/^[a-z][a-z0-9-]{1,63}$/.test(capability)) {
+      throw new FPHostError("UNKNOWN_CAPABILITY", "Invalid capability name.");
+    }
+    const key = `${workstream}:${capability}`;
+    if (this.handlers.has(key)) {
+      throw new FPHostError("UNKNOWN_CAPABILITY", `Capability already registered: ${key}`);
+    }
+    this.handlers.set(key, handler as FPCapabilityHandler);
+  }
+
+  async invoke<TInput = unknown, TOutput = unknown>(
+    request: FPCapabilityRequest<TInput>,
+    context: FPHostRequestContext,
+  ): Promise<FPCapabilityResult<TOutput>> {
+    const contract = getWorkstreamContract(request.workstream);
+    const key = `${request.workstream}:${request.capability}`;
+    const handler = this.handlers.get(key);
+    if (!handler) {
+      throw new FPHostError("UNKNOWN_CAPABILITY", `No handler registered for ${key}.`);
+    }
+
+    assertSafeReference(context.principal.actorRef, "actor reference");
+    if (context.principal.resourceRef !== undefined) {
+      assertSafeReference(context.principal.resourceRef, "resource reference");
+    }
+    assertCorrelationId(context.correlationId);
+
+    if (!context.principal.authorized) {
+      throw new FPHostError("UNAUTHORIZED", "The existing host did not authorize this request.");
+    }
+    if (contract.executionAuthority === "none") {
+      throw new FPHostError("EXECUTION_DISABLED", "This workstream is registered as non-executable.");
+    }
+    if (contract.executionAuthority === "bounded" && !context.principal.approved) {
+      throw new FPHostError("APPROVAL_REQUIRED", "Explicit host approval is required.");
+    }
+
+    const output = await handler(request.input, context);
+    const now = (context.now ?? (() => new Date()))();
+    if (Number.isNaN(now.getTime())) {
+      throw new FPHostError("INVALID_CONTEXT", "Host clock returned an invalid date.");
+    }
+
+    const envelope: FPCapabilityEnvelope<TOutput> = Object.freeze({
+      contractVersion: "1",
+      workstream: request.workstream,
+      capability: request.capability,
+      eventId: globalThis.crypto.randomUUID(),
+      occurredAt: now.toISOString(),
+      correlationId: context.correlationId,
+      actorRef: context.principal.actorRef,
+      ...(context.principal.resourceRef
+        ? { resourceRef: context.principal.resourceRef }
+        : {}),
+      ...(request.idempotencyKey
+        ? { idempotencyKey: request.idempotencyKey }
+        : {}),
+      payload: output,
+    });
+
+    return { envelope };
+  }
+}
