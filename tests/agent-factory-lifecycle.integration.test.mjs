@@ -19,10 +19,21 @@ function createFakeGitHubApi() {
   }];
   let nextIssueNumber = 100;
   const workflows = new Map();
+  const pullRequests = new Map();
 
   return {
     issues,
     workflows,
+    registerPullRequest({ number, issueNumber, headSha, headRef }) {
+      pullRequests.set(String(number), {
+        number,
+        state: "open",
+        body: "<!-- ai-task:" + issueNumber + " -->",
+        user: { login: "owner" },
+        base: { ref: "main", repo: { full_name: "owner/repo" } },
+        head: { ref: headRef, sha: headSha, repo: { full_name: "owner/repo" } },
+      });
+    },
     async request(path, options = {}) {
       const url = new URL(path, "https://api.github.com");
       const method = options.method ?? "GET";
@@ -44,6 +55,12 @@ function createFakeGitHubApi() {
         const workflow = workflows.get(workflowMatch[1]);
         if (!workflow) throw new Error("Workflow run not found.");
         return structuredClone(workflow);
+      }
+      const pullMatch = /^\/repos\/owner\/repo\/pulls\/(\d+)$/.exec(url.pathname);
+      if (pullMatch && method === "GET") {
+        const pull = pullRequests.get(pullMatch[1]);
+        if (!pull) throw new Error("Pull request fixture not found: " + pullMatch[1]);
+        return structuredClone(pull);
       }
       const match = /^\/repos\/owner\/repo\/issues\/(\d+)$/.exec(url.pathname);
       if (match) {
@@ -127,6 +144,12 @@ test("persists the complete worker-to-candidate lifecycle across controller rest
   assert.equal(result.state.active_task, null);
   assert.equal(result.state.tasks[String(issueNumber)].status, "awaiting_ci");
 
+  api.registerPullRequest({
+    number: 88,
+    issueNumber,
+    headSha: candidateSha,
+    headRef: "ai-task/issue-42-abcdef123456",
+  });
   result = await invoke({
     AGENT_FACTORY_MODE: "candidate-start",
     ISSUE_NUMBER: String(issueNumber),
@@ -221,12 +244,14 @@ test("durable scheduler completes a 24-task lifecycle simulation with idempotent
     });
     assert.equal(result.state.active_task, null);
 
+    const headRef = "ai-task/issue-" + issue + "-" + index.toString(16).padStart(12, "0");
+    api.registerPullRequest({ number: pullRequestNumber, issueNumber: issue, headSha, headRef });
     result = await invoke({
       AGENT_FACTORY_MODE: "candidate-start",
       ISSUE_NUMBER: String(issue),
       PULL_REQUEST_NUMBER: String(pullRequestNumber),
       HEAD_SHA: headSha,
-      HEAD_REF: "ai-task/issue-" + issue + "-" + index.toString(16).padStart(12, "0"),
+      HEAD_REF: headRef,
       CI_RUN_ID: ciRunId,
       CI_RUN_ATTEMPT: "1",
     });
@@ -237,7 +262,7 @@ test("durable scheduler completes a 24-task lifecycle simulation with idempotent
       ISSUE_NUMBER: String(issue),
       PULL_REQUEST_NUMBER: String(pullRequestNumber),
       HEAD_SHA: headSha,
-      HEAD_REF: "ai-task/issue-" + issue + "-" + index.toString(16).padStart(12, "0"),
+      HEAD_REF: headRef,
       CI_CONCLUSION: "success",
       CI_RUN_ID: ciRunId,
       CI_RUN_ATTEMPT: "1",
@@ -308,6 +333,12 @@ test("candidate failure recovers through backoff and retries the same open PR wi
     ISSUE_NUMBER: String(issue),
     AGENT_FACTORY_LEASE_ID: firstLease,
     NEXT_TASK_STATE: "awaiting_ci",
+  });
+  api.registerPullRequest({
+    number: pullRequestNumber,
+    issueNumber: issue,
+    headSha: firstSha,
+    headRef: "ai-task/issue-42-abcdef123456",
   });
   await invoke({
     AGENT_FACTORY_MODE: "candidate-start",
