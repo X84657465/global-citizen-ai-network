@@ -77,3 +77,8 @@
  .trackStatus,.architectureLegend span,.visualTagBottom,.heroBottomLabel,.heroFact span,.footerTop p,.footerBottom{font-size:12px}
  .stageLabel,.stageBar a,.heroPrinciples span{font-size:12px}
 }
+
+/* Candidate-status links: keep both review and CI actions aligned. */
+.stageLinks{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.stageLinks a{margin-left:0}
+@media(max-width:620px){.stageLinks{width:100%;gap:12px}.stageLinks a{margin-left:0}}
