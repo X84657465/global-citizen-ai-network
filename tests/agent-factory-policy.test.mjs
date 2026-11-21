@@ -156,7 +156,7 @@ test("resets the global breaker only after successful CI for main or a tracked f
   const job = workflow.slice(start);
   assert.ok(job.includes("needs.build.result == 'success'"));
   assert.ok(job.includes("needs.database.result == 'success'"));
-  assert.ok(job.includes("AGENT_FACTORY_MODE: success"));
+  assert.equal(job.includes("AGENT_FACTORY_MODE: success"), false);
   assert.ok(job.includes("AGENT_FACTORY_MODE: candidate"));
   assert.ok(job.includes("CI_CONCLUSION: success"));
   assert.ok(job.includes("PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}"));
