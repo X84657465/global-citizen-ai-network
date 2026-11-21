@@ -7,6 +7,10 @@
 **Scope:** F–P shared-core integration; A–E and Agent Factory V2 are protected  
 **Overall status:** Implementation in progress; no F–P workstream is declared fully accepted by this report.
 
+## P API compatibility defect found and fixed on the follow-up branch
+
+The initial permission adapter expected GCAN-style permission values directly from GitHub. The official collaborator-permission endpoint instead returns legacy `admin/write/read/none` and exposes `maintain/triage` through `role_name`. PR #252 now normalizes these real API values into the internal enum and rejects unknown or contradictory payloads. Isolated Node 22 tests for the adapter and review collector passed 15/15; the repository's full CI has not yet completed.
+
 ## 1. Executive result
 
 GCAN already contains a substantial F–P shared-core foundation. The correct next step is integration and evidence completion, not a parallel platform rewrite.
