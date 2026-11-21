@@ -19,9 +19,12 @@ export interface FPGovernanceReviewCollectionInput {
 export type FPGovernanceReviewCollectionErrorCode =
   | "INVALID_INPUT" | "CANDIDATE_NOT_CURRENT" | "INCOMPLETE_REVIEW_HISTORY" | "INVALID_REVIEW_DATA";
 export class FPGovernanceReviewCollectionError extends Error {
-  constructor(readonly code: FPGovernanceReviewCollectionErrorCode, message: string) {
+  readonly code: FPGovernanceReviewCollectionErrorCode;
+
+  constructor(code: FPGovernanceReviewCollectionErrorCode, message: string) {
     super(message);
     this.name = "FPGovernanceReviewCollectionError";
+    this.code = code;
   }
 }
 
