@@ -1144,10 +1144,40 @@ test("V2 plan mode waits while an AI Task PR is open", async () => {
 test("check mode excludes quarantined tasks from the pending planner count", async () => {
   let state = awaitingCandidate();
   for (let attempt = 1; attempt <= 3; attempt += 1) {
-    const attemptNow = attempt * 100_000;
+    const attemptNow = attempt * 300_000;
+    const headSha = String.fromCharCode("b".charCodeAt(0) + attempt - 1).repeat(40);
+    if (attempt > 1) {
+      const leaseId = "lease-quarantine-" + attempt;
+      state = reserveTask(state, {
+        issue_number: 42,
+        lease_id: leaseId,
+        lease_owner: "runner",
+        workflow_run_id: String(123456 + attempt),
+        run_attempt: 1,
+        base_sha: "a".repeat(40),
+      }, attemptNow);
+      for (const [next, offset] of [
+        ["preparing", 10],
+        ["planning", 20],
+        ["patching", 30],
+        ["sandbox_testing", 40],
+        ["publishing", 50],
+        ["draft_pr_created", 60],
+        ["awaiting_ci", 70],
+      ]) {
+        state = transitionTask(
+          state,
+          42,
+          leaseId,
+          next,
+          next === "draft_pr_created" ? { head_sha: headSha, pull_request_number: 88 } : {},
+          attemptNow + offset,
+        );
+      }
+    }
     const evidence = {
       pull_request_number: 88,
-      head_sha: "b".repeat(40),
+      head_sha: headSha,
       head_ref: "ai-task/issue-42-abcdef123456",
       ci_run_id: "quarantine-" + attempt,
       ci_run_attempt: 1,
