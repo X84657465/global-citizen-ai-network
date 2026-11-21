@@ -1,7 +1,7 @@
 ## 0.3.106 — 2026-11-21
 
 - Reconcile the A–P governance parent candidate against its authoritative manifest: A 2.0.71, B 0.1.13 (current registered baseline), and governance revision 1.4.10.
-- Correct stale homepage workstream versions and superseded PR links; point to active governance PR #179 and dependent B candidate PR #181 without claiming B 0.1.16 is already integrated.
+- Correct stale homepage workstream versions and superseded PR links; point to the replacement governance candidate PR #189 and dependent B candidate PR #181 without claiming B 0.1.16 is already integrated.
 - Advance K Knowledge Base/Docs to 0.1.7 for the governance registry and handoff metadata correction; synchronize VERSION, package metadata, lockfile, manifest and governance baseline.
 - Documentation/version metadata only; no runtime, database schema, RLS, production data, secrets or deployment settings changed.
 - Exact-head full CI and independent formal review remain required.
