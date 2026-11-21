@@ -61,11 +61,13 @@ F–P manifest registration or a “ready” label is not implementation accepta
 
 ### PR #267 — shared CI acceptance baseline
 
-- Current exact branch HEAD: `4c179508832c6d0d88b9b085eed122d3b2fb42e8`.
-- Exact-head Actions run [44943780150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943780150): metadata resolver completed successfully; Windows Runner quality job is in progress: locked dependency installation, Windows/Docker/Ollama preflight, bounded local Ollama inference, migration filename safety guard and schema safety guard have passed. Production dependency audit is running; full dependency audit, script/CI policy checks, unit tests, typecheck, lint, production build and PostgreSQL/RLS have not yet reported results.
-- Scope: schema guard expected pgTAP assertion count 18, CI policy assertions aligned with current runbook, README release label synchronized to `0.3.124`.
+- Current exact branch HEAD verified from GitHub: `6baa233e30192d5b360617d7f0079d840c78821a`.
+- Previous exact-head run [44943780150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943780150) passed dependency install, Windows/Docker/Ollama preflight, bounded Ollama inference, migration/schema guards and both dependency audits, then failed the CI trigger/Runner policy test. Unit tests, typecheck, lint, production build and database/RLS were skipped after that failure.
+- Root cause identified by checking the exact tested tree: `package-lock.json` still advertised root/package version `0.3.121` while `VERSION`, `package.json`, manifest and README were `0.3.124`. The CI policy test explicitly checks lockfile version parity.
+- Corrective commit `6baa233e30192d5b360617d7f0079d840c78821a` changes only the two package-lock root version fields to `0.3.124`; dependency graph and resolved package entries are unchanged.
+- New exact-head Actions run [44944336578](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944336578) is pending; no jobs reported yet. No acceptance is claimed for the corrected SHA.
 - No independent review is recorded. Keep Draft/unmerged.
-- #259 and #267 both touch README, schema guard and CI policy test. Do not merge them sequentially as-is. Prefer one reconciled candidate and rerun every required gate against its final exact SHA.
+- #259 and #267 both touch README, schema guard and CI policy test. Do not merge them sequentially as-is. Reconcile overlapping files and rerun every required gate against the final exact SHA.
 
 ### PR #266 — K handoff refresh candidate
 
