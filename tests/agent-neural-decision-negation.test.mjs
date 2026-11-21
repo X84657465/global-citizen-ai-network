@@ -1,0 +1,74 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { evaluateAgentDecision } from "../lib/agent-neural-decision.mjs";
+
+const task = { allowed_paths: ["docs/example.md"] };
+const safePlan = {
+  execution_mode: "validated_plan_only",
+  ai_execution_enabled: false,
+  tasks: [
+    { id: "inspect", role: "planner", action: "inspect", title: "Inspect requirements", acceptance_criteria: ["Confirm scope"], depends_on: [], allowed_paths: [], max_output_bytes: 4096 },
+    { id: "patch", role: "implementer", action: "propose_patch", title: "Propose documentation", acceptance_criteria: ["Stay within scope"], depends_on: ["inspect"], allowed_paths: ["docs/example.md"], max_output_bytes: 8192 },
+    { id: "verify", role: "tester", action: "validate_patch", title: "Verify proposed patch", acceptance_criteria: ["Check acceptance criteria"], depends_on: ["patch"], allowed_paths: [], max_output_bytes: 4096 },
+  ],
+};
+
+function withImplementerText(title, acceptance_criteria = []) {
+  return {
+    ...safePlan,
+    tasks: safePlan.tasks.map((item) => item.id === "patch" ? { ...item, title, acceptance_criteria } : item),
+  };
+}
+
+test("negated high-risk prohibitions do not independently trigger positive-risk rejection", () => {
+  const result = evaluateAgentDecision(
+    withImplementerText("Do not deploy to production", [
+      "Do not modify billing or payout settings",
+      "Keep secrets, credentials and auth controls unchanged",
+      "Production changes remain out of scope",
+    ]),
+    task,
+  );
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
+  assert.equal(result.decision, "approve_for_sandbox_validation");
+});
+
+test("positive actionable high-impact intent remains rejected", () => {
+  for (const title of ["Deploy to production", "Change billing policy", "Rotate credentials"]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("sensitive target paths remain fail-closed even when surrounding wording is negated", () => {
+  const sensitiveTask = { allowed_paths: ["docs/example.md", "app/api/auth/route.ts"] };
+  const result = evaluateAgentDecision(
+    withImplementerText("Do not change the auth route"),
+    sensitiveTask,
+  );
+  assert.equal(result.signals.no_high_risk_scope, false);
+  assert.equal(result.evidence.high_risk_scope_detected, true);
+  assert.equal(result.decision, "reject_and_replan");
+});
+
+test("mixed negative and positive clauses are classified conservatively", () => {
+  const result = evaluateAgentDecision(
+    withImplementerText("Do not deploy to production, but update billing rules"),
+    task,
+  );
+  assert.equal(result.signals.no_high_risk_scope, false);
+  assert.equal(result.decision, "reject_and_replan");
+});
+
+test("ordinary words such as author do not match the auth risk token", () => {
+  const authorTask = { allowed_paths: ["docs/author-guide.md"] };
+  const plan = withImplementerText("Author the documentation", [
+    "Explain the author workflow and authorship metadata",
+  ]);
+  const result = evaluateAgentDecision(plan, authorTask);
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
+  assert.equal(result.decision, "approve_for_sandbox_validation");
+});
