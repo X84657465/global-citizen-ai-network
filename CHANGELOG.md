@@ -1,3 +1,9 @@
+## 0.3.103 — 2026-11-21
+
+- Synchronize repository and public website homepages with the A–P architecture framing: retain A–E as the five active engineering workstreams and make P Governance, Ethics & Trust an explicit cross-cutting control layer.
+- Publish P governance principles for human accountability, security/privacy, ethics/fairness, transparency/auditability, risk resilience and explicit consent; do not imply that all A–O modules or planned capabilities are complete.
+- No production deployment, database mutation, permission expansion or automatic merge.
+
 ## 0.3.102 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
