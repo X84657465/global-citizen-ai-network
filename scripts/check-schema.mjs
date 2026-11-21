@@ -587,13 +587,17 @@ assert.ok(reconciliationAuthSource.includes("Object.prototype.hasOwnProperty.cal
   reconciliationAuthTests.includes("does not accept inherited authorization fields"),
   "Admin profile authorization must reject inherited or malformed role fields");
 
-assert.ok(publicTableGrantTests.includes("select plan(15)") &&
+const publicGrantPlan = publicTableGrantTests.match(/select\\s+plan\\((\\d+)\\)\\s*;/i);
+const publicGrantAssertionCount = (publicTableGrantTests.match(/select\\s+ok\\s*\\(/gi) ?? []).length;
+assert.ok(publicGrantPlan &&
+  Number(publicGrantPlan[1]) === publicGrantAssertionCount &&
+  publicGrantAssertionCount >= 15 &&
   publicTableGrantTests.includes("'TRUNCATE'") &&
   publicTableGrantTests.includes("'REFERENCES'") &&
   publicTableGrantTests.includes("'TRIGGER'") &&
   publicTableGrantTests.includes("all internal service-only tables retain row-level security") &&
   publicTableGrantTests.includes("public sequences are not directly accessible"),
-  "Least-privilege regression tests must cover full table privileges, internal-table RLS, and public sequence grants");
+  "Least-privilege regression tests must keep their declared plan synchronized with all privilege, RLS, and sequence assertions");
 
 assert.ok(providerResponse.includes("async function cancelProviderBody") &&
   providerResponseTests.includes("cancels provider bodies rejected by invalid or oversized declared content-length"),
