@@ -315,3 +315,40 @@ test("rejects tab-indented code-block bullets in task directive sections", () =>
     /indented code-block directives/,
   );
 });
+
+
+test("preserves the explicitly supported supplemental task context sections", () => {
+  const body = validIssue().body + `
+\n## Confirmed evidence
+Observed preflight rejection on the exact factory workflow run.
+
+## Finding and required behavior
+Preserve required task sections and keep path validation fail-closed.
+
+## Retry scope refinement — 2026-11-21
+Keep the existing acceptance criteria and constrain the implementation output.
+`;
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.additional_context, {
+    "Confirmed evidence": "Observed preflight rejection on the exact factory workflow run.",
+    "Finding and required behavior": "Preserve required task sections and keep path validation fail-closed.",
+    "Retry scope refinement — 2026-11-21": "Keep the existing acceptance criteria and constrain the implementation output.",
+  });
+});
+
+test("rejects duplicate supplemental context sections and still rejects unknown headings", () => {
+  const duplicate = validIssue({
+    body: validIssue().body + "\n## Confirmed evidence\nFirst.\n\n## Confirmed evidence\nSecond.",
+  });
+  assert.throws(
+    () => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"),
+    /Duplicate section: Confirmed evidence/,
+  );
+  const unknown = validIssue({
+    body: validIssue().body + "\n## Unrecognized operational instructions\nNot accepted.",
+  });
+  assert.throws(
+    () => validateAndBuildTask(unknown, "X84657465/global-citizen-ai-network"),
+    /Unexpected section: Unrecognized operational instructions/,
+  );
+});
