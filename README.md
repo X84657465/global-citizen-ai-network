@@ -24,7 +24,7 @@
 
 ## 🧭 專案架構與驗證原則｜2026-11-21
 
-> **首頁候選更新：** PR [#207](https://github.com/X84657465/global-citizen-ai-network/pull/207) 尚未合併；目前線上正式版不代表此候選版本。請以 [精確 SHA CI](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44906247087) 與 PR 狀態判斷驗收進度。
+> **首頁候選更新：** PR [#207](https://github.com/X84657465/global-citizen-ai-network/pull/207) 尚未合併；目前線上正式版不代表此候選版本。請以 [最新提交 CI 執行紀錄](https://github.com/X84657465/global-citizen-ai-network/actions) 與 PR 狀態判斷驗收進度。
 
 | 範圍 | 責任 | 公開狀態說明 |
 |---|---|---|
