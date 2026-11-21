@@ -143,7 +143,7 @@ export default function FactoryPage() {
               <h1>Agent Factory 控制中心</h1>
               <p>以工程入口、可追溯證據與發布閘門為核心；即時任務與 Runner 遙測尚未接通時，不顯示虛構數字。</p>
             </div>
-            <span className={styles.demo}>CANDIDATE · 0.3.121</span>
+            <span className={styles.demo}>CANDIDATE · 0.3.123</span>
           </div>
 
           <section className={styles.releaseNotice} aria-label="候選版本狀態">
