@@ -45,6 +45,15 @@ test("rejects invalid event metadata and invalid capacities", () => {
   assert.throws(() => recorder.record(event({ occurredAt: "not-a-date" })), TypeError);
 });
 
+test("rejects unregistered workstreams, invalid outcomes, non-UTC timestamps and unsafe error codes", () => {
+  const recorder = new FPObservabilityRecorder();
+  assert.throws(() => recorder.record(event({ workstream: "A" } as never)), TypeError);
+  assert.throws(() => recorder.record(event({ outcome: "unknown" } as never)), TypeError);
+  assert.throws(() => recorder.record(event({ occurredAt: "2026-11-21T12:00:00+08:00" })), TypeError);
+  assert.throws(() => recorder.record(event({ errorCode: "token=super-secret-value" })), TypeError);
+  assert.throws(() => recorder.record(event({ errorCode: "database.permission.denied" })), TypeError);
+});
+
 test("does not expose mutable internal event storage", () => {
   const recorder = new FPObservabilityRecorder();
   recorder.record(event());
