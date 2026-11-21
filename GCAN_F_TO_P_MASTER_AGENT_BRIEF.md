@@ -51,6 +51,11 @@ Do not merge F–P into B yet. B can consume the security requirements, evidence
 - `GCAN_F_TO_P_INTEGRATION_MAP.md`
 - `GCAN_F_TO_P_MASTER_AGENT_BRIEF.md`
 
+## Shared governance / coordination files
+
+- `GCAN_SHARED_ENGINEERING_GOVERNANCE.md` — shared infrastructure, evidence levels, Git branch/worktree isolation, protected boundaries; proposal only.
+- `GCAN_SHARED_TASK_LEDGER.md` — initial task register with unassigned owners and evidence-based next actions.
+
 ## Next priorities
 
 1. Verify F ancestry and obtain security acceptance.
