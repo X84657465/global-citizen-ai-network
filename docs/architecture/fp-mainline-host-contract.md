@@ -148,3 +148,15 @@ The policy catalogue requires security assurance (F), exact-head CI (G), observa
 The evaluator distinguishes missing, stale, not-run, failed, and complete evidence. L is rejected if its lifecycle is anything other than deferred. Records for A–E, duplicate workstreams, unknown policy versions, unregistered evidence kinds, unsafe references, and malformed owner references are rejected.
 
 A `ready-for-human-review` dossier is only a completeness result. P does not grant governance approval, user permission, execution authority, merge authorization, deployment authorization, or federation activation. Owner references and evidence references are opaque metadata supplied by the trusted host; this evaluator does not authenticate their source or independently verify the referenced artifacts.
+
+
+## F exact-run security evidence binding
+
+The F evaluator now maps each registered control to the existing CI job that actually runs it:
+
+- `member-isolation` and `database-privileges` require the `database` job, which starts an isolated local Supabase instance, applies migrations, runs `supabase test db`, and runs the two-member application RLS harness.
+- `security-headers` and `route-authorization` require the `quality` job, which runs the repository's unit-test suite.
+
+Each evidence record must identify the same repository, PR number, candidate head SHA, `pull_request` event, `main` base, canonical CI workflow, run ID/attempt, and run URL. The job URL must belong to that run, and the control must reference its registered job category. All four controls must refer to one shared run and attempt. Skipped, cancelled, failed, or otherwise non-success CI jobs cannot support a passing F control.
+
+This tightens evidence traceability; it still does not execute tests or authenticate the evidence source. The caller must obtain metadata from the trusted GitHub Actions API and must not accept caller-authored evidence as authoritative.
