@@ -6,7 +6,7 @@
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
 **Main HEAD:** `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
-**Authoritative release:** `VERSION` and `package.json` both report `0.3.124`. README still advertises `0.3.121`; PR #267 proposes the metadata correction but is not merged.  
+**Authoritative release:** `VERSION` and `package.json` on main report `0.3.124`. README still advertises `0.3.121`; PR #267 was closed as redundant and its correction is carried in #259, which remains unmerged.  
 **A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
 
 ## 1. Highest-level strategy and authority
@@ -136,11 +136,11 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ## Current checkpoint — 2026-11-22 (latest verified)
 
 - Main remains at base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; `VERSION` and `package.json` are `0.3.124`. README's mainline label remains `0.3.121`; PR #259 carries the correction.
-- PR #259 exact head is `373ba6f41b5a995b1efd871859f569312256361d` (39 changed files); run [44946287444](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946287444), run #3216, is pending with no jobs returned. No substantive CI result is available yet. Vercel reports provider `build-rate-limit`; the previous READY Preview belongs to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` and must not be reused.
+- PR #259 exact head is `373ba6f41b5a995b1efd871859f569312256361d` (39 changed files); run [44946287444](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946287444), run #3216, remains pending with no jobs returned. No substantive CI result is available yet. Vercel reports provider `build-rate-limit`; the previous READY Preview belongs to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` and must not be reused.
 - A risk-intent classification and regression tests were ported exactly from PR #261 into #259. PR #261 is now closed as redundant; its prior schema-guard failure is not evidence against the new consolidated SHA.
-- PR #267 is closed as redundant; its shared metadata changes are carried in #259.
-- PR #259 has no independent formal reviews or inline review threads. Its current exact-SHA Preview is READY and the root plus `/factory`, `/workspace` and `/login` routes returned HTTP 200; authenticated end-to-end and production acceptance remain unverified.
-- PR #268 remains documentation-only and Draft. Its exact head is `127de3547edebedd1265bee7082959dd804d8ded`; run [44945572523](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945572523) is pending with no jobs returned.
-- PR #266 remains a separate Draft documentation candidate; do not merge stale or overlapping documentation branches wholesale.
+- PR #267 is closed as redundant; its README/package metadata correction is carried in #259 and is not yet on main.
+- PR #259 has no independent formal reviews or inline review threads. No Vercel Preview deployment exists for its current SHA; provider status is blocked by `build-rate-limit`. The earlier READY deployment and HTTP 200 smoke checks belong to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` and are historical only.
+- PR #268 remains documentation-only and Draft. Its current exact head is `132969b80a2ecea0e7612b744d6ec54474398af1`; exact-head CI run [44946384200](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946384200) is pending with no jobs returned.
+- PR #266 is closed as superseded by #268; do not reopen or merge its stale snapshot.
 - B adapter remains proposal-only. B cannot access Factory state, leases, Runner or privileged execution.
 - Acceptance rule unchanged: terminal success for all required checks on the final exact SHA, current Preview, and independent review. Pending, cancelled, skipped, stale-SHA success, resolver-only success and mergeability are not acceptance.
