@@ -1,3 +1,10 @@
+## 0.3.117 — 2026-11-21
+
+- Update the public homepage's workstream status note to explicitly distinguish roadmap scope from modules not yet integrated into the production product flow.
+- Replace the obsolete five-track homepage test contract with A–O + P governance assertions, responsive-layout checks and production-readiness disclosure checks.
+- Synchronize repository and B-line release metadata to `0.3.117` / `0.1.20`; retain Agent Factory V2 at `2.0.79`.
+- Exact-head CI, Preview build and desktop/tablet/mobile visual acceptance are required; no Production deployment is claimed.
+
 ## 0.3.116 — 2026-11-21
 
 - Fix the production build blocker in `app/factory/page.tsx`: replace invalid nested button/anchor markup with a semantic external link for GitHub Actions.
