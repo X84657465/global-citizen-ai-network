@@ -29,6 +29,8 @@ test("D and E remain explicitly isolated previews until their in-repository rout
 
 test("homepage labels early-stage and demo capabilities without fabricating activity", () => {
   assert.match(homepage, /早期建置與預覽階段/);
+  assert.match(homepage, /最新候選 SHA 尚無可用 Preview/);
+  assert.match(homepage, /舊版 Preview 不作為本版驗收證據/);
   assert.match(homepage, /示範數據/);
   assert.doesNotMatch(homepage, /\b(?:1,?000|10,?000)\s*\+?\s*(?:members|contributors|tasks completed)\b/i);
   assert.doesNotMatch(homepage, /NT\$\s*[\d,]+\s*(?:earned|rewards? paid)/i);
@@ -53,8 +55,8 @@ test("repository homepage distinguishes the old Preview from the current unprevi
 });
 
 test("repository and B-line homepage release metadata matches the authoritative manifest", () => {
-  assert.equal(rootVersion, "0.3.120");
+  assert.equal(rootVersion, "0.3.122");
   assert.equal(manifest.overall, rootVersion);
-  assert.equal(productVersion, "0.1.21");
+  assert.equal(productVersion, "0.1.22");
   assert.equal(manifest.tracks.B.version, productVersion);
 });
