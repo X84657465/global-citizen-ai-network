@@ -49,9 +49,9 @@ export function createFPGitHubReviewerPermissionVerifier(input: {
     const allowed: readonly FPGovernanceRepositoryPermission[] = [
       "admin",
       "maintain",
-      "push",
+      "write",
       "triage",
-      "pull",
+      "read",
       "none",
     ];
     if (typeof permission !== "string" || !allowed.includes(permission as FPGovernanceRepositoryPermission)) {
