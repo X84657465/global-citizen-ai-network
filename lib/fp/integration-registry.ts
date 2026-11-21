@@ -269,8 +269,10 @@ export class FPIntegrationExecutor {
       let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
       const timeout = new Promise<never>((_resolve, reject) => {
         timeoutHandle = setTimeout(() => {
-          controller.abort();
+          // Settle the timeout race before abort listeners can reject their
+          // in-flight operation with a lower-level cancellation error.
           reject(new FPIntegrationError("TIMEOUT", "Integration operation exceeded its time limit."));
+          controller.abort();
         }, this.timeoutMs);
       });
 
