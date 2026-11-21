@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PatchValidationError, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { getPatchManifestFiles, PatchValidationError, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 const task = {
   schema_version: 1,
@@ -152,4 +152,12 @@ test("existing test files cannot be modified and control-plane files require exp
   );
   assert.equal(approved.files.length, 1);
   assert.equal(approved.safety.control_plane_paths_require_approval_label, true);
+});
+
+
+test("rejects malformed model manifest roots before patch generation iterates files", () => {
+  for (const malformed of [null, [], "manifest", 7, {}, { files: null }, { files: {} }, { files: "not-an-array" }]) {
+    assert.throws(() => getPatchManifestFiles(malformed), /object containing a files array/);
+  }
+  assert.deepEqual(getPatchManifestFiles({ schema_version: 1, files: [] }), []);
 });
