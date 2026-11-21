@@ -75,7 +75,7 @@ function fixture() {
       ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.'),
       ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.');
     `;
-  return { a, b, projectA, projectB, conversationA, conversationB, messageA, messageB, requestA, requestB, submissionA, submissionB, setup };
+  return { a, b, projectA, projectB, conversationA, conversationB, messageA, messageB, requestA, requestB, submissionA, submissionB, task, setup };
 }
 
 function asMember(userId, query) {
@@ -122,6 +122,44 @@ test("cross-member reads and mutations cannot expose or alter another member's r
     rollback;
   `);
   assert.match(output, /0,0,0$/, "cross-member update/read must affect and reveal zero rows");
+});
+
+test("member cannot attach a conversation to another member's project", () => {
+  const f = fixture();
+  const conversation = randomUUID();
+  sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.conversations (id, owner_id, project_id, title)
+      values ('${conversation}', '${f.a}', '${f.projectB}', 'cross-member project attachment');
+    `)}
+    rollback;
+  `, { expectFailure: true });
+});
+
+test("member cannot insert a message into another member's conversation", () => {
+  const f = fixture();
+  sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.messages (conversation_id, owner_id, role, content)
+      values ('${f.conversationB}', '${f.a}', 'user', 'cross-member conversation injection');
+    `)}
+    rollback;
+  `, { expectFailure: true });
+});
+
+test("member cannot submit contribution work on behalf of another member", () => {
+  const f = fixture();
+  const submission = randomUUID();
+  sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.task_submissions (id, task_id, contributor_id, content)
+      values ('${submission}', '${f.task}', '${f.b}', 'forged contributor identity');
+    `)}
+    rollback;
+  `, { expectFailure: true });
 });
 
 test("profile role and account-status escalation is rejected by the database trigger", () => {
