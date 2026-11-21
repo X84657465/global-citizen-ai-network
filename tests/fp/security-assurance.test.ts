@@ -124,7 +124,7 @@ test("rejects a CI run from another PR, repository, workflow, base, or event", (
   ]) {
     assert.throws(() => assessFPSecurityEvidence(bundle({
       evidence: FP_SECURITY_CONTROLS.map((control) =>
-        evidence(control.id, { ci: ci(control.requiredJob, overrides as Partial<FPSecurityCIEvidence>) }),
+        evidence(control.id, { ci: ci(control.requiredJob, overrides as unknown as Partial<FPSecurityCIEvidence>) }),
       ),
     })), TypeError);
   }
