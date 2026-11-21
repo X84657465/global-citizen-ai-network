@@ -135,16 +135,15 @@ GCAN 以 A–O 十五條具獨立責任、版本與驗收紀錄的工作線建�
 核心應用、資料庫流程與 Agent Factory V2 正在持續開發及驗證。網站網址可供查看，但不代表所有功能已正式開放，也不代表已進入正式商業營運。
 </blockquote>
 
-- **目前開發主線：** `feat/agent-factory-v2`
-- **Agent Factory V2：** [PR #134（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/134)
-- **GCAN 產品線：** [PR #137（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/137)
-- **GitHub 專案展示線：** [PR #139（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
-- **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
-- **第四線深度神經：** [PR #140（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/140) · [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
-- **E 線深度研究：** [PR #141（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/141) · [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
+- **目前工程優先主線：** [Agent Factory V2（A 線）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2)；以精確 SHA、CI 與交付證據持續驗收。
+- **GCAN 產品線（B 線）：** [產品工程分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/gcan-product-homepage)；與 A 線維持獨立責任及整合順序。
+- **本輪倉庫／官網首頁候選：** [PR #207（Draft）](https://github.com/X84657465/global-citizen-ai-network/pull/207)；README 與公開首頁均以此候選版本追蹤，尚未合併或正式發布。
+- **C｜Predictive Coding：** [架構文件](docs/predictive-coding-architecture.md) · [工程分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
+- **D｜Deep Neural：** [工程分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
+- **E｜Deep Research：** [工作台分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
 - **A–P 版本制度：** [VERSION](VERSION) · [版本清單](versions/manifest.json) · [CHANGELOG](CHANGELOG.md)
 - **最新 CI：** [查看 GitHub Actions](https://github.com/X84657465/global-citizen-ai-network/actions)
-- **正式部署：** 尚未宣告完成；高風險發布與正式資料變更保留人工控制。
+- **正式部署：** 本輪候選尚未合併／發布；高風險發布與正式資料變更保留人工控制。
 
 ---
 
