@@ -39,6 +39,11 @@
 7. Ask the B owner to select one B ancestry chain. PR #187 and #201 are separate candidate stacks; do not mix their version snapshots.
 8. Run the complete test matrix in `GCAN_F_TO_P_ACCEPTANCE.md` on the final combined commit before proposing merge.
 
+## Shared governance and task coordination
+
+- `GCAN_SHARED_ENGINEERING_GOVERNANCE.md` defines A–P as one ecosystem with shared platform services, evidence-based status levels, and Git/agent isolation rules. It is a proposal on this audit branch, not enforced policy.
+- `GCAN_SHARED_TASK_LEDGER.md` records the initial cross-workstream task register. Owners are intentionally unassigned pending controller allocation.
+
 ## Safety / ownership
 
 - Do not batch-merge PRs #145–#151, #66–#68, #185–#187 or #206.
