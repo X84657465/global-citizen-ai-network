@@ -52,7 +52,7 @@ test("overwrites malformed caller values consistently without mutating the input
   assert.equal(incoming.get(CORRELATION_ID_HEADER), "invalid caller value");
 });
 
-test("request and response header copies cannot desynchronize each other", () => {
+test("request and response header collections are independent copies", () => {
   const context = createCorrelationContext(new Headers());
   context.responseHeaders.set(CORRELATION_ID_HEADER, "mutated-response-id");
   assert.notEqual(
