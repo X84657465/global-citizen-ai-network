@@ -86,3 +86,10 @@
 ## 8. Rollback
 
 This initial slice is additive test and documentation work. Revert the integration PR to remove it. No schema, secret, runtime execution, or production deployment changes are included.
+
+## 7. H observability metadata hardening (2026-11-22)
+
+- Hardened the bounded process-local recorder at its runtime boundary: only registered F–P workstreams and known outcome values are accepted; timestamps must be explicit UTC ISO values; capability, correlation and optional error-code metadata are length/character bounded.
+- Added regression coverage for invalid workstream IDs, unknown outcomes, offset timestamps and unsafe free-form error strings, while preserving valid bounded operational error codes.
+- This prevents malformed or arbitrary runtime values from corrupting health counters and reduces the chance that raw error text or secret-bearing strings enter the telemetry buffer.
+- This remains process-local operational evidence, not durable metrics/traces or a production alerting sink. Exact-head CI and independent review remain required.
