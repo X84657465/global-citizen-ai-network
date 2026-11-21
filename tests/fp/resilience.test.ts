@@ -79,7 +79,7 @@ test("trusted P policy denial suppresses diagnostic proposals", () => {
 
 test("registers J through the existing host and obtains policy from trusted P provider", async () => {
   const f = host();
-  const result = await f.adapter.invoke(
+  const result = await f.adapter.invoke<FPResilienceEvidence, ReturnType<typeof createFPResilienceProposal>>(
     { workstream: "J", capability: "diagnose", input: evidence() },
     context(true),
   );
@@ -102,7 +102,7 @@ test("host authorization denial prevents policy lookup and J execution", async (
 
 test("trusted policy denial returns no proposal", async () => {
   const f = host({ decision: "deny", policyVersion: "policy-v3" });
-  const result = await f.adapter.invoke(
+  const result = await f.adapter.invoke<FPResilienceEvidence, ReturnType<typeof createFPResilienceProposal>>(
     { workstream: "J", capability: "diagnose", input: evidence() },
     context(true),
   );
