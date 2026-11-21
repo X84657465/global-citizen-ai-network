@@ -518,7 +518,7 @@ jobs:
         run: node scripts/resolve-agent-task-pr.mjs
       - name: Register exact candidate CI run before recording failure
         id: register-failed-candidate
-        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true'
+        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true' && env.CI_FAILURE_SCOPE == 'task'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -563,7 +563,15 @@ jobs:
           if-no-files-found: error
           retention-days: 90
       - name: Record system CI failure
-        if: needs.resolve-candidate.result == 'failure' || needs.resolve-candidate.outputs.is_task_pr != 'true' || env.CI_FAILURE_SCOPE != 'task'
+        if: >-
+          always() &&
+          (
+            needs.resolve-candidate.result == 'failure' ||
+            needs.resolve-candidate.outputs.is_task_pr != 'true' ||
+            env.CI_FAILURE_SCOPE != 'task' ||
+            steps.register-failed-candidate.outcome == 'failure' ||
+            steps.record-candidate-result.outcome == 'failure'
+          )
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
