@@ -62,7 +62,6 @@ export interface FPGovernanceAssessment {
   readonly missing: number;
   readonly stale: number;
   readonly notRun: number;
-  readonly missingOwner: number;
   readonly governanceApprovalGranted: false;
   readonly executionAuthorized: false;
   readonly mergeAuthorized: false;
@@ -168,7 +167,6 @@ export function assessFPGovernanceDossier(
   const stale = count("stale-evidence");
   const notRun = count("not-run");
   const complete = count("complete");
-  const missingOwner = 0; // Owner references are validated before assessment.
 
   const status = failed > 0
     ? "blocked"
@@ -189,7 +187,6 @@ export function assessFPGovernanceDossier(
     missing,
     stale,
     notRun,
-    missingOwner,
     governanceApprovalGranted: false,
     executionAuthorized: false,
     mergeAuthorized: false,
