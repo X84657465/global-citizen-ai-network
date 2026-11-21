@@ -132,6 +132,6 @@ test("homepage makes the factory-first, B-next, ecosystem-last strategy the high
   assert.match(homepage, /B｜GCAN Product 接棒/);
   assert.match(homepage, /全球 AI 生態系｜最後擴張/);
   assert.match(homepage, /必要線只解卡、不搶主線/);
-  assert.ok(styles.includes(".priorityGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}"));
+  assert.ok(styles.includes(".priorityGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:"));
   assert.match(styles, /@media\(max-width:620px\)[\s\S]*?\.priorityGrid\{grid-template-columns:1fr/);
 });
