@@ -61,9 +61,9 @@
 - Extended the mainline F–P integration guard to verify that the middleware uses the paired contract. No route payload, identity, authorization, or secret is included in correlation metadata.
 - Release metadata advanced to `0.3.121` (governance revision `1.4.17`). This slice is on an isolated branch and is not accepted until exact-head quality CI and independent review complete.
 - PR #229 F–G implementation is merged at `ef543ebeecf56785dc752fdb8ac9305862bb269e`, but remains unaccepted: exact-head PR CI run `44926059712` completed overall success with all substantive quality/build/database/persistence jobs skipped; main push CI run `44926070210` was cancelled.
-- Agent Factory V2 candidate revalidation is under development in PR #231 at exact HEAD `794bcd20df635580d80da512de12a59015041037`; exact-head CI run `44928183277` remains pending at the resolver job. Do not treat earlier cancelled runs as evidence for this HEAD.
-- Runner queue isolation is proposed in PR #235 at exact HEAD `c0014d6a1267cf0569fb110c87288a3317597731`; CI run `44927965451` remains pending at the resolver job. The current mainline recovery workflow still has workflow-level concurrency, and multiple recovery workflow_run events remain pending; the fix is not yet on main.
-- H correlation changes are proposed in this PR at exact HEAD `f409b829bbe9a57051261da88e75f751fbc275cc`; CI run `44926765076` remains pending at the resolver job. This branch is not accepted.
+- Agent Factory V2 candidate revalidation is under development in PR #239 at exact HEAD `7a88e5cfb81c0adecc1367cb3d621c80f0538d0a`; exact-head CI run `44928656953` remains pending. The controller and test files were verified byte-for-byte identical to the superseded #231 implementation, while #239 is based on current main. Do not treat earlier cancelled runs as evidence for this HEAD.
+- Runner queue isolation is proposed in PR #240 at exact HEAD `838a1c0d098bbb2d064a631d9090d4b0f7e456ab`; CI run `44928746415` remains pending. The current mainline recovery workflow still has workflow-level concurrency, and multiple recovery workflow_run events remain pending; the fix is not yet on main. #240 is based on current main and supersedes stale-base #235.
+- H correlation changes are proposed in this PR at exact HEAD `8ac23911d19bc1e1d44a29b4800d9ae1339ec2c3`; CI run `44928726979` remains pending. This branch is not accepted.
 
 ## 7. Current blockers and known limitations
 
