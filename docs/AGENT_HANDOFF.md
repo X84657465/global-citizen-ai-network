@@ -36,6 +36,7 @@ CI success permits review; it does not itself authorize merge, deployment, secre
 | [#240](https://github.com/X84657465/global-citizen-ai-network/pull/240) | A: move recovery concurrency to guarded job; queue only trusted AI-task branch events | `838a1c0d098bbb2d064a631d9090d4b0f7e456ab` | [#44928746415](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928746415) | Pending; resolver has no Runner assignment |
 | [#241](https://github.com/X84657465/global-citizen-ai-network/pull/241) | Account build repair: CSS module in Server Component | `83751b25c237542c2bdfe8f8b12352e9f5ebdd4c` | [#44928823906](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928823906) | Pending; resolver has no Runner assignment |
 | [#242](https://github.com/X84657465/global-citizen-ai-network/pull/242) | H: paired request/response correlation context at middleware edge | `a90cd0c979da561f1d5e0ca9548e7c7607755b73` | [#44928924642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928924642) | Pending; resolver has no Runner assignment |
+| [#243](https://github.com/X84657465/global-citizen-ai-network/pull/243) | A: move read-only candidate metadata resolution to hosted Linux; reserve Windows for machine-dependent work | `37dc23f68cce0435ed2ad4a58fceb35126b416aa` | See live CI | Draft; validate hosted resolver before merge |
 | [#238](https://github.com/X84657465/global-citizen-ai-network/pull/238) | K: current-main Factory handoff and operating runbook | See live PR head | Check live CI; the handoff does not self-certify its own CI |
 
 All five PRs are Draft/open/unmerged. No exact-head CI acceptance or human review approval is recorded. Check each PR's live head and status before acting; this handoff snapshot does not self-certify its own CI.
@@ -66,6 +67,14 @@ The replacements were created from current main `4d3653b3...`; do not reopen the
 - Every required job must be completed successfully on the same run ID, run attempt and candidate SHA. Missing, duplicated, skipped, failed, wrong-attempt or wrong-SHA jobs must not clear the breaker.
 - The implementation uses the attempt-specific GitHub Jobs endpoint and checks that the current PR is still open on the exact candidate SHA.
 - These protections are present in PR #239 but are not accepted until exact-head Windows CI and review pass.
+
+### Resolver queue separation — PR #243
+
+- On current main, `resolve-candidate` is a metadata-only job with repository contents/issues/pull-requests read permissions, but it still runs on the Windows self-hosted Runner and reserves the shared state-writer concurrency group.
+- PR #243 proposes moving only this read-only Node resolver to `ubuntu-latest`, explicitly using Bash for the resolver step and removing its Windows concurrency reservation.
+- Candidate PR/HEAD/ref/AI Task Issue validation and Factory state Issue read remain in the resolver. Its outputs still gate every machine-dependent Windows job.
+- All quality, Ollama/local execution, database/RLS, candidate outcome persistence, breaker recovery and diagnostics jobs remain on the Windows self-hosted Runner with the shared serialized queue.
+- This is a Draft proposal until exact-head policy tests and real hosted resolver runs pass. Hosted runner availability and billing must be confirmed from the actual run; do not assume the job started merely because the workflow was created.
 
 ### Recovery queue scope — PR #240
 
@@ -113,11 +122,12 @@ F–P `ready-for-review` is not acceptance, merge authorization or deployment au
 
 ## 6. Current execution order
 
-1. **A1:** get #239 exact-head Windows CI running; inspect all five required jobs, their steps, run ID, attempt and SHA.
-2. **A2:** validate #240 queue behavior on a newly triggered eligible and ineligible workflow_run event after merge; preserve serialized state writes.
-3. **A3:** after A's exact-head acceptance, review #241 build repair and #242 H correlation contract on their exact heads.
-4. **B integration:** bind B to accepted Factory contracts and usage/cost evidence; do not import Factory state mutation.
-5. **K:** keep this handoff and the operations runbook aligned with verified GitHub evidence.
+1. **A0:** validate #243 hosted read-only resolver on ordinary trusted PR and AI Task PR; confirm its outputs and read-only permission boundary.
+2. **A1:** get #239 exact-head Windows CI running; inspect all five required jobs, their steps, run ID, attempt and SHA.
+3. **A2:** validate #240 queue behavior on a newly triggered eligible and ineligible workflow_run event after merge; preserve serialized state writes.
+4. **A3:** after A's exact-head acceptance, review #241 build repair and #242 H correlation contract on their exact heads.
+5. **B integration:** bind B to accepted Factory contracts and usage/cost evidence; do not import Factory state mutation.
+6. **K:** keep this handoff and the operations runbook aligned with verified GitHub evidence.
 
 ## 7. Verification rules
 
