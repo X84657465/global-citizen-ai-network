@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { getPatchManifestFiles, PatchValidationError, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 const task = {
@@ -160,4 +161,19 @@ test("rejects malformed model manifest roots before patch generation iterates fi
     assert.throws(() => getPatchManifestFiles(malformed), /object containing a files array/);
   }
   assert.deepEqual(getPatchManifestFiles({ schema_version: 1, files: [] }), []);
+});
+
+ 
+test("patch generation prompt follows the repository test and UI integration contracts", () => {
+  const generator = readFileSync(new URL("../scripts/generate-agent-patch.mjs", import.meta.url), "utf8");
+  for (const requiredRule of [
+    "node:test and node:assert/strict",
+    "Do not assume Jest, Vitest, Playwright component testing, jsdom, browser globals, jest.fn",
+    "Never put JSX syntax in a .ts file",
+    "Do not invent component names, exports, imports, API fields, response shapes, or test fixtures",
+    "New UI must be wired into the existing page, component, and data flow",
+    "Derive choices and displayed values from real API fields, never fabricated categories or statuses",
+  ]) {
+    assert.ok(generator.includes(requiredRule), "Missing patch-generation policy: " + requiredRule);
+  }
 });

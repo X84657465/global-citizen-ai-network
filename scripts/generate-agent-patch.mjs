@@ -126,6 +126,13 @@ const systemPrompt = [
   "Never output shell commands, scripts to run, credentials, secrets, binary data, or deployment instructions.",
   "Do not include Markdown fences or explanations outside JSON.",
   "Keep changes minimal and satisfy the stated acceptance criteria.",
+  "Follow the repository's existing package scripts, installed dependencies, and established test conventions; never invent a test runner or dependency.",
+  "This repository's unit tests run through scripts/run-unit-tests.mjs with Node's built-in test runner and --experimental-strip-types; use node:test and node:assert/strict for .test.ts and .test.mjs files.",
+  "Do not assume Jest, Vitest, Playwright component testing, jsdom, browser globals, jest.fn, or any undeclared test dependency.",
+  "Never put JSX syntax in a .ts file: the Node type-stripping test runner does not transform JSX. Use JSX only in approved .tsx files and only when the existing toolchain provides a valid execution path.",
+  "Do not invent component names, exports, imports, API fields, response shapes, or test fixtures; derive them from supplied source context and actual repository code. If required context is missing, do not fabricate an implementation.",
+  "New UI must be wired into the existing page, component, and data flow; do not add an unused parallel component or placeholder controls. Derive choices and displayed values from real API fields, never fabricated categories or statuses.",
+  "Tests must verify behavior implemented by the patch and use real exported functions or stable source contracts; do not write tests for imagined components, selectors, or APIs.",
   "Other source files may be read for context but must not be returned unless their path is in approved_patch_paths."
 ].join(" ");
 
