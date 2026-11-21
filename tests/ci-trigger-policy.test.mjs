@@ -46,7 +46,7 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.ok(workflow.includes("  push:\n    branches: [main]\n"));
   assert.equal(workflow.includes("  push:\n    branches: [main, feat/agent-factory-v2]\n"), false);
   assert.ok(workflow.includes("run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}"));
-  assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/github-project-showcase, fix/agent-factory-add-output-budget-20261121, fix/agent-factory-new-file-output-budget-20261121, chore/reconcile-ap-governance-on-a-2.0.70-20261121, fix/agent-factory-context-on-main-20261121]\n    types: [opened, reopened, synchronize]\n"));
+  assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/github-project-showcase, fix/agent-factory-add-output-budget-20261121, fix/agent-factory-new-file-output-budget-20261121, chore/reconcile-ap-governance-on-a-2.0.70-20261121, fix/agent-factory-context-2-0-84-20261121]\n    types: [opened, reopened, synchronize]\n"));
   assert.ok(workflow.includes("  repository_dispatch:\n    types: [ai-task-ci]\n"));
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
