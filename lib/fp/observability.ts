@@ -49,13 +49,18 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
 
   record(event: FPOperationEvent): void {
     if (
+      !event ||
       event.schemaVersion !== "1" ||
       event.eventType !== "fp.capability.outcome" ||
+      !["F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"].includes(event.workstream) ||
+      !["succeeded", "denied", "rejected", "failed"].includes(event.outcome) ||
       !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(event.correlationId) ||
       !/^[a-z][a-z0-9-]{1,63}$/.test(event.capability) ||
       !Number.isFinite(event.durationMs) ||
       event.durationMs < 0 ||
-      Number.isNaN(Date.parse(event.occurredAt))
+      !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(event.occurredAt) ||
+      Number.isNaN(Date.parse(event.occurredAt)) ||
+      (event.errorCode !== undefined && !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$/.test(event.errorCode))
     ) {
       throw new TypeError("Invalid F–P observability event.");
     }
