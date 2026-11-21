@@ -34,7 +34,7 @@ function privateJson(
   return NextResponse.json(body, { ...init, headers });
 }
 
-export async function handleGovernanceReviewsGet<TAuth>(
+export async function handleGovernanceReviewsGet<TAuth = unknown>(
   request: Request,
   dependencies: GovernanceReviewsRouteDependencies<TAuth>,
 ) {
