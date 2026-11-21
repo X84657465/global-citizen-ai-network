@@ -122,6 +122,11 @@ jobs:
               const changeRequests = [...latestByReviewer.entries()].filter(([, review]) => review.state === "CHANGES_REQUESTED");
               if (changeRequests.length) failures.push(`Unresolved latest change requests from: ${changeRequests.map(([login]) => login).join(", ")}.`);
 
+              const threadQuery = `query($owner: String!, $repo: String!, $number: Int!) { repository(owner: $owner, name: $repo) { pullRequest(number: $number) { reviewThreads(first: 100) { nodes { isResolved } } } } }`;
+              const threadData = await github.graphql(threadQuery, { owner, repo, number: prNumber });
+              const unresolvedThreads = threadData.repository.pullRequest.reviewThreads.nodes.filter(t => !t.isResolved).length;
+              if (unresolvedThreads) failures.push(`${unresolvedThreads} unresolved inline review thread(s) remain.`);
+
               for (const note of notes) core.notice(note);
               if (failures.length) {
                 for (const failure of failures) core.error(failure);
