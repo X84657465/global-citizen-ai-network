@@ -1,3 +1,8 @@
+## 0.3.105 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.74: use the strictest matching implementer-task output allowance for each new file in both token-budget derivation and final UTF-8 byte enforcement.
+- Add order-independent regression coverage for overlapping path authorizations with different byte limits; preserve one-file batches and existing 2,048–8,192 token bounds.
+
 ## 0.3.104 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.73: add a narrowly scoped pull-request base-branch trigger for dependent factory hardening work, with regression coverage; no wildcard branches or permission changes.
