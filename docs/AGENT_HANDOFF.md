@@ -257,7 +257,7 @@ This section supersedes earlier live-checkpoint statements in this handoff where
 
 ### B preparation — documentation only
 - PR #275 remains Draft/open and documentation-only. Its current branch contains the bounded public read-adapter status clarification and this handoff refresh.
-- Its own exact-head Actions run [#44954680420](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44954680420) is pending; it is not an acceptance result.
+- The preceding B head `537c4031e1c3ba2236aa626e9e6b8cd603cb8c9e` had pending run [#44954680420](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44954680420); that run does not validate the updated documentation commit. Current B head `fbe288d0102ce34c7ca131bda7ca7eb2a9f48b47` has no associated PR Actions run/check at the latest verification and is not an acceptance result.
 - Keep B runtime, routes, tables, billing, workspace permissions and Factory access inactive. Rebase/revalidate B only after A is accepted and integrated.
 
 ### Execution controls
