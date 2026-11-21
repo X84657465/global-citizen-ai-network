@@ -26,7 +26,7 @@ const resources = [
     id: "A · FACTORY",
     title: "Agent Factory V2 工程主線",
     description: "查看工廠控制器、任務生命週期、隔離執行、證據封裝與復原能力。",
-    detail: "工程分支 · 版本 2.0.80",
+    detail: "工程分支 · 版本 2.0.81",
     tone: "green",
     href: "https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2",
     action: "檢視 A 線工程",
@@ -68,8 +68,8 @@ const gates = [
   },
   {
     title: "Preview 與裝置驗收",
-    description: "候選分支 Preview 已可開啟；仍須確認最新 SHA 與桌面、平板、手機及導覽實際呈現。",
-    state: "Preview 已就緒 · 待裝置驗收",
+    description: "最新候選 SHA 尚無 Preview；目前可用連結僅屬舊 SHA，不能作為本版驗收證據。Vercel 回報 Build Rate Limit，待額度恢復後再執行桌面、平板、手機驗收。",
+    state: "最新 SHA Preview 未部署 · 待額度恢復",
     tone: "muted",
     icon: Activity,
   },
@@ -86,7 +86,7 @@ const stages = [
   { title: "需求與影響分析", note: "首頁範圍已確認", done: true },
   { title: "程式與文件修改", note: "候選分支已提交", done: true },
   { title: "精確 SHA 自動測試", note: "等待最新結果", done: false },
-  { title: "Preview 視覺驗收", note: "候選 Preview 已就緒，待裝置驗收", done: false },
+  { title: "Preview 視覺驗收", note: "最新 SHA Preview 尚未部署；舊 SHA 不作為驗收證據", done: false },
   { title: "人工核准", note: "保留人工決策", done: false },
   { title: "正式發布", note: "尚未授權", done: false },
 ];
@@ -143,7 +143,7 @@ export default function FactoryPage() {
               <h1>Agent Factory 控制中心</h1>
               <p>以工程入口、可追溯證據與發布閘門為核心；即時任務與 Runner 遙測尚未接通時，不顯示虛構數字。</p>
             </div>
-            <span className={styles.demo}>CANDIDATE · 0.3.119</span>
+            <span className={styles.demo}>CANDIDATE · 0.3.121</span>
           </div>
 
           <section className={styles.releaseNotice} aria-label="候選版本狀態">
