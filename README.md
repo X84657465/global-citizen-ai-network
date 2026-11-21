@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**候選版本（PR #207，尚未合併／正式發布）：** `0.3.119` · A 線 Agent Factory V2 `2.0.80` · GCAN `0.3.119` · B 線 GCAN Product `0.1.20` · [CI 執行紀錄](https://github.com/X84657465/global-citizen-ai-network/actions) · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**候選版本（PR #207，尚未合併／正式發布）：** `0.3.120` · A 線 Agent Factory V2 `2.0.80` · GCAN `0.3.120` · B 線 GCAN Product `0.1.20` · [CI 執行紀錄](https://github.com/X84657465/global-citizen-ai-network/actions) · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -22,7 +22,7 @@
 
 
 
-> **Preview 注意：** 目前 README 所列 Preview 網址仍指向前一版 SHA `173c74406de3d6fa72a123eb50eaedd678fafdf5`，不是本分支最新候選提交；最新 SHA 的 Preview 受 Vercel 部署額度限制，待可部署後再更新入口。
+> **Preview 注意：** 目前 README 所列 Preview 網址僅供參考，仍指向舊 SHA `173c74406de3d6fa72a123eb50eaedd678fafdf5`，不是本分支最新候選提交。本分支最新候選尚無可用 Preview；Vercel 回報 Build Rate Limit，恢復部署額度並成功部署後才會更新入口。
 
 ## 🧭 專案架構與驗證原則｜2026-11-21
 
