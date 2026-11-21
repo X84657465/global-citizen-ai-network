@@ -80,7 +80,7 @@ export type FPGovernanceReviewStatus =
 export interface FPGovernanceReviewResult {
   readonly reviewRef: string;
   readonly reviewerRef: string;
-  readonly status: "stale" | "unverified-reviewer" | FPGovernanceReviewDecision;
+  readonly status: "stale" | "unverified-reviewer" | "conflicting-decisions" | FPGovernanceReviewDecision;
 }
 
 export interface FPGovernanceAssessment {
@@ -159,12 +159,13 @@ function assessReviews(
     const current = records.filter((review) => review.reviewedSha.toLowerCase() === candidateSha.toLowerCase());
     if (current.length === 0) continue;
     const latestTime = current.reduce((latest, review) =>
-      review.submittedAt > latest ? review.submittedAt : latest, current[0].submittedAt);
-    const latest = current.filter((review) => review.submittedAt === latestTime);
+      Date.parse(review.submittedAt) > latest ? Date.parse(review.submittedAt) : latest,
+      Date.parse(current[0].submittedAt));
+    const latest = current.filter((review) => Date.parse(review.submittedAt) === latestTime);
     const decisions = new Set(latest.map((review) => review.decision));
     if (decisions.size > 1) {
       for (const review of latest) {
-        results.push({ reviewRef: review.reviewRef, reviewerRef, status: "commented" });
+        results.push({ reviewRef: review.reviewRef, reviewerRef, status: "conflicting-decisions" });
       }
       // The aggregate below detects the conflict independently of decision ordering.
       continue;
@@ -184,8 +185,9 @@ function assessReviews(
     const current = records.filter((review) => review.reviewedSha.toLowerCase() === candidateSha.toLowerCase());
     if (current.length === 0) return false;
     const latestTime = current.reduce((latest, review) =>
-      review.submittedAt > latest ? review.submittedAt : latest, current[0].submittedAt);
-    return new Set(current.filter((review) => review.submittedAt === latestTime).map((review) => review.decision)).size > 1;
+      Date.parse(review.submittedAt) > latest ? Date.parse(review.submittedAt) : latest,
+      Date.parse(current[0].submittedAt));
+    return new Set(current.filter((review) => Date.parse(review.submittedAt) === latestTime).map((review) => review.decision)).size > 1;
   });
   if (hasConflict) return { status: "conflicting-decisions", results };
   if (currentReviews.length === 0) {
