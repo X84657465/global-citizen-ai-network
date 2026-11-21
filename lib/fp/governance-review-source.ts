@@ -31,7 +31,20 @@ export class FPGovernanceReviewCollectionError extends Error {
 const SHA = /^[a-f0-9]{40}$/i;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
-const UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
+function isValidUtcTimestamp(value: string): boolean {
+  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,3}))?Z$/.exec(value);
+  if (!match) return false;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+  const [, year, month, day, hour, minute, second, fraction = ""] = match;
+  return date.getUTCFullYear() === Number(year) &&
+    date.getUTCMonth() + 1 === Number(month) &&
+    date.getUTCDate() === Number(day) &&
+    date.getUTCHours() === Number(hour) &&
+    date.getUTCMinutes() === Number(minute) &&
+    date.getUTCSeconds() === Number(second) &&
+    date.getUTCMilliseconds() === Number(fraction.padEnd(3, "0") || "0");
+}
 const PAGE_SIZE = 100;
 const MAX_PAGES = 10;
 const VERIFIED = new Set<FPGovernanceRepositoryPermission>(["admin", "maintain", "push"]);
@@ -126,8 +139,7 @@ export async function collectFPGovernanceReviewEvidence(
     const login = item.user?.login;
     if (typeof login !== "string" || !LOGIN.test(login) ||
         typeof item.commit_id !== "string" || !SHA.test(item.commit_id) ||
-        typeof item.submitted_at !== "string" || !UTC.test(item.submitted_at) ||
-        Number.isNaN(Date.parse(item.submitted_at))) {
+        typeof item.submitted_at !== "string" || !isValidUtcTimestamp(item.submitted_at)) {
       invalid("GitHub review is missing a valid reviewer, commit SHA or UTC submission timestamp.");
     }
 
