@@ -2,7 +2,7 @@ import {
   getWorkstreamContract,
   type FPCapabilityEnvelope,
   type WorkstreamId,
-} from "./integration-contract";
+} from "./integration-contract.ts";
 
 export interface FPHostPrincipal {
   /** Opaque identity reference issued by the existing host. */
