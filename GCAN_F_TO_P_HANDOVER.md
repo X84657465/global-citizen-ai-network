@@ -3,7 +3,7 @@
 **Date:** 2026-11-22  
 **Audited main:** `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
 **Merged P provider:** PR #251, merge `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its exact-head CI did not complete before merge.  
-**Status:** Development in progress; exact-head CI is pending.
+**Status:** Development in progress; PR #252 exact-head CI is pending before the resolver job has started.
 
 ## 1. What is in place
 
@@ -17,23 +17,24 @@
 - P decision precedence correction merged through PR #250; a verified change request remains blocking despite an unverified approval.
 - New P permission provider in PR #251; it calls the existing authenticated GitHub API client for repository collaborator permission and returns opaque evidence.
 
-## 2. Current candidate PR #251
+## 2. Current candidate PR #252
 
-[Open PR #251](https://github.com/X84657465/global-citizen-ai-network/pull/251)
+[Open PR #252](https://github.com/X84657465/global-citizen-ai-network/pull/252)
 
 - Branch: `feat/p-trusted-review-permission-provider-20261122`
-- Merged head: `12ea0a4b23bd75e470da92e2b9d6ab5440062d80`
-- Added source: `lib/fp/github-review-permission.ts`
-- Added tests: `tests/fp/github-review-permission.test.ts`
-- CI run: [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871)
-- Last observed CI state at merge: pending at `Resolve exact candidate PR metadata`; not an acceptance pass.
-- PR state: merged, but unverified and not accepted.
+- Exact head: `5ca035183256a0b3c6f2ac8b4b3e5c81f7b00873`
+- Changes: stricter Repository validation in both P permission and review-collection entry points; regression tests for traversal and malformed path inputs; five F–P handover documents.
+- CI run: [44932422571](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44932422571)
+- Last observed CI state: pending at `Resolve exact candidate PR metadata`; no job steps have started. This is a runner/queue blocker, not a test pass or code failure.
+- PR state: Draft; not accepted or merged.
 
-A local isolated smoke test initially found that the repository-name validator accepted a `..` path segment. The validator was tightened on the follow-up branch, and the isolated smoke test then passed 4/4. This is not a substitute for the full repository suite or CI. Require fresh exact-head CI and independent review for the follow-up SHA.
+PR #251 remains merged-but-unverified. Do not treat its merge as acceptance.
+
+A local isolated smoke test initially found that the permission adapter accepted a `..` path segment. The adapter was hardened, then inspection found the review collector had the same weak validator. PR #252 now hardens both entry points and adds tests asserting malformed inputs are rejected before any GitHub API request. These new repository tests have not yet run in the full suite. Require exact-head CI and independent review for this SHA.
 
 ## 3. Immediate continuation procedure
 
-1. Open the follow-up PR from `feat/p-trusted-review-permission-provider-20261122`; inspect its new exact head and fresh workflow run.
+1. Refresh PR #252 and exact-head run [44932422571](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44932422571); resolve the queued Windows runner before treating downstream jobs as available.
 2. Inspect resolver output and every downstream job; do not interpret skipped jobs as success.
 3. If a code/test failure exists, fix only the F–P branch and rerun against the new exact head.
 4. When all required CI jobs pass, obtain independent review and resolve comments.
@@ -52,7 +53,7 @@ Before any local synchronization:
 - do not replace local work with remote main;
 - create a separate clean worktree for remote verification if needed.
 
-The old local HEAD `75885e3` is not the current remote baseline. Remote main has advanced to `88ef18c6a2be53da2066a271ce0bddb280900da8`.
+The old local HEAD `75885e3` is not the current remote baseline. Remote main has advanced to `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
 
 ## 5. Runtime and production boundaries
 
