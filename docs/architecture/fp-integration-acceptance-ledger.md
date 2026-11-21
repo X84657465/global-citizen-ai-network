@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `ef543ebeecf56785dc752fdb8ac9305862bb269e`  
+**Baseline:** `main` at `4d3653b3da766ae3910aeef39bd840d2e6de30dd`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -51,7 +51,7 @@
 - Added focused regression tests for a shared exact run, mismatched run IDs/attempts, absent F evidence, failed G jobs and failed F controls; the mainline integration guard checks that the evaluator and test are present.
 - The evaluator is advisory only. It explicitly returns `acceptanceGranted: false`, `mergeAuthorized: false` and `deploymentAuthorized: false`.
 - Release metadata advanced to `0.3.120` (governance revision `1.4.16`). PR #229 merged this implementation at `ef543ebeecf56785dc752fdb8ac9305862bb269e`; it remains unaccepted pending exact-head CI and independent review.
-- The exact PR run and main push run are pending on the Windows self-hosted Runner; no passing job-level evidence is available.
+- Exact PR run `44926059712` completed with overall `success`, but only `Resolve exact candidate PR metadata` succeeded; quality, Ollama/build, database/RLS, diagnostics and persistence jobs were skipped. This is not valid F–G acceptance evidence. Main push run `44926070210` was cancelled; no exact-head mainline quality evidence is available.
 
 ## 6. Latest H implementation slice (2026-11-22)
 
@@ -60,12 +60,16 @@
 - Expanded request-context regression tests for valid ID reuse, absent/malformed/oversized IDs, consistency between request and response, preservation of unrelated request headers, and isolation from header mutation.
 - Extended the mainline F–P integration guard to verify that the middleware uses the paired contract. No route payload, identity, authorization, or secret is included in correlation metadata.
 - Release metadata advanced to `0.3.121` (governance revision `1.4.17`). This slice is on an isolated branch and is not accepted until exact-head quality CI and independent review complete.
-- PR #229 F–G implementation is merged at `ef543ebeecf56785dc752fdb8ac9305862bb269e`, but remains unaccepted: exact-head PR CI run `44926059712` is pending and main push CI run `44926070210` is pending.
-- Agent Factory V2 candidate revalidation is under development in PR #231; its exact-head run `44926300314` is pending. Preserve that A-line work rather than creating a competing controller implementation.
+- PR #229 F–G implementation is merged at `ef543ebeecf56785dc752fdb8ac9305862bb269e`, but remains unaccepted: exact-head PR CI run `44926059712` completed overall success with all substantive quality/build/database/persistence jobs skipped; main push CI run `44926070210` was cancelled.
+- Agent Factory V2 candidate revalidation is under development in PR #231 at exact HEAD `794bcd20df635580d80da512de12a59015041037`; exact-head CI run `44928183277` remains pending at the resolver job. Do not treat earlier cancelled runs as evidence for this HEAD.
+- Runner queue isolation is proposed in PR #235 at exact HEAD `c0014d6a1267cf0569fb110c87288a3317597731`; CI run `44927965451` remains pending at the resolver job. The current mainline recovery workflow still has workflow-level concurrency, and multiple recovery workflow_run events remain pending; the fix is not yet on main.
+- H correlation changes are proposed in this PR at exact HEAD `f409b829bbe9a57051261da88e75f751fbc275cc`; CI run `44926765076` remains pending at the resolver job. This branch is not accepted.
 
 ## 7. Current blockers and known limitations
 
-- Recent mainline Vercel status checks have reported a provider build-rate-limit failure. This is an infrastructure/deployment blocker, not evidence that application tests failed.
+- Recent Vercel status checks have reported provider `build-rate-limit` failures. This is an external deployment-status failure, not evidence that application tests failed.
+- At the current main baseline `4d3653b3da766ae3910aeef39bd840d2e6de30dd`, the CI push run `44928069201` remains pending. The mainline System Health Recovery workflow still declares the shared Runner concurrency group at workflow scope; multiple `workflow_run` events are pending without jobs. PR #235 moves the lock to the guarded job and filters to AI Task branches, but that change has not passed exact-head CI or merged.
+- No independent PR reviews have been recorded for #231, #233 or #235. The Windows self-hosted Runner is the execution dependency; do not infer that it is offline from pending workflow metadata alone.
 - GitHub Actions results must be inspected per exact candidate SHA; a missing result or an empty workflow-run lookup is not a pass.
 - The process-local F–P recorder is not a centralized persistent telemetry backend. Correlation propagation is now paired at the middleware edge, but end-to-end route/job logging and a durable telemetry sink remain unimplemented.
 - The registry and host adapter do not themselves authenticate principals; the existing trusted host must supply authorization and approval decisions.
