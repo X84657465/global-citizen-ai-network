@@ -175,7 +175,10 @@ export class FPHostAdapter {
       throw new FPHostError("INVALID_CONTEXT", "Host authorization and approval decisions must be booleans.");
     }
     const key = `${invocation.workstream}:${invocation.capability}`;
-    const handler = this.handlers.get(key);
+    // The registry is keyed by the exact workstream/capability pair; restore
+    // the invocation's declared input/output types at this boundary. Runtime
+    // payload validation remains the responsibility of the registered handler.
+    const handler = this.handlers.get(key) as FPCapabilityHandler<TInput, TOutput> | undefined;
     if (!handler) {
       throw new FPHostError("UNKNOWN_CAPABILITY", `No handler registered for ${key}.`);
     }
