@@ -76,6 +76,26 @@ async function startCandidate(controller, ciRunId) {
   });
 }
 
+function currentCandidatePullApi({ headSha = "b".repeat(40), headRef = "ai-task/issue-42-abcdef123456", state = "open" } = {}) {
+  return {
+    async request(path) {
+      assert.equal(path, "/repos/owner/repo/pulls/88");
+      return {
+        number: 88,
+        state,
+        body: "<!-- ai-task:42 -->",
+        user: { login: "owner" },
+        base: { ref: "main", repo: { full_name: "owner/repo" } },
+        head: {
+          ref: headRef,
+          sha: headSha,
+          repo: { full_name: "owner/repo" },
+        },
+      };
+    },
+  };
+}
+
 function awaitingCandidate(now = 1000) {
   const leaseId = "lease-candidate-42";
   let state = reserveTask(createInitialFactoryState(now), {
@@ -310,7 +330,7 @@ test("task-scoped failure requires and releases the exact active lease", async (
 
 test("candidate failure callback persists rejection and delays retry without counting infrastructure failure", async () => {
   const store = fakeStore(awaitingCandidate());
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
   await startCandidate(controller, "555001");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
@@ -363,7 +383,7 @@ test("candidate success completes only its task and preserves the global breaker
   const expectedSystem = structuredClone(initial.system);
   const expectedQuarantine = structuredClone(initial.tasks["99"]);
   const store = fakeStore(initial);
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
   await startCandidate(controller, "555002");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
@@ -659,7 +679,7 @@ test("transition mode remains idempotent after awaiting_ci has released the work
 
 test("candidate failure callback recovers after a transient durable-state write failure", async () => {
   const store = fakeStore(awaitingCandidate(), { failWriteAt: 2 });
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
   await startCandidate(controller, "555004");
   const env = {
     AGENT_FACTORY_MODE: "candidate",
@@ -772,9 +792,65 @@ test("candidate-start rejects a PR head that moved after metadata resolution wit
   assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
 
+test("candidate success callback rejects a PR head that moved after CI without completing the stale candidate", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: currentCandidatePullApi({ headSha: "c".repeat(40) }),
+  });
+  await startCandidate(controller, "555020");
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "success",
+    CI_RUN_ID: "555020",
+    CI_RUN_ATTEMPT: "1",
+  }), /Candidate outcome rejected: PR must remain the current open same-repository AI Task PR/);
+
+  assert.equal(store.state.state_version, initial.state_version + 1);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+});
+
+test("candidate failure callback rejects a PR head that moved after CI without penalizing the newer candidate", async () => {
+  const initial = awaitingCandidate();
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: currentCandidatePullApi({ headSha: "c".repeat(40) }),
+  });
+  await startCandidate(controller, "555021");
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_CONCLUSION: "failure",
+    CI_RUN_ID: "555021",
+    CI_RUN_ATTEMPT: "1",
+    FAILURE_SUMMARY: "stale CI failure",
+  }), /Candidate outcome rejected: PR must remain the current open same-repository AI Task PR/);
+
+  assert.equal(store.state.state_version, initial.state_version + 1);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].candidate_failures, 0);
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
+});
+
 test("candidate outcome from a stale CI run attempt is rejected", async () => {
   const store = fakeStore(awaitingCandidate());
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000, api: currentCandidatePullApi() });
   await startCandidate(controller, "555006");
   await assert.rejects(controller.run({
     AGENT_FACTORY_MODE: "candidate",
