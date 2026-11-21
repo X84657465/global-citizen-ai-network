@@ -1,3 +1,9 @@
+## 0.3.120 — 2026-11-22
+
+- Add an F–G integration evaluator that requires all registered security controls and release-quality jobs to share the same repository, PR, candidate SHA, GitHub Actions run ID and attempt.
+- Add regression coverage for mismatched run IDs/attempts, absent security evidence and failed release jobs; the evaluator remains advisory and cannot authorize acceptance, merge or deployment.
+- Preserve A–E execution boundaries and avoid changes to database schema, RLS, secrets, workflow permissions or production deployment.
+
 ## 0.3.119 — 2026-11-22
 
 - Extend F security assurance to explicitly require exact-head evidence for the regression that prevents API roles from inheriting SUPERUSER or BYPASSRLS privileges.

@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `aeb50da1bdc081688841f3a73b35fd054526a0da`  
+**Baseline:** `main` at `7a20ea23fd908c02ac6096dfbc10b376f8c0af81`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -19,7 +19,7 @@
 | Line | Existing implementation evidence | Remaining acceptance work | Authority / guard |
 |---|---|---|---|
 | F — Security | Security assurance evaluator; RLS/privilege SQL tests (including transitive API-role membership); two-member RLS harness; security headers and route checks | Verify every registered control against exact-head database/quality job evidence; close threat-model and vulnerability-scan coverage gaps | Advisory only; no identity or RLS policy redesign |
-| G — Release quality | Exact-head release evidence evaluator and required CI job contract | Verify all required jobs against live Actions API evidence; add compatibility checks and documented rollback evidence | Advisory only; never merge/deploy |
+| G — Release quality | Exact-head release evidence evaluator and required CI job contract; new F–G shared-run evaluator | Verify all required jobs against live Actions API evidence; add compatibility checks and documented rollback evidence; prove F and G bind to the same run ID and attempt | Advisory only; never merge/deploy |
 | H — Observability | Request correlation middleware/helper; bounded process-local F–P outcome recorder; Runner snapshot contract | Prove end-to-end correlation across actual routes/jobs; distinguish local counters from persistent metrics/traces; add alert evidence only where a real sink exists | Advisory only; no telemetry vendor or secret-bearing payload |
 | I — External integration | Bounded capability registry and host approval check | Define one approved connector at a time, credential reference contract, timeout/retry/idempotency and mock contract tests | Bounded; explicit approval required; no live credential or external write in this phase |
 | J — Resilience | Advisory diagnosis/repair-proposal contract; existing Factory recovery controls remain owned by A | Add evidence-backed diagnosis and dry-run proposal tests; document operator confirmation and rollback | Advisory only; no autonomous production repair |
@@ -44,21 +44,22 @@
 
 `F → G → H → P` establishes the security, release-evidence, observability and governance floor. I/J/M/N/O/K then integrate against those stable contracts. L remains deferred and is not on the activation critical path.
 
-## 5. Current blockers and known limitations
+## 5. Latest F–G implementation slice (2026-11-22)
+
+- Added `lib/fp/f-g-integration-assurance.ts` to evaluate F security controls and G required release jobs as one evidence bundle.
+- The evaluator rejects mismatched repository/PR/candidate SHA and mismatched GitHub Actions run ID or attempt. Missing F evidence remains incomplete; failed registered F controls or required G jobs block the integrated result.
+- Added focused regression tests for a shared exact run, mismatched run IDs/attempts, absent F evidence, failed G jobs and failed F controls; the mainline integration guard checks that the evaluator and test are present.
+- The evaluator is advisory only. It explicitly returns `acceptanceGranted: false`, `mergeAuthorized: false` and `deploymentAuthorized: false`.
+- Release metadata advanced to `0.3.120` (governance revision `1.4.16`). This slice is implemented on an isolated branch; it is not accepted until exact-head CI and review complete.
+- CI limitation remains: GitHub Actions jobs are queued/pending on the Windows self-hosted Runner. No exact-head job result has been produced for the current documentation or feature candidates.
+
+## 6. Current blockers and known limitations
 
 - Recent mainline Vercel status checks have reported a provider build-rate-limit failure. This is an infrastructure/deployment blocker, not evidence that application tests failed.
 - GitHub Actions results must be inspected per exact candidate SHA; a missing result or an empty workflow-run lookup is not a pass.
 - The process-local F–P recorder is not a centralized persistent telemetry backend.
 - The registry and host adapter do not themselves authenticate principals; the existing trusted host must supply authorization and approval decisions.
 - No production database migration, secret change, branch-protection change, automatic merge, or deployment is authorized by this ledger.
-
-## 6. Latest mainline development record (2026-11-22)
-
-- PR #223 and PR #224 were merged to main by repository owner before their PR-triggered GitHub Actions runs completed. Their exact-head runs remain pending; neither PR is accepted by this ledger.
-- PR #226 corrected the request-context unit test import path from `../lib/...` to `../../lib/...`. The correction is present in main at `aeb50da1bdc081688841f3a73b35fd054526a0da`.
-- The main push CI run `44925456773` for that exact SHA is pending and has not exposed job results. The separate Agent Factory system-health recovery run `44925471767` is also pending.
-- The Vercel status check reports `build-rate-limit`; this is a provider/deployment check failure and does not establish the result of the repository's unit, type, lint, build, or database gates.
-- Therefore F–P implementation is active, but integration acceptance remains blocked until the exact-SHA workflow jobs complete and their results are reviewed.
 
 ## 7. Rollback
 
