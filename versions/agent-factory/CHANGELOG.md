@@ -1,3 +1,14 @@
+## 2.0.74 — 2026-11-21
+
+### Fixed — Keep per-file generation and acceptance limits consistent
+- Resolve the strictest `max_output_bytes` across all implementer tasks authorizing the same path.
+- Use that same effective limit for the bounded Ollama token ceiling and final UTF-8 byte validation, independent of task ordering.
+- Add regression coverage for reversed task order, missing path authorization and invalid limits.
+- Preserve one-file-per-batch generation, 2,048–8,192 token bounds, and fail-closed patch validation.
+
+### Verification
+- Fresh exact-head CI, local Ollama/Runner, PostgreSQL/RLS where applicable, and independent formal review remain required before acceptance.
+
 ## 2.0.73 — 2026-11-21
 
 ### Fixed — Enable exact CI for dependent factory hardening PRs
