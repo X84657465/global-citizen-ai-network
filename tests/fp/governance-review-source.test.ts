@@ -33,7 +33,7 @@ function makeInput(responses: Map<string, unknown>, overrides: Partial<FPGoverna
   };
   return {
     api, repository: "owner/repo", pullRequestNumber: 42, candidateSha: sha,
-    verifyReviewerPermission: async () => ({ permission: "push", evidenceRef: "permissions/reviewer-one/push" }),
+    verifyReviewerPermission: async () => ({ permission: "write", evidenceRef: "permissions/reviewer-one/write" }),
     ...overrides,
   };
 }
@@ -115,7 +115,7 @@ test("retains stale reviews without checking their reviewer permissions", async 
   ]), {
     verifyReviewerPermission: async () => {
       checks += 1;
-      return { permission: "push", evidenceRef: "permissions/reviewer-one/push" };
+      return { permission: "write", evidenceRef: "permissions/reviewer-one/write" };
     },
   }));
   assert.equal(checks, 0);
@@ -134,7 +134,7 @@ test("keeps insufficient permission and permission lookup errors unverified", as
   ]), {
     verifyReviewerPermission: async (login) => {
       if (login === "reviewer-two") throw new Error("permission source unavailable");
-      return { permission: "pull", evidenceRef: "permissions/reviewer-one/pull" };
+      return { permission: "read", evidenceRef: "permissions/reviewer-one/read" };
     },
   }));
   assert.equal(result[0].reviewerAuthorizationStatus, "unverified");
@@ -155,7 +155,7 @@ test("caches permission checks and ignores pending or dismissed reviews", async 
   ]), {
     verifyReviewerPermission: async () => {
       checks += 1;
-      return { permission: "push", evidenceRef: "permissions/reviewer-one/push" };
+      return { permission: "write", evidenceRef: "permissions/reviewer-one/write" };
     },
   }));
   assert.equal(checks, 1);
@@ -178,7 +178,7 @@ test("rejects malformed IDs, unsupported states, reviewer identities, timestamps
   }
   await assert.rejects(
     collectFPGovernanceReviewEvidence(makeInput(new Map<string, unknown>([[prPath, pull()], [reviewsPath(), [review()]]]), {
-      verifyReviewerPermission: async () => ({ permission: "push", evidenceRef: "../unsafe" }),
+      verifyReviewerPermission: async () => ({ permission: "write", evidenceRef: "../unsafe" }),
     })),
     (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INVALID_REVIEW_DATA",
   );
