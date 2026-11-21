@@ -232,6 +232,16 @@ test("failed sandbox_testing persistence never reports publishing success or los
   assert.equal(store.state.tasks["42"].status, "patching");
   assert.equal(store.state.state_version, versionBeforePublish);
   assert.notEqual(store.state.tasks["42"].status, "publishing");
+
+  const retried = await controller.run({
+    AGENT_FACTORY_MODE: "transition",
+    ISSUE_NUMBER: "42",
+    AGENT_FACTORY_LEASE_ID: leaseId,
+    NEXT_TASK_STATE: "publishing",
+  });
+  assert.deepEqual(store.history.slice(-2).map((entry) => entry.task_state), ["sandbox_testing", "publishing"]);
+  assert.deepEqual(store.history.slice(-2).map((entry) => entry.lease_id), [leaseId, leaseId]);
+  assert.equal(retried.state.active_task.state, "publishing");
 });
 
 test("failure event identity rejects a missing workflow run attempt", async () => {
