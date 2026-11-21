@@ -69,9 +69,9 @@
 ### Broad integration candidate — PR #259
 
 - PR: https://github.com/X84657465/global-citizen-ai-network/pull/259
-- Current exact HEAD: afeae1c8c757a9cfb91317b0a271dde47ea9308e; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
-- Current exact-head run [44941626126](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941626126) is pending with no job steps started at last inspection. Older run 44941213950 used superseded HEAD d265000684e0238934a90e77f41d5992a1cc1de9 and is not evidence for the current HEAD.
-- Current diff contains 26 files across A state/controller changes, F–P host/governance/observability, repository-name validation, a PostgreSQL appeal-authorization migration, tests and release metadata. It is materially broader than the P0 schema repair.
+- Current exact HEAD: 6e5909bb8ea9de84462a48a1dd8fa4a03ad9f0a7; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
+- Current exact-head run [44941958891](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941958891) is pending with zero jobs created at last inspection. The prior HEAD and run 44941626126 are superseded and must not be used as acceptance evidence. Older run 44941213950 used superseded HEAD d265000684e0238934a90e77f41d5992a1cc1de9 and is not evidence for the current HEAD.
+- Current diff contains 27 files across A state/controller changes, F–P host/governance/observability, repository-name validation, a PostgreSQL appeal-authorization migration, tests and release metadata. It is materially broader than the P0 schema repair.
 - Formal reviews and inline threads: zero. Keep Draft; do not merge merely because it includes the baseline fixes. Require a complete diff/scope review, exact-head CI including database/RLS and Ollama, independent review, and explicit dependency ordering.
 
 ### Other open Draft candidates
