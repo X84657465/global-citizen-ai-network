@@ -213,3 +213,39 @@ test("returns only fixed, bounded recommendations and never echoes raw evidence"
   assert.ok(proposal.suggestedChecks.length <= 3);
   assert.ok(proposal.recommendation.length <= 240);
 });
+
+test("does not expose raw evidence-provider or policy-provider errors", async () => {
+  const evidenceHost = new FPHostAdapter();
+  registerFPResilienceCapability({
+    host: evidenceHost,
+    evidence: {
+      resolve() { throw new Error("secret-provider-token"); },
+    },
+    policy: { evaluate() { return allow; } },
+  });
+  await assert.rejects(
+    evidenceHost.invoke(
+      { workstream: "J", capability: "diagnose", input: { evidenceRef: "evidence:42" } },
+      context(true),
+    ),
+    (error: unknown) => error instanceof Error &&
+      error.message === "Trusted resilience evidence is unavailable." &&
+      !error.message.includes("secret-provider-token"),
+  );
+
+  const policyHost = new FPHostAdapter();
+  registerFPResilienceCapability({
+    host: policyHost,
+    evidence: { resolve() { return evidence(); } },
+    policy: { evaluate() { throw new Error("secret-policy-token"); } },
+  });
+  await assert.rejects(
+    policyHost.invoke(
+      { workstream: "J", capability: "diagnose", input: { evidenceRef: "evidence:42" } },
+      context(true),
+    ),
+    (error: unknown) => error instanceof Error &&
+      error.message === "Trusted resilience policy decision is unavailable." &&
+      !error.message.includes("secret-policy-token"),
+  );
+});
