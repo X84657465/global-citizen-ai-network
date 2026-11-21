@@ -90,3 +90,14 @@ The adapter deliberately does not authenticate users, resolve permissions, persi
 The adapter is an in-process registration/invocation boundary only. It does not yet connect to A–E runtime services or enable production capabilities. The host must call it only after making its normal authorization decision. Capability handlers must remain side-effect-free unless their owning workstream has an approved bounded execution design.
 
 Unit tests cover successful advisory invocation, denied authorization, bounded approval, disabled execution, duplicate registration, and malformed host context.
+
+
+## H observability implementation
+
+`lib/fp/observability.ts` adds a bounded, process-local recorder for capability outcome metadata and health snapshots. It records only workstream, capability, correlation ID, outcome, timestamp, duration, and an optional controlled error code. It does not retain request/response payloads, actor references, credentials, or user-generated content.
+
+The host adapter accepts an optional `FPObservabilitySink`. When supplied, it emits success, denial, rejection, or handler-failure outcomes. Sink failures are isolated and never change capability execution results. The default remains no sink; no global telemetry destination or persistence is configured.
+
+The recorder has a bounded retention capacity (default 250, maximum 10000), immutable event copies, and per-workstream outcome counters. This is local operational evidence only: it is not distributed tracing, durable monitoring, alert delivery, or production health certification.
+
+H's recorder and adapter integration are covered by tests for bounded retention, counters, invalid event rejection, payload exclusion, and non-blocking sink failure.
