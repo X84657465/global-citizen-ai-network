@@ -146,22 +146,31 @@ export class FPHostAdapter {
       throw new FPHostError("INVALID_CONTEXT", "Host request and principal context are required.");
     }
 
+    const invocation: FPCapabilityRequest<TInput> = Object.freeze({
+      workstream: invocation.workstream,
+      capability: invocation.capability,
+      input: invocation.input,
+      ...(invocation.idempotencyKey !== undefined
+        ? { idempotencyKey: invocation.idempotencyKey }
+        : {}),
+    });
+
     const startedAt = Date.now();
     try {
     let contract;
     try {
-      contract = getWorkstreamContract(request.workstream);
+      contract = getWorkstreamContract(invocation.workstream);
     } catch {
       throw new FPHostError("UNKNOWN_CAPABILITY", "Unknown F–P workstream.");
     }
-    if (typeof request.capability !== "string" || !/^[a-z][a-z0-9-]{1,63}$/.test(request.capability)) {
+    if (typeof invocation.capability !== "string" || !/^[a-z][a-z0-9-]{1,63}$/.test(invocation.capability)) {
       throw new FPHostError("UNKNOWN_CAPABILITY", "Invalid capability name.");
     }
     if (typeof context.principal.authorized !== "boolean" ||
         typeof context.principal.approved !== "boolean") {
       throw new FPHostError("INVALID_CONTEXT", "Host authorization and approval decisions must be booleans.");
     }
-    const key = `${request.workstream}:${request.capability}`;
+    const key = `${invocation.workstream}:${invocation.capability}`;
     const handler = this.handlers.get(key);
     if (!handler) {
       throw new FPHostError("UNKNOWN_CAPABILITY", `No handler registered for ${key}.`);
@@ -184,9 +193,9 @@ export class FPHostAdapter {
     }
 
     if (
-      request.idempotencyKey !== undefined &&
-      (typeof request.idempotencyKey !== "string" ||
-        !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(request.idempotencyKey))
+      invocation.idempotencyKey !== undefined &&
+      (typeof invocation.idempotencyKey !== "string" ||
+        !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(invocation.idempotencyKey))
     ) {
       throw new FPHostError("INVALID_CONTEXT", "Invalid idempotency key.");
     }
@@ -216,11 +225,11 @@ export class FPHostAdapter {
       ...(context.now !== undefined ? { now: context.now } : {}),
     });
 
-    const output = await handler(request.input, handlerContext);
+    const output = await handler(invocation.input, handlerContext);
     const envelope: FPCapabilityEnvelope<TOutput> = Object.freeze({
       contractVersion: "1",
-      workstream: request.workstream,
-      capability: request.capability,
+      workstream: invocation.workstream,
+      capability: invocation.capability,
       eventId: globalThis.crypto.randomUUID(),
       occurredAt: now.toISOString(),
       correlationId: handlerContext.correlationId,
@@ -228,13 +237,13 @@ export class FPHostAdapter {
       ...(handlerContext.principal.resourceRef !== undefined
         ? { resourceRef: handlerContext.principal.resourceRef }
         : {}),
-      ...(request.idempotencyKey
-        ? { idempotencyKey: request.idempotencyKey }
+      ...(invocation.idempotencyKey
+        ? { idempotencyKey: invocation.idempotencyKey }
         : {}),
       payload: output,
     });
 
-    this.recordOutcome(request, context, "succeeded", startedAt);
+    this.recordOutcome(invocation, context, "succeeded", startedAt);
     return { envelope };
     } catch (error) {
       const outcome = error instanceof FPHostError
@@ -243,7 +252,7 @@ export class FPHostAdapter {
       const errorCode = error instanceof FPHostError
         ? error.code
         : "HANDLER_FAILURE";
-      this.recordOutcome(request, context, outcome, startedAt, errorCode);
+      this.recordOutcome(invocation, context, outcome, startedAt, errorCode);
       throw error;
     }
   }
