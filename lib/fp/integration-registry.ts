@@ -170,7 +170,21 @@ export class FPIntegrationExecutor {
     }
   }
 
-  async execute(
+  register(host: FPHostAdapter): void {
+    if (!(host instanceof FPHostAdapter)) {
+      throw new TypeError("An existing FPHostAdapter is required.");
+    }
+    host.register<FPIntegrationRequest, unknown>(
+      "I",
+      "execute",
+      (request, context: FPHostRequestContext) => this.#execute(request, {
+        correlationId: context.correlationId,
+        now: context.now ? context.now() : new Date(),
+      }),
+    );
+  }
+
+  async #execute(
     request: FPIntegrationRequest,
     context: FPIntegrationExecutionContext,
   ): Promise<unknown> {
@@ -302,7 +316,7 @@ export class FPIntegrationExecutor {
   }
 }
 
-/** Registers I on the shared host; FPHostAdapter enforces authorization and explicit approval. */
+/** Registers I on the shared host; there is no public direct-execution method. */
 export function registerFPIntegrationCapability(input: {
   readonly host: FPHostAdapter;
   readonly executor: FPIntegrationExecutor;
@@ -310,13 +324,5 @@ export function registerFPIntegrationCapability(input: {
   if (!input || !(input.host instanceof FPHostAdapter) || !(input.executor instanceof FPIntegrationExecutor)) {
     throw new TypeError("An existing FPHostAdapter and FPIntegrationExecutor are required.");
   }
-
-  input.host.register<FPIntegrationRequest, unknown>(
-    "I",
-    "execute",
-    (request, context: FPHostRequestContext) => input.executor.execute(request, {
-      correlationId: context.correlationId,
-      now: context.now ? context.now() : new Date(),
-    }),
-  );
+  input.executor.register(input.host);
 }
