@@ -28,7 +28,7 @@
 | M — Compliance/risk | Governance evidence types and security/audit foundations | Build a scoped control map and risk register; distinguish engineering controls from legal certification | Advisory only; no compliance certification claim |
 | N — Product analytics | Privacy-minimized event concepts only | Define approved aggregate events, retention and privacy review before collection or dashboards | No collection pipeline or user-level profiling enabled |
 | O — Lifecycle | Numeric root/track version metadata and release evidence | Define support windows, deprecation notices, compatibility tests and migration rollback evidence | Advisory only; no automatic retirement |
-| P — Governance/trust | Governance dossier evaluator, exact-SHA workstream evidence, and host-attested review provenance | Added review provenance bound to candidate SHA; latest decision per reviewer, stale-review rejection, conflicting-decision detection and explicit host-verified reviewer authorization reference. Still requires a trusted host to authenticate reviewer permissions; the pure evaluator grants no approval, execution, merge or deployment authority | Advisory only; no policy mutation or automatic approval |
+| P — Governance/trust | Governance dossier evaluator plus exact-head GitHub PR/review collector and host permission-verification contract | Collector verifies current open same-repository PR head/base, reads complete paginated review history, binds reviews to commit SHA and asks the trusted host to verify reviewer permissions. Remaining: wire the existing host permission provider at the production entry point and verify exact-head CI/review | Advisory only; no policy mutation or automatic approval |
 
 ## 3. Five-stage execution ledger
 
@@ -44,12 +44,13 @@
 
 `F → G → H → P` establishes the security, release-evidence, observability and governance floor. I/J/M/N/O/K then integrate against those stable contracts. L remains deferred and is not on the activation critical path.
 
-## 5. P governance review provenance slice (2026-11-22)
+## 5. P governance review provenance and collection slice (2026-11-22)
 
 - Governance policy v2 binds review records to the exact candidate SHA and stores opaque review, reviewer and host authorization references plus a UTC submission timestamp.
 - The evaluator selects each reviewer's latest decision, rejects stale review evidence, flags conflicting decisions at the same timestamp and does not count unverified reviewer attestations as verified.
 - Reviewer authentication remains the trusted host's responsibility. The evaluator does not fetch GitHub permissions or authenticate identities; an approved review remains descriptive and grants no governance, execution, merge or deployment authority.
 - Regression tests cover stale approvals, unverified reviewers, latest-decision semantics, fractional timestamp ordering, conflicting decisions, unsafe/duplicate references and bounded input size.
+- Added a host-facing GitHub review collector that verifies the live PR remains open on the exact same-repository SHA targeting main, paginates the complete review history (up to a safe bound), maps submitted decisions and delegates permission checks to a trusted-host callback. This reusable boundary is not yet wired into the production host entry point.
 
 ## 6. Latest F–G implementation slice (2026-11-22)
 
