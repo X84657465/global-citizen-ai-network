@@ -35,3 +35,8 @@ test("homepage retains keyboard focus and reduced-motion accessibility rules", (
   assert.match(styles, /:focus-visible/);
   assert.ok(styles.includes("@media(prefers-reduced-motion:reduce)"));
 });
+
+test("public homepage section navigation remains available on mobile", () => {
+  assert.ok(styles.includes("Mobile navigation remains visible"));
+  assert.ok(styles.includes(".nav{display:flex"));
+});
