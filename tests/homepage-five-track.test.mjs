@@ -21,7 +21,7 @@ testRunner("shared loop preserves prediction-error and receiving-owner review", 
 testRunner("homepage includes architecture visuals and mobile/accessibility rules", () => {
  assert.match(page,/gcan-hero\.svg/); assert.match(page,/gcan-five-track-architecture\.svg/);
  assert.ok(styles.includes("@media(max-width:620px)")); assert.match(styles,/:focus-visible/); assert.match(styles,/prefers-reduced-motion/);
- assert.match(styles,/data-track=\\"P\\"/);
+ assert.match(styles,/data-track="P"/);
 });
 testRunner("homepage distinguishes roadmap, integration status and production readiness", () => {
  assert.ok(page.includes("EARLY DEVELOPMENT / MVP")); assert.match(page,/示範資料/); assert.match(page,/尚未整合/); assert.match(page,/不會自行更改正式帳務/);
