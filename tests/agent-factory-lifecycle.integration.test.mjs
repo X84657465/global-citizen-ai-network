@@ -50,6 +50,12 @@ function createFakeGitHubApi() {
         issues.push(created);
         return structuredClone(created);
       }
+      const pullRequestMatch = /^\/repos\/owner\/repo\/pulls\/(\d+)$/.exec(url.pathname);
+      if (pullRequestMatch && method === "GET") {
+        const pullRequest = pullRequests.get(Number(pullRequestMatch[1]));
+        if (!pullRequest) throw new Error("Pull request not found.");
+        return structuredClone(pullRequest);
+      }
       const workflowMatch = /^\/repos\/owner\/repo\/actions\/runs\/(\d+)$/.exec(url.pathname);
       if (workflowMatch && method === "GET") {
         const workflow = workflows.get(workflowMatch[1]);
