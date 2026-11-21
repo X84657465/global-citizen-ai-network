@@ -6,7 +6,7 @@
 
 **一個結合 AI 服務、全球知識協作、透明貢獻帳本與自願式運算願景的長期平台。**
 
-[產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.78）](https://github.com/X84657465/global-citizen-ai-network/pull/195) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
+[產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.79）](https://github.com/X84657465/global-citizen-ai-network/pull/195) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
 ![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=feat%2Fagent-factory-v2)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
