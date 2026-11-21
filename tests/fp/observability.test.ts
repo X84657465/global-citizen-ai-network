@@ -43,6 +43,8 @@ test("rejects invalid event metadata and invalid capacities", () => {
   assert.throws(() => recorder.record(event({ durationMs: -1 })), TypeError);
   assert.throws(() => recorder.record(event({ correlationId: "bad\\nvalue" })), TypeError);
   assert.throws(() => recorder.record(event({ occurredAt: "not-a-date" })), TypeError);
+  assert.throws(() => recorder.record(event({ occurredAt: "2026-02-31T12:00:00.000Z" })), TypeError);
+  assert.throws(() => recorder.record(event({ occurredAt: "2026-11-21T25:00:00Z" })), TypeError);
 });
 
 test("rejects unregistered workstreams, invalid outcomes, non-UTC timestamps and unsafe error codes", () => {
