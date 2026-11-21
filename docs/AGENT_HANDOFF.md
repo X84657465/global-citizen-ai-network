@@ -235,3 +235,10 @@ This section supersedes older candidate-head and CI snapshots above where they c
 - Found the same parse-normalization weakness in `lib/fp/governance-review-source.ts`: regex shape plus `Date.parse()` could accept impossible dates such as February 31.
 - Added component-level UTC validation at commit `9f7da2115644ac52c9d29c22f8a6546600644c9b`; added impossible-date/hour regression cases at `6853dedb7e6583d7dc3f2185bc0931cac422d5e6`.
 - Current PR #259 exact HEAD is `6853dedb7e6583d7dc3f2185bc0931cac422d5e6`. No exact-head Actions run was visible at this checkpoint; Vercel is provider-rate-limited; formal reviews remain 0. Keep Draft/unmerged.
+
+
+### Latest exact-head snapshot — 2026-11-22 (live recheck)
+
+- PR #259 live HEAD advanced to `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`; exact-head Actions run [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889) is pending with no jobs exposed.
+- The current branch tip was directly checked to retain both timestamp call-path fixes: H recorder calls `isStrictUtcTimestamp()`; P governance review collector calls `isValidUtcTimestamp()`. Both corresponding impossible-date/hour regression cases are present.
+- Current Vercel status is rate-limited; formal reviews and inline review threads are 0. PR remains Draft/unmerged. Do not transfer prior-SHA CI evidence to this SHA.
