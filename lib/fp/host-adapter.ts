@@ -56,13 +56,13 @@ export class FPHostError extends Error {
 }
 
 function assertSafeReference(value: string | undefined, label: string): void {
-  if (!value || value.length > 256 || /[\r\n\0]/.test(value)) {
+  if (typeof value !== "string" || value.length === 0 || value.length > 256 || /[\r\n\0]/.test(value)) {
     throw new FPHostError("INVALID_CONTEXT", `Invalid host ${label}.`);
   }
 }
 
 function assertCorrelationId(value: string): void {
-  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value)) {
+  if (typeof value !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value)) {
     throw new FPHostError("INVALID_CONTEXT", "Invalid correlation ID.");
   }
 }
@@ -175,13 +175,17 @@ export class FPHostAdapter {
 
     if (
       request.idempotencyKey !== undefined &&
-      (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(request.idempotencyKey))
+      (typeof request.idempotencyKey !== "string" ||
+        !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(request.idempotencyKey))
     ) {
       throw new FPHostError("INVALID_CONTEXT", "Invalid idempotency key.");
     }
 
+    if (context.now !== undefined && typeof context.now !== "function") {
+      throw new FPHostError("INVALID_CONTEXT", "Host clock must be a function.");
+    }
     const now = (context.now ?? (() => new Date()))();
-    if (Number.isNaN(now.getTime())) {
+    if (!(now instanceof Date) || Number.isNaN(now.getTime())) {
       throw new FPHostError("INVALID_CONTEXT", "Host clock returned an invalid date.");
     }
 
