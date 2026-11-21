@@ -69,7 +69,7 @@
 ### Broad integration candidate — PR #259
 
 - PR: https://github.com/X84657465/global-citizen-ai-network/pull/259
-- Current exact HEAD: d04472480c3034597d134447d84a4168c3db76c3; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
+- Current exact HEAD: f718499241fd905a12688498373a467cd3538ce1; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
 - No workflow run has appeared for current exact HEAD d04472480c3034597d134447d84a4168c3db76c3 at latest inspection. Earlier heads and runs, including 44942184888, are superseded and must not be used as acceptance evidence. Source review corrected the double-escaped H UTC regex (63408495d7fc66dbf0ad03041140cfebf7ff9a3e), then hardened calendar/time validation against Date.parse normalization and added regression tests for impossible dates and out-of-range hours (c75fc158113b093f79c5361d24148e1537d5ad2e and d04472480c3034597d134447d84a4168c3db76c3). Exact-head CI is not yet verified.
 - Current diff contains 27 files across A state/controller changes, F–P host/governance/observability, repository-name validation, a PostgreSQL appeal-authorization migration, tests and release metadata. The H timestamp validator now rejects impossible UTC calendar dates and out-of-range time components; exact-head CI remains pending.
 - **Stack overlap:** #259 also carries the README/version and CI-policy-test edits from #265, plus the schema-guard edit covered by #264. Do not merge these PRs sequentially as-is or assume they are independent. Preserve the narrow PRs as isolated review units; split/reconcile #259 or refresh the remaining candidates against whichever exact SHA is eventually accepted. It is materially broader than the P0 schema repair.
