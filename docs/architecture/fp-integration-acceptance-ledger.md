@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `40e0e6902ccd35e6daa77f2f7a339ba00f92fab3`  
+**Baseline:** `main` at `4bf472881ea4afabd9f29c4d58365c3ae6c3d2af`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -28,7 +28,7 @@
 | M — Compliance/risk | Governance evidence types and security/audit foundations | Build a scoped control map and risk register; distinguish engineering controls from legal certification | Advisory only; no compliance certification claim |
 | N — Product analytics | Privacy-minimized event concepts only | Define approved aggregate events, retention and privacy review before collection or dashboards | No collection pipeline or user-level profiling enabled |
 | O — Lifecycle | Numeric root/track version metadata and release evidence | Define support windows, deprecation notices, compatibility tests and migration rollback evidence | Advisory only; no automatic retirement |
-| P — Governance/trust | Governance dossier evaluator, exact-SHA workstream evidence, and host-attested review provenance | Added review provenance bound to candidate SHA; latest decision per reviewer, stale-review rejection, conflicting-decision detection and explicit host-verified reviewer authorization reference. Still requires a trusted host to authenticate reviewer permissions; the pure evaluator grants no approval, execution, merge or deployment authority | Advisory only; no policy mutation or automatic approval |
+| P — Governance/trust | Governance dossier evaluator plus exact-head GitHub PR/review collector and host permission-verification contract | Collector verifies current open same-repository PR head/base, reads complete paginated review history, binds reviews to commit SHA and asks the trusted host to verify reviewer permissions. Remaining: wire the existing host permission provider at the production entry point and verify exact-head CI/review | Advisory only; no policy mutation or automatic approval |
 
 ## 3. Five-stage execution ledger
 
@@ -44,12 +44,13 @@
 
 `F → G → H → P` establishes the security, release-evidence, observability and governance floor. I/J/M/N/O/K then integrate against those stable contracts. L remains deferred and is not on the activation critical path.
 
-## 5. P governance review provenance slice (2026-11-22)
+## 5. P governance review provenance and collection slice (2026-11-22)
 
 - Governance policy v2 binds review records to the exact candidate SHA and stores opaque review, reviewer and host authorization references plus a UTC submission timestamp.
 - The evaluator selects each reviewer's latest decision, rejects stale review evidence, flags conflicting decisions at the same timestamp and does not count unverified reviewer attestations as verified.
 - Reviewer authentication remains the trusted host's responsibility. The evaluator does not fetch GitHub permissions or authenticate identities; an approved review remains descriptive and grants no governance, execution, merge or deployment authority.
 - Regression tests cover stale approvals, unverified reviewers, latest-decision semantics, fractional timestamp ordering, conflicting decisions, unsafe/duplicate references and bounded input size.
+- Added a host-facing GitHub review collector that verifies the live PR remains open on the exact same-repository SHA targeting main, paginates the complete review history (up to a safe bound), maps submitted decisions and delegates permission checks to a trusted-host callback. This reusable boundary is not yet wired into the production host entry point.
 
 ## 6. Latest F–G implementation slice (2026-11-22)
 
@@ -66,7 +67,7 @@
 - Updated the existing Next.js middleware to consume the paired context for both downstream request headers and response headers. Existing Supabase session refresh and cookie propagation remain intact.
 - Expanded request-context regression tests for valid ID reuse, absent/malformed/oversized IDs, consistency between request and response, preservation of unrelated request headers, and isolation from header mutation.
 - Extended the mainline F–P integration guard to verify that the middleware uses the paired contract. No route payload, identity, authorization, or secret is included in correlation metadata.
-- Release metadata advanced to `0.3.121` (governance revision `1.4.17`). This slice is on an isolated branch and is not accepted until exact-head quality CI and independent review complete.
+- Release metadata advanced to `0.3.122` (governance revision `1.4.18`). This slice is on an isolated branch and is not accepted until exact-head quality CI and independent review complete.
 - PR #229 F–G implementation is merged at `ef543ebeecf56785dc752fdb8ac9305862bb269e`, but remains unaccepted: exact-head PR CI run `44926059712` completed overall success with all substantive quality/build/database/persistence jobs skipped; main push CI run `44926070210` was cancelled.
 - Agent Factory V2 candidate revalidation is under development in PR #231 at exact HEAD `794bcd20df635580d80da512de12a59015041037`; exact-head CI run `44928183277` remains pending at the resolver job. Do not treat earlier cancelled runs as evidence for this HEAD.
 - Runner queue isolation is proposed in PR #235 at exact HEAD `c0014d6a1267cf0569fb110c87288a3317597731`; CI run `44927965451` remains pending at the resolver job. The current mainline recovery workflow still has workflow-level concurrency, and multiple recovery workflow_run events remain pending; the fix is not yet on main.

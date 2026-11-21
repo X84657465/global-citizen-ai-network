@@ -8,6 +8,7 @@ import {
 import { FP_SECURITY_CONTROLS } from "../../lib/fp/security-assurance.ts";
 import { G_REQUIRED_CI_JOBS } from "../../lib/fp/release-assurance.ts";
 import { FP_GOVERNANCE_REQUIREMENTS, FP_GOVERNANCE_POLICY_VERSION } from "../../lib/fp/governance-assurance.ts";
+import { collectFPGovernanceReviewEvidence } from "../../lib/fp/governance-review-source.ts";
 
 const readRepositoryFile = (path: string) =>
   readFileSync(new URL(`../../${path}`, import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -90,5 +91,10 @@ test("P governance requirements cover every F–P line and keep L explicitly def
   assert.ok(governance.includes("reviewedSha.toLowerCase() !== candidateSha.toLowerCase()"));
   assert.ok(governance.includes("governanceApprovalGranted: false"));
   assert.ok(governance.includes("mergeAuthorized: false"));
+  assert.ok(existsSync(new URL("../../lib/fp/governance-review-source.ts", import.meta.url)));
+  const hostContract = readRepositoryFile("docs/architecture/fp-mainline-host-contract.md");
+  assert.ok(hostContract.includes("lib/fp/governance-review-source.ts"));
+  assert.ok(hostContract.includes("Only `admin`, `maintain`, and `push` permissions are marked verified"));
+  assert.equal(typeof collectFPGovernanceReviewEvidence, "function");
   assert.match(schedulerRunbook, /does not approve the candidate, authorize a merge, or deploy production/);
 });

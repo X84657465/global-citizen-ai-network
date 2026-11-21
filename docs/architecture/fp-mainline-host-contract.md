@@ -141,13 +141,15 @@ Tests cover exact-head success, missing jobs, failed/skipped/cancelled jobs, sta
 
 ## P advisory governance dossier
 
-`lib/fp/governance-assurance.ts` adds a versioned, read-only governance dossier evaluator for all eleven F–P workstreams. It requires an opaque accountable-owner reference and exactly one registered evidence category per workstream, with evidence bound to the exact candidate SHA.
+`lib/fp/governance-assurance.ts` provides a versioned, read-only governance dossier evaluator for all eleven F–P workstreams. Policy v2 requires an opaque accountable-owner reference and exactly one registered evidence category per workstream, with evidence bound to the exact candidate SHA.
 
 The policy catalogue requires security assurance (F), exact-head CI (G), observability tests (H), bounded-integration approval evidence (I), advisory-only review (J), documentation provenance (K), a federation deferral record (L), compliance/risk review (M), privacy/analytics review (N), lifecycle/compatibility review (O), and governance review (P).
 
-The evaluator distinguishes missing, stale, not-run, failed, and complete evidence. L is rejected if its lifecycle is anything other than deferred. Records for A–E, duplicate workstreams, unknown policy versions, unregistered evidence kinds, unsafe references, and malformed owner references are rejected.
+The evaluator distinguishes missing, stale, not-run, failed, and complete evidence. L is rejected if its lifecycle is anything other than deferred. It also records review provenance bound to the candidate SHA, applies each reviewer's latest decision, rejects stale approvals, surfaces conflicting same-time decisions, and refuses to count reviews whose reviewer authorization is unverified. Records for A–E, duplicate workstreams/review references, unknown policy versions, unregistered evidence kinds, unsafe references, and malformed owner/reviewer references are rejected.
 
-A `ready-for-human-review` dossier is only a completeness result. P does not grant governance approval, user permission, execution authority, merge authorization, deployment authorization, or federation activation. Owner references and evidence references are opaque metadata supplied by the trusted host; this evaluator does not authenticate their source or independently verify the referenced artifacts.
+`lib/fp/governance-review-source.ts` collects submitted reviews through the existing authenticated GitHub API client. It verifies that the PR is open, targets `main`, belongs to the same repository, and still points to the exact candidate SHA; then it reads the complete review history using bounded pagination and binds each review to its GitHub review ID, reviewer, commit SHA and submission time. Reviewer permission checks are delegated to a trusted-host callback. Only `admin`, `maintain`, and `push` permissions are marked verified; `triage`, `pull`, and failed lookups remain unverified. The collector is a reusable boundary and is not yet wired into a production host entry point.
+
+A `ready-for-human-review` dossier is only a completeness result. A host-verified `approved` review is descriptive provenance, not governance approval. P does not grant user permission, execution authority, merge authorization, deployment authorization, or federation activation. Owner and reviewer references remain opaque metadata; the trusted host must authenticate the source and permission decision.
 
 
 ## F exact-run security evidence binding
