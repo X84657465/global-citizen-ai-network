@@ -31,7 +31,7 @@ test("homepage clearly declares factory-first, B-next and ecosystem-last priorit
 
 test("P governance remains a separate cross-cutting layer, not a feature workstream", () => {
   assert.match(governance, /P is the cross-cutting governance layer/i);
-  assert.match(governance, /P is not a sixth feature track/i);
+  assert.match(governance, /P is the cross-cutting governance layer, not a sixth feature track/i);
   assert.match(workstreams, /P \| Governance, Ethics & Trust/);
 });
 
