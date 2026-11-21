@@ -1,6 +1,6 @@
 begin;
 
-select plan(15);
+select plan(17);
 
 select ok(
   not exists (
@@ -207,6 +207,28 @@ select ok(
       )
   ),
   'public sequences are not directly accessible to anon or authenticated roles'
+);
+
+select ok(
+  not exists (
+    select 1
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relkind in ('r', 'p')
+      and not c.relrowsecurity
+  ),
+  'every current and future public base or partitioned table must enable row-level security'
+);
+
+select ok(
+  not exists (
+    select 1
+    from pg_roles
+    where rolname in ('anon', 'authenticated')
+      and (rolsuper or rolbypassrls)
+  ),
+  'API roles cannot bypass row-level security or act as superusers'
 );
 
 select * from finish();
