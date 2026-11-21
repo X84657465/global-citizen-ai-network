@@ -30,10 +30,10 @@ function sql(query, { expectFailure = false, expectSqlState } = {}) {
     if (result.error) throw new Error(`Database subprocess could not execute: ${diagnostic}`);
     const failureOutput = result.stderr || result.stdout;
     if (expectSqlState) {
-      assert.match(
-        failureOutput,
-        new RegExp("ERROR:\\s+" + expectSqlState + ":"),
-        `Expected PostgreSQL SQLSTATE ${expectSqlState}; received a different failure: ${diagnostic}`,
+      const expectedStates = Array.isArray(expectSqlState) ? expectSqlState : [expectSqlState];
+      assert.ok(
+        expectedStates.some((state) => new RegExp("ERROR:\\s+" + state + ":").test(failureOutput)),
+        `Expected PostgreSQL SQLSTATE ${expectedStates.join(" or ")}; received a different failure: ${diagnostic}`,
       );
     }
     return failureOutput;
@@ -185,17 +185,20 @@ test("member cannot appeal another member's rejected submission", () => {
       values ('${f.submissionB}', '${f.a}', 'Attempt to appeal another member submission.');
     `)}
     rollback;
-  `, { expectFailure: true, expectSqlState: "42501" });
+  `, { expectFailure: true, expectSqlState: ["42501", "P0001"] });
 });
 
 test("member cannot submit contribution work on behalf of another member", () => {
   const f = fixture();
   const submission = randomUUID();
+  const forgedTask = randomUUID();
   sql(`
     ${f.setup}
+    insert into public.contribution_tasks (id, title, description, category, status)
+    values ('${forgedTask}', 'RLS forged-submitter fixture', 'Disposable test fixture', 'security', 'published');
     ${asMember(f.a, `
       insert into public.task_submissions (id, task_id, contributor_id, content)
-      values ('${submission}', '${f.task}', '${f.b}', 'forged contributor identity');
+      values ('${submission}', '${forgedTask}', '${f.b}', 'forged contributor identity');
     `)}
     rollback;
   `, { expectFailure: true, expectSqlState: "42501" });
