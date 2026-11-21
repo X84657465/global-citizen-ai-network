@@ -1,12 +1,12 @@
 # F — Cyber Security & Defense
 
-**Track version:** 0.1.0  
+**Track version:** 0.1.5  
 **Status:** foundation / implementation candidate  
 **Owner:** dedicated security workstream; product and platform owners retain responsibility for fixes in their code.
 
 ## Mission
 
-Protect GCAN users, data, infrastructure, AI workflows and development supply chain against malicious activity. F is an independent assurance and engineering line that defines security controls, maintains the threat model, validates safeguards and coordinates incident response across A–E.
+Protect GCAN users, data, infrastructure, AI workflows and development supply chain against malicious activity. F is an independent assurance and engineering line that defines security controls, maintains the threat model, validates safeguards and coordinates incident response across A–P.
 
 F does not replace secure engineering ownership in other tracks. Every track remains responsible for its own code, data, dependencies and operational controls. F defines cross-track minimum requirements and independently challenges evidence.
 
@@ -29,6 +29,8 @@ F does not replace secure engineering ownership in other tracks. Every track rem
 | C — Predictive Coding | Prediction inputs, observations, metrics and feedback loops | Data poisoning, manipulation, provenance, anomaly signal quality and false positives |
 | D — Deep Neural | Memory, retrieval, reasoning and knowledge integration | Memory poisoning, instruction/data separation, provenance and sensitive-data leakage |
 | E — Deep Research | Retrieval, browsing, source ingestion and report generation | Malicious sources, prompt injection, citation integrity, SSRF and exfiltration paths |
+| G — Release, QA & Integration | Cross-track compatibility, CI evidence, release gates and rollback | Exact-SHA provenance, stale/pending check rejection, unauthorized integration and evidence tampering |
+| H — Observability & Cost Governance | Runner health, queue telemetry, failure taxonomy and quota/cost signals | Secret-free telemetry, source authenticity, bounded retention, quota overshoot and alert integrity |
 
 ## Non-negotiable security principles
 

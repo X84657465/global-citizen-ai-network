@@ -1,10 +1,10 @@
 # GCAN A–P Engineering Workstream Architecture
 
-**Architecture revision:** 1.0.0  
-**Planning baseline:** repository release 0.3.42  
+**Architecture revision:** 1.0.3  
+**Planning baseline:** repository release 0.3.51  
 **Scope:** A–P workstream ownership, dependencies, implementation stages and acceptance evidence.
 
-> Status is deliberately explicit: A–E are the existing product/engineering tracks; F is established on the Cyber Security & Defense integration branch and remains subject to its own PR/CI acceptance; G–P are planned workstreams. This document does not claim that a planned track has shipped or is operational.
+> Status is deliberately explicit: A–E are the existing product/engineering tracks; F provides cross-track security assurance; G and H are implementation candidates pending exact-head CI and formal review; I–P remain planned workstreams. This document does not claim that a planned track has shipped or is operational.
 
 ## 1. Design principles
 
@@ -42,8 +42,8 @@ Tracks are not required to activate in alphabetical order. The sequence below re
 
 ### Stage 0 — Preserve the existing baseline
 
-- Keep A–E ownership and existing factory/product work intact.
-- Complete F's exact-head CI, security review and acceptance independently.
+- Keep A–H ownership and existing factory/product work intact.
+- Complete F's exact-head CI, security review and acceptance independently; apply F controls to every track.
 - Do not merge F or any dependent work merely because a downstream branch exists.
 - Record the exact base SHA used by each dependent branch.
 

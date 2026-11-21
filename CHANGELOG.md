@@ -1,3 +1,61 @@
+## 0.3.51 — 2026-11-21
+
+### Fixed — Synchronize F Cross-Track Security Baseline
+- Carry forward the latest F security-track baseline and extend its review matrix across G release evidence and H Runner/quota telemetry.
+- Advance F to 0.1.5 and synchronize the overall release and package metadata.
+- Keep G/H as implementation candidates; no security certification or operational acceptance is implied.
+
+### Verification
+- Exact-head Windows Runner CI and independent security review remain required; this release record is not a test pass.
+
+## 0.3.50 — 2026-11-21
+
+### Fixed — H Runner Offline Detection Under Clock Skew
+- Keep offline Runner state critical even when its reported heartbeat is later than the observation timestamp.
+- Preserve the separate clock-synchronization finding and advisory operator pause recommendation.
+- Add a regression proving clock skew cannot mask an offline Runner.
+- Advance H from 0.1.4 to 0.1.5 and synchronize repository package/release metadata.
+
+### Verification
+- Regression and contract updates require fresh exact-head Windows CI; no operational Runner integration or acceptance is claimed.
+
+### Rollback
+- Revert the exact 0.3.50 H observability fix; no live Runner, quota, production database or deployment configuration is changed.
+
+## 0.3.49 — 2026-11-21
+
+### Integrated — Eight-Track Governance and H Runner Readiness
+- Align G release-evidence and H Runner observability candidates with the A–P architecture without marking either track operationally accepted.
+- Extend F's cross-track security review matrix to G and H and apply the security charter across A–P.
+- Replace stale six-track and planned-only test assumptions with explicit A–H ownership and G/H implementation-candidate checks.
+- Synchronize release metadata: F 0.1.1, G 0.1.7 and H 0.1.4; update repository package metadata and architecture governance revisions.
+
+### Verification
+- Corrected regressions are committed for exact-head Windows Runner CI; no test pass, formal review or operational telemetry integration is claimed.
+- G/H remain implementation candidates until their own complete CI, evidence and formal review pass.
+
+### Rollback
+- Revert the exact 0.3.49 governance/test synchronization commit; no production Runner, database, deployment or secret configuration is changed.
+
+## 0.3.48 — 2026-11-20
+
+### Fixed — Stacked CI Trigger Policy
+- Correct the G integration branch allowlist syntax so the branch is a valid member of the pull-request target array.
+- Keep the H branch trigger-policy assertion aligned with the corrected YAML and synchronize the inherited G track version.
+
+### Verification
+- Exact-head Windows Runner CI remains mandatory; no passing CI result or operational telemetry integration is claimed.
+
+## 0.3.47 — 2026-11-20
+
+### Fixed — Quota Overshoot Observability
+- Preserve quota usage values above the configured limit so delayed metering or enforcement overshoot remains observable.
+- Treat quota overrun as a critical condition and recommend operator review rather than rejecting the telemetry snapshot.
+- Add regression coverage for over-limit readings and keep all health recommendations advisory-only.
+
+### Verification
+- Exact-head Windows Runner CI remains mandatory; no runtime quota enforcement or Runner pause is implemented.
+
 ## 0.3.46 — 2026-11-20
 
 ### Fixed — CI Base-Branch Allowlist

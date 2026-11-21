@@ -11,23 +11,23 @@ const incidentRunbook = read("../docs/security/incident-response.md");
 const releaseGates = read("../docs/security/release-gates.md");
 
 test("release manifest declares the independent F security workstream", () => {
-  assert.equal(manifest.overall, "0.3.41");
+  assert.match(manifest.overall, /^\d+\.\d+\.\d+$/);
   assert.deepEqual(manifest.tracks.F, {
     name: "Cyber Security & Defense",
-    version: "0.1.0",
+    version: "0.1.5",
     status: "foundation",
     responsibility: "Cross-track threat modeling, security controls, adversarial validation, vulnerability response and incident readiness.",
   });
 });
 
-test("engineering governance recognizes six independent tracks and F review ownership", () => {
-  for (const token of ["Six-Track", "Track F — Cyber Security & Defense", "A, B, C, D, E and F", "F review is required"]) {
+test("engineering governance recognizes A-P ownership and F cross-track review", () => {
+  for (const token of ["sixteen defined workstream boundaries", "| F — Cyber Security & Defense |", "| G — Release, QA & Integration |", "| H — Observability & Cost Governance |", "F security controls apply to every track"]) {
     assert.ok(governance.includes(token), `missing governance requirement: ${token}`);
   }
 });
 
 test("security charter covers all workstreams and non-negotiable trust boundaries", () => {
-  for (const token of ["A — Agent Factory V2", "B — GCAN Product", "C — Predictive Coding", "D — Deep Neural", "E — Deep Research", "F review", "Treat user input", "human approval"]) {
+  for (const token of ["A — Agent Factory V2", "B — GCAN Product", "C — Predictive Coding", "D — Deep Neural", "E — Deep Research", "F review", "G — Release, QA & Integration", "H — Observability & Cost Governance", "Treat user input", "human approval"]) {
     assert.ok(security.includes(token), `missing security charter requirement: ${token}`);
   }
 });

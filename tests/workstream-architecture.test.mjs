@@ -12,8 +12,13 @@ test("workstream manifest defines every A-P track exactly once", () => {
   assert.deepEqual(Object.keys(manifest.tracks).sort(), expectedTracks);
 });
 
-test("G-P are explicitly planned and do not claim shipped capabilities", () => {
-  for (const track of "GHIJKLMNOP") {
+test("G and H remain implementation candidates while I-P remain planned", () => {
+  for (const track of ["G", "H"]) {
+    assert.equal(manifest.tracks[track].status, "implementation-candidate", track + " must not claim operational acceptance");
+    assert.match(manifest.tracks[track].version, /^\d+\.\d+\.\d+$/);
+    assert.ok(manifest.tracks[track].responsibility.length > 20, track + " must have a concrete responsibility");
+  }
+  for (const track of "IJKLMNOP") {
     assert.equal(manifest.tracks[track].status, "planned", track + " must remain planned until implementation evidence exists");
     assert.ok(manifest.tracks[track].responsibility.length > 20, track + " must have a concrete responsibility");
     assert.equal(manifest.tracks[track].version, "0.1.0");

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.46",
+  "overall": "0.3.51",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -31,20 +31,20 @@
     },
     "F": {
       "name": "Cyber Security & Defense",
-      "version": "0.1.0",
+      "version": "0.1.5",
       "status": "foundation",
       "responsibility": "Cross-track threat modeling, security controls, adversarial validation, vulnerability response and incident readiness."
     },
     "G": {
       "name": "Release, QA & Integration",
-      "version": "0.1.6",
-      "status": "planned",
+      "version": "0.1.7",
+      "status": "implementation-candidate",
       "responsibility": "Cross-track integration sequencing, compatibility checks, regression gates, release evidence and rollback readiness."
     },
     "H": {
       "name": "Observability, Telemetry & Cost/Quota Governance",
-      "version": "0.1.0",
-      "status": "planned",
+      "version": "0.1.5",
+      "status": "implementation-candidate",
       "responsibility": "Task and queue telemetry, Runner health, retry/failure metrics, cost provenance, quota thresholds and safe pause alerts."
     },
     "I": {
