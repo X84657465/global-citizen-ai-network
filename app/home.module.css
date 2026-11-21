@@ -82,3 +82,17 @@
 .stageLinks{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .stageLinks a{margin-left:0}
 @media(max-width:620px){.stageLinks{width:100%;gap:12px}.stageLinks a{margin-left:0}}
+
+/* Mobile navigation remains visible as a horizontally scrollable row instead of disappearing. */
+@media(max-width:820px){
+ .headerInner{flex-wrap:wrap;gap:7px 13px;padding:10px 0}
+ .nav{display:flex;order:3;width:100%;max-width:100%;overflow-x:auto;gap:18px;padding:5px 1px 9px;scrollbar-width:none}
+ .nav::-webkit-scrollbar{display:none}
+ .nav a{font-size:12px;flex:0 0 auto}
+ .headerActions{margin-left:auto}
+}
+@media(max-width:620px){
+ .headerInner{min-height:0;gap:4px 10px}
+ .nav{gap:16px;padding:7px 1px 8px}
+ .nav a{font-size:12px}
+}
