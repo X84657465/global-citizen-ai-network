@@ -1,7 +1,7 @@
 import type { WorkstreamId } from "./integration-contract.ts";
 
 function isStrictUtcTimestamp(value: string): boolean {
-  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,3}))?Z$/.exec(value);
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/.exec(value);
   if (!match) return false;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return false;
