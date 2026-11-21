@@ -3,20 +3,21 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const component = readFileSync(new URL("../components/account/account-summary.tsx", import.meta.url), "utf8");
+const styles = readFileSync(new URL("../components/account/account-summary.module.css", import.meta.url), "utf8");
 const page = readFileSync(new URL("../app/account/page.tsx", import.meta.url), "utf8");
 
 test("account summary groups profile details with explicit semantic labels", () => {
   for (const label of ["電子郵件", "顯示名稱", "偏好語言", "帳戶角色", "帳戶狀態", "加入日期"]) {
     assert.ok(component.includes(label), `missing account detail label: ${label}`);
   }
-  assert.match(component, /<dl className="info-list">/);
+  assert.match(component, /<dl className={styles.infoList}>/);
   assert.match(component, /<dt>\{label\}<\/dt>/);
   assert.match(component, /aria-labelledby="account-title"/);
 });
 
 test("account actions expose an accessible navigation name and keyboard focus styles", () => {
-  assert.match(component, /<nav className="account-actions" aria-label="帳戶功能">/);
-  assert.match(component, /:focus-visible/);
+  assert.match(component, /<nav className={styles.accountActions} aria-label="帳戶功能">/);
+  assert.match(styles, /:focus-visible/);
   assert.match(component, /aria-label="安全登出會員帳戶"/);
 });
 
