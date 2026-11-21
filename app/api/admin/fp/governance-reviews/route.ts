@@ -7,8 +7,10 @@ import { handleGovernanceReviewsGet } from "@/lib/fp/governance-review-route-han
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+type AuthenticatedClient = NonNullable<Awaited<ReturnType<typeof getAuthenticatedClient>>>;
+
 export async function GET(request: Request) {
-  return handleGovernanceReviewsGet(request, {
+  return handleGovernanceReviewsGet<AuthenticatedClient>(request, {
     getAuthenticatedClient,
     getProfile: async (auth) => auth.supabase
       .from("profiles")
