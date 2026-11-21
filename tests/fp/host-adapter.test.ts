@@ -222,7 +222,7 @@ test("passes an immutable snapshot of trusted host identity and correlation to h
     return "healthy";
   });
 
-  const callerContext = context();
+  const callerContext = { ...context() };
   const result = await host.invoke(
     { workstream: "H", capability: "health-snapshot", input: null },
     callerContext,
