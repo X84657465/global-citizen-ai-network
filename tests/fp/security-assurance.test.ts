@@ -66,4 +66,8 @@ test("rejects duplicate controls, invalid SHA, and unsafe evidence paths", () =>
     candidateSha: sha,
     evidence: [evidence({ evidenceRef: "../../private.txt" })],
   }), TypeError);
+  assert.throws(() => assessFPSecurityEvidence({
+    candidateSha: sha,
+    evidence: [evidence({ evidenceRef: "tests/other-unrelated.test.ts" })],
+  }), TypeError);
 });
