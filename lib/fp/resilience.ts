@@ -222,12 +222,22 @@ export function registerFPResilienceCapability(input: {
           typeof request.evidenceRef !== "string" || !SAFE_REF.test(request.evidenceRef)) {
         throw new TypeError("A valid opaque resilience evidence reference is required.");
       }
-      const evidence = await input.evidence.resolve(request.evidenceRef, context.principal);
+      let evidence: FPResilienceEvidence;
+      try {
+        evidence = await input.evidence.resolve(request.evidenceRef, context.principal);
+      } catch {
+        throw new Error("Trusted resilience evidence is unavailable.");
+      }
       validateEvidence(evidence);
       if (evidence.evidenceRef !== request.evidenceRef) {
         throw new TypeError("Resolved evidence does not match the requested reference.");
       }
-      const decision = await input.policy.evaluate(evidence, context.principal);
+      let decision: FPResiliencePolicyDecision;
+      try {
+        decision = await input.policy.evaluate(evidence, context.principal);
+      } catch {
+        throw new Error("Trusted resilience policy decision is unavailable.");
+      }
       return createFPResilienceProposal(
         evidence,
         decision,
