@@ -5,6 +5,19 @@ export type WorkspaceMessage = {
   created_at: string;
 };
 
+export type WorkspaceConversationMetadata = {
+  id: string;
+  project_id: string | null;
+  title: string;
+  updated_at: string;
+};
+
+export type WorkspaceProjectMetadata = {
+  id: string;
+  title: string;
+  archived_at: string | null;
+};
+
 function isUuid(value: unknown): value is string {
   return typeof value === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -36,6 +49,29 @@ export function isValidTimestamp(value: unknown): value is string {
   ) return false;
 
   return Number.isFinite(Date.parse(value));
+}
+
+export function filterWorkspaceConversations(value: unknown): WorkspaceConversationMetadata[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is WorkspaceConversationMetadata => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+    const candidate = item as Record<string, unknown>;
+    return isUuid(candidate.id) &&
+      (candidate.project_id === null || isUuid(candidate.project_id)) &&
+      typeof candidate.title === "string" &&
+      isValidTimestamp(candidate.updated_at);
+  });
+}
+
+export function filterWorkspaceProjects(value: unknown): WorkspaceProjectMetadata[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is WorkspaceProjectMetadata => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+    const candidate = item as Record<string, unknown>;
+    return isUuid(candidate.id) &&
+      typeof candidate.title === "string" &&
+      candidate.archived_at === null;
+  });
 }
 
 export function isWorkspaceMessage(value: unknown): value is WorkspaceMessage {
