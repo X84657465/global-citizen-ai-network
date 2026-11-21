@@ -683,6 +683,9 @@ test("snapshots legacy candidate failure evidence before a retry overwrites the 
     failed_at: new Date(1800).toISOString(),
   });
   assert.equal(validateFactoryState(state), true);
+  const invalidHistory = structuredClone(state);
+  invalidHistory.tasks["42"].candidate_failure_history[0].ci_run_id = "";
+  assert.throws(() => validateFactoryState(invalidHistory), /Task state record is invalid/);
 });
 
 
