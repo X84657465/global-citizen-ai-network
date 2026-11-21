@@ -105,7 +105,22 @@ export interface FPGovernanceAssessment {
 const SHA_PATTERN = /^[a-f0-9]{40}$/i;
 const OWNER_REF_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$/;
 const EVIDENCE_REF_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,255}$/;
-const ISO_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
+const ISO_UTC_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
+
+function isValidUtcTimestamp(value: string): boolean {
+  const match = ISO_UTC_PATTERN.exec(value);
+  if (!match) return false;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+  const [, year, month, day, hour, minute, second, fraction = ""] = match;
+  return date.getUTCFullYear() === Number(year) &&
+    date.getUTCMonth() + 1 === Number(month) &&
+    date.getUTCDate() === Number(day) &&
+    date.getUTCHours() === Number(hour) &&
+    date.getUTCMinutes() === Number(minute) &&
+    date.getUTCSeconds() === Number(second) &&
+    date.getUTCMilliseconds() === Number(fraction.padEnd(3, "0") || "0");
+}
 
 function isSafeEvidenceRef(value: string): boolean {
   return EVIDENCE_REF_PATTERN.test(value) &&
@@ -133,8 +148,7 @@ function assessReviews(
       !OWNER_REF_PATTERN.test(review.reviewerRef) ||
       !isSafeEvidenceRef(review.reviewerAuthorizationRef) ||
       !["verified", "unverified"].includes(review.reviewerAuthorizationStatus) ||
-      !ISO_UTC_PATTERN.test(review.submittedAt) ||
-      Number.isNaN(Date.parse(review.submittedAt)) ||
+      !isValidUtcTimestamp(review.submittedAt) ||
       reviewRefs.has(review.reviewRef)
     ) {
       throw new TypeError("Invalid or duplicate governance review evidence.");
