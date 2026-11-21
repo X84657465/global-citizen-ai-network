@@ -19,10 +19,12 @@ function createFakeGitHubApi() {
   }];
   let nextIssueNumber = 100;
   const workflows = new Map();
+  const pullRequests = new Map();
 
   return {
     issues,
     workflows,
+    pullRequests,
     async request(path, options = {}) {
       const url = new URL(path, "https://api.github.com");
       const method = options.method ?? "GET";
@@ -38,6 +40,12 @@ function createFakeGitHubApi() {
         };
         issues.push(created);
         return structuredClone(created);
+      }
+      const pullMatch = /^\/repos\/owner\/repo\/pulls\/(\d+)$/.exec(url.pathname);
+      if (pullMatch && method === "GET") {
+        const pull = pullRequests.get(Number(pullMatch[1]));
+        if (!pull) throw new Error("Pull request not found");
+        return structuredClone(pull);
       }
       const workflowMatch = /^\/repos\/owner\/repo\/actions\/runs\/(\d+)$/.exec(url.pathname);
       if (workflowMatch && method === "GET") {
@@ -126,6 +134,15 @@ test("persists the complete worker-to-candidate lifecycle across controller rest
   });
   assert.equal(result.state.active_task, null);
   assert.equal(result.state.tasks[String(issueNumber)].status, "awaiting_ci");
+
+  api.pullRequests.set(88, {
+    number: 88,
+    state: "open",
+    body: "<!-- ai-task:42 -->",
+    user: { login: "owner" },
+    base: { ref: "main", repo: { full_name: repository } },
+    head: { ref: "ai-task/issue-42-abcdef123456", sha: candidateSha, repo: { full_name: repository } },
+  });
 
   result = await invoke({
     AGENT_FACTORY_MODE: "candidate-start",
@@ -221,6 +238,18 @@ test("durable scheduler completes a 24-task lifecycle simulation with idempotent
     });
     assert.equal(result.state.active_task, null);
 
+    api.pullRequests.set(pullRequestNumber, {
+      number: pullRequestNumber,
+      state: "open",
+      body: "<!-- ai-task:" + issue + " -->",
+      user: { login: "owner" },
+      base: { ref: "main", repo: { full_name: repository } },
+      head: {
+        ref: "ai-task/issue-" + issue + "-" + index.toString(16).padStart(12, "0"),
+        sha: headSha,
+        repo: { full_name: repository },
+      },
+    });
     result = await invoke({
       AGENT_FACTORY_MODE: "candidate-start",
       ISSUE_NUMBER: String(issue),
@@ -308,6 +337,14 @@ test("candidate failure recovers through backoff and retries the same open PR wi
     ISSUE_NUMBER: String(issue),
     AGENT_FACTORY_LEASE_ID: firstLease,
     NEXT_TASK_STATE: "awaiting_ci",
+  });
+  api.pullRequests.set(pullRequestNumber, {
+    number: pullRequestNumber,
+    state: "open",
+    body: "<!-- ai-task:42 -->",
+    user: { login: "owner" },
+    base: { ref: "main", repo: { full_name: repository } },
+    head: { ref: "ai-task/issue-42-abcdef123456", sha: firstSha, repo: { full_name: repository } },
   });
   await invoke({
     AGENT_FACTORY_MODE: "candidate-start",
