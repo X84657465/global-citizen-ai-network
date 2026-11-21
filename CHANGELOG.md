@@ -1,3 +1,9 @@
+## 0.3.108 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.77: validate parsed model-manifest roots and require `files` to be an array before iteration; malformed valid-JSON output is classified as a task-scoped failure.
+- Add regression coverage for null, arrays, primitives, missing files and non-array files. Preserve the strictest per-path output allowance for both token budgeting and UTF-8 byte enforcement.
+- No workflow permissions, production data, database schema, secrets, task state or deployment settings changed.
+
 ## 0.3.105 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.74: use the strictest matching implementer-task output allowance for each new file in both token-budget derivation and final UTF-8 byte enforcement.
