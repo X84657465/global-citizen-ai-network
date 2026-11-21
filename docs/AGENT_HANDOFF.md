@@ -213,3 +213,58 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 - Verified current main contains the same deterministic mismatch: `scripts/check-schema.mjs` expects `select plan(15)`, while `supabase/tests/public_table_grants.test.sql` declares `select plan(18)` and contains 18 assertions.
 - Opened PR #270 from current main with the minimal one-line guard alignment to `plan(18)`. It does not change or remove SQL assertions, runtime code, migrations, or production state.
 - PR #270 exact HEAD: `2982d0a98289a1ce2f0dbc1c36e34bd2bf479c1b`; keep Draft until its exact-head CI and independent review are complete.
+
+---
+
+## Live checkpoint — factory-first continuation / 2026-11-22
+
+**This section supersedes all older live-state snapshots above.** Historical run results remain valid only for their recorded exact SHAs; old PR numbers, branch divergence counts and test outcomes must not be reused as current acceptance evidence.
+
+### Canonical baseline and active candidates
+
+- Current `main` baseline verified for this development round: `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
+- No PR was merged during this round. A mergeable flag alone is not acceptance; keep both candidates Draft until exact-head gates, independent review and required release evidence are complete.
+
+#### A — PR #283, integrated Factory acceptance candidate
+
+- PR: https://github.com/X84657465/global-citizen-ai-network/pull/283
+- Current branch: `fix/A-retry-and-exact-head-test-contracts-20261122`
+- Current exact HEAD: `08202d1c92c38af76855c18dacbad242cd2f6fa6`
+- Exact-head Actions run #3341 / https://github.com/X84657465/global-citizen-ai-network/actions/runs/44960889694 is pending/queued; the Actions API returned no jobs assigned yet. Do not infer runner failure from an empty job list.
+- Parent SHA `a7eec4bbceb4fee4fb27b8769207bc181a9e8089`, run #3335 / `44959924607`, passed Windows quality, production build, isolated Supabase migrations, PostgreSQL/RLS pgTAP, two-member application RLS and Ollama/local inference. These results do not validate the later security migration.
+- Superseded run #3311 / `44958286138` was associated with prior snapshot `f5b79db6a1d311e9515fa7e7e7078fbc29823cd1` and failed unit tests (521/532 passed, 11 failed). Confirmed causes included Node 22 strip-only rejection of TypeScript parameter properties in the new F–P/G adapters, a malformed governance-review route test expression, and a stale P-governance wording assertion. Current HEAD contains compatibility/test corrections; require run #3341 to prove them.
+- Current HEAD includes `20261122000000_task_appeal_existence_privacy.sql`, which equalizes SQLSTATE/message for missing and foreign-owned submission references and checks authenticated appellant identity before reading target submission lifecycle state. Its expanded missing/foreign/spoofed-appellant regression test remains unvalidated until run #3341 completes.
+- No independent review submission or inline review thread exists on PR #283. Issue #136 remains open; its required independent read-only adversarial audit has not been delivered.
+- Vercel Preview is blocked by `api-deployments-free-per-day`; no same-HEAD READY Preview/smoke evidence is currently verified. Older Ready comments without a bound commit SHA are not acceptable.
+
+#### A — PR #285, runbook contract test correction
+
+- PR: https://github.com/X84657465/global-citizen-ai-network/pull/285
+- Current HEAD: `6b568e0c742c28e903376e8f3557f14b3f9921f6`
+- Scope remains one test file only: `tests/ci-trigger-policy.test.mjs`. The new commit updates the assertion to match the canonical runbook release-boundary wording; no workflow, Runner, runtime, durable state, secret, permission or production setting changed.
+- Prior exact-head run #3340 / `44960760724` passed dependency installation, Windows/Docker/Ollama checks, bounded local inference, migration/schema guards, both dependency audits and Factory script syntax. It failed one CI trigger/Runner policy assertion at `tests/ci-trigger-policy.test.mjs:438` because the test expected wording absent from the current runbook. Later unit/type/lint/build steps were skipped.
+- New exact-head run #3342 / https://github.com/X84657465/global-citizen-ai-network/actions/runs/44961088910 is pending/queued with no jobs assigned yet. No pass is claimed.
+- PR #285 has no formal review or inline review threads. Keep Draft until run #3342 and required review gates complete.
+
+### Factory scheduling and durable state
+
+- Machine-managed Issue #100 remains read-only; the last observed durable state version is 144. Do not edit the Issue, reset leases, retry timestamps, quarantine, processed-event keys or the global breaker manually.
+- The latest documented scheduled event is #44953122918 on main SHA `fc1933e669dd2d49300e45fa5d69bf63e906141f`, which ran before the recorded cooldown expiry and safely skipped queue selection because the breaker was active.
+- No post-cooldown scheduled run demonstrating task selection, lease reservation and lifecycle progression has been verified. The five-minute cron declaration alone is not proof of a healthy task cycle.
+- The shared Windows self-hosted Runner queue is active with other branch work. Both current exact-head CI runs are queued before job assignment; preserve existing serialization and do not manually dispatch, cancel or rerun to bypass the queue.
+
+### B — controlled handoff only
+
+- B Runtime remains inactive. Do not activate B routes, APIs, database access or Factory permissions while A acceptance is incomplete.
+- Previously inspected B candidate branches were heavily diverged from current main (approximately 402–446 commits behind). Do not merge or transplant those branches wholesale. Rebuild B from the accepted mainline after A is accepted; carry only the reviewed, sanitized A-to-B contract and its tests.
+
+### Immediate execution order
+
+1. Complete run #3341 on exact PR #283 HEAD, including quality, isolated database/RLS, Ollama/local execution and exact-SHA evidence; inspect every failed/skipped job rather than relying on run-level status.
+2. Complete run #3342 on exact PR #285 HEAD. If it fails, fix only the current test-contract mismatch; do not weaken workflow or Runner policy.
+3. Obtain the independent read-only adversarial report for Issue #136 against the explicitly requested current A integration baseline; do not substitute self-review or a COMMENTED review.
+4. Observe a normal post-cooldown scheduled run and verify safe queue selection/lease progression without mutating Issue #100.
+5. Resolve same-HEAD Preview evidence when Vercel quota permits. Do not upgrade or deploy to Production to work around the quota.
+6. Only after all A gates and operational acceptance pass, merge A under the required review process; then rebuild B from that accepted main SHA.
+
+**Safety boundary:** no production database mutation, secret/permission change, workflow/Runner policy change, paid AI activation, manual Factory-state edit, lease/cooldown reset, or Production deployment was performed in this round.
