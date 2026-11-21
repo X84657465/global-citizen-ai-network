@@ -1,6 +1,6 @@
 begin;
 
-select plan(17);
+select plan(18);
 
 select ok(
   not exists (
@@ -229,6 +229,17 @@ select ok(
       and (rolsuper or rolbypassrls)
   ),
   'API roles cannot bypass row-level security or act as superusers'
+);
+
+select ok(
+  not exists (
+    select 1
+    from pg_roles privileged
+    join pg_roles api on api.rolname in ('anon', 'authenticated')
+    where (privileged.rolsuper or privileged.rolbypassrls)
+      and pg_has_role(api.rolname, privileged.oid, 'MEMBER')
+  ),
+  'API roles cannot become members of any superuser or BYPASSRLS role, directly or transitively'
 );
 
 select * from finish();
