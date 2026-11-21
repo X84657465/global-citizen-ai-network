@@ -200,6 +200,22 @@ test("task-scoped CI failures register exact run evidence before candidate rejec
     "same-SHA rejected retries must not be recorded as a new candidate failure");
 });
 
+test("candidate callback failures cannot suppress system-breaker persistence", () => {
+  const { start, end } = findJobSection(workflow, "circuit-breaker");
+  const failure = workflow.slice(start, end);
+  const register = failure.indexOf("id: register-failed-candidate");
+  const candidateFailure = failure.indexOf("id: record-candidate-result");
+  const systemFailure = failure.indexOf("- name: Record system CI failure");
+  assert.ok(register >= 0 && candidateFailure > register && systemFailure > candidateFailure);
+  assert.ok(failure.slice(register, candidateFailure).includes("env.CI_FAILURE_SCOPE == 'task'"),
+    "candidate-start must not bind system-scoped infrastructure failures to a task CI run");
+  const systemStep = failure.slice(systemFailure);
+  assert.ok(systemStep.startsWith("- name: Record system CI failure\n        if: >-\n          always() &&"),
+    "system failure persistence must run even when an earlier callback step fails");
+  assert.ok(systemStep.includes("steps.register-failed-candidate.outcome == 'failure'"));
+  assert.ok(systemStep.includes("steps.record-candidate-result.outcome == 'failure'"));
+});
+
 test("CI never auto-approves or merges AI task pull requests; human approval is required", () => {
   assert.equal(workflow.includes("  auto-merge-ai-task:"), false);
   assert.equal(workflow.includes("markPullRequestReadyForReview"), false);
