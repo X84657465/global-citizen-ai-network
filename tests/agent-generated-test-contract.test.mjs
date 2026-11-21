@@ -100,3 +100,16 @@ test("accepts constrained TypeScript generic arrow functions", () => {
   ].join("\n");
   assert.equal(getGeneratedTestContractViolation("tests/generic.test.ts", source), null);
 });
+
+
+test("checks executable template expressions but ignores template text", () => {
+  const source = [
+    'import test from "node:test";',
+    'const example = \`plain template text jest.fn()\`;',
+    'const value = \`\${jest.fn()}\`;',
+  ].join("\n");
+  assert.match(
+    getGeneratedTestContractViolation("tests/template-expression.test.ts", source),
+    /Jest\/Vitest APIs/,
+  );
+});
