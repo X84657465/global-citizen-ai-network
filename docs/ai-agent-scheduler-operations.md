@@ -14,7 +14,7 @@ The body must contain these four second-level Markdown headings exactly once, in
 3. `## Acceptance criteria` — a bullet list of 1–15 observable checks.
 4. `## Explicit exclusions` — a bullet list of 1–15 things the worker must not change or do.
 
-Optional headings are `## Priority` (short `P0`–`P3` value) and `## Dependencies` (references to prerequisite Issue numbers). Do not add other section headings. Each required list must contain bullets only; indented code blocks are not accepted as task directives. The Issue body is treated as untrusted data.
+On the integrated `main` baseline, the only optional headings are `## Priority` (short `P0`–`P3` value) and `## Dependencies` (references to prerequisite Issue numbers). Do not add other section headings to tasks processed by that baseline. The newer A 2.0.75 candidate in PR #192 additionally recognizes `## Confirmed evidence`, `## Finding and required behavior`, and `## Retry scope refinement — YYYY-MM-DD` as supplemental untrusted context; that parser is not active on `main` until its dependent A stack is accepted and integrated. Until then, do not submit those supplemental headings to the current worker. In all versions, the four required sections remain mandatory, duplicate and unrecognized headings are rejected, each required list must contain bullets only, indented code blocks are not accepted as task directives, and the entire Issue body is treated as untrusted data.
 
 Example structure:
 
