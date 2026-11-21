@@ -174,3 +174,42 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 5. Preserve the factory's scheduled queue/Runner path. Do not manually dispatch tasks, duplicate work, alter workflow settings, or mutate Issue #100 counters, leases, cooldowns or quarantine.
 
 **Factory-first charter remains:** stabilize Agent Factory V2, then enable GCAN Product to create revenue, then expand the global AI ecosystem.
+
+
+## Live checkpoint after PR #268 merge — 2026-11-22
+
+### Main / K handoff
+- Current `main` HEAD: `c7af9d1995ef4206203bcb498e2966558f035b23` (merge commit for documentation-only PR #268).
+- PR #268 is closed/merged at `c7af9d1995ef4206203bcb498e2966558f035b23`. Its merge is **not acceptance**: exact-head Actions run #3243 (`44949837137`) for PR head `fbacb1e7e1de0b43f8471f5013a1da8df828b8cd` completed with **failure** in Windows quality gates. The exact failure is `scripts/check-schema.mjs:590`: the guard expects `select plan(15)` while `supabase/tests/public_table_grants.test.sql` declares `select plan(18)`. The Ollama and Supabase integration jobs were skipped after the quality-gate failure. Exact-head Vercel status remained `build-rate-limit`; no formal independent review was recorded. Do not claim CI or release acceptance for #268.
+- The current handoff document was stale immediately after #268 merged; this section supersedes older main/PR state snapshots above. Refresh it after each new merge.
+
+### A — Agent Factory V2
+- PR #259 exact candidate HEAD: `3330cd04a77358cf0ff780940d09f938cab1dc3a`; exact-head Actions run #3239 (`44949425719`) completed with overall **success**. Metadata resolver, Windows Runner quality, Supabase/PostgreSQL/RLS integration, and Ollama/local execution integration all passed.
+- The successful run validates that candidate SHA only. PR #259 remains Draft/open/unmerged and GitHub reports `mergeable=false`.
+- The candidate's recorded base is stale at `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`. Comparing current main `c7af9d1995ef4206203bcb498e2966558f035b23` with candidate HEAD reports **diverged**: candidate ahead 111 commits / behind 140. Do not merge, force-retarget, or copy the 40-file diff wholesale.
+- Required next step: compare each candidate change with current main and selectively transplant only still-needed A fixes onto a fresh branch from current main. Resolve overlaps explicitly, then run all required checks against the new exact SHA.
+- Candidate's exact-SHA Vercel status is still `build-rate-limit`; no READY Preview/current-SHA smoke evidence.
+- Independent formal approval reviews: 0. One COMMENTED review is not approval; it identifies that `tests/fp/governance-review-route.test.ts` uses source-text assertions instead of invoking the route handler and asserting response status/body/security headers. Add runtime tests or accurately narrow the claim before acceptance.
+
+### Independent audit
+- Issue #136 remains open and the required read-only adversarial audit is outstanding for current integrated main plus the current A candidate. The latest update records the terminal exact-head CI success and requests the audit under the original read-only restrictions.
+- Owner-side inspection, green CI and COMMENTED feedback do not substitute for the independent report.
+
+### B and F–P
+- B remains preparation-only. No B runtime/API/database access or Factory permissions are activated. Rebuild B only from an accepted A baseline and a reviewed, versioned, read-only projection.
+- F–P remain limited to concrete A/B integration blockers. Do not promote stale/diverged branches or port failed PRs wholesale.
+
+### Immediate execution order
+1. Selectively reconcile the A candidate changes against current main; do not merge #259 as-is.
+2. Close the P governance route runtime-test evidence gap.
+3. Obtain Issue #136 independent read-only audit and triage findings.
+4. Re-run exact-head Actions and obtain same-SHA READY Preview/smoke evidence for the rebuilt candidate.
+5. Only after independent review and all acceptance gates pass, integrate A and then rebuild B.
+
+**Safety:** no production deployment, production-data mutation, secret/permission change, machine-managed Factory issue mutation, lease/retry/quarantine/cooldown reset, or Runner/workflow policy change is authorized by this handoff.
+
+
+### Schema guard follow-up
+- Verified current main contains the same deterministic mismatch: `scripts/check-schema.mjs` expects `select plan(15)`, while `supabase/tests/public_table_grants.test.sql` declares `select plan(18)` and contains 18 assertions.
+- Opened PR #270 from current main with the minimal one-line guard alignment to `plan(18)`. It does not change or remove SQL assertions, runtime code, migrations, or production state.
+- PR #270 exact HEAD: `2982d0a98289a1ce2f0dbc1c36e34bd2bf479c1b`; keep Draft until its exact-head CI and independent review are complete.
