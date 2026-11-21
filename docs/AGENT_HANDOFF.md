@@ -67,12 +67,10 @@ F–P manifest registration or a “ready” label is not implementation accepta
 - PR #267 is closed without merge after exact Git blob comparisons confirmed its shared package-lock/version changes are already included in consolidated PR #259.
 - No unique code or dependency artifact was discarded. Do not reopen or merge it separately; validate the shared baseline only through #259's final exact SHA.
 
-### PR #266 — K handoff refresh candidate
+### PR #266 — superseded K handoff candidate
 
-- Branch `docs/reconcile-fg-mainline-acceptance-20261122`, head `a571b33c43b0f5654401885cc98e1185d2be2149`.
-- Compared with current main: diverged, 2 commits ahead and 83 behind. Do not merge this stale branch wholesale.
-- Its exact-head run [44926244085](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44926244085) had resolver success but all substantive jobs skipped. Vercel quota failure remains. This is not acceptance evidence.
-- This handoff refresh is based on current main and current exact-head observations; selectively port documentation only if needed.
+- Closed without merge as superseded by PR #268.
+- It changed only `docs/AGENT_HANDOFF.md`; its older handoff snapshot and failed Schema Safety Guard CI are not current acceptance evidence. No runtime or accepted code was discarded.
 
 ## 4. Acceptance rules and operating safety
 
@@ -119,7 +117,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 1. **A first:** validate #259 exact head `373ba6f41b5a995b1efd871859f569312256361d` on run [44946287444](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946287444). Resolver metadata is pending; substantive jobs have not started.
 2. **A risk-intent integration:** the two files from #261 are now included in #259; #261 is closed as redundant. Do not use its old failed CI as evidence for the consolidated candidate.
 3. **Shared baseline:** #267 is closed as redundant and its package-lock/version changes are carried by #259. No separate merge is required.
-4. **K support:** keep #268's handoff aligned with verified PR/main state. Its current head remains `127de3547edebedd1265bee7082959dd804d8ded`; docs CI run [44945572523](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945572523) is pending with no jobs returned. No independent review is recorded.
+4. **K support:** keep #268's handoff aligned with verified PR/main state. Its current head is `d3b9883d087d78d59e13dcba5afd05c6d427ae2c`; the latest exact-head CI run must be refreshed after this documentation commit. No independent review is recorded.
 5. **F–P:** address only concrete A acceptance or B contract blockers; do not expand unrelated workstreams.
 6. **B preparation:** retain the read-only, versioned adapter proposal. Do not activate B runtime/API/database access until A is accepted and integrated.
 
