@@ -395,7 +395,7 @@ http://localhost:3000
 - Windows Self-hosted Runner Toolchain Checks
 - Docker／Ollama Availability 與有界結構化推論
 
-最新 CI 請以各 PR 最新 exact-head 工作流程為準；A 工廠 PR #178（`58c88e348264d34dd0ecf83b3bba68fbc83c1370`，Run #44837733094）完整 CI 通過，仍待獨立正式審查；A–P 治理 PR #189 的最新 SHA `4c28d2c1b38d2ba9c508d61e0c63c3b398d0ed58` 正等待 Runner 執行。B PR #181 仍待治理基線接受後重新銜接及新 SHA 驗收。CI 通過不代表 PR 已合併。
+最新 CI 請以各 PR 最新 exact-head 工作流程為準；A 工廠 PR #178（`58c88e348264d34dd0ecf83b3bba68fbc83c1370`，Run #44837733094）完整 CI 通過，仍待獨立正式審查；A–P 治理 PR #189 的最新 SHA 仍在 Runner 佇列，請以 PR #189 顯示的最新 Actions 為準，尚未宣告通過。B PR #181 仍待治理基線接受後重新銜接及新 SHA 驗收。CI 通過不代表 PR 已合併。
 
 ## 📚 文件導覽
 
