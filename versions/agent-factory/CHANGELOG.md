@@ -1,3 +1,14 @@
+## 2.0.78 — 2026-11-21
+
+### Fixed — Preserve approved supplemental task context across model stages
+- Preserve the explicitly supported `Confirmed evidence`, `Finding and required behavior`, and valid dated `Retry scope refinement — YYYY-MM-DD` sections.
+- Keep the four mandatory task sections, path allowlists, duplicate/unknown-heading rejection and untrusted-data boundaries unchanged.
+- Share a single validated context projection between planning and patch generation so approved evidence is not dropped between stages.
+- Rebase onto A 2.0.77, retaining strictest per-path output byte limits and malformed patch-manifest shape guards.
+
+### Verification
+- Fresh exact-head CI, Windows Runner/Ollama, disposable PostgreSQL/RLS, Vercel and independent formal review remain required.
+
 ## 2.0.77 — 2026-11-21
 
 ### Fixed — Classify malformed model manifest shapes as task failures
