@@ -1,3 +1,14 @@
+## 0.1.15 — 2026-11-21
+
+### Improved — Align homepage visuals with A–P architecture
+- Replace the legacy five-workstream diagram in the public homepage with a 16-workstream A–P architecture visual.
+- Keep P visually distinct as the cross-cutting Governance, Ethics & Trust layer over A–O.
+- Update the repository landing page navigation and maturity wording to match the public homepage.
+
+### Verification
+- Static source checks confirm A–P labels and matching public/documentation SVG assets.
+- Exact-head CI, Vercel preview and desktop/mobile visual acceptance remain outstanding; no production deployment is claimed.
+
 ## 0.1.14 — 2026-11-21
 
 ### Improved — Align public homepage with A–E + P architecture
