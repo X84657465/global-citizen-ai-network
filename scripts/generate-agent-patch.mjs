@@ -11,7 +11,7 @@ import { resolve, sep } from "node:path";
 import { resolveSafeExistingParent } from "../lib/agent-path-safety.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStreamWithRetry } from "../lib/ollama-generate-stream.mjs";
-import { calculateNewFilePatchOutputTokenBudget, calculatePatchOutputTokenBudget, selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
+import { calculateNewFilePatchOutputTokenBudget, calculatePatchOutputTokenBudget, getMinimumPlannedOutputBytesForPath, selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 import { markAgentFactoryTaskFailure } from "../lib/agent-failure-scope.mjs";
 
 const fail = (message, scope = "system") => {
@@ -203,12 +203,14 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
     .filter((item) => item.allowed_paths.length > 0);
 
   const isNewFileBatch = batchSourceFiles.some((file) => file.operation === "add");
-  const plannedOutputBytes = implementationPlan.length > 0
-    ? Math.min(...implementationPlan.map((item) => item.max_output_bytes))
-    : 8192;
-  // New files have no source-size signal. Use the validated plan's byte
-  // allowance as a bounded token ceiling; the exact UTF-8 byte limit is
-  // enforced against the completed file before the patch can be accepted.
+  const plannedOutputBytes = isNewFileBatch
+    ? getMinimumPlannedOutputBytesForPath(implementationPlan, batchPaths[0])
+    : null;
+  if (isNewFileBatch && !Number.isSafeInteger(plannedOutputBytes)) {
+    failTask("No valid per-file output allowance was found for the new-file patch batch.");
+  }
+  // Derive the token ceiling from the same strictest per-file plan allowance
+  // enforced below, independent of implementer task ordering.
   const outputTokenBudget = isNewFileBatch
     ? calculatePatchOutputTokenBudget(batchSourceBytes, calculateNewFilePatchOutputTokenBudget(plannedOutputBytes))
     : calculatePatchOutputTokenBudget(batchSourceBytes);
@@ -320,12 +322,11 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
 
   for (const file of candidate.files ?? []) {
     if (file?.operation === "add") {
-      const matchingPlan = implementationPlan.find((item) =>
-        item.allowed_paths.some((path) => path.toLowerCase() === String(file.path ?? "").toLowerCase()),
-      );
-      const maxOutputBytes = matchingPlan?.max_output_bytes;
-      if (Number.isInteger(maxOutputBytes) &&
-          Buffer.byteLength(typeof file.content === "string" ? file.content : "", "utf8") > maxOutputBytes) {
+      const maxOutputBytes = getMinimumPlannedOutputBytesForPath(implementationPlan, String(file.path ?? ""));
+      if (!Number.isSafeInteger(maxOutputBytes)) {
+        failTask("No valid per-file output allowance was found for " + String(file.path) + ".");
+      }
+      if (Buffer.byteLength(typeof file.content === "string" ? file.content : "", "utf8") > maxOutputBytes) {
         failTask("New file proposal exceeded its planned output limit for " + String(file.path) + ".");
       }
     }
