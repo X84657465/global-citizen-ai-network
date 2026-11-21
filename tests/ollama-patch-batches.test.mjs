@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateNewFilePatchOutputTokenBudget, calculatePatchOutputTokenBudget, splitPatchPathsIntoBatches, selectPatchBatchSourceFiles } from "../lib/ollama-patch-batches.mjs";
+import { calculateNewFilePatchOutputTokenBudget, calculatePatchOutputTokenBudget, getMinimumPlannedOutputBytesForPath, splitPatchPathsIntoBatches, selectPatchBatchSourceFiles } from "../lib/ollama-patch-batches.mjs";
 
 test("splits large patch plans into one-file batches without reordering paths", () => {
   const paths = ["app/a.tsx", "app/b.tsx", "tests/a.test.ts", "docs/a.md"];
@@ -47,6 +47,18 @@ test("uses the full validated byte allowance as the bounded new-file token ceili
   for (const value of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
     assert.throws(() => calculateNewFilePatchOutputTokenBudget(value), /positive safe integer/);
   }
+});
+
+test("uses the strictest per-file output allowance independent of implementer task order", () => {
+  const path = "src/generated.ts";
+  const tasks = [
+    { allowed_paths: [path], max_output_bytes: 8192 },
+    { allowed_paths: [path.toUpperCase()], max_output_bytes: 4096 },
+  ];
+  assert.equal(getMinimumPlannedOutputBytesForPath(tasks, path), 4096);
+  assert.equal(getMinimumPlannedOutputBytesForPath([...tasks].reverse(), path), 4096);
+  assert.equal(getMinimumPlannedOutputBytesForPath([{ allowed_paths: ["src/other.ts"], max_output_bytes: 1024 }], path), null);
+  assert.throws(() => getMinimumPlannedOutputBytesForPath([{ allowed_paths: [path], max_output_bytes: 0 }], path), /positive safe-integer/);
 });
 
 test("rejects invalid Ollama patch output budget inputs", () => {
