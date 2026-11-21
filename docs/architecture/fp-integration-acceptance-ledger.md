@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `4d3653b3da766ae3910aeef39bd840d2e6de30dd`  
+**Baseline:** `main` at `40e0e6902ccd35e6daa77f2f7a339ba00f92fab3`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -44,7 +44,14 @@
 
 `F → G → H → P` establishes the security, release-evidence, observability and governance floor. I/J/M/N/O/K then integrate against those stable contracts. L remains deferred and is not on the activation critical path.
 
-## 5. Latest P governance implementation slice (2026-11-22)\n\n- Governance policy advances to `gcan-fp-governance/2`; review records are now tied to the exact candidate SHA and carry opaque review, reviewer and host authorization references.\n- The evaluator selects each reviewer’s latest decision, rejects stale review evidence, flags same-time conflicting decisions, and does not count a review unless the trusted host attests that reviewer authorization was verified.\n- This is a provenance contract, not reviewer authentication: the host must independently verify repository permissions. An `approved` review remains descriptive and never grants governance approval, merge, execution or deployment authority.\n- Added regression tests for stale reviews, unverified reviewers, latest-decision semantics, conflicting decisions, unsafe/duplicate references and bounded input size.\n\n## 6. Latest F–G implementation slice (2026-11-22)
+## 5. Latest P governance implementation slice (2026-11-22)
+
+- Governance policy advances to `gcan-fp-governance/2`; review records are now tied to the exact candidate SHA and carry opaque review, reviewer and host authorization references.
+- The evaluator selects each reviewer’s latest decision, rejects stale review evidence, flags same-time conflicting decisions, and does not count a review unless the trusted host attests that reviewer authorization was verified.
+- This is a provenance contract, not reviewer authentication: the host must independently verify repository permissions. An `approved` review remains descriptive and never grants governance approval, merge, execution or deployment authority.
+- Added regression tests for stale reviews, unverified reviewers, latest-decision semantics, conflicting decisions, unsafe/duplicate references and bounded input size.
+
+## 6. Latest F–G implementation slice (2026-11-22)
 
 - Added `lib/fp/f-g-integration-assurance.ts` to evaluate F security controls and G required release jobs as one evidence bundle.
 - The evaluator rejects mismatched repository/PR/candidate SHA and mismatched GitHub Actions run ID or attempt. Missing F evidence remains incomplete; failed registered F controls or required G jobs block the integrated result.
