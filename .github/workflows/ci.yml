@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, feat/github-project-showcase, fix/agent-factory-add-output-budget-20261121, chore/reconcile-ap-governance-on-a-2.0.70-20261121, chore/ap-governance-on-integrated-main-20261121, chore/migration-verification-on-integrated-governance-20261121, feat/b-mainline-on-integrated-migration-20261121]
+    branches: [main, feat/github-project-showcase, chore/ap-governance-on-integrated-main-20261121, chore/migration-verification-on-integrated-governance-20261121, feat/b-mainline-on-integrated-migration-20261121]
     types: [opened, reopened, synchronize]
   repository_dispatch:
     types: [ai-task-ci]
