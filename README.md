@@ -8,13 +8,13 @@
 
 [產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.77）](https://github.com/X84657465/global-citizen-ai-network/pull/190) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=feat%2Fagent-factory-v2)
+![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Engineering-3178C6?logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.109` · A 線 Agent Factory V2 `2.0.77`（新檔案輸出預算校正、畸形 Manifest 任務級分類） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.110` · A 線 Agent Factory V2 `2.0.78`（工廠首頁資訊架構與操作入口更新） · B 線 GCAN Product `0.1.14`（官網首頁 A–E 主線與 P 治理導覽更新） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -22,25 +22,27 @@
 
 
 
-## 🔎 最新五線驗證狀態｜2026-11-20
+## 🧭 專案架構與驗證原則｜2026-11-21
 
-| 主線 | PR | 最新已查核 CI | 狀態 |
-|---|---:|---|---|
-| A｜Agent Factory V2 | [#134](https://github.com/X84657465/global-citizen-ai-network/pull/134) | [Run #44721263122](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44721263122) | 前一 exact SHA 完整 CI 通過；本次新增的 A 線 synthetic Runner preflight 觸發仍待驗收 |
-| B｜GCAN Product | [#137](https://github.com/X84657465/global-citizen-ai-network/pull/137) | [Run #44580554679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580554679) | 該提交 CI 通過 |
-| C｜Predictive Coding | [#139](https://github.com/X84657465/global-citizen-ai-network/pull/139) | [Run #44580087470](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580087470) | 該提交 CI 通過 |
-| D｜Deep Neural | [#140](https://github.com/X84657465/global-citizen-ai-network/pull/140) | [Run #44580264020](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580264020) | 該提交 CI 通過 |
-| E｜Deep Research | [#141](https://github.com/X84657465/global-citizen-ai-network/pull/141) | [Run #44580352440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580352440) | 該提交 CI 通過 |
+| 範圍 | 責任 | 公開狀態說明 |
+|---|---|---|
+| A｜Agent Factory V2 | 任務規劃、隔離執行、測試、候選交付與復原 | 工程工廠持續開發；每次驗收以精確 SHA 與 CI 結果為準 |
+| B｜GCAN Product | 使用者入口、AI 工作空間、知識貢獻與平台流程 | MVP 建置中；登入、AI 供應商與資料持久化依環境設定逐項驗證 |
+| C｜Predictive Coding | 預測、觀測、誤差量測、校準與更新提案 | 工作台／研究能力逐步建置，示範資料不代表正式資料服務 |
+| D｜Deep Neural | 知識記憶、證據檢索、推理與品質評估 | 原型與整合候選；不宣稱已完成正式持久化 |
+| E｜Deep Research | 多來源研究、佐證與反證、引用式綜整 | 工作台候選；外部服務與來源查核依驗收結果開放 |
+| P｜Governance, Ethics & Trust | 對 A–E 與整體產品適用的安全、隱私、倫理、稽核與人工責任 | 橫向治理規範，不是已全面上線的獨立產品功能 |
 
-**注意：** 上表 CI 結果只代表各自列出的 exact commit；任何後續更新都必須重新驗證。五個 PR 目前均為 Draft，尚未合併。介面中的示範資料不代表已接通正式資料來源或持久化服務。
+**驗證原則：** CI 必須對應實際候選提交的精確 SHA；舊提交通過不代表新提交通過。網站預覽、示範數據與工作台原型均不等於正式營運或正式部署。
 
-### 五線入口
+### A–E 主線入口與 P 治理
 
 - A｜[Agent Factory V2 工廠控制台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2)
 - B｜[GCAN Product 產品線](https://github.com/X84657465/global-citizen-ai-network/tree/feat/gcan-product-homepage)
 - C｜[Predictive Coding 預測編碼](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
 - D｜[Deep Neural 深度神經工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core)
 - E｜[Deep Research 深度研究工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
+- P｜[工程治理規範](docs/engineering-governance.md)（橫向適用於所有工作線與正式產品流程）
 
 ## 🧭 快速導覽
 
