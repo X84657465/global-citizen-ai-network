@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { TaskValidationError, validateAndBuildTask } from "../lib/agent-task-validation.mjs";
+import { TaskValidationError, buildAgentTaskContext, validateAndBuildTask } from "../lib/agent-task-validation.mjs";
 import { extractTaskDependencyNumbers, taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
 
 const validIssue = (overrides = {}) => ({
@@ -334,6 +334,16 @@ Keep the existing acceptance criteria and constrain the implementation output.
     "Finding and required behavior": "Preserve required task sections and keep path validation fail-closed.",
     "Retry scope refinement — 2026-11-21": "Keep the existing acceptance criteria and constrain the implementation output.",
   });
+  assert.deepEqual(buildAgentTaskContext(task), {
+    goal: task.goal,
+    acceptance_criteria: task.acceptance_criteria,
+    explicit_exclusions: task.explicit_exclusions,
+    additional_context: task.additional_context,
+  });
+  assert.deepEqual(
+    buildAgentTaskContext({ ...task, additional_context: undefined }).additional_context,
+    {},
+  );
 });
 
 test("rejects duplicate supplemental context sections and still rejects unknown headings", () => {
