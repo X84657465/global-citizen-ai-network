@@ -1,3 +1,56 @@
+## 0.3.46 — 2026-11-20
+
+### Fixed — CI Base-Branch Allowlist
+- Correct the downstream G pull-request branch filter so the G integration branch is an item inside the YAML branch array.
+- Keep the CI trigger-policy regression assertion aligned with the exact valid workflow syntax.
+
+### Verification
+- Exact-head CI is required; the corrected trigger policy is not itself a passing test result.
+
+## 0.3.45 — 2026-11-20
+
+### Fixed — Stacked PR CI Dispatch
+- Allow pull requests targeting the G integration branch to run the same exact-head Windows Runner CI workflow.
+- Add a regression assertion so future dependent workstream PRs cannot silently miss the CI branch filter.
+
+### Verification
+- Exact-head CI is required on the updated G branch; this dispatch policy change is not itself a test pass.
+
+## 0.3.44 — 2026-11-20
+
+### Added — G Release Evidence Contract
+- Add a dependency-free validator for repository, track, PR, base/head SHA, timezone-qualified timestamp and exact CI run provenance.
+- Reject unknown fields, duplicate check names and required gates, stale expected identity, pending/failed checks, malformed run metadata and invalid timezone offsets.
+- Add regression tests and a documented trust boundary: evidence structure is validated locally; workflow authenticity must be independently verified by a trusted caller.
+- Rebase the G implementation slice onto the latest A–P governance integration baseline to avoid a stale stacked-PR base.
+
+### Verification
+- The new G branch is based on the current A–P governance head.
+- Exact-head Windows Runner CI remains required; no test pass or release acceptance is claimed.
+
+## 0.3.43 — 2026-11-20
+
+### Fixed — dependent-branch CI dispatch
+- Include the A–P governance integration branch in the base-branch pull-request CI allowlist.
+- Add a policy regression assertion so stacked G implementation PRs receive the full exact-head validation workflow.
+
+### Verification
+- This change enables CI dispatch; it does not claim that a workflow run has passed.
+- Exact-head Windows Runner CI remains required.
+
+## 0.3.42 — 2026-11-20
+
+### Architecture — G–P workstream expansion
+- Define A–P ownership boundaries, non-goals, cross-track interfaces and staged implementation dependencies.
+- Establish G/H/K as the first enabling foundations: integration gates, telemetry/resource governance and operational knowledge.
+- Defer I/N/O until the core controls are stable; defer L until measured capacity evidence and security approval exist.
+- Define J/M/P resilience, audit and autonomy acceptance gates without weakening F security controls.
+- Add regression coverage ensuring G–P remain explicitly planned until implementation evidence is delivered.
+
+### Verification
+- Static GitHub write/read-back is required for this branch.
+- Exact-head Windows Runner CI remains pending; no operational readiness is claimed.
+
 ## 0.3.41 — 2026-11-20
 
 ### Added — F Cyber Security & Defense

@@ -1,111 +1,90 @@
-# Six-Track Engineering Governance
+# A–P Engineering Governance
 
-**Governance revision: 1.5.0**  
-**Repository release baseline: 0.3.41**
+**Governance revision: 2.0.0**  
+**Repository release baseline: 0.3.42**  
+**Architecture detail:** [A–P Engineering Workstream Architecture](engineering-workstreams.md)
 
-## 1. Five development tracks
+## 1. Track ownership
+
+GCAN has sixteen defined workstream boundaries. A–F retain their existing engineering ownership; G–P are planned until implementation evidence and acceptance gates are delivered.
 
 | Track | Scope | Primary responsibility |
 |---|---|---|
-| A — Agent Factory V2 | Autonomous engineering workflow | Task lifecycle, isolated patch generation, CI, recovery, evidence |
+| A — Agent Factory V2 | Autonomous engineering workflow | Task lifecycle, isolated patch generation, CI, recovery and evidence |
 | B — Global Citizen AI Network | Public product | User experience, AI workspace, contribution workflows, ledger and platform |
-| C — Predictive Coding（預測編碼） | Predictive processing and prediction-error learning | Build explicit prediction, observation, error comparison and model-update loops; publish measurable signals to the other tracks |
-| D — Deep Neural | Neural intelligence foundation | Memory, reasoning, evaluation, knowledge integration and cross-track learning |
-| E — Deep Research（深度研究） | Research and evidence synthesis | Multi-source retrieval, source provenance and quality, corroboration, counter-evidence, cited synthesis and actionable research reports |
-| F — Cyber Security & Defense | Cross-track security assurance | Threat modeling, secure defaults, adversarial validation, vulnerability response, incident readiness and release security gates |
+| C — Predictive Coding | Predictive processing | Predictions, observations, error measurement, calibration and drift |
+| D — Deep Neural | Knowledge and reasoning | Provenance-aware memory, reasoning, evaluation and reviewed learning proposals |
+| E — Deep Research | Research and evidence synthesis | Multi-source research, source quality, corroboration, counter-evidence and cited reports |
+| F — Cyber Security & Defense | Cross-track security | Threat model, minimum controls, adversarial validation, vulnerability response and incident readiness |
+| G — Release, QA & Integration | Integration quality | Compatibility matrix, release gates, regression suites and exact-SHA evidence |
+| H — Observability & Cost Governance | Operations visibility | Queue/Runner telemetry, failure taxonomy, quotas, cost provenance and alerts |
+| I — Ecosystem & Connectors | External integration | Authenticated APIs, webhooks, synchronization and replay-safe automation |
+| J — Self-Healing & Continuity | Reliability | Bounded recovery, degradation, checkpoints, backup/restore and fault drills |
+| K — Knowledge & Playbooks | Operational knowledge | Architecture records, runbooks, handoffs, decisions and troubleshooting |
+| L — Multi-Node Coordination | Future distributed execution | Opt-in nodes, capability scheduling, leases, fencing and health |
+| M — Compliance & Risk Audit | Assurance evidence | Audit trails, policy checks, risk register and expiring exceptions |
+| N — Productization & Analytics | Product outcomes | Privacy-aware metrics, feedback loops, onboarding and ecosystem operations |
+| O — Lifecycle & Deprecation | Legacy retirement | Migration, compatibility windows, deprecation and safe removal |
+| P — Governance & Trust | Autonomy governance | Human approval thresholds, ethics, trust rules and cross-track arbitration |
 
-Each track owns its own branch, work items, version history, tests and acceptance evidence. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
+A track owns its own roadmap and implementation. It does not silently modify another track's code, configuration, database or policy. Shared changes require explicit receiving-owner review.
 
 ## 2. Numeric version policy
 
-Use numeric `MAJOR.MINOR.PATCH` only. Do not use words such as alpha, beta or rc as version identifiers.
+Use numeric `MAJOR.MINOR.PATCH` only. Do not use alpha, beta or rc labels as version identifiers.
 
-- **MAJOR**: incompatible architecture or contract change; reset MINOR and PATCH to zero.
-- **MINOR**: backward-compatible capability or subsystem addition; reset PATCH to zero.
-- **PATCH**: every smaller improvement, defect fix, documentation correction that changes an operational rule, or test/quality improvement.
+- **MAJOR**: incompatible architecture or contract change.
+- **MINOR**: backward-compatible capability or subsystem addition.
+- **PATCH**: smaller improvements, defect fixes, documentation changes to operational rules, and test/quality improvements.
 
-Examples: `1.2.4 → 2.0.0`, `1.2.4 → 1.3.0`, `1.2.4 → 1.2.5`.
-
-Every release must update the relevant track version, the overall integration version when shared behavior/contracts change, and `CHANGELOG.md`. The authoritative current values are in `VERSION` and `versions/manifest.json`. Git tags use the exact numeric version, for example `v0.1.1`; tags are created only after the release candidate has passed its required checks and human review.
+Every release updates the authoritative `VERSION`, `versions/manifest.json` and `CHANGELOG.md`; package metadata and lockfile root metadata must remain synchronized. Track versions advance independently when that track changes. A planned track version is a planning baseline, not a shipped release.
 
 A version bump is not evidence of completion. Acceptance requires exact commit SHA, tests, CI outcome, reviewer decision and rollback instructions.
 
-## 3. Cross-track learning and support
+## 3. Cross-track contracts
 
-Tracks A, B, C, D, E and F must exchange reusable knowledge through reviewed, versioned artifacts:
+- Task/event schemas include correlation ID, task ID, attempt, track, branch and commit SHA.
+- Shared API/module boundaries are versioned and have explicit owners.
+- Retry semantics are bounded and distinguish task failures from infrastructure failures.
+- Evidence records repository, branch, exact SHA, command, result, timestamp and actor.
+- Security/privacy classification applies to shared knowledge and telemetry.
+- External events are untrusted; authentication, schema validation, replay protection and idempotency are mandatory.
+- Cross-track learning proposals include source evidence, affected tracks, expected benefit, risk, validation plan and receiving-owner decision.
 
-1. A publishes engineering patterns, test fixtures, failure classifications, recovery playbooks and verified automation capabilities.
-2. B contributes real product workflows, user-facing requirements, usability findings and operational constraints.
-3. C (Predictive Coding) publishes explicit predictions, observed outcomes, prediction-error measurements, confidence/calibration data and tested model-update rules. It helps A anticipate task failures, B anticipate user/product needs and D prioritize memory/reasoning updates.
-4. D (Deep Neural) maintains provenance-aware memory, integrates evidence, reasons over uncertainty and proposes reusable learning/evaluation strategies. It returns reviewed knowledge to A/B/C/E.
-5. E (Deep Research) conducts multi-source research, checks source provenance and freshness, seeks corroboration and counter-evidence, and publishes cited findings and actionable recommendations to A/B/C/D/F.
-6. F (Cyber Security & Defense) maintains the cross-track threat model, minimum security controls, adversarial regression tests, vulnerability triage and incident-response readiness; it reviews high-risk changes while each track retains responsibility for fixing its own code and operations.
+## 4. Dependency sequence
 
-### Six-track mutual-support loop
+1. Preserve A–F and complete F's security acceptance independently.
+2. Establish G/H/K foundations: integration gates, observability/resource governance and operational playbooks.
+3. Add J/M/P resilience, audit and autonomy governance after observability is reliable.
+4. Add I/N/O after core security and integration contracts stabilize.
+5. Defer L until measured capacity evidence, explicit approval and independent security review justify multi-node execution.
 
-- **A → B/C/D:** verified automation, reproducible builds, test evidence, failure taxonomy and recovery playbooks.
-- **B → A/C/D:** real product workflows, user feedback, operational constraints, usage patterns and measurable outcomes.
-- **C → A/B/D:** predictions, prediction errors, uncertainty/calibration signals, drift indicators and experimentally validated update rules.
-- **D → A/B/C/E:** reviewed memory, cross-domain synthesis, reasoning plans, evidence retrieval and evaluation recommendations.
-- **E → A/B/C/D/F:** sourced research, verification methods, counter-evidence, source-quality assessments and cited synthesis.
-- **F → A/B/C/D/E:** threat intelligence, security requirements, adversarial fixtures, vulnerability findings and incident lessons.
-- **All tracks → all tracks:** changes are proposed as versioned artifacts, reviewed by the receiving owner, tested against that track's acceptance criteria and adopted explicitly.
+The detailed deliverables and exit criteria are maintained in [engineering-workstreams.md](engineering-workstreams.md).
 
-The shared loop is **observe → predict → act → measure outcome → calculate prediction error → explain/store evidence → revise model or plan → test → publish → adopt → monitor**. Prediction error is a learning signal, not automatic permission to mutate production systems.
+## 5. Release and safety gates
 
-No track is a subordinate of another. Each owns its roadmap and release; shared work is coordinated through documented interfaces, dependency records and cross-track PRs.
+- Unit tests, type checking, lint, production build and relevant database/RLS tests must pass.
+- CI evidence must match the exact PR head SHA; pending, missing or stale checks are not passes.
+- F security controls apply to every track. Each track remains responsible for fixing its own vulnerabilities.
+- Runner jobs are bounded and serialized according to the shared queue policy.
+- Secrets never enter prompts, client bundles, logs, artifacts or docs.
+- No automatic approval, merge, production deployment, destructive operation or production data migration.
+- Production chaos testing and distributed compute require separate explicit authorization.
+- No new server or Runner is assumed by the roadmap.
 
-The learning loop is: **observe → record evidence → classify → review → generalize → test → publish → adopt → measure**.
+## 6. Required change record
 
-No track may silently rewrite another track's code, configuration, database or policy. Reuse occurs through explicit interfaces, reviewed PRs and compatibility tests. Unverified model output is a proposal, never an authoritative fact.
+Every change records old/new numeric versions, affected tracks, objective, non-goals, dependencies, allowed paths, acceptance tests, exact tested SHA, CI state, security/privacy impact, resource budget, receiving-owner approvals and rollback.
 
-## 4. Shared contracts
+## 7. Rollback
 
-- Versioned task and event schemas.
-- Stable API/module boundaries and explicit ownership.
-- Common error taxonomy and retry semantics.
-- Evidence format containing repository, branch, commit SHA, test command, result and timestamp.
-- Security and privacy classification for every shared knowledge artifact.
-- Prediction record contract: prediction, target, horizon, confidence, observed outcome, error metric, context/version and evidence provenance.
-- Cross-track learning proposal contract: source evidence, affected tracks, expected benefit, risk, validation plan and receiving-owner decision.
-- Compatibility checks before a shared contract is changed.
+Use the smallest safe rollback unit. Application changes may be reverted by commit/PR. Database changes require a separately reviewed forward-fix or verified rollback strategy; never assume a migration is reversible.
 
-## 5. Integration-branch CI policy
+## 8. Status semantics
 
-- The integration branch `feat/github-project-showcase` is an approved base for dependent workstreams D and E while the five-track integration PR is under review.
-- Pull requests targeting either `main` or the integration branch must run the same build, unit-test, type-check, lint, production-build and database/RLS verification workflow.
-- A dependent branch must include the current integration branch as an ancestor; its PR diff must contain only its own workstream files.
-- After the integration PR is merged, dependent PRs are retargeted to `main` only after their diff and exact-head CI are revalidated.
+- `active`: implementation work exists; readiness remains subject to per-change evidence.
+- `implementation-candidate`: workbench/implementation is under development and not a production capability claim.
+- `foundation`: baseline controls and ownership are established; further acceptance may remain.
+- `planned`: architecture/ownership is defined; implementation is not claimed.
 
-## 6. Quality gates
-
-A change is not accepted merely because code was committed or a PR exists.
-
-- Unit and integration tests must pass for the affected scope.
-- Type checking, lint and production build must pass where applicable.
-- Database migrations and RLS tests must run in an isolated local/test environment.
-- Candidate CI must refer to the exact PR head SHA.
-- Failure must be classified as code, test, dependency, infrastructure or unknown; unknown is not reported as passed.
-- No automatic approval, merge, production database mutation or production deployment.
-- Draft PRs remain Draft until all stated acceptance criteria are evidenced and reviewed.
-
-## 7. Required change record
-
-Every improvement, including a small one, records:
-
-- old version → new version;
-- track(s) affected;
-- change summary and rationale;
-- affected interfaces/dependencies;
-- tests and exact commit SHA;
-- CI status (pass/fail/pending/blocked);
-- security/privacy impact;
-- rollback or recovery method.
-
-## 8. Rollback
-
-Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
-
-## 9. Six-track baseline
-
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural**, Track E is **Deep Research（深度研究）**, and Track F is **Cyber Security & Defense**. All six tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.41`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+A PR, branch, version bump or documentation entry alone never establishes operational readiness.
