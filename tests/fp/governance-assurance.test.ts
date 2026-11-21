@@ -43,6 +43,16 @@ test("marks absent workstream evidence incomplete", () => {
   assert.equal(result.missing, 1);
 });
 
+test("classifies an owner record with an empty evidence list as incomplete", () => {
+  const result = assessFPGovernanceDossier(dossier({
+    workstreams: dossier().workstreams.map((item) => item.workstream === "M"
+      ? { ...item, evidence: [] }
+      : item),
+  }));
+  assert.equal(result.status, "incomplete");
+  assert.equal(result.missing, 1);
+});
+
 test("blocks failed evidence and keeps not-run evidence incomplete", () => {
   const failed = assessFPGovernanceDossier(dossier({
     workstreams: dossier().workstreams.map((item) => item.workstream === "F"
