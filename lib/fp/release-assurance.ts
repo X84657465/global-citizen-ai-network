@@ -71,9 +71,9 @@ export interface GAcceptanceAssessment {
 }
 
 const SHA_PATTERN = /^[a-f0-9]{40}$/i;
-const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-const GITHUB_RUN_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+(?:\/attempts\/\d+)?$/;
-const GITHUB_JOB_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+\/job\/\d+$/;
+const REPOSITORY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*$/;
+const GITHUB_RUN_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*\/actions\/runs\/\d+(?:\/attempts\/\d+)?$/;
+const GITHUB_JOB_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*\/actions\/runs\/\d+\/job\/\d+$/;
 
 function validPositiveInteger(value: number): boolean {
   return Number.isSafeInteger(value) && value > 0;
