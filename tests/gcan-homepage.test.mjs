@@ -67,7 +67,7 @@ test("public homepage section navigation remains available on mobile", () => {
 });
 
 test("repository homepage distinguishes the old Preview from the current unpreviewed candidate", () => {
-  assert.match(readme, /舊 Preview SHA/);
+  assert.match(readme, /舊 Preview SHA `3821354dd50d6045604688bf1117a668f3a37cc0`/);
   assert.match(readme, /本分支最新候選尚未取得 Vercel Preview 部署/);
   assert.doesNotMatch(readme, /Build Rate Limit/);
 });
