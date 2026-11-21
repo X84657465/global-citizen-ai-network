@@ -1,3 +1,10 @@
+## 0.3.107 — 2026-11-21
+
+- Run the independent review gate on GitHub-hosted Ubuntu instead of occupying the serialized Windows Agent Factory runner.
+- Wait up to 15 minutes for the latest exact-HEAD CI run to complete before evaluating the gate, preventing a fast review event from racing CI startup/completion.
+- Retain exact-HEAD latest-run selection, independent approval thresholds, blocker checks, and unresolved-thread requirements.
+- Bump repository release to 0.3.107 and Governance revision to 1.4.9.
+
 ## 0.3.106 — 2026-11-21
 
 - Re-run the independent review gate when the CI workflow completes for a pull request, so a pre-CI event failure is refreshed automatically.
