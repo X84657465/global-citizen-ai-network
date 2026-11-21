@@ -641,13 +641,6 @@ jobs:
           path: candidate-evidence.json
           if-no-files-found: error
           retention-days: 90
-      - name: Reset global breaker after healthy non-task CI
-        if: needs.resolve-candidate.outputs.is_task_pr != 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: success
-        run: node scripts/agent-factory-v2-controller.mjs
 
   ci-diagnostics:
     concurrency:
