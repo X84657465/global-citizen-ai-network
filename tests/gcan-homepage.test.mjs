@@ -70,7 +70,7 @@ test("repository homepage distinguishes the old Preview from the current unprevi
 
 test("public homepage renders candidate versions from the authoritative manifest", () => {
   assert.ok(homepage.includes('import releaseManifest from "../versions/manifest.json";'));
-  assert.match(homepage, /GCAN \{releaseManifest\.overall\} · A \{releaseManifest\.tracks\.A\.version\} · B \{releaseManifest\.tracks\.B\.version\}/);
+  assert.match(homepage, /平台 \\{releaseManifest\\.overall\\} · A 線 \\{releaseManifest\\.tracks\\.A\\.version\\} · B 產品 \\{releaseManifest\\.tracks\\.B\\.version\\}/);
   assert.ok(readme.includes("[版本清單](versions/manifest.json)"));
 });
 
