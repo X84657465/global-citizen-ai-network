@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { TaskValidationError, validateAndBuildTask } from "../lib/agent-task-validation.mjs";
+import { TaskValidationError, buildAgentTaskContext, validateAndBuildTask } from "../lib/agent-task-validation.mjs";
 import { extractTaskDependencyNumbers, taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
 
 const validIssue = (overrides = {}) => ({
@@ -313,5 +313,74 @@ test("rejects tab-indented code-block bullets in task directive sections", () =>
   assert.throws(
     () => validateAndBuildTask(issue, "X84657465/global-citizen-ai-network"),
     /indented code-block directives/,
+  );
+});
+
+
+test("preserves the explicitly supported supplemental task context sections", () => {
+  const body = validIssue().body + `
+\n## Confirmed evidence
+Observed preflight rejection on the exact factory workflow run.
+
+## Finding and required behavior
+Preserve required task sections and keep path validation fail-closed.
+
+## Retry scope refinement — 2026-11-21
+Keep the existing acceptance criteria and constrain the implementation output.
+`;
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.additional_context, {
+    "Confirmed evidence": "Observed preflight rejection on the exact factory workflow run.",
+    "Finding and required behavior": "Preserve required task sections and keep path validation fail-closed.",
+    "Retry scope refinement — 2026-11-21": "Keep the existing acceptance criteria and constrain the implementation output.",
+  });
+  assert.deepEqual(buildAgentTaskContext(task), {
+    goal: task.goal,
+    acceptance_criteria: task.acceptance_criteria,
+    explicit_exclusions: task.explicit_exclusions,
+    additional_context: task.additional_context,
+  });
+  assert.deepEqual(
+    buildAgentTaskContext({ ...task, additional_context: undefined }).additional_context,
+    {},
+  );
+});
+
+
+test("accepts only real calendar dates in retry-scope supplemental headings", () => {
+  const validLeapDay = validIssue({
+    body: validIssue().body + "\n\n## Retry scope refinement — 2024-02-29\nValid leap-day context.",
+  });
+  const task = validateAndBuildTask(validLeapDay, "X84657465/global-citizen-ai-network");
+  assert.equal(
+    task.additional_context["Retry scope refinement — 2024-02-29"],
+    "Valid leap-day context.",
+  );
+
+  for (const invalidDate of ["2025-02-29", "2026-04-31", "2026-13-01", "2026-00-10"]) {
+    const issue = validIssue({
+      body: validIssue().body + `\n\n## Retry scope refinement — ${invalidDate}\nInvalid date must not be accepted.`,
+    });
+    assert.throws(
+      () => validateAndBuildTask(issue, "X84657465/global-citizen-ai-network"),
+      /Unexpected section: Retry scope refinement/,
+    );
+  }
+});
+
+test("rejects duplicate supplemental context sections and still rejects unknown headings", () => {
+  const duplicate = validIssue({
+    body: validIssue().body + "\n## Confirmed evidence\nFirst.\n\n## Confirmed evidence\nSecond.",
+  });
+  assert.throws(
+    () => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"),
+    /Duplicate section: Confirmed evidence/,
+  );
+  const unknown = validIssue({
+    body: validIssue().body + "\n## Unrecognized operational instructions\nNot accepted.",
+  });
+  assert.throws(
+    () => validateAndBuildTask(unknown, "X84657465/global-citizen-ai-network"),
+    /Unexpected section: Unrecognized operational instructions/,
   );
 });
