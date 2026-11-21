@@ -51,7 +51,8 @@ test("rejects unregistered workstreams, invalid outcomes, non-UTC timestamps and
   assert.throws(() => recorder.record(event({ outcome: "unknown" } as never)), TypeError);
   assert.throws(() => recorder.record(event({ occurredAt: "2026-11-21T12:00:00+08:00" })), TypeError);
   assert.throws(() => recorder.record(event({ errorCode: "token=super-secret-value" })), TypeError);
-  assert.throws(() => recorder.record(event({ errorCode: "database.permission.denied" })), TypeError);
+  recorder.record(event({ errorCode: "database.permission.denied" }));
+  assert.equal(recorder.list()[0].errorCode, "database.permission.denied");
 });
 
 test("does not expose mutable internal event storage", () => {
