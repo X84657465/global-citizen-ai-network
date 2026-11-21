@@ -5,8 +5,8 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
-**Authoritative release:** `VERSION` and `package.json` on main report `0.3.124`. README still advertises `0.3.121`; PR #267 was closed as redundant and its correction is carried in #259, which remains unmerged.  
+**Main HEAD:** `fc1933e669dd2d49300e45fa5d69bf63e906141f`  
+**Release metadata:** not revalidated against current main in this checkpoint; older release/version notes below are historical and must not be treated as current.  
 **A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
 
 ## 1. Highest-level strategy and authority
@@ -268,3 +268,19 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 6. Only after all A gates and operational acceptance pass, merge A under the required review process; then rebuild B from that accepted main SHA.
 
 **Safety boundary:** no production database mutation, secret/permission change, workflow/Runner policy change, paid AI activation, manual Factory-state edit, lease/cooldown reset, or Production deployment was performed in this round.
+
+
+## Live checkpoint refresh — 2026-11-22 (exact-head recheck)
+
+This section supersedes the older PR and CI status snapshots above. Historical results remain scoped to their recorded SHA.
+
+- Main remains `fc1933e669dd2d49300e45fa5d69bf63e906141f`; no PR was merged in this verification round.
+- **PR #283** exact HEAD `08202d1c92c38af76855c18dacbad242cd2f6fa6`; exact-head run #3341 / `44960889694` remains pending with no jobs assigned. Older intermediate SHA `068a6df9fe50aad9ebd62b9fc4f026938a846db4`, run #3336 / `44960771943`: Windows quality gates passed (unit tests, typecheck, lint, audits, Factory syntax/Runner policy and production build); Ollama/local inference is in progress and isolated Supabase/PostgreSQL/RLS remains pending. These older-SHA results do not validate current HEAD.
+- **PR #285** exact HEAD `6b568e0c742c28e903376e8f3557f14b3f9921f6`; run #3342 / `44961088910` has only its metadata resolver pending and no downstream quality result yet.
+- **PR #286 (this document)** exact HEAD `df96a434100fa17ff0d263779eda599818a9215b`; run #3343 / `44961176711`: metadata resolver succeeded; Windows quality-gates job exists but is pending. Diff remains documentation-only, one file, 55 additions / 0 deletions.
+- Formal PR reviews and inline review threads remain absent for #283, #285 and #286. All three remain Draft and unmerged.
+- Latest visible scheduled run remains #44953122918 on main SHA `fc1933e...`, completed before the recorded cooldown expiry and safely skipped queue selection. No post-cooldown scheduled run or task lease/progression lifecycle is verified.
+- Issue #100 remains machine-managed and read-only; last observed durable state version 144. No manual dispatch, Runner bypass, lease/cooldown/quarantine mutation or production operation was performed.
+- B Runtime remains inactive. Rebuild B only from a later accepted A main SHA and carry forward only the reviewed, sanitized, versioned A→B read contract.
+
+**Disposition:** no candidate currently meets complete exact-head CI, independent review and applicable release-evidence gates. Keep all three PRs Draft/unmerged.
