@@ -40,7 +40,7 @@ function makeRequest(query = `pull_request=42&sha=${sha}`) {
 
 test("unauthenticated request returns 401 and private headers before any profile/GitHub access", async () => {
   const deps = makeDependencies({
-    getAuthenticatedClient: async () => null,
+    getAuthenticatedClient: async () => { deps.calls.push("auth"); return null; },
   });
   const response = await handleGovernanceReviewsGet(makeRequest(), deps);
   assert.equal(response.status, 401);
