@@ -107,6 +107,16 @@ test("uses each reviewer's latest decision and rejects conflicting decisions at 
   assert.equal(conflict.reviewStatus, "conflicting-decisions");
 });
 
+test("orders fractional UTC timestamps chronologically rather than lexicographically", () => {
+  const result = assessFPGovernanceDossier(dossier({
+    reviews: [
+      review({ reviewRef: "pull/42/review/104", decision: "changes-requested", submittedAt: "2026-11-22T12:00:00Z" }),
+      review({ reviewRef: "pull/42/review/105", decision: "approved", submittedAt: "2026-11-22T12:00:00.100Z" }),
+    ],
+  }));
+  assert.equal(result.reviewStatus, "reviewed-approved");
+});
+
 test("marks absent workstream evidence incomplete", () => {
   const result = assessFPGovernanceDossier(dossier({
     workstreams: dossier().workstreams.filter((item) => item.workstream !== "M"),
