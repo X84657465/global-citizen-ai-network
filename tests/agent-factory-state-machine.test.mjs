@@ -800,6 +800,13 @@ test("validates persisted candidate provenance metadata instead of accepting mal
     pull_request_number: 88,
   }, 2600);
   state = move(state, 42, "awaiting_ci", {}, 2700);
+  state = startCandidate(state, 42, {
+    head_sha: "b".repeat(40),
+    pull_request_number: 88,
+    ci_run_id: "ci-run-123456",
+    ci_run_attempt: 1,
+    head_ref: "ai-task/issue-42-abcdef123456",
+  }, 2800);
 
   const corruptions = [
     ["candidate SHA", task => { task.head_sha = "not-a-sha"; }],
