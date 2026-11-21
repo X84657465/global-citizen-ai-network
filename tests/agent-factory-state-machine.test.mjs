@@ -571,6 +571,46 @@ test("candidate failure also requires exact CI run ID and positive run attempt",
 });
 
 
+test("candidate failure history stays bounded while retaining the newest evidence", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "c".repeat(40), pull_request_number: 93,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+
+  state.tasks["42"].candidate_failure_history = Array.from({ length: 50 }, (_, index) => ({
+    head_sha: index.toString(16).padStart(40, "0"),
+    pull_request_number: 1,
+    ci_run_id: "historical-run-" + index,
+    ci_run_attempt: 1,
+    summary: "historical failure " + index,
+    failed_at: new Date(1000 + index).toISOString(),
+  }));
+  assert.equal(validateFactoryState(state), true);
+
+  const evidence = {
+    head_sha: "c".repeat(40), pull_request_number: 93,
+    ci_conclusion: "failure", ci_run_id: "latest-run-51", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, evidence, 1750);
+  const result = recordCandidateFailure(
+    state, 42, event("bounded-history-failure"), evidence,
+    "latest candidate failure", 1800,
+  );
+
+  const history = result.state.tasks["42"].candidate_failure_history;
+  assert.equal(history.length, 50);
+  assert.equal(history[0].ci_run_id, "historical-run-1");
+  assert.equal(history.at(-1).ci_run_id, "latest-run-51");
+  assert.equal(validateFactoryState(result.state), true);
+});
+
+
 test("quarantines a task after three distinct candidate CI rejections", () => {
   let state = createInitialFactoryState(1000);
   for (let attempt = 1; attempt <= 3; attempt += 1) {
