@@ -74,3 +74,12 @@ test("ordinary words such as author do not match the auth risk token", () => {
   assert.equal(result.evidence.high_risk_scope_detected, false);
   assert.equal(result.decision, "approve_for_sandbox_validation");
 });
+
+test("a standalone discourse no cannot negate a later actionable production deployment", () => {
+  for (const title of ["No, deploy to production", "No, update billing rules", "No, rotate credentials"]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
