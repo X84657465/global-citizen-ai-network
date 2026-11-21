@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.121` · A 線 Agent Factory V2 `2.0.84`（模型上下文來源限制、產碼規範與 UI 銜接 Fail-Closed 防護） · B 線 GCAN Product `0.1.19`（Workspace Metadata 驗證、Conversation/Project 關聯檢查與 Message API 最小欄位投影） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.124` · A 線 Agent Factory V2 `2.0.84` · B 線 GCAN Product `0.1.19` · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [A–P 線別架構與責任](docs/engineering-workstreams.md)nt Factory V2 `2.0.84`（模型上下文來源限制、產碼規範與 UI 銜接 Fail-Closed 防護） · B 線 GCAN Product `0.1.19`（Workspace Metadata 驗證、Conversation/Project 關聯檢查與 Message API 最小欄位投影） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -22,7 +22,7 @@
 
 
 
-## 🔎 最新五線驗證狀態｜2026-11-20
+## 🔎 歷史五線驗證快照｜2026-11-20（非目前主線狀態）
 
 | 主線 | PR | 最新已查核 CI | 狀態 |
 |---|---:|---|---|
@@ -32,7 +32,7 @@
 | D｜Deep Neural | [#140](https://github.com/X84657465/global-citizen-ai-network/pull/140) | [Run #44580264020](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580264020) | 該提交 CI 通過 |
 | E｜Deep Research | [#141](https://github.com/X84657465/global-citizen-ai-network/pull/141) | [Run #44580352440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44580352440) | 該提交 CI 通過 |
 
-**注意：** 上表 CI 結果只代表各自列出的 exact commit；任何後續更新都必須重新驗證。五個 PR 目前均為 Draft，尚未合併。介面中的示範資料不代表已接通正式資料來源或持久化服務。
+**注意：** 此表是 2026-11-20 的歷史快照，PR、SHA 與 CI 狀態不可視為目前主線狀態。任何驗收都必須重新核對當前 main、最新 PR HEAD 與 exact-SHA CI。示範資料不代表已接通正式資料來源或持久化服務。
 
 ### 五線入口
 
@@ -41,6 +41,34 @@
 - C｜[Predictive Coding 預測編碼](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
 - D｜[Deep Neural 深度神經工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core)
 - E｜[Deep Research 深度研究工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
+
+## 🧩 A–P 全線工程索引
+
+以下列出 GCAN 全部十六條獨立工程線及其責任邊界。此表定義工作範圍，不代表功能已正式上線；實際成熟度須以 main 最新 PR、精確 SHA、完整 CI、Review 與驗收證據為準。
+
+| 線別 | 工程線名稱 | 主要作用 | 責任成熟度 |
+|---|---|---|---|
+| A | **Agent Factory V2** | AI 自動開發工廠：需求拆解、任務派送、隔離執行、測試、候選 PR、CI 證據與復原。 | 依 mainline 證據追蹤 |
+| B | **GCAN Product** | GCAN 主產品：公開網站、會員體驗、AI 工作台、全球貢獻流程與平台服務。 | 依 mainline 證據追蹤 |
+| C | **Predictive Coding（預測編碼）** | 預測與觀測、預測誤差計算、信心校準、漂移分析及可驗證的模型更新訊號。 | 依 mainline 證據追蹤 |
+| D | **Deep Neural（深度神經）** | 知識記憶、推理、知識整合、評估與跨線學習提案。 | 依 mainline 證據追蹤 |
+| E | **Deep Research（深度研究）** | 多來源研究、來源品質與溯源、交叉查證、反證分析及引用式研究報告。 | 依 mainline 證據追蹤 |
+| F | **Cyber Security & Defense（資安防禦）** | 跨線威脅模型、安全控制、弱點驗證、漏洞應變與事件準備。 | 依 mainline 證據追蹤 |
+| G | **Release, QA & Integration（發布、品質與整合）** | 跨線整合順序、相容性矩陣、回歸測試、發布關卡、精確 SHA 證據與回滾準備。 | 規劃／分階段啟動 |
+| H | **Observability, Telemetry & Cost/Quota Governance（可觀測性、遙測與成本配額）** | Queue／Runner 健康、任務耗時、失敗分類、成本來源、配額與安全暫停告警。 | 規劃／分階段啟動 |
+| I | **Ecosystem, Connectors & Workflow Automation（生態串接與流程自動化）** | 外部 API、Webhook、通知、資料同步、冪等處理與防重播工作流。 | 規劃／分階段啟動 |
+| J | **Self-Healing, Chaos & Continuity（自我修復、混沌與持續營運）** | 有限重試、熔斷、安全降級、檢查點、備份還原及受控故障演練。 | 規劃／分階段啟動 |
+| K | **Knowledge Base, Docs & Governance Playbooks（知識庫、文件與治理手冊）** | 架構紀錄、線別責任、操作手冊、交接模板、決策紀錄與故障排查。 | 規劃／分階段啟動 |
+| L | **Multi-Node, Federation & Edge/Cluster Coordination（多節點、聯邦與叢集協調）** | 未來自願加入節點的身分、能力排程、租約 fencing、健康檢查與跨節點協調。 | 規劃／分階段啟動 |
+| M | **Compliance, Policy Audit & Risk Governance（法遵、政策稽核與風險治理）** | 可稽核事件、政策證據、風險登錄、限時例外及資料保留控制。 | 規劃／分階段啟動 |
+| N | **Productization, Analytics & Growth/Ecosystem Ops（產品化、分析與成長營運）** | 隱私友善的產品指標、採用與品質分析、回饋循環、新手導引及生態營運。 | 規劃／分階段啟動 |
+| O | **Lifecycle, Deprecation & Legacy Retirement（生命週期、棄用與舊系統退場）** | 棄用清單、遷移窗口、相容性契約、移除核准及舊系統維護成本降低。 | 規劃／分階段啟動 |
+| P | **Governance, Ethics & Trust/Policy Evolution（治理、倫理、信任與政策演進）** | 自主權限分級、人類核准門檻、信任原則、政策演進及跨線優先級仲裁。 | 規劃／分階段啟動 |
+
+**優先與依賴原則：** A（Agent Factory V2）為目前最高優先工廠主線；B（GCAN Product）在 A 的必要能力驗收後銜接。C–H 僅處理必要的能力依賴與整合卡點；I–P 保持獨立責任、版本與路線，依 G/H/K 等基礎能力及安全證據分階段啟動。L 多節點／分散式執行在容量證據、明確自願授權及獨立資安審查完成前維持延後。
+
+完整責任邊界、非目標、跨線介面、階段交付物與退出條件見 [A–P 線別架構文件](docs/engineering-workstreams.md)。
+
 
 ## 🧭 快速導覽
 
