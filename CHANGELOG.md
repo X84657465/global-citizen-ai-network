@@ -1,3 +1,9 @@
+## 0.3.110 — 2026-11-21
+
+- Refresh the GitHub repository front page and public GCAN homepage to distinguish A–E engineering workstreams from P cross-cutting governance.
+- Clarify the Agent Factory overview as a static demonstration until Runner / GitHub Actions data is connected; remove implied real-time task status and replace the inert task button with a working CI destination.
+- Synchronize repository, package, manifest and A/B track patch versions. No production deployment, database mutation, permission expansion or automatic merge.
+
 ## 0.3.109 — 2026-11-21
 
 - Synchronize the GitHub repository homepage and public website homepage with the A–P architecture: A–E remain the five active engineering workstreams; P is the cross-cutting Governance, Ethics & Trust layer.
