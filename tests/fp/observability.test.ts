@@ -49,6 +49,8 @@ test("does not expose mutable internal event storage", () => {
   const recorder = new FPObservabilityRecorder();
   recorder.record(event());
   const returned = recorder.list() as Array<{ capability: string }>;
-  returned[0].capability = "tampered";
+  assert.throws(() => {
+    returned[0].capability = "tampered";
+  }, TypeError);
   assert.equal(recorder.list()[0].capability, "health-snapshot");
 });
