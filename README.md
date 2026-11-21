@@ -20,7 +20,14 @@
 
 ---
 
+## 🚀 快速入口｜依使用目的開始
 
+| 你要做什麼 | 直接入口 | 說明 |
+|---|---|---|
+| 使用 GCAN 產品 | [AI 工作空間](https://global-citizen-ai-network.vercel.app/workspace) | AI 對話與專案知識工作；實際使用依登入及環境設定 |
+| 開發與驗收工廠 | [Agent Factory V2](https://global-citizen-ai-network.vercel.app/factory) | A 線工程任務、測試與候選交付 |
+| 參與知識協作 | [全球貢獻中心](https://global-citizen-ai-network.vercel.app/contribute) | 任務、提交、審核與複核流程 |
+| 查核開發進度 | [首頁整合 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 紀錄](https://github.com/X84657465/global-citizen-ai-network/actions) | 以最新 SHA 的 CI、Preview 與審查結果為準 |
 
 > **Preview 注意：** 舊 Preview SHA `173c74406de3d6fa72a123eb50eaedd678fafdf5` 不代表本分支最新候選。本分支最新候選尚未取得 Vercel Preview 部署；取得對應 SHA 的部署與驗收證據後才更新預覽入口。
 
