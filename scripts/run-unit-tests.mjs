@@ -26,7 +26,7 @@ if (testFiles.length === 0) {
   console.log(`Running all ${testFiles.length} discovered unit test files.`);
   const result = spawnSync(
     process.execPath,
-    ["--experimental-strip-types", "--test", ...testFiles],
+    ["--experimental-strip-types", "--experimental-transform-types", "--test", ...testFiles],
     { stdio: "inherit" }
   );
   if (result.error) {
