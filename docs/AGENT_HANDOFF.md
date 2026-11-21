@@ -52,8 +52,8 @@ F–P manifest registration or a “ready” label is not implementation accepta
 ### PR #259 — P0 A / F–P consolidated acceptance candidate
 
 - Branch: `fix/ci-schema-grant-test-count-20261122`; base main SHA: `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
-- **Current exact PR head: `7648007a48cbfdbdf706cd18bca37f509185824e`** (31 changed files; Draft/open/unmerged).
-- Exact-head Actions run [44945792527](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945792527), run #3205, is pending. Latest jobs lookup shows only `Resolve exact candidate PR metadata` pending; no quality/test job has started. This is not a Runner failure and not acceptance evidence.
+- **Current exact PR head: `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6`** (31 changed files; Draft/open/unmerged).
+- Exact-head Actions run [44945855587](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945855587), run #3206, is pending. Latest jobs lookup shows only `Resolve exact candidate PR metadata` pending; no quality/test job has started. This is not a Runner failure and not acceptance evidence.
 - This round selectively ported A's deterministic negated/high-risk plan-intent classifier and its regression suite from PR #261 into this consolidated candidate. Exact file blobs match the source PR's two files.
 - PR #261 is closed as redundant; no feature was discarded. Its old run [44940637761](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44940637761) failed at the pre-existing schema-guard/pgTAP-plan synchronization assertion on its older main-based branch. The ported changes must be validated only on #259's new exact SHA.
 - The candidate also contains the corrected RLS fixtures, appeal authorization SQLSTATE handling, strict UTC timestamp validation, GitHub repository-name validation, F–P host/observability fixes, and release metadata synchronization.
@@ -114,7 +114,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 
 ## 6. Next execution order
 
-1. **A first:** validate #259 exact head `7648007a48cbfdbdf706cd18bca37f509185824e` on run [44945792527](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945792527). Resolver metadata is pending; substantive jobs have not started.
+1. **A first:** validate #259 exact head `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` on run [44945855587](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945855587). Resolver metadata is pending; substantive jobs have not started.
 2. **A risk-intent integration:** the two files from #261 are now included in #259; #261 is closed as redundant. Do not use its old failed CI as evidence for the consolidated candidate.
 3. **Shared baseline:** #267 is closed as redundant and its package-lock/version changes are carried by #259. No separate merge is required.
 4. **K support:** keep #268's handoff aligned with verified PR/main state. Its current head remains `127de3547edebedd1265bee7082959dd804d8ded`; docs CI run [44945572523](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945572523) is pending with no jobs returned. No independent review is recorded.
@@ -134,7 +134,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ## Current checkpoint — 2026-11-22 (latest verified)
 
 - Main remains at base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; `VERSION` and `package.json` are `0.3.124`. README's mainline label remains `0.3.121`; PR #259 carries the correction.
-- PR #259 exact head is `7648007a48cbfdbdf706cd18bca37f509185824e`; run [44945792527](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945792527) is pending at candidate resolver metadata. No substantive CI result is available yet.
+- PR #259 exact head is `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6`; run [44945855587](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945855587) is pending at candidate resolver metadata. No substantive CI result is available yet.
 - A risk-intent classification and regression tests were ported exactly from PR #261 into #259. PR #261 is now closed as redundant; its prior schema-guard failure is not evidence against the new consolidated SHA.
 - PR #267 is closed as redundant; its shared metadata changes are carried in #259.
 - PR #259 has no independent formal reviews or inline review threads. Vercel Preview remains externally blocked by provider `build-rate-limit`.
