@@ -395,7 +395,7 @@ http://localhost:3000
 - Windows Self-hosted Runner Toolchain Checks
 - Docker／Ollama Availability 與有界結構化推論
 
-最新 CI 請以各 PR 最新 exact-head 工作流程為準：A 工廠 PR #190（`d482ad5f3b9adb1c9fd1213f6543b21fc97f4768`，Run #44850829600）、A–P 治理 PR #185（`d18357fdfde2786fee98727214667002bbb576bb`，Run #44848168668）、Migration PR #186（`ecca4af70a947319e39c9c033f7419424b4ab37d`，Run #44848244580）及 B PR #187（`4b0fafdc1227de6e83a0ed9753c37ad4cfe772f3`，Run #44848349624）的必要 Windows 品質、Ollama／本機執行及 PostgreSQL/RLS 工作均已完成並通過。以上均為各自 exact SHA 的 CI 結果，不代表獨立審查、合併或正式部署已完成。
+先前 exact-head CI 已通過：A 工廠 PR #190（`d482ad5f3b9adb1c9fd1213f6543b21fc97f4768`，Run #44850829600）、A–P 治理 PR #185 舊 SHA（`d18357fdfde2786fee98727214667002bbb576bb`，Run #44848168668）、Migration PR #186（`ecca4af70a947319e39c9c033f7419424b4ab37d`，Run #44848244580）及 B PR #187（`4b0fafdc1227de6e83a0ed9753c37ad4cfe772f3`，Run #44848349624）。其必要 Windows 品質、Ollama／本機執行及 PostgreSQL/RLS 工作均已在各自列出的 SHA 通過。**目前 PR #185 已新增 README 版本／交接資訊修正，最新 SHA 為 `8c031473cc35e2d64c8427db07030786001ee264`，必須等待此 SHA 的新 CI；#186/#187 仍以舊治理父提交為基底，需在上游更新後重新銜接與驗收。** CI 通過不代表獨立審查、合併或正式部署已完成。
 
 ## 📚 文件導覽
 
