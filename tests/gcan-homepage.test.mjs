@@ -54,7 +54,7 @@ test("version manifest registers every A-P workstream with a valid numeric versi
   assert.deepEqual(Object.keys(versionManifest.tracks).sort(), [..."ABCDEFGHIJKLMNOP"]);
   for (const [code, track] of Object.entries(versionManifest.tracks)) {
     assert.ok(track.name, `track ${code} is missing a name`);
-    assert.match(track.version, /^\\d+\\.\\d+\\.\\d+$/, `track ${code} has an invalid version`);
+    assert.match(track.version, /^[0-9]+[.][0-9]+[.][0-9]+$/, `track ${code} has an invalid version`);
   }
   for (const code of "FGHIJKLMNOP") {
     assert.equal(versionManifest.tracks[code].status, "planned", `track ${code} must remain planned until evidence-based activation`);
