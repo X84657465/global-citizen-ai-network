@@ -9,7 +9,7 @@ import {
 import { execFileSync } from "node:child_process";
 import { resolve, sep } from "node:path";
 import { resolveSafeExistingParent } from "../lib/agent-path-safety.mjs";
-import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { getPatchManifestFiles, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStreamWithRetry } from "../lib/ollama-generate-stream.mjs";
 import { calculatePatchOutputTokenBudget, selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 import { markAgentFactoryTaskFailure } from "../lib/agent-failure-scope.mjs";
@@ -317,7 +317,15 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
     failTask("Local model did not return a valid JSON patch manifest for batch " + (batchIndex + 1) + ".");
   }
 
-  for (const file of candidate.files ?? []) {
+  let candidateFiles;
+  try {
+    candidateFiles = getPatchManifestFiles(candidate);
+  } catch (error) {
+    failTask("Local model returned a malformed patch manifest for batch " + (batchIndex + 1) + ": " +
+      (error instanceof Error ? error.message : "unknown manifest shape error"));
+  }
+
+  for (const file of candidateFiles) {
     if (file?.operation === "add") {
       const matchingPlan = implementationPlan.find((item) =>
         item.allowed_paths.some((path) => path.toLowerCase() === String(file.path ?? "").toLowerCase()),
