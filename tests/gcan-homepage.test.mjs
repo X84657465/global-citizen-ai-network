@@ -55,8 +55,8 @@ test("repository homepage distinguishes the old Preview from the current unprevi
 });
 
 test("repository and B-line homepage release metadata matches the authoritative manifest", () => {
-  assert.equal(rootVersion, "0.3.122");
+  assert.equal(rootVersion, "0.3.123");
   assert.equal(manifest.overall, rootVersion);
-  assert.equal(productVersion, "0.1.22");
+  assert.equal(productVersion, "0.1.23");
   assert.equal(manifest.tracks.B.version, productVersion);
 });
