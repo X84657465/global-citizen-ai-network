@@ -1,13 +1,20 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { handleGovernanceReviewsGet } from "../../lib/fp/governance-review-route-handler.ts";
+import {
+  handleGovernanceReviewsGet,
+  type GovernanceReviewsRouteDependencies,
+} from "../../lib/fp/governance-review-route-handler.ts";
 import { FPGovernanceReviewCollectionError } from "../../lib/fp/governance-review-source.ts";
 
 const sha = "a".repeat(40);
 
-function makeDependencies(overrides: Record<string, unknown> = {}) {
+type TestDependencies = GovernanceReviewsRouteDependencies & { calls: string[] };
+
+function makeDependencies(
+  overrides: Partial<GovernanceReviewsRouteDependencies> = {},
+): TestDependencies {
   const calls: string[] = [];
-  const deps = {
+  const deps: TestDependencies = {
     calls,
     getAuthenticatedClient: async () => {
       calls.push("auth");
@@ -17,8 +24,11 @@ function makeDependencies(overrides: Record<string, unknown> = {}) {
       calls.push("profile");
       return { data: { role: "admin", account_status: "active" }, error: null };
     },
-    isActiveAdminProfile: (profile: any) =>
-      profile?.role === "admin" && profile?.account_status === "active",
+    isActiveAdminProfile: (profile: unknown) => {
+      if (typeof profile !== "object" || profile === null) return false;
+      const candidate = profile as { role?: unknown; account_status?: unknown };
+      return candidate.role === "admin" && candidate.account_status === "active";
+    },
     repository: "owner/repo",
     token: "read-only-token",
     createGitHubApiClient: () => {
@@ -31,7 +41,7 @@ function makeDependencies(overrides: Record<string, unknown> = {}) {
     },
     ...overrides,
   };
-  return deps as any;
+  return deps;
 }
 
 function makeRequest(query = `pull_request=42&sha=${sha}`) {
