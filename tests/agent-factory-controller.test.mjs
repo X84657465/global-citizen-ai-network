@@ -732,6 +732,43 @@ test("candidate failure callback recovers after a transient durable-state write 
 });
 
 
+test("candidate-start safely ignores a same-SHA rerun during retry backoff", async () => {
+  let state = awaitingCandidate();
+  const firstEvidence = {
+    pull_request_number: 88,
+    head_sha: "b".repeat(40),
+    head_ref: "ai-task/issue-42-abcdef123456",
+    ci_run_id: "555099",
+    ci_run_attempt: 1,
+  };
+  state = recordCandidateStarted(state, 42, "candidate-start-original", firstEvidence, 2000).state;
+  state = recordCandidateFailure(
+    state, 42, "candidate-failure-original",
+    { ...firstEvidence, ci_conclusion: "failure" }, "lint failed", 3000,
+  ).state;
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 4000,
+    api: currentCandidatePullApi(),
+  });
+  const result = await controller.run({
+    AGENT_FACTORY_MODE: "candidate-start",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_RUN_ID: "555099",
+    CI_RUN_ATTEMPT: "2",
+  });
+  assert.equal(result.outputs.ignored, true);
+  assert.equal(result.outputs.candidate_status, "retry_backoff");
+  assert.equal(result.state, state);
+  assert.equal(store.writes, 0);
+  assert.equal(store.state.system.consecutive_failures, 0);
+  assert.equal(store.state.tasks["42"].status, "candidate_rejected");
+  assert.equal(store.state.tasks["42"].ci_run_attempt, 1);
+});
+
 test("candidate-start binds one PR head SHA and exact CI run attempt idempotently", async () => {
   const store = fakeStore(awaitingCandidate());
   const controller = createAgentFactoryController({
