@@ -1,3 +1,10 @@
+## 0.3.109 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.78: preserve explicitly approved supplemental task context in validated task bundles and pass the same bounded context projection to planning and patch-generation models.
+- Accept only the named evidence/required-behavior sections and real dated retry-scope headings; retain mandatory sections, reject duplicates/unknown headings, and keep task content untrusted.
+- Rebase the preflight-context fix onto A 2.0.77, retaining per-path output-budget enforcement and malformed-manifest task-failure classification.
+- No production database, secrets, workflow permissions, deployment settings or factory durable state changed.
+
 ## 0.3.108 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.77: validate parsed model-manifest roots and require `files` to be an array before iteration; malformed valid-JSON output is classified as a task-scoped failure.
