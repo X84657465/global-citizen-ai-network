@@ -106,7 +106,7 @@ This initial slice is additive test and documentation work. Revert the integrati
 
 ## 7. GitHub collaborator permission API compatibility correction (2026-11-22)
 
-- The P trusted-host permission adapter now consumes GitHub's native collaborator permission values: `admin`, `maintain`, `write`, `triage`, `read`, and `none`.
+- The P trusted-host permission adapter now consumes GitHub's collaborator API base permission values: `admin`, `write`, `read`, and `none`. GitHub maps the `maintain` role to `write` and the `triage` role to `read` in this response.
 - Only `admin`, `maintain`, and `write` count as verified review authority; `triage`, `read`, and `none` remain insufficient. Permission lookup failures remain unverified.
 - Regression tests cover all native API permission values and the end-to-end trusted-host composition. This is a compatibility correction, not a permission expansion or automatic approval.
 - Exact-head CI and independent review are still required; this change does not grant governance approval, merge, execution, or deployment authority.
