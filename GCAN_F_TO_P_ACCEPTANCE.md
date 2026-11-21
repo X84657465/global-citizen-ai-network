@@ -63,3 +63,24 @@ Inspect `.github/workflows/ci.yml` for the authoritative job matrix and required
 ## Current acceptance decision
 
 No F–P module is fully accepted by this audit. F/G/H/L/P have candidate artifacts with failed, missing, or incomplete evidence; K has documentation assets; I/J/M/N/O remain planned. This record intentionally reports partial status rather than inferring completion from roadmap or PR existence.
+
+
+## Live recheck addendum — 2026-11-21
+
+This table supersedes earlier PR metadata where it differs. Workflow evidence below is for the exact current head SHA queried from GitHub.
+
+| Track / PR | Current head | Current workflow result | Acceptance verdict |
+|---|---|---|---|
+| F #145 | `27d31444d8fb8d57040e60aa554e5d8e905d00e4` | No PR-triggered workflow run returned | UNKNOWN / NOT ACCEPTED |
+| G #147 | `6f735c1251907c5016e7eea32ea0253142e537ec` | No PR-triggered workflow run returned | UNKNOWN / NOT ACCEPTED |
+| G #148 | `273eb012f7558c1223c3af3d4543c6745d6aaefa` | CI completed: failure | FAIL |
+| H #150 | `d2bd6d49edae549dde319750a64a101bd7b5fabf` | CI completed: failure | FAIL |
+| L #66 | `8e28ceb2a1ca0c992dc8304c8537ea50bf94584a` | CI completed: failure | FAIL |
+| L #67 | `9b65d28f3939bdbd13aef76e3879079fd55653bf` | No PR-triggered workflow run returned | PARTIAL AUTHOR-REPORTED MIRROR TESTS ONLY |
+| P #68 | `a277b7a78ae32182b14dec2f621258969ea85554` | CI and AI Security Static Checks completed: failure | FAIL |
+| P #206 | `11869f21745efc88064487a167cd0296cfe21edc` | CI completed: success | CI PASS ONLY; P NOT ACCEPTED |
+
+No workflow result is inferred from PR mergeability, commit status not queried, a different PR, or a different SHA. “No workflow run returned” is recorded as UNKNOWN, not as proof that no check exists anywhere.
+
+PR #206's successful CI is a material update over the initial report's pending status. It does not establish policy enforcement, branch protection, runtime security, preview acceptance, or production deployment.
+
