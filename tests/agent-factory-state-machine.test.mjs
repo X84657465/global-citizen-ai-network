@@ -786,3 +786,63 @@ test("normalizes legacy retry deadlines once and keeps them stable across later 
   assert.equal(repeated, normalized);
   assert.equal(repeated.tasks["81"].next_attempt_at, new Date(220_000).toISOString());
 });
+
+
+test("validates persisted candidate provenance metadata instead of accepting malformed optional fields", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 2000);
+  state = move(state, 42, "preparing", {}, 2100);
+  state = move(state, 42, "planning", {}, 2200);
+  state = move(state, 42, "patching", {}, 2300);
+  state = move(state, 42, "sandbox_testing", {}, 2400);
+  state = move(state, 42, "publishing", {}, 2500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "b".repeat(40),
+    pull_request_number: 88,
+  }, 2600);
+  state = move(state, 42, "awaiting_ci", {}, 2700);
+  state = startCandidate(state, 42, {
+    head_sha: "b".repeat(40),
+    pull_request_number: 88,
+    ci_run_id: "ci-run-123456",
+    ci_run_attempt: 1,
+    head_ref: "ai-task/issue-42-abcdef123456",
+  }, 2800);
+  assert.equal(validateFactoryState(state), true, "valid started candidate evidence, including nullable candidate_error, remains accepted");
+
+  const corruptions = [
+    ["candidate SHA", task => { task.head_sha = "not-a-sha"; }],
+    ["candidate PR number", task => { task.pull_request_number = "88"; }],
+    ["CI run ID", task => { task.ci_run_id = " "; }],
+    ["CI run attempt", task => { task.ci_run_attempt = 0; }],
+    ["candidate status", task => { task.candidate_status = "passed-ish"; }],
+    ["inconsistent candidate lifecycle status", task => { task.candidate_status = "success"; }],
+    ["candidate timestamp", task => { task.candidate_started_at = "yesterday"; }],
+    ["candidate error bound", task => { task.candidate_error = "x".repeat(1201); }],
+  ];
+
+  for (const [label, corrupt] of corruptions) {
+    const invalid = structuredClone(state);
+    corrupt(invalid.tasks["42"]);
+    assert.throws(() => validateFactoryState(invalid), /Task state record is invalid/, label);
+  }
+});
+
+test("rejects malformed publication evidence before changing the active task state", () => {
+  const reserved = reserveTask(createInitialFactoryState(1000), metadata(), 2000);
+  const invalidDetails = [
+    { head_sha: "not-a-sha" },
+    { head_sha: "b".repeat(40), pull_request_number: 0 },
+    { head_sha: "b".repeat(40), pull_request_number: Number.MAX_SAFE_INTEGER + 1 },
+    null,
+    [],
+  ];
+
+  for (const details of invalidDetails) {
+    assert.throws(
+      () => transitionTask(reserved, 42, reserved.active_task.lease_id, "preparing", details, 2100),
+      /Candidate publication metadata/,
+    );
+    assert.equal(reserved.active_task.state, "reserved");
+    assert.equal(reserved.tasks["42"].status, "reserved");
+  }
+});
