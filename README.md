@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.102` · A 線 Agent Factory V2 `2.0.71`（任務發布與全域斷路器隔離、精確 PR 健康證據） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.103` · A 線 Agent Factory V2 `2.0.71`（任務發布與全域斷路器隔離、精確 PR 健康證據） · B 線 GCAN Product `0.1.13`（公開首頁與 A/C 本機工作台銜接） · [版本紀錄](CHANGELOG.md) · [五線工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -22,7 +22,7 @@
 
 
 
-## 🔎 最新五線驗證狀態｜2026-11-20
+## 🔎 最新五線驗證狀態｜2026-11-21
 
 | 主線 | PR | 最新已查核 CI | 狀態 |
 |---|---:|---|---|
@@ -255,6 +255,21 @@ GCAN 採用分層設計，將使用者介面、領域邏輯、資料庫權限、
 - **Auditability：** 重要狀態變化保留可追蹤的事件與驗證證據。
 - **Cost Awareness：** AI 用量與營運成本必須可計量、可限制。
 - **Human Accountability：** 自動化負責提高效率，正式發布與高風險決策仍保留人工責任。
+
+
+
+## 🛡️ P｜Governance, Ethics & Trust（治理、倫理與信任）
+
+P 是 GCAN A–P 架構的橫向治理層，適用於所有工作線與產品功能；它不是第六條功能研發線，也不代表 A–O 每個模組都已完成。所有工作線的設計、資料、AI 行為、成本、貢獻與發布，都必須遵守以下共同控制：
+
+- **人類責任與授權：** 高風險決策、正式合併、正式部署、正式資料變更及財務／獎勵動作保留授權人控制。
+- **安全與隱私：** 最小權限、RLS 隔離、秘密資訊保護、資料最小化與可追溯存取。
+- **倫理與公平：** 不以未驗證 AI 評分作為唯一決策；清楚揭露示範資料、模型限制、成本與獎勵條件。
+- **透明與可稽核：** 重要變更記錄版本、精確 SHA、測試、審核、責任人及回復方式。
+- **風險與事故治理：** Fail-closed、有限重試、隔離、監控、通報及復原程序。
+- **信任邊界：** 使用者設備資源必須明確自願授權；不得把自動化或 AI 提案當成正式核准。
+
+P 治理規範是 A–P 架構的共同驗收門檻；完整政策與變更規則以 [五線工程治理規範](docs/engineering-governance.md) 及 [安全基線](docs/security-baseline.md) 為準。
 
 ## 🛡️ 安全、隱私與公平原則
 
