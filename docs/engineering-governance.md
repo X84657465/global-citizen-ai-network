@@ -1,7 +1,7 @@
 # A–O Workstream Engineering Governance
 
-**Governance revision: 1.4.11**  
-**Repository release baseline: 0.3.118**
+**Governance revision: 1.4.12**  
+**Repository release baseline: 0.3.119**
 
 ## 1. Core workstreams and roadmap ownership
 

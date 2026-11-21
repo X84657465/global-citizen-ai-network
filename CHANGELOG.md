@@ -1,3 +1,11 @@
+## 0.3.119 — 2026-11-21
+
+- Correct the Agent Factory homepage's stale Preview gate: the candidate branch Preview is deployed and reachable; desktop, tablet and mobile acceptance remain pending.
+- Add stable candidate Preview entry points for the public homepage and factory homepage to the repository README, distinct from Production links.
+- Synchronize root package, lockfile, VERSION, manifest and A-line Agent Factory V2 version metadata.
+- Strengthen mobile navigation regression coverage to verify the visible, horizontally scrollable navigation rule is scoped to the tablet/mobile breakpoint.
+- Exact-head CI and desktop/tablet/mobile acceptance remain required; no merge or Production deployment is claimed.
+
 ## 0.3.118 — 2026-11-21
 
 - Redraw the public-site and repository hero artwork to represent all fifteen A–O workstreams and the cross-cutting P Governance layer; remove the obsolete five-workstream graphic.

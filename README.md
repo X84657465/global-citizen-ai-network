@@ -6,7 +6,7 @@
 
 **一個結合 AI 服務、全球知識協作、透明貢獻帳本與自願式運算願景的長期平台。**
 
-[產品網站](https://global-citizen-ai-network.vercel.app) · [Agent Factory 工廠控制中心](https://global-citizen-ai-network.vercel.app/factory) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.79）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [官網首頁更新 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
+[正式產品網站](https://global-citizen-ai-network.vercel.app) · [候選官網 Preview](https://global-citizen-ai-network-git-co-55b18e-acmes-projects-3dfbdf35.vercel.app/) · [正式工廠控制中心](https://global-citizen-ai-network.vercel.app/factory) · [候選工廠 Preview](https://global-citizen-ai-network-git-co-55b18e-acmes-projects-3dfbdf35.vercel.app/factory) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.80）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [官網首頁更新 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
 ![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**候選版本（PR #207，尚未合併／正式發布）：** GCAN `0.3.118` · A 線 Agent Factory V2 `2.0.79` · B 線 GCAN Product `0.1.20` · [CI 執行紀錄](https://github.com/X84657465/global-citizen-ai-network/actions) · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**候選版本（PR #207，尚未合併／正式發布）：** GCAN `0.3.119` · A 線 Agent Factory V2 `2.0.80` · B 線 GCAN Product `0.1.20` · [CI 執行紀錄](https://github.com/X84657465/global-citizen-ai-network/actions) · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 

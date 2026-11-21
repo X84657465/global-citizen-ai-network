@@ -1,3 +1,13 @@
+## 2.0.80 — 2026-11-21
+
+### Improved — Evidence-first factory homepage
+- Correct the Preview gate to reflect that the candidate branch Preview is deployed, while desktop/tablet/mobile acceptance remains outstanding.
+- Synchronize the displayed A-line version and candidate repository release metadata.
+- Keep exact-SHA CI, visual acceptance, human approval and Production release as independent gates.
+
+### Verification
+- Exact-head CI and desktop/tablet/mobile acceptance remain required; no Production deployment is claimed.
+
 ## 2.0.79 — 2026-11-21
 
 ### Fixed — Restore factory homepage production build

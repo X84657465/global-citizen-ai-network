@@ -38,5 +38,5 @@ test("homepage retains keyboard focus and reduced-motion accessibility rules", (
 
 test("public homepage section navigation remains available on mobile", () => {
   assert.ok(styles.includes("Mobile navigation remains visible"));
-  assert.ok(styles.includes(".nav{display:flex"));
+  assert.match(styles, /@media\(max-width:820px\)\{[\s\S]*?\.nav\{display:flex;[\s\S]*?overflow-x:auto/);
 });

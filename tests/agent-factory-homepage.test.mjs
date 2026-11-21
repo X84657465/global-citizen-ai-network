@@ -33,3 +33,9 @@ test("factory navigation has accessible labels and responsive layout rules", () 
   assert.match(styles, /@media\(max-width:760px\)/);
   assert.match(styles, /:focus-visible/);
 });
+
+test("factory homepage distinguishes a ready candidate Preview from pending device acceptance", () => {
+  assert.match(page, /Preview 已就緒 · 待裝置驗收/);
+  assert.match(page, /候選 Preview 已就緒，待裝置驗收/);
+  assert.match(page, /版本 2\.0\.80/);
+});
