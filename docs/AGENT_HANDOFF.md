@@ -52,12 +52,12 @@ F–P manifest registration or a “ready” label is not implementation accepta
 ### PR #259 — P0 A / F–P consolidated acceptance candidate
 
 - Branch: `fix/ci-schema-grant-test-count-20261122`; base main SHA: `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
-- **Current exact PR head: `373ba6f41b5a995b1efd871859f569312256361d`** (39 changed files; Draft/open/unmerged).
-- Exact-head Actions run [44946287444](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946287444), run #3216, is pending; latest jobs lookup returned an empty list. No quality/test result is available. An empty jobs list is not evidence of Runner failure or success.
+- **Current exact PR head: `2ebd1a06be88a42da40dcbd132ed7bd2898a7c03`** (39 changed files; Draft/open/unmerged).
+- Exact-head Actions run [44946633658](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946633658), run #3220, is pending; latest jobs lookup returned an empty list. No quality/test result is available. An empty jobs list is not evidence of Runner failure or success. Previous run #3216 (44946287444) was cancelled after the candidate head advanced.
 - This round selectively ported A's deterministic negated/high-risk plan-intent classifier and its regression suite from PR #261 into this consolidated candidate. Exact file blobs match the source PR's two files.
 - PR #261 is closed as redundant; no feature was discarded. Its old run [44940637761](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44940637761) failed at the pre-existing schema-guard/pgTAP-plan synchronization assertion on its older main-based branch. The ported changes must be validated only on #259's new exact SHA.
 - The candidate also contains the corrected RLS fixtures, appeal authorization SQLSTATE handling, strict UTC timestamp validation, GitHub repository-name validation, F–P host/observability fixes, release metadata synchronization, and the four F/G repository-identity hardening files selectively ported from PR #255 (`security-assurance`, `release-assurance`, and their regression suites).
-- The previously READY Vercel Preview (`dpl_AL3xTHq8xxNsTmxqriFEChHLADYN`) belongs to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6`; its root, `/factory`, `/workspace` and `/login` HTTP 200 smoke checks are historical only. No Preview deployment record exists for current SHA `373ba6f41b5a995b1efd871859f569312256361d`; Vercel reports provider `build-rate-limit`.
+- The previously READY Vercel Preview (`dpl_AL3xTHq8xxNsTmxqriFEChHLADYN`) belongs to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6`; its root, `/factory`, `/workspace` and `/login` HTTP 200 smoke checks are historical only. No Preview deployment record exists for current SHA `2ebd1a06be88a42da40dcbd132ed7bd2898a7c03`; Vercel reports provider `build-rate-limit`.
 - PR #255's four F/G repository-identity hardening files are now included in #259; PR #255's earlier CI failed before unit tests at the old-base schema-guard assertion, so its run is not evidence for the port. Revalidate all four files on #259's current exact SHA.
 - No independent formal review submissions or inline review threads are recorded.
 - Keep Draft/unmerged until exact-head Windows quality gates, unit tests, typecheck, lint, security audits, production build, PostgreSQL/migrations/pgTAP/RLS, Ollama/local execution, current-SHA Preview and independent review are all verified. Do not infer success from resolver-only completion.
@@ -114,7 +114,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 
 ## 6. Next execution order
 
-1. **A first:** validate #259 exact head `373ba6f41b5a995b1efd871859f569312256361d` on run [44946287444](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946287444). Resolver metadata is pending; substantive jobs have not started.
+1. **A first:** validate #259 exact head `2ebd1a06be88a42da40dcbd132ed7bd2898a7c03` on run [44946633658](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946633658). The run is pending and no jobs have been returned.
 2. **A risk-intent integration:** the two files from #261 are now included in #259; #261 is closed as redundant. Do not use its old failed CI as evidence for the consolidated candidate.
 3. **Shared baseline:** #267 is closed as redundant and its package-lock/version changes are carried by #259. No separate merge is required.
 4. **K support:** keep #268's handoff aligned with verified PR/main state. Because this handoff is itself committed on #268, its exact head changes whenever this file is refreshed; always read the current SHA from PR #268 metadata and verify its matching Actions run before considering a merge. No independent review is recorded.
@@ -134,7 +134,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ## Current checkpoint — 2026-11-22 (latest verified)
 
 - Main remains at base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; `VERSION` and `package.json` are `0.3.124`. README's mainline label remains `0.3.121`; PR #259 carries the correction.
-- PR #259 exact head is `373ba6f41b5a995b1efd871859f569312256361d` (39 changed files); run [44946287444](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946287444), run #3216, remains pending with no jobs returned. No substantive CI result is available yet. Vercel reports provider `build-rate-limit`; the previous READY Preview belongs to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` and must not be reused.
+- PR #259 exact head is `2ebd1a06be88a42da40dcbd132ed7bd2898a7c03` (39 changed files); run [44946633658](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946633658), run #3220, is pending with no jobs returned. Previous run #3216 was cancelled after the head advanced. No substantive CI result is available yet. Vercel reports provider `build-rate-limit`; the previous READY Preview belongs to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` and must not be reused.
 - A risk-intent classification and regression tests were ported exactly from PR #261 into #259. PR #261 is now closed as redundant; its prior schema-guard failure is not evidence against the new consolidated SHA.
 - PR #267 is closed as redundant; its README/package metadata correction is carried in #259 and is not yet on main.
 - PR #259 has no independent formal reviews or inline review threads. No Vercel Preview deployment exists for its current SHA; provider status is blocked by `build-rate-limit`. The earlier READY deployment and HTTP 200 smoke checks belong to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` and are historical only.
