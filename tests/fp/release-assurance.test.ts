@@ -23,6 +23,7 @@ const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle =
   run: {
     runId: 123,
     runAttempt: 1,
+    pullRequestNumber: 216,
     repository: repo,
     headRepository: repo,
     event: "pull_request",
@@ -78,6 +79,21 @@ test("rejects evidence from a parent commit or another repository", () => {
     run: { ...bundle().run, headRepository: "attacker/fork" },
   }));
   assert.equal(foreignRepo.status, "stale");
+});
+
+test("binds run and job links to the exact repository, run, and pull request", () => {
+  const wrongPullRequest = assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, pullRequestNumber: 217 },
+  }));
+  assert.equal(wrongPullRequest.status, "stale");
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: {
+      ...bundle().run,
+      jobs: G_REQUIRED_CI_JOBS.map((id) =>
+        job(id, { jobUrl: "https://github.com/attacker/fork/actions/runs/999/job/456" }),
+      ),
+    },
+  })), TypeError);
 });
 
 test("requires the trusted mainline workflow and pull-request event", () => {
