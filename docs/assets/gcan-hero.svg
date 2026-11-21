@@ -1,1 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="t d"><title id="t">Global Citizen AI Network</title><desc id="d">A global AI collaboration ecosystem with five connected workstreams.</desc><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#07172f"/><stop offset=".55" stop-color="#17345c"/><stop offset="1" stop-color="#35296d"/></linearGradient><radialGradient id="gl"><stop stop-color="#7eb8ff" stop-opacity=".5"/><stop offset="1" stop-color="#7eb8ff" stop-opacity="0"/></radialGradient></defs><rect width="1600" height="520" rx="28" fill="url(#bg)"/><circle cx="1260" cy="245" r="380" fill="url(#gl)"/><g fill="none" stroke="#a6caff" stroke-opacity=".5" stroke-width="2"><path d="M950 130L1190 95 1390 185 1320 365 1080 390Z"/><path d="M950 130L1320 365M1190 95L1080 390M1390 185L1080 390"/><g fill="#a6caff"><circle cx="950" cy="130" r="7"/><circle cx="1190" cy="95" r="7"/><circle cx="1390" cy="185" r="7"/><circle cx="1320" cy="365" r="7"/><circle cx="1080" cy="390" r="7"/></g></g><g font-family="Arial,sans-serif" fill="#fff"><text x="100" y="145" font-size="25" letter-spacing="7" fill="#a9ccff">GLOBAL CITIZEN AI NETWORK</text><text x="100" y="245" font-size="68" font-weight="700">Build Together.</text><text x="100" y="325" font-size="68" font-weight="700">Learn Together.</text><text x="105" y="390" font-size="25" fill="#c6d8f3">讓 AI 成為每個人都能參與的公共能力</text><text x="105" y="455" font-size="16" letter-spacing="3" fill="#a2b9dc">A · B · C · D · E / FIVE CONNECTED WORKSTREAMS</text></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="title desc">
+<title id="title">Global Citizen AI Network — A to O Fifteen Workstreams and P Governance</title>
+<desc id="desc">GCAN connects fifteen independently owned workstreams, A through O, under the cross-cutting P Governance, Ethics and Trust layer.</desc>
+<defs>
+ <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#07172f"/><stop offset=".55" stop-color="#17345c"/><stop offset="1" stop-color="#35296d"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#7eb8ff" stop-opacity=".38"/><stop offset="1" stop-color="#7eb8ff" stop-opacity="0"/></radialGradient>
+ <linearGradient id="p" x2="1"><stop stop-color="#214d65"/><stop offset="1" stop-color="#4a3970"/></linearGradient>
+ <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#020817" flood-opacity=".32"/></filter>
+</defs>
+<rect width="1600" height="520" rx="28" fill="url(#bg)"/>
+<circle cx="1230" cy="245" r="470" fill="url(#glow)"/>
+<g fill="none" stroke="#9fc4ff" stroke-opacity=".18" stroke-width="2">
+ <path d="M865 156L1465 156M865 246L1465 246M865 336L1465 336"/>
+ <path d="M915 156L915 336M1035 156L1035 336M1155 156L1155 336M1275 156L1275 336M1395 156L1395 336"/>
+</g>
+<g font-family="Arial,'Noto Sans TC',sans-serif">
+ <text x="88" y="105" font-size="24" letter-spacing="6" fill="#a9ccff">GLOBAL CITIZEN AI NETWORK</text>
+ <text x="84" y="220" font-size="70" font-weight="700" fill="#fff">Build Together.</text>
+ <text x="84" y="300" font-size="70" font-weight="700" fill="#fff">Learn Together.</text>
+ <text x="90" y="365" font-size="25" fill="#c6d8f3">讓 AI 成為每個人都能參與的公共能力</text>
+ <text x="90" y="435" font-size="17" letter-spacing="2.5" fill="#a2b9dc">A–O · 15 INDEPENDENT WORKSTREAMS</text>
+ <text x="880" y="91" font-size="17" letter-spacing="3" font-weight="700" fill="#c7dcff">15 WORKSTREAMS · ONE GOVERNANCE LAYER</text>
+</g>
+<g font-family="Arial,'Noto Sans TC',sans-serif" filter="url(#shadow)">
+ <g><rect x="870" y="120" width="108" height="70" rx="12" fill="#18365f" stroke="#77a5ff"/><text x="884" y="148" font-size="13" font-weight="700" fill="#b8d1ff">A</text><text x="884" y="171" font-size="12" fill="#fff">FACTORY</text></g>
+ <g><rect x="990" y="120" width="108" height="70" rx="12" fill="#16404b" stroke="#64d2c5"/><text x="1004" y="148" font-size="13" font-weight="700" fill="#a4f0e5">B</text><text x="1004" y="171" font-size="12" fill="#fff">PRODUCT</text></g>
+ <g><rect x="1110" y="120" width="108" height="70" rx="12" fill="#3a315e" stroke="#aa96ff"/><text x="1124" y="148" font-size="13" font-weight="700" fill="#d0c5ff">C</text><text x="1124" y="171" font-size="12" fill="#fff">PREDICT</text></g>
+ <g><rect x="1230" y="120" width="108" height="70" rx="12" fill="#3c3150" stroke="#d1a6ff"/><text x="1244" y="148" font-size="13" font-weight="700" fill="#e0caff">D</text><text x="1244" y="171" font-size="12" fill="#fff">NEURAL</text></g>
+ <g><rect x="1350" y="120" width="108" height="70" rx="12" fill="#4a3540" stroke="#f1a6b5"/><text x="1364" y="148" font-size="13" font-weight="700" fill="#ffd0da">E</text><text x="1364" y="171" font-size="12" fill="#fff">RESEARCH</text></g>
+ <g><rect x="870" y="210" width="108" height="70" rx="12" fill="#18365f" stroke="#77a5ff"/><text x="884" y="238" font-size="13" font-weight="700" fill="#b8d1ff">F</text><text x="884" y="261" font-size="12" fill="#fff">SECURITY</text></g>
+ <g><rect x="990" y="210" width="108" height="70" rx="12" fill="#16404b" stroke="#64d2c5"/><text x="1004" y="238" font-size="13" font-weight="700" fill="#a4f0e5">G</text><text x="1004" y="261" font-size="12" fill="#fff">QUALITY</text></g>
+ <g><rect x="1110" y="210" width="108" height="70" rx="12" fill="#3a315e" stroke="#aa96ff"/><text x="1124" y="238" font-size="13" font-weight="700" fill="#d0c5ff">H</text><text x="1124" y="261" font-size="12" fill="#fff">OBSERVE</text></g>
+ <g><rect x="1230" y="210" width="108" height="70" rx="12" fill="#3c3150" stroke="#d1a6ff"/><text x="1244" y="238" font-size="13" font-weight="700" fill="#e0caff">I</text><text x="1244" y="261" font-size="12" fill="#fff">CONNECT</text></g>
+ <g><rect x="1350" y="210" width="108" height="70" rx="12" fill="#4a3540" stroke="#f1a6b5"/><text x="1364" y="238" font-size="13" font-weight="700" fill="#ffd0da">J</text><text x="1364" y="261" font-size="12" fill="#fff">RESILIENCE</text></g>
+ <g><rect x="870" y="300" width="108" height="70" rx="12" fill="#18365f" stroke="#77a5ff"/><text x="884" y="328" font-size="13" font-weight="700" fill="#b8d1ff">K</text><text x="884" y="351" font-size="12" fill="#fff">KNOWLEDGE</text></g>
+ <g><rect x="990" y="300" width="108" height="70" rx="12" fill="#16404b" stroke="#64d2c5"/><text x="1004" y="328" font-size="13" font-weight="700" fill="#a4f0e5">L</text><text x="1004" y="351" font-size="12" fill="#fff">FEDERATION</text></g>
+ <g><rect x="1110" y="300" width="108" height="70" rx="12" fill="#3a315e" stroke="#aa96ff"/><text x="1124" y="328" font-size="13" font-weight="700" fill="#d0c5ff">M</text><text x="1124" y="351" font-size="12" fill="#fff">COMPLIANCE</text></g>
+ <g><rect x="1230" y="300" width="108" height="70" rx="12" fill="#3c3150" stroke="#d1a6ff"/><text x="1244" y="328" font-size="13" font-weight="700" fill="#e0caff">N</text><text x="1244" y="351" font-size="12" fill="#fff">GROWTH</text></g>
+ <g><rect x="1350" y="300" width="108" height="70" rx="12" fill="#4a3540" stroke="#f1a6b5"/><text x="1364" y="328" font-size="13" font-weight="700" fill="#ffd0da">O</text><text x="1364" y="351" font-size="12" fill="#fff">LIFECYCLE</text></g>
+ <rect x="870" y="398" width="588" height="62" rx="14" fill="url(#p)" stroke="#b7a5ff" stroke-width="1.5"/>
+ <text x="895" y="424" font-size="14" font-weight="700" fill="#e1d9ff">P · GOVERNANCE, ETHICS &amp; TRUST</text>
+ <text x="895" y="445" font-size="12" fill="#d5e5f6">Security · Privacy · Accountability · Audit · Human Oversight</text>
+</g>
+</svg>
