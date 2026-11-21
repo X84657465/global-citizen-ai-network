@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `40e0e6902ccd35e6daa77f2f7a339ba00f92fab3`  
+**Baseline:** `main` at `4bf472881ea4afabd9f29c4d58365c3ae6c3d2af`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -67,7 +67,7 @@
 - Updated the existing Next.js middleware to consume the paired context for both downstream request headers and response headers. Existing Supabase session refresh and cookie propagation remain intact.
 - Expanded request-context regression tests for valid ID reuse, absent/malformed/oversized IDs, consistency between request and response, preservation of unrelated request headers, and isolation from header mutation.
 - Extended the mainline F–P integration guard to verify that the middleware uses the paired contract. No route payload, identity, authorization, or secret is included in correlation metadata.
-- Release metadata advanced to `0.3.121` (governance revision `1.4.17`). This slice is on an isolated branch and is not accepted until exact-head quality CI and independent review complete.
+- Release metadata advanced to `0.3.122` (governance revision `1.4.18`). This slice is on an isolated branch and is not accepted until exact-head quality CI and independent review complete.
 - PR #229 F–G implementation is merged at `ef543ebeecf56785dc752fdb8ac9305862bb269e`, but remains unaccepted: exact-head PR CI run `44926059712` completed overall success with all substantive quality/build/database/persistence jobs skipped; main push CI run `44926070210` was cancelled.
 - Agent Factory V2 candidate revalidation is under development in PR #231 at exact HEAD `794bcd20df635580d80da512de12a59015041037`; exact-head CI run `44928183277` remains pending at the resolver job. Do not treat earlier cancelled runs as evidence for this HEAD.
 - Runner queue isolation is proposed in PR #235 at exact HEAD `c0014d6a1267cf0569fb110c87288a3317597731`; CI run `44927965451` remains pending at the resolver job. The current mainline recovery workflow still has workflow-level concurrency, and multiple recovery workflow_run events remain pending; the fix is not yet on main.
