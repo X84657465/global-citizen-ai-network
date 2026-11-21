@@ -31,12 +31,12 @@ test("homepage clearly declares factory-first, B-next and ecosystem-last priorit
 
 test("P governance remains a separate cross-cutting layer, not a feature workstream", () => {
   assert.match(governance, /P is the cross-cutting governance layer/i);
-  assert.match(governance, /P is the cross-cutting governance layer, not a sixth feature track/i);
+  assert.match(governance, /P is cross-cutting governance, not a peer feature track/i);
   assert.match(workstreams, /P \| Governance, Ethics & Trust/);
 });
 
 test("workstream cards retain responsive desktop, tablet and mobile layouts", () => {
-  assert.ok(styles.includes(".trackGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)"));
+  assert.ok(styles.includes(".trackGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))"));
   assert.match(styles, /@media\(max-width:1120px\)[\s\S]*?\.trackGrid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}[\s\S]*?\.trackCard\[data-track="P"\]/);
   assert.match(styles, /\.trackGrid\{display:grid;grid-template-columns:1fr/);
   assert.match(styles, /\.trackCard,\.trackCard\[data-track="P"\]/);
@@ -44,8 +44,7 @@ test("workstream cards retain responsive desktop, tablet and mobile layouts", ()
 
 test("homepage and repository README disclose early-stage status and exact-SHA Preview requirements", () => {
   assert.match(homepage, /早期建置與預覽階段/);
-  assert.match(homepage, /目前為早期建置與預覽階段/);
-  assert.match(homepage, /同一精確 SHA 的 CI、Preview/);
+  assert.match(homepage, /同一精確 SHA 的 CI、Preview、接收線確認及必要人工審查/);
   assert.match(readme, /歷史五線驗證快照/);
   assert.match(readme, /A–P 全線工程索引/);
 });
