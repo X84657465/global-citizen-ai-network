@@ -10,7 +10,6 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const SHA = /^[a-f0-9]{40}$/i;
-const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthenticatedClient();
