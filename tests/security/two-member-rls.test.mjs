@@ -211,7 +211,7 @@ test("member cannot appeal or probe another member's rejected submission", () =>
     expectMessage: "appeal submission is unavailable",
   });
   const denialIdentity = (output) => {
-    const match = output.match(/ERROR:\\s+([A-Z0-9]{5}):\\s*([^\\r\\n]+)/);
+    const match = output.match(/ERROR:\s+([A-Z0-9]{5}):\s*([^\r\n]+)/);
     assert.ok(match, "expected a structured PostgreSQL authorization error");
     return match[1] + ":" + match[2];
   };
