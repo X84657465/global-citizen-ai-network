@@ -49,6 +49,12 @@ test("rejects invalid repositories, reviewer logins and unsupported permission p
     api: { async request() { return { permission: "admin" }; } },
     repository: "../repo",
   }), TypeError);
+  for (const repository of ["owner/..", "./repo", "owner/.", "owner/repo/extra", "/repo", "owner/"]) {
+    assert.throws(() => createFPGitHubReviewerPermissionVerifier({
+      api: { async request() { return { permission: "admin" }; } },
+      repository,
+    }), TypeError, repository);
+  }
 
   const verify = createFPGitHubReviewerPermissionVerifier({
     api: { async request() { return { permission: "owner" }; } },
