@@ -19,10 +19,21 @@ function createFakeGitHubApi() {
   }];
   let nextIssueNumber = 100;
   const workflows = new Map();
+  const pullRequests = new Map();
 
   return {
     issues,
     workflows,
+    registerPullRequest(number, issue, headSha, headRef) {
+      pullRequests.set(number, {
+        number,
+        state: "open",
+        body: `<!-- ai-task:${issue} -->`,
+        user: { login: "owner" },
+        base: { ref: "main", repo: { full_name: repository } },
+        head: { ref: headRef, sha: headSha, repo: { full_name: repository } },
+      });
+    },
     async request(path, options = {}) {
       const url = new URL(path, "https://api.github.com");
       const method = options.method ?? "GET";
@@ -127,6 +138,7 @@ test("persists the complete worker-to-candidate lifecycle across controller rest
   assert.equal(result.state.active_task, null);
   assert.equal(result.state.tasks[String(issueNumber)].status, "awaiting_ci");
 
+  api.registerPullRequest(88, issueNumber, candidateSha, "ai-task/issue-42-abcdef123456");
   result = await invoke({
     AGENT_FACTORY_MODE: "candidate-start",
     ISSUE_NUMBER: String(issueNumber),
@@ -221,6 +233,10 @@ test("durable scheduler completes a 24-task lifecycle simulation with idempotent
     });
     assert.equal(result.state.active_task, null);
 
+    api.registerPullRequest(
+      pullRequestNumber, issue, headSha,
+      "ai-task/issue-" + issue + "-" + index.toString(16).padStart(12, "0"),
+    );
     result = await invoke({
       AGENT_FACTORY_MODE: "candidate-start",
       ISSUE_NUMBER: String(issue),
@@ -309,6 +325,7 @@ test("candidate failure recovers through backoff and retries the same open PR wi
     AGENT_FACTORY_LEASE_ID: firstLease,
     NEXT_TASK_STATE: "awaiting_ci",
   });
+  api.registerPullRequest(pullRequestNumber, issue, firstSha, "ai-task/issue-42-abcdef123456");
   await invoke({
     AGENT_FACTORY_MODE: "candidate-start",
     ISSUE_NUMBER: String(issue),
