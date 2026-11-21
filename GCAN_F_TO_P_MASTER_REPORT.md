@@ -156,8 +156,8 @@ A–P 註冊存在於 PR #185 head `6e76272623333201228d4ed82f63141f56dcb868` �
 
 ## 5. 本次實際變更
 
-- 新建分支 `audit/f-p-engineering-handover-20261121`，父提交 `6e76272623333201228d4ed82f63141f56dcb868`。
-- 僅新增本次五份交接文件。
+- 新建分支 `audit/f-p-engineering-handover-20261121`，初始父提交 `6e76272623333201228d4ed82f63141f56dcb868`；其後僅在此分支提交文件更新。
+- 新增五份 F–P 交接文件，以及 `GCAN_SHARED_ENGINEERING_GOVERNANCE.md`、`GCAN_SHARED_TASK_LEDGER.md` 兩份跨線協作文件；合計七份文件。
 - 未修改 app/lib/scripts/supabase/workflows/package/lockfile/manifest。
 - 未建立 PR、未合併、未推送 main、未部署、未觸碰 production。
 - 本分支尚無本機 build/test 結果；文件提交不代表功能驗收。
