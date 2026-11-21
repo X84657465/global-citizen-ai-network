@@ -504,6 +504,8 @@ test("system breaker recovery waits for a completed successful exact-head CI wor
   assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
   assert.ok(recovery.includes("github.event.workflow_run.conclusion == 'success'"));
   assert.ok(recovery.includes("github.event.workflow_run.event == 'pull_request'"));
+  assert.ok(recovery.includes("startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-')"),
+    "ordinary same-repository PRs must not reserve the shared Runner queue for candidate recovery");
   assert.ok(recovery.includes("github.event.workflow_run.head_repository.full_name == github.repository"));
   assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].number != ''"));
   const recoveryWorkflowHeader = recovery.slice(0, recovery.indexOf("\njobs:"));
