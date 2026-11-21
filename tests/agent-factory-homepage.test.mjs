@@ -34,8 +34,9 @@ test("factory navigation has accessible labels and responsive layout rules", () 
   assert.match(styles, /:focus-visible/);
 });
 
-test("factory homepage distinguishes a ready candidate Preview from pending device acceptance", () => {
-  assert.match(page, /Preview 已就緒 · 待裝置驗收/);
-  assert.match(page, /候選 Preview 已就緒，待裝置驗收/);
-  assert.match(page, /版本 2\.0\.80/);
+test("factory homepage does not misrepresent an older Preview as the current candidate", () => {
+  assert.match(page, /最新 SHA Preview 未部署 · 待額度恢復/);
+  assert.match(page, /舊 SHA，不能作為本版驗收證據/);
+  assert.match(page, /CANDIDATE · 0\\.3\\.121/);
+  assert.match(page, /版本 2\\.0\\.81/);
 });
