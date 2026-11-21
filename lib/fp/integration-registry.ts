@@ -160,6 +160,11 @@ export class FPIntegrationExecutor {
     private readonly audit: FPIntegrationAuditSink,
     private readonly timeoutMs = 15_000,
   ) {
+    if (!(registry instanceof FPIntegrationRegistry) ||
+        !credentials || typeof credentials.resolve !== "function" ||
+        !audit || typeof audit.record !== "function") {
+      throw new TypeError("A connector registry, credential resolver, and audit sink are required.");
+    }
     if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 100 || timeoutMs > 300_000) {
       throw new RangeError("Integration timeout must be between 100 and 300000 milliseconds.");
     }
@@ -203,10 +208,11 @@ export class FPIntegrationExecutor {
       });
       auditOperation = safeRequest.operation;
       correlationId = context.correlationId;
-      eventTime = context.now ?? new Date();
-      if (!(eventTime instanceof Date) || Number.isNaN(eventTime.getTime())) {
+      const suppliedTime = context.now ?? new Date();
+      if (!(suppliedTime instanceof Date) || Number.isNaN(suppliedTime.getTime())) {
         throw new FPIntegrationError("INVALID_REQUEST", "Invalid integration event time.");
       }
+      eventTime = new Date(suppliedTime.getTime());
 
       adapter = this.registry.getAdapter(safeRequest.connectorId);
       if (!adapter) {
