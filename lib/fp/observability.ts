@@ -1,4 +1,4 @@
-import type { WorkstreamId } from "./integration-contract.ts";
+import { isFPWorkstream, type WorkstreamId } from "./integration-contract.ts";
 
 export type FPOperationOutcome = "succeeded" | "denied" | "rejected" | "failed";
 
@@ -38,17 +38,22 @@ export interface FPObservabilitySink {
  */
 export class FPObservabilityRecorder implements FPObservabilitySink {
   private readonly events: FPOperationEvent[] = [];
+  private readonly capacity: number;
 
-  constructor(private readonly capacity = 250) {
+  constructor(capacity = 250) {
     if (!Number.isInteger(capacity) || capacity < 1 || capacity > 10_000) {
       throw new RangeError("Observability capacity must be an integer from 1 to 10000.");
     }
+    this.capacity = capacity;
   }
 
   record(event: FPOperationEvent): void {
     if (
+      !event ||
       event.schemaVersion !== "1" ||
       event.eventType !== "fp.capability.outcome" ||
+      !isFPWorkstream(event.workstream) ||
+      !["succeeded", "denied", "rejected", "failed"].includes(event.outcome) ||
       !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(event.correlationId) ||
       !/^[a-z][a-z0-9-]{1,63}$/.test(event.capability) ||
       !Number.isFinite(event.durationMs) ||
@@ -63,7 +68,9 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
   }
 
   list(): readonly FPOperationEvent[] {
-    return this.events.slice();
+    // Return detached records so callers can inspect or mutate their copies
+    // without exposing the recorder's immutable retained events.
+    return this.events.map((event) => ({ ...event }));
   }
 
   snapshot(now: Date = new Date()): FPHealthSnapshot {
