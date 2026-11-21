@@ -13,7 +13,7 @@ test("every governance response uses the private no-store response helper", () =
   assert.match(route, /headers\.set\("X-Content-Type-Options", "nosniff"\)/);
   assert.equal((route.match(/NextResponse\.json\(/g) ?? []).length, 1);
   assert.ok(route.includes("return NextResponse.json(body, { ...init, headers });"));
-  assert.equal((route.match(/return privateJson\(/g) ?? []).length, 6);
+  assert.equal((route.match(/return privateJson\(/g) ?? []).length, 8);
 });
 
 test("authentication and authorization failures remain before GitHub access", () => {
