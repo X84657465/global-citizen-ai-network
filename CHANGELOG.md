@@ -1,9 +1,16 @@
+## 0.3.108 — 2026-11-21
+
+- Prepare B GCAN Product 0.1.16 on the corrected A Agent Factory 2.0.71 integration baseline.
+- Carry the exact-head CI target allowlist and its regression test into the B candidate branch so B validation can run against its own SHA.
+- Preserve B workspace UUID validation and minimal message API projections; no database schema, RLS, production data, secrets or deployment changes.
+
 ## 0.3.107 — 2026-11-21
 
-- Carry the exact 24-file Supabase migration inventory guard and disposable-database verification documentation onto the current A–P governance baseline.
-- Separate historical exact-head PostgreSQL/RLS evidence from the new candidate; do not reuse a prior SHA's passing CI as current acceptance.
-- Preserve the complete A–P manifest and repository release metadata; no hosted database, production data, secrets or deployment settings changed.
-- Current candidate exact-head CI and independent formal review remain required.
+- B GCAN Product advances to 0.1.16: validate UUID identities and conversation-to-project UUID relationships before accepting workspace metadata; reject malformed identifiers before they reach workspace navigation.
+- Extend behavioral fixtures for malformed conversation IDs, project IDs and project metadata IDs.
+- Preserve A Agent Factory V2 2.0.71, A–P governance 1.4.10 and all unaffected independent track versions; synchronize repository/package baseline to 0.3.107.
+- No database schema, RLS policy, authentication, production data, secrets or workflow/control-plane changes.
+- Exact-head full CI and independent formal review are required before acceptance.
 
 ## 0.3.106 — 2026-11-21
 
