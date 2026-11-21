@@ -1,3 +1,8 @@
+## 0.3.105 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.74: preserve approved supplemental task context headings (`Confirmed evidence`, `Finding and required behavior`, and dated retry-scope refinements) in the preflight bundle.
+- Keep the four required task sections, strict allowed-path checks, duplicate rejection and unknown-heading rejection unchanged; add regression tests for current failed task specifications.
+
 ## 0.3.104 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.73: add a narrowly scoped pull-request base-branch trigger for dependent factory hardening work, with regression coverage; no wildcard branches or permission changes.
