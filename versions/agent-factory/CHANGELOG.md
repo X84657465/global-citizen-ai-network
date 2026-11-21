@@ -1,3 +1,14 @@
+## 2.0.75 — 2026-11-21
+
+### Fixed — Carry approved supplemental context through the full factory pipeline
+- Permit only the three documented supplemental section forms through the final parser allowlist as well as the heading parser.
+- Include normalized supplemental context in both local-model planning and patch-generation inputs using a shared task-context builder.
+- Keep supplemental issue content untrusted; required sections, strict allowed paths, duplicate/unknown heading rejection and patch output bounds remain enforced.
+- Add regression coverage for parsed context and the shared model-input projection.
+
+### Verification
+- Fresh exact-head CI, including task-validation tests and local Ollama/Runner smoke tests, remains required.
+
 ## 2.0.74 — 2026-11-21
 
 ### Fixed — Preserve explicitly supported supplemental task context
