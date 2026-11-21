@@ -1,6 +1,6 @@
 import type { WorkstreamId } from "./integration-contract.ts";
 
-export const FP_GOVERNANCE_POLICY_VERSION = "gcan-fp-governance/1" as const;
+export const FP_GOVERNANCE_POLICY_VERSION = "gcan-fp-governance/2" as const;
 
 export const FP_GOVERNANCE_REQUIREMENTS = [
   { workstream: "F", evidenceKind: "security-assurance" },
@@ -30,17 +30,34 @@ export interface FPGovernanceEvidence {
 
 export interface FPGovernanceWorkstreamRecord {
   readonly workstream: WorkstreamId;
-  /** Opaque reference to the accountable owner recorded by the host. */
+  /** Opaque reference to the accountable owner recorded by the trusted host. */
   readonly ownerRef: string;
   readonly evidence: readonly FPGovernanceEvidence[];
   /** L must remain deferred; this field is descriptive evidence, not a runtime switch. */
   readonly lifecycle: "active" | "deferred";
 }
 
+export type FPGovernanceReviewDecision = "approved" | "changes-requested" | "commented";
+
+export interface FPGovernanceReviewEvidence {
+  /** Exact candidate SHA that the host says this review evaluated. */
+  readonly reviewedSha: string;
+  readonly decision: FPGovernanceReviewDecision;
+  /** Opaque source references; the evaluator does not fetch or authenticate them. */
+  readonly reviewRef: string;
+  readonly reviewerRef: string;
+  readonly reviewerAuthorizationRef: string;
+  /** Attested by the trusted host after checking repository review permissions. */
+  readonly reviewerAuthorizationStatus: "verified" | "unverified";
+  readonly submittedAt: string;
+}
+
 export interface FPGovernanceDossier {
   readonly candidateSha: string;
   readonly policyVersion: typeof FP_GOVERNANCE_POLICY_VERSION;
   readonly workstreams: readonly FPGovernanceWorkstreamRecord[];
+  /** Reviews are descriptive host evidence; they never grant merge or release authority. */
+  readonly reviews?: readonly FPGovernanceReviewEvidence[];
 }
 
 export type FPGovernanceWorkstreamResult =
@@ -51,12 +68,29 @@ export type FPGovernanceWorkstreamResult =
   | { readonly workstream: WorkstreamId; readonly status: "failed"; readonly evidenceKind: string; readonly evidenceRef: string }
   | { readonly workstream: WorkstreamId; readonly status: "complete"; readonly evidenceKind: string; readonly evidenceRef: string };
 
+export type FPGovernanceReviewStatus =
+  | "not-recorded"
+  | "stale"
+  | "unverified-reviewer"
+  | "conflicting-decisions"
+  | "changes-requested"
+  | "reviewed-approved"
+  | "commented";
+
+export interface FPGovernanceReviewResult {
+  readonly reviewRef: string;
+  readonly reviewerRef: string;
+  readonly status: "stale" | "unverified-reviewer" | FPGovernanceReviewDecision;
+}
+
 export interface FPGovernanceAssessment {
   readonly schemaVersion: "1";
   readonly candidateSha: string;
   readonly policyVersion: typeof FP_GOVERNANCE_POLICY_VERSION;
   readonly status: "blocked" | "stale" | "incomplete" | "ready-for-human-review";
   readonly results: readonly FPGovernanceWorkstreamResult[];
+  readonly reviewStatus: FPGovernanceReviewStatus;
+  readonly reviews: readonly FPGovernanceReviewResult[];
   readonly complete: number;
   readonly failed: number;
   readonly missing: number;
@@ -71,6 +105,7 @@ export interface FPGovernanceAssessment {
 const SHA_PATTERN = /^[a-f0-9]{40}$/i;
 const OWNER_REF_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$/;
 const EVIDENCE_REF_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,255}$/;
+const ISO_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
 
 function isSafeEvidenceRef(value: string): boolean {
   return EVIDENCE_REF_PATTERN.test(value) &&
@@ -79,10 +114,104 @@ function isSafeEvidenceRef(value: string): boolean {
     !value.includes("//");
 }
 
+function assessReviews(
+  reviews: readonly FPGovernanceReviewEvidence[],
+  candidateSha: string,
+): { status: FPGovernanceReviewStatus; results: FPGovernanceReviewResult[] } {
+  if (!Array.isArray(reviews) || reviews.length > 100) {
+    throw new TypeError("Governance reviews must be an array containing at most 100 records.");
+  }
+
+  const reviewRefs = new Set<string>();
+  const byReviewer = new Map<string, FPGovernanceReviewEvidence[]>();
+  for (const review of reviews) {
+    if (
+      !review ||
+      !SHA_PATTERN.test(review.reviewedSha) ||
+      !["approved", "changes-requested", "commented"].includes(review.decision) ||
+      !isSafeEvidenceRef(review.reviewRef) ||
+      !OWNER_REF_PATTERN.test(review.reviewerRef) ||
+      !isSafeEvidenceRef(review.reviewerAuthorizationRef) ||
+      !["verified", "unverified"].includes(review.reviewerAuthorizationStatus) ||
+      !ISO_UTC_PATTERN.test(review.submittedAt) ||
+      Number.isNaN(Date.parse(review.submittedAt)) ||
+      reviewRefs.has(review.reviewRef)
+    ) {
+      throw new TypeError("Invalid or duplicate governance review evidence.");
+    }
+    reviewRefs.add(review.reviewRef);
+    const records = byReviewer.get(review.reviewerRef) ?? [];
+    records.push(review);
+    byReviewer.set(review.reviewerRef, records);
+  }
+
+  const currentReviews: FPGovernanceReviewEvidence[] = [];
+  const results: FPGovernanceReviewResult[] = [];
+  let staleCount = 0;
+  for (const review of reviews) {
+    if (review.reviewedSha.toLowerCase() !== candidateSha.toLowerCase()) {
+      staleCount += 1;
+      results.push({ reviewRef: review.reviewRef, reviewerRef: review.reviewerRef, status: "stale" });
+    }
+  }
+
+  for (const [reviewerRef, records] of byReviewer) {
+    const current = records.filter((review) => review.reviewedSha.toLowerCase() === candidateSha.toLowerCase());
+    if (current.length === 0) continue;
+    const latestTime = current.reduce((latest, review) =>
+      review.submittedAt > latest ? review.submittedAt : latest, current[0].submittedAt);
+    const latest = current.filter((review) => review.submittedAt === latestTime);
+    const decisions = new Set(latest.map((review) => review.decision));
+    if (decisions.size > 1) {
+      for (const review of latest) {
+        results.push({ reviewRef: review.reviewRef, reviewerRef, status: "commented" });
+      }
+      // The aggregate below detects the conflict independently of decision ordering.
+      continue;
+    }
+    const selected = latest[0];
+    currentReviews.push(selected);
+    results.push({
+      reviewRef: selected.reviewRef,
+      reviewerRef,
+      status: selected.reviewerAuthorizationStatus === "verified"
+        ? selected.decision
+        : "unverified-reviewer",
+    });
+  }
+
+  const hasConflict = [...byReviewer.values()].some((records) => {
+    const current = records.filter((review) => review.reviewedSha.toLowerCase() === candidateSha.toLowerCase());
+    if (current.length === 0) return false;
+    const latestTime = current.reduce((latest, review) =>
+      review.submittedAt > latest ? review.submittedAt : latest, current[0].submittedAt);
+    return new Set(current.filter((review) => review.submittedAt === latestTime).map((review) => review.decision)).size > 1;
+  });
+  if (hasConflict) return { status: "conflicting-decisions", results };
+  if (currentReviews.length === 0) {
+    return {
+      status: reviews.length > 0 && staleCount === reviews.length ? "stale"
+        : reviews.length > 0 ? "unverified-reviewer" : "not-recorded",
+      results,
+    };
+  }
+  if (currentReviews.some((review) => review.reviewerAuthorizationStatus !== "verified")) {
+    return { status: "unverified-reviewer", results };
+  }
+  if (currentReviews.some((review) => review.decision === "changes-requested")) {
+    return { status: "changes-requested", results };
+  }
+  if (currentReviews.some((review) => review.decision === "approved")) {
+    return { status: "reviewed-approved", results };
+  }
+  return { status: "commented", results };
+}
+
 /**
- * P's advisory dossier completeness check. It records accountability and
- * evidence references but cannot approve a release, authorize execution,
- * change policy, or activate a deferred workstream.
+ * P's advisory dossier completeness and review-provenance check.
+ * Owner/reviewer authorization is asserted by the trusted host, not
+ * authenticated here. A review marked approved is descriptive only: this
+ * evaluator cannot grant governance approval, merge, execution or deployment.
  */
 export function assessFPGovernanceDossier(
   dossier: FPGovernanceDossier,
@@ -163,6 +292,7 @@ export function assessFPGovernanceDossier(
     };
   });
 
+  const reviewAssessment = assessReviews(dossier.reviews ?? [], dossier.candidateSha);
   const count = (status: FPGovernanceWorkstreamResult["status"]) =>
     results.filter((result) => result.status === status).length;
   const failed = count("failed");
@@ -185,6 +315,8 @@ export function assessFPGovernanceDossier(
     policyVersion: FP_GOVERNANCE_POLICY_VERSION,
     status,
     results: Object.freeze(results),
+    reviewStatus: reviewAssessment.status,
+    reviews: Object.freeze(reviewAssessment.results),
     complete,
     failed,
     missing,
