@@ -84,3 +84,13 @@ No workflow result is inferred from PR mergeability, commit status not queried, 
 
 PR #206's successful CI is a material update over the initial report's pending status. It does not establish policy enforcement, branch protection, runtime security, preview acceptance, or production deployment.
 
+
+
+### Job-level evidence detail — 2026-11-21
+
+- G #148 run #44703057912: Unit tests failed; local Supabase migrations/PostgreSQL/RLS job passed. Other quality gates are bundled in the failed job and cannot be independently marked passed from the job summary.
+- H #150 run #44781690181: Unit tests failed; local Supabase migrations/PostgreSQL/RLS job passed.
+- L #66 run #44297572047: both build and database jobs failed; root cause is not established by the job summary.
+- P #68: queried exact-head check-runs include database, build and UltraProbe failures.
+- P #206 run #44903614946 on exact head `11869f21745efc88064487a167cd0296cfe21edc`: Windows Runner quality gates (tests, types, lint, audit, production build), Windows Ollama/local execution integration, and Windows Supabase migrations/PostgreSQL/RLS integration all passed. Verdict remains **CI PASS FOR PR #206 SCOPE ONLY**, not P-wide acceptance or deployment.
+
