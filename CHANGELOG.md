@@ -1,3 +1,9 @@
+## 0.3.110 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.79: explicitly enable exact-head pull-request CI for the active A 2.0.78 integration branch so dependent B work is not silently skipped.
+- Add an exact branch allowlist regression assertion; preserve owner checks, same-repository restriction, Windows Runner serialization, security audits, database/RLS gates and no-auto-merge behavior.
+- Repository package, lockfile, manifest, README and governance versions synchronized to 0.3.110; B remains 0.1.13 on this parent candidate.
+
 ## 0.3.109 — 2026-11-21
 
 - Align the five-track governance document's overall integration baseline with the authoritative repository release `0.3.109`.
