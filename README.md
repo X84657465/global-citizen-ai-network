@@ -22,7 +22,7 @@
 
 
 
-> **Preview 注意：** 舊 Preview SHA `173c74406de3d6fa72a123eb50eaedd678fafdf5` 不代表本分支最新候選。本分支最新候選 `1cbb20e70a3fb0beb3e40c36a234fba137c401bd` 尚未取得 Vercel Preview 部署；取得對應 SHA 的部署與驗收證據後才更新預覽入口。
+> **Preview 注意：** 舊 Preview SHA `173c74406de3d6fa72a123eb50eaedd678fafdf5` 不代表本分支最新候選。本分支最新候選尚未取得 Vercel Preview 部署；取得對應 SHA 的部署與驗收證據後才更新預覽入口。
 
 ## 🧭 專案架構與驗證原則｜2026-11-21
 
