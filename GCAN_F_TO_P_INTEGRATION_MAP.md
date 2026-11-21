@@ -1,6 +1,6 @@
 # GCAN F–P Integration Map
 
-**Baseline:** main `88ef18c6a2be53da2066a271ce0bddb280900da8`  
+**Baseline:** main `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
 **Boundary:** F–P are hosted by the existing GCAN platform. A–E and Agent Factory V2 remain protected.
 
 ## 1. Logical integration
@@ -44,7 +44,7 @@ F–P is not a parallel application, database, identity provider, task runner, q
 | H correlation | `lib/observability/request-context.ts`, `middleware.ts` | Paired request/response correlation ID | Route/job end-to-end proof still required |
 | P dossier | `lib/fp/governance-assurance.ts` | Completeness and review provenance | Does not grant approval or authority |
 | P review collector | `lib/fp/governance-review-source.ts` | Exact-head PR check and paginated submitted-review collection | Trusted-host permission callback must be supplied |
-| P permission provider candidate | PR #251: `lib/fp/github-review-permission.ts` | Read-only collaborator permission adapter using existing authenticated API client | Draft; exact-head CI pending; not wired to a production route |
+| P permission provider | PR #251: `lib/fp/github-review-permission.ts` | Read-only collaborator permission adapter using existing authenticated API client | Merged, but exact-head CI was pending at merge; follow-up path-validation fix and handover docs are on the isolated follow-up branch; not wired to a production route |
 
 ## 3. Dependency and call order
 
