@@ -50,7 +50,9 @@
 - The evaluator selects each reviewer's latest decision, rejects stale review evidence, flags conflicting decisions at the same timestamp and does not count unverified reviewer attestations as verified.
 - Reviewer authentication remains the trusted host's responsibility. The evaluator does not fetch GitHub permissions or authenticate identities; an approved review remains descriptive and grants no governance, execution, merge or deployment authority.
 - Regression tests cover stale approvals, unverified reviewers, latest-decision semantics, fractional timestamp ordering, conflicting decisions, unsafe/duplicate references and bounded input size.
-- Added a host-facing GitHub review collector that verifies the live PR remains open on the exact same-repository SHA targeting main, paginates the complete review history (up to a safe bound), maps submitted decisions and delegates permission checks to a trusted-host callback. This reusable boundary is not yet wired into the production host entry point.
+- Added a host-facing GitHub review collector that verifies the live PR remains open on the exact same-repository SHA targeting main, paginates the complete review history (up to a safe bound), maps submitted decisions and delegates permission checks to a trusted-host callback.
+- Wired the collector into `app/api/admin/fp/governance-reviews/route.ts`: the route requires an authenticated active admin, reads only the configured GitHub read token, uses the shared strict repository-name validator, rejects duplicate/malformed PR/SHA parameters, returns no-store responses, and explicitly returns `governanceApprovalGranted: false`, `mergeAuthorized: false`, and `deploymentAuthorized: false`. The host composition enforces collaborator permission verification through the same authenticated GitHub API client.
+- Remaining: exact-head CI, route-level auth/config regression coverage, independent formal review, and deployment/Preview evidence. The endpoint is read-only evidence collection, not a policy approval or execution path.
 
 ## 6. Latest F–G implementation slice (2026-11-22)
 
