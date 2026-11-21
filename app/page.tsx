@@ -37,7 +37,7 @@ const rules = [
  { title:"展示資料不冒充真實營運", text:"示範數據、尚未連接的 AI／搜尋服務、尚未啟用的獎勵支付與分散式運算都會清楚標示。", icon:ClipboardCheck },
 ];
 const docs = [
- { title:"A–P 工程治理規範", text:"A–P 工作線責任、P 橫向治理、版本制度、相容性測試與接收線審核。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/docs/engineering-governance.md", icon:GitBranch },
+ { title:"A–P 工程治理規範", text:"A–O 工作線責任、P 橫向治理、版本制度、相容性測試與接收線審核。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/docs/engineering-governance.md", icon:GitBranch },
  { title:"版本清單與變更紀錄", text:"查看平台版本、各主線版本、治理狀態與可追溯變更。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/versions/manifest.json", icon:Layers3 },
  { title:"Predictive Coding 架構", text:"預測、觀測、誤差、校準、漂移與更新提案的資料契約。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/feat/github-project-showcase/docs/predictive-coding-architecture.md", icon:Activity },
  { title:"Deep Neural 架構", text:"知識記憶、證據來源、推理評估與跨線學習邊界。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md", icon:BrainCircuit },
@@ -51,7 +51,7 @@ export default function HomePage() {
   <a className={styles.skipLink} href="#main-content">跳至主要內容</a>
   <header className={styles.header}><div className={styles.headerInner}>
    <Link href="/" className={styles.brand} aria-label="Global Citizen AI Network 首頁"><span className={styles.brandMark}><Globe2 size={22}/></span><span className={styles.brandText}><strong>GLOBAL CITIZEN</strong><small>AI NETWORK</small></span></Link>
-   <nav className={styles.nav} aria-label="主要導覽"><a href="#pillars">平台價值</a><a href="#workstreams">A–P 工作線</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
+   <nav className={styles.nav} aria-label="主要導覽"><a href="#pillars">平台價值</a><a href="#workstreams">A–O 工作線</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
    <div className={styles.headerActions}><Link href="/login" className={styles.loginLink}>會員登入</Link><Link href="/workspace" className={styles.headerCta}>進入平台 <ArrowUpRight size={15}/></Link></div>
   </div></header>
   <main id="main-content" tabIndex={-1}>
