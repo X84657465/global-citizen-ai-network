@@ -53,7 +53,7 @@ test("collects exact-head submitted reviews and host-verifies reviewer permissio
   assert.deepEqual(result, [{
     reviewedSha: sha, decision: "approved", reviewRef: "pull/42/reviews/100",
     reviewerRef: "github:reviewer-one",
-    reviewerAuthorizationRef: "permissions/reviewer-one/maintain",
+    reviewerAuthorizationRef: "permissions/reviewer-one/write",
     reviewerAuthorizationStatus: "verified", submittedAt: "2026-11-20T12:00:00Z",
   }]);
 });
