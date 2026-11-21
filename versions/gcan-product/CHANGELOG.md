@@ -1,3 +1,13 @@
+## 0.1.14 — 2026-11-21
+
+### Improved — Align public homepage with A–E + P architecture
+- Clarify A–E as engineering workstreams and P as cross-cutting Governance, Ethics & Trust.
+- Update homepage navigation, hero architecture labels and governance/documentation links.
+- Avoid implying that candidate workbenches or external preview routes are production-ready.
+
+### Verification
+- Exact-head integration CI and desktop/mobile browser visual acceptance remain required; no production deployment is claimed.
+
 ## 0.1.13 — 2026-11-20
 
 ### Integrated
