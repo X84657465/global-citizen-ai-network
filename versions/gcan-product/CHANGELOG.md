@@ -1,3 +1,14 @@
+## 0.1.20 — 2026-11-22
+
+### Changed — Align the public GCAN homepage with the A–P architecture
+- Publish the fifteen A–O workstream cards and identify P as the cross-cutting Governance, Ethics & Trust layer.
+- Make the factory-first, B-next, ecosystem-last development priority explicit on the public homepage.
+- Add responsive workstream layouts, direct Workspace/Factory navigation, and exact-SHA Preview disclosure.
+- Preserve early-development and demonstration-data disclosures; no production readiness or operational capability is implied.
+
+### Verification
+- Exact-head CI and current-SHA Preview acceptance are pending for this candidate.
+
 ## 0.1.19 — 2026-11-21
 
 ### Fixed — Preserve the current A integration baseline in B metadata
