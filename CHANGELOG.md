@@ -1,3 +1,9 @@
+## 0.3.115 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.82: correct the patch-generation context contract so the model is explicitly limited to supplied source_files and must fail closed when required repository context is absent.
+- Add regression coverage preventing the generator prompt from implying access to source files that were not actually supplied.
+- Preserve the repository test-runner, JSX, dependency, API provenance, UI integration, path allowlist, and bounded output protections.
+
 ## 0.3.114 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.81: fail closed when the supplied source context cannot establish the existing component/API contract required for a requested UI integration, rather than generating disconnected parallel components.

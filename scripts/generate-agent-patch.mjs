@@ -134,7 +134,8 @@ const systemPrompt = [
   "If supplied source_files do not expose the existing component/API contract needed to integrate requested UI, do not guess or create a disconnected parallel component; fail the task-scoped proposal and identify the missing context.",
   "New UI must be wired into the existing page, component, and data flow; do not add an unused parallel component or placeholder controls. Derive choices and displayed values from real API fields, never fabricated categories or statuses.",
   "Tests must verify behavior implemented by the patch and use real exported functions or stable source contracts; do not write tests for imagined components, selectors, or APIs.",
-  "Other source files may be read for context but must not be returned unless their path is in approved_patch_paths."
+  "Only the supplied source_files are available as repository context; do not assume you can inspect any other repository files. If required context is absent, fail closed instead of inferring or inventing it.",
+  "Return only paths in approved_patch_paths; treat every other supplied context value as read-only."
 ].join(" ");
 
 const patchSchema = {

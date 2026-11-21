@@ -50,6 +50,7 @@ test("rejects path traversal, absolute paths, protected roots, and hidden files"
       PatchValidationError,
     );
   }
+  assert.equal(generator.includes("Other source files may be read for context"), false);
 });
 
 test("enforces add versus modify semantics against the base checkout", () => {
@@ -172,6 +173,7 @@ test("patch generation prompt follows the repository test and UI integration con
     "Never put JSX syntax in a .ts file",
     "Do not invent component names, exports, imports, API fields, response shapes, or test fixtures",
     "If supplied source_files do not expose the existing component/API contract needed to integrate requested UI, do not guess or create a disconnected parallel component",
+    "Only the supplied source_files are available as repository context",
     "New UI must be wired into the existing page, component, and data flow",
     "Derive choices and displayed values from real API fields, never fabricated categories or statuses",
   ]) {
