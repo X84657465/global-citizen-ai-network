@@ -1,8 +1,8 @@
 # GCAN F–P Engineering Handover
 
 **Date:** 2026-11-22  
-**Audited main:** `88ef18c6a2be53da2066a271ce0bddb280900da8`  
-**Current F–P candidate:** PR #251, `12ea0a4b23bd75e470da92e2b9d6ab5440062d80`  
+**Audited main:** `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
+**Merged P provider:** PR #251, merge `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its exact-head CI did not complete before merge.  
 **Status:** Development in progress; exact-head CI is pending.
 
 ## 1. What is in place
@@ -22,18 +22,18 @@
 [Open PR #251](https://github.com/X84657465/global-citizen-ai-network/pull/251)
 
 - Branch: `feat/p-trusted-review-permission-provider-20261122`
-- Exact head: `12ea0a4b23bd75e470da92e2b9d6ab5440062d80`
+- Merged head: `12ea0a4b23bd75e470da92e2b9d6ab5440062d80`
 - Added source: `lib/fp/github-review-permission.ts`
 - Added tests: `tests/fp/github-review-permission.test.ts`
 - CI run: [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871)
-- Last observed CI state: pending at `Resolve exact candidate PR metadata`.
-- PR state: Draft; not accepted or merged.
+- Last observed CI state at merge: pending at `Resolve exact candidate PR metadata`; not an acceptance pass.
+- PR state: merged, but unverified and not accepted.
 
-Do not mark the tests as passed until the exact-head run completes with all required jobs successful. If the branch head changes, the previous run is stale and the new exact SHA must be verified again.
+A local isolated smoke test initially found that the repository-name validator accepted a `..` path segment. The validator was tightened on the follow-up branch, and the isolated smoke test then passed 4/4. This is not a substitute for the full repository suite or CI. Require fresh exact-head CI and independent review for the follow-up SHA.
 
 ## 3. Immediate continuation procedure
 
-1. Refresh PR #251 and its exact-head workflow run.
+1. Open the follow-up PR from `feat/p-trusted-review-permission-provider-20261122`; inspect its new exact head and fresh workflow run.
 2. Inspect resolver output and every downstream job; do not interpret skipped jobs as success.
 3. If a code/test failure exists, fix only the F–P branch and rerun against the new exact head.
 4. When all required CI jobs pass, obtain independent review and resolve comments.
