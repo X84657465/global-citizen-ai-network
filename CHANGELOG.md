@@ -1,3 +1,10 @@
+## 0.3.103 — 2026-11-21
+
+- Define risk-tiered independent PR review, exact-HEAD approval freshness, blocker declaration, and no-self-approval rules.
+- Add an advisory GitHub Actions review-governance workflow for exact-head CI, base-stack ancestry, declared blockers, distinct independent approvals, and unresolved review threads.
+- Document enforcement limitations: repository Rulesets are unavailable on the current private-repository plan and classic branch-protection read access is not available to the connected integration; administrator configuration remains required for a hard merge block.
+- No automatic approval, merge, production mutation, secret, or permission change.
+
 ## 0.3.102 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
