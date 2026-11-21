@@ -51,6 +51,8 @@ jobs:
               const approvalThreshold = highRisk ? 2 : 1;
               notes.push(`Risk class: ${highRisk ? "HIGH" : "LOW"}; independent approvals required: ${approvalThreshold}.`);
 
+              const { data: baseBranch } = await github.rest.repos.getBranch({ owner, repo, branch: baseRef });
+              if (baseBranch.commit.sha !== pr.base.sha) failures.push(`PR base SHA ${pr.base.sha} is stale; current ${baseRef} is ${baseBranch.commit.sha}.`);
               if (baseRef !== "main") {
                 const { data: parents } = await github.rest.pulls.list({
                   owner, repo, state: "all", head: `${owner}:${baseRef}`, per_page: 100
@@ -58,7 +60,7 @@ jobs:
                 const parent = parents.find(p => p.number !== prNumber);
                 if (!parent) failures.push(`Non-default base ${baseRef} has no matching parent PR; base relationship is unverified.`);
                 else if (!parent.merged) failures.push(`Stack parent PR #${parent.number} is not merged; child cannot be accepted yet.`);
-                else notes.push(`Stack parent PR #${parent.number} is merged.`);
+                else failures.push(`Stack parent PR #${parent.number} is merged; retarget/restack this child to ${parent.base.ref} and rerun exact-HEAD CI.`);
               }
 
               if (pr.labels.some(l => ["blocked", "blocked-by"].includes(l.name))) {
