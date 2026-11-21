@@ -1,5 +1,4 @@
 import type {
-  FPGovernanceRepositoryPermission,
   FPGovernanceReviewerPermission,
   FPGovernanceReviewCollectionInput,
 } from "./governance-review-source.ts";
@@ -10,6 +9,36 @@ export interface FPGitHubPermissionApi {
 
 interface CollaboratorPermissionResponse {
   readonly permission?: unknown;
+  readonly role_name?: unknown;
+}
+
+/**
+ * Normalizes GitHub's legacy base permission and role_name into the internal
+ * GCAN permission vocabulary. GitHub maps maintain -> write and triage -> read.
+ */
+function normalizeGitHubPermission(response: CollaboratorPermissionResponse | null): FPGovernanceReviewerPermission["permission"] {
+  const permission = response?.permission;
+  const roleName = response?.role_name;
+
+  if (roleName === "maintain" && permission !== "write") {
+    throw new TypeError("GitHub returned an inconsistent maintain permission payload.");
+  }
+  if (roleName === "triage" && permission !== "read") {
+    throw new TypeError("GitHub returned an inconsistent triage permission payload.");
+  }
+
+  switch (permission) {
+    case "admin":
+      return "admin";
+    case "write":
+      return roleName === "maintain" ? "maintain" : "push";
+    case "read":
+      return roleName === "triage" ? "triage" : "pull";
+    case "none":
+      return "none";
+    default:
+      throw new TypeError("GitHub returned an unsupported repository permission.");
+  }
 }
 
 /**
@@ -28,7 +57,7 @@ export function createFPGitHubReviewerPermissionVerifier(input: {
     !input.api ||
     typeof input.api.request !== "function" ||
     typeof input.repository !== "string" ||
-    !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(input.repository)
+    !/^[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(input.repository)
   ) {
     throw new TypeError("A valid repository and authenticated GitHub API client are required.");
   }
@@ -44,22 +73,10 @@ export function createFPGitHubReviewerPermissionVerifier(input: {
     const response = await input.api.request(
       `/repos/${input.repository}/collaborators/${encodeURIComponent(reviewerLogin)}/permission`,
     ) as CollaboratorPermissionResponse | null;
-
-    const permission = response?.permission;
-    const allowed: readonly FPGovernanceRepositoryPermission[] = [
-      "admin",
-      "maintain",
-      "push",
-      "triage",
-      "pull",
-      "none",
-    ];
-    if (typeof permission !== "string" || !allowed.includes(permission as FPGovernanceRepositoryPermission)) {
-      throw new TypeError("GitHub returned an unsupported repository permission.");
-    }
+    const permission = normalizeGitHubPermission(response);
 
     return Object.freeze({
-      permission: permission as FPGovernanceRepositoryPermission,
+      permission,
       evidenceRef: `github:${input.repository}:collaborator-permission:${reviewerLogin}:${permission}`,
     });
   };
