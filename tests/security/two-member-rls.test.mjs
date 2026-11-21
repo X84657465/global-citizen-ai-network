@@ -8,11 +8,11 @@ const psql = process.env.PSQL_BIN || "psql";
 const databaseContainer = process.env.SUPABASE_DB_CONTAINER;
 const docker = process.env.DOCKER_BIN || "docker";
 
-function sql(query, { expectFailure = false } = {}) {
+function sql(query, { expectFailure = false, expectSqlState } = {}) {
   if (!databaseUrl) throw new Error("SUPABASE_DB_URL is required. Use a disposable local Supabase database; never point this test at production.");
   const command = databaseContainer ? docker : psql;
   const args = databaseContainer ? ["exec", "-e", "PGAPPNAME=gcan-two-member-rls-test", databaseContainer, "psql", "-U", "postgres", "-d", "postgres"] : [databaseUrl];
-  args.push("-X", "-q", "-A", "-t", "-v", "ON_ERROR_STOP=1", "-c", query);
+  args.push("-X", "-q", "-A", "-t", "-v", "ON_ERROR_STOP=1", "-v", "VERBOSITY=verbose", "-c", query);
   const result = spawnSync(command, args, { encoding: "utf8", timeout: 30_000, env: process.env });
 
   const diagnostic = [
@@ -28,7 +28,15 @@ function sql(query, { expectFailure = false } = {}) {
   if (expectFailure) {
     assert.notEqual(result.status, 0, "Expected the database to reject this operation.");
     if (result.error) throw new Error(`Database subprocess could not execute: ${diagnostic}`);
-    return result.stderr || result.stdout;
+    const failureOutput = result.stderr || result.stdout;
+    if (expectSqlState) {
+      assert.match(
+        failureOutput,
+        new RegExp("ERROR:\\s+" + expectSqlState + ":"),
+        `Expected PostgreSQL SQLSTATE ${expectSqlState}; received a different failure: ${diagnostic}`,
+      );
+    }
+    return failureOutput;
   }
   assert.equal(result.status, 0, diagnostic || "psql command failed");
   return result.stdout.trim();
@@ -70,10 +78,12 @@ function fixture() {
       ('${requestB}', '${b}', '${projectB}', '${conversationB}', 'fixture', 'fixture', 'rls-test');
     insert into public.contribution_tasks (id, title, description, category, status)
     values ('${task}', 'RLS fixture task', 'Disposable test fixture', 'security', 'published');
-    insert into public.task_submissions (id, task_id, contributor_id, content)
+    insert into public.task_submissions (id, task_id, contributor_id, content, status)
     values
-      ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.'),
-      ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.');
+      ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.', 'submitted'),
+      ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.', 'rejected');
+    insert into public.task_reviews (submission_id, reviewer_id, decision, rationale)
+    values ('${submissionB}', '${b}', 'reject', 'Private review rationale belonging to member B.');
     `;
   return { a, b, projectA, projectB, conversationA, conversationB, messageA, messageB, requestA, requestB, submissionA, submissionB, task, setup };
 }
@@ -134,7 +144,7 @@ test("member cannot attach a conversation to another member's project", () => {
       values ('${conversation}', '${f.a}', '${f.projectB}', 'cross-member project attachment');
     `)}
     rollback;
-  `, { expectFailure: true });
+  `, { expectFailure: true, expectSqlState: "23514" });
 });
 
 test("member cannot insert a message into another member's conversation", () => {
@@ -146,7 +156,33 @@ test("member cannot insert a message into another member's conversation", () => 
       values ('${f.conversationB}', '${f.a}', 'user', 'cross-member conversation injection');
     `)}
     rollback;
-  `, { expectFailure: true });
+  `, { expectFailure: true, expectSqlState: "42501" });
+});
+
+test("member cannot read another member's submission or review rationale", () => {
+  const f = fixture();
+  const output = sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      select
+        (select count(*) from public.task_submissions where id = '${f.submissionB}') || ',' ||
+        (select count(*) from public.task_reviews where submission_id = '${f.submissionB}');
+    `)}
+    rollback;
+  `);
+  assert.match(output, /0,0$/, "member A must not see member B's submission or review rationale");
+});
+
+test("member cannot appeal another member's rejected submission", () => {
+  const f = fixture();
+  sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.task_appeals (submission_id, appellant_id, reason)
+      values ('${f.submissionB}', '${f.a}', 'Attempt to appeal another member submission.');
+    `)}
+    rollback;
+  `, { expectFailure: true, expectSqlState: "42501" });
 });
 
 test("member cannot submit contribution work on behalf of another member", () => {
@@ -159,7 +195,7 @@ test("member cannot submit contribution work on behalf of another member", () =>
       values ('${submission}', '${f.task}', '${f.b}', 'forged contributor identity');
     `)}
     rollback;
-  `, { expectFailure: true });
+  `, { expectFailure: true, expectSqlState: "42501" });
 });
 
 test("profile role and account-status escalation is rejected by the database trigger", () => {

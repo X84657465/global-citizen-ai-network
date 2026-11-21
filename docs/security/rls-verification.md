@@ -33,6 +33,10 @@ The host running Node must have `psql` on PATH. Set `PSQL_BIN` to an explicit ex
 
 - Two synthetic members can see only their own profiles, projects, conversations, messages, AI requests, and submissions.
 - Cross-member project mutation and cross-member row reads affect/return zero rows.
+- Cross-member conversation-to-project attachment is rejected with SQLSTATE `23514` by the ownership guard.
+- Cross-member message insertion and forged contributor submissions are rejected with SQLSTATE `42501` by row-level security.
+- A member cannot read another member's submission or private review rationale.
+- A member cannot appeal another member's rejected submission; the test asserts SQLSTATE `42501`.
 - A member cannot change their own role through the profile update path.
 - Authenticated clients cannot insert assistant messages (the client insert policy is user-message-only).
 - Authenticated clients cannot write directly to the reward ledger.
