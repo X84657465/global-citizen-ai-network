@@ -14,9 +14,12 @@ const readRepositoryFile = (path: string) =>
 const ciWorkflow = readRepositoryFile(".github/workflows/ci.yml");
 const middleware = readRepositoryFile("middleware.ts");
 const correlationHelper = readRepositoryFile("lib/observability/request-context.ts");
+const databasePrivilegeRegression = readRepositoryFile("supabase/tests/public_table_grants.test.sql");
 const schedulerRunbook = readRepositoryFile("docs/ai-agent-scheduler-operations.md");
 
 test("F security evidence paths exist and map to the CI job that executes them", () => {
+  assert.ok(databasePrivilegeRegression.includes("pg_has_role(api.rolname, privileged.oid, 'MEMBER')"));
+  assert.ok(databasePrivilegeRegression.includes("privileged.rolsuper or privileged.rolbypassrls"));
   for (const control of FP_SECURITY_CONTROLS) {
     assert.ok(
       existsSync(new URL(`../../${control.evidencePath}`, import.meta.url)),
