@@ -149,21 +149,21 @@ test("does not persist unrelated review-branch CI failures into the factory circ
 });
 
 
-test("resets the global breaker only after successful CI for main or a tracked factory task", () => {
+test("records candidate success only after exact-head CI and database gates pass", () => {
   const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
   const start = workflow.indexOf("  circuit-breaker-success:");
   assert.ok(start >= 0);
   const job = workflow.slice(start);
   assert.ok(job.includes("needs.build.result == 'success'"));
   assert.ok(job.includes("needs.database.result == 'success'"));
-  assert.ok(job.includes("AGENT_FACTORY_MODE: success"));
+  assert.equal(job.includes("AGENT_FACTORY_MODE: success"), false);
   assert.ok(job.includes("AGENT_FACTORY_MODE: candidate"));
   assert.ok(job.includes("CI_CONCLUSION: success"));
   assert.ok(job.includes("PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}"));
   assert.ok(job.includes("HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}"));
   assert.ok(job.includes("CI_RUN_ID: ${{ github.run_id }}"));
   assert.ok(job.includes("CI_RUN_ATTEMPT: ${{ github.run_attempt }}"));
-  assert.ok(job.includes("Reset global breaker after healthy non-task CI"));
+  assert.ok(job.includes("Record exact candidate CI success"));
   assert.ok(job.includes("contents: read"));
   assert.ok(job.includes("github.ref == 'refs/heads/main'"));
   assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
