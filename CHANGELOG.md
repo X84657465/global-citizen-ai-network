@@ -1,3 +1,8 @@
+## 0.3.104 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.73: add a narrowly scoped pull-request base-branch trigger for dependent factory hardening work, with regression coverage; no wildcard branches or permission changes.
+- Preserve the 0.3.103 bounded new-file output-budget correction and all existing patch-size enforcement.
+
 ## 0.3.103 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.72: prevent valid new-file patch proposals from being truncated by halving the validated plan's byte allowance when deriving the Ollama token ceiling.
