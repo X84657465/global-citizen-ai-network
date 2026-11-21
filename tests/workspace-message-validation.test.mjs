@@ -71,6 +71,8 @@ test("conversation metadata filtering accepts only complete records with valid U
     { ...valid, id: "8c3c5d8e-6d7b-4a7e-8b10-9d8c7b6a5f40", project_id: "not-a-uuid" },
     { ...valid, id: "8c3c5d8e-6d7b-4a7e-8b10-9d8c7b6a5f41", updated_at: "2026-02-29T10:00:00Z" },
     { ...valid, id: "8c3c5d8e-6d7b-4a7e-8b10-9d8c7b6a5f42", title: 42 },
+    { ...valid, id: "8c3c5d8e-6d7b-4a7e-8b10-9d8c7b6a5f43", title: "   " },
+    { ...valid, id: "8c3c5d8e-6d7b-4a7e-8b10-9d8c7b6a5f44", title: "x".repeat(161) },
     null,
     [],
   ]), [valid]);
@@ -86,6 +88,8 @@ test("project metadata filtering retains active UUID records and excludes archiv
     { id: "d3b07384-d9a0-4f8b-8b10-9d8c7b6a5f41", title: "Archived", archived_at: "2026-11-20T10:00:00Z" },
     { id: "d3b07384-d9a0-4f8b-8b10-9d8c7b6a5f42", title: "Invalid", archived_at: "2026-02-30T10:00:00Z" },
     { id: "d3b07384-d9a0-4f8b-8b10-9d8c7b6a5f43", title: null, archived_at: null },
+    { id: "d3b07384-d9a0-4f8b-8b10-9d8c7b6a5f44", title: "   ", archived_at: null },
+    { id: "d3b07384-d9a0-4f8b-8b10-9d8c7b6a5f45", title: "x".repeat(161), archived_at: null },
     null,
     [],
   ]), [active]);
