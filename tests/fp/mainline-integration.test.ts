@@ -92,6 +92,9 @@ test("P governance requirements cover every F–P line and keep L explicitly def
   assert.ok(governance.includes("governanceApprovalGranted: false"));
   assert.ok(governance.includes("mergeAuthorized: false"));
   assert.ok(existsSync(new URL("../../lib/fp/governance-review-source.ts", import.meta.url)));
+  const hostContract = readRepositoryFile("docs/architecture/fp-mainline-host-contract.md");
+  assert.ok(hostContract.includes("lib/fp/governance-review-source.ts"));
+  assert.ok(hostContract.includes("Only `admin`, `maintain`, and `push` permissions are marked verified"));
   assert.equal(typeof collectFPGovernanceReviewEvidence, "function");
   assert.match(schedulerRunbook, /does not approve the candidate, authorize a merge, or deploy production/);
 });
