@@ -30,7 +30,7 @@
 | 查核候選版本 | [版本清單](versions/manifest.json) · [變更紀錄](CHANGELOG.md) | 以 manifest 為版本唯一依據；README 與官網候選版本須一致 |
 | 查核開發進度 | [首頁整合 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 紀錄](https://github.com/X84657465/global-citizen-ai-network/actions) | 以最新 SHA 的 CI、Preview 與審查結果為準 |
 
-> **Preview 注意：** 舊 Preview SHA `3821354dd50d6045604688bf1117a668f3a37cc0` 不代表本分支最新候選。本分支最新候選尚未取得 Vercel Preview 部署；取得對應 SHA 的部署與驗收證據後才更新預覽入口。
+> **Preview 驗收：** Preview 部署必須與目前 PR HEAD 的完整 SHA 完全一致；不同 SHA 的舊部署不得作為目前候選的驗收證據。即使 Preview 已 READY，仍須另外完成桌面、平板、手機的實際視覺與互動驗收，且不得將 Preview 說成 Production。
 
 ## 🧭 專案架構與驗證原則｜2026-11-21
 
