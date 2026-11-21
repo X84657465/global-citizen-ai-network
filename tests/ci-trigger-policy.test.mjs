@@ -53,7 +53,7 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   for (const requiredBranch of [
     "main",
     "feat/github-project-showcase",
-    "fix/agent-factory-new-file-output-budget-20261121",
+    "fix/agent-factory-add-output-budget-20261121",
     "chore/reconcile-ap-governance-on-a-2.0.70-20261121",
     "chore/ap-governance-on-integrated-main-20261121",
     "chore/migration-verification-on-integrated-governance-20261121",
