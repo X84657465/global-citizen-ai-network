@@ -1,3 +1,10 @@
+## 0.3.115 — 2026-11-21
+
+- Fix the P governance card alignment at tablet widths by centering it across the grid with a controlled half-width.
+- Explicitly reset the P card to full width on mobile so tablet sizing cannot leak into the single-column layout.
+- Remove the README's obsolete description of P as a sixth feature workstream; P is the cross-cutting governance layer, not a peer of A–O.
+- Static source validation only; exact-head CI, Preview build and desktop/tablet/mobile visual acceptance remain required.
+
 ## 0.3.114 — 2026-11-21
 
 - Refine the homepage's 15+1 architecture presentation: A–O cards are labeled as workstreams; the P card is explicitly labeled as the Governance Layer.
