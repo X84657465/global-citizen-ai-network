@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const component = readFileSync(new URL("../components/account/account-summary.tsx", import.meta.url), "utf8");
+const styles = readFileSync(new URL("../components/account/account-summary.module.css", import.meta.url), "utf8");
 const page = readFileSync(new URL("../app/account/page.tsx", import.meta.url), "utf8");
 
 test("account summary groups profile details with explicit semantic labels", () => {
@@ -16,7 +17,8 @@ test("account summary groups profile details with explicit semantic labels", () 
 
 test("account actions expose an accessible navigation name and keyboard focus styles", () => {
   assert.match(component, /<nav className={styles.accountActions} aria-label="帳戶功能">/);
-  assert.match(component, /:focus-visible/);
+  assert.match(styles, /\.accountLink:focus-visible/);
+  assert.match(styles, /\.signoutButton:focus-visible/);
   assert.match(component, /aria-label="安全登出會員帳戶"/);
 });
 
