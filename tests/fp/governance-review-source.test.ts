@@ -197,7 +197,12 @@ test("rejects malformed IDs, unsupported states, reviewer identities, timestamps
     review({ submitted_at: "not-a-date" }),
   ]) {
     await assert.rejects(
-      collectFPGovernanceReviewEvidence(makeInput(new Map([[prPath, pull()], [reviewsPath(), [item]]]))),
+      collectFPGovernanceReviewEvidence(
+        makeInput(new Map([
+          [prPath, pull()],
+          [reviewsPath(), [item]],
+        ])),
+      ),
       (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INVALID_REVIEW_DATA",
     );
   }
