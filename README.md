@@ -6,7 +6,7 @@
 
 **一個結合 AI 服務、全球知識協作、透明貢獻帳本與自願式運算願景的長期平台。**
 
-[產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.79）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [官網首頁更新 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
+[產品網站](https://global-citizen-ai-network.vercel.app) · [Agent Factory 工廠控制中心](https://global-citizen-ai-network.vercel.app/factory) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.79）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [官網首頁更新 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
 ![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
@@ -49,7 +49,7 @@
 
 ### A–O 工作線入口與 P 橫向治理
 
-- A｜[Agent Factory V2 工廠控制台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2)
+- A｜[Agent Factory V2 工廠控制台](https://global-citizen-ai-network.vercel.app/factory) · [A 線工程分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2)
 - B｜[GCAN Product 產品線](https://github.com/X84657465/global-citizen-ai-network/tree/feat/gcan-product-homepage)
 - C｜[Predictive Coding 預測編碼](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
 - D｜[Deep Neural 深度神經工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core)

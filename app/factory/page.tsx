@@ -26,7 +26,7 @@ const resources = [
     id: "A · FACTORY",
     title: "Agent Factory V2 工程主線",
     description: "查看工廠控制器、任務生命週期、隔離執行、證據封裝與復原能力。",
-    detail: "工程分支 · 版本 2.0.80",
+    detail: "工程分支 · 版本 2.0.79",
     tone: "green",
     href: "https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2",
     action: "檢視 A 線工程",
@@ -143,7 +143,7 @@ export default function FactoryPage() {
               <h1>Agent Factory 控制中心</h1>
               <p>以工程入口、可追溯證據與發布閘門為核心；即時任務與 Runner 遙測尚未接通時，不顯示虛構數字。</p>
             </div>
-            <span className={styles.demo}>CANDIDATE · 0.3.119</span>
+            <span className={styles.demo}>CANDIDATE · 0.3.118</span>
           </div>
 
           <section className={styles.releaseNotice} aria-label="候選版本狀態">
