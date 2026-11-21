@@ -41,9 +41,9 @@ The host running Node must have `psql` on PATH. Set `PSQL_BIN` to an explicit ex
 
 ## CI integration boundary
 
-The repository's current database workflow runs `supabase test db`; the task allowlist for Issue #81 permits only this Node harness and this document. It does not permit editing the workflow, package manifest, or adding SQL fixtures under `supabase/tests`.
+The repository's Windows database CI job starts an isolated local Supabase stack, applies repository migrations, and runs both `supabase test db` and this Node harness (`node --test tests/security/two-member-rls.test.mjs`). The job resolves the database URL from the isolated Supabase status output and targets the matching PostgreSQL container; it does not use production or shared user data.
 
-Therefore this PR adds a repeatable disposable-database integration harness, but does **not** claim that the existing CI workflow invokes it yet. To make it mandatory in CI, a separately approved workflow change must run this command after `supabase start` in the database job, with `SUPABASE_DB_URL` set to that job's disposable local database URL. Do not weaken the task path allowlist to achieve this.
+Keep this harness destructive-operation-free: each scenario creates synthetic identities and fixtures inside a transaction and rolls back. Any future CI refactor must preserve the isolated-database boundary and must not point `SUPABASE_DB_URL` at production or a shared environment.
 
 ## Interpreting failures
 
