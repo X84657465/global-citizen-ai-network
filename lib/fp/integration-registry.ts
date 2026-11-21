@@ -134,8 +134,16 @@ export class FPIntegrationRegistry {
     }));
   }
 
-  get(connectorId: string): RegisteredConnector | undefined {
-    return this.connectors.get(connectorId);
+  hasConnector(connectorId: string): boolean {
+    return this.connectors.has(connectorId);
+  }
+
+  getAdapter(connectorId: string): FPIntegrationAdapter | undefined {
+    return this.connectors.get(connectorId)?.adapter;
+  }
+
+  getOperation(connectorId: string, operationName: string): FPIntegrationOperation | undefined {
+    return this.connectors.get(connectorId)?.operations.get(operationName);
   }
 }
 
@@ -162,10 +170,12 @@ export class FPIntegrationExecutor {
     context: FPIntegrationExecutionContext,
   ): Promise<unknown> {
     const startedAt = Date.now();
-    let connector: RegisteredConnector | undefined;
+    let adapter: FPIntegrationAdapter | undefined;
+    let auditOperation = "invalid";
     let outcome: FPIntegrationOutcome = "failed";
     let errorCode = "INVALID_REQUEST";
     let eventTime = new Date();
+    let correlationId = "invalid-context";
 
     try {
       if (
@@ -181,26 +191,38 @@ export class FPIntegrationExecutor {
         throw new FPIntegrationError("INVALID_REQUEST", "Invalid integration request.");
       }
 
+      // Snapshot routing and credential metadata before the first asynchronous boundary.
+      const safeRequest = Object.freeze({
+        connectorId: request.connectorId,
+        operation: request.operation,
+        credentialRef: request.credentialRef,
+        input: request.input,
+        ...(request.idempotencyKey !== undefined
+          ? { idempotencyKey: request.idempotencyKey }
+          : {}),
+      });
+      auditOperation = safeRequest.operation;
+      correlationId = context.correlationId;
       eventTime = context.now ?? new Date();
       if (!(eventTime instanceof Date) || Number.isNaN(eventTime.getTime())) {
         throw new FPIntegrationError("INVALID_REQUEST", "Invalid integration event time.");
       }
 
-      connector = this.registry.get(request.connectorId);
-      if (!connector) {
+      adapter = this.registry.getAdapter(safeRequest.connectorId);
+      if (!adapter) {
         throw new FPIntegrationError("CONNECTOR_NOT_FOUND", "Connector is not registered.");
       }
-      const operation = connector.operations.get(request.operation);
+      const operation = this.registry.getOperation(safeRequest.connectorId, safeRequest.operation);
       if (!operation) {
         throw new FPIntegrationError("OPERATION_NOT_ALLOWED", "Operation is not registered for this connector.");
       }
       if (
-        request.idempotencyKey !== undefined &&
-        (typeof request.idempotencyKey !== "string" || !IDEMPOTENCY_KEY.test(request.idempotencyKey))
+        safeRequest.idempotencyKey !== undefined &&
+        (typeof safeRequest.idempotencyKey !== "string" || !IDEMPOTENCY_KEY.test(safeRequest.idempotencyKey))
       ) {
         throw new FPIntegrationError("INVALID_REQUEST", "Invalid integration idempotency key.");
       }
-      if (operation.effect === "write" && request.idempotencyKey === undefined) {
+      if (operation.effect === "write" && safeRequest.idempotencyKey === undefined) {
         throw new FPIntegrationError("IDEMPOTENCY_REQUIRED", "Write operations require an idempotency key.");
       }
 
@@ -217,7 +239,7 @@ export class FPIntegrationExecutor {
         let credential: string;
         try {
           credential = await Promise.race([
-            this.credentials.resolve(request.credentialRef, controller.signal),
+            this.credentials.resolve(safeRequest.credentialRef, controller.signal),
             timeout,
           ]);
         } catch (error) {
@@ -229,12 +251,12 @@ export class FPIntegrationExecutor {
         }
 
         const result = await Promise.race([
-          operation.execute(request.input, {
+          operation.execute(safeRequest.input, {
             credential,
             signal: controller.signal,
-            correlationId: context.correlationId,
-            ...(request.idempotencyKey !== undefined
-              ? { idempotencyKey: request.idempotencyKey }
+            correlationId,
+            ...(safeRequest.idempotencyKey !== undefined
+              ? { idempotencyKey: safeRequest.idempotencyKey }
               : {}),
           }),
           timeout,
@@ -252,16 +274,16 @@ export class FPIntegrationExecutor {
       errorCode = error instanceof FPIntegrationError ? error.code : "CONNECTOR_FAILURE";
       throw error;
     } finally {
-      if (connector) {
+      if (adapter) {
         try {
           this.audit.record(Object.freeze({
             schemaVersion: "1",
             eventType: "integration.execution",
-            connectorId: connector.adapter.id,
-            connectorVersion: connector.adapter.version,
-            operation: request.operation,
+            connectorId: adapter.id,
+            connectorVersion: adapter.version,
+            operation: auditOperation,
             outcome,
-            correlationId: context.correlationId,
+            correlationId,
             occurredAt: eventTime.toISOString(),
             durationMs: Math.max(0, Date.now() - startedAt),
             ...(errorCode ? { errorCode } : {}),
