@@ -25,7 +25,7 @@ test("reads collaborator permission through the supplied authenticated host clie
 });
 
 test("preserves all supported GitHub repository permission levels without elevating them", async () => {
-  for (const permission of ["admin", "maintain", "push", "triage", "pull", "none"]) {
+  for (const permission of ["admin", "maintain", "write", "triage", "read", "none"]) {
     const verify = createFPGitHubReviewerPermissionVerifier({
       api: { async request() { return { permission }; } },
       repository: "owner/repo",
@@ -37,7 +37,7 @@ test("preserves all supported GitHub repository permission levels without elevat
 test("encodes reviewer login as one path segment", async () => {
   let requestedPath = "";
   const verify = createFPGitHubReviewerPermissionVerifier({
-    api: { async request(path) { requestedPath = path; return { permission: "pull" }; } },
+    api: { async request(path) { requestedPath = path; return { permission: "read" }; } },
     repository: "owner/repo",
   });
   await verify("reviewer-one");
