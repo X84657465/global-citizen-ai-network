@@ -31,7 +31,7 @@ test("homepage clearly declares factory-first, B-next and ecosystem-last priorit
 
 test("P governance remains a separate cross-cutting layer, not a feature workstream", () => {
   assert.match(governance, /P is the cross-cutting governance layer/i);
-  assert.match(governance, /P is the cross-cutting governance layer, not a sixth feature track/i);
+  assert.match(governance, /P is cross-cutting governance, not a peer feature track/i);
   assert.match(workstreams, /P \| Governance, Ethics & Trust/);
 });
 
@@ -44,7 +44,7 @@ test("workstream cards retain responsive desktop, tablet and mobile layouts", ()
 
 test("homepage and repository README disclose early-stage status and exact-SHA Preview requirements", () => {
   assert.match(homepage, /早期建置與預覽階段/);
-  assert.match(homepage, /Preview 必須與目前候選 SHA 完全一致/);
+  assert.match(homepage, /同一精確 SHA 的 CI、Preview/);
   assert.match(readme, /歷史五線驗證快照/);
   assert.match(readme, /A–P 全線工程索引/);
 });
