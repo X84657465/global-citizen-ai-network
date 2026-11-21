@@ -1,3 +1,10 @@
+## 0.3.120 — 2026-11-21
+
+- Align repository and B-line version metadata with the homepage candidate: overall `0.3.120`, GCAN Product `0.1.21`.
+- Correct the engineering-governance integration baseline so it matches the authoritative version manifest.
+- Clarify the README Preview disclosure: the listed Preview is an older SHA, and the current candidate has no available Preview because Vercel reports a build-rate limit.
+- Keep exact-head CI, Preview deployment and desktop/tablet/mobile acceptance as release gates; no merge or Production deployment is claimed.
+
 ## 0.3.119 — 2026-11-21
 
 - Correct the Agent Factory homepage's stale Preview gate: the candidate branch Preview is deployed and reachable; desktop, tablet and mobile acceptance remain pending.
