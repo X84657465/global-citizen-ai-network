@@ -1,7 +1,7 @@
 # A–P Workstream Engineering Governance
 
 **Governance revision: 1.4.20**  
-**Repository release baseline: 0.3.124**
+**Repository release baseline: 0.3.125**
 
 
 ## A–P workstream registry
@@ -118,4 +118,4 @@ Each change must identify the smallest safe rollback unit. Application changes s
 
 ## 10. A–P governance baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. A–O are fifteen independently owned workstreams; P is the cross-cutting governance layer. Each track has independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.124` A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. A–O are fifteen independently owned workstreams; P is the cross-cutting governance layer. Each track has independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.125` A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
