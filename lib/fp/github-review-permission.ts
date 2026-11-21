@@ -3,6 +3,7 @@ import type {
   FPGovernanceReviewerPermission,
   FPGovernanceReviewCollectionInput,
 } from "./governance-review-source.ts";
+import { isSafeGitHubRepositoryName } from "../github-repository-name.mjs";
 
 export interface FPGitHubPermissionApi {
   request(path: string): Promise<unknown>;
@@ -19,18 +20,6 @@ interface CollaboratorPermissionResponse {
  * This adapter only reads repository collaborator permissions; it does not
  * authenticate a human session, grant approval, or authorize merge/deploy.
  */
-function isSafeRepository(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  const parts = value.split("/");
-  return parts.length === 2 &&
-    parts.every((part) =>
-      part.length > 0 &&
-      part !== "." &&
-      part !== ".." &&
-      /^[A-Za-z0-9_.-]+$/.test(part)
-    );
-}
-
 export function createFPGitHubReviewerPermissionVerifier(input: {
   readonly api: FPGitHubPermissionApi;
   readonly repository: string;
@@ -39,7 +28,7 @@ export function createFPGitHubReviewerPermissionVerifier(input: {
     !input ||
     !input.api ||
     typeof input.api.request !== "function" ||
-    !isSafeRepository(input.repository)
+    !isSafeGitHubRepositoryName(input.repository)
   ) {
     throw new TypeError("A valid repository and authenticated GitHub API client are required.");
   }
