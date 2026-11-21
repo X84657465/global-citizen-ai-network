@@ -41,7 +41,7 @@ jobs:
               const { data: files } = await github.paginate(github.rest.pulls.listFiles, {
                 owner, repo, pull_number: prNumber, per_page: 100
               });
-              const highRiskPattern = /(^\.github\/workflows\/|^supabase\/migrations\/|(^|\/)(schema|rls|polic|auth|security|payment)(\/|\.|-)|^lib\/agent-factory-(controller|state-machine|state-store|policy)\.mjs$|^scripts\/agent-factory|^package(-lock)?\.json$|^middleware\.)/i;
+              const highRiskPattern = /(^\.github\/workflows\/|^supabase\/migrations\/|(^|\/)(schema|rls|polic|auth|security|payment)(\/|\.|-)|^lib\/agent-factory-|^scripts\/|^package(-lock)?\.json$|^middleware\.)/i;
               const highRisk = files.some(f => highRiskPattern.test(f.filename)) ||
                 pr.labels.some(l => ["risk:high", "cross-track", "migration", "security"].includes(l.name));
               const approvalThreshold = highRisk ? 2 : 1;
