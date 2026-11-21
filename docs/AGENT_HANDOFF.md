@@ -117,7 +117,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 1. **A first:** validate #259 exact head `373ba6f41b5a995b1efd871859f569312256361d` on run [44946287444](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946287444). Resolver metadata is pending; substantive jobs have not started.
 2. **A risk-intent integration:** the two files from #261 are now included in #259; #261 is closed as redundant. Do not use its old failed CI as evidence for the consolidated candidate.
 3. **Shared baseline:** #267 is closed as redundant and its package-lock/version changes are carried by #259. No separate merge is required.
-4. **K support:** keep #268's handoff aligned with verified PR/main state. Its current head is `d3b9883d087d78d59e13dcba5afd05c6d427ae2c`; the latest exact-head CI run must be refreshed after this documentation commit. No independent review is recorded.
+4. **K support:** keep #268's handoff aligned with verified PR/main state. Because this handoff is itself committed on #268, its exact head changes whenever this file is refreshed; always read the current SHA from PR #268 metadata and verify its matching Actions run before considering a merge. No independent review is recorded.
 5. **F–P:** address only concrete A acceptance or B contract blockers; do not expand unrelated workstreams.
 6. **B preparation:** retain the read-only, versioned adapter proposal. Do not activate B runtime/API/database access until A is accepted and integrated.
 
@@ -138,7 +138,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 - A risk-intent classification and regression tests were ported exactly from PR #261 into #259. PR #261 is now closed as redundant; its prior schema-guard failure is not evidence against the new consolidated SHA.
 - PR #267 is closed as redundant; its README/package metadata correction is carried in #259 and is not yet on main.
 - PR #259 has no independent formal reviews or inline review threads. No Vercel Preview deployment exists for its current SHA; provider status is blocked by `build-rate-limit`. The earlier READY deployment and HTTP 200 smoke checks belong to superseded SHA `352cd5530bb25a9a8e9ebe440aae6a3bf7c7bfc6` and are historical only.
-- PR #268 remains documentation-only and Draft. Its current exact head is `132969b80a2ecea0e7612b744d6ec54474398af1`; exact-head CI run [44946384200](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946384200) is pending with no jobs returned.
+- PR #268 remains documentation-only and Draft. Read its exact head from current PR metadata; the last recorded CI run [44946384200](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946384200) belonged to an earlier documentation revision and is not current-head acceptance evidence. The current head must have its own terminal-successful run and independent review.
 - PR #266 is closed as superseded by #268; do not reopen or merge its stale snapshot.
 - B adapter remains proposal-only. B cannot access Factory state, leases, Runner or privileged execution.
 - Acceptance rule unchanged: terminal success for all required checks on the final exact SHA, current Preview, and independent review. Pending, cancelled, skipped, stale-SHA success, resolver-only success and mergeability are not acceptance.
