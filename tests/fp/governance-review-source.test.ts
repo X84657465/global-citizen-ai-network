@@ -38,6 +38,33 @@ function makeInput(responses: Map<string, unknown>, overrides: Partial<FPGoverna
   };
 }
 
+
+test("rejects path traversal and malformed repository names before any GitHub API request", async () => {
+  for (const repository of [
+    "../repo",
+    "owner/../repo",
+    "../owner/repo",
+    "owner/..",
+    ".owner/repo",
+    "owner/.repo",
+    "owner/repo/extra",
+    "owner//repo",
+  ]) {
+    let requests = 0;
+    const api: FPGovernanceGitHubApi = {
+      async request() {
+        requests += 1;
+        throw new Error("GitHub API must not be called for an invalid repository");
+      },
+    };
+    await assert.rejects(
+      collectFPGovernanceReviewEvidence(makeInput(new Map(), { api, repository })),
+      (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INVALID_INPUT",
+    );
+    assert.equal(requests, 0, `unexpected GitHub API request for repository: ${repository}`);
+  }
+});
+
 test("collects exact-head submitted reviews and host-verifies reviewer permissions", async () => {
   let checks = 0;
   const result = await collectFPGovernanceReviewEvidence(makeInput(new Map([
