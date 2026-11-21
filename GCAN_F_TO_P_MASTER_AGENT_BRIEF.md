@@ -50,6 +50,8 @@ Do not merge F–P into B yet. B can consume the security requirements, evidence
 - `GCAN_F_TO_P_ACCEPTANCE.md`
 - `GCAN_F_TO_P_INTEGRATION_MAP.md`
 - `GCAN_F_TO_P_MASTER_AGENT_BRIEF.md`
+- `GCAN_SHARED_ENGINEERING_GOVERNANCE.md`
+- `GCAN_SHARED_TASK_LEDGER.md`
 
 ## Shared governance / coordination files
 
