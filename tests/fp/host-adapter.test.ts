@@ -261,7 +261,7 @@ test("records outcome correlation from the trusted snapshot, not a mutated calle
   const host = new FPHostAdapter(recorder);
   const callerContext = context();
   host.register("H", "health-snapshot", () => {
-    callerContext.correlationId = "tampered-correlation";
+    Reflect.set(callerContext, "correlationId", "tampered-correlation");
     return "healthy";
   });
 
