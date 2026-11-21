@@ -218,24 +218,25 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ## Live checkpoint — 2026-11-22 (verified GitHub state)
 
 ### Main / Factory-first
-- Current `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
-- `VERSION` and `package.json`: `0.3.125`.
-- PR #273 is open, Draft, unmerged; exact HEAD `1230bdbab4971a80cac191c68d7978b9c1df9c5f`, base is current main. Exact-head Actions run #3267 (`44952319306`) is in progress. Metadata resolver passed; Windows quality gates are currently installing locked dependencies. Unit/type/lint/build, PostgreSQL/RLS and Ollama/local integration have not yet completed. Keep Draft and do not merge.
-- Vercel exact-SHA status is `build-rate-limit`; no READY Preview or same-SHA smoke evidence.
-- PR #273 has zero formal reviews. Issue #136 remains open; the independent read-only adversarial audit is outstanding.
-- PR #259 remains open/unmerged and targets stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its 40-file diff is diverged from current main. Do not merge, retarget, or transplant wholesale. Its P route source-text-only review finding remains unresolved in that candidate.
-- PR #255 is closed without merge; do not treat its F/G repository validation as integrated into main. Reassess only after A acceptance and selectively port any still-needed changes.
+- Current `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`; release baseline `0.3.125`.
+- A PR #273 remains Draft/open at exact HEAD `ec8e4b163fed238c7d554cf42815b59cfdc60dcd`. Exact-head run #3273 (`44952848627`) failed the full unit suite (518/531 passed; 13 failures); typecheck, lint, production build and downstream integration were skipped. No A acceptance is inferred.
+- G PR #276 remains Draft/open at exact HEAD `01c08027cc60ce2fe7d1c77ba1684d90f6133bd8`. Previous exact-head run #3275 (`44953585940`) failed 14 unit tests. A narrowly scoped Node ESM import correction was committed as `01c08027`; new exact-head run #3277 (`44954079242`) has passed metadata resolution and is executing Windows quality gates. No result is inferred while in progress.
+- Mainline repair PR #277 exact HEAD `040c57cc36c1306230ff2c89f63088a95b4fa781`; run #3276 (`44953591204`) failed one stale runbook assertion at `tests/ci-trigger-policy.test.mjs:435`. Do not duplicate A/G runbook changes into this separate patch; revalidate after accepted changes reach main.
+- Exact-SHA Vercel status for the current candidates remains build-rate-limited; no READY Preview or same-SHA smoke evidence is available.
+- Issue #136 remains open. Its required independent, read-only adversarial audit is outstanding; owner-authored static traces and CI results are not independent approval.
+- PR #259 remains open/unmerged and targets stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its broad diff is diverged from current main. Do not merge, retarget, or transplant wholesale.
 
 ### B / K preparation
-- PR #275 is a documentation-only Draft from current main. It corrects the contradictory B DTO comment so `FactoryTaskReadModelV1.status` is the bounded public `FactoryTaskStatus`, mapped by A from private durable states. It does not implement or activate B.
-- The B adapter remains proposal-only: versioned, read-only, workspace-authorized by B, with exact SHA/PR/run/attempt verification on A's side. No B runtime route, database table, billing or Factory permission is activated.
-- The handoff must be refreshed from verified GitHub state after each meaningful merge or acceptance transition. Older checkpoints above are historical and are superseded by this live checkpoint.
+- PR #275 remains a documentation-only Draft from current main. It corrects the B DTO comment so `FactoryTaskReadModelV1.status` is the bounded public `FactoryTaskStatus`, mapped by A from private durable states.
+- B remains proposal-only: versioned, read-only projection; workspace authorization is owned by B; A verifies exact SHA/PR/run/attempt. No B runtime route, database table, billing or Factory permission is activated.
+- Do not merge #275 until A acceptance and a fresh exact-head revalidation against the resulting main. Its previous exact-head quality run failed the legacy CI runbook assertion because the A/G contract correction is not yet on main.
 
 ### Next execution order
-1. Keep A #273 first; finish exact-head Actions and resolve any real failures without weakening gates.
-2. Obtain independent Issue #136 audit and triage its findings.
-3. Resolve Vercel Preview quota through the normal provider cycle; do not bypass limits.
-4. Reconcile only necessary F/G integration blockers after A acceptance.
-5. After A is accepted and integrated, rebuild B from the accepted main and implement only the reviewed read-only projection plus B-owned tenant authorization.
+1. Finish G #276 exact-head run #3277 and isolate remaining failures by owning workstream; preserve all security and behavior assertions.
+2. Repair only the proven G blockers and rerun the updated exact SHA.
+3. Revalidate A #273 on the updated baseline; complete unit, type, lint, audit, production build, PostgreSQL/RLS and Ollama/local checks.
+4. Obtain the independent Issue #136 audit and triage findings; do not substitute owner review.
+5. Resolve Vercel Preview quota through the normal provider cycle; no bypass.
+6. After A is accepted and integrated, refresh and revalidate B #275, then implement only the reviewed read-only projection plus B-owned tenant authorization.
 
 **Safety:** no production deployment/data mutation, secret or permission changes, workflow-policy changes, or machine-managed Factory state edits are authorized by these documentation updates.
