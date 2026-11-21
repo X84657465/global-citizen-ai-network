@@ -1,3 +1,8 @@
+## 0.3.117 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.84: fix the patch-validation regression test's generator source binding so the exact-head suite can execute without a ReferenceError.
+- Preserve the main-based A branch, exact CI allowlist, synchronized 0.3.116/2.0.83 release metadata and fail-closed task-context controls.
+
 ## 0.3.116 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.83: synchronize the clean main-based A candidate's exact CI allowlist, active PR link, governance baseline and release metadata.

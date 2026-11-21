@@ -8,6 +8,7 @@ const task = {
   allowed_paths: ["app/settings/page.tsx", "tests/settings-page.test.ts"],
 };
 const existing = ["app/settings/page.tsx"];
+const generator = readFileSync(new URL("../scripts/generate-agent-patch.mjs", import.meta.url), "utf8");
 
 const manifest = (files, extra = {}) => ({ schema_version: 1, files, ...extra });
 const file = (path, operation = "modify", content = "export const value = 1;") => ({

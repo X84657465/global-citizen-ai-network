@@ -1,3 +1,12 @@
+## 2.0.84 — 2026-11-21
+
+### Fixed — Bind generator source in patch-validation regression tests
+- Define the patch-generator source fixture at module scope so the earlier path-validation test can assert that the obsolete unrestricted-source prompt is absent.
+- Preserve the focused generator policy assertions and all existing task-context/path-safety controls.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, disposable PostgreSQL/RLS, Vercel Preview verification and independent formal review remain required.
+
 ## 2.0.83 — 2026-11-21
 
 ### Fixed — Synchronize the clean main-based A integration candidate
