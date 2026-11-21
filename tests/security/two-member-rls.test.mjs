@@ -78,10 +78,12 @@ function fixture() {
       ('${requestB}', '${b}', '${projectB}', '${conversationB}', 'fixture', 'fixture', 'rls-test');
     insert into public.contribution_tasks (id, title, description, category, status)
     values ('${task}', 'RLS fixture task', 'Disposable test fixture', 'security', 'published');
-    insert into public.task_submissions (id, task_id, contributor_id, content)
+    insert into public.task_submissions (id, task_id, contributor_id, content, status)
     values
-      ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.'),
-      ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.');
+      ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.', 'submitted'),
+      ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.', 'rejected');
+    insert into public.task_reviews (submission_id, reviewer_id, decision, rationale)
+    values ('${submissionB}', '${b}', 'reject', 'Private review rationale belonging to member B.');
     `;
   return { a, b, projectA, projectB, conversationA, conversationB, messageA, messageB, requestA, requestB, submissionA, submissionB, task, setup };
 }
@@ -152,6 +154,32 @@ test("member cannot insert a message into another member's conversation", () => 
     ${asMember(f.a, `
       insert into public.messages (conversation_id, owner_id, role, content)
       values ('${f.conversationB}', '${f.a}', 'user', 'cross-member conversation injection');
+    `)}
+    rollback;
+  `, { expectFailure: true, expectSqlState: "42501" });
+});
+
+test("member cannot read another member's submission or review rationale", () => {
+  const f = fixture();
+  const output = sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      select
+        (select count(*) from public.task_submissions where id = '${f.submissionB}') || ',' ||
+        (select count(*) from public.task_reviews where submission_id = '${f.submissionB}');
+    `)}
+    rollback;
+  `);
+  assert.match(output, /0,0$/, "member A must not see member B's submission or review rationale");
+});
+
+test("member cannot appeal another member's rejected submission", () => {
+  const f = fixture();
+  sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.task_appeals (submission_id, appellant_id, reason)
+      values ('${f.submissionB}', '${f.a}', 'Attempt to appeal another member submission.');
     `)}
     rollback;
   `, { expectFailure: true, expectSqlState: "42501" });
