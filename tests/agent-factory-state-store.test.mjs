@@ -33,7 +33,7 @@ function fakeApi(initialIssues = []) {
 
 test("rejects malformed and dot-segment repository names", () => {
   const fake = fakeApi();
-  for (const repository of ["owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo", "owner/..repo", "owner/repo/extra", "/repo", "owner/", "owner\\\\repo"]) {
+  for (const repository of ["owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo", "owner/..repo", "owner./repo", "owner/foo..bar", "owner/repo.", "owner/repo/extra", "/repo", "owner/", "owner\\\\repo"]) {
     assert.throws(
       () => createFactoryStateStore(fake.client, { repository }),
       /A valid repository name is required/,
