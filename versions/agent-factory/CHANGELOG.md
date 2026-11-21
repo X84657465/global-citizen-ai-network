@@ -1,3 +1,13 @@
+## 2.0.72 — 2026-11-21
+
+### Fixed — Prevent valid new-file patches from truncating at an undersized token ceiling
+- Derive the bounded Ollama token ceiling from the validated implementation plan's full UTF-8 byte allowance instead of halving the allowance a second time.
+- Retain the 2,048-token minimum and 8,192-token maximum for new-file generation; the exact per-file UTF-8 byte limit remains enforced before patch validation.
+- Add deterministic tests for minimum, normal, maximum and invalid budget inputs.
+
+### Verification
+- Exact-head full CI and Windows Runner/local Ollama integration are required; no production task execution or deployment is claimed.
+
 ## 2.0.71 — 2026-11-21
 
 ### Fixed — Restore exact-head CI for active A-line integration PR bases
