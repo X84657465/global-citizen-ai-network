@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.110` · A 線 Agent Factory V2 `2.0.78`（工廠首頁資訊架構與操作入口更新） · B 線 GCAN Product `0.1.14`（官網首頁 A–E 主線與 P 治理導覽更新） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.110` · A 線 Agent Factory V2 `2.0.78`（工廠首頁資訊架構與操作入口更新） · B 線 GCAN Product `0.1.14`（官網首頁 A–P 十六線架構與 P 治理導覽更新） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -31,18 +31,19 @@
 | C｜Predictive Coding | 預測、觀測、誤差量測、校準與更新提案 | 工作台／研究能力逐步建置，示範資料不代表正式資料服務 |
 | D｜Deep Neural | 知識記憶、證據檢索、推理與品質評估 | 原型與整合候選；不宣稱已完成正式持久化 |
 | E｜Deep Research | 多來源研究、佐證與反證、引用式綜整 | 工作台候選；外部服務與來源查核依驗收結果開放 |
-| P｜Governance, Ethics & Trust | 對 A–E 與整體產品適用的安全、隱私、倫理、稽核與人工責任 | 橫向治理規範，不是已全面上線的獨立產品功能 |
+| P｜Governance, Ethics & Trust | 對 A–O 與整體產品適用的安全、隱私、倫理、稽核與人工責任 | 橫向治理規範，不是已全面上線的獨立產品功能 |
 
 **驗證原則：** CI 必須對應實際候選提交的精確 SHA；舊提交通過不代表新提交通過。網站預覽、示範數據與工作台原型均不等於正式營運或正式部署。
 
-### A–E 主線入口與 P 治理
+### A–P 工作線入口與 P 橫向治理
 
 - A｜[Agent Factory V2 工廠控制台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2)
 - B｜[GCAN Product 產品線](https://github.com/X84657465/global-citizen-ai-network/tree/feat/gcan-product-homepage)
 - C｜[Predictive Coding 預測編碼](https://github.com/X84657465/global-citizen-ai-network/tree/feat/github-project-showcase)
 - D｜[Deep Neural 深度神經工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core)
 - E｜[Deep Research 深度研究工作台](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-research-workbench)
-- P｜[工程治理規範](docs/engineering-governance.md)（橫向適用於所有工作線與正式產品流程）
+- F–O｜[完整工作線責任與架構總表](#-a-p-十六條工作線完整架構)（依成熟度分階段建置，不代表全部已上線）
+- P｜[工程治理規範](docs/engineering-governance.md)（橫向適用於 A–O 全部工作線與正式產品流程）
 
 ## 🧭 快速導覽
 
@@ -312,7 +313,7 @@ P 是 GCAN A–P 架構的橫向治理層，適用於所有工作線與產品功
 - **風險與事故治理：** Fail-closed、有限重試、隔離、監控、通報及復原程序。
 - **信任邊界：** 使用者設備資源必須明確自願授權；不得把自動化或 AI 提案當成正式核准。
 
-P 治理規範是 A–P 架構的共同驗收門檻；完整政策與變更規則以 [五線工程治理規範](docs/engineering-governance.md) 及 [安全基線](docs/security-baseline.md) 為準。
+P 治理規範是 A–P 架構的共同驗收門檻；完整政策與變更規則以 [A–P 工程治理規範](docs/engineering-governance.md) 及 [安全基線](docs/security-baseline.md) 為準。
 
 ## 🛡️ 安全、隱私與公平原則
 
@@ -463,10 +464,10 @@ http://localhost:3000
 
 ## 🎬 圖片與影片介紹｜Visual & Video Tour
 
-### GCAN 五線總覽
+### GCAN A–P 十六線總覽
 
 <p align="center">
-  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN 五線架構圖" width="100%" />
+  <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN A–P 十六條工作線與 P 橫向治理架構圖" width="100%" />
 </p>
 
 A–P 各工作線各自擁有獨立責任、版本與驗收紀錄，透過來源追蹤、版本管理、測試與接收線審核互相協作。
@@ -478,9 +479,9 @@ A–P 各工作線各自擁有獨立責任、版本與驗收紀錄，透過來�
 - [影片分鏡與旁白稿](docs/media/gcan-introduction-storyboard.md)
 - [即時 CI 與開發紀錄](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-### A–P 工作線與進度
+### A–E 活躍工作線與整合進度
 
-> D、E 兩線以五線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
+> A–E 為目前主要活躍工程線；F–O 為逐步建置的擴展路線，P 為橫向治理層。各線成熟度以精確 SHA、CI、審查與部署證據為準。
 
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
@@ -492,15 +493,15 @@ A–P 各工作線各自擁有獨立責任、版本與驗收紀錄，透過來�
 
 > CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
 
-## 🧠 五線協作與持續學習
+## 🧠 A–P 工作線協作與持續學習
 
-本專案採五線並行：A Agent Factory V2、B Global Citizen AI Network、C 預測編碼（Predictive Coding）、D 深度神經（Deep Neural）、E 深度研究（Deep Research）。各線獨立開發與驗收，透過經審核、具版本及來源證據的知識成果互相支援。深度神經負責整理可重用記憶、推理策略與評估方法；不直接取得其他線的寫入權限，也不以模型信心取代測試。
+A–O 各工作線依自身責任獨立開發與驗收，P 則橫向約束安全、隱私、倫理、成本、稽核與人工責任。各線透過經審核、具版本及來源證據的成果互相支援；任何跨線成果都必須由接收線決定是否採用，不得以模型信心取代測試。
 
 所有重大及小幅改進都必須更新純數字版本 `MAJOR.MINOR.PATCH`，並記錄變更、受影響線別、測試結果、精確 commit SHA 與回復方式。細節見 [五線工程治理規範](docs/engineering-governance.md)。
 
-## 🔄 五線互輔互成｜Predict → Learn → Build → Validate
+## 🔄 跨線互輔互成｜Predict → Learn → Build → Validate
 
-五線不是五個互不相干的專案，而是彼此提供輸入、回饋與驗證的協作系統：
+A–O 不是互不相干的專案，而是由 P 治理、透過證據與接收線審核協作的工程與產品系統：
 
 | 線別 | 核心責任 | 支援其他線的方式 |
 |---|---|---|
@@ -510,7 +511,7 @@ A–P 各工作線各自擁有獨立責任、版本與驗收紀錄，透過來�
 | D｜深度神經（Deep Neural） | 記憶、推理、知識整合與評估 | 將跨線證據整理為可追溯知識、推理策略及評估建議 |
 | E｜深度研究（Deep Research） | 多來源研究、來源查核、反證與引用報告 | 提供可追溯的研究證據、方法、來源可信度與可執行建議 |
 
-共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋五線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
+共同閉環：**觀測 → 預測 → 行動 → 結果量測 → 預測誤差分析 → 記憶與推理 → 修正方案 → 測試 → 回饋各工作線**。任何跨線改進都必須經版本管理、來源追蹤、接收線審核與相容性測試；預測或 AI 建議不得直接改寫正式環境。
 
 ### 第三線架構
 
