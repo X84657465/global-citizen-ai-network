@@ -1,5 +1,6 @@
 import {
   getWorkstreamContract,
+  isFPWorkstream,
   type FPCapabilityEnvelope,
   type WorkstreamId,
 } from "./integration-contract.ts";
@@ -86,7 +87,12 @@ export class FPHostAdapter {
     startedAt: number,
     errorCode?: string,
   ): void {
-    if (!this.observability) return;
+    if (
+      !this.observability ||
+      !isFPWorkstream(request.workstream) ||
+      typeof request.capability !== "string" ||
+      !/^[a-z][a-z0-9-]{1,63}$/.test(request.capability)
+    ) return;
     const correlationId = typeof context.correlationId === "string" &&
       /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(context.correlationId)
       ? context.correlationId
