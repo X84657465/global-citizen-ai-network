@@ -346,6 +346,28 @@ Keep the existing acceptance criteria and constrain the implementation output.
   );
 });
 
+
+test("accepts only real calendar dates in retry-scope supplemental headings", () => {
+  const validLeapDay = validIssue({
+    body: validIssue().body + "\n\n## Retry scope refinement — 2024-02-29\nValid leap-day context.",
+  });
+  const task = validateAndBuildTask(validLeapDay, "X84657465/global-citizen-ai-network");
+  assert.equal(
+    task.additional_context["Retry scope refinement — 2024-02-29"],
+    "Valid leap-day context.",
+  );
+
+  for (const invalidDate of ["2025-02-29", "2026-04-31", "2026-13-01", "2026-00-10"]) {
+    const issue = validIssue({
+      body: validIssue().body + `\\n\\n## Retry scope refinement — ${invalidDate}\\nInvalid date must not be accepted.`,
+    });
+    assert.throws(
+      () => validateAndBuildTask(issue, "X84657465/global-citizen-ai-network"),
+      /Unexpected section: Retry scope refinement/,
+    );
+  }
+});
+
 test("rejects duplicate supplemental context sections and still rejects unknown headings", () => {
   const duplicate = validIssue({
     body: validIssue().body + "\n## Confirmed evidence\nFirst.\n\n## Confirmed evidence\nSecond.",
