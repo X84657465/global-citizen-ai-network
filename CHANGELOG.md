@@ -1,3 +1,9 @@
+## 0.3.124 — 2026-11-22
+
+- Ensure a verified `changes-requested` decision remains blocking even when other current review records have unverified reviewer authorization.
+- Add a regression test preventing an unverified approval from masking a verified change request.
+- Keep all governance, execution, merge and deployment authority explicitly false.
+
 ## 0.3.123 — 2026-11-22
 
 - Add a P governance review collector using the existing authenticated GitHub API client; verify the candidate PR remains open, same-repository, targets main and retains the exact candidate HEAD.

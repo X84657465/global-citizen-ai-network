@@ -117,6 +117,16 @@ test("orders fractional UTC timestamps chronologically rather than lexicographic
   assert.equal(result.reviewStatus, "reviewed-approved");
 });
 
+test("a verified changes-requested decision cannot be masked by an unverified approval", () => {
+  const result = assessFPGovernanceDossier(dossier({
+    reviews: [
+      review({ reviewRef: "pull/42/review/108", reviewerRef: "reviewer:verified", decision: "changes-requested" }),
+      review({ reviewRef: "pull/42/review/109", reviewerRef: "reviewer:unverified", decision: "approved", reviewerAuthorizationStatus: "unverified" }),
+    ],
+  }));
+  assert.equal(result.reviewStatus, "changes-requested");
+});
+
 test("marks absent workstream evidence incomplete", () => {
   const result = assessFPGovernanceDossier(dossier({
     workstreams: dossier().workstreams.filter((item) => item.workstream !== "M"),
