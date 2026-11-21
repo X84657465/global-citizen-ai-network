@@ -23,7 +23,7 @@ test("public homepage represents all fifteen A-O workstreams and P as cross-cutt
 
 test("homepage clearly declares factory-first, B-next and ecosystem-last priorities", () => {
   assert.ok(homepage.includes('id="priority-charter"'));
-  assert.match(homepage, /最高核心價值：[\\s\\S]*?先穩定工廠，再讓產品創造價值/);
+  assert.match(homepage, /最高核心價值：[\s\S]*?先穩定工廠，再讓產品創造價值/);
   assert.match(homepage, /A｜Agent Factory V2 工廠優先/);
   assert.match(homepage, /B｜GCAN Product 接棒/);
   assert.match(homepage, /必要線只解卡、不搶主線/);
@@ -32,14 +32,14 @@ test("homepage clearly declares factory-first, B-next and ecosystem-last priorit
 test("P governance remains a separate cross-cutting layer, not a feature workstream", () => {
   assert.match(governance, /P is the cross-cutting governance layer/i);
   assert.match(governance, /P is the cross-cutting governance layer, not a sixth feature track/i);
-  assert.match(workstreams, /P \\| Governance, Ethics & Trust/);
+  assert.match(workstreams, /P \| Governance, Ethics & Trust/);
 });
 
 test("workstream cards retain responsive desktop, tablet and mobile layouts", () => {
   assert.ok(styles.includes(".trackGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)"));
-  assert.match(styles, /@media\\(max-width:1120px\\)[\\s\\S]*?\\.trackGrid\\{grid-template-columns:repeat\\(2,minmax\\(0,1fr\\)\\)\\}[\\s\\S]*?\\.trackCard\\[data-track="P"\\]/);
-  assert.match(styles, /\\.trackGrid\\{display:grid;grid-template-columns:1fr/);
-  assert.match(styles, /\\.trackCard,\\.trackCard\\[data-track="P"\\]/);
+  assert.match(styles, /@media\(max-width:1120px\)[\s\S]*?\.trackGrid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}[\s\S]*?\.trackCard\[data-track="P"\]/);
+  assert.match(styles, /\.trackGrid\{display:grid;grid-template-columns:1fr/);
+  assert.match(styles, /\.trackCard,\.trackCard\[data-track="P"\]/);
 });
 
 test("homepage and repository README disclose early-stage status and exact-SHA Preview requirements", () => {
@@ -62,16 +62,16 @@ test("version manifest registers every A-P workstream with a valid numeric versi
 });
 
 test("homepage preserves first-party workspace, contribution and login entry points", () => {
-  assert.match(homepage, /href="\\/workspace"/);
-  assert.match(homepage, /href="\\/contribute"/);
-  assert.match(homepage, /href="\\/login"/);
+  assert.match(homepage, /href="\/workspace"/);
+  assert.match(homepage, /href="\/contribute"/);
+  assert.match(homepage, /href="\/login"/);
 });
 
 test("A and C workbenches use first-party routes while D and E remain explicit external previews", () => {
-  assert.match(homepage, /code:"A"[\\s\\S]*?href:"\\/factory"/);
-  assert.match(homepage, /code:"C"[\\s\\S]*?href:"\\/predictive-coding"/);
-  assert.match(homepage, /code:"D"[\\s\\S]*?external:true/);
-  assert.match(homepage, /code:"E"[\\s\\S]*?external:true/);
+  assert.match(homepage, /code:"A"[\s\S]*?href:"\/factory"/);
+  assert.match(homepage, /code:"C"[\s\S]*?href:"\/predictive-coding"/);
+  assert.match(homepage, /code:"D"[\s\S]*?external:true/);
+  assert.match(homepage, /code:"E"[\s\S]*?external:true/);
   assert.match(homepage, /D、E 目前仍為獨立預覽環境/);
 });
 
@@ -82,8 +82,8 @@ test("homepage retains keyboard focus visibility and reduced-motion accessibilit
 });
 
 test("homepage release status remains accurate after a candidate is merged", () => {
-  assert.match(homepage, /EARLY DEVELOPMENT \\/ MVP/);
+  assert.match(homepage, /EARLY DEVELOPMENT \/ MVP/);
   assert.match(homepage, /精確 SHA 的 CI、Preview/);
   assert.ok(homepage.includes("/CHANGELOG.md"));
-  assert.doesNotMatch(homepage, /PR #(?:207|260) CANDIDATE|\\/pull\\/(?:207|260)/);
+  assert.doesNotMatch(homepage, /PR #(?:207|260) CANDIDATE|\/pull\/(?:207|260)/);
 });
