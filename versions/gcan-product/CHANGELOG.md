@@ -1,3 +1,32 @@
+## 0.1.19 — 2026-11-21
+
+### Fixed — Preserve the current A integration baseline in B metadata
+- Keep the B stack aligned with its actual A 2.0.84 parent instead of reverting the repository release, A track version, and active Agent Factory PR link to superseded 0.3.112 / 2.0.79 / PR #195 metadata.
+- Preserve the parent integration baseline at 0.3.117 and increment only the GCAN Product track to 0.1.19.
+
+### Verification
+- Fresh exact-head CI and independent cross-track review remain required; no deployment or production data mutation is claimed.
+
+## 0.1.18 — 2026-11-21
+
+### Fixed — Enforce workspace metadata title constraints
+- Reject blank/whitespace-only and over-160-character conversation and project titles before updating workspace state.
+- Extend malformed metadata regression fixtures for empty and oversized titles.
+
+### Verification
+- Exact-head full CI and independent cross-track review required before acceptance.
+
+## 0.1.17 — 2026-11-21
+
+### Fixed — Validate workspace metadata before state updates
+- Reject conversation metadata with malformed conversation UUIDs, invalid project UUID relationships, missing titles or invalid update timestamps.
+- Retain only active project records with valid UUIDs and expected metadata shape; reject malformed records fail-closed.
+- Keep message API projections limited to fields consumed by the workspace client; remove the unused model column from GET and POST responses.
+- Add behavioral fixtures for valid, malformed, archived and empty metadata, plus exact message API projection regression coverage.
+
+### Verification
+- Exact-head CI, authenticated API contract review and independent cross-track review required before acceptance. No production deployment or database mutation is claimed.
+
 ## 0.1.13 — 2026-11-20
 
 ### Integrated

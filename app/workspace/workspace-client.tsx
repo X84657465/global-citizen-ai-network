@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { hasPendingRetryContentMismatch } from "@/lib/ai/pending-retry";
-import { isWorkspaceMessage } from "@/lib/workspace/message-validation";
+import { filterWorkspaceConversations, filterWorkspaceProjects, isWorkspaceMessage } from "@/lib/workspace/message-validation";
 
 type Conversation = { id: string; project_id: string | null; title: string; updated_at: string };
 type ProjectOption = { id: string; title: string; archived_at: string | null };
@@ -103,8 +103,8 @@ export default function WorkspaceClient() {
         } & ApiError;
         if (!conversationResponse.ok) throw new Error(data.error ?? "無法載入對話。");
         if (!cancelled) {
-          setConversations(data.conversations ?? []);
-          setProjects((projectData.projects ?? []).filter(project => !project.archived_at));
+          setConversations(filterWorkspaceConversations(data.conversations));
+          setProjects(filterWorkspaceProjects(projectData.projects));
           const recovered = pendingData.pending;
           if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
