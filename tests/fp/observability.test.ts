@@ -48,7 +48,7 @@ test("rejects invalid event metadata and invalid capacities", () => {
 test("does not expose mutable internal event storage", () => {
   const recorder = new FPObservabilityRecorder();
   recorder.record(event());
-  const returned = recorder.list()[0] as { capability: string };
+  const returned = recorder.list()[0] as unknown as { capability: string };
   assert.notEqual(returned, recorder.list()[0]);
   returned.capability = "tampered";
   assert.equal(recorder.list()[0].capability, "health-snapshot");
