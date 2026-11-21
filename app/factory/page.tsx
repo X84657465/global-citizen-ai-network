@@ -153,7 +153,7 @@ export default function FactoryPage() {
               <p>本頁集中呈現工廠穩定基線、生成測試防護與實際驗收入口；不以示範統計冒充即時 Runner 遙測。</p>
             </div>
             <div className={styles.releaseActions}>
-              <a href="https://github.com/X84657465/global-citizen-ai-network/pull/200" target="_blank" rel="noreferrer">檢視 PR <ArrowUpRight size={14} /></a>
+              <a href="https://github.com/X84657465/global-citizen-ai-network/pull/200" target="_blank" rel="noreferrer">查看 A 線基線 <ArrowUpRight size={14} /></a>
               <a href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">檢視 CI <ArrowUpRight size={14} /></a>
             </div>
           </section>
@@ -166,8 +166,8 @@ export default function FactoryPage() {
             </article>
             <article className={styles.statCard}>
               <span className={styles.statLabel}>目前交付</span>
-              <b className={styles.statValue}>PR #217</b>
-              <small className={styles.statDetail}>工廠測試契約候選 · 待驗收</small>
+              <b className={styles.statValue}>工程入口</b>
+              <small className={styles.statDetail}>工廠優先 · 候選版本</small>
             </article>
             <article className={styles.statCard}>
               <span className={styles.statLabel}>驗證依據</span>
@@ -197,7 +197,6 @@ export default function FactoryPage() {
                       <span className={styles.resourceEyebrow}>{resource.id}</span>
                       <b className={styles.resourceTitle}>{resource.title}</b>
                       <p className={styles.resourceDescription}>{resource.description}</p>
-                      <span className={styles.resourceMeta}>{resource.detail}</span>
                     </div>
                     <div className={styles.resourceAside}>
                       <span className={styles[resource.tone]}>{resource.detail}</span>
