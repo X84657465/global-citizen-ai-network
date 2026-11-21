@@ -1,3 +1,12 @@
+## 0.3.125 — 2026-11-22
+
+- Align the public GCAN homepage and repository landing page with the A–O fifteen-workstream model and P cross-cutting governance.
+- Publish the canonical A–P ownership, non-goals, dependencies, staged deliverables and exit criteria.
+- Make the factory-first, B-next, ecosystem-last priority explicit; mark the old five-track CI table as historical.
+- Add regression coverage for A–P homepage representation, P governance separation, responsive layouts and early-stage evidence disclosures.
+- B GCAN Product advances to 0.1.20; Agent Factory V2 remains 2.0.84.
+- Exact-head CI, current-SHA Preview, rendered device acceptance and independent review remain required; no production deployment is claimed.
+
 ## 0.3.124 — 2026-11-22
 
 - Ensure a verified `changes-requested` decision remains blocking even when other current review records have unverified reviewer authorization.
