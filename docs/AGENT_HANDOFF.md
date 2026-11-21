@@ -62,15 +62,15 @@
 - PR: https://github.com/X84657465/global-citizen-ai-network/pull/265
 - Exact HEAD: 6ccaeeda5b4fd43c72f51792d814ab949d42ace0; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
 - Diff is limited to README.md and tests/ci-trigger-policy.test.mjs. It synchronizes the README release label to 0.3.124 and updates the policy test to match current mainline runbook language, removing obsolete V1 assertions.
-- Exact-head run [44941725749](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941725749): metadata resolver completed successfully; the Windows Runner quality-gates job is pending. No full CI pass is claimed.
+- Exact-head run [44941725749](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941725749): metadata resolver succeeded; Windows Runner quality gates are in progress at locked dependency installation. Docker/Ollama, migration/schema guards, audits, tests, typecheck, lint and production build remain pending. No full CI pass is claimed.
 - Vercel reported the free daily deployment quota limit. This is not a successful Preview. Do not retry deployments repeatedly or bypass the quota.
 - Formal reviews and inline threads: zero. Keep Draft/unmerged until exact-head CI and required review pass.
 
 ### Broad integration candidate — PR #259
 
 - PR: https://github.com/X84657465/global-citizen-ai-network/pull/259
-- Current exact HEAD: f718499241fd905a12688498373a467cd3538ce1; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
-- No workflow run has appeared for current exact HEAD d04472480c3034597d134447d84a4168c3db76c3 at latest inspection. Earlier heads and runs, including 44942184888, are superseded and must not be used as acceptance evidence. Source review corrected the double-escaped H UTC regex (63408495d7fc66dbf0ad03041140cfebf7ff9a3e), then hardened calendar/time validation against Date.parse normalization and added regression tests for impossible dates and out-of-range hours (c75fc158113b093f79c5361d24148e1537d5ad2e and d04472480c3034597d134447d84a4168c3db76c3). Exact-head CI is not yet verified.
+- Current exact HEAD: d439b56385cc5780913ae81d7af3ce52946a07b4; base main a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582.
+- Current exact-head run [44942502660](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942502660) is pending with zero jobs at latest inspection. Current source at HEAD d439b56385cc5780913ae81d7af3ce52946a07b4 confirms the strict UTC regex captures numeric components and regression tests reject impossible dates and out-of-range hours. Earlier exact-head runs are superseded; exact-head CI is not yet verified.
 - Current diff contains 27 files across A state/controller changes, F–P host/governance/observability, repository-name validation, a PostgreSQL appeal-authorization migration, tests and release metadata. The H timestamp validator now rejects impossible UTC calendar dates and out-of-range time components; exact-head CI remains pending.
 - **Stack overlap:** #259 also carries the README/version and CI-policy-test edits from #265, plus the schema-guard edit covered by #264. Do not merge these PRs sequentially as-is or assume they are independent. Preserve the narrow PRs as isolated review units; split/reconcile #259 or refresh the remaining candidates against whichever exact SHA is eventually accepted. It is materially broader than the P0 schema repair.
 - Formal reviews and inline threads: zero. Keep Draft; do not merge merely because it includes the baseline fixes. Require a complete diff/scope review, exact-head CI including database/RLS and Ollama, independent review, and explicit dependency ordering.
@@ -131,3 +131,5 @@ Issue #136 requests a READ-ONLY adversarial audit of the integrated Agent Factor
 - Do not alter secrets, production data, database permissions, branch protection, Runner settings or workflow permissions without separate authorization.
 - Do not retry Vercel deployments while the free daily quota is exhausted.
 - Production migration, deployment, paid AI activation, payout and distributed execution remain separate release gates.
+
+- **Current CI/deployment constraints (2026-11-22):** PR #266 run 44942490529 is pending with zero jobs created. Vercel commit status is `failure` for #259/#265/#266 due to the Vercel build-rate limit (`upgradeToPro=build-rate-limit`); do not repeatedly retry or claim Preview/deployment acceptance. GitHub branch-protection/ruleset endpoints return 403 to the connected integration, so required branch rules cannot be independently inspected here. Formal reviews remain zero on checked candidates.
