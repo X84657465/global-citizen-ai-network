@@ -90,3 +90,8 @@ test("repository landing page exposes the product workspace, factory, and curren
   assert.ok(readme.includes("PR #207（尚未發布）"));
   assert.match(readme, /本分支最新候選尚未取得 Vercel Preview 部署/);
 });
+
+
+test("primary navigation exposes the Agent Factory directly", () => {
+  assert.ok(homepage.includes('<Link href="/factory">A 線工廠</Link>'));
+});
