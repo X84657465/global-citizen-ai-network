@@ -1,3 +1,9 @@
+## 0.3.109 — 2026-11-21
+
+- Synchronize the GitHub repository homepage and public website homepage with the A–P architecture: A–E remain the five active engineering workstreams; P is the cross-cutting Governance, Ethics & Trust layer.
+- Document human accountability, security/privacy, ethics/fairness, transparency/auditability, risk resilience and explicit consent without implying that all A–O capabilities are implemented.
+- No production deployment, database mutation, permission expansion or automatic merge.
+
 ## 0.3.108 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.77: validate parsed model-manifest roots and require `files` to be an array before iteration; malformed valid-JSON output is classified as a task-scoped failure.
