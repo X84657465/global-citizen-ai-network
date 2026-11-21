@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { FPHostAdapter, FPHostError } from "../../lib/fp/host-adapter.ts";
+import type { FPGovernanceReviewEvidence } from "../../lib/fp/governance-assurance.ts";
 import {
   registerFPGovernanceReviewCapability,
   type FPGovernanceReviewCapabilityInput,
@@ -56,7 +57,7 @@ test("registers P review collection on the trusted host and returns verified rea
 
   const host = new FPHostAdapter();
   registerFPGovernanceReviewCapability({ host, api, repository });
-  const result = await host.invoke<FPGovernanceReviewCapabilityInput, readonly ReturnType<typeof review> extends never ? never : import("../../lib/fp/governance-assurance.ts").FPGovernanceReviewEvidence[]>(
+  const result = await host.invoke<FPGovernanceReviewCapabilityInput, readonly FPGovernanceReviewEvidence[]>(
     {
       workstream: "P",
       capability: "collect-review-evidence",
