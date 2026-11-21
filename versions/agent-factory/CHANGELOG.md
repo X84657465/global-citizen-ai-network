@@ -1,3 +1,14 @@
+## 2.0.77 — 2026-11-21
+
+### Fixed — Classify malformed model manifest shapes as task failures
+- Validate that parsed model output is a non-array object containing a `files` array before iterating candidate files.
+- Route malformed valid-JSON roots and non-array `files` values through the task-scoped failure path.
+- Add regression coverage for null, arrays, primitives, missing fields and non-array values.
+- Preserve the strictest per-path output allowance for token-budget derivation and final UTF-8 byte enforcement.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, PostgreSQL/RLS integration, Vercel verification and independent formal review remain required.
+
 ## 2.0.74 — 2026-11-21
 
 ### Fixed — Keep per-file generation and acceptance limits consistent
