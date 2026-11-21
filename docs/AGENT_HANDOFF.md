@@ -239,3 +239,29 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 5. Implement only the reviewed versioned read-only projection and B-owned workspace authorization; keep B Runtime inactive until accepted.
 
 **Safety:** no production deployment/data mutation, secret or permission changes, workflow-policy changes, or machine-managed Factory state edits are authorized by these documentation updates.
+
+
+## Superseding live checkpoint — 2026-11-22 (exact-head refresh)
+
+This section supersedes earlier live-checkpoint statements in this handoff where candidate SHAs or CI run IDs differ. Older entries remain historical records, not current acceptance evidence.
+
+### A / Agent Factory V2 — priority 0
+- Current integrated `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
+- Sole active A/G integration candidate: PR #279, Draft/open, based on that main.
+- Current exact PR HEAD: `99f67c6a1f6a4cbff3522de14bb1508f8d4c52a4`.
+- The focused latest change corrects `tests/account-summary.test.ts` to inspect the actual CSS Module and assert both keyboard-focus selectors; no runtime behavior changed.
+- Exact-head Actions run [#44955249084](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44955249084) is still pending and has no allocated jobs at the latest verification. It provides no pass/fail evidence yet.
+- The exact-SHA Vercel status is `build-rate-limit`; this is provider quota state, not a code-test result. No READY Preview is available.
+- Issue #136 has been updated to request an independent read-only audit of this exact SHA. No independent report or formal PR review has been received.
+- Keep #279 Draft and unmerged until exact-head unit/type/lint/audit/build/PostgreSQL-RLS/Ollama evidence, same-SHA Preview/smoke evidence, and independent review are complete.
+
+### B preparation — documentation only
+- PR #275 remains Draft/open and documentation-only. Its current branch contains the bounded public read-adapter status clarification and this handoff refresh.
+- Its own exact-head Actions run [#44954680420](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44954680420) is pending; it is not an acceptance result.
+- Keep B runtime, routes, tables, billing, workspace permissions and Factory access inactive. Rebase/revalidate B only after A is accepted and integrated.
+
+### Execution controls
+1. Continue A/G #279 first; use only the current exact HEAD and its own CI evidence.
+2. Preserve the single self-hosted Runner concurrency policy; do not cancel queued work or weaken gates to gain throughput.
+3. Fix only reproduced failures. Do not alter machine-managed Factory state, production data, secrets, permissions or deployment configuration.
+4. After A acceptance, refresh B #275 against the resulting main and validate the read-only projection contract before any B runtime work.
