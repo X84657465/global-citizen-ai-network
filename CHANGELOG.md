@@ -1,3 +1,10 @@
+## 0.3.103 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.72: prevent valid new-file patch proposals from being truncated by halving the validated plan's byte allowance when deriving the Ollama token ceiling.
+- Keep new-file generation bounded to 2,048–8,192 tokens and retain the exact UTF-8 max_output_bytes enforcement before accepting a patch; add regression tests for budget derivation.
+- No database, RLS, secrets, production data, deployment or workflow-permission changes.
+- Exact-head full CI and Windows Runner/local Ollama integration remain required.
+
 ## 0.3.102 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
