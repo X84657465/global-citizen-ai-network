@@ -4,6 +4,7 @@ import { isActiveAdminProfile } from "@/lib/ai/reconciliation-auth";
 import { createGitHubApiClient } from "@/lib/github-api-client.mjs";
 import { collectFPGovernanceReviewEvidenceFromTrustedHost } from "@/lib/fp/governance-review-host";
 import { FPGovernanceReviewCollectionError } from "@/lib/fp/governance-review-source";
+import { isSafeGitHubRepositoryName } from "@/lib/github-repository-name.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
 
   const repository = process.env.GCAN_GITHUB_REPOSITORY ?? "";
   const token = process.env.GCAN_GITHUB_READ_TOKEN ?? "";
-  if (!REPOSITORY.test(repository) || !token) {
+  if (!isSafeGitHubRepositoryName(repository) || !token) {
     return NextResponse.json(
       { error: "治理審查讀取尚未設定唯讀 GitHub repository/token。" },
       { status: 503 },
