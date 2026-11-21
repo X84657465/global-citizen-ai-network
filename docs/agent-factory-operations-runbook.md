@@ -49,16 +49,15 @@ The hosted separation experiment was attempted in [PR #243](https://github.com/X
 
 ## Recovery queue scope and state-writer serialization
 
-The current mainline `.github/workflows/agent-factory-system-health.yml` still declares the shared concurrency group at workflow scope. A `workflow_run: completed` event starts the workflow for successful, failed, cancelled, skipped and unrelated PR CI completions; workflow-level concurrency can reserve the shared Windows queue before the job-level `if` condition skips ineligible events. This is a queue-efficiency defect, not permission to remove serialization.
+The current mainline `.github/workflows/agent-factory-system-health.yml` places the shared concurrency group under `jobs.reset-system-breaker.concurrency`, not at workflow scope. This change was merged through [PR #240](https://github.com/X84657465/global-citizen-ai-network/pull/240).
 
-The proposed A-line correction is tracked in [PR #240](https://github.com/X84657465/global-citizen-ai-network/pull/240):
-
-- Move the same `global-citizen-ai-network-self-hosted-runner` group under `jobs.reset-system-breaker.concurrency`, so only an eligible job reserves it.
-- Keep `cancel-in-progress: false` and `queue: max`; durable state writes remain serialized.
-- Require a successful `pull_request` workflow_run from the same repository and an `ai-task/issue-` branch prefix before the recovery job can enter the queue.
-- The publisher's exact branch form is `ai-task/issue-${issueNumber}-${digest}`, with a 12-character lowercase hex digest. The controller also performs full PR/issue/branch/SHA verification; the prefix is a queue eligibility filter, not an authorization substitute.
-- Keep Windows self-hosted execution and trusted `main` checkout. Do not move the state writer to an untrusted runner or remove the shared queue.
-- Existing runs already queued under the old workflow-level configuration are not retroactively changed by merging PR #240. Verify newly triggered eligible and ineligible workflow_run events after merge.
+- A completed `workflow_run` event can still start the workflow for successful, failed, cancelled, skipped and unrelated PR CI completions, but only an eligible job reserves the shared Windows Runner queue.
+- The recovery job requires a successful `pull_request` workflow run, a same-repository head repository, a non-empty PR association, and a branch beginning `ai-task/issue-`.
+- The shared concurrency group remains `global-citizen-ai-network-self-hosted-runner` with `cancel-in-progress: false` and `queue: max`. Do not remove serialization: the recovery job is a durable state writer.
+- The publisher's branch form is `ai-task/issue-${issueNumber}-${digest}`, with a 12-character lowercase hexadecimal digest. The controller independently validates PR, issue, branch and exact-SHA provenance; the branch prefix is only a queue eligibility filter.
+- The recovery job remains on the Windows self-hosted Runner and checks out trusted `main`. Never execute PR code or move privileged state mutation to an untrusted runner.
+- Current mainline workflow and regression-test source both contain this job-level queue policy. Existing runs queued under the former workflow-level configuration are not retroactively changed; verify newly triggered eligible and ineligible events after the merge.
+- PR #240's exact-head resolver check was still pending in the latest inspection and no independent review was recorded. The code is merged, but end-to-end operational acceptance still requires post-merge Actions evidence.
 
 ## Normal health checks
 
@@ -136,17 +135,18 @@ Candidate code is executed in disposable Docker containers. The workflow does no
 
 ## Latest verified evidence (2026-11-22)
 
-- Main HEAD: `4d3653b3da766ae3910aeef39bd840d2e6de30dd`.
-- Main CI run [#44928069201](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069201) remains pending with zero jobs assigned.
-- Main Agent Task Preflight run [#44928069246](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069246) was pending at the last inspection; run creation alone does not prove task execution.
-- Latest inspected main Agent Factory System Health Recovery run [#44929343777](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929343777) remains pending with no jobs assigned; older recovery runs are also pending.
-- Clean-base active PRs and exact head/run IDs are listed in `docs/AGENT_HANDOFF.md`: #239 A candidate/recovery evidence, #240 A health-recovery queue correction, #241 account CSS-module build repair, #242 H correlation context and #238 K documentation. PR #243's hosted-resolver experiment is closed without merge. At the last inspection, #239–#242 resolver jobs were pending without runner assignment; #238 had no jobs assigned. The #243 hosted resolver failed before any step ran and is closed without merge.
-- No active PR has produced a complete successful exact-head Windows quality/build, isolated Supabase/PostgreSQL/RLS and Ollama evidence set.
-- Main's recovery workflow still has workflow-level concurrency. PR #240 contains the correction; do not describe it as merged or active until main contains that exact change.
-- Recent Vercel statuses report `Deployment rate limited — retry in 24 hours`. This is an external Preview capacity limitation, not GitHub CI evidence. No Preview or Production deployment is claimed.
-- Workflow Checkout steps set `persist-credentials: false`; the repository policy test enforces this.
-- The preflight workflow still has a combined trusted orchestration/publisher job with write-capable token scopes. The scopes are job-scoped; step-scoped environment injection reduces accidental exposure but does not create true least privilege. Do not claim least-privilege completion.
-- No Production database mutation, secret change, or Production deployment was performed as part of this verification.
+- Main HEAD: `40e0e6902ccd35e6daa77f2f7a339ba00f92fab3`.
+- Main release metadata: root `0.3.121`; Agent Factory V2 `2.0.84`.
+- Main Agent Factory System Health Recovery run [#44929708981](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929708981) completed as `skipped`. Its event was a push to `main`, not a successful AI-task PR CI completion; this is an ineligible recovery event, not a passing recovery test.
+- Main CI run [#44929700133](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929700133) is pending at `Windows self-hosted project validation`. A complete mainline Windows quality/build, isolated Supabase/PostgreSQL/RLS and Ollama result is not yet verified.
+- Merged PRs on current main: [#238](https://github.com/X84657465/global-citizen-ai-network/pull/238) (K handoff/runbook), [#239](https://github.com/X84657465/global-citizen-ai-network/pull/239) (A exact candidate/recovery evidence), [#240](https://github.com/X84657465/global-citizen-ai-network/pull/240) (A recovery queue scope), and [#241](https://github.com/X84657465/global-citizen-ai-network/pull/241) (account CSS-module build repair), and [#242](https://github.com/X84657465/global-citizen-ai-network/pull/242) (H correlation contract).
+- Exact-head check lookups for #239, #240, #241 and #242 each returned only the `Resolve exact candidate PR metadata` job in `pending` state. No independent PR reviews were returned for these merges. Record them as merged but not accepted until complete exact-main evidence and the required review/release gates exist.
+- [PR #242](https://github.com/X84657465/global-citizen-ai-network/pull/242) is the only open PR found. Its exact head is `a90cd0c979da561f1d5e0ca9548e7c7607755b73`; resolver run [#44928924642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928924642) is pending, no review is recorded, and GitHub currently reports `merged=true`. No independent review was returned and the exact-head resolver check remained pending; treat H as merged but not accepted. H correlation is not an A-line blocker.
+- The old A branches/PRs #231 and #235 are closed without merge and superseded by #239 and #240. Do not reopen or merge their stale histories.
+- Main combined status reports a Vercel `build-rate-limit` failure. This is an external Preview/deployment-provider quota issue, not GitHub CI evidence. No Preview or Production deployment is claimed.
+- Current main workflow and test source confirm that recovery queue concurrency is job-scoped and restricted to successful same-repository AI-task PR events.
+- Main's candidate-start and candidate-outcome controller paths perform live PR verification at the durable write boundary; system health recovery verifies run ID, attempt, workflow/event, PR and exact SHA and requires the five exact required jobs before resetting the breaker.
+- No Production database mutation, secret change, permission change, or Production deployment was performed as part of this verification.
 
 ## Historical evidence (2026-11-19 and earlier)
 
