@@ -6,15 +6,15 @@
 
 **一個結合 AI 服務、全球知識協作、透明貢獻帳本與自願式運算願景的長期平台。**
 
-[產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（目前開發 PR #178）](https://github.com/X84657465/global-citizen-ai-network/pull/178) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
+[產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（目前候選 PR #190）](https://github.com/X84657465/global-citizen-ai-network/pull/190) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=feat%2Fagent-factory-v2)
+![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Engineering-3178C6?logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.107` · A 線 Agent Factory V2 `2.0.71`（工廠任務可靠性、重試復原與新檔案輸出上限） · B 線 GCAN Product `0.1.13`（目前正式登錄基線；B 0.1.16 候選待 A–P 接受後銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
+**Release:** `0.3.106` · A 線 Agent Factory V2 `2.0.71`（工廠任務可靠性、重試復原與新檔案輸出上限） · B 線 GCAN Product `0.1.13`（目前正式登錄基線；B 0.1.16 候選待 A–P 接受後銜接） · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [深度神經架構](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core/docs/deep-neural-architecture.md)
 
 </div>
 
@@ -38,7 +38,7 @@ GCAN 由 A–P 共 16 條工作線組成。每條線有獨立責任邊界、版�
 | **H** | Observability, Telemetry & Cost/Quota Governance｜可觀測性與成本配額治理 | 監控任務、佇列、Runner 健康度、重試與失敗指標、成本來源、配額門檻及安全暫停告警，避免資源失控。 | 優先開發／候選實作 | `0.1.5` |
 | **I** | Ecosystem, Connectors & Workflow Automation｜生態連接與流程自動化 | 管理外部 API、Webhook、通知與系統狀態同步，提供身分驗證、冪等處理及可安全重播的事件整合。 | 規劃中 | `0.1.0` |
 | **J** | Self-Healing, Chaos & Continuity｜自我修復、混沌測試與持續性 | 設計有界自動復原、熔斷、安全降級、檢查點、備份還原及受控故障注入，驗證系統在故障下仍可安全運作。 | 規劃中 | `0.1.0` |
-| **K** | Knowledge Base, Docs & Governance Playbooks｜知識庫、文件與治理手冊 | 維護架構決策、工作線邊界、操作手冊、交接模板、決策紀錄與故障排除流程，讓知識可追溯、可交接、可持續維護。 | 規劃中 | `0.1.6` |
+| **K** | Knowledge Base, Docs & Governance Playbooks｜知識庫、文件與治理手冊 | 維護架構決策、工作線邊界、操作手冊、交接模板、決策紀錄與故障排除流程，讓知識可追溯、可交接、可持續維護。 | 規劃中 | `0.1.7` |
 | **L** | Multi-Node, Federation & Edge/Cluster Coordination｜多節點聯邦與叢集協調 | 規劃使用者自願加入的節點身分、能力感知排程、租約、防止過期節點寫入的 fencing、健康檢查及跨節點協調。 | 規劃中 | `0.1.0` |
 | **M** | Compliance, Policy Audit & Risk Governance｜合規、政策稽核與風險治理 | 管理行為者與操作稽核紀錄、政策證據、風險清單、限縮例外、有效期限及資料保留控制。 | 規劃中 | `0.1.0` |
 | **N** | Productization, Analytics & Growth/Ecosystem Ops｜產品化、分析與生態營運 | 建立兼顧隱私的產品指標、採用率與品質分析、使用者回饋迴路、引導流程及生態系營運能力。 | 規劃中 | `0.1.0` |
@@ -85,9 +85,9 @@ A–H 是目前優先推進的工作線；I–P 是已登錄、各自獨立版�
 核心應用、資料庫流程與 Agent Factory V2 正在持續開發及驗證。網站網址可供查看，但不代表所有功能已正式開放，也不代表已進入正式商業營運。
 </blockquote>
 
-- **A｜Agent Factory V2：** [PR #178（Ready for Review；exact-head 完整 CI 已通過，待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/178)
-- **A–P 治理與版本登錄：** [PR #179（A–P 架構與版本登錄候選；精確 SHA 完整 CI 已通過，待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/179)
-- **B｜GCAN 主產品：** [PR #181（Draft；B 0.1.16 候選，待 A–P 治理正式整合及自身 exact-head CI）](https://github.com/X84657465/global-citizen-ai-network/pull/181)
+- **A｜Agent Factory V2：** [PR #190（Draft；exact-head 完整 CI 已通過，待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/190)
+- **A–P 治理與版本登錄：** [PR #185（A–P 治理基底候選；exact-head 完整 CI 已通過，待獨立正式審查）](https://github.com/X84657465/global-citizen-ai-network/pull/185)
+- **B｜GCAN 主產品：** [PR #187（Draft；B 0.1.16 候選，已基於 #186 Migration 銜接；等待上游治理接受）](https://github.com/X84657465/global-citizen-ai-network/pull/187)
 - **C｜Predictive Coding：** [PR #139（已合併）](https://github.com/X84657465/global-citizen-ai-network/pull/139)
 - **第三線預測編碼：** [架構文件](docs/predictive-coding-architecture.md)
 - **D｜Deep Neural：** [PR #140（開啟；待 exact-head CI 與審查）](https://github.com/X84657465/global-citizen-ai-network/pull/140) · [架構分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/deep-neural-core) · [架構文件](https://github.com/X84657465/global-citizen-ai-network/blob/feat/deep-neural-core/docs/deep-neural-architecture.md)
@@ -395,7 +395,7 @@ http://localhost:3000
 - Windows Self-hosted Runner Toolchain Checks
 - Docker／Ollama Availability 與有界結構化推論
 
-最新 CI 請以各 PR 最新 exact-head 工作流程為準；A 工廠 PR #178（`58c88e348264d34dd0ecf83b3bba68fbc83c1370`，Run #44837733094）及 A–P 治理 PR #179（`b3bd16e9fd69586ce11511eb10765ae041187df0`，Run #44838299359）的 Windows 品質、Ollama／本機執行及 PostgreSQL/RLS 工作均已完成並通過。兩者仍待獨立正式審查；CI 通過不代表 PR 已合併。
+先前 exact-head CI 已通過：A 工廠 PR #190（`d482ad5f3b9adb1c9fd1213f6543b21fc97f4768`，Run #44850829600）、A–P 治理 PR #185 舊 SHA（`d18357fdfde2786fee98727214667002bbb576bb`，Run #44848168668）、Migration PR #186（`ecca4af70a947319e39c9c033f7419424b4ab37d`，Run #44848244580）及 B PR #187（`4b0fafdc1227de6e83a0ed9753c37ad4cfe772f3`，Run #44848349624）。其必要 Windows 品質、Ollama／本機執行及 PostgreSQL/RLS 工作均已在各自列出的 SHA 通過。**目前 PR #185 已新增 README 版本／交接資訊修正，最新 SHA 為 `8c031473cc35e2d64c8427db07030786001ee264`，必須等待此 SHA 的新 CI；#186/#187 仍以舊治理父提交為基底，需在上游更新後重新銜接與驗收。** CI 通過不代表獨立審查、合併或正式部署已完成。
 
 ## 📚 文件導覽
 
@@ -436,7 +436,7 @@ http://localhost:3000
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
 | A｜Agent Factory V2 | 工廠控制台 | 候選修復任務狀態、相依排程與健康熔斷；exact-head 完整 CI 已通過，待獨立正式審查 | [PR #178](https://github.com/X84657465/global-citizen-ai-network/pull/178) |
-| B｜GCAN Product | 全球產品平台 | B 0.1.16 候選已選擇性移植至 A–P 基底；維持 Draft，等待治理正式接受後重新銜接與完整驗收 | [PR #181](https://github.com/X84657465/global-citizen-ai-network/pull/181) |
+| B｜GCAN Product | 全球產品平台 | B 0.1.16 候選已選擇性移植並串接 A–P 治理及 Migration 候選；維持 Draft，等待上游接受與最終整合驗收 | [PR #187](https://github.com/X84657465/global-citizen-ai-network/pull/187) |
 | C｜Predictive Coding | 預測分析工作台 | 首頁與技術總覽更新已合併；依現有工作線版本持續維護 | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
 | D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
 | E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
