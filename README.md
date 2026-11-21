@@ -6,7 +6,7 @@
 
 **一個結合 AI 服務、全球知識協作、透明貢獻帳本與自願式運算願景的長期平台。**
 
-[產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.79）](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
+[產品網站](https://global-citizen-ai-network.vercel.app) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [Agent Factory V2（A 線 2.0.79）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [官網首頁更新 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
 ![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
@@ -497,11 +497,11 @@ A–O 各工作線各自擁有獨立責任、版本與驗收紀錄；P 提供共
 
 | 線別 | 工作台 | 最新已知狀態 | 入口 |
 |---|---|---|---|
-| A｜Agent Factory V2 | 工廠控制台 | 已修正 DB-backed RLS 測試分流與失敗分類；新 exact-head CI 待驗證 | [PR #134](https://github.com/X84657465/global-citizen-ai-network/pull/134) |
-| B｜GCAN Product | 全球產品平台 | CI 通過；待獨立驗收 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) |
-| C｜Predictive Coding | 預測分析工作台 | CSS 修復候選；待 exact-head CI | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
-| D｜Deep Neural | 深度神經工作台 | 互動功能候選；待 exact-head CI | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
-| E｜Deep Research | 深度研究工作台 | 介面候選；待 CI 確認 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
+| A｜Agent Factory V2 | 工廠控制台 | PR #134 已合併，該提交 CI 通過；本輪工廠首頁銜接修改納入 PR #207，最新 exact-head CI 待完成 | [工廠分支](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [首頁整合 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) |
+| B｜GCAN Product | 全球產品平台 | PR #137 仍開啟；目前 head 尚無可確認的 CI 執行紀錄，待 exact-head 驗證與產品驗收 | [PR #137](https://github.com/X84657465/global-citizen-ai-network/pull/137) · [首頁整合 PR #207](https://github.com/X84657465/global-citizen-ai-network/pull/207) |
+| C｜Predictive Coding | 預測分析工作台 | PR #139 已合併；對應 head CI 通過，後續仍以 main 最新提交與產品驗收為準 | [PR #139](https://github.com/X84657465/global-citizen-ai-network/pull/139) |
+| D｜Deep Neural | 深度神經工作台 | PR #140 仍開啟；目前 head 尚無可確認的 CI 執行紀錄，待 exact-head 驗證 | [PR #140](https://github.com/X84657465/global-citizen-ai-network/pull/140) |
+| E｜Deep Research | 深度研究工作台 | PR #141 仍開啟；目前 head 尚無可確認的 CI 執行紀錄，待 exact-head 驗證 | [PR #141](https://github.com/X84657465/global-citizen-ai-network/pull/141) |
 
 > CI 通過不等於正式上線；示範資料、未連接的外部服務與開發中功能都必須清楚標示。
 
