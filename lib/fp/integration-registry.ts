@@ -110,7 +110,9 @@ export class FPIntegrationRegistry {
   register(adapter: FPIntegrationAdapter): void {
     if (
       !adapter ||
+      typeof adapter.id !== "string" ||
       !IDENTIFIER.test(adapter.id) ||
+      typeof adapter.version !== "string" ||
       !VERSION.test(adapter.version) ||
       !Array.isArray(adapter.operations) ||
       adapter.operations.length === 0
@@ -125,6 +127,7 @@ export class FPIntegrationRegistry {
     for (const operation of adapter.operations) {
       if (
         !operation ||
+        typeof operation.name !== "string" ||
         !IDENTIFIER.test(operation.name) ||
         !["read", "write"].includes(operation.effect) ||
         typeof operation.execute !== "function" ||
@@ -312,6 +315,7 @@ export class FPIntegrationExecutor {
         if (error instanceof FPIntegrationError) throw error;
         throw new FPIntegrationError("CONNECTOR_FAILURE", "Registered connector operation failed.");
       } finally {
+        if (outcome !== "succeeded") controller.abort();
         if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
       }
     } catch (error) {
