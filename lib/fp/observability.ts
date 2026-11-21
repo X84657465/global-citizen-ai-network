@@ -73,8 +73,7 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
       !/^[a-z][a-z0-9-]{1,63}$/.test(event.capability) ||
       !Number.isFinite(event.durationMs) ||
       event.durationMs < 0 ||
-      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(event.occurredAt) ||
-      Number.isNaN(Date.parse(event.occurredAt)) ||
+      !isStrictUtcTimestamp(event.occurredAt) ||
       (event.errorCode !== undefined && !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$/.test(event.errorCode))
     ) {
       throw new TypeError("Invalid F–P observability event.");
