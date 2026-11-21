@@ -46,7 +46,7 @@ test("collects exact-head submitted reviews and host-verifies reviewer permissio
     verifyReviewerPermission: async (login) => {
       checks += 1;
       assert.equal(login, "reviewer-one");
-      return { permission: "maintain", evidenceRef: "permissions/reviewer-one/maintain" };
+      return { permission: "write", evidenceRef: "permissions/reviewer-one/write" };
     },
   }));
   assert.equal(checks, 1);
