@@ -494,7 +494,9 @@ test("candidate CI retries require backoff, a new worker lease, and the publishi
   assert.equal(revised.tasks["42"].head_sha, "e".repeat(40));
   assert.equal(revised.tasks["42"].candidate_failure_history.length, 1);
   assert.equal(revised.tasks["42"].candidate_failure_history[0].ci_run_id, "ci-789");
-});test("explicitly requeues a candidate CI rejection for a new worker attempt", () => {
+});
+
+test("explicitly requeues a candidate CI rejection for a new worker attempt", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
   state = move(state, 42, "preparing", {}, 1100);
   state = move(state, 42, "planning", {}, 1200);
