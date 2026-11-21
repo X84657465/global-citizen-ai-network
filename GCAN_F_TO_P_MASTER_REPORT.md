@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-11-22  
 **Repository:** `X84657465/global-citizen-ai-network`  
-**Audited main baseline:** `88ef18c6a2be53da2066a271ce0bddb280900da8`  
+**Audited main baseline:** `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
 **Release baseline:** `0.3.124`  
 **Scope:** F–P shared-core integration; A–E and Agent Factory V2 are protected  
 **Overall status:** Implementation in progress; no F–P workstream is declared fully accepted by this report.
@@ -13,7 +13,7 @@ GCAN already contains a substantial F–P shared-core foundation. The correct ne
 
 The dependency order remains **F → G → H → P → I/J/M/N/O/K**, with **L deferred**. A–E and Agent Factory V2 remain outside the change boundary. No production schema, secret, workflow permission, branch protection, deployment, or autonomous execution change is included in the current F–P work.
 
-A new P host permission-provider slice is under review in [PR #251](https://github.com/X84657465/global-citizen-ai-network/pull/251), exact head `12ea0a4b23bd75e470da92e2b9d6ab5440062d80`. It adds a read-only adapter over the existing authenticated GitHub API client and focused tests. Its exact-head CI run [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871) is pending at the candidate resolver; no test pass is claimed.
+P permission provider PR #251 was merged at `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` while its exact-head CI run [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871) was still pending at the candidate resolver. The Codex review bot also reported it could not complete review because of usage limits. Therefore the merge is recorded as merged-but-unverified, not accepted. A post-merge follow-up branch `feat/p-trusted-review-permission-provider-20261122` now contains a narrow repository-path validation fix and the five requested handover artifacts; it must receive fresh exact-head CI and review before acceptance.
 
 ## 2. Protected core and integration boundary
 
@@ -41,12 +41,12 @@ A new P host permission-provider slice is under review in [PR #251](https://gith
 
 ## 4. Verified repository evidence
 
-- Main branch at audit time: `88ef18c6a2be53da2066a271ce0bddb280900da8`.
+- Main branch at audit time: `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
 - Package/release baseline at audit time: `0.3.124`.
 - PR #248 merged P's exact-head review collector at merge commit `f1c10a92ec7ffca510c0d42210062a52334dde94`.
 - PR #250 merged the P review-decision precedence correction; the latest main commit is `88ef18c6a2be53da2066a271ce0bddb280900da8`.
 - Main push CI run [44931253584](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931253584) was pending at audit time.
-- PR #251 contains two additive files: `lib/fp/github-review-permission.ts` and `tests/fp/github-review-permission.test.ts`. It is a Draft PR and exact-head CI run [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871) was pending at the resolver job.
+- PR #251 merged the two additive permission-provider files, but it merged before exact-head CI run [44931646871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44931646871) completed. The PR also received a Vercel deployment-rate-limit comment; this is an external preview blocker, not a test result. The follow-up branch fixes a path-validation defect found by an isolated test and adds the five handover documents.
 - A completed workflow with skipped quality/database jobs is not a pass. A pending resolver is not a pass. A historical pass for another SHA is not a pass for the current candidate.
 
 ## 5. Current risks and blockers
@@ -74,8 +74,8 @@ Acceptance does not grant merge or deployment authority. A merge requires the re
 
 ## 7. Immediate next actions
 
-1. Complete exact-head CI for PR #251; fix failures on the same isolated branch and rerun.
-2. If all required jobs pass and review is clean, mark PR #251 ready and merge only after the repository's normal review requirements are satisfied.
+1. Open a follow-up PR from `feat/p-trusted-review-permission-provider-20261122` for the repository-path validation fix and handover documents; require a fresh exact-head CI run.
+2. If all required jobs pass and review is clean, mark the follow-up PR ready and merge only after the repository's normal review requirements are satisfied.
 3. Wire the P permission provider only at an existing authenticated host boundary after confirming how the host supplies reviewer identity and authorization. Do not add a parallel identity system or new secret.
 4. Run the F–G shared-run evaluator using trusted GitHub Actions evidence for the same run/attempt.
 5. Complete H route/job correlation evidence and explicitly label process-local versus persistent telemetry.
