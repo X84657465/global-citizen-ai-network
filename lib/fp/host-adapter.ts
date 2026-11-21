@@ -175,7 +175,7 @@ export class FPHostAdapter {
       throw new FPHostError("INVALID_CONTEXT", "Host authorization and approval decisions must be booleans.");
     }
     const key = `${invocation.workstream}:${invocation.capability}`;
-    const handler = this.handlers.get(key) as FPCapabilityHandler<TInput, TOutput> | undefined;
+    const handler = this.handlers.get(key);
     if (!handler) {
       throw new FPHostError("UNKNOWN_CAPABILITY", `No handler registered for ${key}.`);
     }
@@ -230,7 +230,7 @@ export class FPHostAdapter {
     });
     auditContext = handlerContext;
 
-    const output = await handler(invocation.input, handlerContext);
+    const output = await handler(invocation.input, handlerContext) as TOutput;
     const envelope: FPCapabilityEnvelope<TOutput> = Object.freeze({
       contractVersion: "1",
       workstream: invocation.workstream,
