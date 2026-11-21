@@ -807,6 +807,7 @@ test("validates persisted candidate provenance metadata instead of accepting mal
     ci_run_attempt: 1,
     head_ref: "ai-task/issue-42-abcdef123456",
   }, 2800);
+  assert.equal(validateFactoryState(state), true, "valid started candidate evidence, including nullable candidate_error, remains accepted");
 
   const corruptions = [
     ["candidate SHA", task => { task.head_sha = "not-a-sha"; }],
