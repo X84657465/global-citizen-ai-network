@@ -359,7 +359,7 @@ test("accepts only real calendar dates in retry-scope supplemental headings", ()
 
   for (const invalidDate of ["2025-02-29", "2026-04-31", "2026-13-01", "2026-00-10"]) {
     const issue = validIssue({
-      body: validIssue().body + `\\n\\n## Retry scope refinement — ${invalidDate}\\nInvalid date must not be accepted.`,
+      body: validIssue().body + `\n\n## Retry scope refinement — ${invalidDate}\nInvalid date must not be accepted.`,
     });
     assert.throws(
       () => validateAndBuildTask(issue, "X84657465/global-citizen-ai-network"),
