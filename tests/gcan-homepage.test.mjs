@@ -59,3 +59,29 @@ test("version manifest registers every A-P workstream with a valid numeric versi
     assert.equal(versionManifest.tracks[code].status, "planned", `track ${code} must remain planned until evidence-based activation`);
   }
 });
+
+test("homepage preserves first-party workspace, contribution and login entry points", () => {
+  assert.match(homepage, /href="\\/workspace"/);
+  assert.match(homepage, /href="\\/contribute"/);
+  assert.match(homepage, /href="\\/login"/);
+});
+
+test("A and C workbenches use first-party routes while D and E remain explicit external previews", () => {
+  assert.match(homepage, /code:"A"[\\s\\S]*?href:"\\/factory"/);
+  assert.match(homepage, /code:"C"[\\s\\S]*?href:"\\/predictive-coding"/);
+  assert.match(homepage, /code:"D"[\\s\\S]*?external:true/);
+  assert.match(homepage, /code:"E"[\\s\\S]*?external:true/);
+  assert.match(homepage, /D、E 目前仍為獨立預覽環境/);
+});
+
+test("homepage retains keyboard focus visibility and reduced-motion accessibility", () => {
+  assert.ok(styles.includes(".page a:focus-visible"));
+  assert.match(styles, /:focus-visible/);
+  assert.ok(styles.includes("@media(prefers-reduced-motion:reduce)"));
+});
+
+test("candidate homepage links to the exact current pull request rather than a stale candidate", () => {
+  assert.match(homepage, /PR #260 CANDIDATE/);
+  assert.ok(homepage.includes("/pull/260"));
+  assert.doesNotMatch(homepage, /PR #207 CANDIDATE|\\/pull\\/207/);
+});
