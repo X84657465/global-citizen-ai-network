@@ -87,7 +87,8 @@ export class FPHostAdapter {
     errorCode?: string,
   ): void {
     if (!this.observability) return;
-    const correlationId = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(context.correlationId)
+    const correlationId = typeof context.correlationId === "string" &&
+      /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(context.correlationId)
       ? context.correlationId
       : "invalid-context";
     try {
@@ -138,6 +139,9 @@ export class FPHostAdapter {
         !context.principal || typeof context.principal !== "object") {
       throw new FPHostError("INVALID_CONTEXT", "Host request and principal context are required.");
     }
+
+    const startedAt = Date.now();
+    try {
     let contract;
     try {
       contract = getWorkstreamContract(request.workstream);
@@ -207,6 +211,17 @@ export class FPHostAdapter {
       payload: output,
     });
 
+    this.recordOutcome(request, context, "succeeded", startedAt);
     return { envelope };
+    } catch (error) {
+      const outcome = error instanceof FPHostError
+        ? (error.code === "UNAUTHORIZED" ? "denied" : "rejected")
+        : "failed";
+      const errorCode = error instanceof FPHostError
+        ? error.code
+        : "HANDLER_FAILURE";
+      this.recordOutcome(request, context, outcome, startedAt, errorCode);
+      throw error;
+    }
   }
 }
