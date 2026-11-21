@@ -77,3 +77,12 @@ The following remote PR/head/workflow facts were rechecked. They update task evi
 
 PR #206 is CI-green on its exact head but remains open and unmerged. Do not mark P accepted or integrated on that basis. The P PR text positions P as a cross-cutting Governance, Ethics & Trust layer and calls A–E the five currently active feature tracks; this must be reconciled with the A–P sixteen-workstream registry. No owner or policy enforcement authority is assigned by this ledger.
 
+
+
+### CI job detail refresh — 2026-11-21
+
+- G #148: Unit tests failed; Supabase/PostgreSQL/RLS job passed.
+- H #150: Unit tests failed; Supabase/PostgreSQL/RLS job passed.
+- L #66: build and database jobs failed; root cause unknown from job summary.
+- P #68: database/build/UltraProbe checks include failures.
+- P #206 exact head: Windows quality gates (tests/types/lint/audit/production build), Ollama/local execution integration, and Supabase/PostgreSQL/RLS integration all passed in run #44903614946. Scope is homepage/governance documentation sync only; not P-wide enforcement acceptance.
