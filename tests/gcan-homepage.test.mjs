@@ -106,3 +106,9 @@ test("repository and product homepages expose task-oriented workspace, factory, 
   assert.ok(homepage.includes('<Link href="/factory">A 線工廠</Link>'));
   assert.ok(homepage.includes('<Link href="/contribute">全球貢獻中心</Link>'));
 });
+
+
+test("four product entry cards use a balanced desktop grid and collapse cleanly on mobile", () => {
+  assert.ok(styles.includes(".productGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))"));
+  assert.match(styles, /@media\(max-width:620px\)[\s\S]*?\.productGrid,\.trustGrid,\.docsGrid\{grid-template-columns:1fr/);
+});
