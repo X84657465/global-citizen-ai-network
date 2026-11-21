@@ -1,7 +1,7 @@
 # Five-Track Engineering Governance
 
-**Governance revision: 1.4.17**  
-**Repository release baseline: 0.3.121**
+**Governance revision: 1.4.18**  
+**Repository release baseline: 0.3.122**
 
 ## 1. Five development tracks
 
@@ -86,7 +86,14 @@ A change is not accepted merely because code was committed or a PR exists.
 - No automatic approval, merge, production database mutation or production deployment.
 - Draft PRs remain Draft until all stated acceptance criteria are evidenced and reviewed.
 
-## 7. Required change record
+## 7. Governance review provenance
+
+- Review evidence must identify the exact candidate commit SHA, review reference, reviewer reference, submission time and an authorization reference supplied by the trusted host.
+- The trusted host must independently authenticate the reviewer and verify repository permissions before marking reviewer authorization as verified. A reference string or model-generated assertion is not authentication.
+- Only the latest review per reviewer for the exact candidate SHA is considered. Stale reviews do not count; conflicting decisions at the same timestamp are surfaced rather than resolved by order.
+- A recorded `approved` decision is descriptive evidence only. It does not create governance approval, satisfy branch protection, authorize a merge, or authorize execution/deployment.
+
+## 8. Required change record
 
 Every improvement, including a small one, records:
 
@@ -99,10 +106,10 @@ Every improvement, including a small one, records:
 - security/privacy impact;
 - rollback or recovery method.
 
-## 8. Rollback
+## 9. Rollback
 
 Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
 
-## 9. Five-track baseline
+## 10. Five-track baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.121`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.122` A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
