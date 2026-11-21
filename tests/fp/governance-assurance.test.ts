@@ -194,6 +194,21 @@ test("keeps L deferred and rejects invalid ownership, duplicate records, and evi
   })), TypeError);
 });
 
+test("rejects impossible calendar dates and out-of-range UTC time components", () => {
+  for (const submittedAt of [
+    "2026-02-30T12:00:00Z",
+    "2026-13-01T12:00:00Z",
+    "2026-11-22T24:00:00Z",
+    "2026-11-22T12:60:00Z",
+    "2026-11-22T12:00:60Z",
+    "2026-11-22T12:00:00.1000Z",
+  ]) {
+    assert.throws(() => assessFPGovernanceDossier(dossier({
+      reviews: [review({ submittedAt })],
+    })), TypeError, submittedAt);
+  }
+});
+
 test("rejects malformed review identity, unsafe references, duplicate review refs, and excessive records", () => {
   assert.throws(() => assessFPGovernanceDossier(dossier({
     reviews: [review({ reviewedSha: "bad" })],
