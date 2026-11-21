@@ -1,3 +1,13 @@
+## 2.0.82 — 2026-11-21
+
+### Hardened — Bind model context to the files actually supplied
+- Replace the misleading prompt allowance to read arbitrary repository files with an explicit statement that only supplied source_files are available.
+- Require fail-closed behavior when a needed component/API contract is absent from supplied context.
+- Add a regression assertion preventing the prompt from implying unprovided source access.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, PostgreSQL/RLS integration, Vercel verification and independent formal review remain required. No task retry or durable state reset is performed.
+
 ## 2.0.81 — 2026-11-21
 
 ### Hardened — Fail closed when UI integration context is missing
