@@ -1,3 +1,11 @@
+## 0.3.123 — 2026-11-22
+
+- Add a P governance review collector using the existing authenticated GitHub API client; verify the candidate PR remains open, same-repository, targets main and retains the exact candidate HEAD.
+- Read the complete paginated review history within a safe bound, bind submitted decisions to commit SHAs, and delegate reviewer permission checks to the trusted host.
+- Fail closed on stale candidates, malformed/duplicate review records and incomplete pagination; permission lookup errors remain unverified.
+- Add focused tests for exact-head checks, pagination, stale reviews, permission levels, lookup failures and malformed source data.
+- Keep the collector advisory and unconnected to automatic approval, merge, execution or deployment; no new credentials or workflow permissions.
+
 ## 0.3.122 — 2026-11-22
 
 - Upgrade the F–P governance dossier to policy v2 with review evidence bound to the exact candidate SHA, opaque review/reviewer/authorization references, and host-attested reviewer authorization.
