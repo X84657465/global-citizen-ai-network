@@ -2,28 +2,31 @@
 
 ## Scope and safety
 
-This verification covers the existing migration files and their repository-side static contracts. It does not modify migrations, connect to a hosted Supabase project, or use real member identities or production data.
+This verification covers the repository's exact 24-file migration inventory and a disposable local Supabase/PostgreSQL execution. It does not connect to a hosted Supabase project or use real member identities or production data.
 
-**Important:** static checks are not proof that PostgreSQL can apply every migration. A clean disposable local Supabase database is required before the full migration chain, grants, RLS behavior, triggers, indexes, and RPC execution can be marked verified.
+All database execution is isolated to the CI-created local Supabase stack. No hosted project link, production URL, production credentials, or production data are part of this verification.
 
 ## Current evidence
 
+**Verified candidate revision:** `bcdd8e29e0369f261b1716bc1bec5555552bc5a9`  
+**Exact-head CI run:** [#2551](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44838306544) (`44838306544`) — completed successfully on 2026-11-21.
+
 | Area | Status | Evidence |
 |---|---|---|
-| Migration filename format and ordering | Passed when the test suite passes | `tests/migration-chain-verification.test.mjs` and `scripts/check-migration-versions.mjs` |
-| Repository static schema contracts | Passed when the test suite passes | `scripts/check-schema.mjs` |
-| Presence of critical migration files | Passed when the test suite passes | Required migration inventory in the Node test |
-| Presence of SQL regression suites | Passed when the test suite passes | Required SQL test inventory in the Node test |
-| Applying the complete chain to a clean PostgreSQL database | **Not verified** | Requires a disposable local Supabase stack |
-| Runtime RLS checks as anon/authenticated/service_role | **Not verified** | Static inspection cannot substitute for database execution |
-| Trigger, index, RPC grant and rollback behavior at runtime | **Not verified** | Requires local database execution |
+| Exact 24-file migration inventory and ordering | **Passed** | `tests/migration-chain-verification.test.mjs`; exact ordered-list comparison via `assert.deepEqual` |
+| Migration filename format and ordering guard | **Passed** | Exact-head CI: Migration filename safety guard |
+| Repository static schema contracts | **Passed** | Exact-head CI: Schema safety guard |
+| Applying the complete migration chain to a clean disposable local Supabase database | **Passed** | Exact-head CI: Initialize isolated local Supabase project; Start isolated Supabase and apply migrations |
+| PostgreSQL and RLS SQL regression suites | **Passed** | Exact-head CI: Run PostgreSQL and RLS pgTAP tests |
+| Two-member application-level RLS integration | **Passed** | Exact-head CI: Run two-member application RLS integration tests |
+| Local Supabase teardown | **Passed** | Exact-head CI: Stop Supabase services |
 | Generated TypeScript database types versus live schema | **Not verified** | No generated database-types artifact is currently tracked in this repository |
 
-The repository currently contains static schema assertions and SQL regression suites. Do not describe those as a successful clean-database migration run.
+The exact-head CI run also passed the Windows quality gates, including unit tests, type check, lint, security audits and production build, plus bounded local Ollama inference. These results do not imply deployment to production.
 
 ## Routine CI verification
 
-The migration-chain Node test is automatically discovered by the repository's recursive `scripts/run-unit-tests.mjs` runner because it matches `*.test.mjs`; `package.json` already routes `npm run test:unit` through that runner, so no package-script edit is necessary. Run:
+The migration-chain Node test is automatically discovered by the repository's recursive `scripts/run-unit-tests.mjs` runner because it matches `*.test.mjs`; `package.json` routes `npm run test:unit` through that runner.
 
 ```sh
 npm ci
@@ -32,27 +35,21 @@ npm run lint
 npm run build
 ```
 
-The test checks unique and ordered 14-digit migration versions, required security/lifecycle migration files, the presence of SQL regression suites, and the existing migration-version and static-schema checkers.
+The migration test checks the exact ordered 24-file inventory, unique and ordered 14-digit migration versions, required security/lifecycle migration files, the presence of SQL regression suites, and the existing migration-version and static-schema checkers.
 
 ## Disposable local database verification
 
-Only perform this procedure on a disposable local Supabase instance. Never point `SUPABASE_DB_URL`, Supabase CLI link configuration, or a database client at production or a hosted project.
+The successful exact-head CI execution uses only a disposable local Supabase instance. Its recorded sequence includes:
 
-Prerequisites:
-- Docker Desktop running locally.
-- Supabase CLI installed.
-- Repository checked out at the commit being verified.
-- No linked production project and no production credentials in the shell environment.
+1. Initialize an isolated local Supabase project.
+2. Start the isolated Supabase stack and apply the migration chain.
+3. Run PostgreSQL and RLS pgTAP tests.
+4. Run two-member application RLS integration tests.
+5. Stop the local Supabase services.
 
-Suggested local sequence:
+For a repeat verification, record the exact commit SHA, Supabase CLI version, migration reset output, SQL test output, and any failing migration name. If the local stack cannot start or a prerequisite is missing, record the result as **not verified**, not passed.
 
-```sh
-supabase start
-supabase db reset
-supabase test db
-```
-
-Record the exact commit SHA, Supabase CLI version, migration reset output, SQL test output, and any failing migration name. If the local stack cannot start or a prerequisite is missing, record the result as **not verified**, not passed.
+Never point `SUPABASE_DB_URL`, Supabase CLI link configuration, or a database client at production or a hosted project for this procedure.
 
 ## Failure handling and recovery
 
@@ -64,4 +61,4 @@ Record the exact commit SHA, Supabase CLI version, migration reset output, SQL t
 
 ## Known limitations
 
-This repository-side test is a static regression guard. It does not itself start Docker, invoke Supabase, connect to PostgreSQL, impersonate database roles, or compare generated TypeScript types with a live schema. Those checks remain **not verified** until disposable-environment evidence is attached to the task.
+The evidence above verifies the migration chain and PostgreSQL/RLS behavior only for the exact candidate SHA and disposable CI environment identified above. It does not verify generated TypeScript database types against a live schema, nor does it establish production deployment, production data integrity, hosted-project configuration, or production runtime behavior. Re-run exact-head CI after any subsequent commit; evidence from this SHA must not be carried forward to a changed revision without re-verification.
