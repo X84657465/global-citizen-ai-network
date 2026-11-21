@@ -1,7 +1,7 @@
 # GCAN F–P Master Report
 
 **盤點日期：** 2026-11-21（Asia/Taipei）  
-**盤點基準：** `main` 已整合 A 2.0.71 的提交 `5b274eed904e40159c8ab8c13cef? `  
+**盤點基準：** `main` 已整合 A 2.0.71 的提交 `5b274eed904e40159c8ab8c13bba68fbc83c1370`  
 **本報告工作分支：** `audit/f-p-engineering-handover-20261121`  
 **本分支父提交：** `6e76272623333201228d4ed82f63141f56dcb868`（PR #185 A–P governance candidate）  
 **狀態：** GitHub 遠端唯讀盤點完成第一輪；未執行本機 checkout / build / test；未修改任何 runtime source。
