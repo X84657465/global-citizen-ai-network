@@ -26,9 +26,9 @@ begin
     raise exception 'only rejected submissions can be appealed';
   end if;
   if v_contributor_id is distinct from new.appellant_id then
-    raise insufficient_privilege
-      using errcode = '42501',
-            message = 'only the submission owner can appeal';
+    raise exception using
+      errcode = '42501',
+      message = 'only the submission owner can appeal';
   end if;
 
   perform pg_catalog.pg_advisory_xact_lock(
