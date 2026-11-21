@@ -52,19 +52,20 @@ F–P manifest registration or a “ready” label is not implementation accepta
 ### PR #259 — P0 A / F–P shared acceptance candidate
 
 - Branch: `fix/ci-schema-grant-test-count-20261122`.
-- Current exact HEAD: `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`.
-- Exact-head Actions run: [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889).
-- Previous exact-head run `44943280889` on `38e5e5f312a1d3eaeedec9117ae1d6b46d779691` failed the unit suite: 543/549 passed, 6 failed in P governance-review source/host tests. Root cause was a double-escaped digit matcher in `isValidUtcTimestamp`, causing valid GitHub UTC review timestamps to be rejected as `INVALID_REVIEW_DATA`.
-- Corrective commit `2b4b1edf6b19c5c3e058f2aca1bb0ced8cd569df` fixes the regex in `lib/fp/governance-review-source.ts`; this is the current exact PR #259 HEAD. New exact-head Actions run [44943967106](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943967106) is pending at latest inspection with no jobs reported yet. Require all unit/type/lint/build and PostgreSQL/RLS/Ollama jobs on this SHA. No independent review is recorded. Keep Draft/unmerged.
+- **Current exact branch HEAD verified from GitHub: `d9073d51155de384be18e660c03923b0b0f424d0`.**
+- Prior exact-head run [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889) targeted superseded SHA `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`; its 543/549 unit result is historical only.
+- Corrective review timestamp validation and stable historical test fixtures were committed in `2b4b1edf6b19c5c3e058f2aca1bb0ced8cd569df` and `d9073d51155de384be18e660c03923b0b0f424d0`.
+- Current exact-head Actions run [44944042121](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944042121) is pending; latest jobs query returned no jobs. No test, type, lint, build, PostgreSQL/RLS or Ollama pass is claimed for this SHA.
+- No independent review is recorded. Keep Draft/unmerged until all exact-head gates and independent review pass.
 - The PR changes shared files including README, `scripts/check-schema.mjs` and `tests/ci-trigger-policy.test.mjs`; reconcile overlap with PR #267 before any merge.
 
 ### PR #267 — shared CI acceptance baseline
 
-- Current inspected commit: `4c179508832c6d0d88b9b085eed122d3b2fb42e8` (README release label correction).
-- Exact-head Actions run: [44943780150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943780150), still pending at the metadata resolver at latest inspection; no substantive quality/database job result.
+- Current exact branch HEAD: `4c179508832c6d0d88b9b085eed122d3b2fb42e8`.
+- Exact-head Actions run [44943780150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943780150): metadata resolver completed successfully; Windows Runner quality job is pending. No substantive quality/database result is available yet.
 - Scope: schema guard expected pgTAP assertion count 18, CI policy assertions aligned with current runbook, README release label synchronized to `0.3.124`.
 - No independent review is recorded. Keep Draft/unmerged.
-- #259 and #267 both touch README, schema guard and CI policy test. Do not merge them sequentially as-is. Prefer a single reconciled exact-head candidate and rerun all required gates against that final SHA.
+- #259 and #267 both touch README, schema guard and CI policy test. Do not merge them sequentially as-is. Prefer one reconciled candidate and rerun every required gate against its final exact SHA.
 
 ### PR #266 — K handoff refresh candidate
 
