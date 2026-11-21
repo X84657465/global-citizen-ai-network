@@ -133,3 +133,37 @@ Issue #136 requests a READ-ONLY adversarial audit of the integrated Agent Factor
 - Production migration, deployment, paid AI activation, payout and distributed execution remain separate release gates.
 
 - **Current CI/deployment constraints (2026-11-22):** PR #266 run 44942490529 is pending with zero jobs created. Vercel commit status is `failure` for #259/#265/#266 due to the Vercel build-rate limit (`upgradeToPro=build-rate-limit`); do not repeatedly retry or claim Preview/deployment acceptance. GitHub branch-protection/ruleset endpoints return 403 to the connected integration, so required branch rules cannot be independently inspected here. Formal reviews remain zero on checked candidates.
+
+
+## 7. Continuation delta — 2026-11-22 (fresh GitHub verification)
+
+This section supersedes older candidate-head and CI snapshots above where they conflict. Main remains `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
+
+### A integration candidate #259 — updated exact head
+
+- Current PR #259 HEAD is `581af4e606ea65162435915139da9dac982d4333` on `fix/ci-schema-grant-test-count-20261122`; base remains main `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
+- New exact-head Actions run [44942853489](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942853489) is pending. At the latest inspection, only the exact-candidate metadata resolver job existed and was pending. No quality, unit, type, lint, build, Ollama, PostgreSQL, pgTAP or RLS pass is claimed for this SHA.
+- The previous run [44942502660](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942502660) targeted superseded HEAD `d439b56385cc5780913ae81d7af3ce52946a07b4`; its substantive jobs were skipped after the candidate head changed. It is not acceptance evidence for the current head.
+- A focused source review found the shared repository-name helper still accepted dot-prefixed owner/repository segments (for example `.owner/repo` and `owner/.repo`), unlike the strict F/G validation contract. This was corrected on the #259 branch: both segments must start with an ASCII alphanumeric character, and controller/state-store regression cases now include dot-prefixed and double-dot-prefixed segments. Commits: `83a542beb63a5365a46d0deece4ea6117c1b24d2`, `181ff26fa432f93d245323cec59013cd1d603f65`, `581af4e606ea65162435915139da9dac982d4333`.
+- This is a narrow A repository-identity hardening change. It has not yet been executed by exact-head CI. Keep #259 Draft/unmerged pending full current-head CI and independent review.
+
+### Narrow baseline candidates — failure attribution
+
+- PR #264 exact-head run [44941251669](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941251669): Schema Guard passed, but CI policy unit tests failed 2 of 32. The failures are stale mainline assumptions: README expected 0.3.124 but main still says 0.3.121, and the test expects obsolete runbook text/V1 workflow instructions. Typecheck, lint and production build were skipped. The one-line schema-plan correction itself passed.
+- PR #265 exact-head run [44941725749](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44941725749): Windows quality job failed at Schema Guard because it is based directly on main and does not include the plan-count correction. Do not interpret this as a failure of its README/runbook edits; those tests were not reached.
+- PR #261 exact-head run [44940637761](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44940637761): Windows quality job failed at the same mainline Schema Guard mismatch; risk-classifier tests were not reached.
+- These isolated candidates overlap with #259. Do not merge #264/#265 separately while #259 carries their combined corrections; first accept one coherent exact-head candidate, then refresh remaining work against the resulting main SHA. No candidate has formal review submissions or inline review threads.
+
+### B handoff — current main tree check
+
+- The B workspace metadata filtering functions are already present in current main's `lib/workspace/message-validation.ts` and are consumed by `app/workspace/workspace-client.tsx`.
+- Current main's conversation message API uses the minimal `id,role,content,created_at` projection for both GET and POST; the unused `model` field is absent.
+- Current main's B version is `0.1.19`, and `versions/manifest.json` also records B as `0.1.19`. Do not wholesale transplant PR #201 or the older #185→#187 branch chain; those branches are diverged/stale relative to current main and overlap shared metadata.
+- B implementation source is therefore present in main, but this is not a claim of release acceptance. A current exact-head CI pass, disposable authenticated API smoke test, route-level behavior verification and independent cross-track review remain distinct evidence requirements. No production deployment or production database mutation is claimed.
+
+### Current disposition
+
+- A remains first priority. Continue to let the exact-head #259 run proceed; do not dispatch duplicate runs or merge around pending checks.
+- B is in handoff/verification preparation only; do not start another parallel B feature branch or rewrite migrations/RLS.
+- F–P remain support-only. #255's F/G-only work stays separate; #259 now contains the shared A repository identity validator but does not make unrelated F–P candidates eligible.
+- No merge, deployment, production data mutation, secret/permission change, durable factory-state edit, retry/quarantine reset or circuit-breaker reset was performed in this continuation.
