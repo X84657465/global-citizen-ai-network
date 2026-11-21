@@ -37,6 +37,15 @@ test("rejects unsupported test runners and Playwright component APIs", () => {
   );
 });
 
+test("does not mistake HTML strings and TypeScript generics for JSX", () => {
+  const source = [
+    'import test from "node:test";',
+    'const html = "<div><span>safe</span></div>";',
+    'const identity = <T,>(value: T): T => value;',
+  ].join("\\n");
+  assert.equal(getGeneratedTestContractViolation("tests/example.test.ts", source), null);
+});
+
 test("does not impose the unit-test contract on non-test or non-TypeScript files", () => {
   assert.equal(getGeneratedTestContractViolation("app/page.tsx", "export default () => <main />;"), null);
   assert.equal(getGeneratedTestContractViolation("tests/example.test.mjs", "jest.fn();"), null);
