@@ -1,140 +1,157 @@
 # Agent Handoff — GCAN / Agent Factory V2
 
-> Single source of truth for the next development session. Refresh after each development round. Record only verified GitHub state; never infer green CI, Runner availability, successful task execution, merge, or deployment.
+> Single source of truth for the next development session. Refresh after each round. Record verified GitHub state only. A merged PR is not automatically accepted when exact-head CI or independent review is missing.
 
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `4d3653b3da766ae3910aeef39bd840d2e6de30dd`
+**Main HEAD:** `40e0e6902ccd35e6daa77f2f7a339ba00f92fab3`  
+**Mainline release metadata:** root `0.3.121`; Agent Factory V2 `2.0.84`
 
-## 1. Highest-level strategy
+## 1. Highest-level strategy and authority
 
-1. **A — Agent Factory V2 first:** stabilize task intake, candidate trust, isolated execution, exact-head CI evidence, durable state, recovery, queue behavior and operations.
-2. **B — GCAN Product second:** accept only mature A capabilities through stable, versioned contracts and evidence. B must not consume privileged Factory state mutation or treat Draft PR execution as product capability.
+1. **A — Agent Factory V2 first:** stabilize task intake, candidate trust, isolated execution, exact-head CI evidence, durable state, recovery, Runner queue behavior and operational continuity.
+2. **B — GCAN Product second:** connect only to stable, versioned A contracts and accepted evidence. B must not consume privileged Factory state mutation or treat Draft PR execution as a product capability.
 3. **F–P — integration support only:** repair concrete A/B handoff blockers; do not expand parallel infrastructure without a demonstrated dependency.
 4. **Global ecosystem later:** production AI spend, payouts, federation and autonomous production remediation require separate security, cost, legal and release gates.
 
-CI success permits review; it does not itself authorize merge, deployment, secret changes or production-data access.
+CI success permits review; it does not itself authorize merge, deployment, secret changes or production-data access. A merge with pending CI or no independent review remains **merged but not accepted**.
 
-## 2. Verified repository state
+### A–P ownership map
 
-### Main and Actions
+| Line | Responsibility | Current boundary |
+|---|---|---|
+| A | Agent Factory V2 — planner, task selector, durable state/lease, Runner, sandbox, patch generation, candidate CI, recovery and publisher | Highest priority; exact-head evidence and safe state transitions are mandatory |
+| B | GCAN Product — user-facing workspace, conversations/projects, account, product APIs and monetization foundations | Wait for stable A contracts; no Factory state authority |
+| C | Predictive Coding | Capability support only; no authority over A/B |
+| D | Deep Neural | Model/architecture capability support; no authority over A/B |
+| E | Deep Research | Research capability support; no authority over A/B |
+| F | Cyber Security & Defense | Security assurance and control evidence; advisory unless bound to verified controls |
+| G | Release / QA / Integration | Exact-head quality and integration evaluation; never grants merge/deploy authorization |
+| H | Observability / Telemetry / Cost | Correlation and bounded telemetry contracts; durable distributed sink remains outstanding |
+| I | Connectors / Workflow | Approved connector contracts; no unapproved external writes or credentials |
+| J | Self-Healing / Continuity | Diagnosis and repair proposals; production remediation remains operator-controlled |
+| K | Knowledge / Docs / Governance | Architecture, runbooks, integration ledger and handoff accuracy |
+| L | Federation / Cluster | Deferred; no distributed node registration or execution |
+| M | Compliance / Policy Audit | Engineering control evidence only; no legal certification claim |
+| N | Productization / Analytics / Growth | Product and privacy-minimized analytics foundations; no unapproved user tracking |
+| O | Lifecycle / Deprecation | Version and deprecation recommendations; no automatic retirement |
+| P | Governance / Ethics / Trust | Ownership, approval, audit and trust boundaries; policy enforcement requires separate validation |
 
-- Main HEAD is `4d3653b3da766ae3910aeef39bd840d2e6de30dd`.
-- Main CI run [#44928069201](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069201) remains pending with no jobs assigned at last inspection.
-- The latest main health recovery run inspected, [#44929343777](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929343777), remains pending with no jobs assigned; older recovery runs are also pending.
-- The new clean-base PR CI runs below are pending. Resolver jobs are visible but have no assigned Runner; none has completed the Windows quality/build, Supabase/PostgreSQL/RLS or Ollama jobs. The closed hosted-resolver experiment #243 failed before any step ran and did not produce downstream evidence.
-- An empty job list or a pending job with no runner name is queue/dispatch evidence only. It does not prove the Runner is offline, nor does it indicate a code test failure.
-- Recent Vercel statuses have reported `Deployment rate limited — retry in 24 hours`. This blocks Preview evidence; it is not a Production failure and does not prove a Preview build.
-- Do not manually edit the machine-managed Factory state Issue, dispatch duplicates to bypass leases/cooldowns/quarantine, or infer completion from partial workflow results.
+## 2. Verified repository and merge state
 
-### Active Draft PRs — all based directly on current main
+### Main
 
-| PR | Scope | Exact head SHA | CI run | Status |
+- Current main HEAD: `402030c327c1302efe67b4985055bf329c1e7dac`.
+- The latest inspected main Agent Factory System Health Recovery run [#44929648294](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929648294) completed as **skipped**. Its event was a push to `main`, not a successful AI-task PR CI completion; this is an ineligible recovery event, not a passing health-recovery test.
+- Main CI run [#44929700133](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929700133) is pending at `Windows self-hosted project validation`; complete Windows quality/build, database/RLS and Ollama results are **not yet verified**.
+- Main combined status reports Vercel **failure** with the provider's `build-rate-limit` URL. This is a Preview/deployment-provider quota issue, not GitHub CI evidence.
+- Do not infer Windows Runner online/offline from pending jobs or missing runner assignment. Record the actual run, attempt, job, runner and step evidence.
+
+### Recently merged PRs — merged does not mean accepted
+
+| PR | Scope | Exact PR head | Merge state | Acceptance evidence |
 |---|---|---|---|---|
-| [#239](https://github.com/X84657465/global-citizen-ai-network/pull/239) | A: candidate start/outcome exact-head verification; all five required health jobs verified on the exact run attempt/SHA | `7a88e5cfb81c0adecc1367cb3d621c80f0538d0a` | [#44928656953](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928656953) | Pending; resolver has no Runner assignment |
-| [#240](https://github.com/X84657465/global-citizen-ai-network/pull/240) | A: move recovery concurrency to guarded job; queue only trusted AI-task branch events | `838a1c0d098bbb2d064a631d9090d4b0f7e456ab` | [#44928746415](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928746415) | Pending; resolver has no Runner assignment |
-| [#241](https://github.com/X84657465/global-citizen-ai-network/pull/241) | Account build repair: CSS module in Server Component | `83751b25c237542c2bdfe8f8b12352e9f5ebdd4c` | [#44928823906](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928823906) | Pending; resolver has no Runner assignment |
-| [#242](https://github.com/X84657465/global-citizen-ai-network/pull/242) | H: paired request/response correlation context at middleware edge | `a90cd0c979da561f1d5e0ca9548e7c7607755b73` | [#44928924642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928924642) | Pending; resolver has no Runner assignment |
-| [#238](https://github.com/X84657465/global-citizen-ai-network/pull/238) | K: current-main Factory handoff and operating runbook | See live PR head | Check live CI; the handoff does not self-certify its own CI |
+| [#238](https://github.com/X84657465/global-citizen-ai-network/pull/238) | K: handoff/runbook refresh | `5a73e644e5adab132459787ab66d064f50837fda` | Merged | No check run or independent review returned in current inspection |
+| [#239](https://github.com/X84657465/global-citizen-ai-network/pull/239) | A: candidate outcome and breaker recovery bound to exact evidence | `7a88e5cfb81c0adecc1367cb3d621c80f0538d0a` | Merged | Exact-head resolver job pending; no independent review |
+| [#240](https://github.com/X84657465/global-citizen-ai-network/pull/240) | A: recovery queue concurrency moved to guarded job; restrict to trusted AI-task PR events | `838a1c0d098bbb2d064a631d9090d4b0f7e456ab` | Merged | Exact-head resolver job pending; no independent review |
+| [#241](https://github.com/X84657465/global-citizen-ai-network/pull/241) | Account Server Component CSS-module build repair | `83751b25c237542c2bdfe8f8b12352e9f5ebdd4c` | Merged | Exact-head resolver job pending; no independent review |\n| [#242](https://github.com/X84657465/global-citizen-ai-network/pull/242) | H: paired request/response correlation context | `a90cd0c979da561f1d5e0ca9548e7c7607755b73` | Merged | Exact-head resolver job pending; no independent review |
 
-All five PRs are Draft/open/unmerged. No exact-head CI acceptance or human review approval is recorded. Check each PR's live head and status before acting; this handoff snapshot does not self-certify its own CI.
+The merge commits are on main by the current HEAD. Do not backfill missing CI or review evidence. The merged A changes require post-merge exact-main validation before Factory readiness is claimed.
 
-### Superseded PRs closed without merge
+### H integration merged; acceptance remains open
 
-- #231 → superseded by clean-base A implementation #239.
-- #235 → superseded by clean-base queue correction #240.
-- #234 → superseded by clean-base account build repair #241.
-- #233 → superseded by clean-base H correlation implementation #242.
-- #236 → duplicate recovery-job verification superseded by the stronger attempt-specific implementation in #239.
-- #237 → stale-base documentation attempt superseded by #238.
-- #243 → hosted-resolver experiment closed without merge after its resolver job failed before recording any steps; no runner assignment/log evidence was available.
+[PR #242](https://github.com/X84657465/global-citizen-ai-network/pull/242) merged into main at `40e0e6902ccd35e6daa77f2f7a339ba00f92fab3`. Its exact head is `a90cd0c979da561f1d5e0ca9548e7c7607755b73`; resolver run [#44928924642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928924642) remained pending at the latest check lookup, and no independent review was returned. The PR description's checked boxes do not replace live check evidence. Record H as merged but not accepted until exact-head CI and independent review are verified. H is not an A-line blocker.
 
-The replacements were created from current main `4d3653b3...`; do not reopen the stale branches or merge their old commit histories.
+### Superseded or closed without merge
 
-## 3. A — Agent Factory V2 acceptance boundary
+- #231: stale-base candidate outcome/recovery work; superseded by #239.
+- #235: stale-base recovery queue correction; superseded by #240.
+- #233: stale-base H correlation work; superseded by #242.
+- #234: stale-base account CSS work; superseded by #241.
+- #243: hosted resolver experiment closed without merge after its resolver job failed before any step ran; cause not established. Do not claim hosted-runner capacity was validated.
+- Do not reopen or merge stale branches when their clean-base replacements are already merged.
 
-### Candidate trust and durable outcomes — PR #239
+## 3. A — Agent Factory V2 current baseline
 
-- Candidate start must re-fetch the current GitHub PR and require it to remain open, same-repository, based on main, authored by the trusted repository owner or GitHub Actions bot, carry the exact AI Task Issue marker, and match the supplied branch and HEAD SHA.
-- Candidate success/failure must re-fetch the PR again immediately before durable state mutation. A moved SHA/branch, closed PR, wrong author/repository/base, missing marker, or unavailable GitHub verification fails closed.
-- The health recovery path requires exactly one instance of each critical job:
-  - `Resolve exact candidate PR metadata`
-  - `Windows Runner quality gates — tests, types, lint, audit and production build`
-  - `Windows Ollama and local execution integration`
-  - `Windows Supabase migrations, PostgreSQL and RLS integration`
-  - `Persist candidate success or reset system breaker`
-- Every required job must be completed successfully on the same run ID, run attempt and candidate SHA. Missing, duplicated, skipped, failed, wrong-attempt or wrong-SHA jobs must not clear the breaker.
-- The implementation uses the attempt-specific GitHub Jobs endpoint and checks that the current PR is still open on the exact candidate SHA.
-- These protections are present in PR #239 but are not accepted until exact-head Windows CI and review pass.
+### Candidate start and outcome trust
 
-### Resolver queue separation — hosted-runner experiment closed
+Main's `lib/agent-factory-controller.mjs` now:
+- Re-fetches the candidate PR at the durable `candidate-start` boundary.
+- Requires the same open PR, same repository, `main` base, trusted author, exact candidate HEAD SHA and branch, AI Task Issue marker and issue-specific task branch.
+- Fails closed if the GitHub API client is unavailable; persisted PR metadata cannot substitute for a live verification.
+- Re-fetches the PR immediately before candidate success/failure persistence, rejecting moved HEADs, closed PRs and mismatched task/branch/author/repository metadata.
 
-- On current main, `resolve-candidate` is a metadata-only job with repository contents/issues/pull-requests read permissions, but it still runs on the Windows self-hosted Runner and reserves the shared state-writer concurrency group.
-- PR #243 tested moving only this read-only Node resolver to `ubuntu-latest`, using Bash and removing its Windows queue reservation. Exact-head run #44929303631 failed before recording any steps; the job had no runner assignment and no retrievable log artifact. The cause is not established.
-- PR #243 was closed without merge. No downstream Windows CI ran; this experiment does not prove hosted-runner capacity or resolve the current queue blockage.
-- Candidate PR/HEAD/ref/AI Task Issue validation and Factory state Issue read remain unchanged on main. All quality, Ollama/local execution, database/RLS, candidate outcome persistence, breaker recovery and diagnostics remain on the Windows self-hosted Runner with the shared serialized queue.
-- Revisit hosted resolver separation only after a separate minimal runner-availability check can execute and its usage/billing boundary is confirmed.
+### System health recovery
 
-### Recovery queue scope — PR #240
+Main's `system-health-success` controller path:
+- Requires live GitHub workflow-run and current-PR verification.
+- Binds run ID, run attempt, workflow path, event type, PR number, current open PR and exact SHA.
+- Fetches the exact run attempt's jobs and requires exactly one successful instance of each required CI job: candidate resolver, Windows quality, Ollama/local execution, database/RLS and candidate-result persistence.
+- Rejects missing, duplicate, skipped, failed, wrong-attempt or wrong-SHA evidence before resetting the global breaker.
 
-- Current main's `.github/workflows/agent-factory-system-health.yml` still places concurrency at workflow scope. This reserves the shared Windows queue before job-level `if` conditions can skip cancelled, failed or unrelated PR workflow_run events. The prior handoff incorrectly described this as already job-scoped; this correction supersedes that statement.
-- PR #240 moves the same concurrency group under `jobs.reset-system-breaker`, after the job's eligibility conditions, while preserving `cancel-in-progress: false`, `queue: max`, Windows self-hosted execution, permissions and trusted-main checkout.
-- The workflow additionally limits queue eligibility to successful same-repository pull_request runs whose branch begins `ai-task/issue-`.
-- The branch naming contract was verified in `scripts/publish-agent-patch.mjs`: `ai-task/issue-${issueNumber}-${digest}`, where digest is 12 lowercase hex characters. The controller separately validates exact issue/branch/PR metadata.
-- The shared state writer remains serialized. Do not remove the concurrency group or move state mutation to an untrusted runner.
-- Existing queued runs are not retroactively changed by merging this fix. Validate new post-merge workflow_run behavior.
+These protections are present in main after #239, but the merged PR's exact-head resolver check was still pending in the latest inspection. Code presence is not a passing end-to-end operational test.
 
-### Operational evidence
+### Recovery Runner queue
 
-- A prior run [#44926059712](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44926059712) reported workflow conclusion `success` while quality, database/RLS, Ollama and candidate-success persistence jobs were skipped. This demonstrates why workflow-level conclusion alone cannot clear the breaker.
-- A configured cron or workflow trigger is not proof that the Runner executed it. Inspect run, attempt, job assignment, runner, steps and final conclusion.
-- The shared Windows state writer must remain serialized with every other durable-state writer.
-- Do not claim the Runner is offline based only on empty job records. Do not claim a successful task from resolver-only or skipped downstream jobs.
+Main's `.github/workflows/agent-factory-system-health.yml` now:
+- Places the shared `global-citizen-ai-network-self-hosted-runner` concurrency group under `jobs.reset-system-breaker.concurrency`, not at workflow scope.
+- Preserves `cancel-in-progress: false` and `queue: max`.
+- Allows only successful same-repository `pull_request` workflow_run events from branches beginning `ai-task/issue-` to enter the recovery job queue.
+- Keeps the privileged state writer on the Windows self-hosted Runner and checks out trusted `main`; it never executes PR code.
+
+This is confirmed in current main workflow and regression test content. Existing workflow runs queued under the old configuration are not retroactively changed. Verify newly triggered eligible and ineligible events after the merge.
+
+### Remaining A blockers
+
+1. Obtain exact-main CI evidence after the A merges: resolver, Windows tests/types/lint/audit/production build, isolated Supabase/PostgreSQL/RLS, Ollama/local inference and candidate persistence.
+2. Confirm the Windows Runner actually receives the queued jobs; inspect job assignment and runner identity rather than assuming host failure.
+3. Validate recovery with a real successful AI-task PR run and a real ineligible workflow_run event; confirm the ineligible event does not occupy the shared queue.
+4. Complete unattended 24-hour Runner soak and restart/reconnect rehearsal; simulated time does not count as elapsed wall-clock time.
+5. Verify branch protection, required checks, Actions permissions, secrets/environment protections with repository-owner access.
+6. Split task preparation, publisher and state-writer token scopes only after artifact integrity, lease recovery, idempotency, cancellation and partial-write tests exist. Do not weaken the current serialized state-writer boundary.
+
+Do not dispatch a duplicate task, edit the machine-managed state Issue, reset leases/quarantine/cooldowns, or change production settings to make a run appear healthy.
 
 ## 4. B — Product handoff
 
-- The factory page identifies PR #212 as the merged B workspace-metadata baseline.
-- Product scope remains staged: account/profile/roles, AI workspace, saved projects/history, server-side provider adapters, quotas/spend caps/audit, contribution review and an auditable reward ledger.
-- The production-readiness record identifies the AI provider as `mock`. Public registration and production AI activation remain gated by provider credentials, spend limits, billing verification, privacy/terms/support/retention/deletion/abuse controls and authenticated end-to-end tests.
-- B may consume stable Factory APIs, versioned candidate evidence and accepted contracts only after A's exact-SHA acceptance.
+- B remains downstream of accepted A contracts and versioned candidate evidence.
+- Product scope includes account/profile/roles, AI workspace, saved projects/history, server-side provider adapters, quotas/spend caps/audit, contribution review and an auditable reward ledger.
+- The production-readiness record identifies the AI provider as `mock`; public registration and production AI activation remain gated by provider credentials, spend limits, billing verification, privacy/terms/support/retention/deletion/abuse controls and authenticated end-to-end tests.
 - No cash payouts, public distributed-compute nodes or production AI spend until their separate legal, security, cost and operational gates pass.
 
-## 5. F–P maturity and boundaries
-
-The F–P registry is isolated under `lib/fp/`; A–E remain protected owners. The host adapter is an in-process registration/invocation boundary, not a new identity provider, queue, database or production integration.
+## 5. F–P integration boundaries
 
 | Line | Current capability | Remaining boundary |
 |---|---|---|
-| F — Security | Security assurance evaluator and RLS/security evidence catalogue | Bind controls to current exact-head CI/database evidence; advisory only |
-| G — Release quality | Exact-head CI evaluator and F–G shared-run assessment | Validate live run/job evidence and rollback/compatibility proof; never grants merge/deploy |
-| H — Observability | Correlation helper/middleware and bounded process-local outcome recorder; PR #242 | Prove end-to-end correlation on actual routes/jobs; no durable distributed telemetry sink yet |
-| I — Integrations | Bounded capability registration and host-approval check | One approved adapter at a time; no live credential/external write without explicit approval and retry/idempotency contract |
-| J — Resilience | Advisory diagnosis and repair-proposal contract | Dry-run and operator-confirmed remediation only; no autonomous production repair |
-| K — Knowledge | Architecture, runbooks, ledger and handoff; PR #238 | Keep records current and evidence-linked |
-| L — Federation | Contract placeholder | Deferred; no node registration or distributed execution |
-| M — Compliance/risk | Control and risk evidence types | Engineering evidence only; no legal/compliance certification claim |
-| N — Analytics/growth | Privacy-minimized event concepts | No user-level analytics collection pipeline enabled |
-| O — Lifecycle | Version/deprecation evidence contract | Recommendations only; no automatic retirement |
-| P — Governance/trust | Ownership, approval and evidence requirements | Advisory until executable policy enforcement is separately tested |
+| F | Security assurance evaluator and RLS/security evidence catalogue | Bind controls to current exact-head CI/database evidence; advisory only |
+| G | Exact-head CI evaluator and F–G shared-run assessment | Validate live run/job evidence and rollback/compatibility proof; never grants merge/deploy |
+| H | Correlation helper/middleware and bounded process-local outcome recorder; #242 merged | Exact-head CI/review acceptance, end-to-end route/job proof and durable distributed telemetry sink remain outstanding |
+| I | Bounded capability registration and host-approval check | One approved adapter at a time; no live credential/external write without explicit approval |
+| J | Advisory diagnosis and repair-proposal contract | Dry-run/operator-confirmed remediation only |
+| K | Architecture, runbooks, integration ledger and handoff | Keep records aligned with verified main and PR state |
+| L | Federation contract placeholder | Deferred; no node registration or distributed execution |
+| M | Control and risk evidence types | Engineering evidence only; no legal/compliance certification claim |
+| N | Privacy-minimized event concepts | No user-level analytics pipeline without approval |
+| O | Version/deprecation evidence contract | Recommendations only; no automatic retirement |
+| P | Ownership, approval and evidence requirements | Advisory until executable policy enforcement is separately tested |
 
 F–P `ready-for-review` is not acceptance, merge authorization or deployment authorization.
 
-## 6. Current execution order
+## 6. Next execution order
 
-1. **A1:** get #239 exact-head Windows CI running; inspect all five required jobs, their steps, run ID, attempt and SHA.
-2. **A2:** validate #240 queue behavior on a newly triggered eligible and ineligible workflow_run event after merge; preserve serialized state writes.
-3. **A3:** after A's exact-head acceptance, review #241 build repair and #242 H correlation contract on their exact heads.
-4. **Runner capacity:** establish actual self-hosted Runner availability through an authorized status/diagnostic path; do not infer online/offline from empty job records.
-5. **B integration:** bind B to accepted Factory contracts and usage/cost evidence; do not import Factory state mutation.
-6. **K:** keep this handoff and the operations runbook aligned with verified GitHub evidence.
+1. **A1 — post-merge exact-main validation:** inspect current main CI run and exact job attempts; record SHA, run ID, attempt, runner assignment and all five required job outcomes.
+2. **A2 — queue behavior:** verify a newly triggered eligible AI-task PR recovery event enters the job-level queue and an ineligible event skips without reserving it.
+3. **A3 — operational continuity:** confirm Runner status, then complete restart/reconnect and 24-hour soak evidence.
+4. **A4 — B handoff:** only after A evidence is accepted, map stable A contracts and evidence into B without transferring Factory state authority.
+5. **K — documentation:** keep this file and `docs/agent-factory-operations-runbook.md` synchronized with exact GitHub evidence.
 
 ## 7. Verification rules
 
-- Refresh main SHA, open PR heads, PR base SHAs, Actions run IDs/attempts/jobs, review threads and deployment statuses before acting.
-- Compare every active PR against current main. A green result on an old head is stale; `mergeable` does not mean tests passed.
-- Distinguish pending/no-job-assignment, skipped, cancelled, failed and successful.
+- Refresh main SHA, open PR heads/base SHAs, Actions run IDs/attempts/jobs, reviews and deployment statuses before acting.
+- A green result on an old head is stale. `mergeable` does not mean tests passed.
+- Distinguish pending/no-runner-assignment, skipped, cancelled, failed and successful.
+- A merged PR with pending exact-head CI or no independent review is merged but not accepted.
 - Never infer Runner online/offline from missing job records.
-- Never claim Preview/Production deployment from a rate-limit status.
-- Do not merge Draft PRs or bypass required checks. Merge only after exact-head acceptance, human review and safety gates.
+- Never claim Preview/Production deployment from a Vercel rate-limit status.
 - Do not change secrets, production data, migrations, permissions, branch protection or production deployment settings without separate authorization.
