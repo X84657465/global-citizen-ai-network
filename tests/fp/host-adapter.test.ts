@@ -133,3 +133,38 @@ test("validates host clock before invoking a capability handler", async () => {
   );
   assert.equal(invoked, false);
 });
+
+
+test("fails closed for non-boolean host authorization and approval decisions", async () => {
+  const host = new FPHostAdapter();
+  let invoked = false;
+  host.register("H", "health-snapshot", () => {
+    invoked = true;
+    return "healthy";
+  });
+  await assert.rejects(
+    host.invoke(
+      { workstream: "H", capability: "health-snapshot", input: null },
+      context({ authorized: "true" as unknown as boolean }),
+    ),
+    (error: unknown) => error instanceof FPHostError && error.code === "INVALID_CONTEXT",
+  );
+  assert.equal(invoked, false);
+});
+
+test("rejects malformed request and principal context without invoking handlers", async () => {
+  const host = new FPHostAdapter();
+  let invoked = false;
+  host.register("H", "health-snapshot", () => {
+    invoked = true;
+    return "healthy";
+  });
+  await assert.rejects(
+    host.invoke(
+      { workstream: "H", capability: "health-snapshot", input: null },
+      null as unknown as FPHostRequestContext,
+    ),
+    (error: unknown) => error instanceof FPHostError && error.code === "INVALID_CONTEXT",
+  );
+  assert.equal(invoked, false);
+});
