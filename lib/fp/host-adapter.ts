@@ -81,8 +81,16 @@ export class FPHostAdapter {
     capability: string,
     handler: FPCapabilityHandler<TInput, TOutput>,
   ): void {
-    if (!/^[a-z][a-z0-9-]{1,63}$/.test(capability)) {
+    try {
+      getWorkstreamContract(workstream);
+    } catch {
+      throw new FPHostError("UNKNOWN_CAPABILITY", "Unknown F–P workstream.");
+    }
+    if (typeof capability !== "string" || !/^[a-z][a-z0-9-]{1,63}$/.test(capability)) {
       throw new FPHostError("UNKNOWN_CAPABILITY", "Invalid capability name.");
+    }
+    if (typeof handler !== "function") {
+      throw new FPHostError("UNKNOWN_CAPABILITY", "Capability handler must be a function.");
     }
     const key = `${workstream}:${capability}`;
     if (this.handlers.has(key)) {
@@ -95,7 +103,23 @@ export class FPHostAdapter {
     request: FPCapabilityRequest<TInput>,
     context: FPHostRequestContext,
   ): Promise<FPCapabilityResult<TOutput>> {
-    const contract = getWorkstreamContract(request.workstream);
+    if (!request || typeof request !== "object" || !context || typeof context !== "object" ||
+        !context.principal || typeof context.principal !== "object") {
+      throw new FPHostError("INVALID_CONTEXT", "Host request and principal context are required.");
+    }
+    let contract;
+    try {
+      contract = getWorkstreamContract(request.workstream);
+    } catch {
+      throw new FPHostError("UNKNOWN_CAPABILITY", "Unknown F–P workstream.");
+    }
+    if (typeof request.capability !== "string" || !/^[a-z][a-z0-9-]{1,63}$/.test(request.capability)) {
+      throw new FPHostError("UNKNOWN_CAPABILITY", "Invalid capability name.");
+    }
+    if (typeof context.principal.authorized !== "boolean" ||
+        typeof context.principal.approved !== "boolean") {
+      throw new FPHostError("INVALID_CONTEXT", "Host authorization and approval decisions must be booleans.");
+    }
     const key = `${request.workstream}:${request.capability}`;
     const handler = this.handlers.get(key);
     if (!handler) {
@@ -108,13 +132,13 @@ export class FPHostAdapter {
     }
     assertCorrelationId(context.correlationId);
 
-    if (!context.principal.authorized) {
+    if (context.principal.authorized !== true) {
       throw new FPHostError("UNAUTHORIZED", "The existing host did not authorize this request.");
     }
     if (contract.executionAuthority === "none") {
       throw new FPHostError("EXECUTION_DISABLED", "This workstream is registered as non-executable.");
     }
-    if (contract.executionAuthority === "bounded" && !context.principal.approved) {
+    if (contract.executionAuthority === "bounded" && context.principal.approved !== true) {
       throw new FPHostError("APPROVAL_REQUIRED", "Explicit host approval is required.");
     }
 
