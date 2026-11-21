@@ -1,3 +1,9 @@
+## 0.3.111 — 2026-11-21
+
+- Align the repository landing page with the complete A–P workstream architecture and clarify P as cross-cutting governance over A–O.
+- Replace the legacy five-workstream architecture graphic in documentation and the public site asset with a truthful A–P overview, showing A–O as independent workstreams and P as the governance layer.
+- Preserve maturity caveats: roadmap scope is not a claim of production readiness. Exact-head CI and production visual acceptance remain required.
+
 ## 0.3.110 — 2026-11-21
 
 - Refresh the GitHub repository front page and public GCAN homepage to distinguish A–E engineering workstreams from P cross-cutting governance.
