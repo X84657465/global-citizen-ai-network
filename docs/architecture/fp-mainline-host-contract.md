@@ -71,3 +71,22 @@ All entries are marked `specified`, not implemented/accepted. The registry does 
 - No new authentication or authorization implementation.
 - No database migration, new queue, telemetry vendor, external connector credential, or deployment.
 - No activation of L federation or autonomous J remediation.
+
+
+## Host adapter implementation
+
+`lib/fp/host-adapter.ts` provides the first executable attachment point:
+
+- F–P owners register capability handlers by workstream and capability name.
+- The existing host supplies actor/resource references, correlation ID, authorization decision, and explicit approval state.
+- The adapter rejects unauthorized requests, rejects malformed context, blocks workstreams with `executionAuthority: "none"`, and requires explicit approval for `bounded` capabilities.
+- Successful results are returned in the versioned envelope, preserving correlation and opaque host references.
+- Duplicate capability registrations are rejected.
+
+The adapter deliberately does not authenticate users, resolve permissions, persist state, deduplicate idempotency keys, dispatch queues, or perform retries. Those are host/platform responsibilities and require their own contracts and evidence before implementation.
+
+### Current executable scope
+
+The adapter is an in-process registration/invocation boundary only. It does not yet connect to A–E runtime services or enable production capabilities. The host must call it only after making its normal authorization decision. Capability handlers must remain side-effect-free unless their owning workstream has an approved bounded execution design.
+
+Unit tests cover successful advisory invocation, denied authorization, bounded approval, disabled execution, duplicate registration, and malformed host context.
