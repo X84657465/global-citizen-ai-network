@@ -1,3 +1,13 @@
+## 2.0.81 — 2026-11-21
+
+### Fixed — Correct factory homepage candidate and Preview status
+- Synchronize the visible factory candidate version with the repository release metadata.
+- State clearly that the current candidate SHA has no Preview; the prior Preview belongs to an older SHA and is not valid acceptance evidence.
+- Keep exact-SHA CI, current Preview, device acceptance, human approval and Production release as independent gates.
+
+### Verification
+- Exact-head CI and a successful current-SHA Preview followed by desktop/tablet/mobile acceptance remain outstanding; no Production deployment is claimed.
+
 ## 2.0.80 — 2026-11-21
 
 ### Improved — Evidence-first factory homepage
