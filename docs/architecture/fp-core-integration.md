@@ -1,9 +1,9 @@
 # GCAN F–P Core Architecture Integration
 
 **Status:** Core architecture baseline — documentation-only foundation  
-**Mainline baseline:** `6778b4e9b5cf2eeb43d2bc160c9827cec35ea317`  
+**Mainline baseline:** `ebb56f5d6e7b4b732e0a059443571aa4c2b12f55`  
 **Work branch:** `feat/fp-core-integration-mainline-current-20261121`  
-**Scope:** F–P workstreams in one GCAN ecosystem; not separate applications.
+**Scope:** F–P workstreams within the 16-track A–P GCAN ecosystem; not separate applications. P is independently versioned in the registry and operates as the cross-cutting governance layer, not as a separate user-facing feature module.
 
 ## 1. Architecture decision
 
@@ -13,7 +13,7 @@ The platform has three layers:
 
 1. **Shared platform core:** identity, authorization, persistence, API boundaries, background execution only where implemented, configuration/secrets, observability, CI, and release controls.
 2. **Capability workstreams:** F–O implement domain capabilities against shared contracts. They must not create parallel foundations without an approved architecture decision.
-3. **Governance/control plane (P):** policy, trust, auditability, agent/task ownership, acceptance evidence, and release gates. P governs the workstreams; it is not a duplicate feature application.
+3. **Governance/control plane (P):** policy, trust, auditability, agent/task ownership, acceptance evidence, and release gates. The A–P registry retains sixteen independently versioned workstreams; P's operational role is cross-cutting governance rather than a separate user-facing feature application.
 
 **Agent Factory V2 (A) is the highest-priority protected execution boundary.** F–P work must not take over or destabilize its lifecycle, leases, isolated patching, checks, or publication authority. No broad factory refactor is authorized by this architecture decision.
 
@@ -106,13 +106,16 @@ Use these states consistently:
 
 Unknown is not pass. A passing documentation-only change does not prove runtime enforcement. A merged PR is not, by itself, proof of testing or acceptance.
 
-## 8. Current F security disposition — 2026-11-21
+## 8. Current F security disposition — corrected against live GitHub evidence (2026-11-21)
 
-- PR #209 was merged into main at merge commit `34a23019e0b875bdf08274139e3774895788d3ec`.
-- Its final branch head was `e1ec407c2df92404fc2fe710ba2ef95eb7a335fc`; the merged changes include catalog-wide RLS checks, API-role privilege checks, and two-member RLS regression coverage.
-- The workflow for the earlier commit `87f0d59a1eb9c165006d52f2dfcabbde3db99398` was cancelled (run `44919511326`). The exact final-head workflow `44919663002` was pending at the time this baseline was recorded.
-- Therefore F is **implemented and integrated, but not yet evidenced as tested/accepted** in this baseline. The merge while exact-head CI was unresolved is a governance exception to record and correct, not a precedent to repeat.
-- Recheck the exact final-head CI result before advancing F to accepted. Do not infer status from a parent commit, branch name, Vercel status, or merge state.
+F has multiple security-related slices. They must not be conflated:
+
+- **F security governance candidate — PR #145:** open branch `feat/cyber-security-defense-integration`, head `27d31444d8fb8d57040e60aa554e5d8e905d00e4`, originally based on main SHA `7045f9599886ae8ef07b76f9ed9fc553be3dc7a6`. At the latest audit it was 66 commits ahead and 8 behind that base comparison, and GitHub reported it as non-mergeable. No PR-triggered exact-head workflow run was returned. Its security headers, threat model, release gates, incident runbook and tests are a candidate, not an accepted F release.
+- **Database/RLS security slice — PR #209:** separately merged at `34a23019e0b875bdf08274139e3774895788d3ec`, with final candidate head `e1ec407c2df92404fc2fe710ba2ef95eb7a335fc`. It adds catalog-wide RLS/API-role checks and two-member RLS regression coverage. The exact-head workflow run `44919663002` was still pending at the last live recheck. This is useful database-security evidence, but it does **not** mean F PR #145 or the overall F workstream has passed.
+- **Current integrated baseline:** `ebb56f5d6e7b4b732e0a059443571aa4c2b12f55`. The shared architecture and F security candidate must be reconciled to this baseline; do not transplant stale root/package/lockfile/manifest version snapshots from #145.
+- **Disposition:** the RLS slice is merged but its exact-head CI result must be confirmed; the F security governance candidate remains unaccepted and requires ancestry/diff reconciliation, exact-head tests, and independent security review. A merged PR, a green unrelated run, or a security document alone is not F acceptance.
+
+Do not infer status from a parent commit, branch name, Vercel status, merge state, or a different security PR. In particular, PR #209 is not PR #145.
 
 ## 9. First-slice scope and exclusions
 
