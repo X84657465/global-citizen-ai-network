@@ -1,3 +1,10 @@
+## 0.3.122 — 2026-11-21
+
+- Update the public homepage stage bar to disclose that the current candidate has no Preview and that older Preview deployments are not acceptance evidence.
+- Align repository and B-line metadata to `0.3.122` and `0.1.22`; retain Agent Factory V2 (A) at `2.0.81`.
+- Add regression assertions for current Preview disclosure and authoritative root/B-line version consistency.
+- Exact-head CI, current-SHA Preview and desktop/tablet/mobile acceptance remain required; no merge or Production deployment is claimed.
+
 ## 0.3.121 — 2026-11-21
 
 - Correct the Agent Factory homepage's stale candidate version and Preview gate: the current SHA has no Preview, and the previous Preview belongs to an older SHA.
