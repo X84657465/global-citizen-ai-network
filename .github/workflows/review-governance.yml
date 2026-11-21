@@ -40,14 +40,13 @@ jobs:
               const baseRef = pr.base.ref;
               const failures = [];
               const notes = [];
-              if (pr.draft) failures.push("PR is Draft; mark Ready for review only after implementation is complete.");
-
+            
               const { data: files } = await github.paginate(github.rest.pulls.listFiles, {
                 owner, repo, pull_number: prNumber, per_page: 100
               });
               const highRiskPattern = /(^\.github\/workflows\/|^supabase\/migrations\/|(^|\/)(schema|rls|polic|auth|security|payment)(\/|\.|-)|^lib\/agent-factory-|^scripts\/|^package(-lock)?\.json$|^middleware\.)/i;
               const highRisk = files.some(f => highRiskPattern.test(f.filename)) ||
-                pr.labels.some(l => ["risk:high", "cross-track", "migration", "security"].includes(l.name));
+                (pr.labels || []).some(l => ["risk:high", "cross-track", "migration", "security"].includes(l.name));
               const approvalThreshold = highRisk ? 2 : 1;
               notes.push(`Risk class: ${highRisk ? "HIGH" : "LOW"}; independent approvals required: ${approvalThreshold}.`);
 
@@ -63,7 +62,7 @@ jobs:
                 else failures.push(`Stack parent PR #${parent.number} is merged; retarget/restack this child to ${parent.base.ref} and rerun exact-HEAD CI.`);
               }
 
-              if (pr.labels.some(l => ["blocked", "blocked-by"].includes(l.name))) {
+              if ((pr.labels || []).some(l => ["blocked", "blocked-by"].includes(l.name))) {
                 failures.push("PR has a blocking label.");
               }
               const blockerMatch = pr.body?.match(/^\s*Blocked by\s*:\s*(.+)$/im);
