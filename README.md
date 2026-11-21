@@ -469,7 +469,7 @@ http://localhost:3000
   <img src="docs/assets/gcan-five-track-architecture.svg" alt="GCAN 五線架構圖" width="100%" />
 </p>
 
-五條開發線各自擁有獨立工作台，透過來源追蹤、版本管理、測試與接收線審核互相協作。
+A–P 各工作線各自擁有獨立責任、版本與驗收紀錄，透過來源追蹤、版本管理、測試與接收線審核互相協作。
 
 ### 影片導覽
 
@@ -478,7 +478,7 @@ http://localhost:3000
 - [影片分鏡與旁白稿](docs/media/gcan-introduction-storyboard.md)
 - [即時 CI 與開發紀錄](https://github.com/X84657465/global-citizen-ai-network/actions)
 
-### 五線工作台與進度
+### A–P 工作線與進度
 
 > D、E 兩線以五線整合分支作為暫時整合基底；CI 已納入此基底分支的 PR 觸發條件，待整合分支合併 main 後再重新核對並調整 base。
 
