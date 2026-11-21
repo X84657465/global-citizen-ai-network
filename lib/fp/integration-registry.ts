@@ -1,4 +1,4 @@
-import { FPHostAdapter, type FPHostRequestContext } from "./host-adapter.ts";
+import { FPHostAdapter, type FPHostPrincipal, type FPHostRequestContext } from "./host-adapter.ts";
 
 export type FPIntegrationEffect = "read" | "write";
 
@@ -24,9 +24,23 @@ export interface FPIntegrationAdapter {
   readonly operations: readonly FPIntegrationOperation[];
 }
 
+export interface FPIntegrationCredentialScope {
+  readonly connectorId: string;
+  readonly operation: string;
+  /** Trusted host identity, never copied from the connector input payload. */
+  readonly principal: FPHostPrincipal;
+}
+
 export interface FPIntegrationCredentialResolver {
-  /** Resolve an opaque reference; never return or log the reference as secret material. */
-  resolve(reference: string, signal: AbortSignal): Promise<string>;
+  /**
+   * Resolve an opaque reference within the trusted actor/resource and connector
+   * scope. Implementations must enforce tenant/resource ownership and honor abort.
+   */
+  resolve(
+    reference: string,
+    scope: FPIntegrationCredentialScope,
+    signal: AbortSignal,
+  ): Promise<string>;
 }
 
 export type FPIntegrationOutcome = "succeeded" | "failed";
@@ -58,6 +72,7 @@ export interface FPIntegrationRequest {
 
 export interface FPIntegrationExecutionContext {
   readonly correlationId: string;
+  readonly principal: FPHostPrincipal;
   readonly now?: Date;
 }
 
@@ -179,6 +194,7 @@ export class FPIntegrationExecutor {
       "execute",
       (request, context: FPHostRequestContext) => this.#execute(request, {
         correlationId: context.correlationId,
+        principal: context.principal,
         now: context.now ? context.now() : new Date(),
       }),
     );
@@ -259,7 +275,15 @@ export class FPIntegrationExecutor {
         let credential: string;
         try {
           credential = await Promise.race([
-            this.credentials.resolve(safeRequest.credentialRef, controller.signal),
+            this.credentials.resolve(
+              safeRequest.credentialRef,
+              Object.freeze({
+                connectorId: safeRequest.connectorId,
+                operation: safeRequest.operation,
+                principal: context.principal,
+              }),
+              controller.signal,
+            ),
             timeout,
           ]);
         } catch (error) {
