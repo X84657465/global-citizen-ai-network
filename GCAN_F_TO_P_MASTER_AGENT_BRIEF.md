@@ -9,8 +9,8 @@ Continue engineering F–P as capabilities hosted by the existing GCAN platform.
 - Repository: `X84657465/global-citizen-ai-network`
 - Audited main: `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`
 - Release: `0.3.124`
-- Merged P provider PR #251: merge `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its exact-head CI was still pending at merge. Follow-up work is on `feat/p-trusted-review-permission-provider-20261122`.
-- The previous exact-head CI run #44931646871 did not complete before merge. The follow-up branch has a repository path-segment validation fix and the five handover documents; require fresh CI and review.
+- Merged P provider PR #251: merge `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its exact-head CI was still pending at merge. Follow-up PR #252 head is `5ca035183256a0b3c6f2ac8b4b3e5c81f7b00873` on `feat/p-trusted-review-permission-provider-20261122`.
+- The previous exact-head CI run #44931646871 did not complete before merge. PR #252 hardens repository path validation in both P review entry points and adds regression coverage plus the five handover documents. Its exact-head CI run #44932422571 is pending before any job step starts; require runner availability, fresh CI and review.
 
 ## Priority order
 
