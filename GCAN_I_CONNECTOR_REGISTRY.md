@@ -8,7 +8,7 @@
 
 - A local allowlist registry for explicitly registered connector IDs, semantic versions, and operation names.
 - A typed operation boundary that classifies each operation as `read` or `write`.
-- Opaque credential references resolved only at invocation time through an injected resolver. Credential material is passed in memory to the registered adapter and is never included in audit events.
+- Opaque credential references resolved only at invocation time through an injected resolver. The resolver receives the trusted host actor/resource identity plus connector and operation scope so it can enforce tenant/resource ownership. Credential material is passed in memory to the registered adapter and is never included in audit events.
 - Explicit idempotency keys are mandatory for operations classified as writes.
 - Per-invocation timeout and abort signal; adapters are contractually required to honor cancellation.
 - A metadata-only audit sink that records connector/version/operation, outcome, correlation ID, timestamp, duration, and sanitized error code. It does not record payloads, credential references, credential material, or raw exception messages.
@@ -27,7 +27,7 @@
 ## Required acceptance evidence
 
 - Full exact-head Node 22 unit tests, TypeScript check, lint, dependency audit, and production build.
-- Tests for authorization denial before credential resolution, approval requirement, unknown connector/operation, malformed credential references, write idempotency, timeout cancellation, sanitized audit, and audit sink failure.
+- Tests for authorization denial before credential resolution, approval requirement, actor/resource-scoped credential resolution, unknown connector/operation, malformed credential references, write idempotency, credential and connector timeout cancellation, sanitized audit, and audit sink failure.
 - Independent review of credential handling, adapter trust boundary, cancellation semantics, and write idempotency.
 - No production credential, live provider, schema, deployment, or external write is part of this PR.
 
