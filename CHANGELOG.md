@@ -1,3 +1,9 @@
+## 0.3.104 — 2026-11-21
+
+- Fix independent review gate coverage: evaluate pull requests targeting every base branch, including stacked Governance, Migration and B integration branches; remove the incomplete target-branch allowlist.
+- Bump repository release to 0.3.104 and Governance revision to 1.4.6.
+- Preserve exact-HEAD CI, independent approval, dependency, and unresolved-thread checks; no automatic approval or merge.
+
 ## 0.3.103 — 2026-11-21
 
 - Define risk-tiered independent PR review, exact-HEAD approval freshness, blocker declaration, and no-self-approval rules.
