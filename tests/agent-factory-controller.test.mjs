@@ -870,7 +870,7 @@ test("candidate failure callback rejects a PR head that moved after CI without p
     store,
     repository: "owner/repo",
     now: () => 3000,
-    api: currentCandidatePullApi({ headSha: "c".repeat(40) }),
+    api: currentCandidatePullApi({ headShaAfterFirstRequest: "c".repeat(40) }),
   });
   await startCandidate(controller, "555021");
 
