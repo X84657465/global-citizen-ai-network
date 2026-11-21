@@ -261,3 +261,12 @@ This section supersedes older candidate-head and CI snapshots above where they c
 #### Review / recovery gates
 - Issue #136 remains open; no independent adversarial audit evidence has been established. Issue #188 remains blocked on that dependency. Do not alter workflow/controller recovery wiring or reset machine-managed breaker/lease/retry state without the required independent audit.
 - PR #259 remains a separate broad Draft candidate with exact-head CI unresolved and Vercel rate-limited; do not merge it or transfer prior-SHA results.
+
+
+### Factory/B bridge live recheck — 2026-11-22 (follow-up)
+
+- PR #259 remains at exact HEAD `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`, Draft/open/unmerged. Exact-head run `44943280889`: metadata-resolution job passed; Windows quality-gates job remains pending. Do not infer unit/type/lint/audit/build, Ollama, PostgreSQL/RLS, or publication acceptance from the metadata job alone. Vercel remains blocked by provider build-rate limit; formal review count remains 0.
+- Compared with main `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, #259 is ahead 65 and behind 0 at this checkpoint. This does not waive its broad-scope review, exact-head CI, or independent approval requirements.
+- Read-only source audit confirmed the factory durable-state validator rejects impossible calendar dates and out-of-range UTC offsets; regression coverage includes normalized impossible dates. The state-machine transition graph keeps `publishing` behind `sandbox_testing`, and does not permit direct publication from planning/patching.
+- Read-only B route audit reconfirmed authenticated-client gating, bounded JSON body, title/UUID validation, project ownership/archive checks, and minimal response projection. Runtime authenticated smoke test and cross-member RLS evidence remain outstanding.
+- No production state mutation, lease/retry/quarantine reset, CI bypass, or PR merge was performed in this checkpoint.
