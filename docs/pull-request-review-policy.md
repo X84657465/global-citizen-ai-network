@@ -8,7 +8,7 @@
 
 1. A pull request author must never approve their own pull request.
 2. A person who authored the latest commit on the candidate HEAD must not count as an independent approver for that HEAD.
-3. The same execution identity must not implement, approve, and release its own change. Automation identities may report evidence but cannot provide human approval.
+3. The same execution identity must not implement, approve, and release its own change. The PR author and latest commit author/committer are always excluded. If a separate human or automation execution identity produced the candidate, declare it as `Execution identity: @login` in the PR body; declared identities are also excluded. Automation identities may report evidence but cannot provide human approval.
 4. A review only counts when GitHub records state `APPROVED`, its `commit_id` equals the current PR HEAD SHA, and the reviewer is independent under rules 1–2.
 5. A new commit invalidates approvals tied to an earlier HEAD for acceptance purposes. Re-review the exact current SHA.
 6. `CHANGES_REQUESTED`, unresolved review threads, failed required checks, or an unresolved declared blocker prevent acceptance. A dismissed/stale approval does not count.
