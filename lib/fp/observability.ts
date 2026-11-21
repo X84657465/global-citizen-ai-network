@@ -1,5 +1,20 @@
 import type { WorkstreamId } from "./integration-contract.ts";
 
+function isStrictUtcTimestamp(value: string): boolean {
+  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,3}))?Z$/.exec(value);
+  if (!match) return false;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+  const [, year, month, day, hour, minute, second, fraction = ""] = match;
+  return date.getUTCFullYear() === Number(year) &&
+    date.getUTCMonth() + 1 === Number(month) &&
+    date.getUTCDate() === Number(day) &&
+    date.getUTCHours() === Number(hour) &&
+    date.getUTCMinutes() === Number(minute) &&
+    date.getUTCSeconds() === Number(second) &&
+    date.getUTCMilliseconds() === Number(fraction.padEnd(3, "0") || "0");
+}
+
 export type FPOperationOutcome = "succeeded" | "denied" | "rejected" | "failed";
 
 export interface FPOperationEvent {
