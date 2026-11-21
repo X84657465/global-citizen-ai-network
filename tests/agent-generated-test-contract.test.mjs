@@ -113,3 +113,35 @@ test("checks executable template expressions but ignores template text", () => {
     /Jest\/Vitest APIs/,
   );
 });
+
+
+test("checks nested executable template expressions with block braces", () => {
+  const source = [
+    'import test from "node:test";',
+    'const value = \`\${(() => { return jest.fn(); })()}\`;',
+  ].join("\n");
+  assert.match(
+    getGeneratedTestContractViolation("tests/nested-template.test.ts", source),
+    /Jest\/Vitest APIs/,
+  );
+});
+
+test("checks nested template literals inside executable expressions", () => {
+  const source = [
+    'import test from "node:test";',
+    'const value = \`\${(() => \`\${jest.fn()}\`)()}\`;',
+  ].join("\n");
+  assert.match(
+    getGeneratedTestContractViolation("tests/nested-template-literal.test.ts", source),
+    /Jest\/Vitest APIs/,
+  );
+});
+
+test("does not inspect inert nested template text or string braces as executable code", () => {
+  const source = [
+    'import test from "node:test";',
+    'const value = \`\${(() => { const text = "jest.fn() }"; return text; })()}\`;',
+    'const example = \`plain template jest.fn() text\`;',
+  ].join("\n");
+  assert.equal(getGeneratedTestContractViolation("tests/inert-template.test.ts", source), null);
+});
