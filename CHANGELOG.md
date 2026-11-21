@@ -1,3 +1,10 @@
+## 0.3.121 — 2026-11-22
+
+- Upgrade the F–P governance dossier to policy v2 with review evidence bound to the exact candidate SHA, opaque review/reviewer/authorization references, and host-attested reviewer authorization.
+- Select each reviewer's latest decision, reject stale review evidence, detect conflicting same-time decisions, and keep unverified reviewer records from counting as verified review.
+- Add regression tests for review provenance, stale approvals, unverified reviewers, latest-decision semantics, conflicts, unsafe references and bounded input size.
+- Keep governance advisory: even a host-verified approval never grants governance, execution, merge or deployment authority.
+
 ## 0.3.120 — 2026-11-22
 
 - Add an F–G integration evaluator that requires all registered security controls and release-quality jobs to share the same repository, PR, candidate SHA, GitHub Actions run ID and attempt.
