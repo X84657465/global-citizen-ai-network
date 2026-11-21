@@ -1,4 +1,4 @@
-import type { WorkstreamId } from "./integration-contract.ts";
+import { isFPWorkstream, type WorkstreamId } from "./integration-contract.ts";
 
 export type FPOperationOutcome = "succeeded" | "denied" | "rejected" | "failed";
 
@@ -49,8 +49,11 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
 
   record(event: FPOperationEvent): void {
     if (
+      !event ||
       event.schemaVersion !== "1" ||
       event.eventType !== "fp.capability.outcome" ||
+      !isFPWorkstream(event.workstream) ||
+      !["succeeded", "denied", "rejected", "failed"].includes(event.outcome) ||
       !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(event.correlationId) ||
       !/^[a-z][a-z0-9-]{1,63}$/.test(event.capability) ||
       !Number.isFinite(event.durationMs) ||
