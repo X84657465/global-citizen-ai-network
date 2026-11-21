@@ -147,11 +147,11 @@ export class FPHostAdapter {
     }
 
     const invocation: FPCapabilityRequest<TInput> = Object.freeze({
-      workstream: invocation.workstream,
-      capability: invocation.capability,
-      input: invocation.input,
-      ...(invocation.idempotencyKey !== undefined
-        ? { idempotencyKey: invocation.idempotencyKey }
+      workstream: request.workstream,
+      capability: request.capability,
+      input: request.input,
+      ...(request.idempotencyKey !== undefined
+        ? { idempotencyKey: request.idempotencyKey }
         : {}),
     });
 
