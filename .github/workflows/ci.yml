@@ -197,6 +197,7 @@ jobs:
     name: Windows Ollama and local execution integration
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
+      candidate_start_ignored: ${{ steps.register-candidate.outputs.ignored || 'false' }}
     if: >-
       needs.resolve-candidate.result == 'success' &&
       needs.quality.result == 'success' &&
@@ -227,6 +228,7 @@ jobs:
         with:
           node-version: "22.13.0"
       - name: Register exact candidate CI run
+        id: register-candidate
         if: needs.resolve-candidate.outputs.is_task_pr == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -568,6 +570,7 @@ jobs:
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
       needs.quality.result == 'success' &&
       needs.build.result == 'success' &&
+      needs.build.outputs.candidate_start_ignored != 'true' &&
       needs.database.result == 'success' &&
       (
         (github.event_name == 'push' &&
