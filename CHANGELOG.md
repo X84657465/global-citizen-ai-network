@@ -1,3 +1,10 @@
+## 0.3.112 — 2026-11-21
+
+- Advance B GCAN Product to 0.1.18 on Agent Factory V2 2.0.79.
+- Reject blank and over-160-character workspace conversation/project titles; add regression fixtures.
+- Keep A 2.0.79 unchanged; no schema, RLS, production data, secrets or workflow permission changes.
+- Exact-head CI and independent review remain required.
+
 ## 0.3.111 — 2026-11-21
 
 - Advance B GCAN Product to 0.1.17 on the Agent Factory V2 2.0.79 integration baseline.
