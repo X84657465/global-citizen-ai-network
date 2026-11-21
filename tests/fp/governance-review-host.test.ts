@@ -29,7 +29,7 @@ test("trusted-host composition always verifies current reviewers through the sam
           user: { login: "reviewer-one" },
         }];
       }
-      if (path === permissionPath) return { permission: "maintain" };
+      if (path === permissionPath) return { permission: "write" };
       throw new Error(`Unexpected GitHub API path: ${path}`);
     },
   };
@@ -45,7 +45,7 @@ test("trusted-host composition always verifies current reviewers through the sam
   assert.equal(result.length, 1);
   assert.equal(result[0].reviewerAuthorizationStatus, "verified");
   assert.equal(result[0].reviewerAuthorizationRef,
-    "github:owner/repo:collaborator-permission:reviewer-one:maintain");
+    "github:owner/repo:collaborator-permission:reviewer-one:write");
   assert.equal(result[0].reviewedSha, sha);
 });
 
