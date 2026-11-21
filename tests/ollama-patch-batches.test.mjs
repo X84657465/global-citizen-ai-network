@@ -58,6 +58,7 @@ test("uses the strictest per-file output allowance independent of implementer ta
   assert.equal(getMinimumPlannedOutputBytesForPath(tasks, path), 4096);
   assert.equal(getMinimumPlannedOutputBytesForPath([...tasks].reverse(), path), 4096);
   assert.equal(getMinimumPlannedOutputBytesForPath([{ allowed_paths: ["src/other.ts"], max_output_bytes: 1024 }], path), null);
+  assert.equal(getMinimumPlannedOutputBytesForPath(tasks, ""), null);
   assert.throws(() => getMinimumPlannedOutputBytesForPath([{ allowed_paths: [path], max_output_bytes: 0 }], path), /positive safe-integer/);
 });
 
