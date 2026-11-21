@@ -80,8 +80,9 @@ test("homepage retains keyboard focus visibility and reduced-motion accessibilit
   assert.ok(styles.includes("@media(prefers-reduced-motion:reduce)"));
 });
 
-test("candidate homepage links to the exact current pull request rather than a stale candidate", () => {
-  assert.match(homepage, /PR #260 CANDIDATE/);
-  assert.ok(homepage.includes("/pull/260"));
-  assert.doesNotMatch(homepage, /PR #207 CANDIDATE|\/pull\/207/);
+test("homepage release status remains accurate after a candidate is merged", () => {
+  assert.match(homepage, /EARLY DEVELOPMENT \/ MVP/);
+  assert.match(homepage, /精確 SHA 的 CI、Preview/);
+  assert.ok(homepage.includes("/CHANGELOG.md"));
+  assert.doesNotMatch(homepage, /PR #(?:207|260) CANDIDATE|\/pull\/(?:207|260)/);
 });
