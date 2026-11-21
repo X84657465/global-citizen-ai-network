@@ -1,6 +1,6 @@
 begin;
 
-select plan(16);
+select plan(17);
 
 select ok(
   not exists (
@@ -219,6 +219,16 @@ select ok(
       and not c.relrowsecurity
   ),
   'every current and future public base or partitioned table must enable row-level security'
+);
+
+select ok(
+  not exists (
+    select 1
+    from pg_roles
+    where rolname in ('anon', 'authenticated')
+      and (rolsuper or rolbypassrls)
+  ),
+  'API roles cannot bypass row-level security or act as superusers'
 );
 
 select * from finish();
