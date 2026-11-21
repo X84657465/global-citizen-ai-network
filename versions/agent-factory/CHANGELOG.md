@@ -1,3 +1,44 @@
+## 2.0.77 — 2026-11-21
+
+### Fixed — Classify malformed model manifest shapes as task failures
+- Validate that parsed model output is a non-array object containing a `files` array before iterating candidate files.
+- Route malformed valid-JSON roots and non-array `files` values through the task-scoped failure path.
+- Add regression coverage for null, arrays, primitives, missing fields and non-array values.
+- Preserve the strictest per-path output allowance for token-budget derivation and final UTF-8 byte enforcement.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, PostgreSQL/RLS integration, Vercel verification and independent formal review remain required.
+
+## 2.0.74 — 2026-11-21
+
+### Fixed — Keep per-file generation and acceptance limits consistent
+- Resolve the strictest `max_output_bytes` across all implementer tasks authorizing the same path.
+- Use that same effective limit for the bounded Ollama token ceiling and final UTF-8 byte validation, independent of task ordering.
+- Add regression coverage for reversed task order, missing path authorization and invalid limits.
+- Preserve one-file-per-batch generation, 2,048–8,192 token bounds, and fail-closed patch validation.
+
+### Verification
+- Fresh exact-head CI, local Ollama/Runner, PostgreSQL/RLS where applicable, and independent formal review remain required before acceptance.
+
+## 2.0.73 — 2026-11-21
+
+### Fixed — Enable exact CI for dependent factory hardening PRs
+- Add the current A-line candidate branch as an explicit pull-request base target so a dependent factory PR receives the same exact-head quality and integration gates.
+- Add a regression assertion for the configured base branch; preserve the explicit allowlist, owner/same-repository checks, Runner queue, permissions and all validation gates.
+
+### Verification
+- Fresh exact-head CI for the updated A-line candidate and dependent PR is required.
+
+## 2.0.72 — 2026-11-21
+
+### Fixed — Prevent valid new-file patches from truncating at an undersized token ceiling
+- Derive the bounded Ollama token ceiling from the validated implementation plan's full UTF-8 byte allowance instead of halving the allowance a second time.
+- Retain the 2,048-token minimum and 8,192-token maximum for new-file generation; the exact per-file UTF-8 byte limit remains enforced before patch validation.
+- Add deterministic tests for minimum, normal, maximum and invalid budget inputs.
+
+### Verification
+- Exact-head full CI and Windows Runner/local Ollama integration are required; no production task execution or deployment is claimed.
+
 ## 2.0.71 — 2026-11-21
 
 ### Fixed — Restore exact-head CI for active A-line integration PR bases

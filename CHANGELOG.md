@@ -1,3 +1,26 @@
+## 0.3.108 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.77: validate parsed model-manifest roots and require `files` to be an array before iteration; malformed valid-JSON output is classified as a task-scoped failure.
+- Add regression coverage for null, arrays, primitives, missing files and non-array files. Preserve the strictest per-path output allowance for both token budgeting and UTF-8 byte enforcement.
+- No workflow permissions, production data, database schema, secrets, task state or deployment settings changed.
+
+## 0.3.105 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.74: use the strictest matching implementer-task output allowance for each new file in both token-budget derivation and final UTF-8 byte enforcement.
+- Add order-independent regression coverage for overlapping path authorizations with different byte limits; preserve one-file batches and existing 2,048–8,192 token bounds.
+
+## 0.3.104 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.73: add a narrowly scoped pull-request base-branch trigger for dependent factory hardening work, with regression coverage; no wildcard branches or permission changes.
+- Preserve the 0.3.103 bounded new-file output-budget correction and all existing patch-size enforcement.
+
+## 0.3.103 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.72: prevent valid new-file patch proposals from being truncated by halving the validated plan's byte allowance when deriving the Ollama token ceiling.
+- Keep new-file generation bounded to 2,048–8,192 tokens and retain the exact UTF-8 max_output_bytes enforcement before accepting a patch; add regression tests for budget derivation.
+- No database, RLS, secrets, production data, deployment or workflow-permission changes.
+- Exact-head full CI and Windows Runner/local Ollama integration remain required.
+
 ## 0.3.102 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.71: restore exact-head pull-request CI for the current A-line integration base and governance child base.
