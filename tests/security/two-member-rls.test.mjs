@@ -183,9 +183,10 @@ test("member cannot read another member's submission or review rationale", () =>
   assert.match(output, /0,0$/, "member A must not see member B's submission or review rationale");
 });
 
-test("member cannot appeal another member's rejected submission", () => {
+test("member cannot appeal or probe another member's rejected submission", () => {
   const f = fixture();
-  sql(`
+  const missingSubmission = randomUUID();
+  const foreignSubmissionError = sql(`
     ${f.setup}
     ${asMember(f.a, `
       insert into public.task_appeals (submission_id, appellant_id, reason)
@@ -194,9 +195,31 @@ test("member cannot appeal another member's rejected submission", () => {
     rollback;
   `, {
     expectFailure: true,
-    expectSqlState: "P0001",
-    expectMessage: "only the submission owner can appeal",
+    expectSqlState: "42501",
+    expectMessage: "appeal submission is unavailable",
   });
+  const missingSubmissionError = sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.task_appeals (submission_id, appellant_id, reason)
+      values ('${missingSubmission}', '${f.a}', 'Attempt to probe a missing submission.');
+    `)}
+    rollback;
+  `, {
+    expectFailure: true,
+    expectSqlState: "42501",
+    expectMessage: "appeal submission is unavailable",
+  });
+  const denialIdentity = (output) => {
+    const match = output.match(/ERROR:\\s+([A-Z0-9]{5}):\\s*([^\\r\\n]+)/);
+    assert.ok(match, "expected a structured PostgreSQL authorization error");
+    return match[1] + ":" + match[2];
+  };
+  assert.equal(
+    denialIdentity(foreignSubmissionError),
+    denialIdentity(missingSubmissionError),
+    "foreign-owned and nonexistent submission IDs must not be distinguishable by their appeal error",
+  );
 });
 
 test("member cannot submit contribution work on behalf of another member", () => {
