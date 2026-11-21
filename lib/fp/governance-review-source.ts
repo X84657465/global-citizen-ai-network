@@ -3,7 +3,7 @@ import type { FPGovernanceReviewEvidence } from "./governance-assurance.ts";
 export interface FPGovernanceGitHubApi {
   request(path: string): Promise<unknown>;
 }
-export type FPGovernanceRepositoryPermission = "admin" | "maintain" | "push" | "triage" | "pull" | "none";
+export type FPGovernanceRepositoryPermission = "admin" | "maintain" | "write" | "triage" | "read" | "none";
 export interface FPGovernanceReviewerPermission {
   readonly permission: FPGovernanceRepositoryPermission;
   readonly evidenceRef: string;
@@ -47,7 +47,7 @@ function isValidUtcTimestamp(value: string): boolean {
 }
 const PAGE_SIZE = 100;
 const MAX_PAGES = 10;
-const VERIFIED = new Set<FPGovernanceRepositoryPermission>(["admin", "maintain", "push"]);
+const VERIFIED = new Set<FPGovernanceRepositoryPermission>(["admin", "maintain", "write"]);
 
 function safeReference(value: unknown): value is string {
   return typeof value === "string" &&
@@ -149,7 +149,7 @@ export async function collectFPGovernanceReviewEvidence(
       if (!permissions.has(login)) {
         try {
           const checked = await input.verifyReviewerPermission(login);
-          if (!checked || !["admin", "maintain", "push", "triage", "pull", "none"].includes(checked.permission) ||
+          if (!checked || !["admin", "maintain", "write", "triage", "read", "none"].includes(checked.permission) ||
               !safeReference(checked.evidenceRef)) {
             invalid("Trusted host returned invalid reviewer-permission evidence.");
           }
