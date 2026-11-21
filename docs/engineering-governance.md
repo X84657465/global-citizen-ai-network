@@ -1,6 +1,6 @@
 # A–O Workstream Engineering Governance
 
-**Governance revision: 1.4.9**  
+**Governance revision: 1.4.10**  
 **Repository release baseline: 0.3.117**
 
 ## 1. Core workstreams and roadmap ownership
@@ -82,7 +82,7 @@ No track may silently rewrite another track's code, configuration, database or p
 
 ## 5. Integration-branch CI policy
 
-- The integration branch `feat/github-project-showcase` is an approved base for dependent workstreams D and E while the five-track integration PR is under review.
+- The integration branch `feat/github-project-showcase` is an approved base for dependent workstreams D and E while the A–E core integration PR is under review.
 - Pull requests targeting either `main` or the integration branch must run the same build, unit-test, type-check, lint, production-build and database/RLS verification workflow.
 - A dependent branch must include the current integration branch as an ancestor; its PR diff must contain only its own workstream files.
 - After the integration PR is merged, dependent PRs are retargeted to `main` only after their diff and exact-head CI are revalidated.
@@ -116,6 +116,6 @@ Every improvement, including a small one, records:
 
 Each change must identify the smallest safe rollback unit. Application changes should be reverted by commit or PR; schema changes require a separately reviewed forward-fix or verified migration rollback strategy. Never assume a database migration is reversible.
 
-## 9. Five-track baseline
+## 9. Core integration baseline
 
-Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. All five tracks have independent ownership, interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.105`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
+Track C is formally named **Predictive Coding（預測編碼）**; its current track version is recorded in `versions/manifest.json`. Track D is **Deep Neural** and Track E is **Deep Research（深度研究）**. A–O each retain independent responsibility and staged maturity; the currently versioned A–E engineering tracks have independent interfaces, versions, tests and acceptance evidence. The overall integration baseline is `0.3.117`. A track version does not imply production readiness; current maturity and limitations must be stated explicitly.
