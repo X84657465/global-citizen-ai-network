@@ -182,6 +182,24 @@ test("same-SHA candidate reruns are ignored without candidate success or system-
   assert.ok(success.includes("needs.build.outputs.candidate_start_ignored != 'true'"));
 });
 
+test("task-scoped CI failures register exact run evidence before candidate rejection, while ignored retries stay no-op", () => {
+  const { start, end } = findJobSection(workflow, "circuit-breaker");
+  const failure = workflow.slice(start, end);
+  const register = failure.indexOf("id: register-failed-candidate");
+  const reject = failure.indexOf("id: record-candidate-result");
+  assert.ok(register >= 0 && reject > register,
+    "failure callbacks must establish the exact candidate run before persisting its outcome");
+  const registration = failure.slice(register, reject);
+  assert.ok(registration.includes("AGENT_FACTORY_MODE: candidate-start"));
+  assert.ok(registration.includes("CI_RUN_ID: ${{ github.run_id }}"));
+  assert.ok(registration.includes("CI_RUN_ATTEMPT: ${{ github.run_attempt }}"));
+  assert.ok(registration.includes("HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}"));
+  assert.ok(failure.slice(reject).startsWith("id: record-candidate-result"));
+  assert.ok(failure.slice(reject, failure.indexOf("run: node scripts/agent-factory-v2-controller.mjs", reject))
+    .includes("steps.register-failed-candidate.outputs.ignored != 'true'"),
+    "same-SHA rejected retries must not be recorded as a new candidate failure");
+});
+
 test("CI never auto-approves or merges AI task pull requests; human approval is required", () => {
   assert.equal(workflow.includes("  auto-merge-ai-task:"), false);
   assert.equal(workflow.includes("markPullRequestReadyForReview"), false);
