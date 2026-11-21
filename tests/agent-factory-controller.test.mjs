@@ -76,10 +76,12 @@ async function startCandidate(controller, ciRunId) {
   });
 }
 
-function currentCandidatePullApi({ headSha = "b".repeat(40), headRef = "ai-task/issue-42-abcdef123456", state = "open" } = {}) {
+function currentCandidatePullApi({ headSha = "b".repeat(40), headShaAfterFirstRequest, headRef = "ai-task/issue-42-abcdef123456", state = "open" } = {}) {
+  let requests = 0;
   return {
     async request(path) {
       assert.equal(path, "/repos/owner/repo/pulls/88");
+      requests += 1;
       return {
         number: 88,
         state,
@@ -88,7 +90,7 @@ function currentCandidatePullApi({ headSha = "b".repeat(40), headRef = "ai-task/
         base: { ref: "main", repo: { full_name: "owner/repo" } },
         head: {
           ref: headRef,
-          sha: headSha,
+          sha: requests > 1 && headShaAfterFirstRequest ? headShaAfterFirstRequest : headSha,
           repo: { full_name: "owner/repo" },
         },
       };
@@ -799,7 +801,7 @@ test("candidate success callback rejects a PR head that moved after CI without c
     store,
     repository: "owner/repo",
     now: () => 3000,
-    api: currentCandidatePullApi({ headSha: "c".repeat(40) }),
+    api: currentCandidatePullApi({ headShaAfterFirstRequest: "c".repeat(40) }),
   });
   await startCandidate(controller, "555020");
 
