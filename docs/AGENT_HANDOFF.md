@@ -5,8 +5,8 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
-**Authoritative release:** `VERSION` and `package.json` on main report `0.3.124`. README still advertises `0.3.121`; PR #267 was closed as redundant and its correction is carried in #259, which remains unmerged.  
+**Main HEAD:** `fc1933e669dd2d49300e45fa5d69bf63e906141f`  
+**Authoritative release:** `VERSION` and `package.json` on main both report `0.3.125`. README release label requires separate verification before use.  
 **A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
 
 ## 1. Highest-level strategy and authority
@@ -213,3 +213,29 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 - Verified current main contains the same deterministic mismatch: `scripts/check-schema.mjs` expects `select plan(15)`, while `supabase/tests/public_table_grants.test.sql` declares `select plan(18)` and contains 18 assertions.
 - Opened PR #270 from current main with the minimal one-line guard alignment to `plan(18)`. It does not change or remove SQL assertions, runtime code, migrations, or production state.
 - PR #270 exact HEAD: `2982d0a98289a1ce2f0dbc1c36e34bd2bf479c1b`; keep Draft until its exact-head CI and independent review are complete.
+
+
+## Live checkpoint — 2026-11-22 (verified GitHub state)
+
+### Main / Factory-first
+- Current `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
+- `VERSION` and `package.json`: `0.3.125`.
+- PR #273 is open, Draft, unmerged; exact HEAD `1230bdbab4971a80cac191c68d7978b9c1df9c5f`, base is current main. Exact-head Actions run #3267 (`44952319306`) is in progress. Metadata resolver passed; Windows quality gates are currently installing locked dependencies. Unit/type/lint/build, PostgreSQL/RLS and Ollama/local integration have not yet completed. Keep Draft and do not merge.
+- Vercel exact-SHA status is `build-rate-limit`; no READY Preview or same-SHA smoke evidence.
+- PR #273 has zero formal reviews. Issue #136 remains open; the independent read-only adversarial audit is outstanding.
+- PR #259 remains open/unmerged and targets stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its 40-file diff is diverged from current main. Do not merge, retarget, or transplant wholesale. Its P route source-text-only review finding remains unresolved in that candidate.
+- PR #255 is closed without merge; do not treat its F/G repository validation as integrated into main. Reassess only after A acceptance and selectively port any still-needed changes.
+
+### B / K preparation
+- PR #275 is a documentation-only Draft from current main. It corrects the contradictory B DTO comment so `FactoryTaskReadModelV1.status` is the bounded public `FactoryTaskStatus`, mapped by A from private durable states. It does not implement or activate B.
+- The B adapter remains proposal-only: versioned, read-only, workspace-authorized by B, with exact SHA/PR/run/attempt verification on A's side. No B runtime route, database table, billing or Factory permission is activated.
+- The handoff must be refreshed from verified GitHub state after each meaningful merge or acceptance transition. Older checkpoints above are historical and are superseded by this live checkpoint.
+
+### Next execution order
+1. Keep A #273 first; finish exact-head Actions and resolve any real failures without weakening gates.
+2. Obtain independent Issue #136 audit and triage its findings.
+3. Resolve Vercel Preview quota through the normal provider cycle; do not bypass limits.
+4. Reconcile only necessary F/G integration blockers after A acceptance.
+5. After A is accepted and integrated, rebuild B from the accepted main and implement only the reviewed read-only projection plus B-owned tenant authorization.
+
+**Safety:** no production deployment/data mutation, secret or permission changes, workflow-policy changes, or machine-managed Factory state edits are authorized by these documentation updates.
