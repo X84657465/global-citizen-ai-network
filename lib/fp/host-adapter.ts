@@ -47,11 +47,11 @@ export type FPHostErrorCode =
   | "EXECUTION_DISABLED";
 
 export class FPHostError extends Error {
-  constructor(
-    readonly code: FPHostErrorCode,
-    message: string,
-  ) {
+  readonly code: FPHostErrorCode;
+
+  constructor(code: FPHostErrorCode, message: string) {
     super(message);
+    this.code = code;
     this.name = "FPHostError";
   }
 }
