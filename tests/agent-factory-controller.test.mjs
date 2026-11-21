@@ -1060,20 +1060,31 @@ test("system-health success requires verified exact-head CI evidence and resets 
     api: {
       async request(path) {
         requests.push(path);
-        return {
-          id: 555009,
-          run_attempt: 2,
-          head_sha: sha,
-          status: "completed",
-          conclusion: "success",
-          path: ".github/workflows/ci.yml",
-          event: "pull_request",
-          pull_requests: [{
+        if (path === "/repos/owner/repo/actions/runs/555009") {
+          return {
+            id: 555009,
+            run_attempt: 2,
+            head_sha: sha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 168,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/pulls/168") {
+          return {
             number: 168,
+            state: "open",
             base: { ref: "main", repo: { full_name: "owner/repo" } },
             head: { sha, repo: { full_name: "owner/repo" } },
-          }],
-        };
+          };
+        }
+        throw new Error("Unexpected API request: " + path);
       },
     },
   });
@@ -1103,8 +1114,65 @@ test("system-health success requires verified exact-head CI evidence and resets 
   assert.deepEqual(replay.state.tasks, expectedTasks);
   assert.deepEqual(requests, [
     "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/pulls/168",
     "/repos/owner/repo/actions/runs/555009",
+    "/repos/owner/repo/pulls/168",
   ]);
+});
+
+test("system-health success rejects a successful CI run when the PR has advanced to a newer head", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const testedSha = "d".repeat(40);
+  const currentSha = "e".repeat(40);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555011") {
+          return {
+            id: 555011,
+            run_attempt: 1,
+            head_sha: testedSha,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 169,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { sha: testedSha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/pulls/169") {
+          return {
+            number: 169,
+            state: "open",
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { sha: currentSha, repo: { full_name: "owner/repo" } },
+          };
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555011",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "169",
+    SYSTEM_HEALTH_HEAD_SHA: testedSha,
+  }), /current same-repository PR head no longer matches/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
 });
 
 test("system-health success fails closed for missing or mismatched health evidence", async () => {
