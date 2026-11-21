@@ -83,6 +83,9 @@
 .stageLinks a{margin-left:0}
 @media(max-width:620px){.stageLinks{width:100%;gap:12px}.stageLinks a{margin-left:0}}
 
+/* Prevent candidate status text from overflowing on narrow screens. */
+@media(max-width:620px){.stageLabel{white-space:normal;line-height:1.6;max-width:100%}.stageBar{align-items:flex-start}.stageBar p{order:3;width:100%}}
+
 /* Mobile navigation remains visible as a horizontally scrollable row instead of disappearing. */
 @media(max-width:820px){
  .headerInner{flex-wrap:wrap;gap:7px 13px;padding:10px 0}
