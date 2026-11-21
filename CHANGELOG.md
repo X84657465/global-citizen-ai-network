@@ -1,3 +1,37 @@
+## 0.3.115 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.82: correct the patch-generation context contract so the model is explicitly limited to supplied source_files and must fail closed when required repository context is absent.
+- Add regression coverage preventing the generator prompt from implying access to source files that were not actually supplied.
+- Preserve the repository test-runner, JSX, dependency, API provenance, UI integration, path allowlist, and bounded output protections.
+
+## 0.3.114 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.81: fail closed when the supplied source context cannot establish the existing component/API contract required for a requested UI integration, rather than generating disconnected parallel components.
+- Add regression coverage for the missing-context integration guard; preserve the 2.0.80 test-runner, JSX, dependency, API provenance and UI data-flow constraints.
+- No workflow permissions, production data, database schema, secrets, durable task state, retry/quarantine state, or deployment settings changed.
+
+## 0.3.113 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.80: constrain local patch generation to the repository's actual Node test runner, TypeScript/JSX file semantics, installed dependencies, real component/API contracts, and integration into existing UI data flows.
+- Add regression coverage for the generator's test-runner, JSX, symbol/API provenance, and UI integration instructions.
+- Preserve task allowlists, one-file batches, strictest per-path UTF-8 output budgets, malformed-manifest rejection, bounded local inference, and isolated candidate testing.
+- No workflow permissions, production data, database schema, secrets, durable task state, retry/quarantine state, or deployment settings changed.
+
+## 0.3.110 — 2026-11-21
+
+- Agent Factory V2 advances to 2.0.79: explicitly enable exact-head pull-request CI for the active A 2.0.78 integration branch so dependent B work is not silently skipped.
+- Add an exact branch allowlist regression assertion; preserve owner checks, same-repository restriction, Windows Runner serialization, security audits, database/RLS gates and no-auto-merge behavior.
+- Repository package, lockfile, manifest, README and governance versions synchronized to 0.3.110; B remains 0.1.13 on this parent candidate.
+
+## 0.3.109 — 2026-11-21
+
+- Align the five-track governance document's overall integration baseline with the authoritative repository release `0.3.109`.
+
+- Agent Factory V2 advances to 2.0.78: preserve explicitly approved supplemental task context in validated task bundles and pass the same bounded context projection to planning and patch-generation models.
+- Accept only the named evidence/required-behavior sections and real dated retry-scope headings; retain mandatory sections, reject duplicates/unknown headings, and keep task content untrusted.
+- Rebase the preflight-context fix onto A 2.0.77, retaining per-path output-budget enforcement and malformed-manifest task-failure classification.
+- No production database, secrets, workflow permissions, deployment settings or factory durable state changed.
+
 ## 0.3.108 — 2026-11-21
 
 - Agent Factory V2 advances to 2.0.77: validate parsed model-manifest roots and require `files` to be an array before iteration; malformed valid-JSON output is classified as a task-scoped failure.
