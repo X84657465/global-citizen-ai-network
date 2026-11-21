@@ -131,7 +131,7 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
   }
   const expectedJobPrefix = `${expectedRunUrl}/job/`;
   const jobId = ci.jobUrl.slice(expectedJobPrefix.length);
-  if (!ci.jobUrl.startsWith(expectedJobPrefix) || !/^\\d+$/.test(jobId)) {
+  if (!ci.jobUrl.startsWith(expectedJobPrefix) || !/^\d+$/.test(jobId)) {
     throw new TypeError("F CI job URL does not belong to the evidence run.");
   }
 }
