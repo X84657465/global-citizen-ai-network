@@ -46,7 +46,7 @@ test("marks absent workstream evidence incomplete", () => {
 test("blocks failed evidence and keeps not-run evidence incomplete", () => {
   const failed = assessFPGovernanceDossier(dossier({
     workstreams: dossier().workstreams.map((item) => item.workstream === "F"
-      ? { ...item, evidence: [{ ...item.evidence[0], status: "failed" }] }
+      ? { ...item, evidence: [{ ...item.evidence[0], status: "failed" as const }] }
       : item),
   }));
   assert.equal(failed.status, "blocked");
@@ -54,7 +54,7 @@ test("blocks failed evidence and keeps not-run evidence incomplete", () => {
 
   const notRun = assessFPGovernanceDossier(dossier({
     workstreams: dossier().workstreams.map((item) => item.workstream === "H"
-      ? { ...item, evidence: [{ ...item.evidence[0], status: "not-run" }] }
+      ? { ...item, evidence: [{ ...item.evidence[0], status: "not-run" as const }] }
       : item),
   }));
   assert.equal(notRun.status, "incomplete");
@@ -74,7 +74,7 @@ test("rejects stale evidence rather than accepting parent-commit proof", () => {
 test("keeps L deferred and rejects invalid ownership, duplicate records, and evidence paths", () => {
   assert.throws(() => assessFPGovernanceDossier(dossier({
     workstreams: dossier().workstreams.map((item) => item.workstream === "L"
-      ? { ...item, lifecycle: "active" }
+      ? { ...item, lifecycle: "active" as const }
       : item),
   })), TypeError);
   assert.throws(() => assessFPGovernanceDossier(dossier({
