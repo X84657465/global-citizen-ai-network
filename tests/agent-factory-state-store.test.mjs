@@ -42,6 +42,11 @@ test("rejects malformed and dot-segment repository names", () => {
   }
 });
 
+test("accepts valid repository names with internal dots", () => {
+  const fake = fakeApi();
+  assert.doesNotThrow(() => createFactoryStateStore(fake.client, { repository: "owner/repo.v2" }));
+});
+
 test("initializes a versioned state when no state Issue exists", async () => {
   const fake = fakeApi();
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
