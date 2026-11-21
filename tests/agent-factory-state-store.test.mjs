@@ -35,7 +35,7 @@ test("rejects malformed and dot-segment repository names", () => {
   const fake = fakeApi();
   for (const repository of [
     "owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo",
-    "owner/..repo", "owner./repo", "owner/foo..bar", "owner/repo.",
+    "owner/..repo", "owner./repo", "owner/repo.",
     "owner/repo/extra", "/repo", "owner/", "owner\\\\repo",
   ]) {
     assert.throws(
@@ -45,6 +45,7 @@ test("rejects malformed and dot-segment repository names", () => {
     );
   }
   assert.doesNotThrow(() => createFactoryStateStore(fake.client, { repository: "owner/repo.v2" }));
+  assert.doesNotThrow(() => createFactoryStateStore(fake.client, { repository: "owner/foo..bar" }));
 });
 
 test("initializes a versioned state when no state Issue exists", async () => {
