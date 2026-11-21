@@ -198,3 +198,10 @@ This section supersedes older candidate-head and CI snapshots above where they c
 
 - Read-only verification of PR #208 merge, exact-head CI, Vercel status, current-main ancestry and current PR #259 HEAD/Actions/review state.
 - No runtime code, workflow, schema, production data, secrets, permissions, Runner settings or machine-managed factory state was changed in this continuation.
+
+
+### Actions progression after the snapshot above
+
+- A fresh poll of #259 run [44942853489](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942853489) shows the exact-candidate metadata resolver completed successfully and the Windows Runner quality-gates job has started and is `in_progress`. This is progress only; terminal quality success and the separate Ollama/PostgreSQL/RLS jobs remain unverified.
+- The log endpoint for the in-progress job returned BlobNotFound at this checkpoint; no step-level result is inferred.
+- The handoff document update itself is now at commit `b8482c72280bdcf212834805151e7bed5e2dd3f0` on the documentation PR branch. No Actions run for this new documentation HEAD was observed at the time of the refresh; prior docs-head runs do not transfer.
