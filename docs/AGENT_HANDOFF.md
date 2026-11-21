@@ -49,28 +49,21 @@ F–P manifest registration or a “ready” label is not implementation accepta
 - `VERSION` and `package.json` are `0.3.124`; README root release label is stale at `0.3.121`.
 - Vercel status is failing with the provider's `api-deployments-free-per-day` / `build-rate-limit` quota. Treat this as an external Preview/deployment blocker, not a code-test result. Do not repeatedly trigger deployment attempts or bypass the quota.
 
-### PR #259 — P0 A / F–P shared acceptance candidate
+### PR #259 — P0 A / F–P consolidated acceptance candidate
 
-- Branch: `fix/ci-schema-grant-test-count-20261122`.
-- **Current exact PR head verified from GitHub PR metadata: `14f7a87347713863afb6fb74cc962d67f1972be9`.**
-- Prior exact-head run [44943280889](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943280889) targeted superseded SHA `38e5e5f312a1d3eaeedec9117ae1d6b46d779691`; its 543/549 unit result is historical only.
-- Corrective review timestamp validation and stable historical test fixtures were committed in `2b4b1edf6b19c5c3e058f2aca1bb0ced8cd569df` and `d9073d51155de384be18e660c03923b0b0f424d0`.
-- Intermediate commit `f718499241fd905a12688498373a467cd3538ce1` had run [44942456757](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44942456757) cancelled; it is not the branch head and is not acceptance evidence.
-- Previous run [44944625272](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944625272) targeted superseded SHA `968d14256ce9a53b8e72ca5145722042619d9d4d`; its Windows job had started but is now stale after the fixture correction.
-- Current head `14f7a87347713863afb6fb74cc962d67f1972be9` has exact-head run [44945158137](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945158137) pending at latest check; no jobs have appeared yet. No quality/test/type/lint/build/PostgreSQL/RLS/Ollama pass is claimed.
-- Run [44944042121](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944042121) targeted the superseded `d9073d5...` SHA. Its resolver log confirms the PR head had advanced and the stale event was intentionally ignored; all substantive jobs were skipped. This is not a Runner failure.
-- No independent review is recorded. Keep Draft/unmerged until all exact-head gates and independent review pass.
-- The PR changes shared files including README, `scripts/check-schema.mjs` and `tests/ci-trigger-policy.test.mjs`; reconcile overlap with PR #267 before any merge.
+- Branch: `fix/ci-schema-grant-test-count-20261122`; base main SHA: `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
+- **Current exact PR head: `7648007a48cbfdbdf706cd18bca37f509185824e`** (31 changed files; Draft/open/unmerged).
+- Exact-head Actions run [44945792527](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945792527), run #3205, is pending. Latest jobs lookup shows only `Resolve exact candidate PR metadata` pending; no quality/test job has started. This is not a Runner failure and not acceptance evidence.
+- This round selectively ported A's deterministic negated/high-risk plan-intent classifier and its regression suite from PR #261 into this consolidated candidate. Exact file blobs match the source PR's two files.
+- PR #261 is closed as redundant; no feature was discarded. Its old run [44940637761](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44940637761) failed at the pre-existing schema-guard/pgTAP-plan synchronization assertion on its older main-based branch. The ported changes must be validated only on #259's new exact SHA.
+- The candidate also contains the corrected RLS fixtures, appeal authorization SQLSTATE handling, strict UTC timestamp validation, GitHub repository-name validation, F–P host/observability fixes, and release metadata synchronization.
+- No independent formal review submissions or inline review threads are recorded. Vercel Preview remains blocked by provider `build-rate-limit`; do not repeatedly trigger builds or bypass the quota.
+- Keep Draft/unmerged until exact-head Windows quality gates, unit tests, typecheck, lint, security audits, production build, PostgreSQL/migrations/pgTAP/RLS, Ollama/local execution, current-SHA Preview and independent review are all verified. Do not infer success from resolver-only completion.
 
-### PR #267 — shared CI acceptance baseline
+### PR #267 — shared CI baseline (closed as redundant)
 
-- Current exact branch HEAD verified from GitHub: `6baa233e30192d5b360617d7f0079d840c78821a`.
-- Previous exact-head run [44943780150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943780150) passed dependency install, Windows/Docker/Ollama preflight, bounded Ollama inference, migration/schema guards and both dependency audits, then failed the CI trigger/Runner policy test. Unit tests, typecheck, lint, production build and database/RLS were skipped after that failure.
-- Root cause identified by checking the exact tested tree: `package-lock.json` still advertised root/package version `0.3.121` while `VERSION`, `package.json`, manifest and README were `0.3.124`. The CI policy test explicitly checks lockfile version parity.
-- Corrective commit `6baa233e30192d5b360617d7f0079d840c78821a` changes only the two package-lock root version fields to `0.3.124`; dependency graph and resolved package entries are unchanged.
-- New exact-head Actions run [44944336578](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944336578) targets corrected SHA `6baa233e30192d5b360617d7f0079d840c78821a`; it remains pending and latest jobs query returned no jobs. No acceptance is claimed for the corrected SHA.
-- No independent review is recorded. Keep Draft/unmerged.
-- #259 and #267 both touch README, schema guard and CI policy test. Do not merge them sequentially as-is. Reconcile overlapping files and rerun every required gate against the final exact SHA.
+- PR #267 is closed without merge after exact Git blob comparisons confirmed its shared package-lock/version changes are already included in consolidated PR #259.
+- No unique code or dependency artifact was discarded. Do not reopen or merge it separately; validate the shared baseline only through #259's final exact SHA.
 
 ### PR #266 — K handoff refresh candidate
 
@@ -121,11 +114,12 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 
 ## 6. Next execution order
 
-1. **A first:** monitor #259 current-head run `44944625272` for SHA `968d14256ce9a53b8e72ca5145722042619d9d4d`; earlier run `44944042121` was correctly ignored as stale after the PR head advanced.
-2. **Shared baseline:** #267 run `44944336578` failed at 14 unit tests on base main. Its four changed file blobs are identical to #259, so it is fully content-subsumed; do not merge it independently. After #259 is accepted/merged, close #267 as redundant.
-3. **K support:** keep this handoff synchronized with verified main/PR state. PR #268 is documentation-only; its exact current head and run are tracked in the PR body because each handoff update necessarily changes its own SHA. Prior docs-head run [44944676236](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44944676236) applies only to superseded SHA `abeb8ff82d06065c3bb490036027e15d4b1b4c46`.
-4. **F–P:** address only demonstrated blockers to A acceptance or B contracts.
-5. **B preparation:** prepare a selective-port contract map without activating B as the development priority. B must consume only versioned, explicitly exposed A interfaces; no direct Factory DB/state/lease/Runner access.
+1. **A first:** validate #259 exact head `7648007a48cbfdbdf706cd18bca37f509185824e` on run [44945792527](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945792527). Resolver metadata is pending; substantive jobs have not started.
+2. **A risk-intent integration:** the two files from #261 are now included in #259; #261 is closed as redundant. Do not use its old failed CI as evidence for the consolidated candidate.
+3. **Shared baseline:** #267 is closed as redundant and its package-lock/version changes are carried by #259. No separate merge is required.
+4. **K support:** keep #268's handoff aligned with verified PR/main state. Its current head remains `127de3547edebedd1265bee7082959dd804d8ded`; docs CI run [44945572523](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945572523) is pending with no jobs returned. No independent review is recorded.
+5. **F–P:** address only concrete A acceptance or B contract blockers; do not expand unrelated workstreams.
+6. **B preparation:** retain the read-only, versioned adapter proposal. Do not activate B runtime/API/database access until A is accepted and integrated.
 
 **Factory-first charter remains:** stabilize Agent Factory V2, then enable GCAN Product to create revenue, then expand the global AI ecosystem.
 
@@ -139,10 +133,12 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 
 ## Current checkpoint — 2026-11-22 (latest verified)
 
-- A integration PR #259 current exact head: `6eaa40bfe3eb7ab349709b4d8035f7c3a3d4c075`. Exact-head CI run [44945534338](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945534338), run #3203, is pending; latest jobs query returned no jobs. Do not interpret this as Runner failure or acceptance.
-- Recent focused P fixes: GitHub collaborator permission evidence uses the documented legacy base roles `admin`, `write`, `read`, `none`; `maintain` maps to `write`, `triage` maps to `read`, and only admin/write satisfy the review-authority check. The P dossier evaluator also now rejects impossible UTC calendar/clock components (including normalized invalid dates); regression tests were added.
-- Earlier A candidate heads and their pending/cancelled runs were superseded as the branch advanced. Only the exact final candidate SHA and its terminal checks can count as acceptance.
-- PR #264, #265 and #267 are closed as redundant after exact Git blob comparisons proved all their changed file contents are present in #259: #264 schema guard; #265 README and CI policy; #267 shared files plus package-lock root metadata. No unique code was discarded. #259 is the sole consolidated A/F–P candidate.
-- PR #259 remains Draft/open/unmerged. No independent review submissions or inline review threads are recorded. Vercel status remains blocked by provider `build-rate-limit`; do not repeatedly trigger Preview builds or bypass the quota.
-- PR #268 is documentation-only; B adapter remains a proposal, not an active runtime/API. B stays blocked until A exact-head CI, DB/RLS, local integration, Preview and independent review are accepted.
-- Merge policy unchanged: require terminal success for every required check on the final exact SHA, plus independent review and current Preview. Pending, cancelled, skipped, stale-SHA success and resolver-only success are not acceptance.
+- Main remains at base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; `VERSION` and `package.json` are `0.3.124`. README's mainline label remains `0.3.121`; PR #259 carries the correction.
+- PR #259 exact head is `7648007a48cbfdbdf706cd18bca37f509185824e`; run [44945792527](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945792527) is pending at candidate resolver metadata. No substantive CI result is available yet.
+- A risk-intent classification and regression tests were ported exactly from PR #261 into #259. PR #261 is now closed as redundant; its prior schema-guard failure is not evidence against the new consolidated SHA.
+- PR #267 is closed as redundant; its shared metadata changes are carried in #259.
+- PR #259 has no independent formal reviews or inline review threads. Vercel Preview remains externally blocked by provider `build-rate-limit`.
+- PR #268 remains documentation-only and Draft. Its exact head is `127de3547edebedd1265bee7082959dd804d8ded`; run [44945572523](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945572523) is pending with no jobs returned.
+- PR #266 remains a separate Draft documentation candidate; do not merge stale or overlapping documentation branches wholesale.
+- B adapter remains proposal-only. B cannot access Factory state, leases, Runner or privileged execution.
+- Acceptance rule unchanged: terminal success for all required checks on the final exact SHA, current Preview, and independent review. Pending, cancelled, skipped, stale-SHA success, resolver-only success and mergeability are not acceptance.
