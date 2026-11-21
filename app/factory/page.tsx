@@ -26,7 +26,7 @@ const resources = [
     id: "A · FACTORY",
     title: "Agent Factory V2 工程主線",
     description: "查看工廠控制器、任務生命週期、隔離執行、證據封裝與復原能力。",
-    detail: "工程分支 · 版本 2.0.81",
+    detail: "工程分支 · 版本 2.0.82",
     tone: "green",
     href: "https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2",
     action: "檢視 A 線工程",
