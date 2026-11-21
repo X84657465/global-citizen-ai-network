@@ -57,7 +57,7 @@ PR #252's current exact candidate SHA and active workflow run are authoritative 
 
 1. Windows self-hosted Runner / CI execution has not yet produced exact-head quality, build/Ollama and database/RLS results for the current F–P candidate.
 2. H has correlation propagation at the middleware edge, but the existing recorder is process-local and no persistent telemetry sink is configured.
-3. P's collector delegates reviewer permission verification to a trusted host. PR #251 adds a reusable GitHub permission adapter but does not wire a production API route or authenticate a human session.
+3. P now registers a read-only `collect-review-evidence` capability on the existing `FPHostAdapter`. The repository and authenticated GitHub API client are bound at registration, host authorization is checked before GitHub reads, and the capability cannot approve, merge, execute, deploy, or mutate repository state. It is not wired to a production API route and does not authenticate a human session.
 4. I remains bounded and must not perform external writes without explicit host approval.
 5. J must remain advisory; no autonomous production repair.
 6. L remains deferred; no node registration or distributed execution.
@@ -80,7 +80,7 @@ Acceptance does not grant merge or deployment authority. A merge requires the re
 
 1. Open a follow-up PR from `feat/p-trusted-review-permission-provider-20261122` for the repository-path validation fix and handover documents; require a fresh exact-head CI run.
 2. If all required jobs pass and review is clean, mark the follow-up PR ready and merge only after the repository's normal review requirements are satisfied.
-3. Wire the P permission provider only at an existing authenticated host boundary after confirming how the host supplies reviewer identity and authorization. Do not add a parallel identity system or new secret.
+3. Wire the registered P capability to a production entry point only after the existing host's authenticated API client and principal context are explicitly supplied and independently reviewed. Do not add a parallel identity system or new secret.
 4. Run the F–G shared-run evaluator using trusted GitHub Actions evidence for the same run/attempt.
 5. Complete H route/job correlation evidence and explicitly label process-local versus persistent telemetry.
 6. Continue I/J/M/N/O/K in dependency order; keep L deferred.
