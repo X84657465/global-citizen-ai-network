@@ -53,7 +53,7 @@ F–P manifest registration or a “ready” label is not implementation accepta
 
 - Branch: `fix/ci-schema-grant-test-count-20261122`; base main SHA: `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`.
 - **Current exact PR head: `2ebd1a06be88a42da40dcbd132ed7bd2898a7c03`** (39 changed files; Draft/open/unmerged).
-- Exact-head Actions run [44946633658](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946633658), run #3220, is pending; latest jobs lookup returned an empty list. No quality/test result is available. An empty jobs list is not evidence of Runner failure or success. Previous run #3216 (44946287444) was cancelled after the candidate head advanced.
+- Exact-head Actions run [44946633658](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44946633658), run #3220, is pending; latest jobs lookup returned an empty list. No quality/test result is available. An empty jobs list is not evidence of Runner failure or success. Previous run #3224 (44946781541) was cancelled after the candidate head advanced.
 - This round selectively ported A's deterministic negated/high-risk plan-intent classifier and its regression suite from PR #261 into this consolidated candidate. Exact file blobs match the source PR's two files.
 - PR #261 is closed as redundant; no feature was discarded. Its old run [44940637761](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44940637761) failed at the pre-existing schema-guard/pgTAP-plan synchronization assertion on its older main-based branch. The ported changes must be validated only on #259's new exact SHA.
 - The candidate also contains the corrected RLS fixtures, appeal authorization SQLSTATE handling, strict UTC timestamp validation, GitHub repository-name validation, F–P host/observability fixes, release metadata synchronization, and the four F/G repository-identity hardening files selectively ported from PR #255 (`security-assurance`, `release-assurance`, and their regression suites).
@@ -71,6 +71,13 @@ F–P manifest registration or a “ready” label is not implementation accepta
 
 - Closed without merge as superseded by PR #268.
 - It changed only `docs/AGENT_HANDOFF.md`; its older handoff snapshot and failed Schema Safety Guard CI are not current acceptance evidence. No runtime or accepted code was discarded.
+
+## Factory runtime checkpoint — 2026-11-22
+
+- Read-only durable-state Issue #100 snapshot: state version 141, updated `2026-11-21T18:29:34Z`; active lease was null. Task #204 was `queued`, attempts 3, failures 2, not quarantined; the recorded global cooldown ended `2026-11-21T18:44:34Z`. This is a historical snapshot, not a live lease check; never edit Issue #100 or reset its counters.
+- Latest scheduled preflight run found in the most recently queried 1,000 Actions runs: [44924441333](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44924441333), event `schedule`, `2026-11-21T16:24:52Z`. Runner was assigned, selected #204, acquired its lease, then correctly failed before model invocation because the issue contained unsupported heading `Dependency readiness refresh — 2026-11-21`.
+- Issue #204 was subsequently updated at `2026-11-21T19:54:42Z`; its extra evidence is now consolidated under the validator-supported `## Confirmed evidence` section. Its dependency #205 is closed with `state_reason=completed`. Do not weaken the section parser or manually dispatch around the queue; the next attempt must use normal selection against current main.
+- Issue #202 remains the schedule-continuity tracker. The queried recent Actions history contains no scheduled run later than #44924441333; a fresh scheduled event is still required before claiming continuous factory operation.
 
 ## 4. Acceptance rules and operating safety
 
