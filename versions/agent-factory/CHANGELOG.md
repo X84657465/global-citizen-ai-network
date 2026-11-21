@@ -1,3 +1,12 @@
+## 2.0.73 — 2026-11-21
+
+### Fixed — Enable exact CI for dependent factory hardening PRs
+- Add the current A-line candidate branch as an explicit pull-request base target so a dependent factory PR receives the same exact-head quality and integration gates.
+- Add a regression assertion for the configured base branch; preserve the explicit allowlist, owner/same-repository checks, Runner queue, permissions and all validation gates.
+
+### Verification
+- Fresh exact-head CI for the updated A-line candidate and dependent PR is required.
+
 ## 2.0.72 — 2026-11-21
 
 ### Fixed — Prevent valid new-file patches from truncating at an undersized token ceiling
