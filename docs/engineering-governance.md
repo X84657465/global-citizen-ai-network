@@ -1,7 +1,7 @@
 # Five-Track Engineering Governance
 
-**Governance revision: 1.4.4**  
-**Repository release baseline: 0.3.102**
+**Governance revision: 1.4.5**  
+**Repository release baseline: 0.3.103**
 
 ## 1. Five development tracks
 
@@ -14,6 +14,19 @@
 | E — Deep Research（深度研究） | Research and evidence synthesis | Multi-source retrieval, source provenance and quality, corroboration, counter-evidence, cited synthesis and actionable research reports |
 
 Each track owns its own branch, work items, version history, tests and acceptance evidence. Shared contracts are maintained centrally and changes that affect multiple tracks require explicit impact analysis.
+
+## P — Governance, Ethics & Trust
+
+P is the cross-cutting governance layer for the complete A–P architecture. It applies to every active engineering track, product surface, data flow, AI-assisted decision and release. P is not a sixth feature track and does not claim that every planned A–O capability is implemented.
+
+- **Human accountability:** production deployment, production data changes, financial/reward actions and high-risk approvals require explicit authorized human control.
+- **Security and privacy:** least privilege, tenant isolation, secret protection, data minimization and auditable access are mandatory.
+- **Ethics and fairness:** disclose model limitations and demonstration data; never use unverified AI scoring as the sole basis for contribution, access or rewards.
+- **Transparency and auditability:** record version, exact commit SHA, test evidence, review decision, accountable owner and recovery path for material changes.
+- **Risk and resilience:** fail closed on uncertain authorization, bound retries, quarantine unsafe work and maintain incident/recovery procedures.
+- **Consent and trust:** use of participant devices or resources requires explicit informed consent and a usable pause/exit path.
+
+P acceptance checks apply across all tracks; no feature status, CI pass or preview deployment overrides these controls.
 
 ## 2. Numeric version policy
 
