@@ -75,3 +75,11 @@ test("repository and B-line homepage release metadata matches the authoritative 
   assert.equal(productVersion, "0.1.23");
   assert.equal(manifest.tracks.B.version, productVersion);
 });
+
+
+test("A–O + P workstream cards preserve desktop, tablet, and mobile layouts", () => {
+  assert.ok(styles.includes(".trackGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))"));
+  assert.match(styles, /@media\(max-width:1120px\)\{[\s\S]*?\.trackGrid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}[\s\S]*?\.trackCard\[data-track="P"\]\{grid-column:1\/-1;justify-self:center/);
+  assert.match(styles, /\.trackGrid\{display:grid;grid-template-columns:1fr\}/);
+  assert.match(styles, /\.trackCard,\.trackCard\[data-track="P"\]\{grid-column:auto;justify-self:stretch;width:100%/);
+});
