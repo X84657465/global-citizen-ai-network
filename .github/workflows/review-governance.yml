@@ -1,5 +1,5 @@
 name: Independent review governance
-run-name: Review gate — ${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number || 'PR' }}
+run-name: Review gate — ${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number || github.event.workflow_run.pull_requests[0].number || 'PR' }}
 
 on:
   pull_request:
@@ -7,6 +7,9 @@ on:
     types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled, edited]
   pull_request_review:
     types: [submitted, edited, dismissed]
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -31,9 +34,13 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const prNumber = context.payload.pull_request?.number ??
-              context.payload.pull_request_review?.pull_request?.number;
-            if (!prNumber) core.setFailed("Cannot resolve pull request number from event.");
-            else {
+              context.payload.pull_request_review?.pull_request?.number ??
+              context.payload.workflow_run?.pull_requests?.[0]?.number;
+            if (context.eventName === "workflow_run" && context.payload.workflow_run?.event !== "pull_request") {
+              core.info("Ignoring CI completion that was not triggered by a pull request.");
+            } else if (!prNumber) {
+              core.setFailed("Cannot resolve pull request number from event.");
+            } else {
               const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
               const headSha = pr.head.sha;
               const headRef = pr.head.ref;
@@ -78,13 +85,16 @@ jobs:
               const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
                 owner, repo, head_sha: headSha, event: "pull_request", per_page: 100
               });
-              const exactCi = runs.workflow_runs.find(r =>
+              const exactCiRuns = runs.workflow_runs.filter(r =>
                 r.head_sha === headSha &&
-                (r.name === "CI" || (r.name || "").startsWith("CI —") || (r.display_title || "").startsWith("CI —")) &&
-                r.status === "completed" && r.conclusion === "success"
+                (r.name === "CI" || (r.name || "").startsWith("CI —") || (r.display_title || "").startsWith("CI —"))
+              ).sort((a, b) =>
+                new Date(b.run_started_at || b.created_at || 0) - new Date(a.run_started_at || a.created_at || 0)
               );
-              if (!exactCi) failures.push(`No completed successful CI workflow run found for exact HEAD ${headSha}.`);
-              else notes.push(`Exact-HEAD CI passed: run ${exactCi.id}.`);
+              const exactCi = exactCiRuns[0];
+              if (!exactCi || exactCi.status !== "completed" || exactCi.conclusion !== "success") {
+                failures.push(`Latest exact-HEAD CI run is missing or not successful for ${headSha}${exactCi ? ` (run ${exactCi.id}: ${exactCi.status}/${exactCi.conclusion || "pending"}).` : "."}`);
+              } else notes.push(`Latest exact-HEAD CI passed: run ${exactCi.id}.`);
 
               const commits = await github.paginate(github.rest.pulls.listCommits, {
                 owner, repo, pull_number: prNumber, per_page: 100
