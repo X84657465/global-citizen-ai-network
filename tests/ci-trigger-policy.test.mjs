@@ -498,6 +498,9 @@ test("Ollama output truncation is classified as task-scoped, not a system breake
 
 test("system breaker recovery waits for a completed successful exact-head CI workflow run", () => {
   const recovery = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  const ci = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  assert.equal(ci.includes("AGENT_FACTORY_MODE: success"), false,
+    "the in-progress CI workflow must not invoke the legacy non-mutating success callback");
   assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
   assert.ok(recovery.includes("github.event.workflow_run.conclusion == 'success'"));
   assert.ok(recovery.includes("github.event.workflow_run.event == 'pull_request'"));
