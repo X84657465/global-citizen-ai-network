@@ -1,3 +1,15 @@
+## 2.0.80 — 2026-11-21
+
+### Hardened — Align generated patches with repository implementation and test contracts
+- Instruct the patch generator to use the actual Node built-in test runner and installed dependencies; prohibit assumed Jest, Vitest, Playwright component testing, jsdom, and undeclared globals.
+- Explicitly prohibit JSX in .ts files under the Node type-stripping test runner.
+- Require component names, exports, imports, API fields and response shapes to be grounded in supplied source context.
+- Require new UI to integrate into the existing page/component/data flow and derive filter choices from actual API data.
+- Add a regression test protecting these prompt constraints.
+
+### Verification
+- Fresh exact-head Windows quality gates, local Ollama/Runner integration, PostgreSQL/RLS integration, Vercel verification and independent formal review remain required. This change does not reset or retry any task.
+
 ## 2.0.79 — 2026-11-21
 
 ### Fixed — Enable exact-head CI for the active stacked integration branch
