@@ -49,7 +49,11 @@ test("rejects invalid repositories, reviewer logins and unsupported permission p
     api: { async request() { return { permission: "admin" }; } },
     repository: "../repo",
   }), TypeError);
-  for (const repository of ["owner/..", "./repo", "owner/.", "owner/repo/extra", "/repo", "owner/"]) {
+  for (const repository of [
+    "owner/..", "./repo", "owner/.", "owner/repo/extra", "/repo", "owner/",
+    ".owner/repo", "owner/.repo", "owner./repo", "owner/repo.",
+    "owner/foo..bar", "owner/foo//bar",
+  ]) {
     assert.throws(() => createFPGitHubReviewerPermissionVerifier({
       api: { async request() { return { permission: "admin" }; } },
       repository,
