@@ -1,0 +1,132 @@
+name: Independent review governance
+run-name: Review gate — ${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number || 'PR' }}
+
+on:
+  pull_request:
+    branches: [main, feat/github-project-showcase, fix/agent-factory-new-file-output-budget-20261121]
+    types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled, edited]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+  actions: read
+  issues: read
+
+jobs:
+  review-gate:
+    name: review-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Evaluate independent review policy
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request?.number ??
+              context.payload.pull_request_review?.pull_request?.number;
+            if (!prNumber) core.setFailed("Cannot resolve pull request number from event.");
+            else {
+              const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+              const headSha = pr.head.sha;
+              const headRef = pr.head.ref;
+              const baseRef = pr.base.ref;
+              const failures = [];
+              const notes = [];
+              if (pr.draft) failures.push("PR is Draft; mark Ready for review only after implementation is complete.");
+
+              const { data: files } = await github.paginate(github.rest.pulls.listFiles, {
+                owner, repo, pull_number: prNumber, per_page: 100
+              });
+              const highRiskPattern = /(^\.github\/workflows\/|^supabase\/migrations\/|(^|\/)(schema|rls|polic|auth|security|payment)(\/|\.|-)|^lib\/agent-factory-(controller|state-machine|state-store|policy)\.mjs$|^scripts\/agent-factory|^package(-lock)?\.json$|^middleware\.)/i;
+              const highRisk = files.some(f => highRiskPattern.test(f.filename)) ||
+                pr.labels.some(l => ["risk:high", "cross-track", "migration", "security"].includes(l.name));
+              const approvalThreshold = highRisk ? 2 : 1;
+              notes.push(`Risk class: ${highRisk ? "HIGH" : "LOW"}; independent approvals required: ${approvalThreshold}.`);
+
+              if (baseRef !== "main") {
+                const { data: parents } = await github.rest.pulls.list({
+                  owner, repo, state: "all", head: `${owner}:${baseRef}`, per_page: 100
+                });
+                const parent = parents.find(p => p.number !== prNumber);
+                if (!parent) failures.push(`Non-default base ${baseRef} has no matching parent PR; base relationship is unverified.`);
+                else if (!parent.merged) failures.push(`Stack parent PR #${parent.number} is not merged; child cannot be accepted yet.`);
+                else notes.push(`Stack parent PR #${parent.number} is merged.`);
+              }
+
+              if (pr.labels.some(l => ["blocked", "blocked-by"].includes(l.name))) {
+                failures.push("PR has a blocking label.");
+              }
+              const blockerMatch = pr.body?.match(/^\s*Blocked by\s*:\s*(.+)$/im);
+              if (blockerMatch) {
+                const blockerNumbers = [...blockerMatch[1].matchAll(/#(\d+)/g)].map(m => Number(m[1]));
+                if (!blockerNumbers.length) failures.push("Blocked by line exists but contains no parseable issue references.");
+                for (const issueNumber of blockerNumbers) {
+                  const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number: issueNumber });
+                  if (issue.state !== "closed") failures.push(`Declared blocker #${issueNumber} is still open.`);
+                }
+              }
+
+              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner, repo, head_sha: headSha, event: "pull_request", per_page: 100
+              });
+              const exactCi = runs.workflow_runs.find(r =>
+                r.head_sha === headSha &&
+                (r.name === "CI" || (r.display_title || "").startsWith("CI —")) &&
+                r.status === "completed" && r.conclusion === "success"
+              );
+              if (!exactCi) failures.push(`No completed successful CI workflow run found for exact HEAD ${headSha}.`);
+              else notes.push(`Exact-HEAD CI passed: run ${exactCi.id}.`);
+
+              const { data: commits } = await github.paginate(github.rest.pulls.listCommits, {
+                owner, repo, pull_number: prNumber, per_page: 100
+              });
+              const latestCommit = commits[commits.length - 1];
+              const excluded = new Set([
+                pr.user.login,
+                latestCommit?.author?.login,
+                latestCommit?.committer?.login
+              ].filter(Boolean));
+              const { data: reviews } = await github.paginate(github.rest.pulls.listReviews, {
+                owner, repo, pull_number: prNumber, per_page: 100
+              });
+              const latestByReviewer = new Map();
+              for (const review of reviews) {
+                const login = review.user?.login;
+                if (!login) continue;
+                const previous = latestByReviewer.get(login);
+                if (!previous || new Date(review.submitted_at || 0) > new Date(previous.submitted_at || 0)) {
+                  latestByReviewer.set(login, review);
+                }
+              }
+              const approvals = [...latestByReviewer.entries()].filter(([login, review]) =>
+                review.state === "APPROVED" &&
+                review.commit_id === headSha &&
+                !excluded.has(login)
+              );
+              const staleOrSelf = [...latestByReviewer.entries()].filter(([login, review]) =>
+                review.state === "APPROVED" &&
+                (review.commit_id !== headSha || excluded.has(login))
+              );
+              if (approvals.length < approvalThreshold) {
+                failures.push(`Need ${approvalThreshold} distinct independent approval(s) on exact HEAD; found ${approvals.length}.`);
+              } else {
+                notes.push(`Independent exact-HEAD approvals: ${approvals.map(([login]) => login).join(", ")}.`);
+              }
+              if (staleOrSelf.length) {
+                notes.push(`Excluded stale/self approvals: ${staleOrSelf.map(([login]) => login).join(", ")}.`);
+              }
+              const changeRequests = [...latestByReviewer.entries()].filter(([, review]) => review.state === "CHANGES_REQUESTED");
+              if (changeRequests.length) failures.push(`Unresolved latest change requests from: ${changeRequests.map(([login]) => login).join(", ")}.`);
+
+              for (const note of notes) core.notice(note);
+              if (failures.length) {
+                for (const failure of failures) core.error(failure);
+                core.setFailed(`Independent review gate failed for PR #${prNumber} at ${headSha}.`);
+              } else {
+                core.info(`Independent review gate passed for PR #${prNumber} at ${headSha}.`);
+              }
+            }
