@@ -50,11 +50,11 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   const pullRequestBranchMatch = /^    branches: \[(.*?)\]$/m.exec(pullRequestSection);
   assert.ok(pullRequestBranchMatch, "full CI must validate pull-request lifecycle events");
   const pullRequestBranches = pullRequestBranchMatch[1].split(",").map((branch) => branch.trim());
+  assert.equal(pullRequestBranches.includes("fix/agent-factory-add-output-budget-20261121"), false, "CI pull_request trigger must not retain the retired A candidate branch");
+  assert.equal(pullRequestBranches.includes("chore/reconcile-ap-governance-on-a-2.0.70-20261121"), false, "CI pull_request trigger must not retain the retired governance branch");
   for (const requiredBranch of [
     "main",
     "feat/github-project-showcase",
-    "fix/agent-factory-add-output-budget-20261121",
-    "chore/reconcile-ap-governance-on-a-2.0.70-20261121",
     "chore/ap-governance-on-integrated-main-20261121",
     "chore/migration-verification-on-integrated-governance-20261121",
     "feat/b-mainline-on-integrated-migration-20261121",
