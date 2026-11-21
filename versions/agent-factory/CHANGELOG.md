@@ -1,3 +1,13 @@
+## 2.0.74 — 2026-11-21
+
+### Fixed — Preserve explicitly supported supplemental task context
+- Accept and preserve `Confirmed evidence`, `Finding and required behavior`, and dated `Retry scope refinement — YYYY-MM-DD` sections in the read-only task bundle.
+- Keep required sections mandatory, reject duplicate and unrecognized headings, and leave allowed-path validation unchanged.
+- Add regression tests covering all three observed factory preflight failures.
+
+### Verification
+- Fresh exact-head full CI, including task-validation unit tests, remains required.
+
 ## 2.0.73 — 2026-11-21
 
 ### Fixed — Enable exact CI for dependent factory hardening PRs
