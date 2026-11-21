@@ -516,9 +516,24 @@ jobs:
           EXPECTED_HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}
           EXPECTED_HEAD_REF: ${{ needs.resolve-candidate.outputs.head_ref }}
         run: node scripts/resolve-agent-task-pr.mjs
+      - name: Register exact candidate CI run before recording failure
+        id: register-failed-candidate
+        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+          AGENT_FACTORY_MODE: candidate-start
+          ISSUE_NUMBER: ${{ steps.revalidate.outputs.issue_number }}
+          PULL_REQUEST_NUMBER: ${{ steps.revalidate.outputs.pull_request_number }}
+          HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}
+          HEAD_REF: ${{ steps.revalidate.outputs.head_ref }}
+          CI_RUN_ID: ${{ github.run_id }}
+          CI_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: node scripts/agent-factory-v2-controller.mjs
       - name: Record task candidate CI rejection
         id: record-candidate-result
-        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true' && env.CI_FAILURE_SCOPE == 'task'
+        if: steps.revalidate.outputs.is_current_head == 'true' && steps.revalidate.outputs.is_task_pr == 'true' && env.CI_FAILURE_SCOPE == 'task' && steps.register-failed-candidate.outputs.ignored != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
