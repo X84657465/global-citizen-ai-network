@@ -12,7 +12,7 @@
 - Explicit idempotency keys are mandatory for operations classified as writes.
 - Per-invocation timeout and abort signal; adapters are contractually required to honor cancellation.
 - A metadata-only audit sink that records connector/version/operation, outcome, correlation ID, timestamp, duration, and sanitized error code. It does not record payloads, credential references, credential material, or raw exception messages.
-- Registration of `I:execute` on the existing `FPHostAdapter`. The shared host enforces authorization and explicit approval before the handler runs.
+- Registration of `I:execute` on the existing `FPHostAdapter`. The executor exposes no public direct-execution method; the shared host enforces authorization and explicit approval before the private execution handler runs.
 
 ## Deliberate non-goals and safety boundaries
 
