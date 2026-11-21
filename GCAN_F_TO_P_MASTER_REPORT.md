@@ -162,6 +162,12 @@ A–P 註冊存在於 PR #185 head `6e76272623333201228d4ed82f63141f56dcb868` �
 - 未建立 PR、未合併、未推送 main、未部署、未觸碰 production。
 - 本分支尚無本機 build/test 結果；文件提交不代表功能驗收。
 
+## 5A. Shared governance and task coordination additions
+
+- Added `GCAN_SHARED_ENGINEERING_GOVERNANCE.md`: A–P are treated as one GCAN ecosystem with reusable shared infrastructure; separate deployables require an explicit architecture decision. It defines planned/specifed/implemented/tested/accepted/integrated/deployed evidence levels and multi-agent Git isolation rules.
+- Added `GCAN_SHARED_TASK_LEDGER.md`: initial 16-task coordination register covering architecture, Git isolation, F–P, B ancestry, A protection and local verification. Owners remain unassigned; no task is falsely marked in progress or accepted.
+- Both files are committed only on the audit branch. No branch protection, CI enforcement or production policy was changed.
+
 ## 6. 下一步優先順序
 
 1. 核對 #145 F head 與 #146 base 的 ancestry，選定唯一 F→G parent chain。
