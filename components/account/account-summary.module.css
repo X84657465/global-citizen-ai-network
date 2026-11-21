@@ -1,0 +1,21 @@
+.accountPage { min-height: 100vh; background: #f3f6fa; padding: 24px 16px; color: #17263b; }
+.accountCard { box-sizing: border-box; max-width: 760px; margin: 24px auto; padding: clamp(20px, 4vw, 32px); background: #fff; border: 1px solid #e1e7ef; border-radius: 20px; }
+.accountHeader { margin: 28px 0 24px; }
+.eyebrow { margin: 0 0 8px; color: #64748b; font-size: 12px; letter-spacing: 1px; }
+.accountHeader h1 { margin: 0 0 8px; font-size: clamp(24px, 5vw, 30px); }
+.intro { margin: 0; color: #64748b; line-height: 1.75; font-size: 14px; }
+.sectionTitle { margin: 22px 0 12px; font-size: 16px; }
+.infoList { display: grid; gap: 9px; margin: 0; }
+.infoRow { display: grid; grid-template-columns: minmax(90px, 1fr) minmax(0, 2fr); gap: 16px; align-items: start; padding: 13px 14px; border-radius: 10px; background: #f6f8fb; }
+.infoRow dt { color: #64748b; font-size: 13px; }
+.infoRow dd { margin: 0; font-size: 13px; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.accountActions { display: grid; gap: 9px; margin-top: 20px; }
+.accountActions .sectionTitle { margin-bottom: 3px; }
+.accountLink { color: #315d91; text-decoration: none; border-radius: 9px; }
+.backLink { display: inline-block; font-size: 13px; }
+.actionLink { display: block; padding: 13px 15px; background: #f1f6fc; font-size: 13px; font-weight: 650; }
+.signoutForm { margin-top: 24px; }
+.signoutButton { border: 0; border-radius: 10px; padding: 12px 18px; background: #244f83; color: #fff; font-weight: 700; cursor: pointer; }
+.accountLink:focus-visible, .signoutButton:focus-visible { outline: 3px solid #e09b26; outline-offset: 3px; }
+.accountLink:hover { text-decoration: underline; }
+@media (max-width: 420px) { .infoRow { grid-template-columns: 1fr; gap: 5px; } .infoRow dd { text-align: left; } }
