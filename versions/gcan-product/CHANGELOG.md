@@ -1,3 +1,12 @@
+## 0.1.19 — 2026-11-21
+
+### Fixed — Preserve the current A integration baseline in B metadata
+- Keep the B stack aligned with its actual A 2.0.84 parent instead of reverting the repository release, A track version, and active Agent Factory PR link to superseded 0.3.112 / 2.0.79 / PR #195 metadata.
+- Preserve the parent integration baseline at 0.3.117 and increment only the GCAN Product track to 0.1.19.
+
+### Verification
+- Fresh exact-head CI and independent cross-track review remain required; no deployment or production data mutation is claimed.
+
 ## 0.1.18 — 2026-11-21
 
 ### Fixed — Enforce workspace metadata title constraints
