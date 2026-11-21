@@ -1,17 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import {
-  CORRELATION_ID_HEADER,
-  getOrCreateCorrelationId,
-} from "@/lib/observability/request-context";
+import { createCorrelationContext } from "@/lib/observability/request-context";
 
 export async function middleware(request: NextRequest) {
-  const correlationId = getOrCreateCorrelationId(request.headers);
+  const correlation = createCorrelationContext(request.headers);
   const createResponse = () => {
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set(CORRELATION_ID_HEADER, correlationId);
-    const nextResponse = NextResponse.next({ request: { headers: requestHeaders } });
-    nextResponse.headers.set(CORRELATION_ID_HEADER, correlationId);
+    const nextResponse = NextResponse.next({
+      request: { headers: new Headers(correlation.requestHeaders) },
+    });
+    correlation.responseHeaders.forEach((value, key) => {
+      nextResponse.headers.set(key, value);
+    });
     return nextResponse;
   };
 

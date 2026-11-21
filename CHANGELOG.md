@@ -1,3 +1,9 @@
+## 0.3.121 — 2026-11-22
+
+- Strengthen H request correlation by constructing paired, independent request/response header collections from one validated correlation ID at the existing middleware edge.
+- Add regression tests for safe ID reuse, malformed-ID replacement, request/response consistency, preservation of unrelated headers, and mutation isolation; extend the cross-line integration guard.
+- Preserve authentication/session refresh behavior, A–E and Agent Factory V2 authority, and all database, secret, workflow-permission and deployment boundaries.
+
 ## 0.3.120 — 2026-11-22
 
 - Add an F–G integration evaluator that requires all registered security controls and release-quality jobs to share the same repository, PR, candidate SHA, GitHub Actions run ID and attempt.

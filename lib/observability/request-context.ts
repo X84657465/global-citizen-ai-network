@@ -19,3 +19,29 @@ export function getOrCreateCorrelationId(headers: Pick<Headers, "get">): string 
 
   return globalThis.crypto.randomUUID();
 }
+
+export interface CorrelationContext {
+  readonly correlationId: string;
+  readonly requestHeaders: Headers;
+  readonly responseHeaders: Headers;
+}
+
+/**
+ * Build the paired headers used at the platform edge. The same validated ID is
+ * forwarded to the route handler and returned to the caller. Header collections
+ * are separate copies so a downstream mutation cannot silently desynchronize them.
+ */
+export function createCorrelationContext(headers: Headers): CorrelationContext {
+  const correlationId = getOrCreateCorrelationId(headers);
+  const requestHeaders = new Headers(headers);
+  requestHeaders.set(CORRELATION_ID_HEADER, correlationId);
+
+  const responseHeaders = new Headers();
+  responseHeaders.set(CORRELATION_ID_HEADER, correlationId);
+
+  return Object.freeze({
+    correlationId,
+    requestHeaders,
+    responseHeaders,
+  });
+}
