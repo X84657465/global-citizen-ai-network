@@ -21,6 +21,18 @@ export interface FPResiliencePolicyDecision {
   readonly policyVersion: string;
 }
 
+export interface FPResilienceEvidenceRequest {
+  readonly evidenceRef: string;
+}
+
+export interface FPResilienceEvidenceProvider {
+  /** Resolve only host-owned evidence visible to this trusted actor/resource. */
+  resolve(
+    evidenceRef: string,
+    principal: FPHostPrincipal,
+  ): Promise<FPResilienceEvidence> | FPResilienceEvidence;
+}
+
 export interface FPResiliencePolicyProvider {
   /** Trusted P integration; never take policy decisions from request payloads. */
   evaluate(
@@ -190,20 +202,31 @@ export function createFPResilienceProposal(
   });
 }
 
-/** Registers deterministic, read-only J diagnostics behind the existing host and P policy provider. */
+/** Registers deterministic, read-only J diagnostics behind trusted evidence and P policy providers. */
 export function registerFPResilienceCapability(input: {
   readonly host: FPHostAdapter;
+  readonly evidence: FPResilienceEvidenceProvider;
   readonly policy: FPResiliencePolicyProvider;
 }): void {
   if (!input || !(input.host instanceof FPHostAdapter) ||
+      !input.evidence || typeof input.evidence.resolve !== "function" ||
       !input.policy || typeof input.policy.evaluate !== "function") {
-    throw new TypeError("An existing FPHostAdapter and trusted P policy provider are required.");
+    throw new TypeError("An existing FPHostAdapter and trusted evidence and P policy providers are required.");
   }
-  input.host.register<FPResilienceEvidence, FPResilienceProposal | null>(
+  input.host.register<FPResilienceEvidenceRequest, FPResilienceProposal | null>(
     "J",
     "diagnose",
-    async (evidence, context: FPHostRequestContext) => {
+    async (request, context: FPHostRequestContext) => {
+      if (!request || typeof request !== "object" || Array.isArray(request) ||
+          Object.keys(request).join(",") !== "evidenceRef" ||
+          typeof request.evidenceRef !== "string" || !SAFE_REF.test(request.evidenceRef)) {
+        throw new TypeError("A valid opaque resilience evidence reference is required.");
+      }
+      const evidence = await input.evidence.resolve(request.evidenceRef, context.principal);
       validateEvidence(evidence);
+      if (evidence.evidenceRef !== request.evidenceRef) {
+        throw new TypeError("Resolved evidence does not match the requested reference.");
+      }
       const decision = await input.policy.evaluate(evidence, context.principal);
       return createFPResilienceProposal(
         evidence,
