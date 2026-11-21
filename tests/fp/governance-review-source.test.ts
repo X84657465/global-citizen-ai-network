@@ -168,6 +168,8 @@ test("rejects malformed IDs, unsupported states, reviewer identities, timestamps
     review({ state: "UNKNOWN" }),
     review({ user: { login: "bad login" } }),
     review({ submitted_at: "not-a-date" }),
+    review({ submitted_at: "2026-02-31T12:00:00.000Z" }),
+    review({ submitted_at: "2026-11-22T25:00:00Z" }),
   ]) {
     await assert.rejects(
       collectFPGovernanceReviewEvidence(makeInput(new Map<string, unknown>([[prPath, pull()], [reviewsPath(), [item]]]))),
