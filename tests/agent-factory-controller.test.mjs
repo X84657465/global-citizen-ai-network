@@ -688,7 +688,28 @@ test("candidate failure callback recovers after a transient durable-state write 
 
 test("candidate-start binds one PR head SHA and exact CI run attempt idempotently", async () => {
   const store = fakeStore(awaitingCandidate());
-  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 3000 });
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        assert.equal(path, "/repos/owner/repo/pulls/88");
+        return {
+          number: 88,
+          state: "open",
+          body: "<!-- ai-task:42 -->",
+          user: { login: "owner" },
+          base: { ref: "main", repo: { full_name: "owner/repo" } },
+          head: {
+            ref: "ai-task/issue-42-fedcba654321",
+            sha: "c".repeat(40),
+            repo: { full_name: "owner/repo" },
+          },
+        };
+      },
+    },
+  });
   const env = {
     AGENT_FACTORY_MODE: "candidate-start",
     ISSUE_NUMBER: "42",
@@ -706,6 +727,49 @@ test("candidate-start binds one PR head SHA and exact CI run attempt idempotentl
   assert.equal(first.state.tasks["42"].ci_run_attempt, 2);
   assert.equal(duplicate.outputs.duplicate, true);
   assert.equal(duplicate.state.state_version, first.state.state_version);
+});
+
+
+test("candidate-start rejects a PR head that moved after metadata resolution without persisting stale evidence", async () => {
+  const store = fakeStore(awaitingCandidate());
+  const requests = [];
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        requests.push(path);
+        return {
+          number: 88,
+          state: "open",
+          body: "<!-- ai-task:42 -->",
+          user: { login: "owner" },
+          base: { ref: "main", repo: { full_name: "owner/repo" } },
+          head: {
+            ref: "ai-task/issue-42-fedcba654321",
+            sha: "d".repeat(40),
+            repo: { full_name: "owner/repo" },
+          },
+        };
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "candidate-start",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "c".repeat(40),
+    HEAD_REF: "ai-task/issue-42-fedcba654321",
+    CI_RUN_ID: "555010",
+    CI_RUN_ATTEMPT: "1",
+  }), /Candidate start rejected: PR must be the current open same-repository AI Task PR/);
+
+  assert.deepEqual(requests, ["/repos/owner/repo/pulls/88"]);
+  assert.equal(store.state.state_version, 0);
+  assert.equal(store.state.tasks["42"].status, "awaiting_ci");
+  assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
 
 test("candidate outcome from a stale CI run attempt is rejected", async () => {
