@@ -1,3 +1,12 @@
+## 0.1.18 — 2026-11-21
+
+### Improved — Distinguish P governance from A–O workstreams
+- Render A–O cards as workstreams and P as a distinct Governance Layer card.
+- Clarify the hero operating-model summary to state that independent workstream ownership applies to A–O.
+
+### Verification
+- Static source validation only. Exact-head CI, Preview build and browser visual acceptance remain required; no Production deployment is claimed.
+
 ## 0.1.17 — 2026-11-21
 
 ### Improved — Align homepage content, layout and metadata
