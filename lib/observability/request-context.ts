@@ -3,8 +3,9 @@ export const CORRELATION_ID_HEADER = "x-correlation-id";
 const SAFE_CORRELATION_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 
 /**
- * Reuse a bounded, log-safe correlation ID supplied by a trusted proxy or
- * generate one when the incoming value is absent or malformed.
+ * Reuse a bounded, log-safe correlation ID supplied by the incoming request or
+ * generate one when the incoming value is absent or malformed. Correlation IDs are
+ * diagnostic metadata only and must never be trusted for identity or authorization.
  *
  * This value is for request correlation only; it is not an identity,
  * authorization claim, or secret.
