@@ -135,3 +135,14 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 - Verified source contracts: A `EvidenceRecord v1.0.0` is currently model-independent C/D evidence, not a structured B API; F–P `FPCapabilityEnvelope` uses opaque actor/resource references and does not authenticate or authorize.
 - The proposed B view is versioned, read-only, exact-SHA/run-ID/run-attempt bound, tenant-scoped by B's own identity/workspace authorization, and excludes raw Issue bodies, prompts, patches, logs, secrets and host paths.
 - Do not implement or expose this adapter until A is accepted and integrated. A must provide a structured server-side projection; B must not parse the descriptive EvidenceRecord command string or access A's internal Issue state, lease or Runner controls.
+
+
+## Current checkpoint — 2026-11-22 (latest verified)
+
+- A integration PR #259 current exact head: `320b07fb502dc43fde8cfb5620d6c6fb9798f6c3`. Current exact-head CI run [44945392949](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945392949), run #3194, is pending; latest jobs query has not returned any jobs. Do not treat this as Runner failure or acceptance.
+- Immediately preceding head `71ba6d3925ba67d70ef1c0eea50619efe1ab9c7e` added a regression fixture correction for GitHub collaborator permission API values (`maintain` versus `write`); its run [44945374725](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44945374725) was cancelled after the branch advanced and is stale.
+- Current P permission contract explicitly recognizes native collaborator permission values `admin`, `maintain`, `write`, `triage`, `read`, `none`; only admin/maintain/write satisfy review authority. This does not grant governance approval or merge authority.
+- PR #264, #265 and #267 were closed as redundant after exact Git blob comparisons proved all their changed file contents are present in #259: #264 schema guard; #265 README and CI policy; #267 those shared files plus package-lock root metadata. No unique code was discarded. #259 is the sole consolidated A/F–P integration candidate.
+- PR #259 remains Draft/open/unmerged. No independent review submissions are recorded. Vercel status remains blocked by provider `build-rate-limit`; do not repeatedly trigger Preview builds or bypass the quota.
+- PR #268 is a documentation-only handoff; B adapter remains a proposal, not an active runtime/API. B stays blocked until A exact-head CI, DB/RLS, local integration, Preview and independent review are accepted.
+- Merge policy unchanged: require terminal success for every required check on the final exact SHA, plus independent review and current Preview. Pending, cancelled, skipped, stale-SHA success and resolver-only success are not acceptance.
