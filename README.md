@@ -6,7 +6,7 @@
 
 **一個結合 AI 服務、全球知識協作、透明貢獻帳本與自願式運算願景的長期平台。**
 
-[正式產品網站](https://global-citizen-ai-network.vercel.app) · [正式工廠控制中心](https://global-citizen-ai-network.vercel.app/factory) · [首頁更新候選 PR #207（尚未發布）](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [Agent Factory V2（A 線 2.0.82）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
+[正式產品網站](https://global-citizen-ai-network.vercel.app) · [AI 工作空間](https://global-citizen-ai-network.vercel.app/workspace) · [正式工廠控制中心](https://global-citizen-ai-network.vercel.app/factory) · [首頁更新候選 PR #207（尚未發布）](https://github.com/X84657465/global-citizen-ai-network/pull/207) · [Agent Factory V2（A 線 2.0.82）](https://github.com/X84657465/global-citizen-ai-network/tree/feat/agent-factory-v2) · [GitHub 專案](https://github.com/X84657465/global-citizen-ai-network) · [CI 工作流程](https://github.com/X84657465/global-citizen-ai-network/actions)
 
 ![CI](https://github.com/X84657465/global-citizen-ai-network/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Platform-111827?logo=next.js)
