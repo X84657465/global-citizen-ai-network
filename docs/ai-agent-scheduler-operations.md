@@ -68,6 +68,8 @@ There are separate task-scoped and system-scoped failure controls:
 - A candidate dependency installation has one retry after the initial attempt (each attempt is time-bounded).
 - A task-scoped failure returns that task to `retry_wait` with exponential delays of 1 minute, then 2 minutes; after the third task failure it is quarantined and is no longer selected automatically.
 - Three consecutive system-scoped failures activate a 15-minute system cooldown. During cooldown the queue does not start another task.
+- A shared system breaker is reset only by the separate **Agent Factory System Health Recovery** workflow after the full `CI` workflow has completed successfully. It verifies the completed run ID, attempt, workflow path, exact head SHA, pull-request event, and same-repository PR targeting `main` before writing the health event to durable state. An in-progress CI job cannot certify its own completion.
+- This health reset proves only that the registered CI infrastructure gates passed for that exact PR revision; it does not approve the candidate, authorize a merge, or deploy production.
 - A durable active lease prevents another task from being selected. The default lease duration is 90 minutes; recovery is evidence-checked and must not be bypassed manually.
 - A waiting Actions run can be waiting for the serialized Windows Runner, for the cooldown/lease gate, or for a task dependency. Inspect the job and step status before treating it as a failure.
 
