@@ -36,6 +36,15 @@ Operational consequences:
 - Pull-request CI can validate code without proving that the default-branch scheduler or state writer is operational.
 - Any migration of the durable state format requires exact-SHA regression evidence and a read-back proving schema version and preserved task/system history.
 
+## Bounded smoke-test evidence (Issue #138)
+
+The completed bounded smoke-test artifact is recorded in [`docs/agent-factory-smoke-test.md`](./agent-factory-smoke-test.md), delivered for [Issue #138](https://github.com/X84657465/global-citizen-ai-network/issues/138).
+
+- Preflight run [#44751179147](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44751179147) passed for the exact source SHA `ee62e9cfd8f5ac40f66f556a4a99ca7a7a9dd97e`.
+- It exercised synthetic planning, patch proposal, disposable isolation, offline candidate tests and publisher dry-run. The recorded unit suite was 370/370, with TypeScript and ESLint passing.
+- This was a push-triggered synthetic smoke test. It did not lease or transition a real task Issue and did not publish a Draft PR or perform GitHub API writes.
+- Treat this as historical evidence for that exact source SHA only; it is not acceptance evidence for current main or any later PR head.
+
 ## Candidate metadata resolver and Windows queue boundary
 
 The current mainline CI resolver `resolve-candidate` performs GitHub PR/Issue metadata verification and reads the Factory state Issue for authorized AI-task candidates. It is currently configured on the Windows self-hosted Runner and takes the same shared concurrency group as machine-dependent CI. This means metadata-only work can wait behind the Windows execution lane before the quality, Ollama and database jobs even become eligible.
