@@ -145,3 +145,23 @@ test("does not inspect inert nested template text or string braces as executable
   ].join("\n");
   assert.equal(getGeneratedTestContractViolation("tests/inert-template.test.ts", source), null);
 });
+
+
+test("rejects dynamically imported and CommonJS Playwright runners", () => {
+  const dynamicImport = [
+    'import test from "node:test";',
+    'const runner = await import("@playwright/test");',
+  ].join("\n");
+  const commonJsImport = [
+    'import test from "node:test";',
+    'const runner = require("@playwright/test");',
+  ].join("\n");
+  assert.match(
+    getGeneratedTestContractViolation("tests/dynamic-playwright.test.ts", dynamicImport),
+    /Playwright test APIs/,
+  );
+  assert.match(
+    getGeneratedTestContractViolation("tests/require-playwright.test.ts", commonJsImport),
+    /Playwright test APIs/,
+  );
+});
