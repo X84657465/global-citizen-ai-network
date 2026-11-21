@@ -62,7 +62,7 @@ F–P manifest registration or a “ready” label is not implementation accepta
 ### PR #267 — shared CI acceptance baseline
 
 - Current exact branch HEAD: `4c179508832c6d0d88b9b085eed122d3b2fb42e8`.
-- Exact-head Actions run [44943780150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943780150): metadata resolver completed successfully; Windows Runner quality job is in progress at locked dependency installation. Windows/Docker/Ollama, schema, audits, unit tests, typecheck, lint, build and PostgreSQL/RLS have not yet reported results.
+- Exact-head Actions run [44943780150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44943780150): metadata resolver completed successfully; Windows Runner quality job is in progress: locked dependency installation and Windows/Docker/Ollama preflight have passed; bounded local Ollama inference is running. Migration/schema guards, audits, unit tests, typecheck, lint, production build and PostgreSQL/RLS have not yet reported results.
 - Scope: schema guard expected pgTAP assertion count 18, CI policy assertions aligned with current runbook, README release label synchronized to `0.3.124`.
 - No independent review is recorded. Keep Draft/unmerged.
 - #259 and #267 both touch README, schema guard and CI policy test. Do not merge them sequentially as-is. Prefer one reconciled candidate and rerun every required gate against its final exact SHA.
