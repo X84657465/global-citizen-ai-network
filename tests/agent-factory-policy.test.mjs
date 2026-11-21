@@ -149,29 +149,28 @@ test("does not persist unrelated review-branch CI failures into the factory circ
 });
 
 
-test("persists candidate CI success only after exact-head quality and database gates", () => {
+test("resets the global breaker only after successful CI for main or a tracked factory task", () => {
   const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
   const start = workflow.indexOf("  circuit-breaker-success:");
   assert.ok(start >= 0);
   const job = workflow.slice(start);
   assert.ok(job.includes("needs.build.result == 'success'"));
   assert.ok(job.includes("needs.database.result == 'success'"));
-  assert.ok(job.includes("needs.resolve-candidate.outputs.is_current_head == 'true'"));
+  assert.ok(job.includes("AGENT_FACTORY_MODE: success"));
   assert.ok(job.includes("AGENT_FACTORY_MODE: candidate"));
-  assert.equal(job.includes("AGENT_FACTORY_MODE: success"), false);
   assert.ok(job.includes("CI_CONCLUSION: success"));
-  assert.ok(job.includes("PULL_REQUEST_NUMBER: ${{ steps.revalidate.outputs.pull_request_number }}"));
-  assert.ok(job.includes("HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}"));
+  assert.ok(job.includes("PULL_REQUEST_NUMBER: ${{ needs.resolve-candidate.outputs.pull_request_number }}"));
+  assert.ok(job.includes("HEAD_SHA: ${{ needs.resolve-candidate.outputs.head_sha }}"));
   assert.ok(job.includes("CI_RUN_ID: ${{ github.run_id }}"));
   assert.ok(job.includes("CI_RUN_ATTEMPT: ${{ github.run_attempt }}"));
+  assert.ok(job.includes("Reset global breaker after healthy non-task CI"));
+  assert.ok(job.includes("contents: read"));
+  assert.ok(job.includes("github.ref == 'refs/heads/main'"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'ai-task/issue-')"));
+  assert.ok(job.includes("startsWith(github.event.pull_request.head.ref, 'codex/issue-')"));
+  assert.ok(job.includes("github.event.action == 'ai-task-ci'"));
   assert.ok(job.includes("pull-requests: read"));
   assert.equal(job.includes("review/"), false);
-
-  const healthWorkflow = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8");
-  assert.ok(healthWorkflow.includes("github.event.workflow_run.conclusion == 'success'"));
-  assert.ok(healthWorkflow.includes("AGENT_FACTORY_MODE: system-health-success"));
-  assert.ok(healthWorkflow.includes("SYSTEM_HEALTH_RUN_ID: ${{ github.event.workflow_run.id }}"));
-  assert.ok(healthWorkflow.includes("SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}"));
 });
 
 
