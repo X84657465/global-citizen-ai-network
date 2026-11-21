@@ -220,7 +220,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ### Main / Factory-first
 - Current `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`; release baseline `0.3.125`.
 - A PR #273 remains Draft/open at exact HEAD `ec8e4b163fed238c7d554cf42815b59cfdc60dcd`. Exact-head run #3273 (`44952848627`) failed the full unit suite (518/531 passed; 13 failures); typecheck, lint, production build and downstream integration were skipped. No A acceptance is inferred.
-- G PR #276 remains Draft/open at exact HEAD `01c08027cc60ce2fe7d1c77ba1684d90f6133bd8`. Previous exact-head run #3275 (`44953585940`) failed 14 unit tests. A narrowly scoped Node ESM import correction was committed as `01c08027`; new exact-head run #3277 (`44954079242`) has passed metadata resolution and is executing Windows quality gates. No result is inferred while in progress.
+- G PR #278 is the active consolidated candidate, Draft/open at exact HEAD `cba7efd25b12377de5e4d1edd25be51dd6e4de68`. It consolidates the narrow Node/FP compatibility fixes and verified G-owned blockers; exact-head CI #3285 (`44954473597`) is pending. The previous #3277 run on superseded SHA `01c08027cc60ce2fe7d1c77ba1684d90f6133bd8` failed 14/589 tests (575 passed); the 8 Factory lifecycle failures remain A-owned and are not to be duplicated into G.
 - Mainline repair PR #277 exact HEAD `040c57cc36c1306230ff2c89f63088a95b4fa781`; run #3276 (`44953591204`) failed one stale runbook assertion at `tests/ci-trigger-policy.test.mjs:435`. Do not duplicate A/G runbook changes into this separate patch; revalidate after accepted changes reach main.
 - Exact-SHA Vercel status for the current candidates remains build-rate-limited; no READY Preview or same-SHA smoke evidence is available.
 - Issue #136 remains open. Its required independent, read-only adversarial audit is outstanding; owner-authored static traces and CI results are not independent approval.
@@ -232,7 +232,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 - Do not merge #275 until A acceptance and a fresh exact-head revalidation against the resulting main. Its previous exact-head quality run failed the legacy CI runbook assertion because the A/G contract correction is not yet on main.
 
 ### Next execution order
-1. Finish G #276 exact-head run #3277 and isolate remaining failures by owning workstream; preserve all security and behavior assertions.
+1. Finish G #278 exact-head CI #3285; classify any remaining failures by owning workstream and preserve all security and behavior assertions.
 2. Repair only the proven G blockers and rerun the updated exact SHA.
 3. Revalidate A #273 on the updated baseline; complete unit, type, lint, audit, production build, PostgreSQL/RLS and Ollama/local checks.
 4. Obtain the independent Issue #136 audit and triage findings; do not substitute owner review.
