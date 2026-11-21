@@ -7,6 +7,7 @@ const styles = readFileSync(new URL("../app/home.module.css", import.meta.url), 
 const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
 const workstreams = readFileSync(new URL("../docs/engineering-workstreams.md", import.meta.url), "utf8");
 const governance = readFileSync(new URL("../docs/engineering-governance.md", import.meta.url), "utf8");
+const versionManifest = JSON.parse(readFileSync(new URL("../versions/manifest.json", import.meta.url), "utf8"));
 
 test("public homepage represents all fifteen A-O workstreams and P as cross-cutting governance", () => {
   for (const code of "ABCDEFGHIJKLMNO") {
@@ -47,4 +48,15 @@ test("homepage and repository README disclose early-stage status and exact-SHA P
   assert.match(homepage, /Preview 必須與目前候選 SHA 完全一致/);
   assert.match(readme, /歷史五線驗證快照/);
   assert.match(readme, /A–P 全線工程索引/);
+});
+
+test("version manifest registers every A-P workstream with a valid numeric version", () => {
+  assert.deepEqual(Object.keys(versionManifest.tracks).sort(), [..."ABCDEFGHIJKLMNOP"]);
+  for (const [code, track] of Object.entries(versionManifest.tracks)) {
+    assert.ok(track.name, `track ${code} is missing a name`);
+    assert.match(track.version, /^\\d+\\.\\d+\\.\\d+$/, `track ${code} has an invalid version`);
+  }
+  for (const code of "FGHIJKLMNOP") {
+    assert.equal(versionManifest.tracks[code].status, "planned", `track ${code} must remain planned until evidence-based activation`);
+  }
 });
