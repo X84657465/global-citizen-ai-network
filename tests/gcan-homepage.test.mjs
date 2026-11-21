@@ -57,6 +57,10 @@ test("homepage retains keyboard focus and reduced-motion accessibility rules", (
   assert.ok(styles.includes("@media(prefers-reduced-motion:reduce)"));
 });
 
+test("candidate status and release labels wrap safely on narrow mobile screens", () => {
+  assert.ok(styles.includes(".stageLabel{white-space:normal;line-height:1.6;max-width:100%}"));
+});
+
 test("public homepage section navigation remains available on mobile", () => {
   assert.ok(styles.includes("Mobile navigation remains visible"));
   assert.match(styles, /@media\(max-width:820px\)\{[\s\S]*?\.nav\{display:flex;[\s\S]*?overflow-x:auto/);
