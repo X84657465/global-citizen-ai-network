@@ -587,8 +587,8 @@ assert.ok(reconciliationAuthSource.includes("Object.prototype.hasOwnProperty.cal
   reconciliationAuthTests.includes("does not accept inherited authorization fields"),
   "Admin profile authorization must reject inherited or malformed role fields");
 
-const publicGrantPlan = publicTableGrantTests.match(/select\\s+plan\\((\\d+)\\)\\s*;/i);
-const publicGrantAssertionCount = (publicTableGrantTests.match(/select\\s+ok\\s*\\(/gi) ?? []).length;
+const publicGrantPlan = publicTableGrantTests.match(/select\s+plan\((\d+)\)\s*;/i);
+const publicGrantAssertionCount = (publicTableGrantTests.match(/select\s+ok\s*\(/gi) ?? []).length;
 assert.ok(publicGrantPlan &&
   Number(publicGrantPlan[1]) === publicGrantAssertionCount &&
   publicGrantAssertionCount >= 15 &&
