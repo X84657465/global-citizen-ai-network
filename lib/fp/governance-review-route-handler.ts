@@ -4,9 +4,9 @@ import { isSafeGitHubRepositoryName } from "../github-repository-name.mjs";
 
 const SHA = /^[a-f0-9]{40}$/i;
 
-export interface GovernanceReviewsRouteDependencies {
-  readonly getAuthenticatedClient: () => Promise<unknown | null>;
-  readonly getProfile: (auth: unknown) => Promise<{ data: unknown; error: unknown }>;
+export interface GovernanceReviewsRouteDependencies<TAuth = unknown> {
+  readonly getAuthenticatedClient: () => Promise<TAuth | null>;
+  readonly getProfile: (auth: TAuth) => Promise<{ data: unknown; error: unknown }>;
   readonly isActiveAdminProfile: (profile: unknown) => boolean;
   readonly repository: string;
   readonly token: string;
@@ -34,9 +34,9 @@ function privateJson(
   return NextResponse.json(body, { ...init, headers });
 }
 
-export async function handleGovernanceReviewsGet(
+export async function handleGovernanceReviewsGet<TAuth = unknown>(
   request: Request,
-  dependencies: GovernanceReviewsRouteDependencies,
+  dependencies: GovernanceReviewsRouteDependencies<TAuth>,
 ) {
   const auth = await dependencies.getAuthenticatedClient();
   if (!auth) {
