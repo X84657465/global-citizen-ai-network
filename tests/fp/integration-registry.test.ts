@@ -52,7 +52,7 @@ function fixture(operation: {
   );
   const host = new FPHostAdapter();
   registerFPIntegrationCapability({ host, executor });
-  return { host, executor, auditEvents, calls };
+  return { host, executor, auditEvents, calls, registry };
 }
 
 const request: FPIntegrationRequest = {
@@ -226,8 +226,8 @@ test("audit sink failures do not change the connector result", async () => {
 
 test("keeps registered adapter and operation catalogues immutable", () => {
   const f = fixture();
-  const adapter = (f.executor as unknown as { registry: FPIntegrationRegistry }).registry.getAdapter("sample-api");
-  const operation = (f.executor as unknown as { registry: FPIntegrationRegistry }).registry.getOperation("sample-api", "get-record");
+  const adapter = f.registry.getAdapter("sample-api");
+  const operation = f.registry.getOperation("sample-api", "get-record");
   assert.ok(adapter);
   assert.ok(operation);
   assert.equal(Object.isFrozen(adapter), true);
