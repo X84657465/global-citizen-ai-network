@@ -22,8 +22,8 @@ CI success permits review; it does not itself authorize merge, deployment, secre
 
 - Main HEAD is `4d3653b3da766ae3910aeef39bd840d2e6de30dd`.
 - Main CI run [#44928069201](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928069201) remains pending with no jobs assigned at last inspection.
-- Main health recovery runs, including [#44928736338](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928736338), remain pending with no job assignment observed.
-- The new clean-base PR CI runs below are pending. Resolver jobs are visible but have no assigned Runner; none has completed the Windows quality/build, Supabase/PostgreSQL/RLS or Ollama jobs.
+- The latest main health recovery run inspected, [#44929343777](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929343777), remains pending with no jobs assigned; older recovery runs are also pending.
+- The new clean-base PR CI runs below are pending. Resolver jobs are visible but have no assigned Runner; none has completed the Windows quality/build, Supabase/PostgreSQL/RLS or Ollama jobs. The closed hosted-resolver experiment #243 failed before any step ran and did not produce downstream evidence.
 - An empty job list or a pending job with no runner name is queue/dispatch evidence only. It does not prove the Runner is offline, nor does it indicate a code test failure.
 - Recent Vercel statuses have reported `Deployment rate limited — retry in 24 hours`. This blocks Preview evidence; it is not a Production failure and does not prove a Preview build.
 - Do not manually edit the machine-managed Factory state Issue, dispatch duplicates to bypass leases/cooldowns/quarantine, or infer completion from partial workflow results.
