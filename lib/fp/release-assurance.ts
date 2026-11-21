@@ -25,6 +25,7 @@ export interface GJobEvidence {
 export interface GExactRunEvidence {
   readonly runId: number;
   readonly runAttempt: number;
+  readonly pullRequestNumber: number;
   readonly repository: string;
   readonly headRepository: string;
   readonly event: string;
@@ -97,6 +98,7 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
     !run ||
     !validPositiveInteger(run.runId) ||
     !validPositiveInteger(run.runAttempt) ||
+    !validPositiveInteger(run.pullRequestNumber) ||
     !REPOSITORY_PATTERN.test(run.repository) ||
     !REPOSITORY_PATTERN.test(run.headRepository) ||
     !SHA_PATTERN.test(run.headSha) ||
@@ -114,9 +116,19 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
     throw new TypeError("Invalid G GitHub Actions run evidence.");
   }
 
+  const expectedRunUrl = `https://github.com/${run.repository}/actions/runs/${run.runId}`;
+  const expectedRunAttemptUrl = `${expectedRunUrl}/attempts/${run.runAttempt}`;
+  if (run.runUrl !== expectedRunUrl && run.runUrl !== expectedRunAttemptUrl) {
+    throw new TypeError("G run URL does not match its repository, run ID, and attempt.");
+  }
+
+  const expectedJobPrefix = `${expectedRunUrl}/job/`;
   const jobIds = new Set<string>();
   for (const job of run.jobs) {
     if (jobIds.has(job.jobId)) throw new TypeError("Duplicate G CI job evidence.");
+    if (!job.jobUrl.startsWith(expectedJobPrefix)) {
+      throw new TypeError("G job URL does not belong to the candidate workflow run.");
+    }
     jobIds.add(job.jobId);
   }
 
@@ -142,6 +154,7 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
   const identityMatches =
     run.repository === bundle.candidateRepository &&
     run.headRepository === bundle.candidateRepository &&
+    run.pullRequestNumber === bundle.pullRequestNumber &&
     run.event === "pull_request" &&
     run.baseRef === "main" &&
     run.workflowPath === ".github/workflows/ci.yml" &&
