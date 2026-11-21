@@ -1,3 +1,13 @@
+## 2.0.78 — 2026-11-21
+
+### Improved — Clarify the factory operations overview
+- Label task rows, counters, timestamps, quality gates and pipeline states as static demonstration data, not live Runner or CI telemetry.
+- Replace the inert task-list control with a direct GitHub Actions destination.
+- Keep the factory UI isolated from production task state and deployment controls.
+
+### Verification
+- Exact-head CI, browser visual acceptance and independent review remain required.
+
 ## 2.0.77 — 2026-11-21
 
 ### Fixed — Classify malformed model manifest shapes as task failures
