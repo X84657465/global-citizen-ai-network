@@ -51,3 +51,17 @@
 - Keep competing branches until ancestry and diff review is complete.
 - Exact-head evidence is mandatory. A green run on another SHA, an isolated mirror, or a PR author's statement is not repository acceptance.
 - This audit branch contains handover documents only; it does not certify any F–P runtime feature.
+
+
+## Live status recheck — 2026-11-21
+
+Latest exact-head observations supersede earlier statuses where they differ:
+
+- F #145 current head `27d31444d8fb8d57040e60aa554e5d8e905d00e4`: open, mergeable=false; no PR-triggered workflow run returned.
+- G #147 current head `6f735c1251907c5016e7eea32ea0253142e537ec`: no PR-triggered workflow run returned. G #148 current head `273eb012f7558c1223c3af3d4543c6745d6aaefa`: CI failure.
+- H #150 current head `d2bd6d49edae549dde319750a64a101bd7b5fabf`: CI failure; base is G #148 head.
+- L #66 CI failure; L #67 has no PR-triggered workflow run returned. Mirror tests remain non-acceptance evidence.
+- P #68 CI and AI Security Static Checks failed. P #206 current head `11869f21745efc88064487a167cd0296cfe21edc` has exact-head CI success; it remains open/unmerged and this is not policy enforcement or deployment.
+- P #206 describes P as cross-cutting governance, not a sixth feature track; reconcile that wording with the full A–P registry before publishing canonical architecture.
+
+No local commands, database tests, production operations, merges or deployments were performed by this recheck.
