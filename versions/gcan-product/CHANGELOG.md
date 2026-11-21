@@ -1,3 +1,12 @@
+## 0.1.18 — 2026-11-21
+
+### Fixed — Enforce workspace metadata title constraints
+- Reject blank/whitespace-only and over-160-character conversation and project titles before updating workspace state.
+- Extend malformed metadata regression fixtures for empty and oversized titles.
+
+### Verification
+- Exact-head full CI and independent cross-track review required before acceptance.
+
 ## 0.1.17 — 2026-11-21
 
 ### Fixed — Validate workspace metadata before state updates
