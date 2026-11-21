@@ -587,7 +587,7 @@ assert.ok(reconciliationAuthSource.includes("Object.prototype.hasOwnProperty.cal
   reconciliationAuthTests.includes("does not accept inherited authorization fields"),
   "Admin profile authorization must reject inherited or malformed role fields");
 
-assert.ok(publicTableGrantTests.includes("select plan(15)") &&
+assert.ok(publicTableGrantTests.includes("select plan(18)") &&
   publicTableGrantTests.includes("'TRUNCATE'") &&
   publicTableGrantTests.includes("'REFERENCES'") &&
   publicTableGrantTests.includes("'TRIGGER'") &&
