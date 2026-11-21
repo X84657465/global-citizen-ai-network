@@ -1,3 +1,10 @@
+## 0.3.106 — 2026-11-21
+
+- Re-run the independent review gate when the CI workflow completes for a pull request, so a pre-CI event failure is refreshed automatically.
+- Evaluate the latest exact-HEAD CI run instead of accepting any older successful run for the same SHA; a newer failed or pending attempt remains blocking.
+- Ignore CI workflow completions that are not associated with a pull request; preserve independent approval and blocker requirements.
+- Bump repository release to 0.3.106 and Governance revision to 1.4.8.
+
 ## 0.3.105 — 2026-11-21
 
 - Fix review-governance exact-HEAD CI discovery to recognize the actual `CI — <SHA>` workflow run name as well as the generic `CI` name and display title; preserve exact-SHA, successful-conclusion, and independent-approval requirements.
