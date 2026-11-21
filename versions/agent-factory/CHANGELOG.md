@@ -1,3 +1,12 @@
+## 2.0.82 — 2026-11-21
+
+### Fixed — Synchronize factory candidate badge
+- Correct the visible Candidate badge to match repository release `0.3.123` and A-line version `2.0.82`.
+- Preserve explicit current-SHA Preview unavailability and independent CI, device-acceptance, approval and Production gates.
+
+### Verification
+- Exact-head CI and a current-SHA Preview followed by desktop/tablet/mobile acceptance remain required.
+
 ## 2.0.81 — 2026-11-21
 
 ### Fixed — Correct factory homepage candidate and Preview status
