@@ -193,3 +193,34 @@ test("rejects hostile G job arrays and accessor-backed job records", () => {
   })), /plain own-data fields/);
   assert.equal(getterCalled, false);
 });
+
+test("uses descriptor snapshots for G bundle, run, and job Proxy records", () => {
+  let getTrapCalls = 0;
+  const base = bundle();
+  const jobs = base.run.jobs.map((item) => new Proxy(item, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "runAttempt") return 2;
+      return Reflect.get(target, property, receiver);
+    },
+  }));
+  const run = new Proxy({ ...base.run, jobs }, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "runAttempt") return 2;
+      return Reflect.get(target, property, receiver);
+    },
+  });
+  const proxiedBundle = new Proxy({ ...base, run }, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "candidateSha") return "b".repeat(40);
+      return Reflect.get(target, property, receiver);
+    },
+  });
+
+  const result = assessGExactHeadEvidence(proxiedBundle);
+  assert.equal(result.status, "ready-for-review");
+  assert.equal(result.runAttempt, 1);
+  assert.equal(getTrapCalls, 0);
+});
