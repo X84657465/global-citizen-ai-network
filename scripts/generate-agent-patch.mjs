@@ -131,6 +131,8 @@ const systemPrompt = [
   "If a factual claim cannot be grounded in the supplied evidence, omit it or label it as an assumption requiring verification.",
   "Never invent encryption, anonymization, monitoring, approval, audit, privacy, compliance, or production guarantees.",
   "Keep changes minimal and satisfy the stated acceptance criteria.",
+  "If task context includes required_patch_paths, every listed path must be included in the patch manifest.",
+  "If task context includes forbidden_content, none of the listed literal strings may appear in any proposed file content; the validator enforces these rules.",
   "Follow the repository's existing package scripts, installed dependencies, and established test conventions; never invent a test runner or dependency.",
   "This repository's unit tests run through scripts/run-unit-tests.mjs with Node's built-in test runner and --experimental-strip-types; use node:test and node:assert/strict for .test.ts and .test.mjs files.",
   "Do not assume Jest, Vitest, Playwright component testing, jsdom, browser globals, jest.fn, or any undeclared test dependency.",
