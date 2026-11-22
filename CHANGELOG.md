@@ -1,6 +1,7 @@
 ## 0.3.126 — 2026-11-22
 
 - F: require every security evidence run URL to identify its exact GitHub Actions attempt, preventing ambiguous run-level URLs from being accepted for a rerun attempt.
+- Also require each evidence job's reported run attempt to equal the candidate run attempt, preventing a stale job record from an earlier rerun being mixed into current evidence.
 - Add regression coverage for matching and mismatched attempt URLs; keep the evaluator advisory and acceptance authority disabled.
 - F advances to 0.1.1. Exact-head CI and independent review remain required; no production change is included.
 
