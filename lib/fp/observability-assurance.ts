@@ -136,7 +136,7 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
     !positiveSafeInteger(bundle.quotaLimitMicros) ||
     !Number.isFinite(bundle.quotaWarningPercent) ||
     bundle.quotaWarningPercent <= 0 ||
-    bundle.quotaWarningPercent >= 100 ||
+    bundle.quotaWarningPercent >= 100
   ) {
     throw new TypeError("Invalid H observation window or quota policy.");
   }
@@ -155,7 +155,8 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
   let costMicros = 0;
   let currency: HObservationAssessment["currency"] = null;
 
-  for (let eventIndex = 0; eventIndex < events.length; eventIndex += 1) {\n    const event = events[eventIndex] as HTelemetryEvent;
+  for (let eventIndex = 0; eventIndex < events.length; eventIndex += 1) {
+    const event = events[eventIndex] as HTelemetryEvent;
     if (
       !event ||
       !isSafeRecord(event, ["eventId", "occurredAt", "kind", "outcome", "durationMs", "costMicros", "currency"], ["eventId", "occurredAt", "kind", "outcome"]) ||
