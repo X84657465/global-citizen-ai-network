@@ -475,7 +475,8 @@ test("untrusted candidate install and test steps never receive GitHub write cred
     assert.doesNotMatch(step, /(?:--env|-e)\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]+)(?:=|\s|$)/, "Docker --env and -e forms must not forward GitHub credentials");
     assert.doesNotMatch(step, /--env-file(?:=|\s)/, "candidate containers must not inherit an unreviewed environment file");
     assert.doesNotMatch(step, /^\s*(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]+)\s*:/m, "candidate steps must not declare GitHub credential environment variables");
-  }});
+  }
+});
 
 test("preflight GitHub tokens remain limited to the exact trusted orchestration steps", () => {
   const { start, end } = findJobSection(preflight, "prepare-task");
