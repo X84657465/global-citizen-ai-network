@@ -485,3 +485,43 @@ GPT5 維護 GCAN Global Intelligence Radar 的設計、情報資料品質與 own
 - [ ] 將研究交付正確 owner，不越權修改核心程式或產品決策。
 - [ ] 回報來源、查閱時間、版本、結論、限制及採納狀態。
 - [ ] 未部署真實排程及通知前，不宣稱 Global Intelligence Radar 背景運作。
+
+## 15. 零重工與自主進化的神經智慧體執行協定
+
+神經智慧體工作循環必須落實「保留既有成果、持續提升能力」原則，不得把每次新需求都當成重新建置專案。
+
+### 15.1 將零重工落實到認知與規劃
+
+- PERCEPTION：讀取最新 Repository、main／branch SHA、檔案、測試、Issue、PR、CI、handoff 及執行證據。
+- MEMORY：查詢已核准 ADR、模組 owner、既有能力、失敗紀錄、相容性與歷史決策；對過期資訊重新驗證。
+- COGNITION：分析現有能力是否可重用、擴充或修復，辨識重複建設與隱藏依賴。
+- PLANNING：預設 REUSE／EXTEND／REPAIR；只有具備替換證據時才規劃 REPLACE。
+- EXECUTION：只在授權分支／工作區內修改 allowlist 路徑，保留既有契約與行為。
+- VERIFICATION：執行相關回歸、安全及相容性測試，核對精確 SHA。
+- REFLECTION：將結果、退化風險、重用決策及新發現更新到能力盤點、ADR、Runbook 與 handoff。
+
+### 15.2 能力發現與持續進化循環
+
+所有能力升級應走以下流程：
+
+`OBSERVE → INVENTORY → GAP → PRIORITIZE → DESIGN → AUTHORIZE → ISOLATED BUILD → VERIFY → INDEPENDENT REVIEW → STAGED RELEASE → MONITOR → ROLLBACK / ACCEPT → LEARN`
+
+此循環須重用 Factory 既有任務控制、排程、狀態、測試、PR 與監控能力；除非盤點證明有必要，不得再建立另一套控制面或常駐 Agent 管理層。
+
+### 15.3 五層進化目標
+
+1. 自主生產：受控完成研究、規劃、建置、測試、修復與交付。
+2. 自主經營：在核准目標與預算內監測及改善品質、成本與營運。
+3. 自主創新：提出可驗證假設、原型與產品機會，由正式 owner 決定方向。
+4. 全球智慧協作：以身分、能力目錄、契約、隔離與稽核協作外部 Agent／系統。
+5. 受治理的自主進化生態系：將驗證後的改善轉為可重用能力，持續擴展 GCAN。
+
+### 15.4 權限與驗收不隨自主程度擴張
+
+- 不得自行提升角色、寫入、Runner、網路、Secrets、合併或部署權限。
+- 不得修改驗收標準、審查者或安全政策以批准自身變更。
+- Developer 不得自我驗收；高風險、跨模組及 Factory 自我修改必須 GPT3 獨立審查。
+- Reviewer 不可用、CI 未完成、SHA 不一致或證據不足時 Fail-Closed。
+- 不可逆操作、正式部署、付費支出、資金移動及實體控制依既有核准政策執行。
+
+**智慧體的持續進化必須增加可驗證能力，而不是增加未受控權限或重複系統。**
