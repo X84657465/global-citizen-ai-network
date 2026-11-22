@@ -288,3 +288,35 @@ This continuation supersedes earlier status statements above where newer exact-S
 - GPT3: independently review the exact final candidate SHA where required; static COMMENTED records are not approval.
 - GPT4 / B: keep Issue #75 candidate branch-only until the full offline suite is run in a complete isolated repository workspace; track PR #430's new exact-head CI after this documentation refresh.
 - No merge, deployment, Runtime activation, production database operation, permission/secret change, or branch-protection change is authorized by this snapshot.
+
+
+## 17. Operations delta — 2026-11-23 (latest live recheck)
+
+This is a new observation against the live repository; it supersedes earlier operational state where newer exact evidence is available.
+
+### Governance and mainline
+- Re-read `PROJECT_COORDINATION.md` from `main`, blob `849e4f43c87d7686f80ed2e6af9337e797403027`, plus `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`, `docs/GCAN_B_LINE_LEAD_CHARTER.md`, and `docs/GCAN_PRODUCT_NORTH_STAR.md` from live `main`.
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`; no newer main commit was observed.
+- Main combined status remains FAILURE solely from Vercel: `Deployment rate limited — retry in 24 hours`. This is an external preview/deployment quota, not a GitHub test result.
+- The recent `main` branch Actions list contains repeated `Agent Factory System Health Recovery` runs for this SHA, all observed as SKIPPED. No main-branch quality-gate run was evidenced by this query. Main test CI remains UNKNOWN / NOT VERIFIED; do not infer PASS from skipped recovery workflows.
+
+### PR #432 — combined Factory/B integration candidate
+- Exact head `49d541eaed8be94e9fd442155f0b6a10d0390428`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Actions run [45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302), attempt 1, is now terminal **SUCCESS**.
+- Exact run jobs: metadata resolver SUCCESS; Windows Runner quality gates SUCCESS; Windows Ollama/local execution integration SUCCESS; Windows Supabase migrations/PostgreSQL/RLS integration SUCCESS. Conditional diagnostics and persistence jobs were SKIPPED.
+- GPT3 review records remain COMMENTED (not APPROVED); no inline review threads were returned. PR remains OPEN / DRAFT / NOT ACCEPTED. Issue #117's separate ownership conflict and Issue #136's stale immutable audit baseline remain unresolved.
+
+### PR #430 — this B baseline report
+- Current PR head before this update: `78f20437a1ecc5cf6789d0387a7804d93a403e50`, base main unchanged.
+- Exact-head Actions run [45064919766](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45064919766), attempt 1: metadata resolver SUCCESS; Windows Runner quality-gates job IN_PROGRESS. Overall result PENDING; no acceptance or merge claim.
+- This update only records evidence in this report. No B application code, API, schema, RLS, workflow, secret, permission, production data or deployment change.
+
+### Issue #75 — B Product candidate
+- Candidate `gpt4/issue-75-submission-status-main-10fab` remains 4 commits ahead / 0 behind main `10fabef703ee3865d208196f46ee71ddd1b7e149`, with exactly four allowlisted paths: member contributions client, submission-status component, pure status helper, and focused Node test.
+- Latest recorded focused helper test evidence is 5/5 PASS against exact fetched helper/test blobs. This recheck did not rerun that test.
+- Full repository unit suite, lint, TypeScript check, and production build remain NOT RUN against the complete candidate repository. No Actions run or PR exists for this candidate. Per Issue #75's publication gate, PR publication remains BLOCKED until full isolated offline validation is executed against the exact candidate SHA.
+- No additional B product source change is made in this snapshot.
+
+### Daily automation
+- Automation `GCAN 每日工程巡檢` remains enabled with daily 08:00 Asia/Taipei schedule.
+- Its run history still has `last_run_time=null` / no latest result at this observation. Scheduling is configured; successful background execution is NOT VERIFIED.
