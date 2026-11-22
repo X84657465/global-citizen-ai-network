@@ -292,6 +292,7 @@ test("candidate container startup failures remain system-scoped while confirmed 
 
   const startupStep = workflow.slice(start, tests);
   const candidateStep = workflow.slice(tests, cleanup);
+  const cleanupStep = workflow.slice(cleanup, classifier);
   const classifierStep = workflow.slice(classifier, workflow.indexOf("\n      - name:", classifier + 1));
 
   assert.match(startupStep, /docker create/);
@@ -310,6 +311,9 @@ test("candidate container startup failures remain system-scoped while confirmed 
 
   assert.match(classifierStep, /AGENT_FACTORY_FAILURE_SCOPE -eq "task"/);
   assert.match(classifierStep, /APPLY_SCRATCH_OUTCOME -eq "failure"/);
+  assert.match(cleanupStep, /if: always\(\)/);
+  assert.match(cleanupStep, /docker rm --force/);
+  assert.match(cleanupStep, /AGENT_FACTORY_FAILURE_SCOPE=system/);
   assert.doesNotMatch(classifierStep, /CANDIDATE_TESTS_OUTCOME/);
 
   const classify = ({ containerStarted, commandStarted, exitEvidence, exitCode }) => {

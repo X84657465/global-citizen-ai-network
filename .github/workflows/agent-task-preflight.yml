@@ -800,6 +800,24 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+      - name: Remove restricted candidate test container
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $containerName = $env:AGENT_FACTORY_CANDIDATE_CONTAINER_NAME
+          if ([string]::IsNullOrWhiteSpace($containerName)) {
+            Write-Host "No restricted candidate container was created; cleanup is not required."
+            exit 0
+          }
+          $removeOutput = & docker rm --force $containerName 2>&1
+          $removeExitCode = $LASTEXITCODE
+          $removeOutput | ForEach-Object { Write-Host "$_" }
+          if ($removeExitCode -ne 0) {
+            [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=system" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+            throw "Unable to remove the restricted candidate test container; recording a system-scoped infrastructure failure."
+          }
+          Write-Host "PASS: restricted candidate test container was removed."
+
       - name: Create a sanitized publication evidence manifest
         if: success() && steps.candidate-tests.outcome == 'success'
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
