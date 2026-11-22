@@ -294,7 +294,7 @@ test("uses descriptor snapshots for F bundle, evidence, and CI Proxy records", (
 
 test("rejects non-index array properties at the ECMAScript array-index boundary", () => {
   for (const key of ["4294967294", "4294967295"]) {
-    const hostile = [] as FPSecurityEvidence[] & Record<string, FPSecurityEvidence>;
+    const hostile = [] as unknown as FPSecurityEvidence[] & Record<string, FPSecurityEvidence>;
     Object.defineProperty(hostile, key, {
       configurable: true,
       enumerable: true,
