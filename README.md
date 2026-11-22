@@ -51,6 +51,35 @@ flowchart TD
 
 ---
 
+
+### Agent Factory 生產引擎：工人 × 引擎 × 工具 × 執行環境
+
+Factory 必須具備完整生產能力，而不只是模型與任務派發。以下是目標架構示意；各能力依階段盤點、實作及驗收，不代表全部已上線。
+
+```mermaid
+flowchart TB
+  O["Orchestration<br/>任務拆解 · 排程 · 資源調度"] --> W["專業 Worker Fleet<br/>Research · Architect · Coding · QA · Security · Release"]
+  E["Intelligence Engines<br/>模型路由 · 推理 · 規劃 · 程式碼理解"] --> W
+  T["Governed Toolchain<br/>GitHub · Shell · Build · Test · Browser · Data · Observability"] --> W
+  W --> X["Isolated Execution<br/>Workspace · Runner · Lease · Cache · Recovery"]
+  X --> Q["Quality & Security<br/>Regression · Independent Review · Audit"]
+  Q --> D["Verified Delivery<br/>Patch · Draft PR · Release"]
+  Q --> O
+```
+
+| 生產要素 | 要解決的問題 |
+|---|---|
+| 專業 Worker | 讓不同任務由具備相應技能的執行者完成 |
+| 智慧引擎 | 依任務品質、成本與延遲選擇可替換模型 |
+| 工具鏈 | 讓 Worker 能真正讀寫、建置、測試與觀測 |
+| 執行環境 | 隔離任務、支援安全併發、逾時與恢復 |
+| 調度與 QA | 控制依賴、成本、風險，確保成果可驗證 |
+
+**建設順序：** 先盤點現有能力與瓶頸，再補 Worker 契約、引擎／工具登記、安全執行與獨立 QA；不因架構圖而重複新增模型、Runner 或服務。
+
+完整規範：[Master Charter §17](docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md)、[Factory Charter §13](docs/AGENT_FACTORY_AUTONOMY_CHARTER.md)。
+
+---
 ## 🧠 GCAN 神經智慧體模式｜最高工程協作原則
 
 **GCAN 不只建置 AI 產品，也以可追蹤、可驗證、可治理的神經智慧體工作模式，持續建置自身的 AI 工程能力。**
