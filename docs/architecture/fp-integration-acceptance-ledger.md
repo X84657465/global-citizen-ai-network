@@ -182,6 +182,9 @@ PR #295 and #299 both touch this ledger. Their branches are distinct and their t
 
 ### Verified integration state
 
+- PR #292 merged: prompt-level evidence-grounding guard for generated patch claims; not a semantic fact-checker.
+- PR #291 merged: B read-adapter/handoff documentation only; B Runtime remains inactive.
+- PR #290 merged: B read-only adapter preparation documentation only; no Factory runtime access is activated.
 - PR #299 merged: prior F–P acceptance-ledger reconciliation; this PR #301 checkpoint supersedes its older SHA-specific status snapshot.
 - PR #294 merged: authoritative mainline/handoff correction; this checkpoint uses the subsequently verified main SHA below.
 - PR #300 merged: read-only durable-state capacity telemetry (500 processed-event limit and 60,000-character state-Issue body ceiling), with warning/critical/blocked classification. Merge commit: `7fedccfe940db5bdd1c117dc6563e87cfbd284da`.
