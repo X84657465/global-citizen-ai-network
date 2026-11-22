@@ -1,3 +1,49 @@
+## Superseding verified continuation snapshot — 2026-11-23 (main 10fabef703ee)
+
+This section supersedes older live-state snapshots below. Re-fetch current SHAs, run IDs, labels, reviews and automation state before the next operation. Historical sections remain traceability only.
+
+### Mainline / versions
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Verified main HEAD: `10fabef703ee3865d208196f46ee71ddd1b7e149` (merge commit for documentation-only PR #419).
+- Repository version: `0.3.137`; A Factory: `2.0.84`; B Product: `0.1.20`.
+- Current governance files were re-read on this main: `PROJECT_COORDINATION.md`, `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, and `docs/engineering-workstreams.md`.
+- Governance role boundaries remain: GPT1 owns A–E / Factory; GPT2 owns F–P; GPT3 independent architecture review / QA; GPT4 B Product; GPT5 may execute only clearly scoped, authorized tasks with a named DRI, path allowlist, tests and independent review where required. The Master Charter itself still labels itself PROPOSED pending GPT3 review and repository governance acceptance; do not treat its proposed language as completed governance approval.
+
+### CI / deployment evidence
+- A fresh workflow-run lookup for exact main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` returned no run records. This connector's commit workflow-run lookup is PR-triggered only, so this absence is **not** proof that no main workflow ran.
+- Exact-main combined status currently exposes Vercel `failure` with `build-rate-limit` URL. This is a deployment-provider quota failure, not evidence of GitHub Actions test failure or pass.
+- Do not call main CI PASS: exact-main GitHub Actions run/job evidence is UNKNOWN / NOT VERIFIED from the available query.
+
+### PR state (re-fetch before acting)
+- PR #419 is merged; merge commit `10fabef703ee3865d208196f46ee71ddd1b7e149`. Its exact-head Actions run #45057311354 remained PENDING at the last check; the jobs endpoint showed only the metadata resolver pending. The documentation merge is delivered, but exact-head quality CI is NOT VERIFIED.
+- PR #417 remains open and Draft; head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`, base SHA `25d5ed519eb923d3001df6d43aec1670a0d4851a`, mergeable=false, no review records returned. Exact-head run #45056447505 remained PENDING.
+- PR #373 remains open/diverged; head `cb90b213d76f1e353c3bae39c9800cecf8a07274`, base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`, 36 ahead / 106 behind main at last comparison; exact-head run #45052753388 PENDING.
+- PR #376 remains open/diverged; head `d10e6dd6d428d9ce35dbd14778e01c628f909742`, base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`, 50 ahead / 106 behind at last comparison; no exact-head run record returned.
+- PR #259 remains open/diverged; head `3330cd04a77358cf0ff780940d09f938cab1dc3a`, base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, 111 ahead / 846 behind at last comparison. Its old exact-head run #44949425719 succeeded, but this does not validate current main or resolve the extreme divergence. Vercel status remains failure.
+
+### Factory P0 / governance blockers
+- Issue #117 remains open with no labels. The current issue scope includes policy/controller/task-preparation code, tests and `.github/workflows/agent-task-preflight.yml`.
+- The remaining candidate failure-scope gap is that the `candidate-tests` workflow step combines Docker/container startup and candidate test commands; a Docker/OCI infrastructure failure can be classified as task-scoped.
+- Issue #116 requires the `factory-control-plane-approved` label before the exact control-plane workflow path can be authorized by the task validator. Issue #117 currently lacks that label. Therefore the workflow portion of #117 is **BLOCKED**; do not modify the workflow or add the label without repository-owner authorization.
+- Issue #136 retains stale immutable audit target `dce81ed801c41bca9bc364e3d0f248244d88f88f`; current main is `10fabef...`. Per its stop-on-advance rule, A-wide audit remains STOPPED / NOT STARTED until a fresh owner-authorized exact SHA is recorded.
+- Issue #352 operator recovery remains BLOCKED pending verified Environment-only guard and authorization. Issue #100 machine-managed Factory state remains read-only.
+- B Runtime remains PREPARATION ONLY / BLOCKED until A independent acceptance and the versioned, sanitized, read-only A→B handoff gates pass.
+
+### Daily monitoring
+- Existing automation `6b0333ddf1548191a7da3cefb9ac7b15` — `GCAN 每日 main／CI／PR 營運檢查` — is enabled with a daily Asia/Taipei schedule. Its last-run field was null at the latest peek; enabled schedule does not prove a completed run.
+- Existing automation `6b032587ad8c8191a172a578eb295724` — `每日重讀專案協作規範` — is also enabled. Do not create duplicate schedules.
+
+### Next execution order
+1. Continue observing exact-main CI and provider quota status; do not equate missing/PENDING jobs with PASS.
+2. Obtain repository-owner authorization for the exact Issue #117 control-plane path before changing the workflow; then split container readiness from candidate test execution and add the three regression cases.
+3. Obtain a fresh owner-authorized exact-main baseline for Issue #136 before starting A-wide audit.
+4. Have PR owners rebase/rebuild #417, #373, #376 and #259 as narrow, non-overlapping changes; no wholesale merge/transplant.
+5. Keep B Runtime blocked until A acceptance and A→B contract gates pass.
+
+**Safety boundary:** this snapshot is operational documentation only. It does not authorize Factory workflow edits, task dispatch/retry, Issue #100 mutation, Runner/permission/secret changes, production DB/RLS operations, deployment, paid upgrades or B Runtime activation.
+
+---
+
 ## Superseding verified continuation snapshot — 2026-11-23 (main 9cb3107f)
 
 This section supersedes all historical live-state snapshots below. Re-fetch SHAs, Actions runs, reviews, labels and issue state before the next operation; historical entries remain traceability only.
