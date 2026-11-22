@@ -85,6 +85,26 @@ test("persists a bounded provider rate-limit deadline without weakening the defa
   );
 });
 
+test("keeps the default breaker floor when the provider deadline is shorter on the threshold failure", () => {
+  let state = createInitialFactoryState(1_000);
+  state = recordSystemFailure(
+    state, "short-provider-1", "API_RATE_LIMIT", "short provider wait", 1_000,
+    new Date(1_000 + 5 * 60 * 1000).toISOString(),
+  ).state;
+  state = recordSystemFailure(
+    state, "short-provider-2", "API_RATE_LIMIT", "short provider wait", 2_000,
+    new Date(2_000 + 5 * 60 * 1000).toISOString(),
+  ).state;
+  const result = recordSystemFailure(
+    state, "short-provider-3", "API_RATE_LIMIT", "short provider wait", 3_000,
+    new Date(3_000 + 5 * 60 * 1000).toISOString(),
+  );
+
+  assert.equal(result.state.system.consecutive_failures, 3);
+  assert.equal(result.state.system.cooldown_until, new Date(3_000 + 15 * 60 * 1000).toISOString());
+  assert.equal(result.cooldown_active, true);
+});
+
 test("never shortens an existing provider cooldown when a later deadline or generic breaker is shorter", () => {
   const initial = createInitialFactoryState(1_000);
   const existingUntil = new Date(1_000 + 3 * 60 * 60 * 1000).toISOString();
