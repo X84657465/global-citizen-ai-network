@@ -322,3 +322,68 @@ test("rejects unknown own fields and oversized governance collections", () => {
     })),
   })), TypeError);
 });
+
+
+test("fails closed when hostile Proxy reflection traps throw during governance snapshots", () => {
+  const baseDossier = dossier();
+  const firstWorkstream = baseDossier.workstreams[0];
+  const firstEvidence = firstWorkstream.evidence[0];
+
+  const throwingProxy = <T extends object>(
+    value: T,
+    trap: "getPrototypeOf" | "ownKeys" | "getOwnPropertyDescriptor",
+  ): T => new Proxy(value, {
+    getPrototypeOf() {
+      if (trap === "getPrototypeOf") throw new Error("hostile getPrototypeOf");
+      return Reflect.getPrototypeOf(value);
+    },
+    ownKeys(target) {
+      if (trap === "ownKeys") throw new Error("hostile ownKeys");
+      return Reflect.ownKeys(target);
+    },
+    getOwnPropertyDescriptor(target, property) {
+      if (trap === "getOwnPropertyDescriptor") throw new Error("hostile descriptor");
+      return Reflect.getOwnPropertyDescriptor(target, property);
+    },
+  });
+
+  for (const trap of ["getPrototypeOf", "ownKeys", "getOwnPropertyDescriptor"] as const) {
+    assert.throws(() => assessFPGovernanceDossier(throwingProxy(baseDossier, trap)), TypeError);
+
+    const nestedWorkstreams = [...baseDossier.workstreams];
+    nestedWorkstreams[0] = throwingProxy(firstWorkstream, trap);
+    assert.throws(() => assessFPGovernanceDossier(dossier({
+      workstreams: nestedWorkstreams,
+    })), TypeError);
+
+    const nestedEvidence = [...firstWorkstream.evidence];
+    nestedEvidence[0] = throwingProxy(firstEvidence, trap);
+    const evidenceWorkstreams = [...baseDossier.workstreams];
+    evidenceWorkstreams[0] = { ...firstWorkstream, evidence: nestedEvidence };
+    assert.throws(() => assessFPGovernanceDossier(dossier({
+      workstreams: evidenceWorkstreams,
+    })), TypeError);
+
+    assert.throws(() => assessFPGovernanceDossier(dossier({
+      reviews: [throwingProxy(review(), trap)],
+    })), TypeError);
+  }
+});
+
+test("rejects Proxy reflection traps that report unexpected own keys or invalid descriptors", () => {
+  const base = dossier();
+  const extraKey = new Proxy(base, {
+    ownKeys(target) {
+      return [...Reflect.ownKeys(target), "unexpected"];
+    },
+  });
+  assert.throws(() => assessFPGovernanceDossier(extraKey), TypeError);
+
+  const invalidDescriptor = new Proxy(base, {
+    getOwnPropertyDescriptor(target, property) {
+      if (property === "candidateSha") return undefined;
+      return Reflect.getOwnPropertyDescriptor(target, property);
+    },
+  });
+  assert.throws(() => assessFPGovernanceDossier(invalidDescriptor), TypeError);
+});
