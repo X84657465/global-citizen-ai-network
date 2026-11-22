@@ -282,5 +282,5 @@ test("batch scoping cannot expand the validated task path allowlist", () => {
 
 test("each generation prompt receives only the required outputs assigned to its current batch", () => {
   const generator = readFileSync(new URL("../scripts/generate-agent-patch.mjs", import.meta.url), "utf8");
-  assert.match(generator, /const scopedTask = scopePatchTaskToBatch\(task, batchPaths\);[\\s\\S]*?required_patch_paths: scopedTask\.required_patch_paths/);
+  assert.match(generator, /const scopedTask = scopePatchTaskToBatch\(task, batchPaths\);[\s\S]*?required_patch_paths: scopedTask\.required_patch_paths/);
 });
