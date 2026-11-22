@@ -1048,3 +1048,60 @@ Current-main inspection found that the publisher workflow had no cross-job coold
 A narrow remediation candidate adds a pre-created one-line sanitized handoff file, writes only the validated UTC deadline for structured rate-limit errors, uploads the file with `if: always()`, downloads it in the issue-only state-writer job with `if: always()`, and validates the canonical timestamp before restoring it into that job's environment. It also adds two unit tests (positive artifact persistence and no artifact for non-rate-limit errors) and static workflow assertions for the failure-safe handoff and callback wiring. This is a candidate only until exact-head CI, real 429/403 failure-path integration, durable state readback, and independent review complete. Do not infer runtime validation from the static assertions.
 
 **Authority boundary:** code/test candidate only. No machine-managed state, task/lease, cooldown/quarantine runtime record, secrets, permissions, deployment, or B Runtime was changed.
+
+
+---
+
+## Superseding verified continuation snapshot — 2026-11-23 (main 10fabef70)
+
+This snapshot supersedes earlier live-state summaries above. Historical entries remain traceability only. Re-fetch all refs and CI before acting.
+
+### Mainline and governance
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Current main HEAD verified from the commit search: `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- `PROJECT_COORDINATION.md` blob: `849e4f43c87d7686f80ed2e6af9337e797403027`.
+- Master Charter blob: `0fbbeb513c23224b0857687d3f31aabdc2a7f935`; Neural Intelligence mode blob: `adac745cf4d347d55a92d4c850b9dcf727b41042`.
+- This update is an operations handoff only. It does not accept, merge, deploy, or mutate Factory runtime state.
+
+### Main CI and provider status
+- No GitHub Actions workflow run was returned for exact main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` by the commit-runs lookup in this check. Do not infer CI PASS from the absence of a returned run.
+- Combined commit status reports Vercel `failure` with `build-rate-limit` (daily deployment quota). This is a deployment-provider status, not a GitHub Actions CI result.
+- Main remains the baseline for all open candidates listed below.
+
+### Factory P0 — Issue #117
+- Issue #117 remains open and carries `factory-control-plane-approved`; prerequisite Issue #116 also carries that label.
+- The label satisfies only the explicit label gate. It does not resolve the competing implementation/DRI conflict or replace formal GPT3 approval.
+- PR #422: head `535daef3edb0ee81abfb003131d4149e81620357`, base `10fabef703ee3865d208196f46ee71ddd1b7e149`; exact-head run #45058587659 **FAILURE**. GPT3 comments record 40/43 CI policy assertions passing and 3 failing; no formal APPROVED review.
+- PR #425: head `4680526983ac1ab4b1d5c4d0e35397e9c806cd3e`, base `10fabef703ee3865d208196f46ee71ddd1b7e149`; exact-head run #45062346671 **FAILURE**. Windows quality job #137331428166 failed; exact-head log shows 749 passed / 1 failed, with the shared operator-recovery fixture failure at `tests/agent-factory-controller.test.mjs:1917` (`Missing expected rejection`). Typecheck/lint/build were not established; PostgreSQL/RLS and Ollama integration were skipped; diagnostics job was pending at the last check.
+- PR #424 remains Draft and stacked on #422; its success result is not independent mainline acceptance.
+- The canonical DRI/candidate decision between #422 and #425 remains unresolved. Their changes overlap the same protected workflow/policy-test surface. Do not perform additional overlapping edits or merge either candidate until the responsible owner records the canonical choice. Issue #117 explicitly excludes merge and deployment.
+- The raw Docker exit-code fail-closed validation concern previously raised on PR #425 must remain part of exact-head review; do not weaken malformed-evidence rejection.
+
+### Operator recovery — Issue #352 / PR #426 and #429
+- PR #426 head `5380fc9142873888d6cc54e70979720bc41696f3`; exact-head run #45060875720 **FAILURE**. Unit tests 749/749 passed, but TypeScript failed in unchanged `app/contribute/contribution-client.tsx` due to rich API fields missing from the shared `ContributionTask` inferred type; lint/build did not complete, integration jobs skipped.
+- PR #429 head `6f2403ae26467fa025546351bd45a8519f2bcd43`; exact-head run #45062245405 **FAILURE**. Unit tests 747/747 passed, including the corrected legacy-secret negative fixture; TypeScript failed on the same contribution task type-narrowing errors; lint/build not reached; PostgreSQL/RLS and Ollama integration skipped. Diagnostics job completed successfully.
+- PR #429 and #426 contain the same negative-test fixture correction. Do not integrate the fixture twice as separate independent changes.
+- Issue #352 operator recovery remains **BLOCKED / NOT ACCEPTED / NOT OPERATIONAL**. Do not dispatch recovery, mutate machine-managed Issue #100, clear quarantine, create a lease, or reset the global breaker.
+
+### B Product type blocker — PR #428
+- PR #428 head `1bd38fff2a330ed97d5ab298323b0512e6e348ab`, base `10fabef703ee3865d208196f46ee71ddd1b7e149`; exact-head run #45062174946 was **IN_PROGRESS** at the last check (metadata resolver success; Windows quality-gates job #137331543445 in progress).
+- PR #428 adds generic JSDoc type preservation and a compile-time/runtime regression test for rich contribution-task fields. GPT3 static review and B Product scope confirmation are comments, not formal merge approval; the B Product owner confirmation explicitly says this is not final acceptance.
+- B Product remains GPT4-owned. Do not edit B Product files or merge #428 without exact-head full CI and the required owner/review gates.
+
+### Other open PRs and audits
+- PR #420 is a documentation refresh candidate, but its exact-head run #45060539900 is **FAILURE**; do not use it as current acceptance evidence.
+- PR #427 roadmap documentation candidate exact-head run #45061403391 is **FAILURE**; it is not Factory core delivery.
+- Issue #136 requires a READ-ONLY audit of the exact baseline SHA `dce81ed801c41bca9bc364e3d0f248244d88f88f` and explicitly says to stop if main has advanced. Current main is `10fabef703ee3865d208196f46ee71ddd1b7e149`, so that audit request is stale and must not be silently retargeted or treated as completed.
+- Issue #188 remains blocked on the independent Issue #136 audit and recovery contract review; do not invoke system-health-success in the active CI run or weaken its evidence verifier.
+
+### Daily monitoring
+- Existing daily automation `6b0324f672e48191825dff3fbb8fb766` — `每日檢查開發與交付` — is enabled; next scheduled run reported as `2026-11-24T01:23:02+08:00` Asia/Taipei. Reuse it; do not create a duplicate.
+
+### Next execution order
+1. Resolve the canonical DRI/candidate for Issue #117 before further overlapping workflow/policy changes.
+2. Recheck exact-head PR #425 and PR #428 CI; do not reuse stale SHA results.
+3. Coordinate the duplicated recovery fixture correction across #426/#429; preserve all operator authorization guards.
+4. Let GPT4 own the B Product type-contract decision and PR #428 acceptance.
+5. Keep Issue #352 recovery, Issue #100 machine-managed state, Runner/secrets/permissions, production database/RLS, deployments, and B Runtime activation blocked unless their separate explicit gates are satisfied.
+
+**Disposition at this snapshot:** Factory P0 #117 = BLOCKED / NOT ACCEPTED; operator recovery #352 = BLOCKED / NOT OPERATIONAL; B Product type fix #428 = PENDING; main exact-SHA GitHub Actions CI = NOT CONFIRMED. No merge, deployment, task dispatch, lease mutation, quarantine clear, breaker reset, Runner/secret/permission change, or production data operation was performed.
