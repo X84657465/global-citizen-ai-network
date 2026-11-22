@@ -16,6 +16,10 @@ const result = validateWorkstreamVersionContract({
   workstreams: readFileSync("docs/engineering-workstreams.md", "utf8"),
   changelog: readFileSync("CHANGELOG.md", "utf8"),
   pChangelog: readFileSync("docs/p/CHANGELOG.md", "utf8"),
+  trackChangelogs: Object.fromEntries("FGHIJKLMNOP".split("").map((id) => [
+    id,
+    readFileSync(`docs/${id.toLowerCase()}/CHANGELOG.md`, "utf8"),
+  ])),
 });
 
 if (!result.valid) {
