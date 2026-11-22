@@ -211,6 +211,16 @@ test("source syntax and CI policy regressions are classified as task-scoped qual
   assert.ok(classifier.includes('if ($taskOutcomes -contains "failure")'));
   assert.ok(classifier.includes('"scope=task"'));
   assert.ok(classifier.includes('"scope=system"'));
+
+  const qualityOutput = quality.match(/failure_scope: \\$\\{\\{ steps\\.classify-failure\\.outputs\\.scope \\}\\}/);
+  assert.ok(qualityOutput, "quality job must publish the classified failure scope");
+  const { start: breakerStart, end: breakerEnd } = findJobSection(workflow, "circuit-breaker");
+  const breaker = workflow.slice(breakerStart, breakerEnd);
+  const scopeExpression = breaker.match(/CI_FAILURE_SCOPE: \\$\\{\\{ ([^\\n]+) \\}\\}/)?.[1] ?? "";
+  assert.ok(scopeExpression.includes("needs.quality.outputs.failure_scope == 'task'"),
+    "circuit breaker must consume the quality job's classified scope");
+  assert.ok(scopeExpression.includes("needs.quality.result != 'failure'"),
+    "quality result must participate in the task/system failure decision");
 });
 
 test("full dependency audit is a blocking CI security gate", () => {
