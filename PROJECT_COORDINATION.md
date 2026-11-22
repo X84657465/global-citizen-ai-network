@@ -405,3 +405,40 @@ F6–F12 納入 Factory 長期主線，但不得把七個階段同時拆成無�
 維持 Factory-first；優先使用現有 Ollama、Runner、Docker、GitHub Actions 與工具。沒有實測瓶頸前，不購買模型、不增加 Runner、不擴大併發、不建立重複服務。模型不得取得主機或生產秘密；不得自我批准、擴權、跳過審查或自動執行未授權的合併／部署。
 
 詳細階段 DoD 與安全要求以 Master Charter §19、Factory Autonomy Charter §15 為準。這是工程路線與派工規則，不是功能已完成的聲明。
+
+
+## 17. Factory 六項橫向強化：全工作線明確執行命令
+
+本節是當前 Factory-first 的共同工作命令，補強既有 F6–F12，不另增階段或新 GPT。所有工作線須以實際能力與 Repository 證據配合，不以口頭認領取代交付。
+
+### 17.1 必須補齊的能力
+1. **全域專案理解：** Repository、模組、依賴、API／資料契約、測試、部署、owner 與技術債地圖；每次變更有影響分析。
+2. **自主拆解與調度：** 任務 DAG、唯一 DRI、依賴、Worker 路由、allowlist、預算、鎖、lease/fencing、取消、有限重試與並行衝突管理。
+3. **獨立多層驗證：** 靜態、單元、整合、E2E、回歸、安全、效能及相容性；Developer 不得自我批准，驗證綁定精確 SHA／CI run。
+4. **自主除錯修復：** 可重現、根因分類、最小修復、回歸測試、前後比較與有界重試。
+5. **自我評估進化：** 成功率、缺陷逃逸、修復率、回歸、人工介入、成本、延遲、容量及恢復時間；改善須經獨立審查與回滾。
+6. **安全與資源治理：** 隔離工作區、最小權限、命令／路徑／網路 allowlist、短期憑證、秘密遮罩、審計、配額、取消與復原。
+
+### 17.2 統一能力證據登錄
+使用既有能力目錄，對每項能力記錄 owner、版本、範圍、狀態、最後驗證時間及證據。狀態為 `PLANNED → IMPLEMENTED → TESTED → VERIFIED → ACCEPTED`，並允許 PARTIAL／BLOCKED／STALE／UNKNOWN／DEPRECATED。必須附精確 SHA、測試命令與結果、CI run/attempt、獨立 reviewer、風險及回滾。文件或舊測試不能證明目前執行能力；證據過期需重新驗證。
+
+### 17.3 全員分工
+- **GPT1／A–E：** 盤點、設計、建設、整合 Factory，維護能力目錄與安全 A→B handoff。
+- **GPT2／F–P：** 各模組 owner 提供領域需求、規格、風險、邊界測試及領域驗收；僅對真實缺口或 P0/P1 阻塞介入，不重複建置 Factory 共用能力。
+- **GPT3：** 獨立架構／整合／安全／QA 審查及階段放行，核對精確 SHA 與實際證據。
+- **GPT4／B：** 提供產品目標、需求、UX、產品契約及產品驗收，不控制 Factory 私有 Runner、Lease、Sandbox。
+- **GPT5：** 提供外部技術、資安、供應鏈、基準與營運情報；只有明確任務授權下才執行程式變更，不取代任何模組 owner 或 GPT3。
+- **專案負責人：** 保留預算、產品方向、正式部署、不可逆操作與權限變更等既有核准權。
+
+所有協作使用 GitHub Issues、PR、Review、CI、ADR 與 handoff 留下記錄；每項任務一位 DRI、一位主導 Developer，QA／Reviewer 獨立。
+
+### 17.4 本週期立即執行順序
+1. 讀取最新 main、PR、CI、Issues、Factory 程式與能力證據，確認當前真實狀態。
+2. 先做 REUSE／EXTEND／REPAIR 分析，列出重複建設與真正缺口；REPLACE 必須有 ADR、相容性、遷移及回滾證據。
+3. 優先完成全域專案理解與能力證據目錄，並打通一條真實、安全、單任務 Issue→Plan→Worker→Isolated Edit→Build/Test→Draft PR→GPT3 Independent Review。
+4. 把六項橫向能力納入 F6–F12 DoD，依原有依賴順序逐階建設；不得同時擴張所有工作線或先開大規模並行。
+5. GPT2 提供領域規格與驗收案例；GPT4 提供 B 需求與契約；GPT5 提供可追溯技術／風險情報；GPT1 負責 Factory 整合；GPT3 獨立驗收。
+6. 在現有權限內可安全、可逆、證據充分的工作直接執行；合併、正式部署、權限／Secrets、付費資源、不可逆資料操作仍遵循原核准流程。
+7. 每輪回報交付、阻塞、下一步、精確 SHA、測試／CI、風險及回滾。未執行就是 NOT RUN；證據未知就是 UNKNOWN；受阻就是 BLOCKED。
+
+**本命令優先於非必要平行擴充：所有工作線共同支援 Factory-first，直到端到端自主工程路徑與必要安全／QA 閘門有真實驗收證據。**
