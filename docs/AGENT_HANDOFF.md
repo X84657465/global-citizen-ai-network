@@ -346,3 +346,11 @@ This section supersedes earlier live PR/CI snapshots above. Historical evidence 
 - Latest scheduled AI Agent Task Preflight visible in the first 20 repository schedule runs remains run #314 / `44953122918`, created `2026-11-21T21:44:47Z` on main SHA `fc1933e669dd2d49300e45fa5d69bf63e906141f`, before cooldown expiry. Its cooldown guard succeeded, but task-selection/worker execution did not run; the Windows validation job was skipped.
 - No later scheduled Preflight run is currently visible after cooldown expiry. The workflow on main still declares `schedule: "*/5 * * * *"`. The cause of missing schedule invocations is not established by available read-only evidence; do not change workflow enablement/settings or manually dispatch to force progress.
 - This confirms an operational evidence gap, not that queued tasks are invalid or that the scheduler code itself is defective. A post-cooldown scheduled run must demonstrate selection, reservation/lease and worker progression before A acceptance.
+
+
+## Nightly audit runner classification — 2026-11-22 (read-only)
+
+- Nightly Read-Only Audit run #12 / `44951472048` on main SHA `fc1933e669dd2d49300e45fa5d69bf63e906141f` concluded failure at job setup.
+- The only job reports `runner_id: 0`, empty `runner_name`, and an empty `steps` array; no audit command ran. The run's artifacts list is empty.
+- Classify this as hosted-runner assignment/availability failure, not a failing unit test, lint result, or code audit finding. The root cause is not established from available evidence.
+- Do not rerun or modify workflow configuration just to manufacture a green result. A later scheduled run with an assigned runner and completed audit steps is required for a valid audit result.
