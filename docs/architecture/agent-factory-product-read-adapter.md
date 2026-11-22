@@ -182,3 +182,10 @@ A source-level trace on the #303 candidate branch confirms the complete propagat
 4. The final failure-recording step runs `scripts/agent-factory-v2-controller.mjs`; its controller reads `AGENT_FACTORY_ERROR_CODE` and persists the stable code, falling back to `WORKFLOW_FAILURE` only when no code was supplied.
 
 This verifies the source wiring, not a runtime pass. PR #303 exact-head run `44976387404` is still pending with zero allocated jobs, so the full chain remains unverified by an executed CI run. The proposed B projection continues to expose only the allowlisted public category, never the raw machine code or failure summary.
+
+
+### Publisher call-site regression evidence — 2026-11-22
+
+PR #303 HEAD is now `3dfb78df3a784d02f63b2378dff5f7a1af59ae24`. In addition to the helper's environment-file assertion, its regression suite now reads the publisher entrypoint and asserts that both explicit default-branch drift guards pass the task-scoped classification to the helper exactly once. This guards against a future edit silently removing the classification at either call site.
+
+The test has been committed but has not run on this exact SHA. It is source/test coverage only; do not treat it as a passing validation result or as independent review.
