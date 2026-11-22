@@ -67,6 +67,32 @@ test("rejects invalid system breaker counters and timestamps", () => {
   assert.throws(() => validateFactoryState(invalidUpdatedAt), /update timestamp/);
 });
 
+test("persists a bounded provider rate-limit deadline without weakening the default breaker cooldown", () => {
+  const initial = createInitialFactoryState(1_000);
+  const first = recordSystemFailure(initial, "rate-limit-1", "API_RATE_LIMIT", "provider asked us to wait", 1_000, new Date(3_600_000).toISOString());
+  assert.equal(first.state.system.cooldown_until, new Date(3_600_000).toISOString());
+
+  const capped = recordSystemFailure(first.state, "rate-limit-2", "API_RATE_LIMIT", "provider deadline exceeds policy", 2_000, new Date(90_000_000).toISOString());
+  assert.equal(Date.parse(capped.state.system.cooldown_until), 2_000 + 24 * 60 * 60 * 1000);
+
+  assert.throws(
+    () => recordSystemFailure(capped.state, "rate-limit-3", "API_RATE_LIMIT", "malformed deadline", 3_000, "not-a-date"),
+    /valid future timestamp/,
+  );
+  assert.throws(
+    () => recordSystemFailure(capped.state, "rate-limit-4", "API_RATE_LIMIT", "expired deadline", 3_000, new Date(2_000).toISOString()),
+    /valid future timestamp/,
+  );
+});
+
+test("keeps task-scoped failures isolated from provider system cooldown", () => {
+  const state = createInitialFactoryState(1_000);
+  const reserved = reserveTask(state, metadata(), 1_000);
+  const failed = recordTaskFailure(reserved, 42, reserved.active_task.lease_id, "task-failure-rate-limit", "TASK_FAILURE", "candidate failed", 2_000);
+  assert.equal(failed.state.system.cooldown_until, null);
+  assert.equal(failed.state.system.consecutive_failures, 0);
+});
+
 test("rejects duplicate, malformed, or oversized processed-event histories", () => {
   const duplicate = createInitialFactoryState(1000);
   duplicate.processed_events = ["workflow-event-1", "workflow-event-1"];
