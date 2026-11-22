@@ -634,3 +634,27 @@ test("hosted PR resolver emits stage-scoped diagnostics without exposing credent
   assert.equal(resolver.includes("Authorization"), false,
     "resolver diagnostics must not emit authorization headers or token values");
 });
+
+test("hosted resolver persists redacted failure metadata even when the resolver exits nonzero", () => {
+  for (const marker of [
+    "RESOLVER_DIAGNOSTICS_OUTPUT",
+    "writeResolverDiagnostic(error)",
+    "schemaVersion: 1",
+    "stage: resolverStage",
+    "httpStatus:",
+    "rateLimited:",
+    "retryAfterMs:",
+  ]) {
+    assert.ok(resolver.includes(marker), "missing redacted resolver evidence field: " + marker);
+  }
+  assert.equal(resolver.includes("error.message"), false,
+    "resolver evidence must not persist raw error messages");
+  const x = findJobSection(workflow, "resolve-candidate");
+  const section = workflow.slice(x.start, x.end);
+  assert.ok(section.includes("RESOLVER_DIAGNOSTICS_OUTPUT:"));
+  assert.ok(section.includes("Upload redacted resolver failure evidence"));
+  assert.ok(section.includes("if: always()"));
+  assert.ok(section.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"));
+  assert.ok(section.includes("if-no-files-found: ignore"));
+  assert.ok(section.includes("retention-days: 90"));
+});
