@@ -166,11 +166,15 @@ function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | n
   }
 }
 
+function hasPrimitiveStringFields(record: Record<string, unknown>, fields: readonly string[]): boolean {
+  return fields.every((field) => typeof record[field] === "string");
+}
+
 function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
   const root = snapshotSafeRecord(value,
     ["candidateSha", "policyVersion", "workstreams", "reviews"],
     ["candidateSha", "policyVersion", "workstreams"]);
-  if (!root) return null;
+  if (!root || !hasPrimitiveStringFields(root, ["candidateSha", "policyVersion"])) return null;
   const workstreamItems = snapshotSafeArray(root.workstreams, 11);
   if (!workstreamItems) return null;
   const workstreams: FPGovernanceWorkstreamRecord[] = [];
@@ -178,7 +182,7 @@ function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
     const record = snapshotSafeRecord(rawRecord,
       ["workstream", "ownerRef", "evidence", "lifecycle"],
       ["workstream", "ownerRef", "evidence", "lifecycle"]);
-    if (!record) return null;
+    if (!record || !hasPrimitiveStringFields(record, ["workstream", "ownerRef", "lifecycle"])) return null;
     const evidenceItems = snapshotSafeArray(record.evidence, 1);
     if (!evidenceItems) return null;
     const evidence: FPGovernanceEvidence[] = [];
@@ -186,7 +190,7 @@ function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
       const item = snapshotSafeRecord(rawEvidence,
         ["kind", "testedSha", "status", "evidenceRef"],
         ["kind", "testedSha", "status", "evidenceRef"]);
-      if (!item) return null;
+      if (!item || !hasPrimitiveStringFields(item, ["kind", "testedSha", "status", "evidenceRef"])) return null;
       evidence.push(item as unknown as FPGovernanceEvidence);
     }
     workstreams.push({
@@ -204,7 +208,10 @@ function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
       const item = snapshotSafeRecord(rawReview,
         ["reviewedSha", "decision", "reviewRef", "reviewerRef", "reviewerAuthorizationRef", "reviewerAuthorizationStatus", "submittedAt"],
         ["reviewedSha", "decision", "reviewRef", "reviewerRef", "reviewerAuthorizationRef", "reviewerAuthorizationStatus", "submittedAt"]);
-      if (!item) return null;
+      if (!item || !hasPrimitiveStringFields(item, [
+        "reviewedSha", "decision", "reviewRef", "reviewerRef",
+        "reviewerAuthorizationRef", "reviewerAuthorizationStatus", "submittedAt",
+      ])) return null;
       reviews.push(item as unknown as FPGovernanceReviewEvidence);
     }
   }
