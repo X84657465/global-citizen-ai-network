@@ -1579,6 +1579,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_repository: { full_name: "owner/repo" },
             head_branch: "feature/system-health",
             pull_requests: [{
               number: 168,
@@ -1654,6 +1655,7 @@ test("system-health success rejects an overall successful run when required CI j
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_repository: { full_name: "owner/repo" },
             head_branch: "feature/system-health",
             pull_requests: [{
               number: 170,
@@ -1710,6 +1712,7 @@ test("system-health success rejects a required CI job from another attempt or SH
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_repository: { full_name: "owner/repo" },
             head_branch: "feature/system-health",
             pull_requests: [{
               number: 171,
@@ -1764,6 +1767,7 @@ test("system-health success rejects a closed PR even when its old CI run was suc
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_repository: { full_name: "owner/repo" },
             head_branch: "feature/system-health",
             pull_requests: [{
               number: 172,
@@ -1826,6 +1830,7 @@ test("system-health success rejects a successful CI run when the PR has advanced
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_repository: { full_name: "owner/repo" },
             head_branch: "feature/system-health",
             pull_requests: [{
               number: 169,
@@ -1879,6 +1884,7 @@ test("system-health success fails closed for missing or mismatched health eviden
           conclusion: "success",
           path: ".github/workflows/ci.yml",
           event: "pull_request",
+          head_repository: { full_name: "owner/repo" },
           head_branch: "feature/system-health",
           pull_requests: [{
             number: 168,
@@ -1976,6 +1982,7 @@ test("system-health success rejects task candidates and ambiguous or mismatched 
             run_attempt: 1,
             head_sha: sha,
             head_branch: scenario.workflow.head_branch,
+            head_repository: scenario.workflow.head_repository ?? { full_name: "owner/repo" },
             status: "completed",
             conclusion: "success",
             path: ".github/workflows/ci.yml",
@@ -2018,6 +2025,7 @@ test("system-health success rejects a PR whose current branch ref no longer matc
             run_attempt: 1,
             head_sha: sha,
             head_branch: "feature/system-health",
+            head_repository: { full_name: "owner/repo" },
             status: "completed",
             conclusion: "success",
             path: ".github/workflows/ci.yml",
