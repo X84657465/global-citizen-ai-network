@@ -158,6 +158,58 @@ test("existing test files cannot be modified and control-plane files require exp
 });
 
 
+
+test("scheduler workflow patch requires exact path, approval, and an existing file", () => {
+  const path = ".github/workflows/agent-task-preflight.yml";
+  const approvedTask = {
+    schema_version: 1,
+    allowed_paths: [path],
+    control_plane_authorized: true,
+  };
+  const patch = manifest([file(path, "modify")]);
+  const result = validatePatchManifest(patch, approvedTask, [path]);
+  assert.equal(result.files.length, 1);
+
+  assert.throws(
+    () => validatePatchManifest(patch, { ...approvedTask, control_plane_authorized: false }, [path]),
+    /factory-control-plane-approved/,
+  );
+  assert.throws(
+    () => validatePatchManifest(patch, approvedTask, []),
+    /must target an existing file/,
+  );
+  assert.throws(
+    () => validatePatchManifest(manifest([file(path, "add")]), approvedTask, [path]),
+    /cannot replace an existing file/,
+  );
+  assert.throws(
+    () => validatePatchManifest(patch, approvedTask, [".GITHUB/workflows/agent-task-preflight.yml"]),
+    /must target an existing file/,
+  );
+});
+
+test("patch validation rejects other GitHub paths and scheduler path case variants", () => {
+  const validTask = {
+    schema_version: 1,
+    allowed_paths: [".github/workflows/agent-task-preflight.yml"],
+    control_plane_authorized: true,
+  };
+  for (const path of [
+    ".github/workflows/build.yml",
+    ".github/workflows/other.yml",
+    ".GITHUB/workflows/agent-task-preflight.yml",
+    ".github/Workflows/agent-task-preflight.yml",
+    ".github/workflows/AGENT-TASK-PREFLIGHT.yml",
+    ".github/workflows/../agent-task-preflight.yml",
+  ]) {
+    assert.throws(
+      () => validatePatchManifest(manifest([file(path, "modify")]), validTask, [path]),
+      PatchValidationError,
+      path,
+    );
+  }
+});
+
 test("rejects malformed model manifest roots before patch generation iterates files", () => {
   for (const malformed of [null, [], "manifest", 7, {}, { files: null }, { files: {} }, { files: "not-an-array" }]) {
     assert.throws(() => getPatchManifestFiles(malformed), /object containing a files array/);
