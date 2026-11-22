@@ -387,3 +387,75 @@ test("rejects Proxy reflection traps that report unexpected own keys or invalid 
   });
   assert.throws(() => assessFPGovernanceDossier(invalidDescriptor), TypeError);
 });
+
+
+test("rejects non-primitive string fields before regex or date coercion can execute", () => {
+  let coercionCalls = 0;
+  const hostileValue = {
+    [Symbol.toPrimitive]() {
+      coercionCalls += 1;
+      throw new Error("hostile primitive coercion");
+    },
+    toString() {
+      coercionCalls += 1;
+      throw new Error("hostile string coercion");
+    },
+  } as unknown as string;
+
+  const cases: Array<[string, () => FPGovernanceDossier]> = [
+    ["candidateSha", () => dossier({ candidateSha: hostileValue })],
+    ["policyVersion", () => dossier({ policyVersion: hostileValue as typeof FP_GOVERNANCE_POLICY_VERSION })],
+    ["workstream", () => dossier({
+      workstreams: dossier().workstreams.map((record, index) => index === 0
+        ? { ...record, workstream: hostileValue as "F" }
+        : record),
+    })],
+    ["ownerRef", () => dossier({
+      workstreams: dossier().workstreams.map((record, index) => index === 0
+        ? { ...record, ownerRef: hostileValue }
+        : record),
+    })],
+    ["lifecycle", () => dossier({
+      workstreams: dossier().workstreams.map((record, index) => index === 0
+        ? { ...record, lifecycle: hostileValue as "active" }
+        : record),
+    })],
+    ["evidence kind", () => dossier({
+      workstreams: dossier().workstreams.map((record, index) => index === 0
+        ? { ...record, evidence: [{ ...record.evidence[0], kind: hostileValue }] }
+        : record),
+    })],
+    ["testedSha", () => dossier({
+      workstreams: dossier().workstreams.map((record, index) => index === 0
+        ? { ...record, evidence: [{ ...record.evidence[0], testedSha: hostileValue }] }
+        : record),
+    })],
+    ["evidence status", () => dossier({
+      workstreams: dossier().workstreams.map((record, index) => index === 0
+        ? { ...record, evidence: [{ ...record.evidence[0], status: hostileValue }] }
+        : record),
+    })],
+    ["evidenceRef", () => dossier({
+      workstreams: dossier().workstreams.map((record, index) => index === 0
+        ? { ...record, evidence: [{ ...record.evidence[0], evidenceRef: hostileValue }] }
+        : record),
+    })],
+    ["reviewedSha", () => dossier({ reviews: [review({ reviewedSha: hostileValue })] })],
+    ["review decision", () => dossier({ reviews: [review({ decision: hostileValue as "approved" })] })],
+    ["reviewRef", () => dossier({ reviews: [review({ reviewRef: hostileValue })] })],
+    ["reviewerRef", () => dossier({ reviews: [review({ reviewerRef: hostileValue })] })],
+    ["reviewerAuthorizationRef", () => dossier({ reviews: [review({ reviewerAuthorizationRef: hostileValue })] })],
+    ["reviewerAuthorizationStatus", () => dossier({
+      reviews: [review({ reviewerAuthorizationStatus: hostileValue as "verified" })],
+    })],
+    ["submittedAt", () => dossier({ reviews: [review({ submittedAt: hostileValue })] })],
+  ];
+
+  for (const [field, build] of cases) {
+    assert.throws(() => assessFPGovernanceDossier(build()), {
+      name: "TypeError",
+      message: "Invalid F–P governance dossier header or unsafe input structure.",
+    }, field);
+  }
+  assert.equal(coercionCalls, 0);
+});
