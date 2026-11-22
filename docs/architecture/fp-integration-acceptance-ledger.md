@@ -132,7 +132,7 @@ This section supersedes earlier PR/run status statements above where they confli
 | P / PR #297 — fail-closed authentication provider | `858d1ae886a95b9fec41076287d4c4466d2a46cb` | Exact-head run `44969394408` has no allocated jobs | Draft; no formal review; not accepted |
 | F / PR #298 — canonical UTC evidence timestamps | `e35ad0bb955f2a04c6375e4989f2fbbea7ba3086` | Resolver pending; no substantive job evidence yet (run `44969187760`) | Draft; no formal review; not accepted |
 | K / PR #294 — authoritative handoff | `765d0ee023b2343ffe6b37042a6d3cbedf3a9f01` | Exact-head run `44970030548` pending; no conclusion yet | Draft; documentation-only; not accepted |
-| K / PR #295 — F–P ledger baseline | `0f74351e44f9e5af83fc1295b4ec09e9069451a5` | No workflow run returned for this new exact HEAD at latest check | Draft; documentation-only; not accepted |
+| K / PR #295 — F–P ledger baseline | Current branch tip is this ledger update; query its own exact-head run before review | No result is transferable from earlier commits | Draft; documentation-only; not accepted |
 
 ### Verified code-review notes
 
