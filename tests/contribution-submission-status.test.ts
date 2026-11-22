@@ -31,7 +31,7 @@ test("keeps unknown and empty submission statuses understandable", () => {
 
 test("treats inherited object property names as unknown submission statuses", () => {
   for (const status of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
-    assert.equal(getSubmissionStatusLabel(status), `狀態待確認（${status}）`);
+    assert.equal(getSubmissionStatusLabel(status), `狀態待確認（${status.toLowerCase()}）`);
   }
 });
 
@@ -45,7 +45,7 @@ test("maps persisted appeal lifecycle states", () => {
 
 test("treats inherited object property names as unknown appeal statuses", () => {
   for (const status of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
-    assert.equal(getAppealStatusLabel(status), `狀態待確認（${status}）`);
+    assert.equal(getAppealStatusLabel(status), `狀態待確認（${status.toLowerCase()}）`);
   }
 });
 
