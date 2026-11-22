@@ -190,8 +190,8 @@ The dedicated workflow `.github/workflows/agent-factory-operator-recovery.yml` i
 
 Before enabling the workflow:
 
-1. In **Settings → Environments**, create `factory-operator-recovery` and configure required reviewers (preferably an independent maintainer) and deployment branch restrictions for `main`. Do not rely on the workflow creating an unprotected environment automatically.
-2. Configure the repository Actions secret `FACTORY_OPERATOR_RECOVERY_GUARD` with a non-empty random value. The controller checks that this secret is present but never prints or persists it. If it is absent, recovery fails closed.
+1. In **Settings → Environments**, create `factory-operator-recovery` and configure required reviewers (preferably an independent maintainer) and deployment branch restrictions for `main`. Verify these settings in the repository UI before operational use; a workflow declaration alone does not prove they exist. Do not rely on the workflow creating an unprotected environment automatically.
+2. Configure the **Environment secret** `FACTORY_OPERATOR_RECOVERY_ENV_GUARD` (only under the `factory-operator-recovery` Environment) with a non-empty random value. Do **not** define this exact secret name at repository or organization scope; a same-named fallback would defeat the intended scope boundary. The trusted controller reads only this Environment-specific name and never prints or persists its value. If it is absent, recovery fails closed. The legacy `FACTORY_OPERATOR_RECOVERY_GUARD` name is not accepted.
 3. Confirm the repository owner account is the only permitted dispatcher. The controller independently requires `workflow_dispatch`, `refs/heads/main`, exact repository identity, and `GITHUB_ACTOR` equal to the repository owner.
 4. Inspect the task's remediation PR/commit and successful exact-head validation evidence. Record the current machine-managed Factory state version and confirm the task is still quarantined and has no active lease.
 5. Dispatch the dedicated workflow with the exact task Issue number, observed state version, concise reason, HTTPS GitHub evidence URL, and literal confirmation `RECOVER_QUARANTINED_TASK`.
