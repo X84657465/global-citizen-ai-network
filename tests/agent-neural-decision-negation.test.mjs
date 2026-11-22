@@ -120,3 +120,26 @@ test("a direct prohibition still suppresses prose-only risk while keeping the de
   assert.equal(result.authority.may_execute_code, false);
   assert.equal(result.authority.may_publish_changes, false);
 });
+
+test("a risk target explicitly marked out of scope after its descriptor is treated as a prohibition", () => {
+  for (const title of [
+    "Production deployment is explicitly out of scope",
+    "Production changes are explicitly excluded",
+    "Credential rotation is expressly prohibited",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
+
+test("a positive action remains high risk when a later clause describes a separate prohibition", () => {
+  const result = evaluateAgentDecision(
+    withImplementerText("Deploy to production; billing changes are explicitly excluded"),
+    task,
+  );
+  assert.equal(result.signals.no_high_risk_scope, false);
+  assert.equal(result.evidence.high_risk_scope_detected, true);
+  assert.equal(result.decision, "reject_and_replan");
+});
