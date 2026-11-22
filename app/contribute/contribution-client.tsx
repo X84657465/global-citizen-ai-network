@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
+import { filterContributionTasks, getContributionTaskFilterOptions, UNSUBMITTED_FILTER } from "@/lib/contribution-task-filters.mjs";
 
 type Task = {
   id: string;
@@ -24,6 +25,13 @@ export default function ContributionClient() {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [submissionStatusFilter, setSubmissionStatusFilter] = useState("");
+  const filterOptions = getContributionTaskFilterOptions(tasks, submissions);
+  const visibleTasks = filterContributionTasks(tasks, submissions, {
+    category: categoryFilter,
+    submissionStatus: submissionStatusFilter,
+  });
 
   async function load() {
     setLoading(true);
@@ -97,8 +105,32 @@ export default function ContributionClient() {
             <strong>目前沒有開放中的貢獻任務。</strong>
             <p style={{ color: "#64748b", fontSize: 12, marginBottom: 0 }}>管理端發布任務後，這裡會顯示正式任務與驗收條件。此頁不會用示範任務冒充可領取的工作。</p>
           </section>
-        ) : <div style={{ display: "grid", gap: 14 }}>
-          {tasks.map(task => {
+        ) : <>
+          <section aria-label="貢獻任務篩選" style={{ display: "flex", flexWrap: "wrap", alignItems: "end", gap: 12, background: "#fff", border: "1px solid #e1e7ef", borderRadius: 12, padding: 14, marginBottom: 14 }}>
+            <label style={{ display: "grid", gap: 5, color: "#64748b", fontSize: 11 }}>
+              任務類別
+              <select aria-label="依任務類別篩選" value={categoryFilter} onChange={event => setCategoryFilter(event.target.value)} style={{ minWidth: 180, border: "1px solid #dce3ec", borderRadius: 8, padding: 9, background: "#fff", color: "#243247" }}>
+                <option value="">全部類別</option>
+                {filterOptions.categories.map(category => <option key={category} value={category}>{category}</option>)}
+              </select>
+            </label>
+            <label style={{ display: "grid", gap: 5, color: "#64748b", fontSize: 11 }}>
+              我的提交狀態
+              <select aria-label="依提交狀態篩選" value={submissionStatusFilter} onChange={event => setSubmissionStatusFilter(event.target.value)} style={{ minWidth: 180, border: "1px solid #dce3ec", borderRadius: 8, padding: 9, background: "#fff", color: "#243247" }}>
+                <option value="">全部狀態</option>
+                {filterOptions.submissionStatuses.map(status => <option key={status} value={status}>{status}</option>)}
+                {filterOptions.hasUnsubmitted && <option value={UNSUBMITTED_FILTER}>未提交</option>}
+              </select>
+            </label>
+            <span aria-live="polite" style={{ color: "#64748b", fontSize: 11 }}>{visibleTasks.length} / {tasks.length} 項任務</span>
+            {(categoryFilter || submissionStatusFilter) && <button type="button" onClick={() => { setCategoryFilter(""); setSubmissionStatusFilter(""); }} style={{ border: "1px solid #d7e0eb", borderRadius: 8, padding: "9px 12px", background: "#fff", color: "#315d91", fontWeight: 700 }}>清除篩選</button>}
+          </section>
+          {visibleTasks.length === 0 ? <section role="status" style={{ background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 25 }}>
+            <strong>找不到符合條件的任務。</strong>
+            <p style={{ color: "#64748b", fontSize: 12 }}>請調整類別或提交狀態，或清除篩選查看全部已發布任務。</p>
+            <button type="button" onClick={() => { setCategoryFilter(""); setSubmissionStatusFilter(""); }} style={{ border: 0, borderRadius: 8, padding: "10px 14px", background: "#315d91", color: "#fff", fontWeight: 700 }}>清除篩選</button>
+          </section> : <div style={{ display: "grid", gap: 14 }}>
+          {visibleTasks.map(task => {
             const submitted = existing(task.id);
             const criteria = Array.isArray(task.acceptance_criteria) ? task.acceptance_criteria : [];
             return <article key={task.id} style={{ background: "#fff", border: "1px solid #e1e7ef", borderRadius: 14, padding: 19 }}>
@@ -126,7 +158,8 @@ export default function ContributionClient() {
               </form>}
             </article>;
           })}
-        </div>}
+          </div>}
+        </>}
       </section>
     </main>
   );
