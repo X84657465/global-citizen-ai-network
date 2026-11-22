@@ -6,7 +6,7 @@ const manifest = {
   overall: "0.3.127",
   tracks: Object.fromEntries(WORKSTREAM_IDS.map((id) => [id, {
     name: `Workstream ${id}`,
-    version: id === "H" || id === "P" ? "0.1.1" : "0.1.0",
+    version: id === "P" ? "0.1.1" : "0.1.0",
     status: "planned",
   }])),
 };
