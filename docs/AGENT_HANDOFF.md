@@ -5,8 +5,8 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`  
-**Authoritative release:** `VERSION` and `package.json` on main report `0.3.124`. README still advertises `0.3.121`; PR #267 was closed as redundant and its correction is carried in #259, which remains unmerged.  
+**Main HEAD:** `fc1933e669dd2d49300e45fa5d69bf63e906141f`  
+**Authoritative release:** `VERSION` and `package.json` on main both report `0.3.125`. README release label requires separate verification before use.  
 **A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
 
 ## 1. Highest-level strategy and authority
@@ -213,3 +213,55 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 - Verified current main contains the same deterministic mismatch: `scripts/check-schema.mjs` expects `select plan(15)`, while `supabase/tests/public_table_grants.test.sql` declares `select plan(18)` and contains 18 assertions.
 - Opened PR #270 from current main with the minimal one-line guard alignment to `plan(18)`. It does not change or remove SQL assertions, runtime code, migrations, or production state.
 - PR #270 exact HEAD: `2982d0a98289a1ce2f0dbc1c36e34bd2bf479c1b`; keep Draft until its exact-head CI and independent review are complete.
+
+
+## Live checkpoint — 2026-11-22 (verified GitHub state)
+
+### Main / Factory-first
+- Current `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`; release baseline `0.3.125`.
+- Integrated A/G acceptance PR #279 is the sole active code candidate, Draft/open at exact HEAD `edf0b86c15d599c772f51f31dc4030874ea27d9b`, based on current main `fc1933e669dd2d49300e45fa5d69bf63e906141f`. It combines A Factory lifecycle/repository-validation changes with only the required G/FP test and integration repairs. Exact-head CI #3287 (`44954636255`) is pending; no test result is inferred yet.
+- The earlier A-only #273, G-only #278 and test-repair #277 candidates are closed unmerged as superseded by #279. Their historical failures remain diagnostic evidence only; none is acceptance evidence for #279.
+- #279 must pass full unit tests, typecheck, lint, audits, production build, PostgreSQL/RLS and Ollama integration on its exact SHA. Exact-SHA Vercel Preview and independent Issue #136 review remain separate required gates.
+- Exact-SHA Vercel status for the current candidates remains build-rate-limited; no READY Preview or same-SHA smoke evidence is available.
+- Issue #136 remains open. Its required independent, read-only adversarial audit is outstanding; owner-authored static traces and CI results are not independent approval.
+- PR #259 remains open/unmerged and targets stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; its broad diff is diverged from current main. Do not merge, retarget, or transplant wholesale.
+
+### B / K preparation
+- PR #275 remains a documentation-only Draft from current main. It corrects the B DTO comment so `FactoryTaskReadModelV1.status` is the bounded public `FactoryTaskStatus`, mapped by A from private durable states.
+- B remains proposal-only: versioned, read-only projection; workspace authorization is owned by B; A verifies exact SHA/PR/run/attempt. No B runtime route, database table, billing or Factory permission is activated.
+- Do not merge #275 until A acceptance and a fresh exact-head revalidation against the resulting main. Its previous exact-head quality run failed the legacy CI runbook assertion because the A/G contract correction is not yet on main.
+
+### Next execution order
+1. Finish integrated A/G #279 exact-head CI and resolve only verified blockers without weakening policy or tests.
+2. Obtain the independent Issue #136 read-only audit and triage findings; do not substitute owner review.
+3. Resolve Vercel Preview quota through the normal provider cycle; no bypass, and obtain same-SHA READY Preview/smoke evidence.
+4. Only after A/G acceptance and integration, refresh and revalidate B #275 against the resulting main.
+5. Implement only the reviewed versioned read-only projection and B-owned workspace authorization; keep B Runtime inactive until accepted.
+
+**Safety:** no production deployment/data mutation, secret or permission changes, workflow-policy changes, or machine-managed Factory state edits are authorized by these documentation updates.
+
+
+## Superseding live checkpoint — 2026-11-22 (exact-head refresh)
+
+This section supersedes earlier live-checkpoint statements in this handoff where candidate SHAs or CI run IDs differ. Older entries remain historical records, not current acceptance evidence.
+
+### A / Agent Factory V2 — priority 0
+- Current integrated `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
+- Sole active A/G integration candidate: PR #279, Draft/open, based on that main.
+- Current exact PR HEAD: `99f67c6a1f6a4cbff3522de14bb1508f8d4c52a4`.
+- The focused latest change corrects `tests/account-summary.test.ts` to inspect the actual CSS Module and assert both keyboard-focus selectors; no runtime behavior changed.
+- Exact-head Actions run [#44955249084](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44955249084) is still pending and has no allocated jobs at the latest verification. It provides no pass/fail evidence yet.
+- The exact-SHA Vercel status is `build-rate-limit`; this is provider quota state, not a code-test result. No READY Preview is available.
+- Issue #136 has been updated to request an independent read-only audit of this exact SHA. No independent report or formal PR review has been received.
+- Keep #279 Draft and unmerged until exact-head unit/type/lint/audit/build/PostgreSQL-RLS/Ollama evidence, same-SHA Preview/smoke evidence, and independent review are complete.
+
+### B preparation — documentation only
+- PR #275 remains Draft/open and documentation-only. Its current branch contains the bounded public read-adapter status clarification and this handoff refresh.
+- The preceding B head `537c4031e1c3ba2236aa626e9e6b8cd603cb8c9e` had pending run [#44954680420](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44954680420); that run does not validate the updated documentation commit. Current B head `fbe288d0102ce34c7ca131bda7ca7eb2a9f48b47` has no associated PR Actions run/check at the latest verification and is not an acceptance result.
+- Keep B runtime, routes, tables, billing, workspace permissions and Factory access inactive. Rebase/revalidate B only after A is accepted and integrated.
+
+### Execution controls
+1. Continue A/G #279 first; use only the current exact HEAD and its own CI evidence.
+2. Preserve the single self-hosted Runner concurrency policy; do not cancel queued work or weaken gates to gain throughput.
+3. Fix only reproduced failures. Do not alter machine-managed Factory state, production data, secrets, permissions or deployment configuration.
+4. After A acceptance, refresh B #275 against the resulting main and validate the read-only projection contract before any B runtime work.
