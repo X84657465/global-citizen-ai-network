@@ -122,6 +122,8 @@ function validPositiveInteger(value: number): boolean {
 export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptanceAssessment {
   if (
     !isSafeRecord(bundle, ["candidateRepository", "candidateSha", "pullRequestNumber", "run"], ["candidateRepository", "candidateSha", "pullRequestNumber", "run"]) ||
+    typeof bundle.candidateRepository !== "string" ||
+    typeof bundle.candidateSha !== "string" ||
     !REPOSITORY_PATTERN.test(bundle.candidateRepository) ||
     !SHA_PATTERN.test(bundle.candidateSha) ||
     !validPositiveInteger(bundle.pullRequestNumber)
@@ -142,6 +144,15 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
     !validPositiveInteger(run.runId) ||
     !validPositiveInteger(run.runAttempt) ||
     !validPositiveInteger(run.pullRequestNumber) ||
+    typeof run.repository !== "string" ||
+    typeof run.headRepository !== "string" ||
+    typeof run.event !== "string" ||
+    typeof run.baseRef !== "string" ||
+    typeof run.headSha !== "string" ||
+    typeof run.workflowPath !== "string" ||
+    typeof run.status !== "string" ||
+    !(run.conclusion === null || typeof run.conclusion === "string") ||
+    typeof run.runUrl !== "string" ||
     !REPOSITORY_PATTERN.test(run.repository) ||
     !REPOSITORY_PATTERN.test(run.headRepository) ||
     !SHA_PATTERN.test(run.headSha) ||
