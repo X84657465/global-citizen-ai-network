@@ -101,7 +101,7 @@ export default function HomePage() {
     </div>
     <div className={styles.governanceHeader} style={{marginTop:34}}>
      <div className={styles.sectionEyebrow}>FOUR-GPT COORDINATION · CLEAR OWNERSHIP</div>
-     <h2>四個 GPT，各有責任；共同使用一套工程閉環</h2>
+     <h2>五個 GPT，各有責任；共同使用一套工程閉環</h2>
      <p>GPT 之間不假設能直接讀取彼此對話。共同事實以 Repository、Issue、PR、Commit、CI 與正式交接紀錄為準。</p>
     </div>
     <div className={styles.trustGrid}>
@@ -109,15 +109,15 @@ export default function HomePage() {
       {title:"GPT1 · A–E / FACTORY → B",text:"主責 Agent Factory V2、A–E 工作線及必要 Factory→B 交接；維持工廠優先。",icon:Workflow},
       {title:"GPT2 · F–P",text:"主責 F–P 平行專業能力建設；先確認介面與依賴，不任意覆蓋 A–E 核心。",icon:Layers3},
       {title:"GPT3 · INDEPENDENT QA",text:"負責跨 A–P 獨立架構審查、整合與 QA；以可重現證據驗收，不取代功能 owner。",icon:ShieldCheck},
-      {title:"GPT4 · ROLE VERIFICATION",text:"第四正式協作角色；正式職責尚待權威 Repository 證據確認，未確認前保持 UNKNOWN。",icon:SearchCheck}
+      {title:"GPT4 · B PRODUCT",text:"負責 GCAN B 產品方向、需求、產品契約與產品生命週期；遵守 Factory→B 交接及獨立驗收門檻。",icon:Globe2},\n      {title:"GPT5 · GLOBAL INTELLIGENCE & OPERATIONS",text:"全域情報研究與營運支援：搜尋最新 AI／工程資訊、比較技術方案、查核來源、追蹤漏洞與版本變更、整理 Issues／PR／CI，並將可追溯研究交付 GPT1–GPT4。",icon:SearchCheck}
      ].map(({title,text,icon:Icon})=><article className={styles.trustCard} key={title}><span><Icon size={20}/></span><div><h3>{title}</h3><p>{text}</p></div></article>)}
     </div>
     <div className={styles.loopPrinciple} style={{marginTop:20}}>
-     <ShieldCheck size={18}/><p><b>最高原則：</b>Factory-first；必要線只補銜接卡點；安全、可回復且已授權的工作主動推進；所有成果以精確 SHA、測試、Review 與稽核證據驗證。神經智慧體模式不是第五個 GPT，也不接管 D｜Deep Neural 的既有 owner 責任。</p>
+     <ShieldCheck size={18}/><p><b>最高原則：</b>Factory-first；必要線只補銜接卡點；安全、可回復且已授權的工作主動推進；所有成果以精確 SHA、測試、Review 與稽核證據驗證。GPT5 是正式情報與營運支援角色，不新增 A–P 模組 owner，也不接管 D｜Deep Neural 的既有 owner 責任。</p>
     </div>
     <div className={styles.stageLinks} style={{marginTop:18}}>
      <a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md" target="_blank" rel="noreferrer">閱讀完整神經智慧體規範 <ArrowUpRight size={14}/></a>
-     <a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/PROJECT_COORDINATION.md" target="_blank" rel="noreferrer">閱讀四 GPT 協作規範 <ArrowUpRight size={14}/></a>
+     <a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/PROJECT_COORDINATION.md" target="_blank" rel="noreferrer">閱讀五 GPT 協作規範 <ArrowUpRight size={14}/></a>
     </div>
    </section>
    <section className={styles.workstreamsSection} id="workstreams"><div className={styles.workstreamsTop}><Heading label="15 ENGINEERING WORKSTREAMS + P GOVERNANCE" title="A–O 十五條工作線，P 橫向治理、協同整合" text="A–O 各線都有獨立使命、職責、功能範圍、版本與驗收證據；P 提供共同治理底線。I–O 依路線圖分階段建置，規劃或研究中的能力不代表已正式上線。"/><a className={styles.textLink} href="https://github.com/X84657465/global-citizen-ai-network/blob/main/docs/engineering-governance.md" target="_blank" rel="noreferrer">閱讀 A–P 治理規範 <ArrowUpRight size={15}/></a></div>
