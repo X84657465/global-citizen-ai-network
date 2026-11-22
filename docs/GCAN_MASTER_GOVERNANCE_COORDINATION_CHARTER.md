@@ -750,3 +750,115 @@ GitHub Repository 首頁（README.md）與 GCAN 官方網站首頁（`app/page.t
 - 首頁不是一次性宣傳頁；必須隨 GCAN 真實能力與證據持續更新。
 
 **最高原則：GitHub README 與官方網站首頁是 GCAN 的兩個主要公開門面；重要願景要看得懂、架構要看得見、進度要有證據、下一步要找得到。**
+
+## 17. Agent Factory 工人、引擎、工具與生產基礎設施總綱
+
+### 17.1 核心定義
+
+Agent Factory 必須是具備專業執行人力、可替換智慧引擎、可治理工具鏈、隔離執行環境、品質驗證與資源調度的完整生產系統。只有任務派發器、聊天模型或靜態工作流程，不足以構成強大的自主生產工廠。
+
+Factory 的生產能力由六個互相協作但權責分離的部分組成：
+
+1. **Workers（工人／專業執行 Agent）：** 負責研究、分析、設計、編碼、測試、除錯、資安檢查、文件、整合、維運等具體工作。
+2. **Intelligence Engines（智慧引擎）：** 提供推理、規劃、程式碼理解、生成、檢索、評估、路由及多模態能力；模型可替換，不得把整個 Factory 綁死在單一模型。
+3. **Toolchain（工具鏈）：** 提供 Git／GitHub、程式碼搜尋、終端機、建置、測試、Lint、型別檢查、套件管理、瀏覽器、文件、資料庫、監控與部署等受控工具。
+4. **Execution Substrate（執行基礎設施）：** 提供隔離工作區、容器／Runner、依賴快取、暫存空間、網路政策、Secrets 管理、持久化任務狀態及可恢復執行。
+5. **Orchestration & Resource Control（協調與資源調度）：** 負責任務分解、依賴排序、Worker 配對、併發限制、排程、優先級、預算、逾時、重試、取消及故障復原。
+6. **Quality, Security & Observability（品質、安全與可觀測性）：** 負責獨立驗收、測試證據、權限控制、稽核、成本／延遲／成功率監控、回滾與持續改善。
+
+### 17.2 Worker 專業編制：能力角色，不等於新增 GPT 席位
+
+Factory 應建立可按任務動態調度的專業 Worker 能力池，而不是不斷增加常駐 GPT 管理角色。初始能力編制至少包含：
+
+| Worker 能力 | 主要職責 | 典型交付 |
+|---|---|---|
+| Research / Discovery | 需求、技術、依賴與既有程式盤點 | Evidence brief、能力缺口 |
+| Architect / Planner | 系統設計、任務圖、介面與風險拆解 | ADR、validated task graph |
+| Frontend / UX | UI、UX、可存取性與響應式介面 | UI 實作、視覺回歸 |
+| Backend / API | 服務、API、事件與資料契約 | 程式碼、契約測試 |
+| Data / Integration | Schema、資料流、外部系統整合 | migration、整合測試 |
+| Coding / Refactor | 功能開發、缺陷修復、重構 | Patch、commit |
+| QA / Test | 測試策略、回歸、故障注入與驗收證據 | Test report、CI evidence |
+| Security / Reliability | 權限、Secrets、供應鏈、威脅與可靠性檢查 | Security findings、mitigation |
+| Documentation / Release | 文件、Runbook、版本與交付整理 | Release notes、handoff |
+| SRE / Recovery | Runner、監控、部署、復原與成本 | Operations evidence、recovery report |
+
+Worker 是可被建立、配置、暫停、回收或替換的執行能力實例；同一 Worker 可具備多項技能，同一技能可有多個 Worker。表格不代表必須建立十個獨立模型、十個常駐 Agent 或十套服務。
+
+### 17.3 Worker 標準工作契約
+
+每個 Worker 必須由機器可讀的能力描述與任務契約約束，至少包含：
+- worker_id、版本、能力標籤、支援語言／框架、可用模型／工具。
+- 任務輸入、必要上下文、依賴、輸出 schema 與完成條件。
+- owner／DRI、允許修改路徑、讀寫權限與工具 allowlist。
+- 風險級別、資料分級、網路與 Secrets 政策。
+- token／時間／運算／費用預算、逾時、重試與取消行為。
+- 產出 commit／patch／artifact、測試結果、引用證據及執行紀錄。
+- 不確定性、阻塞原因、失敗分類及交接資訊。
+
+Worker 不得自行擴大任務範圍、修改 allowlist、取得未授權 Secrets、批准自身成果或把未驗證產出標記為完成。
+
+### 17.4 智慧引擎與模型路由
+
+Factory 應逐步形成可替換的 Engine Gateway，至少支援：
+- 任務分類與模型／引擎路由。
+- 不同模型的程式碼推理、長上下文、快速低成本任務、視覺理解及本地模型選項。
+- Prompt／工具契約版本管理、結構化輸出與錯誤處理。
+- 降級／Fallback、逾時、重試、速率限制與供應商故障隔離。
+- 模型品質、成本、延遲、工具成功率及任務完成率的基準測試。
+- 敏感資料最小化、模型供應商政策與資料外送控制。
+
+模型能力必須以同一組代表性任務集做評測，不以品牌、參數量或單次展示結果決定路由。模型不可直接取代權限政策、驗收流程或確定性工具。
+
+### 17.5 工具能力與工具治理
+
+Factory 應維護版本化 Tool Registry。每項工具需登記用途、輸入／輸出 schema、權限、風險、成本、逾時、重試、安全限制、審計方式及 owner。工具能力至少涵蓋：
+- Repository：搜尋、讀取、差異分析、分支、commit、PR、Issue、Review。
+- Engineering：Shell／終端機、編譯、套件管理、Lint、型別檢查、單元／整合／E2E 測試。
+- Runtime：隔離容器、Runner、工作區、artifact、快取與任務恢復。
+- Research：文件／網頁檢索、API 文件、知識庫與來源引用。
+- Product：瀏覽器自動化、UI 截圖、可存取性與視覺測試。
+- Data：受控 SQL、Schema 驗證、資料品質與遷移工具。
+- Operations：Logs、Metrics、Tracing、部署狀態、告警與回滾。
+- Collaboration：任務交接、PR 討論、通知與稽核紀錄。
+
+工具不應因為「可連線」就自動取得可寫權限；依任務最小權限發放。破壞性、付費、外部發布、正式資料與生產部署工具必須有額外核准及可追溯紀錄。
+
+### 17.6 引擎與 Worker 協作生產線
+
+標準生產線如下：
+
+`INTAKE → DISCOVERY → PLAN → ASSIGN → IMPLEMENT → TEST → REVIEW → PACKAGE → RELEASE → OBSERVE → LEARN`
+
+- Planner 產生可驗證的依賴圖與任務契約。
+- Scheduler 依技能、可用性、風險、成本與優先級派工。
+- Workers 在隔離環境中執行；可平行化的獨立任務才可併發。
+- Integration Worker 整合產出並解決契約衝突。
+- QA／Security Worker 提供獨立測試與風險證據。
+- Reviewer 依權責獨立放行；Developer 不得自我批准。
+- Publisher 僅在核准條件滿足時建立交付或發布。
+- Observer 追蹤品質、成本與故障，將經驗回饋能力目錄。
+
+### 17.7 強大但不失控：容量、成本與可靠性
+
+Factory 不以 Worker 數量作為強度指標。必須量測並逐步最佳化：
+- 任務吞吐量、端到端 Lead Time、成功交付率、首次通過率。
+- 人工介入率、返工率、缺陷逃逸率、回歸失敗率。
+- Worker 利用率、排隊時間、平行任務數、Runner 飽和度。
+- 每任務模型成本、工具成本、運算成本及總成本。
+- 逾時、重試、取消、失敗恢復與任務狀態遺失率。
+
+先找出真實瓶頸再擴充容量。不可在單一 Windows Runner 尚未證明飽和或任務可安全平行前，盲目增加 Runner／Worker；不可讓共享工作區造成互相覆蓋。平行工作必須具備獨立分支／工作目錄、檔案 ownership、鎖定及整合策略。
+
+### 17.8 分階段建置，不另造重複核心
+
+- **F0 Inventory：** 盤點現有 Worker、模型介面、工具、Runner、排程、狀態機、測試、監控及權限；標記 IMPLEMENTED／PARTIAL／MISSING／UNKNOWN。
+- **F1 Reliable Worker Contract：** 統一 Worker schema、任務輸入輸出、權限 allowlist、成本／逾時及證據格式。
+- **F2 Engine & Tool Registry：** 盤點並標準化現有模型／工具 Adapter，補齊路由、版本、評測及權限；不重複造 Gateway。
+- **F3 Orchestration & Safe Parallelism：** 依任務依賴、檔案衝突、Runner 容量實作安全併發、隔離工作區、取消與恢復。
+- **F4 Quality & Recovery：** 補足真實任務端到端測試、獨立 QA、安全檢查、故障恢復及成本觀測。
+- **F5 Adaptive Production：** 以量測結果調度 Worker／引擎、選擇工具、預測瓶頸並提出改善；仍須依核准權限及獨立驗收。
+
+每階段都先沿用現有控制器、狀態機、排程與 Runner 能力；若現有實作已符合要求，直接登記並驗收，不為了符合新名稱而重寫。
+
+**最高原則：Factory 必須有夠強的專業工人、智慧引擎與工具鏈，但真正的強大來自契約化、可調度、可擴充、可平行、可恢復、可驗證與受治理，而不是無限制增加 Agent、模型或基礎設施。**
