@@ -1,5 +1,8 @@
 # Agent Factory V2 — Operations Readiness Runbook
 
+> **核心架構依據：** 工廠長期自主開發使命、A0–A6 成熟度、模型／工具可替換原則及人工核准邊界，統一依 [Agent Factory 自主開發最高核心章程](AGENT_FACTORY_AUTONOMY_CHARTER.md)。本 runbook 僅描述已存在或已驗證的操作；不得把章程中的目標能力當成現有功能。
+
+
 ## Scope and release boundary
 
 This runbook covers the current mainline Agent Factory V2 operations defined by:
