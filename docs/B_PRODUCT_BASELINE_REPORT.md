@@ -3,7 +3,8 @@
 > **Snapshot date:** 2026-11-23 (Asia/Taipei)  
 > **Repository:** `X84657465/global-citizen-ai-network`  
 > **Baseline source:** `main` at `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`  
-> **B track:** `0.1.20` (`active` in `versions/manifest.json`)  
+> **B track on inspected main baseline:** `0.1.20` (`active` in the manifest at the stated main SHA)  
+> **B candidate on this PR branch:** `0.1.25` (not merged; main remains `0.1.20`)  
 > **Overall release:** `0.3.136`  
 > **Report type:** GitHub source / metadata inspection. No local checkout, local working-tree inspection, runtime test, database connection, production access or deployment was performed in this report.
 
