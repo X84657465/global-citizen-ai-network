@@ -70,8 +70,18 @@ function nonNegativeSafeInteger(value: number): boolean {
   return Number.isSafeInteger(value) && value >= 0;
 }
 
-function hasOnlyOwnKeys(value: object, allowed: readonly string[]): boolean {
-  return Reflect.ownKeys(value).every((key) => typeof key === "string" && allowed.includes(key));
+function isSafeRecord(value: object, allowed: readonly string[], required: readonly string[]): boolean {
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) return false;
+
+  const keys = Reflect.ownKeys(value);
+  if (keys.some((key) => typeof key !== "string" || !allowed.includes(key))) return false;
+  if (required.some((key) => !Object.prototype.hasOwnProperty.call(value, key))) return false;
+
+  return keys.every((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    return descriptor !== undefined && descriptor.enumerable && "value" in descriptor;
+  });
 }
 
 function percentile(sorted: readonly number[], p: number): number | null {
@@ -87,7 +97,7 @@ function percentile(sorted: readonly number[], p: number): number | null {
 export function assessHObservation(bundle: HObservationBundle): HObservationAssessment {
   if (
     !bundle ||
-    !hasOnlyOwnKeys(bundle, ["windowStart", "windowEnd", "quotaLimitMicros", "quotaWarningPercent", "events"]) ||
+    !isSafeRecord(bundle, ["windowStart", "windowEnd", "quotaLimitMicros", "quotaWarningPercent", "events"], ["windowStart", "windowEnd", "quotaLimitMicros", "quotaWarningPercent", "events"]) ||
     !isCanonicalUtc(bundle.windowStart) ||
     !isCanonicalUtc(bundle.windowEnd) ||
     Date.parse(bundle.windowStart) >= Date.parse(bundle.windowEnd) ||
@@ -113,7 +123,7 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
   for (const event of bundle.events) {
     if (
       !event ||
-      !hasOnlyOwnKeys(event, ["eventId", "occurredAt", "kind", "outcome", "durationMs", "costMicros", "currency"]) ||
+      !isSafeRecord(event, ["eventId", "occurredAt", "kind", "outcome", "durationMs", "costMicros", "currency"], ["eventId", "occurredAt", "kind", "outcome"]) ||
       typeof event.eventId !== "string" ||
       !EVENT_ID.test(event.eventId) ||
       ids.has(event.eventId) ||
