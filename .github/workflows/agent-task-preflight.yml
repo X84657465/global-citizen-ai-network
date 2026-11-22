@@ -758,7 +758,7 @@ jobs:
           $testOutput | ForEach-Object { Write-Host "$_" }
           $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
           if ($dockerExecExitCode -ne 0) { throw "Unable to execute candidate commands in the already-running container; no task-failure marker was written, so this remains system-scoped." }
-          $null = & docker cp "$containerName`:/tmp/agent-candidate-test-exit-code" $statusFile
+          $null = & docker cp "$($containerName):/tmp/agent-candidate-test-exit-code" $statusFile
           if ($LASTEXITCODE -ne 0) { throw "Unable to retrieve candidate command exit evidence; no task-failure marker was written, so this remains system-scoped." }
           if (-not (Test-Path -LiteralPath $statusFile -PathType Leaf)) { throw "Candidate command exit evidence is missing; no task-failure marker was written, so this remains system-scoped." }
           $candidateExitCodeText = (Get-Content -LiteralPath $statusFile -Raw).Trim()
