@@ -900,6 +900,17 @@ jobs:
           name: ai-agent-publication-result-${{ github.run_id }}
           path: artifacts
 
+      - name: Transition task to publishing
+        if: needs.publish-task.result == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: transition
+          ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
+          NEXT_TASK_STATE: publishing
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-v2-controller.mjs
+
       - name: Record candidate PR state and release worker lease
         id: record-publication
         if: needs.publish-task.result == 'success'
@@ -932,7 +943,7 @@ jobs:
             $env:NEXT_TASK_STATE = "awaiting_ci"
             node scripts/agent-factory-v2-controller.mjs
             if ($LASTEXITCODE -ne 0) { throw "Unable to release the worker lease for candidate CI." }
-            "pull_request_url=$pullUrl" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "pull_request_url=$pullUrl`n", [System.Text.UTF8Encoding]::new($false))
           }
 
       - name: Comment on the source task with the draft PR link
