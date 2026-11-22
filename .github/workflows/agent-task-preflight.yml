@@ -507,6 +507,7 @@ jobs:
       issue_number: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
       candidate_ready: ${{ steps.candidate-tests.outcome == 'success' }}
       created_issue_number: ${{ steps.create-roadmap-task.outputs.created_issue_number }}
+      api_cooldown_until: ${{ steps.prepare-task.outputs.api_cooldown_until || steps.select-task.outputs.api_cooldown_until }}
     permissions:
       actions: none
       contents: read
@@ -862,6 +863,8 @@ jobs:
   begin-publication:
     name: Record publishing state before granting publisher write access
     needs: [prepare-task]
+    outputs:
+      api_cooldown_until: ${{ steps.record-publishing.outputs.api_cooldown_until }}
     if: needs.prepare-task.result == 'success' && needs.prepare-task.outputs.candidate_ready == 'true' && needs.prepare-task.outputs.issue_number != ''
     permissions:
       contents: read
@@ -885,6 +888,7 @@ jobs:
           node-version: "22.13.0"
 
       - name: Transition task to publishing before PR creation
+        id: record-publishing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -897,6 +901,8 @@ jobs:
   publish-task:
     name: Publish the validated candidate with isolated write permissions
     needs: [prepare-task, begin-publication]
+    outputs:
+      api_cooldown_until: ${{ steps.publish-candidate.outputs.api_cooldown_until }}
     if: needs.prepare-task.result == 'success' && needs.begin-publication.result == 'success' && needs.prepare-task.outputs.candidate_ready == 'true' && needs.prepare-task.outputs.issue_number != ''
     permissions:
       actions: read
@@ -936,6 +942,7 @@ jobs:
           Move-Item -LiteralPath $source -Destination $destination -Force
 
       - name: Create a draft PR after isolated tests pass
+        id: publish-candidate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -1062,6 +1069,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.begin-publication.outputs.api_cooldown_until || needs.publish-task.outputs.api_cooldown_until || needs.prepare-task.outputs.api_cooldown_until }}
           AGENT_FACTORY_MODE: failure
           FAILED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
           FAILURE_STAGE: publish
