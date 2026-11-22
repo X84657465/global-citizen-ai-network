@@ -161,7 +161,15 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
     throw new TypeError("Invalid F evidence CI record; expected plain own-data fields.");
   }
   if (
-    !ci ||
+    typeof ci.repository !== "string" ||
+    typeof ci.headSha !== "string" ||
+    typeof ci.event !== "string" ||
+    typeof ci.baseRef !== "string" ||
+    typeof ci.workflowPath !== "string" ||
+    typeof ci.runUrl !== "string" ||
+    typeof ci.jobKey !== "string" ||
+    typeof ci.jobConclusion !== "string" ||
+    typeof ci.jobUrl !== "string" ||
     ci.repository !== repository ||
     ci.pullRequestNumber !== pullRequestNumber ||
     !SHA_PATTERN.test(ci.headSha) ||
@@ -200,6 +208,8 @@ export function assessFPSecurityEvidence(
 ): FPSecurityAssessment {
   if (
     !isSafeRecord(bundle, ["candidateRepository", "pullRequestNumber", "candidateSha", "evidence"], ["candidateRepository", "pullRequestNumber", "candidateSha", "evidence"]) ||
+    typeof bundle.candidateRepository !== "string" ||
+    typeof bundle.candidateSha !== "string" ||
     !REPOSITORY_PATTERN.test(bundle.candidateRepository) ||
     !isPositiveInteger(bundle.pullRequestNumber) ||
     !SHA_PATTERN.test(bundle.candidateSha)
@@ -220,8 +230,12 @@ export function assessFPSecurityEvidence(
     const item = rawItem as unknown as FPSecurityEvidence;
     const expectedControl = FP_SECURITY_CONTROLS.find((control) => control.id === item.controlId);
     if (
-      !item ||
       !expectedControl ||
+      typeof item.controlId !== "string" ||
+      typeof item.testedSha !== "string" ||
+      typeof item.status !== "string" ||
+      typeof item.evidenceRef !== "string" ||
+      typeof item.executedAt !== "string" ||
       item.evidenceRef !== expectedControl.evidencePath ||
       byControl.has(item.controlId) ||
       !SHA_PATTERN.test(item.testedSha) ||
