@@ -258,3 +258,27 @@ test("accepts the configured MAX_EVENTS boundary and rejects MAX_EVENTS plus one
   const overLimit = [...atLimit, event("event-over-limit-0001")];
   assert.throws(() => assessHObservation(bundle(overLimit)), /bounded dense plain array/);
 });
+
+ 
+test("rejects event-array properties outside the ECMAScript array-index range", () => {
+  const extraProperty = [] as HTelemetryEvent[];
+  Object.defineProperty(extraProperty, "4294967295", {
+    configurable: true,
+    enumerable: true,
+    value: event("extra-index-0001"),
+  });
+  assert.throws(
+    () => assessHObservation(bundle(extraProperty)),
+    /bounded dense plain array/,
+  );
+});
+
+test("accepts exactly MAX_EVENTS and rejects MAX_EVENTS plus one", () => {
+  const atLimit = Array.from(
+    { length: 20_000 },
+    (_, index) => event(`limit-event-${index.toString().padStart(8, "0")}`),
+  );
+  assert.equal(assessHObservation(bundle(atLimit)).eventCount, 20_000);
+  const overLimit = [...atLimit, event("over-limit-event-001")];
+  assert.throws(() => assessHObservation(bundle(overLimit)), TypeError);
+});
