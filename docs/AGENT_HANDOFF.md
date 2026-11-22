@@ -1,6 +1,56 @@
-## Superseding verified continuation snapshot — 2026-11-23 (main 9cb3107f)
+## Current verified continuation snapshot — 2026-11-23 (main 10fabef7)
 
-This section supersedes all historical live-state snapshots below. Re-fetch SHAs, Actions runs, reviews, labels and issue state before the next operation; historical entries remain traceability only.
+This is the current operational snapshot, verified against repository main and exact-head GitHub metadata during this refresh. It supersedes all historical live-state snapshots below. Re-fetch exact SHAs and run IDs before any subsequent operation.
+
+### Mainline / authority
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Verified main HEAD: `10fabef703ee3865d208196f46ee71ddd1b7e149`, merge commit for PR #419 (`docs(factory): refresh verified handoff for main 9cb3107f`).
+- `PROJECT_COORDINATION.md`, `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`, `docs/GCAN_B_LINE_LEAD_CHARTER.md`, `docs/GCAN_PRODUCT_NORTH_STAR.md`, and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` are present on main. GPT1 owns A–E and Factory-side A→B read-only interface/handoff; GPT2 owns F–P; GPT3 retains independent architecture review/QA; GPT4 owns B Product; GPT5 supports research/operations and explicitly scoped execution. Role authority is constrained by approved charters and actual repository permissions.
+- Release manifest: overall `0.3.137`; A Factory `2.0.84` active; B Product `0.1.20` active. Manifest registration does not establish Factory acceptance or B Runtime readiness.
+- Factory-first remains mandatory. B Runtime is PREPARATION ONLY / BLOCKED until A independent acceptance, exact-current-main CI, operational evidence and sanitized versioned read-only handoff gates pass.
+
+### Main CI / deployment
+- Combined status for main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` reports Vercel `failure` with target indicating `build-rate-limit`. This is a deployment-provider quota status, not a GitHub Actions test result.
+- The commit workflow-runs lookup returned **no Actions run** for this exact main SHA. Therefore current-main GitHub Actions CI is UNKNOWN / NOT RUN in the available evidence; do not infer PASS from predecessor PRs or older main runs.
+- Do not trigger duplicate runs, alter quotas, or change deployment settings merely to force a green status.
+
+### Open PRs (four; re-fetched)
+- PR #417 — developer-seat documentation; Draft; head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`; base main SHA `25d5ed519eb923d3001df6d43aec1670a0d4851a` is stale; GitHub reports mergeable=false. Exact-head Actions run #45056447505 is PENDING. No merge.
+- PR #376 — Factory autonomy / product north-star documentation; head `d10e6dd6d428d9ce35dbd14778e01c628f909742`; base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` is stale; mergeable=false; no exact-head Actions run surfaced in this check. Canonical B docs are already present on main, so do not merge this stale candidate wholesale.
+- PR #373 — P changelog validation; head `cb90b213d76f1e353c3bae39c9800cecf8a07274`; base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` is stale; mergeable=false. Exact-head run #45052753388 is PENDING. Prior static findings and old CI evidence do not authorize merge.
+- PR #259 — A/F–P integration baseline; head `3330cd04a77358cf0ff780940d09f938cab1dc3a`; base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` is stale; mergeable=false. Exact-head run #44949425719 succeeded, but that result is tied only to this old candidate SHA and does not validate current main.
+- No open PR meets the current-base, exact-head CI, independent-review and mergeability gates. Do not merge or cherry-pick stale stacks wholesale.
+
+### Factory P0 / recovery gates
+- Issue #136's owner-authored READ-ONLY independent audit target remains `dce81ed801c41bca9bc364e3d0f248244d88f88f`; current main has advanced to `10fabef...`. Per Issue #136, stop rather than silently changing the target. A fresh owner-authorized exact-main audit baseline is required. Do not edit Issue #136's task definition or claim A-wide independent acceptance.
+- Issue #188 remains blocked on the independent audit and a reviewed recovery contract. Preserve exact run/attempt/SHA evidence; do not weaken event verification or reset the global breaker using candidate-task success.
+- Issue #352 operator recovery remains BLOCKED. Its post-merge follow-up requires verified Environment-only guard configuration, required reviewers/main-only deployment restriction, fail-closed preflight evidence, exact-head CI and independent review. Do not dispatch recovery or unquarantine any task.
+- Issue #100 is machine-managed durable Factory state and remains strictly read-only. Do not edit its body, alter task counters, lease, quarantine, cooldown or breaker fields.
+- No Runner restart/reconfiguration, task dispatch, manual recovery, workflow permission change, secret change, production DB/RLS operation or deployment was performed in this refresh.
+
+### A→B / B preparation
+- Canonical B charter and Product North Star are present on main; the earlier missing-document finding is resolved.
+- Continue only the minimum versioned, sanitized, read-only Factory projection / Read Adapter contract and B baseline preparation. B must not access Factory private state, internal tables, lease IDs, Runner/Sandbox controls, raw logs, patches, secrets or privileged execution authority.
+- GPT1's scope is Factory-side interface and handoff only; GPT4 owns B product direction, requirements, UX, product architecture and delivery. Do not reopen the old ownership overlap.
+- Do not activate B Runtime until the A gates above are independently satisfied.
+
+### Daily monitoring
+- Reuse the existing automation `6b000cb5c28c8191956a3575bd40d35f` — `GCAN 工廠每日巡檢`; it is enabled daily at 19:00 Asia/Taipei. Do not create a duplicate scheduler.
+- Daily output must distinguish current main CI from Vercel deployment status, bind every CI claim to exact SHA/run/attempt, and list new blockers/deliveries only when evidence changes.
+
+### Next execution order
+1. Obtain a fresh owner-authorized Issue #136 audit baseline for current main; the existing READ-ONLY audit target is stale.
+2. Keep Factory recovery blocked until Issue #188 / #352 review and security/configuration prerequisites are satisfied; do not mutate machine-managed state.
+3. Reconcile stale PRs only through their owning workstream and narrow new candidates; rerun exact-head CI and independent review after every changed SHA.
+4. Continue minimal A→B contract preparation and B baseline readiness; no B Runtime.
+
+**Safety boundary:** this is a documentation-only status refresh. It does not authorize changing Factory runtime, Issue #100 state, Runner, workflows, permissions, secrets, production DB/RLS, deployment or B Runtime.
+ 
+---
+
+## Historical snapshot — 2026-11-23 (main 9cb3107f; superseded)
+
+This record is retained for traceability only. The current verified continuation snapshot is the section immediately above this historical record. Re-fetch all SHAs, Actions runs, reviews, labels and issue state before any operation.
 
 ### Mainline / authority
 - Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
