@@ -296,7 +296,8 @@ P4：非必要擴充、重構與外觀改善。
 - GPT 1：A–E／Agent Factory V2 主線。
 - GPT 2：F–P 平行專業能力建設。
 - GPT 3：跨 A–P 獨立架構審查、整合與 QA。
-- GPT 4：B — GCAN Product 產品負責角色，依 PR #376 的 B 線正式章程及產品北極星執行。\n- GPT 5：Global Intelligence & Operations，全域情報研究與營運支援；不擁有 A–P 模組、不取代核心 owner 或 GPT3 獨立驗收。
+- GPT 4：B — GCAN Product 產品負責角色，依 PR #376 的 B 線正式章程及產品北極星執行。
+- GPT 5：Global Intelligence & Operations，全域情報研究與營運支援；不擁有 A–P 模組、不取代核心 owner 或 GPT3 獨立驗收。
 - 五個 GPT 不假設彼此共享對話、隱性記憶或即時私訊能力；共同事實必須落在 Repository、Issues、PR、commits、CI 與正式文件。
 
 ### 11.2 神經智慧體模式的定位
