@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.126",
+  "overall": "0.3.128",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -43,7 +43,7 @@
     },
     "H": {
       "name": "Observability, Telemetry & Cost/Quota Governance",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "status": "implementation-candidate",
       "responsibility": "Queue and Runner telemetry, task timing, failure taxonomy, cost accounting and quota alerts."
     },
