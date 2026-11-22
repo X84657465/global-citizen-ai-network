@@ -863,3 +863,14 @@ This section supersedes prior PR #328 head/run snapshots and records the latest 
 4. Keep A acceptance gated on exact-SHA quality, disposable-container isolation, Ollama, PostgreSQL/RLS, operational progression/soak, and independent review. Only then implement the bounded read-only A→B projection and tenant boundary.
 
 **Authority boundary:** documentation-only checkpoint. No Factory runtime/state, Issue #100, tasks, leases, retry/cooldown/quarantine, scheduler, Runner concurrency, workflow permissions, secrets, production data, deployment, or B Runtime was changed.
+
+
+---
+
+### Publisher cooldown artifact write-path correction — 2026-11-22
+
+Current-main inspection found that the publisher workflow had no cross-job cooldown artifact handoff, while `persistApiCooldownDeadline` wrote only to `GITHUB_ENV` and `GITHUB_OUTPUT`. The publisher failure callback therefore could lose the provider cooldown when the publishing job failed, because failed-job outputs are not a reliable transport for this value.
+
+A narrow remediation candidate adds a pre-created one-line sanitized handoff file, writes only the validated UTC deadline for structured rate-limit errors, uploads the file with `if: always()`, downloads it in the issue-only state-writer job with `if: always()`, and validates the canonical timestamp before restoring it into that job's environment. It also adds two unit tests (positive artifact persistence and no artifact for non-rate-limit errors) and static workflow assertions for the failure-safe handoff and callback wiring. This is a candidate only until exact-head CI, real 429/403 failure-path integration, durable state readback, and independent review complete. Do not infer runtime validation from the static assertions.
+
+**Authority boundary:** code/test candidate only. No machine-managed state, task/lease, cooldown/quarantine runtime record, secrets, permissions, deployment, or B Runtime was changed.

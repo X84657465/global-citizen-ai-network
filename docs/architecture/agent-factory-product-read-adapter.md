@@ -227,3 +227,42 @@ After A is accepted and integrated, implement the projection as an A-owned read-
 
 Until then, this document remains a design handoff only. A Factory internals remain private, B Runtime remains disabled, and no Product-facing Factory data is exposed.
 
+
+
+---
+
+## 11. Current-main readiness refresh — 2026-11-22
+
+This section supersedes earlier mainline, PR, and CI snapshots above. The authoritative baseline rechecked for this refresh is:
+
+- Main SHA: `9934158d58fd2155c570cef8254d720c65df6741`.
+- Repository version: `0.3.125`.
+- Agent Factory V2: `2.0.84`.
+- GCAN Product track metadata: `0.1.20`.
+
+### A acceptance evidence
+
+- PR #331 is merged. Its exact-head Actions run `45008582252` passed the metadata resolver, Windows Runner quality gates, Ollama/local execution integration, and PostgreSQL/RLS integration. This is CI evidence for PR #331's scope only; it does not satisfy the independent A-wide adversarial review.
+- PR #332 is merged at the current main SHA above. It refreshed the Agent Factory operations/security handoff; it does not implement the A→B projection.
+- PR #333 is closed unmerged as stale/diverged. Its candidate run is not acceptance evidence for current main.
+- PR #336 is the current narrow A reliability candidate for publisher cooldown handoff. **Do not use a SHA or Actions run copied into this design document as current acceptance evidence.** The authoritative candidate HEAD and exact-head check results are the live [PR #336 Checks tab](https://github.com/X84657465/global-citizen-ai-network/pull/336); every new commit changes the candidate SHA and requires a fresh exact-head run. Earlier run snapshots in comments and this document are historical only. The latest source/documentation refresh has triggered a new exact-head CI run. Even when success-path jobs pass, that does not prove publisher-failure artifact transfer or durable cooldown write/read-back. Vercel's free daily deployment quota is separate from GitHub Actions CI.
+- PR #336 remains Draft/unmerged and has no submitted formal PR review or inline review threads at this checkpoint. Structured 429/403 publisher-failure injection, cross-job artifact transfer after publisher failure, and durable cooldown write/read-back remain unverified. Keep the PR Draft until those failure-path checks and independent review are recorded.
+- Issue #136 remains the independent read-only adversarial review gate. No independent audit report or approval was found in its comments at this checkpoint.
+
+### B preparation boundary
+
+- The current-main source cross-check remains a proposal/design handoff only. No dedicated A-owned Product projection endpoint or B runtime adapter has been accepted.
+- Keep B authentication, workspace membership, tenant mapping, RLS and IDOR enforcement B-owned. A must not trust a client-provided workspace reference.
+- Do not expose A Issue bodies, leases, Runner/Sandbox details, raw logs, patches, internal enums, machine failure codes, cooldowns, or arbitrary URLs.
+- The proposed DTO must bind terminal CI evidence to the exact current candidate SHA, PR number, CI run ID and run attempt. Do not infer success from a prior head or from the descriptive `EvidenceRecord.command` field.
+- The failure-category table above remains a proposed allowlist; candidate CI failures without a stable structured A error code remain `unknown`.
+- Do not create Product tables/routes, activate a feature flag, expose Factory data, or start billing/runtime integration until A's full acceptance gates pass.
+
+### Next sequence
+
+1. Complete exact-head CI for PR #336 and execute the structured provider failure path, including artifact transfer and durable state read-back.
+2. Obtain the independent Issue #136 report against the accepted integrated A baseline; keep all self-review and CI evidence separate from that sign-off.
+3. Close the remaining A operational/Runner/soak gates with exact-SHA evidence.
+4. Only after A acceptance, freeze the A-owned read projection and implement B-owned workspace authorization plus two-workspace RLS/IDOR contract tests.
+
+**Status:** preparation-only. This refresh changes documentation evidence only; it does not activate B or modify Factory runtime/state.
