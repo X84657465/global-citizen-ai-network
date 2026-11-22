@@ -91,6 +91,7 @@ const bundle = (overrides: {
         runUrl: releaseRunUrl,
         jobs: G_REQUIRED_CI_JOBS.map((jobId) => ({
           jobId,
+          runAttempt: releaseAttempt,
           status: "completed" as const,
           conclusion: jobId === overrides.failedJob ? "failure" as const : "success" as const,
           jobUrl: `${releaseRunBaseUrl}/job/456`,
