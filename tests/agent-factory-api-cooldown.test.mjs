@@ -106,3 +106,50 @@ test("does not create a cross-job handoff artifact for non-rate-limit failures",
   assert.equal(existsSync(artifactFile), false);
   rmSync(directory, { recursive: true, force: true });
 });
+
+
+test("round-trips sanitized 429 and secondary 403 cooldown artifacts into the failure callback environment", async () => {
+  const { restoreApiCooldownDeadline } = await import("../scripts/restore-agent-factory-api-cooldown.mjs");
+  const directory = mkdtempSync(join(tmpdir(), "agent-factory-cooldown-roundtrip-"));
+  try {
+    const cases = [
+      {
+        name: "primary 429",
+        error: {
+          status: 429,
+          message: "private provider response must not cross jobs",
+          retryAfter: "120",
+          rateLimited: true,
+        },
+      },
+      {
+        name: "secondary 403",
+        error: {
+          status: 403,
+          message: "secondary rate limit; private provider response",
+          retryAfter: "not-a-date",
+          rateLimitReset: "1002",
+          rateLimited: true,
+        },
+      },
+    ];
+
+    for (const [index, scenario] of cases.entries()) {
+      const artifactFile = join(directory, "artifact-" + index + ".txt");
+      const envFile = join(directory, "callback-" + index + ".env");
+      const deadline = persistApiCooldownDeadline(scenario.error, {
+        now: 1_000_000,
+        artifactFile,
+      });
+      assert.equal(typeof deadline, "string", scenario.name + " must produce a validated deadline");
+
+      const restored = restoreApiCooldownDeadline({ artifactFile, envFile });
+      assert.deepEqual(restored, { status: "restored", deadline }, scenario.name);
+      const callbackEnvironment = readFileSync(envFile, "utf8");
+      assert.equal(callbackEnvironment, "AGENT_FACTORY_API_COOLDOWN_UNTIL=" + deadline + "\n");
+      assert.doesNotMatch(callbackEnvironment, /private provider|secondary rate|Retry-After|rateLimitReset/);
+    }
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
