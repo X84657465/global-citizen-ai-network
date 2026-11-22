@@ -1579,6 +1579,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_branch: "feature/system-health",
             pull_requests: [{
               number: 168,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
@@ -1653,6 +1654,7 @@ test("system-health success rejects an overall successful run when required CI j
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_branch: "feature/system-health",
             pull_requests: [{
               number: 170,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
@@ -1708,6 +1710,7 @@ test("system-health success rejects a required CI job from another attempt or SH
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_branch: "feature/system-health",
             pull_requests: [{
               number: 171,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
@@ -1761,6 +1764,7 @@ test("system-health success rejects a closed PR even when its old CI run was suc
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_branch: "feature/system-health",
             pull_requests: [{
               number: 172,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
@@ -1822,10 +1826,11 @@ test("system-health success rejects a successful CI run when the PR has advanced
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
+            head_branch: "feature/system-health",
             pull_requests: [{
               number: 169,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
-              head: { sha: testedSha, repo: { full_name: "owner/repo" } },
+              head: { ref: "feature/system-health", sha: testedSha, repo: { full_name: "owner/repo" } },
             }],
           };
         }
@@ -1834,7 +1839,7 @@ test("system-health success rejects a successful CI run when the PR has advanced
             number: 169,
             state: "open",
             base: { ref: "main", repo: { full_name: "owner/repo" } },
-            head: { sha: currentSha, repo: { full_name: "owner/repo" } },
+            head: { ref: "feature/system-health", sha: currentSha, repo: { full_name: "owner/repo" } },
           };
         }
         throw new Error("Unexpected API request: " + path);
@@ -1874,10 +1879,11 @@ test("system-health success fails closed for missing or mismatched health eviden
           conclusion: "success",
           path: ".github/workflows/ci.yml",
           event: "pull_request",
+          head_branch: "feature/system-health",
           pull_requests: [{
             number: 168,
             base: { ref: "main", repo: { full_name: "owner/repo" } },
-            head: { sha: "e".repeat(40), repo: { full_name: "owner/repo" } },
+            head: { ref: "feature/system-health", sha: "e".repeat(40), repo: { full_name: "owner/repo" } },
           }],
         };
       },
