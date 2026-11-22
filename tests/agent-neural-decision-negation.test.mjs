@@ -242,3 +242,23 @@ test("operation-object-target grammar remains high risk", () => {
     assert.equal(result.decision, "reject_and_replan", title);
   }
 });
+
+test("production migration imperative variants remain high risk", () => {
+  for (const title of [
+    "Perform migration to production",
+    "Run a production migration",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("change-log noun phrase is not treated as a production change command", () => {
+  const title = "Review change log to production";
+  const result = evaluateAgentDecision(withImplementerText(title), task);
+  assert.equal(result.signals.no_high_risk_scope, true, title);
+  assert.equal(result.evidence.high_risk_scope_detected, false, title);
+  assert.equal(result.decision, "approve_for_sandbox_validation", title);
+});
