@@ -14,7 +14,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%7C%20RLS-3FCF8E?logo=supabase&logoColor=white)
 ![Stage](https://img.shields.io/badge/Stage-Early%20Development-orange)
 
-**Release:** `0.3.130` · A 線 Agent Factory V2 `2.0.84` · B 線 GCAN Product `0.1.20` · P 線 Governance `0.1.2` · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [A–P 線別架構與責任](docs/engineering-workstreams.md)
+**Release:** `0.3.131` · A 線 Agent Factory V2 `2.0.84` · B 線 GCAN Product `0.1.20` · H 線 Observability `0.1.2` · P 線 Governance `0.1.2` · [版本紀錄](CHANGELOG.md) · [A–P 工程治理](docs/engineering-governance.md) · [A–P 線別架構與責任](docs/engineering-workstreams.md)
 
 </div>
 
