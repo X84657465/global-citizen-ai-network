@@ -580,7 +580,7 @@ test("package lock metadata matches the resolved eslint-import-resolver-node tar
 
 test("Agent Factory runbook separates default-branch polling from manual V2 dispatch", () => {
   const runbook = readFileSync(new URL("../docs/agent-factory-operations-runbook.md", import.meta.url), "utf8").replace(/\r\n/g, "\n");
-  assert.ok(preflight.includes("  schedule:\n    - cron: \"*/5 * * * *\""));
+  assert.ok(preflight.includes("  schedule:\n    - cron: \"3-59/5 * * * *\""));
   assert.ok(preflight.includes("  workflow_dispatch:\n    inputs:\n      issue_number:"));
   assert.ok(preflight.includes("github.event_name == 'workflow_dispatch' &&\n       github.actor == github.repository_owner"));
   assert.ok(preflight.includes("ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}"));
