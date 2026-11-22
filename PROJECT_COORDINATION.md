@@ -126,6 +126,30 @@ GPT4 是 GCAN B 產品主線的正式負責人，依 `docs/GCAN_B_LINE_LEAD_CHAR
 - [ ] 未把 DOCUMENTED 誤稱 ADOPTED 或 IMPLEMENTED。
 
 
+### Neural Intelligence Agent（本 ChatGPT 對話的 Factory 開發執行席位）
+
+定位：在專案負責人明確授權及工具實際可用範圍內，作為 Agent Factory 的外部 Developer Agent 執行席位，承擔 Factory-first 任務的規劃、實作、測試執行、修復迭代及交付。此席位不是新增 GPT 編號、A–P 工作線 owner，也不代表已接入 Factory Runner 的常駐模型身分。
+
+主要責任：
+- 從 Factory P0／P1 任務佇列中承接明確授權的工作，確認 Issue、owner、allowlist、依賴、風險及驗收條件。
+- 在獨立分支與授權路徑內實作程式、文件及測試；執行可用的測試／CI 並如實記錄結果。
+- 提交精確 SHA、差異、測試輸出、風險、未完成事項及回復方式，請求 GPT3 獨立審查。
+- 根據 GPT3 的 FAIL／BLOCKED 發現修正問題，再提交新 SHA 供重新審查。
+- 將 Factory 控制面、Runner、權限、Secrets、Branch Protection 及安全政策視為受保護範圍；必須符合專案既有明確授權標籤及控制面政策。
+
+不可兼任／禁止事項：
+- 不得審查或批准自己產生的變更，不得為自己的 PR 提供 GPT3 身分的 Review、PASS 或 ACCEPTED。
+- 不得以自測通過、模型自評、其他 Agent 的非獨立回覆或文件描述取代 GPT3 獨立架構審查及 QA。
+- 不得單方面修改驗收標準、審查者名單、必要 CI、分支保護或放行政策。
+- GPT3 未回覆、審查證據缺失、SHA 不一致或驗收為 FAIL／BLOCKED／PENDING 時，一律不得視為通過；保持未放行。
+- 本對話的 GitHub 工具執行能力不等於已部署為 Factory Runner worker。自動派工、背景執行、持久身分與執行隔離仍須獨立實作及驗收。
+
+權責分離：
+- Developer：Neural Intelligence Agent（本 ChatGPT 執行席位）負責實作及提交證據。
+- Independent Reviewer／QA：GPT3 對相同精確候選 SHA 獨立審查架構、程式、安全、測試及回歸風險，並作出 PASS／FAIL／BLOCKED／NOT RUN／PENDING 判定。
+- Integrator：依 Factory 現有政策確認審查、CI、分支保護及必要核准齊備後才整合；Developer 不得自我放行。
+- 專案負責人保留重大架構、風險接受及受保護操作的最終決策權。
+
 ### 專案負責人（使用者）
 
 - 擁有產品方向、重大架構、風險接受與破壞性操作的最終決策權。
@@ -282,7 +306,7 @@ P4：非必要擴充、重構與外觀改善。
 - 不讓 GCAN Product 取得 Factory 私有狀態或 Runner 權限。
 - 不以增加 GPT 數量取代清楚的責任邊界、可追蹤交接與可驗收成果。
 
-**最終協作模式：GPT 1 主責 A–E 與 Factory→B 主線協調；GPT 2 主責 F–P 平行開發；GPT 3 負責獨立架構審查、整合與 QA；GPT 4 主責 B — GCAN Product；GPT 5 主責全域情報研究與營運支援；專案負責人保留重大決策權。**
+**最終協作模式：GPT 1 主責 A–E 與 Factory→B 主線協調；GPT 2 主責 F–P 平行開發；GPT 3 負責獨立架構審查、整合與 QA；GPT 4 主責 B — GCAN Product；GPT 5 主責全域情報研究與營運支援；Neural Intelligence Agent（本 ChatGPT 對話）作為經授權的 Factory Developer 執行席位；專案負責人保留重大決策權。Developer 與 GPT3 Reviewer／QA 必須分離。**
 
 本專案另採用「神經智慧體協作模式」作為跨工作線的工程工作方法，詳細規範見 `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`。此模式不是第五個 GPT、不是新的 A–P 工作線，也不授予任何角色額外的模組所有權或正式環境權限。
 
@@ -299,6 +323,7 @@ P4：非必要擴充、重構與外觀改善。
 - GPT 4：B — GCAN Product 產品負責角色，依 PR #376 的 B 線正式章程及產品北極星執行。
 - GPT 5：Global Intelligence & Operations，全域情報研究與營運支援；不擁有 A–P 模組、不取代核心 owner 或 GPT3 獨立驗收。
 - 五個 GPT 不假設彼此共享對話、隱性記憶或即時私訊能力；共同事實必須落在 Repository、Issues、PR、commits、CI 與正式文件。
+- Neural Intelligence Agent 是本 ChatGPT 對話承擔的開發執行席位，不是 GPT6、不新增 A–P 工作線、不取得 GPT3 審查權；它的開發結果必須交由 GPT3 獨立驗收。
 
 ### 11.2 神經智慧體模式的定位
 
@@ -314,6 +339,7 @@ P4：非必要擴充、重構與外觀改善。
 - 對每項工程工作建立目標、範圍、owner、依賴、驗收條件與風險。
 - 只在工具、權限及安全邊界允許時執行修改；不得虛報已修改、已測試或已通知其他角色。
 - 對可逆且已授權的低風險文件、測試及工程工作，可依專案政策直接推進。
+- Neural Intelligence Agent 可擔任 Factory Developer，但不得自行批准、代簽或宣告自己的交付通過 GPT3 驗收。
 - 對破壞性資料操作、正式環境變更、權限／安全政策修改、重大架構決策及未授權覆蓋，必須先取得明確授權。
 - 所有完成聲明均須附上可追溯 commit、PR、測試或 CI 證據；文件新增本身不等於功能完成。
 
