@@ -49,6 +49,13 @@ test("sanitizes control characters and bounds unknown submission labels", () => 
   assert.equal(getSubmissionStatusLabel(noisyStatus), `狀態待確認（${"x".repeat(80)}）`);
 });
 
+test("removes C1 and bidirectional control characters from unknown labels", () => {
+  assert.equal(
+    getSubmissionStatusLabel("\u0085\u202eunsafe\u202c"),
+    "狀態待確認（unsafe）",
+  );
+});
+
 test("maps persisted appeal lifecycle states", () => {
   assert.equal(getAppealStatusLabel("submitted"), "申訴已送出");
   assert.equal(getAppealStatusLabel("under_review"), "申訴審核中");
