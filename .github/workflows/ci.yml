@@ -24,13 +24,17 @@ defaults:
 
 jobs:
   resolve-candidate:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
        (github.event.pull_request.user.login == github.repository_owner ||
         github.event.pull_request.user.login == 'github-actions[bot]'))
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:
       contents: read
@@ -62,7 +66,6 @@ jobs:
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || '' }}
           EXPECTED_HEAD_REF: ${{ github.event.pull_request.head.ref || github.event.client_payload.head_ref || '' }}
           RESOLVER_DIAGNOSTICS_OUTPUT: ${{ runner.temp }}/resolver-diagnostics.json
-        shell: bash
         run: node scripts/resolve-agent-task-pr.mjs
       - name: Upload redacted resolver failure evidence
         if: always()
@@ -675,10 +678,11 @@ jobs:
           retention-days: 90
 
   ci-diagnostics:
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     name: Exact-SHA CI failure diagnostics and evidence
-    defaults:
-      run:
-        shell: pwsh
     needs: [resolve-candidate, quality, build, database]
     if: >-
       always() &&
@@ -686,7 +690,7 @@ jobs:
        needs.quality.result == 'failure' ||
        needs.build.result == 'failure' ||
        needs.database.result == 'failure')
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:
       actions: read
