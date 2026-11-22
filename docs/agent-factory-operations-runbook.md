@@ -103,26 +103,25 @@ Do not delete the Runner's `_work` directory, remove Docker volumes, reset the r
 - All workflow `actions/checkout` steps must set `persist-credentials: false`. A regression test enforces this across workflow YAML files.
 - Keep write-capable `GITHUB_TOKEN` use step-scoped and pass only the minimum required permissions to each job.
 - Candidate code must not receive GitHub tokens, Supabase credentials, production environment variables, Docker socket access, or host filesystem mounts.
-- The current `prepare-task` job has `actions: none`; it retains `contents: write`, `issues: write`, and `pull-requests: write` because it creates task branches/PRs and updates workflow state. A future hardening task should trace each API call and split task preparation from a narrow write-only publisher before enabling autonomous operation at scale.
+- The current Agent Task Preflight workflow separates publication authority across jobs: `prepare-task` has `actions: none`, `contents: read`, `issues: write`, and `pull-requests: read`; `begin-publication` has `contents: read` and `issues: write`; `publish-task` has `actions: read`, `contents: write`, `issues: none`, and `pull-requests: write`. Do not describe `prepare-task` as holding content/PR write access.
 - Branch protection/ruleset settings could not be verified through the connected GitHub integration: the branch-protection API returned 403 (resource not accessible by integration), and repository rulesets are unavailable on the current private-repository plan. An owner must inspect repository Settings directly before release.
 - Confirm repository Actions settings allow GitHub Actions to create pull requests only if the automated Draft PR publisher is intended to run. Do not enable broader workflow permissions than required.
 - Rotate any credential suspected of exposure; never paste secrets into issues, PRs, logs, chat, or source files.
 
 ## Fine-grained token and publisher boundary audit
 
-The preflight workflow currently grants its single `prepare-task` job `contents: write`, `issues: write`, and `pull-requests: write`, while explicitly setting `actions: none`. The permissions are job-scoped, not step-scoped; putting a token only in selected step environments reduces accidental exposure but does not reduce the job's GitHub API authority.
+The current preflight flow is already split into three permission boundaries. These are **job-level GitHub token permissions**, while explicit `GITHUB_TOKEN` environment injection is limited to selected trusted steps:
 
-Observed API responsibilities in the current implementation:
+- `prepare-task`: `actions: none`, `contents: read`, `issues: write`, `pull-requests: read`. It reads task Issues, selects work, and uses the V2 state store to reserve/transition durable state. The roadmap planner can create a task Issue.
+- `begin-publication`: `contents: read`, `issues: write`. It records the durable `publishing` transition before publisher authority is granted.
+- `publish-task`: `actions: read`, `contents: write`, `issues: none`, `pull-requests: write`. It creates the candidate branch/commit and Draft PR without Issue-write authority.
+- `actions: none` remains intentional on task preparation; Actions API access is not required there.
 
-- `contents: write`: the deterministic publisher creates/updates the candidate branch and commit before opening a Draft PR.
-- `pull-requests: write`: the publisher opens the task's Draft PR.
-- `issues: write`: the V2 state store creates/updates the durable state Issue; the planner creates task Issues; the publisher posts a task Issue comment.
-- `issues: read`: task preflight reads the selected task Issue; queue selection and state recovery also enumerate Issues.
-- `actions: none`: retained intentionally; the preflight job does not need Actions API write authority.
+The remaining least-privilege gap is narrower than the previous description but not closed: `prepare-task` still carries `issues: write` for its whole job because state persistence and roadmap Issue creation share that job. A future split may isolate the durable state writer and roadmap Issue creation from read-only planning, but only after mapping every write call and preserving the single-runner queue, lease fencing/recovery, state-version checks, and ambiguous-write reconciliation.
 
-Candidate code is executed in disposable Docker containers. The workflow does not pass `GITHUB_TOKEN`, `GH_TOKEN`, or `GITHUB_*` environment variables into candidate install/test containers; candidate tests run with `--network none`, `--cap-drop ALL`, and `--read-only`. New regression tests now enforce the token-isolation boundary and ensure credential injection remains in named trusted orchestration/publisher steps.
+Candidate code remains isolated in disposable containers. The dependency install containers use a restricted bridge network; candidate tests use `--network none`, `--cap-drop ALL`, `--read-only`, non-root UID and disabled lifecycle scripts. Candidate install/test steps must not receive `GITHUB_TOKEN`, `GH_TOKEN`, or `GITHUB_*` variables.
 
-**Do not claim least-privilege completion yet.** Because GitHub token permissions are job-scoped, the remaining write scopes are still available to trusted steps throughout the combined job. A safe future split should introduce a distinct publisher job with only `contents: write` and `pull-requests: write`, and a state/issue writer with only `issues: write`; read-only preparation should receive only `contents: read` and `issues: read`. The split must explicitly transfer and validate immutable task/plan/patch artifacts, candidate base SHA, lease ID, issue number, runner identity and exact test evidence. It must preserve single-runner serialization, lease recovery, idempotent deterministic branch publication, failure classification, and cleanup. Do not split until integration tests cover cancellation, artifact expiry/tampering, stale base commits, publisher retries, and partial state-write recovery.
+PR #331 adds exact permission-set assertions and an allowlist of the trusted `prepare-task` steps that may receive the token. Those assertions are candidate-branch changes, not yet mainline evidence; accept them only after exact-head CI and review.
 
 ## Processed-event ledger capacity
 
