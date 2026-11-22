@@ -77,7 +77,7 @@ test("classifies near-limit and oversized encoded Issue bodies", () => {
 
 test("rejects malformed and dot-segment repository names", () => {
   const fake = fakeApi();
-  for (const repository of ["owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo", "owner./repo", "owner/repo.", "owner/repo/extra", "/repo", "owner/", "owner\\repo", "owner/%2e%2e", "owner/%2Fadmin", "owner/repo?query", "owner/repo#fragment", "owner/" + "r".repeat(101), "o".repeat(40) + "/repo", "owner.with.dot/repo", "_owner/repo"]) {
+  for (const repository of ["owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo", "owner./repo", "owner/repo.", "owner/repo..archive", "owner/repo/extra", "/repo", "owner/", "owner\\repo", "owner/%2e%2e", "owner/%2Fadmin", "owner/repo?query", "owner/repo#fragment", "owner/" + "r".repeat(101), "o".repeat(40) + "/repo", "owner.with.dot/repo", "_owner/repo"]) {
     assert.throws(
       () => createFactoryStateStore(fake.client, { repository }),
       /A valid repository name is required/,
@@ -86,10 +86,13 @@ test("rejects malformed and dot-segment repository names", () => {
   }
 });
 
-test("accepts valid repository names with internal dots", () => {
+test("accepts valid dotted names and rejects consecutive dots", () => {
   const fake = fakeApi();
   assert.doesNotThrow(() => createFactoryStateStore(fake.client, { repository: "owner/repo.v2" }));
-  assert.doesNotThrow(() => createFactoryStateStore(fake.client, { repository: "owner/repo..archive" }));
+  assert.throws(
+    () => createFactoryStateStore(fake.client, { repository: "owner/repo..archive" }),
+    /A valid repository name is required/,
+  );
 });
 
 test("initializes a versioned state when no state Issue exists", async () => {
