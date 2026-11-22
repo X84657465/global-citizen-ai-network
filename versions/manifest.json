@@ -55,7 +55,7 @@
     },
     "J": {
       "name": "Self-Healing, Chaos & Continuity",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "planned",
       "responsibility": "Bounded recovery, circuit breakers, checkpointing, backup and restore verification, and controlled fault drills."
     },

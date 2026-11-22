@@ -214,6 +214,91 @@ test("returns only fixed, bounded recommendations and never echoes raw evidence"
   assert.ok(proposal.recommendation.length <= 240);
 });
 
+test("snapshots provider evidence without invoking getters or retaining caller mutation", () => {
+  let getterCalls = 0;
+  const supplied = evidence() as unknown as Record<string, unknown>;
+  Object.defineProperty(supplied, "failureCode", {
+    enumerable: true,
+    configurable: true,
+    get() { getterCalls += 1; return "TIMEOUT"; },
+  });
+  assert.throws(() => createFPResilienceProposal(
+    supplied as unknown as FPResilienceEvidence,
+    allow,
+    { correlationId: "corr-123" },
+  ), TypeError);
+  assert.equal(getterCalls, 0);
+
+  const hostile = new Proxy(evidence(), {
+    ownKeys() { throw new Error("private-provider-detail"); },
+  });
+  assert.throws(
+    () => createFPResilienceProposal(hostile, allow, { correlationId: "corr-123" }),
+    (error: unknown) => error instanceof TypeError &&
+      error.message === "Resilience evidence is invalid." &&
+      !error.message.includes("private-provider-detail"),
+  );
+});
+
+test("snapshots trusted policy decisions without invoking accessors", () => {
+  let getterCalls = 0;
+  const policy = {
+    get decision() { getterCalls += 1; return "allow-advisory"; },
+    policyVersion: "policy-v3",
+  };
+  assert.throws(() => createFPResilienceProposal(
+    evidence(),
+    policy as FPResiliencePolicyDecision,
+    { correlationId: "corr-123" },
+  ), TypeError);
+  assert.equal(getterCalls, 0);
+
+  const hostile = new Proxy(allow, {
+    ownKeys() { throw new Error("private-policy-detail"); },
+  });
+  assert.throws(
+    () => createFPResilienceProposal(evidence(), hostile, { correlationId: "corr-123" }),
+    (error: unknown) => error instanceof TypeError &&
+      error.message === "Trusted resilience policy decision is invalid." &&
+      !error.message.includes("private-policy-detail"),
+  );
+});
+
+test("rejects coercible policy decision values without invoking coercion hooks", () => {
+  let coercionCalls = 0;
+  const coercible = {
+    [Symbol.toPrimitive]() { coercionCalls += 1; throw new Error("must not coerce"); },
+    toString() { coercionCalls += 1; throw new Error("must not stringify"); },
+  };
+  const supplied = Object.create(null) as Record<string, unknown>;
+  supplied.decision = coercible;
+  supplied.policyVersion = "policy-v3";
+
+  assert.throws(() => createFPResilienceProposal(
+    evidence(),
+    supplied as unknown as FPResiliencePolicyDecision,
+    { correlationId: "corr-123" },
+  ), (error: unknown) => error instanceof TypeError &&
+    error.message === "Trusted resilience policy decision is invalid.");
+  assert.equal(coercionCalls, 0);
+});
+
+test("rejects evidence objects with symbol keys and non-plain prototypes", () => {
+  const withSymbol = evidence() as unknown as Record<PropertyKey, unknown>;
+  withSymbol[Symbol("hidden")] = "unsupported";
+  assert.throws(() => createFPResilienceProposal(
+    withSymbol as unknown as FPResilienceEvidence,
+    allow,
+    { correlationId: "corr-123" },
+  ), TypeError);
+  const exotic = Object.assign(Object.create({ inherited: true }), evidence());
+  assert.throws(() => createFPResilienceProposal(
+    exotic as FPResilienceEvidence,
+    allow,
+    { correlationId: "corr-123" },
+  ), TypeError);
+});
+
 test("does not expose raw evidence-provider or policy-provider errors", async () => {
   const evidenceHost = new FPHostAdapter();
   registerFPResilienceCapability({
