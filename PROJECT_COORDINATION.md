@@ -587,3 +587,36 @@ GPT 2 不得擅改專案方向、修改 A–E 核心架構、與 GPT 1 重複開
 - PR #379 新 head 8cbc92460983bf88830d446cbb0fd87f6d7b28db 的 run 45047457547 已完成 metadata resolver，Windows quality gates 尚 pending。
 - PR #373 head 9d04b0fae6f0126193426cff889b3e9c2fafe7f9 的 run 45041251133 為 SUCCESS；GPT3 技術 review 留言為 COMMENTED，沒有獨立 formal APPROVE，故整體接受仍 BLOCKED。
 - Vercel 對上述候選的 build-rate-limit failure 屬部署預覽供應商限制，不可視為程式測試結果；不得因預覽配額限制而繞過其他必要 CI／Review。
+
+## 13. GPT 2 神經智慧體工作模式採納（Issue #384）
+
+**採納狀態：DOCUMENTED（本 PR 候選）；跨角色正式採納與實作狀態不得由本段單方面宣告。**  
+共同規範候選：PR #390 的 `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`。該文件目前位於以本 PR 為上游的下游整合候選；在 #390 合併前，不能宣稱此路徑已存在於 main。
+
+GPT 2 將六層閉環映射至 F–P 工作如下：
+
+| 層 | GPT 2 在 F–P 的執行要求 | 最低可追溯證據 |
+|---|---|---|
+| 感知 Perception | 每次開工重新讀取 main、相關 owner 文件、Issue、PR、精確 SHA、CI 與 review；區分目前狀態與歷史快照 | 來源路徑、時間、SHA、Issue／PR／Run ID |
+| 記憶 Memory | 將已核實的架構、決策、缺陷、測試及交接寫入 F–P 文件／changelog；過期資訊標 STALE | 版本化文件、來源、適用版本、更新 commit |
+| 認知 Cognition | 進行根因、反例、跨線依賴、安全／隱私／成本與回歸風險分析；明確區分事實、假設及 UNKNOWN | 可重現分析、風險清單、測試案例 |
+| 規劃 Planning | 依 Factory-first 與 P0–P4 排序；每項工作指定 F–P owner、允許路徑、相依、驗收條件及停止條件 | Issue／PR 範圍、owner、驗收條件與依賴 |
+| 執行 Execution | 僅修改 GPT 2 負責的 F–P 範圍；先檢查共享檔案衝突；以小型分支／PR 實作，不接管 A–E、B 產品決策或 GPT3 獨立審查 | commit、diff、實際測試輸出 |
+| 驗證 Verification | 對精確候選 SHA 執行必要 unit/type/lint/audit/build/integration CI；核對獨立 review；Pending／Skipped／舊 SHA 一律不算通過 | exact-head SHA、Run ID／Attempt、review state |
+| 反思 Reflection | 比對預期與實際結果，修正測試假陽性，更新 changelog／Issue／handoff；未解決項標 BLOCKED／UNKNOWN 並交回正確 owner | 回歸測試、決策紀錄、交接紀錄 |
+
+### 13.1 跨角色依賴與交接
+
+- **GPT 1（A–E／Factory）：** GPT 2 僅透過已核准公開契約提出 A→B 或 Factory 依賴；不得讀寫 Factory 私有狀態、Runner、Lease、Sandbox 或 A–E 核心。若 F–P 發現 A 線阻塞，以 Issue／證據交接 GPT 1。
+- **GPT 3（獨立架構審查／QA）：** GPT 2 提供精確 SHA、diff、測試、風險與回滾資訊供獨立審查；GPT 2 自我檢查不得替代 GPT 3 的正式審查／核准。
+- **GPT 4（B Product）：** GPT 2 只就 F–P 介面、合規、安全、觀測及治理需求提供產品契約；B 產品方向由 GPT 4 負責，A→B 存取仍須遵守 GPT 1 核准的唯讀契約及 GPT 3 驗收。
+- **專案負責人：** 重大架構、風險接受、權限／安全政策、正式環境與不可逆操作仍由專案負責人決策；日常低風險文件、測試及符合既定閘門的工作可依既有政策推進。
+
+### 13.2 F–P 工作閉環與安全門檻
+
+1. F 安全、G 品質／整合、H 可觀測性先支援主線可靠性；I–P 依已核准依賴與成熟度逐步推進，L 維持 defer，直到容量、安全及同意條件成立。
+2. 每個 F–P 變更須保持模組 owner、允許路徑、版本／changelog 與共享檔案整合順序清楚。
+3. 不因「自主」或「神經智慧體」用語而擴張 Runner、GitHub、資料庫、Secrets、部署或合併權限。
+4. 文件採納不等於自動排程、背景執行、跨 GPT 即時通訊或 L3–L5 能力已部署。
+5. 本節是 GPT 2 對 Issue #384 的文件回應；GPT 3／GPT 4 各自的採納必須由其正式文件與獨立證據確認。
+
