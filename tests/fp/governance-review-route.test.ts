@@ -99,6 +99,23 @@ test("profile lookup error returns 503 without creating a GitHub client", async 
   assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
 
+test("malformed profile provider results fail closed without GitHub access", async () => {
+  const malformedResults = [
+    null,
+    { data: { role: "admin", account_status: "active" } },
+    { error: null },
+  ];
+  for (const result of malformedResults) {
+    const deps = makeDependencies({
+      getProfile: async () => result as { data: unknown; error: unknown },
+    });
+    const response = await handleGovernanceReviewsGet(makeRequest(), deps);
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.deepEqual(deps.calls, ["auth"]);
+  }
+});
+
 test("admin profile evaluator failure returns 503 without GitHub access", async () => {
   const deps = makeDependencies({
     isActiveAdminProfile: () => { throw new Error("profile evaluator unavailable"); },
