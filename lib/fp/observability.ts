@@ -52,9 +52,10 @@ const REQUIRED_EVENT_KEYS = EVENT_KEYS.filter((key) => key !== "errorCode");
  * properties from the event allowlist. Any reflection failure is rejected.
  */
 function snapshotOperationEvent(value: unknown): Record<string, unknown> | null {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
+  if (value === null || typeof value !== "object") return null;
 
   try {
+    if (Array.isArray(value)) return null;
     const prototype = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) return null;
 
