@@ -120,6 +120,29 @@ test("rejects undeclared event payloads and bundle metadata", () => {
   assert.throws(() => assessHObservation(bundleWithExtraMetadata), /Invalid H observation window/);
 });
 
+test("rejects inherited fields and accessor-backed telemetry records", () => {
+  const inheritedEvent = Object.assign(Object.create({ kind: "task" }), {
+    eventId: "inherited-0001",
+    occurredAt: "2026-11-22T12:00:00.000Z",
+    outcome: "success",
+  }) as HTelemetryEvent;
+  assert.throws(() => assessHObservation(bundle([inheritedEvent])), /Invalid, duplicate, or out-of-window/);
+
+  const accessorEvent = { ...event("accessor-0001") } as HTelemetryEvent;
+  Object.defineProperty(accessorEvent, "kind", {
+    enumerable: true,
+    get: () => "task",
+  });
+  assert.throws(() => assessHObservation(bundle([accessorEvent])), /Invalid, duplicate, or out-of-window/);
+
+  const accessorBundle = { ...bundle([]) } as HObservationBundle;
+  Object.defineProperty(accessorBundle, "events", {
+    enumerable: true,
+    get: () => [],
+  });
+  assert.throws(() => assessHObservation(accessorBundle), /Invalid H observation window/);
+});
+
 test("uses a half-open UTC window and rejects malformed event identity or taxonomy", () => {
   const atStart = assessHObservation(bundle([
     event("boundary-0001", { occurredAt: start }),
