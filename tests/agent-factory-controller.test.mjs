@@ -17,7 +17,13 @@ function fakeStore(initialState, options = {}) {
   const history = [];
   return {
     async migrate() { return { issue: { number: 100 }, state, migrated: false }; },
-    async read() { return { issue: { number: 100 }, state }; },
+    async read() {
+      if (options.failReadAfterWrite && writes > 0) throw new Error("injected durable read-back failure");
+      const observedState = options.readOverrideAfterWrite && writes > 0
+        ? options.readOverrideAfterWrite
+        : state;
+      return { issue: { number: 100 }, state: observedState };
+    },
     getStateIssueNumber() { return 100; },
     async write(expectedVersion, nextState) {
       writes += 1;
@@ -1981,5 +1987,37 @@ test("operator recovery rejects stale versions and invalid task identity without
     await assert.rejects(controller.run(operatorRecoveryEnv(overrides)));
     assert.equal(store.state.state_version, 0);
     assert.equal(store.writes, 0);
+  }
+});
+
+test("operator recovery canonicalizes equivalent GitHub evidence URLs for duplicate replay", async () => {
+  const store = fakeStore(quarantinedTaskState());
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const first = await controller.run(operatorRecoveryEnv({
+    EVIDENCE_REFERENCE: "https://GITHUB.com/owner/repo/commit/" + "d".repeat(40),
+  }));
+  const duplicate = await controller.run(operatorRecoveryEnv({
+    EVIDENCE_REFERENCE: "https://github.com/owner/repo/commit/" + "d".repeat(40),
+  }));
+  assert.equal(first.outputs.recovered, true);
+  assert.equal(duplicate.outputs.duplicate, true);
+  assert.equal(duplicate.state.state_version, first.state.state_version);
+  assert.equal(store.writes, 1);
+});
+
+test("operator recovery fails closed when ambiguous write read-back is unavailable or mismatched", async () => {
+  const mismatchedReadBack = quarantinedTaskState();
+  mismatchedReadBack.state_version = 99;
+  for (const options of [
+    { failReadAfterWrite: true },
+    { readOverrideAfterWrite: mismatchedReadBack },
+  ]) {
+    const store = fakeStore(quarantinedTaskState(), { writeThenThrowAt: 1, ...options });
+    const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+    await assert.rejects(
+      controller.run(operatorRecoveryEnv()),
+      /injected ambiguous state write failure/,
+    );
+    assert.equal(store.writes, 1);
   }
 });
