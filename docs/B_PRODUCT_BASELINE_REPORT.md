@@ -245,3 +245,58 @@ This section converts the North Star into a delivery-oriented map. It supplement
 5. Reconfirm main SHA, candidate head, exact-head CI, review state and preview/browser evidence before every acceptance decision.
 
 **B delivery disposition:** Phase 0 remains IN PROGRESS. Phase 1 has partial source foundations but is NOT ACCEPTED. Phase 2 live AI service is BLOCKED. Phases 3–5 have partial foundations or roadmap-only components and remain NOT ACCEPTED. Phase 6 remains research-only. B Runtime remains BLOCKED / PREPARATION ONLY.
+
+
+## 12. Workspace → AI Service Center source-flow review — 2026-11-23
+
+This is a read-only source inspection of the current integrated main baseline `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1`. Blob SHAs below identify the exact files inspected. This section records code paths and test obligations; it is not a runtime, security, billing, or production acceptance.
+
+### 12.1 Inspected source anchors
+
+| File | Main blob SHA | Observed responsibility |
+|---|---|---|
+| `app/workspace/workspace-client.tsx` | `f4b82bca816a26a52b8c04660fa7eae1ea8a0389` | Loads conversations, pending AI recovery and projects; stores pending idempotency material in session storage; opens conversations and handles project assignment |
+| `app/api/ai/chat/route.ts` | `d01ca919d783d56bdf4ea937ed4919794ae77337` | Authenticated chat POST, conversation lookup, history assembly, idempotency claim, cost preflight, provider call, completion or reconciliation |
+| `app/api/ai/pending/route.ts` | `d66b5b6266e0a462ebfbd7f17709a366c795f972` | Authenticated owner-only pending request recovery |
+| `app/api/projects/route.ts` | `e815e043ad49874863cc3e2ca344d1acad8c717f` | Authenticated project list/create; create explicitly writes authenticated owner ID |
+| `app/api/conversations/route.ts` | `b477659118437d6aea5bea53a5a3f2965227fcf7` | Authenticated conversation list/create; create validates project ownership and writes authenticated owner ID |
+| `lib/ai/config.ts` | `be503a72c534f8af9b09a0dbae1df609fea7c2e9` | Server-side provider configuration and cost-rate requirements |
+| `lib/ai/pending-recovery.ts` | `75c2f4e9e62f59b9b622751078a770da1eb9fc82` | SHA-256 prompt/conversation matching and timing-safe comparison for pending-message recovery |
+| `lib/ai/provider-response.ts` | `459623acf8c7ea7c8e3a8c602e40d1b4ed0bcc4e` | Bounded provider response parsing and conservative token-usage fallback |
+
+### 12.2 Current user journey and trust boundaries
+
+1. Workspace bootstrap requests `/api/conversations`, `/api/ai/pending`, and `/api/projects` independently in one client-side `Promise.all`.
+2. Conversation/project APIs require an authenticated session and use the authenticated Supabase client. Conversation creation checks that a selected project belongs to the authenticated user and is not archived; both create paths set `owner_id` from the authenticated user rather than trusting the request body.
+3. Project and conversation list queries do not add an explicit `owner_id` predicate in the route source inspected here; their isolation therefore depends on the corresponding database RLS policies. This source review does not establish that the deployed policies are correct or currently active.
+4. Pending recovery uses the server-side admin client, but each inspected request/idempotency/message query is explicitly constrained by the authenticated `owner_id`. The idempotency key is returned only in the authenticated owner's pending response; prompt reconstruction requires a matching request hash and bounded user message.
+5. Chat POST requires an authenticated user, validates conversation ID/content and reads the conversation through the authenticated client before reading history. It then requires server-side service-role configuration, a syntactically valid idempotency key, and an atomic `claim_ai_request` result before a new provider request can proceed.
+6. Provider configuration is accepted only for the configured OpenAI-compatible mode, a valid HTTPS endpoint (or loopback HTTP for local development), server-side key/model and positive cost rates. The route estimates worst-case cost before claiming a new billable request.
+7. The route records the authenticated conversation's trusted `project_id` onto the AI request; it does not accept a client-supplied project ID for that association. Provider uncertainty, timeout, malformed response or finalization failure is sent to reconciliation rather than being treated as a confirmed billable success or safe retry.
+8. The returned cost label explicitly describes an internal estimate based on configured token rates, not a supplier invoice amount.
+
+### 12.3 Confirmed UX gap on current main
+
+The current main Workspace bootstrap converts any non-OK `/api/projects` response into `{ projects: [] }`, then passes the empty list through the normal project filter. Therefore, a project API outage or authorization/configuration failure can appear indistinguishable from a genuine empty project list in this code path.
+
+PR #391 is the bounded candidate intended to separate project loading/error state from a genuine empty state and preserve conversation/pending initialization. Its Issue #72 allowlist remains authoritative; do not add version metadata or unrelated files to that PR. The current PR #391 body identifies head `d252439e0b03d8ea155b8d483b8bec7a60aa1e77`; this inspection did not establish exact-head terminal CI or browser/device acceptance. Keep it Draft/unmerged pending those gates.
+
+### 12.4 Required verification before calling the journey accepted
+
+| Boundary | Required proof |
+|---|---|
+| Project/conversation RLS | Anonymous denial; member sees only own rows; cross-owner ID access denied; archived project cannot be newly assigned; database integration tests on exact candidate SHA |
+| Pending recovery | Owner-only key disclosure; cross-owner request/hash/message cannot be reconstructed; malformed/missing hash remains unresolved and fails closed; duplicate pending requests do not permit a second provider call |
+| AI idempotency | Same key + same request safely replays; same key + different prompt conflicts; concurrent duplicate claims produce one provider call; uncertain outcome preserves the same key |
+| Budget/provider gate | Missing/invalid config, zero/malformed pricing, disabled platform and cost-limit overflow produce no provider request; verify redirect rejection, timeout and bounded response body |
+| Completion/reconciliation | Provider success + database finalize failure remains reconciliation-required; unknown HTTP/provider outcome is not released as a known non-billable rejection; duplicate completion cannot double-book cost |
+| Workspace UX | Project loading failure is visibly distinct from a true empty list; conversation and pending recovery remain usable when project list fails; mobile and desktop navigation verified in a browser |
+| Operational billing truth | Internal estimated cost remains visibly distinct from provider invoice/cash settlement; no payout or supplier invoice reconciliation is implied by the chat route |
+
+### 12.5 B delivery disposition
+
+- Workspace, conversation and AI chat source paths are present on main; source presence is not end-to-end acceptance.
+- The chat route contains meaningful authentication, idempotency, cost-preflight and uncertain-outcome reconciliation controls in source. Their effective security and transactional behavior still require exact-SHA automated/integration evidence.
+- RLS correctness for list paths and the full owner/cross-owner matrix remain NOT VERIFIED in this read-only pass.
+- Current main has a concrete project-load error/empty-state UX conflation; PR #391 is the focused candidate, not yet accepted.
+- No A Factory projection is consumed by these routes. No A→B Read Adapter, Factory task display, new Product table, paid provider call, runtime activation, migration, merge or deployment was introduced by this review.
