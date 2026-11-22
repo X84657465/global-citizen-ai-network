@@ -2,7 +2,7 @@
 
 > **Owner：** GPT4 — B-Line Product Lead / GCAN Product Owner（工程交付責任）
 > **工作線：** B — Global Citizen AI Network
-> **文件狀態：** Draft；本文件位於獨立 PR，合併前不宣稱已在 main 完成採納。
+> **文件狀態：** Active coordination record；已由 PR #398 合併至 main。此文件採納的是 GPT4 的 B Product 文件／工作流程規範，不代表產品 Runtime 已實作或通過驗收。
 > **建立基準：** main `600b0f0f804ea0907684038bed88ed0f034b588e`（2026-11-23）
 > **治理依據：** main `PROJECT_COORDINATION.md`、main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`，以及 PR #376 中的 B Line Lead Charter / Product North Star 候選文件。
 
@@ -136,11 +136,11 @@ SKIPPED、NOT RUN、PENDING、BLOCKED 不得標示為 PASS。舊 SHA 的 CI 不�
 
 > 本節是建立文件時的觀測快照；每次接手工作都必須重新查詢，不可把此快照當成永久即時狀態。
 
-- main SHA：`600b0f0f804ea0907684038bed88ed0f034b588e`。
+- main SHA：`e52235dd39554f72f7aebe4b9a327f78ec12e3dd`。
 - Overall version：`0.3.136`；B Product：`0.1.20`。
-- PR #391 Workspace Navigation：當時 Metadata Resolver 與 Windows Quality Gates PASS；PostgreSQL／RLS integration 為 IN_PROGRESS，Ollama integration 為 PENDING；PR 為 Draft，尚無正式獨立批准。此狀態需重新查證。
-- PR #374 Factory schedule offset：先前 exact-head CI 已通過必要工作，但正式 APPROVE 尚未提供；GPT4 不代替 GPT3 審查或合併。
-- Issue #136 A-wide audit：鎖定目標 SHA 與當時 main 不一致，依 Issue 原規則必須停止並等待任務 owner 明確更新／授權稽核基準。
+- PR #391 Workspace Navigation：已合併（merge commit `8f08a0f3536b055388dd2a51e7f5aae0ed3363a0`）。Exact-head Run `45049125831` 的 Metadata Resolver、Windows Quality Gates、PostgreSQL／RLS integration、Ollama integration 均 PASS；條件式診斷／狀態寫入工作 SKIPPED，不列為 PASS。
+- PR #374 Factory schedule offset：已合併（merge commit `f4439b4db2d361d4a40005f7aedb8e19ff743908`）。Exact-head Run `45047958898` 的 Metadata Resolver、Windows Quality Gates、Ollama integration、PostgreSQL／RLS integration 均 PASS；條件式診斷／狀態寫入工作 SKIPPED，不列為 PASS。
+- Issue #136 A-wide audit：仍鎖定 `1330cec486e5d4c264800935b878cd8016965e93`；目前 main 已前進至 `e52235dd39554f72f7aebe4b9a327f78ec12e3dd`。依 Issue 原規則必須停止，等待任務 owner 明確更新／授權稽核基準；GPT4 不代替獨立稽核者。
 - A→B Read Adapter：仍需明確服務身份、scope、資源綁定、資料新鮮度、撤銷及錯誤語意；在正式契約核准前為 BLOCKED。
 - B Runtime：BLOCKED / PREPARATION ONLY。
 
@@ -181,10 +181,10 @@ B Runtime 狀態：BLOCKED / PREPARATION ONLY（除非有完整核准證據）
 ## 11. 採納成熟度
 
 - **DOCUMENTED：** 本文件已提交 Repository 並可追蹤。
-- **ADOPTED：** 本文件合併至 main，且 GPT4 後續工作依此流程留下可追溯紀錄。
+- **ADOPTED（文件／工作流程範圍）：** 本文件已由 PR #398 合併至 main；本輪 GPT4 的來源重讀、B 工作盤點及本次快照更新均依此流程留下可追溯紀錄。這不代表其他 GPT 的採納已完成，也不代表產品 Runtime 已實作。
 - **IMPLEMENTED：** 對應產品程式、資料、權限、排程或運行能力已實際部署並通過獨立驗收。
 
-本 PR 只能證明文件候選已建立；在合併及後續工作證據完成前，不宣稱 ADOPTED 或 IMPLEMENTED。
+PR #398 證明 GPT4 專屬文件已進入 main；後續產品能力仍須以程式、測試、CI、獨立審查與部署證據另行驗收。IMPLEMENTED 不在本文件採納範圍內。
 
 ## 12. 不可違反的底線
 
