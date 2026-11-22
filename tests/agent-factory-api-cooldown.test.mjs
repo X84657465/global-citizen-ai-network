@@ -57,3 +57,22 @@ test("uses the secondary-rate-limit reset header when Retry-After is invalid", (
   assert.equal(readFileSync(outputFile, "utf8"), "api_cooldown_until=" + deadline + "\n");
   rmSync(directory, { recursive: true, force: true });
 });
+test("uses a bounded fallback when both provider cooldown headers are invalid", () => {
+  const directory = mkdtempSync(join(tmpdir(), "agent-factory-cooldown-"));
+  const envFile = join(directory, "env");
+  const outputFile = join(directory, "output");
+  const now = 1_000_000;
+  const deadline = persistApiCooldownDeadline({
+    status: 429,
+    message: "rate limit exceeded; private details must not be exported",
+    retryAfter: "not-a-date",
+    rateLimitReset: "invalid-reset",
+    rateLimited: true,
+  }, { now, envFile, outputFile });
+
+  assert.equal(deadline, new Date(now + 24 * 60 * 60 * 1000).toISOString());
+  assert.equal(readFileSync(envFile, "utf8"), "AGENT_FACTORY_API_COOLDOWN_UNTIL=" + deadline + "\\n");
+  assert.equal(readFileSync(outputFile, "utf8"), "api_cooldown_until=" + deadline + "\\n");
+  assert.doesNotMatch(readFileSync(envFile, "utf8"), /private details|invalid-reset/);
+  rmSync(directory, { recursive: true, force: true });
+});
