@@ -140,3 +140,24 @@ test("never retries POST even when retrySafe is mistakenly requested", async () 
   }), (error) => error.status === 503);
   assert.equal(calls, 1);
 });
+
+test("honors HTTP-date Retry-After values for rate-limited safe requests", async () => {
+  const now = 1_000_000;
+  const retryAt = new Date(now + 2_000).toUTCString();
+  const delays = [];
+  let calls = 0;
+  const client = createGitHubApiClient({
+    now: () => now,
+    fetchImpl: async () => {
+      calls += 1;
+      return calls === 1
+        ? response(429, { message: "rate limit" }, { "retry-after": retryAt })
+        : response(200, { ok: true });
+    },
+    sleep: async (ms) => delays.push(ms),
+  });
+
+  assert.deepEqual(await client.request("/rate_limit"), { ok: true });
+  assert.equal(calls, 2);
+  assert.deepEqual(delays, [2_000]);
+});
