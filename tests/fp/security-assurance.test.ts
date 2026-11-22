@@ -307,3 +307,58 @@ test("rejects non-index array properties at the ECMAScript array-index boundary"
   }
 });
 
+
+
+test("fails closed when reflective Proxy traps throw across F evidence boundaries", () => {
+  const throwingProxy = <T extends object>(
+    target: T,
+    trap: "getPrototypeOf" | "ownKeys" | "getOwnPropertyDescriptor",
+  ): T => new Proxy(target, {
+    getPrototypeOf(value) {
+      if (trap === "getPrototypeOf") throw new Error("hostile getPrototypeOf trap");
+      return Reflect.getPrototypeOf(value);
+    },
+    ownKeys(value) {
+      if (trap === "ownKeys") throw new Error("hostile ownKeys trap");
+      return Reflect.ownKeys(value);
+    },
+    getOwnPropertyDescriptor(value, property) {
+      if (trap === "getOwnPropertyDescriptor") throw new Error("hostile descriptor trap");
+      return Reflect.getOwnPropertyDescriptor(value, property);
+    },
+  });
+
+  for (const trap of ["getPrototypeOf", "ownKeys", "getOwnPropertyDescriptor"] as const) {
+    assert.throws(
+      () => assessFPSecurityEvidence(throwingProxy(bundle(), trap)),
+      /A candidate repository, PR number, and 40-character SHA are required/,
+      `bundle ${trap}`,
+    );
+
+    const hostileEvidence = throwingProxy(evidence("member-isolation"), trap);
+    assert.throws(
+      () => assessFPSecurityEvidence(bundle({ evidence: [hostileEvidence] })),
+      /plain own-data fields/,
+      `evidence record ${trap}`,
+    );
+
+    const hostileCI = throwingProxy(ci("database"), trap);
+    assert.throws(
+      () => assessFPSecurityEvidence(bundle({
+        evidence: [evidence("member-isolation", { ci: hostileCI })],
+      })),
+      /Invalid F evidence CI record/,
+      `CI record ${trap}`,
+    );
+
+    const hostileArray = throwingProxy(
+      FP_SECURITY_CONTROLS.map((control) => evidence(control.id)),
+      trap,
+    );
+    assert.throws(
+      () => assessFPSecurityEvidence(bundle({ evidence: hostileArray })),
+      /bounded dense plain array/,
+      `evidence array ${trap}`,
+    );
+  }
+});
