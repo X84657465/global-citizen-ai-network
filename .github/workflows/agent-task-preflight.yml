@@ -751,10 +751,25 @@ jobs:
           $containerName = $env:AGENT_FACTORY_CANDIDATE_CONTAINER_NAME
           if ([string]::IsNullOrWhiteSpace($containerName)) { throw "Candidate test container identity is unavailable; recording a system-scoped infrastructure failure." }
           $requiredIsolationContract = @("--network none", "--read-only", "--cap-drop ALL", "--security-opt no-new-privileges", "--user 1000:1000")
-          $containerSecurity = & docker inspect --format '{{.HostConfig.NetworkMode}}|{{.HostConfig.ReadonlyRootfs}}|{{json .HostConfig.CapDrop}}|{{json .HostConfig.SecurityOpt}}|{{.Config.User}}' $containerName
+          $inspectionOutput = & docker inspect $containerName
           if ($LASTEXITCODE -ne 0) { throw "Unable to inspect candidate container isolation before test execution; recording a system-scoped infrastructure failure." }
-          $expectedSecurity = 'none|true|["ALL"]|["no-new-privileges"]|1000:1000'
-          if ([string]$containerSecurity -ne $expectedSecurity) { throw "Candidate test container does not satisfy the required isolation contract: $containerSecurity" }
+          try {
+            $inspection = @(($inspectionOutput -join [Environment]::NewLine) | ConvertFrom-Json -ErrorAction Stop)
+          } catch {
+            throw "Candidate container isolation evidence is malformed; recording a system-scoped infrastructure failure."
+          }
+          if ($inspection.Count -ne 1) { throw "Candidate container inspection did not return exactly one container." }
+          $hostConfig = $inspection[0].HostConfig
+          $securityOptions = @($hostConfig.SecurityOpt | ForEach-Object { [string]$_ })
+          $noNewPrivileges = ($securityOptions -contains "no-new-privileges") -or ($securityOptions -contains "no-new-privileges:true")
+          $capDrop = @($hostConfig.CapDrop | ForEach-Object { [string]$_ })
+          if ([string]$hostConfig.NetworkMode -ne "none" -or
+              $hostConfig.ReadonlyRootfs -ne $true -or
+              $capDrop -notcontains "ALL" -or
+              -not $noNewPrivileges -or
+              [string]$inspection[0].Config.User -ne "1000:1000") {
+            throw "Candidate test container does not satisfy the required isolation contract."
+          }
           Write-Host ("Verified candidate test isolation: " + ($requiredIsolationContract -join "; "))
           $statusFile = Join-Path (Join-Path $env:RUNNER_TEMP "agent-candidate-test-status") "exit-code"
           $testLog = Join-Path $env:RUNNER_TEMP "agent-preflight-offline-test.log"
