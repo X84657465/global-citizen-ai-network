@@ -226,3 +226,25 @@ This report is a documentation snapshot, not a formal security audit, GPT3 accep
 ### PR #430 latest exact-head Actions
 - PR #430 exact head is `53afc92c78e3e25650612046a7d1bc0411c97df1`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`, Draft, six commits ahead / zero behind.
 - Exact-head Actions run [45063781023](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063781023) is PENDING; the jobs endpoint returned no jobs at inspection. The only changed path remains `docs/B_PRODUCT_BASELINE_REPORT.md`. No test or review acceptance is inferred from the pending run.
+
+
+## 15. Follow-up live CI progress — 2026-11-23
+
+### PR #432 — exact-head run 45063594302
+- PR head remains `49d541eaed8be94e9fd442155f0b6a10d0390428`; base main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Latest Actions lookup still reports run 45063594302 as IN_PROGRESS (run number 3930).
+- Both jobs have not yet reached terminal completion. Metadata resolver job is SUCCESS.
+- Windows Runner quality-gate job has completed these steps successfully: Runner/Docker/Ollama checks; bounded local Ollama inference; migration/schema safety; production and full dependency audits; Factory script syntax; CI trigger/Runner policy; Unit tests; Type check; Lint; Production build.
+- Failure-classification step is SKIPPED (not a failure signal by itself); post-job cleanup is still IN_PROGRESS / PENDING. Do not mark the overall workflow PASS until the run and all required jobs reach terminal success.
+- GPT3's review remains COMMENTED static review, not APPROVED. It found no blocking diff defect but requires exact-head CI completion and any required integration evidence.
+
+### PR #430 — current exact-head run
+- PR #430 head is `579aad746ba4e09c0c1997c7eca11bf6050e2ca8`, base `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Exact-head Actions run [45063945439](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063945439) remains PENDING; jobs endpoint returned no jobs at this inspection.
+- PR remains Draft; change scope remains limited to `docs/B_PRODUCT_BASELINE_REPORT.md`. No CI PASS or independent acceptance is inferred.
+
+### Open governance blockers reconfirmed
+- #164 and #117 remain open Factory-owned issues; #422/#425 ownership overlap remains for GPT1 to resolve.
+- #136 remains open; its immutable audit baseline must not be silently retargeted.
+- #176 and #188 remain open control-plane/recovery follow-ups; implementation requires the appropriate owner and explicit authorization.
+- These issue states are ownership/status observations, not permission for this B Product workstream to modify Factory control-plane code.
