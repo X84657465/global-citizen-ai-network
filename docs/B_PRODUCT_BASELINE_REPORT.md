@@ -102,7 +102,6 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 | B source inventory | DOCUMENTED | Tree and selected source files inspected |
 | Focused B test files | PRESENT; NOT RUN in this report | No local test command executed by this report |
 | Main exact-SHA CI | PENDING | Run 45055645581; 0 jobs at inspection |
-| PR #414 exact-head CI | PENDING | Run 45055727322 for head `c2e813dc1056adfb7b1ea74050903779a618ac0c`; metadata resolver job pending |
 | A independent audit | BLOCKED / PENDING | Issue #136 remains open |
 | B end-to-end auth / live provider / operational readiness | NOT VERIFIED | Issues #84 and #86 remain open; architecture lists pre-launch gaps |
 | PR #376 exact-head CI / formal review | NOT PASS | Run observed is for an older SHA; formal approval not observed |
