@@ -170,3 +170,15 @@ Candidate CI failures are currently recorded through the candidate-evidence path
 PR #303 HEAD `0b521e654de819098fb59e86eb024bd75cc56810` now writes both `AGENT_FACTORY_FAILURE_SCOPE=task` and `AGENT_FACTORY_ERROR_CODE=STALE_BASE` to GitHub Actions' environment file. The existing A controller consumes `AGENT_FACTORY_ERROR_CODE`, with `WORKFLOW_FAILURE` as its fallback. This source change is not accepted until its own exact-head CI and independent review pass.
 
 The category table is a proposed public projection mapping, not a new A internal state enum. B receives only the public category; it must not receive raw machine codes, failure summaries, task/system scope, or internal transition details.
+
+
+### End-to-end source propagation cross-check — 2026-11-22
+
+A source-level trace on the #303 candidate branch confirms the complete propagation path:
+
+1. Both explicit stale-default-branch guards in `scripts/publish-agent-patch.mjs` call the shared `fail(message, "task")` path.
+2. That failure path calls `persistPublicationFailureScope("task")`; the helper appends both `AGENT_FACTORY_FAILURE_SCOPE=task` and `AGENT_FACTORY_ERROR_CODE=STALE_BASE` to GitHub Actions' `GITHUB_ENV`.
+3. The preflight workflow's subsequent `failure()` classifier reads the persisted task scope and preserves it for the final failure-recording step.
+4. The final failure-recording step runs `scripts/agent-factory-v2-controller.mjs`; its controller reads `AGENT_FACTORY_ERROR_CODE` and persists the stable code, falling back to `WORKFLOW_FAILURE` only when no code was supplied.
+
+This verifies the source wiring, not a runtime pass. PR #303 exact-head run `44976387404` is still pending with zero allocated jobs, so the full chain remains unverified by an executed CI run. The proposed B projection continues to expose only the allowlisted public category, never the raw machine code or failure summary.
