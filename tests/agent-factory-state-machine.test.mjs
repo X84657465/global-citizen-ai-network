@@ -1079,7 +1079,7 @@ test("never shortens an existing provider cooldown when a later deadline or gene
 test("keeps task-scoped failures isolated from provider system cooldown", () => {
   const state = createInitialFactoryState(1_000);
   const reserved = reserveTask(state, metadata(), 1_000);
-  const failed = recordTaskFailure(state=reserved, 42, reserved.active_task.lease_id, "task-failure-rate-limit", "TASK_FAILURE", "candidate failed", 2_000);
+  const failed = recordTaskFailure(reserved, 42, reserved.active_task.lease_id, "task-failure-rate-limit", "TASK_FAILURE", "candidate failed", 2_000);
   assert.equal(failed.state.system.cooldown_until, null);
   assert.equal(failed.state.system.consecutive_failures, 0);
 });
