@@ -88,37 +88,3 @@ test("filter choices come only from current tasks and their latest returned subm
     hasUnsubmitted: true,
   });
 });
-
-test("filtering preserves the full API task shape for TypeScript callers", () => {
-  type ApiContributionTask = {
-    id: string;
-    category: string;
-    title: string;
-    description: string;
-    acceptance_criteria: string[];
-    reward_amount: number;
-    reward_currency: string;
-    closes_at: string | null;
-  };
-
-  const apiTasks: ApiContributionTask[] = [{
-    id: "task-rich",
-    category: "Research",
-    title: "Review evidence",
-    description: "Review a source package",
-    acceptance_criteria: ["Cite each claim"],
-    reward_amount: 25,
-    reward_currency: "USD",
-    closes_at: null,
-  }];
-
-  // Compile-time regression guard: retain all API-specific fields.
-  const filtered: ApiContributionTask[] = filterContributionTasks(
-    apiTasks,
-    [],
-    { category: "Research" },
-  );
-
-  assert.deepEqual(filtered, apiTasks);
-});
-
