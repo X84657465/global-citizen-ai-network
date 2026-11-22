@@ -55,9 +55,10 @@ test("version manifest registers every A-P workstream with a valid numeric versi
     assert.ok(track.name, `track ${code} is missing a name`);
     assert.match(track.version, /^[0-9]+[.][0-9]+[.][0-9]+$/, `track ${code} has an invalid version`);
   }
-  for (const code of "FGHIJKLMNOP") {
+  for (const code of "FGHIJKLMNO") {
     assert.equal(versionManifest.tracks[code].status, "planned", `track ${code} must remain planned until evidence-based activation`);
   }
+  assert.equal(versionManifest.tracks.P.status, "implementation-candidate", "P retains its accepted governance implementation-candidate status");
 });
 
 test("homepage preserves first-party workspace, contribution and login entry points", () => {
