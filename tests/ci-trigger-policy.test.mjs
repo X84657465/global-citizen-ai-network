@@ -195,8 +195,8 @@ test("Next.js output tracing is scoped to the repository and ignores unrelated R
 test("source syntax and CI policy regressions are classified as task-scoped quality failures", () => {
   const qualityBounds = findJobSection(workflow, "quality");
   const quality = workflow.slice(qualityBounds.start, qualityBounds.end);
-  assert.ok(quality.includes("- name: Validate Agent Factory script syntax\\n        id: script-syntax\\n"));
-  assert.ok(quality.includes("- name: Verify CI trigger and Runner policy\\n        id: ci-trigger-policy\\n"));
+  assert.ok(quality.includes("- name: Validate Agent Factory script syntax\n        id: script-syntax\n"));
+  assert.ok(quality.includes("- name: Verify CI trigger and Runner policy\n        id: ci-trigger-policy\n"));
   const classifierStart = quality.indexOf("- name: Classify quality-gate failure");
   assert.ok(classifierStart >= 0, "quality failure classifier must exist");
   const classifier = quality.slice(classifierStart);
