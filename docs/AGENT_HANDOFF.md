@@ -9,7 +9,7 @@ This checkpoint supersedes earlier live-state statements below wherever they con
 ### Mainline identity
 - Verified `main` base from the current GitHub comparison: `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1`.
 - Root release: `0.3.136`; Agent Factory V2: `2.0.84`; GCAN Product (B): `0.1.20`. Version labels are not acceptance claims.
-- Autonomy charter is available on PR #376 branch `docs/agent-factory-autonomy-core-20261123`; it is documentation-only, 6 commits ahead / 0 behind at this checkpoint, and remains open/unmerged. Do not tell other GPT sessions it is already on `main`.
+- Autonomy charter is available on PR #376 branch `docs/agent-factory-autonomy-core-20261123`; it is documentation-only and remains open/unmerged. Use the exact PR head and current base comparison for branch status; do not rely on a stored ahead/behind count or tell other GPT sessions it is already on `main`.
 
 ### A — Factory lease-publication handoff recheck
 - Issue #354's original missing cross-job lease finding is no longer accurate for the inspected `main` workflow source.
