@@ -381,3 +381,27 @@ Factory-first 為本專案當前工程主線。不得只增加願景文件或角
 每個跨線任務依序執行：需求定義 → 能力盤點 → 重用／擴充／修復／新增決策 → 隔離執行 → 測試與證據 → 領域驗收 → 必要的獨立審查 → 產品整合。跨線衝突建立 Issue／ADR，不以 Agent 多數投票取代 owner 權責。
 
 目前保持 Factory-first，僅優先處理 P0 Factory、必要 A→B 銜接與 B 產品準備；其他專業線依真實需求啟動。Factory 成熟度必須以真實任務、獨立 QA、資安、恢復及容量證據判定，之後逐步轉為 Factory 維運與 B 產品交付並行。不得僅以文件完成宣稱功能成熟。
+
+## 16. Factory F6–F12 開發執行命令
+
+F6–F12 納入 Factory 長期主線，但不得把七個階段同時拆成無依賴的平行專案。每個週期先依最新 main、Issue、PR、CI、能力目錄與 handoff 證據，選擇一個可執行的最高優先缺口，指定唯一 DRI。
+
+### 16.1 階段執行順序
+
+1. **F6 Developer Engine：** 先完成 IDE 無關、隔離、allowlist、受控工具與真實低風險 Issue 多檔案開發。
+2. **F9 最低品質閘門：** 在擴大自主寫入、修復或併發前，確保獨立 Reviewer、同 SHA CI、缺陷攔截與 Fail-Closed 已實際運作；必要 QA 可與 F6 小範圍試驗同步補齊。
+3. **F7 Debug & Repair：** 完成可重現失敗→診斷→有限修復→重測閉環。
+4. **F8 Orchestrator：** 單任務可靠後，才增加 Worker／模型／工具路由與有限併發。
+5. **F10 Project Intelligence：** 先建立來源、權限、隱私、保留與刪除規範，再建立版本化記憶。
+6. **F11 Self-Improvement & Recovery：** 以 baseline、隔離 PR、獨立審查及回滾證據改善 Factory。
+7. **F12 Production-Grade：** 以多輪真實任務、SLO、資安、容量、成本、事故演練與恢復證據做整體驗收。
+
+### 16.2 每階段共同交付
+
+每個 F6–F12 任務必須有：Issue、單一 DRI、依賴與範圍、驗收條件、能力重用／新增理由、隔離方式、測試、精確 SHA、CI run／attempt、風險、回滾、獨立 Reviewer 與明確狀態。沒有證據就標示 BLOCKED／NOT RUN，不得宣稱完成。
+
+### 16.3 資源與安全限制
+
+維持 Factory-first；優先使用現有 Ollama、Runner、Docker、GitHub Actions 與工具。沒有實測瓶頸前，不購買模型、不增加 Runner、不擴大併發、不建立重複服務。模型不得取得主機或生產秘密；不得自我批准、擴權、跳過審查或自動執行未授權的合併／部署。
+
+詳細階段 DoD 與安全要求以 Master Charter §19、Factory Autonomy Charter §15 為準。這是工程路線與派工規則，不是功能已完成的聲明。
