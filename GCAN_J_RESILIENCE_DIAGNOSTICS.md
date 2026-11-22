@@ -39,6 +39,6 @@ Implemented in:
 - `lib/fp/resilience.ts`
 - `tests/fp/resilience.test.ts`
 
-Coverage includes host-scoped trusted evidence resolution, trusted P policy lookup, host authorization ordering, evidence-reference binding, policy denial, strict evidence validation, bounded output, rejection of caller-forged failure metadata, and provider-exception redaction.
+Coverage includes host-scoped trusted evidence resolution, trusted P policy lookup, host authorization ordering, evidence-reference binding, policy denial, strict evidence validation through descriptor-only snapshots, getter non-execution, hostile Proxy failure redaction, bounded output, rejection of caller-forged failure metadata, and provider-exception redaction.
 
-The capability is not wired to a production route. A real P policy provider and trusted evidence source must be supplied by the owning host before any deployment integration. Full repository CI and independent review remain required before acceptance.
+Provider-returned evidence is copied from enumerable own data descriptors into an immutable snapshot; accessors, symbols, exotic prototypes, and hostile reflection failures fail closed without exposing provider-controlled trap messages. The capability is not wired to a production route. A real P policy provider and trusted evidence source must be supplied by the owning host before any deployment integration. Full repository CI and independent review remain required before acceptance.
