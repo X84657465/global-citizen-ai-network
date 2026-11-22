@@ -1,3 +1,17 @@
+## 0.1.25 — 2026-11-23
+
+### Added — B-side A→B Read Adapter consumer contract review
+- Define B ownership of product identity, workspace membership, trusted task-to-workspace mapping and per-read authorization.
+- Flag the DTO ambiguity where `workspaceRef` appears in the A projection despite workspace binding being B-owned; require explicit owner resolution before implementation.
+- Specify service-to-service identity decisions, credential lifecycle, replay resistance and privacy-minimized audit requirements without selecting or provisioning credentials.
+- Identify reference lifecycle, revocation, freshness/revision, bounded single-reference reads, pagination limits and failure semantics requiring A/B owner closure.
+- Add a minimal cross-tenant, stale-evidence, unknown-state, credential, revocation and bounded-response acceptance suite.
+- Preserve the adapter as proposal-only and B Runtime as BLOCKED / PREPARATION ONLY.
+
+### Verification
+- Documentation and B candidate metadata only; canonical A adapter proposal, application/runtime, workflows, database/RLS, credentials, permissions, paid providers and production systems unchanged.
+- Exact-head CI, owner decisions and independent security review remain pending; no acceptance or activation is claimed.
+
 ## 0.1.24 — 2026-11-23
 
 ### Corrected — Factory lease handoff dependency status
