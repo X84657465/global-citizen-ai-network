@@ -150,8 +150,10 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
       !isSafeRecord(rawJob, ["jobId", "status", "conclusion", "jobUrl"], ["jobId", "status", "conclusion", "jobUrl"]) ||
       typeof rawJob.jobId !== "string" ||
       !rawJob.jobId ||
-      !["completed", "in_progress", "queued"].includes(rawJob.status) ||
-      !(rawJob.conclusion === null || ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"].includes(rawJob.conclusion)) ||
+      typeof rawJob.status !== "string" ||
+      !["completed", "in_progress", "queued"].includes(rawJob.status as GJobEvidence["status"]) ||
+      !(rawJob.conclusion === null || (typeof rawJob.conclusion === "string" && ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"].includes(rawJob.conclusion as GJobConclusion))) ||
+      typeof rawJob.jobUrl !== "string" ||
       !GITHUB_JOB_URL_PATTERN.test(rawJob.jobUrl)
     )
   ) {
