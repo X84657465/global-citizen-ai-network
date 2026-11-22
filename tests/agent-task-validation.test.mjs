@@ -389,7 +389,7 @@ test("rejects duplicate supplemental context sections and still rejects unknown 
 
 
 test("parses required patch outputs and literal forbidden-content rules into the validated task", () => {
-  const baseBody = validIssue().body.replace("- tests/settings-page.test.ts", ["- tests/settings-page.test.ts", "- tests/security/dependency-audit.test.mjs"].join("\\n"));
+  const baseBody = validIssue().body.replace("- tests/settings-page.test.ts", ["- tests/settings-page.test.ts", "- tests/security/dependency-audit.test.mjs"].join("\n"));
   const body = baseBody + "\n\n## Required patch paths\n- tests/security/dependency-audit.test.mjs\n\n## Forbidden content\n- Recommended Next.js version: 13.5.6\n- Recommended ESLint version: 8.55.0\n- Run command: npm audit fix --force\n";
   const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
   assert.deepEqual(task.required_patch_paths, ["tests/security/dependency-audit.test.mjs"]);
