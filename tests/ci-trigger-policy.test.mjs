@@ -785,9 +785,15 @@ test("preflight forwards only the publisher's validated API cooldown output to t
   const record = preflight.slice(recordJob.start, recordJob.end);
   assert.ok(record.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.publish-task.outputs.api_cooldown_until }}"),
     "the durable failure callback must receive the publisher job output");
-  const failureStart = record.indexOf("- name: Record publication failure and preserve the task lease state");
+  assert.ok(record.includes("needs: [prepare-task, begin-publication, publish-task]"),
+    "the state-writer job must explicitly depend on the publisher job");
+
+  const failureStart = record.indexOf("      - name: Record publication failure and preserve the task lease state");
   assert.ok(failureStart >= 0, "the publication failure callback must remain explicit");
-  const failureStep = record.slice(failureStart);
+  const nextStep = record.indexOf("\n      - name:", failureStart + 1);
+  const failureStep = record.slice(failureStart, nextStep < 0 ? record.length : nextStep);
+  assert.ok(failureStep.includes("if: failure() || needs.begin-publication.result != 'success' || needs.publish-task.result != 'success'"),
+    "the callback must run when the publisher job fails");
   assert.ok(failureStep.includes("AGENT_FACTORY_MODE: failure"));
   assert.ok(failureStep.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.publish-task.outputs.api_cooldown_until }}"));
 });
