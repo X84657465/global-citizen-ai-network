@@ -25,7 +25,7 @@ test("empty project state explains the value and links to create the first proje
 });
 
 test("project loading failure is not mislabeled as an empty account", () => {
-  assert.match(workspaceSource, /setProjectsUnavailable\(!projectResponse\.ok\)/);
+  assert.match(workspaceSource, /setProjectsUnavailable\(projectUnavailable\)/);
   assert.match(workspaceSource, /projectsUnavailable \?/);
   assert.match(workspaceSource, /目前無法載入專案清單/);
 });
