@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
 import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
+import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 
 test("task-scoped failures quarantine only their issue and never increment the global breaker", () => {
   const now = Date.parse("2026-11-19T00:00:00.000Z");
@@ -225,4 +226,58 @@ test("preserves the reserved lease environment for the task-failure recorder", (
     /writeEnv\("AGENT_FACTORY_LEASE_ID",\s*result\.outputs\.lease_id\)/,
     "the reserve controller must publish the lease ID to GITHUB_ENV for subsequent steps"
   );
+});
+
+
+test("durable cooldown preserves Retry-After from a classified GitHub API error", async () => {
+  const now = Date.parse("2026-11-22T00:00:00.000Z");
+  const client = createGitHubApiClient({
+    now: () => now,
+    maxInlineRetryDelayMs: 30_000,
+    fetchImpl: async () => ({
+      ok: false,
+      status: 429,
+      statusText: "Too Many Requests",
+      headers: { get: (name) => name.toLowerCase() === "retry-after" ? "300" : null },
+      text: async () => JSON.stringify({ message: "API rate limit exceeded" }),
+    }),
+    sleep: async () => { throw new Error("long provider wait must not sleep inline"); },
+  });
+
+  await assert.rejects(client.request("/rate_limit"), (error) => {
+    assert.equal(error.rateLimited, true);
+    assert.equal(error.retryAfter, "300");
+    assert.equal(error.retryAfterMs, 300_000);
+    assert.equal(apiCooldownUntil(error, now), new Date(now + 300_000).toISOString());
+    return true;
+  });
+});
+
+test("durable cooldown preserves x-ratelimit-reset from a classified secondary rate-limit error", async () => {
+  const now = Date.parse("2026-11-22T00:00:00.000Z");
+  const resetSeconds = String((now + 15 * 60_000) / 1000);
+  const client = createGitHubApiClient({
+    now: () => now,
+    maxInlineRetryDelayMs: 30_000,
+    fetchImpl: async () => ({
+      ok: false,
+      status: 403,
+      statusText: "Forbidden",
+      headers: {
+        get: (name) => ({
+          "x-ratelimit-remaining": "0",
+          "x-ratelimit-reset": resetSeconds,
+        })[name.toLowerCase()] ?? null,
+      },
+      text: async () => JSON.stringify({ message: "You have exceeded a secondary rate limit." }),
+    }),
+    sleep: async () => { throw new Error("long provider wait must not sleep inline"); },
+  });
+
+  await assert.rejects(client.request("/repos/example/repo/issues"), (error) => {
+    assert.equal(error.rateLimited, true);
+    assert.equal(error.rateLimitReset, resetSeconds);
+    assert.equal(apiCooldownUntil(error, now), new Date(now + 15 * 60_000).toISOString());
+    return true;
+  });
 });
