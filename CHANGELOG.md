@@ -1,3 +1,8 @@
+## 0.3.135 — 2026-11-22
+
+- F: add fail-closed regression coverage for throwing Proxy reflection traps across security evidence snapshots.
+- Advance F security assurance to 0.1.2; no runtime authority or production security policy changes.
+
 ## 0.3.134 — 2026-11-22
 
 - P: extend the executable A–P version contract to validate the engineering-workstream planning baseline against the canonical release version.
