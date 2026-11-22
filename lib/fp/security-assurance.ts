@@ -153,7 +153,7 @@ function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | n
     const keys = Reflect.ownKeys(value);
     if (keys.length !== length + 1 ||
         keys.some((key) => typeof key !== "string" ||
-          (key !== "length" && !isCanonicalArrayIndexKey(key)))) return null;
+          (key !== "length" && !isCanonicalArrayIndexKey(key)
 
     const snapshot: unknown[] = [];
     for (let index = 0; index < length; index += 1) {
