@@ -589,8 +589,8 @@ GPT 2 不得擅改專案方向、修改 A–E 核心架構、與 GPT 1 重複開
 | GPT | 正式工作線 | 已確認內容 | 狀態 |
 |---|---|---|---|
 | GPT1 | A–E | Agent Factory V2／A 核心、A–E 日常開發、Factory 穩定及 A→B 協調；A 工廠最終整合責任依現有協作規範 | 整合堆疊已定義；待合併 main |
-| GPT2 | F–P | F 資安、G QA/整合、H 可觀測性/成本、I Connector、J 自我修復、K 知識文件、L 多節點、M 合規、N 產品化分析、O 生命週期、P 治理倫理信任 | main 已定義 |
-| GPT3 | A–P | 獨立架構審查、跨線整合、QA、驗收證據、風險、技術債、研究、成熟度及 B 交接監督；不重複日常開發 | main 已定義 |
+| GPT2 | F–P | F 資安、G QA/整合、H 可觀測性/成本、I Connector、J 自我修復、K 知識文件、L 多節點、M 合規、N 產品化分析、O 生命週期、P 治理倫理信任 | 整合堆疊已定義；待合併 main |
+| GPT3 | A–P | 獨立架構審查、跨線整合、QA、驗收證據、風險、技術債、研究、成熟度及 B 交接監督；不重複日常開發 | 整合堆疊已定義；待合併 main |
 | GPT4 | B Product | PR #376（current head dfb8ad1f1c2303f0309ffcfa0042b33277ab2f01）明確提出 GPT4 為 GCAN B Product lead，新增 docs/GCAN_B_LINE_LEAD_CHARTER.md 與 docs/GCAN_PRODUCT_NORTH_STAR.md；PR #387 以 #376 為上游並已納入四 GPT 協調及 GPT2 F–P 章程，但整合鏈尚未合併至 main | 已納入本 PR 堆疊上游；整合鏈待合併至 main |
 
 GPT4 的 B Product 責任以 PR #376 文件及 PR #387 上游內容為已查證來源；在整合鏈合併 main 前，不宣稱 main 已生效。GPT4 詳細權限、交付及驗收責任應以 #376 的 B lead charter 為準；若 #376 未整合或內容改變，更新本矩陣。GPT4 不因此取得 Factory Runner、A 私有狀態或未授權執行權限。
