@@ -7,10 +7,16 @@ import { scratchPatchEvidenceMatches } from "../lib/agent-scratch-evidence.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { ensureDeterministicBranch } from "../lib/agent-publisher-branch.mjs";
 import { collectGitHubPages } from "../lib/github-pagination.mjs";
+import { markAgentFactoryTaskFailure } from "../lib/agent-failure-scope.mjs";
 
 const fail = (message) => {
   console.error("Agent PR publishing rejected: " + message);
   process.exit(1);
+};
+
+const failTask = (message) => {
+  markAgentFactoryTaskFailure(process.env.GITHUB_ENV);
+  fail(message);
 };
 
 const readJson = (path, label) => {
@@ -215,7 +221,7 @@ try {
 
   const branchInfo = await api("/repos/" + repository + "/branches/" + encodeURIComponent(defaultBranch));
   if (branchInfo.commit?.sha !== baseCommit) {
-    fail("Default branch advanced after candidate tests; rerun the task against the latest base.");
+    failTask("Default branch advanced after candidate tests; rerun the task against the latest base.");
   }
 
   const openPulls = await collectGitHubPages((page) =>
@@ -276,7 +282,7 @@ try {
   const commitSha = branchResult.commit_sha;
   const confirmedBase = await api("/repos/" + repository + "/branches/" + encodeURIComponent(defaultBranch));
   if (confirmedBase.commit?.sha !== baseCommit) {
-    fail("Default branch advanced during publication; rerun the task against the latest base.");
+    failTask("Default branch advanced during publication; rerun the task against the latest base.");
   }
 
   if (existingPull) {
