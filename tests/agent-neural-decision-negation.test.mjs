@@ -88,7 +88,7 @@ test("double-negated risk language remains high risk instead of being treated as
   for (const title of [
     "There is no reason not to deploy to production",
     "Credentials are not prohibited from being rotated",
-    "Production is not out of scope for this task",
+    "Production is not out of scope for this task, so deploy now",
   ]) {
     const result = evaluateAgentDecision(withImplementerText(title), task);
     assert.equal(result.signals.no_high_risk_scope, false, title);
@@ -119,4 +119,174 @@ test("a direct prohibition still suppresses prose-only risk while keeping the de
   assert.equal(result.evidence.high_risk_scope_detected, false);
   assert.equal(result.authority.may_execute_code, false);
   assert.equal(result.authority.may_publish_changes, false);
+});
+
+test("a sequential action is not swallowed by an earlier prohibition", () => {
+  for (const title of [
+    "Do not modify the report and subsequently deploy to production",
+    "Never change the documentation and then rotate credentials",
+    "Do not update the draft; next change billing settings",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("coordinated actions within one prohibition remain negated", () => {
+  const result = evaluateAgentDecision(
+    withImplementerText("Do not deploy to production or change billing settings"),
+    task,
+  );
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
+  assert.equal(result.decision, "approve_for_sandbox_validation");
+});
+
+test("non-mutating production and dependency audit verification does not trigger positive risk", () => {
+  for (const title of [
+    "Verify production and full dependency audit outcomes",
+    "Review billing configuration and credential inventory",
+    "Inspect production readiness and confirm audit evidence",
+    "Audit production controls and report the findings",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
+
+test("actionable high-impact operations remain rejected after narrowing prose cues", () => {
+  for (const title of [
+    "Deploy to production",
+    "Change billing policy",
+    "Rotate credentials",
+    "Production migration",
+    "Publish the production release",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("passive deployment and migration evidence reviews remain non-mutating", () => {
+  for (const title of [
+    "Review deployment history",
+    "Inspect the production migration plan",
+    "Audit credential rotation history",
+    "Verify production deployment status",
+    "Review production deployment metrics",
+    "Audit production deployment readiness",
+    "Read the billing configuration audit report",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
+
+test("a fresh prohibition after a sequencing boundary remains negated", () => {
+  for (const title of [
+    "Do not modify the report, then do not deploy to production",
+    "Never change the documentation; subsequently do not rotate credentials",
+    "Do not update the draft, next never change billing settings",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
+
+test("operation cues must act on the sensitive target rather than an unrelated object", () => {
+  for (const title of [
+    "Review production change log",
+    "Inspect production change history",
+    "Update the project notes about production audit results",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
+
+test("a change verb directly governing a sensitive target remains high risk", () => {
+  for (const title of [
+    "Change billing policy",
+    "Update billing rules",
+    "Rotate credentials",
+    "Deploy to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("operation-object-target grammar remains high risk", () => {
+  for (const title of [
+    "Deploy the service to production",
+    "Perform production migration",
+    "Migrate the production database",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("production migration imperative variants remain high risk", () => {
+  for (const title of [
+    "Perform migration to production",
+    "Run a production migration",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("change-log noun phrase is not treated as a production change command", () => {
+  const title = "Review change log to production";
+  const result = evaluateAgentDecision(withImplementerText(title), task);
+  assert.equal(result.signals.no_high_risk_scope, true, title);
+  assert.equal(result.evidence.high_risk_scope_detected, false, title);
+  assert.equal(result.decision, "approve_for_sandbox_validation", title);
+});
+
+
+test("modal requests for object-target operations remain high risk", () => {
+  for (const title of [
+    "Can you deploy the service to production",
+    "Could you deploy the service to production",
+    "Would you deploy the service to production",
+    "Could you please deploy the service to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("modal requests to inspect production evidence remain non-mutating", () => {
+  for (const title of [
+    "Can you review production deployment metrics",
+    "Could you inspect the production migration plan",
+    "Would you review change log to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
 });
