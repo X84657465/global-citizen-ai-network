@@ -202,3 +202,30 @@ test("a fresh prohibition after a sequencing boundary remains negated", () => {
     assert.equal(result.decision, "approve_for_sandbox_validation", title);
   }
 });
+
+test("operation cues must act on the sensitive target rather than an unrelated object", () => {
+  for (const title of [
+    "Review production change log",
+    "Inspect production change history",
+    "Update the project notes about production audit results",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
+
+test("a change verb directly governing a sensitive target remains high risk", () => {
+  for (const title of [
+    "Change billing policy",
+    "Update billing rules",
+    "Rotate credentials",
+    "Deploy to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
