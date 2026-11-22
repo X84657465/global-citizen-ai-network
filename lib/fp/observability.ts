@@ -74,7 +74,21 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
       throw new TypeError("Invalid F–P observability event.");
     }
 
-    this.events.push(Object.freeze({ ...event }));
+    // Rebuild from the explicit metadata allowlist. TypeScript interfaces do
+    // not strip runtime properties, so spreading the caller's object could
+    // retain request bodies, actor identifiers, credentials, or other secrets.
+    const safeEvent: FPOperationEvent = {
+      schemaVersion: "1",
+      eventType: "fp.capability.outcome",
+      workstream: event.workstream,
+      capability: event.capability,
+      correlationId: event.correlationId,
+      outcome: event.outcome,
+      occurredAt: event.occurredAt,
+      durationMs: event.durationMs,
+      ...(event.errorCode === undefined ? {} : { errorCode: event.errorCode }),
+    };
+    this.events.push(Object.freeze(safeEvent));
     if (this.events.length > this.capacity) this.events.shift();
   }
 
