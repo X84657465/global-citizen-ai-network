@@ -284,3 +284,70 @@ Factory 不得因已能產生程式碼、建立 Patch 或 Draft PR，就宣稱�
 - Capability Inventory、Runbook、handoff 與決策紀錄同步更新。
 
 **Factory 的進化目標是讓既有資產越來越有能力，而不是每次升級都重做一次工廠。**
+
+## 13. Worker Fleet、智慧引擎與工具鏈建設規範
+
+### 13.1 Factory 生產力的完整組成
+
+Factory 的有效生產能力不是單一 LLM，而是：
+
+`Effective Factory Capacity = Skilled Workers × Reliable Engines × Governed Tools × Isolated Runtime × Orchestration × Independent QA`
+
+這是架構關係式，不是可直接相乘的營運數字。任一環節缺失都會形成瓶頸：有模型沒有工具只能產生建議；有工具沒有隔離會造成風險；有 Worker 沒有調度會閒置或互撞；有產出沒有 QA 就不能可信交付。
+
+### 13.2 現有能力先盤點
+
+開發前先檢查既有 controller、state machine、scheduler、planner、Runner、write policy、patch validation、scratch evidence、PR publisher、recovery、CI 與現有 model/tool adapters。建立 Worker／Engine／Tool／Runtime Capability Inventory，逐項標示實作狀態、路徑、版本、owner、證據與缺口。禁止因為新架構名詞而建立重複服務。
+
+### 13.3 最小可行專業 Worker Pool
+
+第一階段先以邏輯技能與任務契約建立能力池，不要求一技能一模型或一 Worker 一台機器。至少涵蓋：
+- Discovery／Research
+- Planning／Architecture
+- Coding／Implementation
+- Frontend／Backend／Data（可先由同一 Worker 按技能承接）
+- QA／Regression
+- Security／Reliability
+- Integration／Release／Documentation
+
+Worker 可以由不同模型、同一模型的不同 system profile、確定性程式工具或人工執行者構成。依任務選擇最合適執行者，並記錄能力與實際表現。
+
+### 13.4 Engine Gateway 與 Tool Registry
+
+- 引擎介面必須可替換、可評測、可觀測；模型選擇依任務品質、成本、延遲、資料政策及可用性。
+- 工具必須有 schema、owner、最小權限、風險標籤、逾時、重試、取消與 audit log。
+- Shell、GitHub 寫入、資料庫寫入、網路、Secrets、部署與付費工具分別授權，不得由一般任務自動繼承。
+- 工具呼叫結果必須成為任務 evidence；不得把模型聲稱執行成功當成工具成功。
+- 工具故障要有明確錯誤分類、Fallback 或 BLOCKED 狀態，不可靜默略過。
+
+### 13.5 安全併發與執行環境
+
+- 每個可寫任務使用隔離工作目錄／分支及明確檔案 allowlist。
+- 任務依賴圖、檔案衝突與模組 ownership 決定是否可平行；有衝突則序列化。
+- 具備資源配額、超時、取消、重試上限、lease／lock、Runner 健康檢查及中斷恢復。
+- Secrets 僅於任務必要時短暫注入，禁止寫入 log、artifact、prompt 或 commit。
+- 外部網路與資料庫存取採 allowlist；預設拒絕非必要存取。
+- 生產部署、不可逆資料操作、付費支出及外部發布另設批准門檻。
+
+### 13.6 工廠能力驗收指標
+
+以真實任務集建立 baseline，至少量測：
+- Issue／任務到 Draft PR 的端到端完成率與時間。
+- 自動測試首次通過率、回歸失敗率、缺陷逃逸率。
+- 任務重試、取消、Runner 重啟後恢復成功率。
+- Worker 排隊時間、利用率與安全平行度。
+- 每個成功交付的模型、工具及運算總成本。
+- 人工介入比例及阻塞分類準確度。
+
+未建立 baseline 前，不得宣稱已達高吞吐、自主多工或自主修復成熟度。
+
+### 13.7 工廠建置順序
+
+1. 先完成 F0 現有能力盤點與瓶頸證據。
+2. 再統一 Worker 任務契約與能力登記。
+3. 接著補 Engine／Tool Registry 的介面與權限。
+4. 再建立隔離工作區及安全平行執行。
+5. 補足 QA、Recovery、Observability 與成本量測。
+6. 最後才做自適應 Worker／模型／工具調度。
+
+每一階段需由 GPT3 或指定獨立 Reviewer 驗收；GPT1 負責 Factory 設計與實作協調，不得自行批准自己的成果。
