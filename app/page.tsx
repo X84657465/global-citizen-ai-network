@@ -109,7 +109,8 @@ export default function HomePage() {
       {title:"GPT1 · A–E / FACTORY → B",text:"主責 Agent Factory V2、A–E 工作線及必要 Factory→B 交接；維持工廠優先。",icon:Workflow},
       {title:"GPT2 · F–P",text:"主責 F–P 平行專業能力建設；先確認介面與依賴，不任意覆蓋 A–E 核心。",icon:Layers3},
       {title:"GPT3 · INDEPENDENT QA",text:"負責跨 A–P 獨立架構審查、整合與 QA；以可重現證據驗收，不取代功能 owner。",icon:ShieldCheck},
-      {title:"GPT4 · B PRODUCT",text:"負責 GCAN B 產品方向、需求、產品契約與產品生命週期；遵守 Factory→B 交接及獨立驗收門檻。",icon:Globe2},\n      {title:"GPT5 · GLOBAL INTELLIGENCE & OPERATIONS",text:"全域情報研究與營運支援：搜尋最新 AI／工程資訊、比較技術方案、查核來源、追蹤漏洞與版本變更、整理 Issues／PR／CI，並將可追溯研究交付 GPT1–GPT4。",icon:SearchCheck}
+      {title:"GPT4 · B PRODUCT",text:"負責 GCAN B 產品方向、需求、產品契約與產品生命週期；遵守 Factory→B 交接及獨立驗收門檻。",icon:Globe2},
+      {title:"GPT5 · GLOBAL INTELLIGENCE & OPERATIONS",text:"全域情報研究與營運支援：搜尋最新 AI／工程資訊、比較技術方案、查核來源、追蹤漏洞與版本變更、整理 Issues／PR／CI，並將可追溯研究交付 GPT1–GPT4。",icon:SearchCheck}
      ].map(({title,text,icon:Icon})=><article className={styles.trustCard} key={title}><span><Icon size={20}/></span><div><h3>{title}</h3><p>{text}</p></div></article>)}
     </div>
     <div className={styles.loopPrinciple} style={{marginTop:20}}>
