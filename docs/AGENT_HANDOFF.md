@@ -1,3 +1,7 @@
+> **最高核心設計原則（持續有效）：** Agent Factory 的長期使命與能力成熟度以 [Agent Factory 自主開發最高核心章程](AGENT_FACTORY_AUTONOMY_CHARTER.md) 為準。該章程定義目標架構，不代表尚未實作的能力已完成；本 handoff 下方的最新狀態、SHA、Issue、PR、CI 與阻塞紀錄仍是執行現況的唯一依據。開始新工作前必須同時讀取兩者。
+
+---
+
 ## Superseding verified continuation snapshot — 2026-11-22 (main 1330cec4)
 
 This snapshot is the current operational reference and supersedes earlier live-state sections below wherever they conflict. Older sections remain historical evidence; do not treat their SHAs, run IDs, PR states, or blocker descriptions as current.
