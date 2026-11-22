@@ -1,7 +1,7 @@
 # A–P Workstream Engineering Governance
 
-**Governance revision: 1.4.25**  
-**Repository release baseline: 0.3.132**
+**Governance revision: 1.4.26**  
+**Repository release baseline: 0.3.133**
 
 
 ## A–P workstream registry
