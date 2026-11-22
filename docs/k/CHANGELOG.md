@@ -1,5 +1,7 @@
 ## K 0.1.1 — 2026-11-22
 
+- Add a deployment evidence checklist and documentation ownership/freshness policy.
+
 - Add bounded operator runbooks for CI failure evidence, Runner recovery and incident response.
 
 - Add a navigable architecture reference index for A–P governance and canonical evidence sources.
