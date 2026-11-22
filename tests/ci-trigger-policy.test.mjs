@@ -205,7 +205,7 @@ test("source syntax and CI policy regressions are classified as task-scoped qual
   assert.ok(classifier.includes("$env:SCRIPT_SYNTAX"));
   assert.ok(classifier.includes("$env:CI_TRIGGER_POLICY"));
 
-  const taskOutcomes = classifier.match(/\\$taskOutcomes = @\\(([^)]*)\\)/)?.[1] ?? "";
+  const taskOutcomes = classifier.match(/\$taskOutcomes = @\(([^)]*)\)/)?.[1] ?? "";
   assert.ok(taskOutcomes.includes("$env:SCRIPT_SYNTAX"), "script syntax outcome must affect failure scope");
   assert.ok(taskOutcomes.includes("$env:CI_TRIGGER_POLICY"), "CI policy outcome must affect failure scope");
   assert.ok(classifier.includes('if ($taskOutcomes -contains "failure")'));
