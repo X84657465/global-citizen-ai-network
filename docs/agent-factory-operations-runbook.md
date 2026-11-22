@@ -178,3 +178,9 @@ Record each rehearsal with UTC start/end time, commit SHA, workflow run URL, run
 - GitHub Actions uploads `candidate-evidence.json` for 90 days. Predictive Coding may ingest it only after checking repository, branch, SHA, run URL, timestamp and source provenance. It is evidence, never a production command.
 - Duplicate callback replays do not emit another artifact. Durable task state and callback idempotency remain authoritative.
 - This creates an export path only; live C/D ingestion still requires an explicit receiver and compatibility tests.
+
+## Bounded Factory smoke-test record — Issue #138 (`138`)
+
+- Issue #138 authorized only the documentation artifact `docs/agent-factory-smoke-test.md`; it explicitly excluded application/workflow/configuration/dependency/database changes, merges, deployments, secrets and Production services.
+- The artifact was committed as `f9510d2bb23e0e260b9a1e0f9f2587cceb82dd01`. Its recorded Preflight run #44751179147 passed on source SHA `ee62e9cfd8f5ac40f66f556a4a99ca7a7a9dd97e`, including synthetic planning/patch proposal, disposable isolation, offline candidate test, publisher dry-run, 370/370 unit tests, TypeScript, ESLint and cleanup.
+- This was a push-triggered synthetic smoke test. It did **not** perform a real Issue lease/state transition or actual Draft PR/API publication; those lifecycle stages must not be represented as passed. The smoke-test result is historical and applies only to its recorded source SHA.
