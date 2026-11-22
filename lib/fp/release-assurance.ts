@@ -17,6 +17,7 @@ export type GJobConclusion = "success" | "failure" | "cancelled" | "skipped" | "
 
 export interface GJobEvidence {
   readonly jobId: string;
+  readonly runAttempt: number;
   readonly status: "completed" | "in_progress" | "queued";
   readonly conclusion: GJobConclusion | null;
   readonly jobUrl: string;
@@ -158,9 +159,12 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
     !SHA_PATTERN.test(run.headSha) ||
     !GITHUB_RUN_URL_PATTERN.test(run.runUrl) ||
     jobItems.some((rawJob) =>
-      !isSafeRecord(rawJob, ["jobId", "status", "conclusion", "jobUrl"], ["jobId", "status", "conclusion", "jobUrl"]) ||
+      !isSafeRecord(rawJob, ["jobId", "runAttempt", "status", "conclusion", "jobUrl"], ["jobId", "runAttempt", "status", "conclusion", "jobUrl"]) ||
       typeof rawJob.jobId !== "string" ||
       !rawJob.jobId ||
+      typeof rawJob.runAttempt !== "number" ||
+      !validPositiveInteger(rawJob.runAttempt) ||
+      rawJob.runAttempt !== run.runAttempt ||
       typeof rawJob.status !== "string" ||
       !["completed", "in_progress", "queued"].includes(rawJob.status as GJobEvidence["status"]) ||
       !(rawJob.conclusion === null || (typeof rawJob.conclusion === "string" && ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"].includes(rawJob.conclusion as GJobConclusion))) ||
