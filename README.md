@@ -22,6 +22,35 @@
 
 
 
+## 🏛️ GCAN 公開入口｜願景、架構與進度一眼看懂
+
+GitHub README 與 [GCAN 官方網站](https://global-citizen-ai-network.vercel.app) 是本專案兩個主要公開入口。README 面向開發者與貢獻者；網站首頁面向使用者與合作夥伴。兩處會以一致的事實來源、不同的閱讀路徑，持續提供圖文並茂的總覽。
+
+### GCAN 五層進化路線
+
+```mermaid
+flowchart TD
+  A["01 自主生產<br/>Research · Build · Verify · Deliver"] --> B["02 自主經營<br/>Quality · Cost · Operations"]
+  B --> C["03 自主創新<br/>Discover · Experiment · Productize"]
+  C --> D["04 全球智慧協作<br/>Federation · Identity · Trust"]
+  D --> E["05 受治理的自主進化生態系<br/>Learn · Improve · Govern"]
+  F["當前執行優先：Factory-first"] -.-> A
+  G["必要 A → B 銜接"] -.-> B
+```
+
+### 雙首頁各自提供什麼
+
+| 公開入口 | 主要讀者 | 優先圖文內容 |
+|---|---|---|
+| GitHub README | 開發者、審查者、貢獻者 | 架構圖、A–P 責任地圖、Factory-first 路線、版本／CI 證據、貢獻指南 |
+| [官方網站首頁](https://global-citizen-ai-network.vercel.app) | 使用者、合作夥伴、首次訪客 | GCAN 願景、核心能力、使用者旅程、進化路線、信任治理、產品入口 |
+
+**展示原則：** 圖解必須搭配精簡文字、狀態標示與可核對證據；概念圖不冒充已上線功能，示範資料不冒充正式營運。重要路線或能力變更時，先更新正式文件，再同步兩個首頁；每個發布週期檢查內容、連結、圖片、行動版與可讀性。
+
+完整規範：[GCAN Master Governance & Coordination Charter §16](docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md)。
+
+---
+
 ## 🧠 GCAN 神經智慧體模式｜最高工程協作原則
 
 **GCAN 不只建置 AI 產品，也以可追蹤、可驗證、可治理的神經智慧體工作模式，持續建置自身的 AI 工程能力。**
