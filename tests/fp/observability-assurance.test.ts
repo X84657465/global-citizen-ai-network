@@ -222,3 +222,28 @@ test("rejects aggregate cost overflow and duration values beyond the documented 
     event("duration-over", { durationMs: 7 * 24 * 60 * 60 * 1000 + 1 }),
   ])), /duration/);
 });
+
+test("uses descriptor snapshots instead of Proxy get-trap values", () => {
+  let getTrapCalls = 0;
+  const proxiedEvent = new Proxy(event("proxy-event-0001", { kind: "queue" }), {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "kind") return "cost";
+      return Reflect.get(target, property, receiver);
+    },
+  });
+  const base = bundle([proxiedEvent]);
+  const proxiedBundle = new Proxy(base, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "windowStart") return "invalid-window";
+      return Reflect.get(target, property, receiver);
+    },
+  });
+
+  const result = assessHObservation(proxiedBundle);
+  assert.equal(result.eventCount, 1);
+  assert.equal(result.counts.queue, 1);
+  assert.equal(result.counts.cost, 0);
+  assert.equal(getTrapCalls, 0);
+});
