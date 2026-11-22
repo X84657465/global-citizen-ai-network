@@ -213,3 +213,90 @@ PR #295 and #299 both touch this ledger. Their branches are distinct and their t
 5. Refresh this ledger only from observed evidence. Keep A–E protected, B inactive, and L deferred.
 
 **Authority boundary:** this is a K documentation checkpoint only. It changes no runtime, database, migration, Factory state, lease, retry/cooldown/quarantine, Runner policy, secret, permission, or deployment behavior.
+
+## 12. Post-PR #301 live mainline checkpoint (2026-11-22)
+
+**Verified main SHA:** `061ccf621c228bae93b91cd8c53723c3fe08310a` (merge commit for PR #301).
+
+### Integrated state
+- PR #301 merged: documentation-only refresh of `docs/AGENT_HANDOFF.md` and this F–P ledger. It records merged implementation PRs #292, #293, #296, #297, #298 and #300 without promoting them to operational acceptance.
+- The handoff and ledger now explicitly distinguish the current main SHA from earlier snapshots, and distinguish merged changes from accepted/operational behavior.
+- No runtime, schema, database, migration, Factory state, lease, Runner, secrets, permissions or deployment behavior changed in PR #301.
+
+### Current exact-SHA evidence
+- Main push CI run `44973274417` for `061ccf621c228bae93b91cd8c53723c3fe08310a` is pending and has no allocated jobs in the latest query. No test pass is inferred.
+- Scheduled Preflight run `44972336349` targets older SHA `23fb747ae4041bc28783a1b9039660ec952c7e0d`; its read-only task-plan job is pending and Windows validation was skipped. Later push-triggered Preflight `44972991644` targets `aa63b74f9d23d2316ec7b59116632d686afb8fe1`; Windows validation is pending and task-plan validation was skipped. Neither is evidence for current main `061ccf621c228bae93b91cd8c53723c3fe08310a` or successful scheduled progression.
+- Combined status for `061ccf621c228bae93b91cd8c53723c3fe08310a` reports Vercel `build-rate-limit` failure; no same-SHA Preview/Smoke evidence is established.
+- PR #301 exact-head run `44973266726` was pending at merge; no CI pass is claimed.
+
+### Outstanding gates
+- Issue #136 remains read-only and requires an independent adversarial audit. No independent sign-off is recorded.
+- A remains integrated but not operationally accepted; B Runtime remains inactive; L remains deferred.
+- Keep Factory state and all production/runtime safety boundaries unchanged.
+
+**Authority boundary:** documentation-only K checkpoint; not an A/B acceptance or deployment authorization.
+
+
+## 13. A Factory continuation and B contract cross-check (2026-11-22)
+
+**Main baseline:** `061ccf621c228bae93b91cd8c53723c3fe08310a`.
+
+| Candidate | Exact HEAD | Exact-head Actions | Review / disposition |
+|---|---|---|---|
+| #303 — stale-base failure scope | `aec814f93c60fdda501c158cbd622377625a5c61` | Run `44975519823` pending; no jobs allocated. | Draft; no formal review or threads; Vercel build-rate limit; no same-SHA Preview. |
+| #305 — task output contract | `2a2d35114c88ba0cce6d8478a72d908a8b277985` | Run `44976078839` pending; no jobs allocated. | Draft; no formal review or threads; Vercel build-rate limit; no same-SHA Preview. |
+
+### Verified A-side details
+
+- #303 preserves stale-base guards and narrows task-scoped classification to the explicit default-branch-drift rejection branches. The triggering Preflight run `44972336349` failed publication only after scratch/offline checks; it is not evidence that candidate code tests failed.
+- #305 validates task-declared required patch paths and forbidden literal strings, including final aggregate validation. Its latest batch-scoping helper rejects empty/invalid batch lists and any path outside the validated task allowlist.
+- Issue #100 is still machine-managed, state version 152 (`2026-11-22T02:04:40.421Z`): no active task, 9 system failures, elapsed cooldown, Issue #17 queued, 7 quarantined. No state mutation or forced dispatch was performed.
+- The earlier publisher-token permission mismatch diagnosis was explicitly withdrawn in Issue #136 after logs confirmed effective Contents/Issues/PullRequests write permissions. The stale-base rejection is the verified publisher failure for run `44972336349`.
+- Issue #136 has no independent audit report/sign-off in the latest comment history. Its read-only boundary remains in force.
+
+### B contract source cross-check
+
+- Current main's A state machine stores and validates the structured candidate evidence tuple: full `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt`.
+- The proposal's public status mapping covers every current A task state, but no A-owned product projection/API has been implemented or accepted.
+- The remaining contract item before B implementation is an explicit allowlisted `failureCategory` mapping; unknown codes must map to `unknown`, and raw exception text must never cross the boundary.
+- B remains inactive. No B runtime/API/database, billing, Factory permission, or cross-workspace access was enabled.
+
+### Required sequence
+
+1. Pass exact-head CI and independent review for #303/#305.
+2. After #305 acceptance, add the required security test path and literal prohibitions to Issue #17; preserve fresh audit evidence and no-major-downgrade acceptance criteria.
+3. Complete the independent read-only audit and A operational acceptance.
+4. Implement the A-owned projection and B-owned workspace authorization only after A acceptance.
+
+This section is a documentation checkpoint, not A acceptance, B activation, deployment authorization, or permission to mutate machine-managed Factory state.
+
+
+## 14. Stale-base machine-code propagation and B projection — 2026-11-22
+
+- PR #303 latest HEAD: `0b521e654de819098fb59e86eb024bd75cc56810`. The helper writes both task failure scope and `AGENT_FACTORY_ERROR_CODE=STALE_BASE`; the regression test asserts both environment values.
+- The A controller consumes the structured error-code variable and otherwise defaults to `WORKFLOW_FAILURE`. This makes explicit stale-base coding necessary for a future safe B category projection.
+- Proposed allowlist mapping: `STALE_BASE` → `validation`; `WORKER_LEASE_EXPIRED` → `infrastructure`; generic `WORKFLOW_FAILURE`, `TASK_FAILURE`, `SYSTEM_FAILURE`, missing and unknown codes → `unknown`.
+- Candidate CI failures currently have no dedicated stable failure code and must remain `unknown`; do not infer a category from a generic failed conclusion or free-form error summary.
+- PR #303 remains Draft pending exact-head CI and independent review. This is a targeted A→B data-contract improvement, not A acceptance or B activation.
+
+
+## 15. Live continuation checkpoint — 2026-11-22 10:36 Taiwan
+
+**Verified main SHA:** `061ccf621c228bae93b91cd8c53723c3fe08310a` (PR #301 merge).
+
+### Factory execution
+- Issue #100 read-only snapshot: state version 152; no active task; system consecutive failures 9; recorded cooldown ended at `2026-11-22T02:19:40.421Z`; task #17 queued. Historical lease fields do not establish an active lease. No issue/state mutation or manual dispatch is authorized.
+- Scheduled run #44972336349 / job #137054627179 completed scratch candidate validation with 602/602 unit tests, TypeScript and ESLint successful. This was not full dependency audit, publication or task completion.
+- Publication correctly failed closed because main advanced after candidate tests. The publisher failure was stale-base drift, not a demonstrated permission error. PR #303 targets only task-scoped failure/error-code persistence for this case.
+- Preflight #44972991644 passed its Windows synthetic validation against older SHA `aa63b74...`; task transition and read-only planner were skipped. Main CI #44972991698 for that older SHA was cancelled. Neither is exact-current-main CI or real queue progression evidence.
+
+### Exact-head candidate status
+- #302 HEAD `2d93e14fd46e7eeaa788ff2f0095df702d95636b`, run #44976783109 — pending, no jobs allocated.
+- #303 HEAD `9b1097484e868d8c78b752c1372f6c6964a36ed3`, run #44976773308 — pending, no jobs allocated.
+- #305 HEAD `2a2d35114c88ba0cce6d8478a72d908a8b277985`, run #44976078839 — pending, no jobs allocated.
+- Keep all Draft and unmerged. No formal review evidence for #303/#305; do not transfer older-SHA CI results.
+
+### Acceptance boundary
+A remains integrated, not operationally accepted. Still required: exact-current-main CI, natural queue/lease/worker progression after cooldown, serialized 24-hour Runner soak, same-SHA READY Preview/Smoke, and independent read-only audit in Issue #136. B Runtime remains inactive; the A→B projection remains preparation only.
+
+**Authority boundary:** documentation evidence only; no Factory state, task, lease, retry/cooldown/quarantine, Runner policy, secrets, permissions, production data, deployment or B Runtime mutation.

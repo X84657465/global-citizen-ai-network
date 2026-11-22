@@ -5,9 +5,9 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `aa63b74f9d23d2316ec7b59116632d686afb8fe1`  
+**Main HEAD:** `061ccf621c228bae93b91cd8c53723c3fe08310a`  
 **Authoritative release:** `VERSION` and `package.json` on main both report `0.3.125`. README release label requires separate verification before use.  
-**A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
+**A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.20` (`versions/manifest.json` and `versions/gcan-product/VERSION`; not a release-readiness claim).
 
 ## 1. Highest-level strategy and authority
 
@@ -43,39 +43,43 @@ F–P manifest registration or a “ready” label is not implementation accepta
 
 ## 2A. Authoritative live snapshot — supersedes older checkpoints below (2026-11-22)
 
-This section is the current source of truth for repository state. Older checkpoint sections later in this document are retained as historical records only; do not act on their old SHAs, PR states, run IDs, counts, or dispositions unless independently re-verified.
+This is the newest verified repository snapshot. All later sections below are historical context unless independently re-verified.
 
-### Mainline
-- **Verified `main` HEAD:** `23fb747ae4041bc28783a1b9039660ec952c7e0d` (merge commit for PR #283). A previous audit note incorrectly treated PR #272's merge commit `fc1933e...` as current main; that was not the current default-branch tip.
-- `VERSION` and `package.json` on main both report `0.3.125`.
-- PR #283 source HEAD `abe983db3f2f6e657fbc39c2777fdb28e0bd2573` passed its exact-head Actions run #3369 for the resolver, Windows quality gates, Ollama/local execution, and Supabase/PostgreSQL/pgTAP/two-member RLS. These are PR-head results, not merge-commit CI.
-- No workflow runs were returned for merge commit `23fb747...`; combined status reports Vercel failure due provider build-rate-limit. No same-SHA READY Preview/Smoke evidence is established. A is integrated but **not formally accepted**.
-- PR #272 is included in main's history. Its source-head run #3258 completed with only the exact candidate resolver succeeding; quality, database/RLS and Ollama jobs were skipped. Do not interpret its overall run conclusion as full test acceptance.
+### Mainline and merged integration
 
-### Active candidate PRs — refreshed 2026-11-22
-- **PR #292** — A patch evidence-grounding prompt guard; head `2ed61e76b2045832d769dfd893b02ee6753de70c`, base `23fb747...`, Draft/open. Exact-head run `44967914868` completed successfully: resolver, Windows quality gates, Ollama/local execution, and Supabase/PostgreSQL/RLS integration all passed. No formal reviews or inline threads; CI is accepted, but the PR is not merge-approved until independent review and exact-head policy checks are complete.
-- **PR #293** — A Preflight Node runtime pin to `22.13.0`; head `2278bb471392c1b92e43971191c2c103017e9cf3`, base `23fb747...`, Draft/open. Exact-head run `44968035839`: resolver and Windows quality gates succeeded; Supabase/PostgreSQL/RLS and Ollama/local execution remain pending. No formal reviews.
-- **PR #294** — K authoritative handoff; latest head `0686ac520b611bfc5d3a5898b3f31decd0afbb18`, base `23fb747...`, Draft/open. Exact-head run `44969867125` has no allocated jobs. This round corrected four stale main SHA references; no CI pass is claimed.
-- **PR #295** — K F–P acceptance ledger; latest head `8733ae9c1ad7106ed1f2bea187af46f298ebac53`, base `23fb747...`, Draft/open. Exact-head run `44969840874` has no allocated jobs. The baseline now matches main; no CI pass is claimed.
-- **PR #296** — H privacy-safe observability metadata; head `e4c3cb3fa68f12400fb3da00d40fc087768d55ca`, base `23fb747...`, Draft/open. Exact-head run `44969692123` has no allocated jobs. UTC timestamps use canonical ISO round-trip validation; regression coverage rejects calendar rollover and non-UTC values. No formal reviews.
-- **PR #297** — P governance authentication fail-closed; head `858d1ae886a95b9fec41076287d4c4466d2a46cb`, base `23fb747...`, Draft/open. Exact-head run `44969394408` has no allocated jobs. Authentication-provider exceptions return 503; regression test verifies no profile/GitHub access. No formal reviews.
-- **PR #298** — F canonical UTC security-evidence timestamps; head `e35ad0bb955f2a04c6375e4989f2fbbea7ba3086`, base `23fb747...`, Draft/open. Exact-head run `44969187760` has only the resolver job pending. No formal reviews.
-- **PR #291** — docs-only B adapter/handoff; head `c449f3dc5aff92ceb172d1cf9198db4192193c18`, base `23fb747...`, Draft/open. Exact-head run `44967609009` is pending; no formal review/inline threads. B Runtime remains inactive.
-- **PR #259** — old consolidated A/F–P candidate; its base SHA is `a1c1b58...`, not current main; GitHub reports mergeable=false. Do not merge or use its CI as current-main evidence. Rebuild selectively only after examining unique changes and dependencies.
+- **Verified `main` HEAD:** `061ccf621c228bae93b91cd8c53723c3fe08310a`, merge commit for documentation-only PR #301.
+- Verified merged implementation PRs:
+  - #292 — evidence-grounding instructions for generated AI patch claims; prompt-level guard, not a semantic fact-checker.
+  - #293 — pins Preflight `validation-tests` and `prepare-task` to Node.js `22.13.0`.
+  - #296 — privacy-safe observability event metadata.
+  - #297 — governance authentication-provider failures fail closed.
+  - #298 — canonical UTC security-evidence timestamp validation.
+  - #300 — read-only durable-state capacity telemetry for the 500-event and 60,000-character limits; no eviction or automatic recovery.
+- Documentation/handoff PRs #290, #291, #294, #299 and #301 are merged. #290/#291 are preparation/documentation only and do not activate B Runtime. #294/#299 are superseded historical checkpoints. PR #301 updates this handoff and the F–P ledger; it does not change runtime behavior.
+- Merge status is integration evidence only, not operational acceptance.
 
-No PR above is currently eligible for merge: candidates remain Draft, required integration CI is pending or has no allocated jobs, and formal independent review is absent. Do not interpret missing job records as success or as proof the Runner is offline.
+### Exact-SHA validation
 
-### Factory operational state
-- Issue #100 remains machine-managed and strictly read-only. Its latest inspected snapshot reports state version 144, system consecutive failures 7, cooldown deadline `2026-11-21T21:51:20.864Z`. This establishes the recorded deadline has elapsed, not that the scheduler resumed or any task progressed.
-- No verified post-cooldown task selection, lease reservation, worker progression, 24-hour soak, lease fencing/recovery, duplicate-event idempotency or serialized Runner-operation evidence is established.
-- Do not edit Issue #100, reset retry/quarantine/cooldown, force-dispatch, alter Runner/workflow policy, secrets, permissions or production deployment.
+- Main push CI run [#44973274417](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44973274417) for `061ccf621c228bae93b91cd8c53723c3fe08310a` is **pending**; the latest job query returned no allocated jobs. No test, type, lint, build, Ollama, PostgreSQL or RLS pass is inferred.
+- The latest observed scheduled Preflight run [#44972336349](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44972336349) targets older SHA `23fb747ae4041bc28783a1b9039660ec952c7e0d`; its read-only task-plan job is pending and its Windows validation job was skipped. The later push-triggered Preflight run [#44972991644](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44972991644) targets `aa63b74f9d23d2316ec7b59116632d686afb8fe1`; its Windows self-hosted validation job is pending and its task-plan job was skipped. Neither run validates current main SHA `061ccf621c228bae93b91cd8c53723c3fe08310a` or establishes scheduled task/lease progression.
+- The current main combined status reports Vercel failure due provider `build-rate-limit`. No same-SHA READY Preview or Smoke evidence is established.
+- PR #301 was merged as a documentation-only change. Its exact-head Actions run [#44973266726](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44973266726) was pending at the time of merge; that is not a test pass and does not confer A acceptance.
+
+### Factory acceptance and authority boundaries
+
+- Issue #136 remains an explicitly **read-only independent adversarial audit** request. It prohibits file changes, commits, pushes, PR creation/merge, production access and external-state mutation. No independent audit report/sign-off is established by this handoff update or prior implementation-author self-review.
+- A / Agent Factory V2 remains integrated but **not operationally accepted**. Independent review, current-SHA CI, Preview/Smoke where applicable, cross-process race/ambiguous-write injection, and natural scheduled Runner/lease progression evidence remain outstanding.
+- B Runtime remains inactive and downstream of A acceptance. L Federation remains deferred and disabled.
+- Preserve A–E protected behavior. Do not mutate machine-managed Factory state Issues, leases, retry/cooldown/quarantine, scheduler selection, Runner concurrency, workflow permissions, secrets, production data or deployment configuration to manufacture passing evidence.
+- The 500-event processed-event limit remains fail-closed. Do not evict idempotency keys or introduce compaction without a separately reviewed migration and recovery design.
 
 ### Next execution order
-1. Continue A Factory V2 code review and test work against current main; first inspect PR #292's grounded-claims patch and its exact-head CI. Do not merge on pending resolver evidence.
-2. Establish independent adversarial review and merge-SHA CI/Preview/Smoke evidence for the integrated A baseline.
-3. Verify scheduled preflight and lease/worker progression through naturally occurring, authorized runs; do not manufacture activity by mutating machine state.
-4. Reconcile PR #291 against current main, then review the bounded B read contract. Keep B Runtime and L Federation inactive until A acceptance.
-5. Only then selectively port dependent F–P work with detailed plans and exact final-SHA validation.
+
+1. Wait for and inspect exact-main CI and a fresh scheduled Preflight run; distinguish pending, skipped, cancelled and successful jobs.
+2. Keep the 500-event idempotency ledger fail-closed; no eviction or unreviewed compaction.
+3. Obtain the independent Issue #136 audit against current main through the authorized independent reviewer; preserve its read-only boundary.
+4. Verify scheduled/lease progression only through naturally occurring authorized runs; do not manually dispatch or mutate machine-managed state.
+5. After A acceptance, reconcile the bounded B read contract; keep B Runtime and L Federation inactive until then.
 
 ## 3. Live mainline and active acceptance blockers
 
@@ -379,3 +383,175 @@ This checkpoint is authoritative for the state observed after PR #283 merged. Ol
 5. Only then rebase and validate the B read-only adapter against the accepted A contract; do not activate B runtime early.
 
 **Authority boundary:** this checkpoint records read-only observations and integration contracts only. It changes no Factory state, task issue, Runner policy, workflow permission, secrets, production database, or deployment configuration.
+
+
+---
+
+## Superseding live checkpoint — 2026-11-22 02:05 UTC (10:05 Taiwan)
+
+This checkpoint supersedes the earlier 09:47 Taiwan snapshot for the Factory run and task state below. The run was triggered from an older checked-out main SHA; do not treat it as current-main validation.
+
+### A — Factory execution and publication
+
+- Scheduled Preflight run [#44972336349](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44972336349), job #137054627179, checked out base SHA `23fb747ae4041bc28783a1b9039660ec952c7e0d`, not current main `061ccf621c228bae93b91cd8c53723c3fe08310a`.
+- Queue selection, cooldown check, lease reservation, safe handoff, read-only planning, bounded patch proposal, scratch application, restricted dependency installation, and offline candidate validation completed successfully.
+- The uploaded offline test artifact reports **602/602 unit tests passed**, TypeScript passed, and ESLint completed with zero errors and one existing unused-import warning. These are generic repository checks; they do not establish dependency-audit remediation.
+- The generated Issue #17 patch contains only `docs/security/dependency-audit-remediation.md`; it does not add the required `tests/security/dependency-audit.test.mjs`. The workflow ran unit tests, TypeScript and lint only; it did not run `npm audit` or a fresh production/full dependency audit.
+- The generated document proposes Next.js `13.5.6` and ESLint `8.55.0`, while main `package.json` specifies Next.js `15.5.29` and ESLint `^9.30.1`. This is an excluded major-version downgrade. The other proposed package versions were not substantiated by fresh audit/registry evidence. **Do not publish, merge, or accept this candidate.**
+- The draft-PR publication step failed. The job-log endpoint returned BlobNotFound, so the exact runtime API error is unavailable. Static inspection confirms the workflow grants only `contents: read` and `issues: read`, while `scripts/publish-agent-patch.mjs` attempts Git blob/tree/commit/ref writes, draft PR creation and repository dispatch using that token. This is a confirmed least-privilege permission mismatch; the precise failure response remains unverified.
+- The failure handler released the active lease. Machine-managed Issue #100 was read-only at state version 152, updated `2026-11-22T02:04:40.421Z`: no active task; Issue #17 is queued; system consecutive failures 9; cooldown through `2026-11-22T02:19:40.421Z`. No manual retry, state mutation, cooldown reset, quarantine change or workflow rerun was performed.
+- A read-only evidence note was added to Issue #136 (comment #7072665996) with the exact test scope, candidate quality rejection, static publisher-permission blocker and evidence limitations.
+
+### Current acceptance and candidate boundaries
+
+- Current main remains `061ccf621c228bae93b91cd8c53723c3fe08310a`. Main CI run #44973274417 remains pending with no allocated jobs; its combined status reports Vercel `build-rate-limit`.
+- PR #302 remains Draft/open, head `74d50d3b7197aa4ff96b827cae80344f7148e7b4`, with no formal reviews and exact-head run #44973451004 pending without allocated jobs. This handoff update itself must receive fresh exact-head validation; it is not an acceptance result.
+- PR #259 remains open and non-mergeable, based on a divergent historical base. Do not merge, retarget or transplant it wholesale.
+- Issue #136 remains the independent read-only adversarial audit gate. The new evidence note is not independent sign-off.
+- A remains integrated but **not operationally accepted**. Current-main CI, same-SHA Preview/Smoke, independent review, post-cooldown natural queue/lease progression, and serialized 24-hour Runner soak remain outstanding.
+
+### B — preparation only
+
+- GCAN Product version is `0.1.20` per `versions/manifest.json` and `versions/gcan-product/VERSION`.
+- Keep B Runtime, product API/database access to Factory state, billing and privileged execution inactive.
+- After A acceptance, rebase/revalidate the versioned read-only A→B projection against accepted main. A owns the sanitized evidence projection; B owns workspace/tenant authorization and RLS/IDOR isolation. B must not access Issue #100, A controller/state-store internals, leases, Runner/Sandbox, raw logs or private lifecycle enums.
+
+### Next execution order
+
+1. Do not retry Issue #17 unchanged. Preserve the normal cooldown/queue behavior; correct the evidence-backed candidate-quality and publisher-permission defects through the approved control-plane review path.
+2. Keep publisher credentials least-privileged and isolated to a dedicated publishing job; do not broaden the whole workflow token without review.
+3. Add semantic task-specific validation: reject excluded major downgrades, require evidence-backed package versions, require fresh audit evidence, and require the task-specific security test artifact before publication.
+4. Continue observing current-main CI and normal scheduled Factory progression; do not force-dispatch, reset machine state or cancel queued work.
+5. Complete independent Issue #136 review and all A operational gates before implementing or activating B Runtime.
+
+**Safety:** no workflow permission, secret, Runner policy, machine-managed state, production data, deployment or B Runtime was changed by this checkpoint.
+
+
+---
+
+## Follow-up observation — 2026-11-22 02:10 UTC
+
+### Current exact-head and Factory observations
+
+- Main/base SHA remains `061ccf621c228bae93b91cd8c53723c3fe08310a` for PR #302.
+- Main CI run `44973274417` has only the metadata-resolver job allocated and it is still pending; no downstream validation result is available.
+- PR #302 currently points to `e9a444bf2bb4d07130ad64bf25e7879a7128cb3e`, remains Draft/open, has no formal review, and exact-head run `44973451004` still has no allocated jobs. Keep it Draft; do not merge.
+- Factory run `44972336349` is completed/failure. The bounded patch, scratch application, restricted dependency install and generic offline checks succeeded; the publisher step failed. The Windows self-hosted validation job was skipped by schedule policy.
+- Issue #100 remains at state version 152 (updated `2026-11-22T02:04:40.421Z`): no active task, task #17 queued, system cooldown through `2026-11-22T02:19:40.421Z`, 9 consecutive system failures. Task metadata still contains the historical `lease_id`/run reference; do not infer a new active lease from that historical field. Do not edit the machine-managed Issue or manually retry during cooldown.
+- No available evidence justifies merging PR #302 or PR #259. PR #259 remains divergent and non-mergeable.
+
+### Safe next actions
+
+1. Preserve the Factory queue and cooldown; observe the native scheduler after cooldown rather than force-dispatching or resetting state.
+2. Fix the publisher design in a dedicated, separately reviewed code change. Keep the workflow's default token read-only; move only the publication operation to a narrowly scoped job/token with explicit contents and pull-request write access, and confirm the repository-dispatch permission/event semantics. Do not grant write access to the entire planning/testing job.
+3. Before publication, add task-specific semantic validation: reject prohibited major-version downgrades, require current audit/registry evidence, and require the requested security regression test artifact. General unit tests alone are insufficient.
+4. Require exact-head CI, same-SHA Preview/Smoke, independent Issue #136 review, and the serialized Runner soak before declaring A operationally accepted.
+5. Keep B Runtime inactive. Prepare only the sanitized, versioned, read-only A→B projection until A passes every acceptance gate.
+
+This is an observation and sequencing checkpoint, not an acceptance, merge, deployment, Factory-state mutation, or B activation.
+
+
+---
+
+## Superseding continuation checkpoint — 2026-11-22 (A Factory / B contract)
+
+This checkpoint supersedes earlier live-status statements in this document where exact SHAs, run IDs, or failure diagnoses differ. It is based on read-only GitHub evidence observed for current main `061ccf621c228bae93b91cd8c53723c3fe08310a`.
+
+### A — Factory candidate work
+
+- **PR #303 — stale-base failure classification:** HEAD `aec814f93c60fdda501c158cbd622377625a5c61`; exact-head Actions run `44975519823` is pending with no jobs allocated. It preserves both stale-base guards and marks only the two explicit default-branch-drift publication rejections as task-scoped. It does not rebase, retry, publish, or weaken the SHA checks.
+- **PR #305 — task-declared patch output contracts:** HEAD `2a2d35114c88ba0cce6d8478a72d908a8b277985`; exact-head Actions run `44976078839` is pending with no jobs allocated. It parses required output paths and forbidden literal content, enforces allowlist containment and aggregate manifest validation, and now rejects empty/invalid batch scopes or any batch expansion beyond the validated task allowlist.
+- Both PRs remain Draft/open, GitHub reports mergeable, neither has a formal review submission or review thread, and neither has exact-head CI success. Their combined statuses report Vercel `build-rate-limit`; no same-SHA READY Preview/Smoke is established. Mergeability is not acceptance.
+- Run `44972336349` / job `137054627179` established the stale-base incident: scratch application and generic offline validation passed, then publication correctly rejected the stale candidate because main had advanced after tests. The classifier treated that known task-level race as system-scoped. PR #303 addresses that narrow misclassification.
+- **Evidence correction:** Issue #136's latest correction records effective job-token permissions as Contents: write, Issues: write and PullRequests: write, and explicitly withdraws the earlier read-only-token mismatch diagnosis. Do not repeat the old permission-mismatch claim as a confirmed cause. The observed publisher failure was the stale-base rejection.
+- Issue #100 remains machine-managed and was not modified: state version 152 at `2026-11-22T02:04:40.421Z`, no active task, 9 consecutive system failures, cooldown through `02:19:40.421Z` (elapsed), Issue #17 queued, and 7 quarantined tasks. The historical lease/run fields on task #17 are not a live lease. No manual retry, state reset, or forced dispatch is authorized by this checkpoint.
+- Issue #17's previous candidate was not publishable: it omitted the required security regression test, proposed excluded Next.js/ESLint major downgrades, and lacked fresh dependency-audit evidence. Do not retry the unchanged task. After #305 is merged and validated, add its required test path and literal prohibitions to #17; the contract alone does not replace fresh audit/registry evidence or task-specific validation.
+
+### Independent A acceptance
+
+- Issue #136 remains a read-only audit gate. Its latest comments contain owner-authored evidence and corrections, but no independent adversarial audit report or formal sign-off was found. CI, code inspection, and implementation-owner notes are not substitutes.
+- Keep #303 and #305 Draft until their own exact-head CI, independent review, and applicable Preview evidence are complete. Merge only after those gates pass.
+- Do not edit Issue #100, reset failure/cooldown/quarantine/lease state, broaden workflow permissions, change Runner/concurrency policy, or bypass the normal scheduler.
+
+### B — contract preparation only
+
+- Current main's `lib/agent-factory-state-machine.mjs` already stores structured `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt` fields and validates the exact tuple for candidate evidence. The current B proposal's public-state mapping covers every declared `TASK_STATES` value.
+- This confirms a usable source-data foundation, **not** a dedicated A-owned product projection or public API. The B read adapter remains a proposal; B Runtime, product routes/tables, billing, and Factory access stay inactive.
+- Before implementation, freeze the A projection contract after A acceptance, explicitly map failure categories from an allowlist (default unknown; never expose raw exception text), and implement B-owned workspace authorization plus two-workspace RLS/IDOR tests. B must not read Issue #100 or import A controller/state-store internals.
+
+### Next execution order
+
+1. Complete exact-head Actions and independent review for #303 and #305; do not treat pending/unallocated jobs as passing.
+2. After #305 acceptance, amend Issue #17 with the required test output and prohibited recommendation literals, then allow the normal scheduler to process it against current main.
+3. Complete Issue #136's independent read-only audit and the remaining A operational gates, including same-SHA Preview/Smoke and natural queue/lease progression.
+4. Only after A acceptance, implement the A-owned sanitized projection and B-owned workspace boundary under the versioned read-only contract.
+
+**Authority boundary:** this checkpoint is documentation-only. It changes no runtime, Factory state, task issue, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production database, deployment, or B Runtime behavior.
+
+
+---
+
+## A→B failure-code projection cross-check — 2026-11-22
+
+- PR #303 latest HEAD is `0b521e654de819098fb59e86eb024bd75cc56810`. Both stale-default-branch publisher guards now persist `AGENT_FACTORY_FAILURE_SCOPE=task` and `AGENT_FACTORY_ERROR_CODE=STALE_BASE` to `GITHUB_ENV`; the regression test asserts both values. Exact-head CI is pending/not yet observed as passing; PR remains Draft.
+- This closes a narrow evidence gap for the proposed B projection: the controller reads `AGENT_FACTORY_ERROR_CODE`, otherwise defaults workflow failures to `WORKFLOW_FAILURE`. Without the explicit code, stale candidate drift would be indistinguishable from generic workflow failure in durable state.
+- Proposed public mapping (subject to independent contract review): `STALE_BASE` → `validation`; `WORKER_LEASE_EXPIRED` → `infrastructure`; generic `WORKFLOW_FAILURE`, `TASK_FAILURE`, and `SYSTEM_FAILURE` → `unknown`. Candidate CI failure currently has no distinct persisted error code and therefore remains `unknown` until A supplies a structured, exact-attempt code.
+- Never derive public categories from free-form `last_error` summaries. Unknown codes map to `unknown`; raw summaries, internal codes, and scope details are not exposed to B.
+
+
+## Live continuation checkpoint — 2026-11-22 10:36 Taiwan
+
+**Verified main HEAD:** `061ccf621c228bae93b91cd8c53723c3fe08310a` (PR #301 merge). Release remains `0.3.125`; this checkpoint does not change release readiness.
+
+### A — Factory-first execution evidence
+- Machine-managed Issue #100 was read-only at state version 152 (updated `2026-11-22T02:04:40.421Z`): no active task; system consecutive failures 9; recorded cooldown ended `2026-11-22T02:19:40.421Z`; task #17 is queued. Historical lease/run fields in the task record are not evidence of an active lease. Do not edit the Issue, reset counters/cooldowns/leases/quarantine, or dispatch duplicate work.
+- Scheduled run #44972336349 / Windows job #137054627179 completed its disposable scratch validation. Logs show 602/602 unit tests, TypeScript and ESLint completed successfully; this is candidate offline validation, not a full audit/dependency-audit result.
+- The same task then failed closed at publication because the default branch advanced after candidate tests. No PR was published. This confirms the narrow stale-base classification defect addressed by PR #303; it does not establish a token-permission failure. PR #303's exact-head CI run #44976773308 is pending with no allocated jobs.
+- Current-main Preflight #44972991644 completed successfully against the prior main SHA `aa63b74f9d23d2316ec7b59116632d686afb8fe1`. Its Windows synthetic validation, Ollama plan/patch smoke, disposable-container checks, offline tests, typecheck and lint passed; the task-transition step and read-only planning job were skipped. This is not proof of real queue/lease/worker progression and does not validate the newer main SHA `061ccf...`.
+- Main CI #44972991698 for `aa63b74...` is cancelled. Do not count it as passing. No exact-main CI pass is established for `061ccf...`.
+
+### Current candidate gates
+- PR #302 documentation HEAD `2d93e14fd46e7eeaa788ff2f0095df702d95636b`, run #44976783109: pending, no allocated jobs.
+- PR #303 stale-base scope/error-code HEAD `9b1097484e868d8c78b752c1372f6c6964a36ed3`, run #44976773308: pending, no allocated jobs.
+- PR #305 task-declared patch contract HEAD `2a2d35114c88ba0cce6d8478a72d908a8b277985`, run #44976078839: pending, no allocated jobs.
+- All three remain Draft/open. PR #303 and #305 have no formal review submissions. Keep all unmerged until exact-head CI, required independent review and applicable Preview evidence are available.
+
+### B preparation and independent audit
+- Keep B Runtime inactive. Continue only the versioned, read-only A→B contract preparation; no Factory state, lease, Runner/Sandbox or raw Issue/log access from B.
+- Issue #136 remains a read-only independent adversarial audit request; no independent audit report/sign-off is present in the latest inspected comment history. Do not mutate that issue or treat implementation-author inspection as independent approval.
+- A remains integrated but not operationally accepted. Outstanding gates include exact-current-main CI, natural post-cooldown queue/lease/worker progression, serialized 24-hour Runner soak, same-SHA READY Preview/Smoke and independent audit.
+
+**Authority boundary:** this checkpoint records observed evidence only. It changes no runtime, machine-managed Factory state, task issue, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production database, deployment or B Runtime behavior.
+
+---
+
+## Exact-head validation correction — 2026-11-22 (Runner queue / PR #306)
+
+This checkpoint supersedes the earlier statement that PR #306 run 44977771018 was pending. A fresh read of the exact run and job records shows it has **completed with failure**.
+
+### Current exact-head evidence
+
+| PR | Exact HEAD | Actions run | Observed result |
+|---|---|---:|---|
+| #302 — handoff / acceptance ledger | `07e5826522631275c902d9d10f5ffa61e97f378e` | `44977000732` | Resolver passed; Windows quality job pending. |
+| #303 — stale-base scope / error code | `9b1097484e868d8c78b752c1372f6c6964a36ed3` | `44976773308` | Resolver pending; no downstream jobs allocated. |
+| #305 — task output contract | `97f2051161a6c5a9c24bc93a144d6c045bc183b5` | `44977858601` | Run pending; zero jobs allocated. |
+| #306 — hosted metadata / diagnostics | `ed735cfff51e080df841fb8b991966a1d00914f0` | `44977771018` | **Completed / failure.** Resolver and hosted diagnostics both failed; Windows quality, PostgreSQL/RLS and Ollama jobs were skipped. |
+
+### PR #306 failure diagnosis boundary
+
+- The hosted resolver and hosted diagnostics jobs both completed as failed on exact HEAD `ed735cfff51e080df841fb8b991966a1d00914f0`.
+- GitHub reports the expected downstream Windows validation jobs as skipped because their prerequisite resolver did not succeed.
+- Fetching the failed job logs returned GitHub storage `BlobNotFound` for every job; the run has no downloadable diagnostic artifact. The underlying resolver and diagnostics error messages therefore remain **unverified**.
+- Do not claim the hosted-runner change is validated, and do not infer that the resolver failure is caused by Bash, token permissions, API rate limiting, or application code without the missing logs.
+- The PR remains Draft/open, has no formal review submission, and its combined status reports the Vercel daily deployment rate limit. No same-SHA READY Preview/Smoke evidence exists.
+
+### Required next actions
+
+1. Recover trustworthy exact-run diagnostics through GitHub's available run/check evidence or a fresh naturally triggered exact-head run; do not fabricate or infer missing logs.
+2. Identify and fix the actual resolver and diagnostics failure before changing the runner design further.
+3. Require exact-head success for Windows quality, PostgreSQL/RLS and Ollama/local execution before treating #306 as accepted.
+4. Continue #302/#303/#305 only against their exact current HEADs; pending or unallocated jobs are not passing.
+5. Obtain independent formal review and the separate read-only Issue #136 audit. No implementation-owner note substitutes for it.
+
+**Authority boundary:** evidence/documentation only. No Factory state, task, lease, retry/cooldown/quarantine, Runner settings, workflow permissions, secrets, production data, deployment or B Runtime state was changed.

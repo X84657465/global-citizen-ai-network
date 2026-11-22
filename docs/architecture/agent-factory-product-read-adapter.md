@@ -132,3 +132,67 @@ The adapter MUST NOT return raw Factory Issue bodies, worker prompts, patches, r
 - [ ] Exact-head CI and Preview acceptance completed.
 
 Until all gates pass, this document is a design handoff only. No B runtime route, database table, connector, billing, public registration or Factory access is activated.
+
+
+## 8. Source implementation cross-check — 2026-11-22 (read-only)
+
+The proposal was compared against current main `061ccf621c228bae93b91cd8c53723c3fe08310a`:
+
+- `lib/agent-factory-state-machine.mjs` declares the full private `TASK_STATES` set: `queued`, `reserved`, `preparing`, `planning`, `patching`, `sandbox_testing`, `publishing`, `draft_pr_created`, `awaiting_ci`, `completed`, `retry_wait`, `candidate_rejected`, `quarantined`, and `superseded`. The v1 mapping table above covers every current value; unknown future values must still fail closed.
+- A's durable task record contains structured `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt` fields. The state machine validates their formats and requires all four to match when recording terminal candidate evidence. The controller also re-fetches the PR and workflow/job evidence against the exact SHA and run attempt.
+- Internal `candidate_status` values are not public values. The proposal maps them to the bounded product vocabulary and must not serialize the internal strings.
+- This is source-data and validation evidence only. No dedicated A-owned product projection endpoint or B runtime adapter was found/accepted in this cross-check.
+
+### Remaining pre-implementation contract item
+
+The DTO includes `failureCategory`, but a reviewed allowlist mapping from A error codes to the public categories is not yet implemented. Before B consumes it, define that mapping from concrete A error codes, default unknown/unrecognized codes to `unknown`, and never expose raw exception text, internal transition reasons, or arbitrary error objects.
+
+B still owns authentication, workspace membership, tenant mapping, and RLS/IDOR enforcement. A's internal issue/lease/Runner state is not a product API. Do not implement or activate the adapter until A passes its acceptance gates.
+
+
+## 9. Failure-category allowlist proposal — 2026-11-22
+
+The DTO's `failureCategory` MUST be derived only from a reviewed allowlist of stable machine error codes. Never classify by matching free-form `last_error` text, exception messages, workflow log text, or task summaries.
+
+| A persisted machine code | Product category | Evidence / limitation |
+|---|---|---|
+| `STALE_BASE` | `validation` | PR #303 writes this code for the two explicit default-branch-drift publisher guards, alongside task scope. It means the tested candidate base is stale and must not be treated as a repository-wide infrastructure fault. |
+| `WORKER_LEASE_EXPIRED` | `infrastructure` | A state-machine recovery code after confirming the worker workflow is no longer running and the lease expired. |
+| `WORKFLOW_FAILURE` | `unknown` | Controller fallback when the workflow does not supply a structured code. |
+| `TASK_FAILURE` | `unknown` | State-machine fallback; too broad to imply validation or execution semantics. |
+| `SYSTEM_FAILURE` | `unknown` | State-machine fallback; too broad to imply a specific infrastructure cause. |
+| Missing or unrecognized code | `unknown` | Fail closed; never pass through the source value. |
+
+Candidate CI failures are currently recorded through the candidate-evidence path without a dedicated stable failure code. They MUST remain `unknown` unless A later adds a structured, exact-SHA/run-attempt failure code and contract tests. Do not infer `validation` from a generic failed CI conclusion; a failed run can include infrastructure or provider failures.
+
+### Exact implementation dependency
+
+PR #303 HEAD `0b521e654de819098fb59e86eb024bd75cc56810` now writes both `AGENT_FACTORY_FAILURE_SCOPE=task` and `AGENT_FACTORY_ERROR_CODE=STALE_BASE` to GitHub Actions' environment file. The existing A controller consumes `AGENT_FACTORY_ERROR_CODE`, with `WORKFLOW_FAILURE` as its fallback. This source change is not accepted until its own exact-head CI and independent review pass.
+
+The category table is a proposed public projection mapping, not a new A internal state enum. B receives only the public category; it must not receive raw machine codes, failure summaries, task/system scope, or internal transition details.
+
+
+### End-to-end source propagation cross-check — 2026-11-22
+
+A source-level trace on the #303 candidate branch confirms the complete propagation path:
+
+1. Both explicit stale-default-branch guards in `scripts/publish-agent-patch.mjs` call the shared `fail(message, "task")` path.
+2. That failure path calls `persistPublicationFailureScope("task")`; the helper appends both `AGENT_FACTORY_FAILURE_SCOPE=task` and `AGENT_FACTORY_ERROR_CODE=STALE_BASE` to GitHub Actions' `GITHUB_ENV`.
+3. The preflight workflow's subsequent `failure()` classifier reads the persisted task scope and preserves it for the final failure-recording step.
+4. The final failure-recording step runs `scripts/agent-factory-v2-controller.mjs`; its controller reads `AGENT_FACTORY_ERROR_CODE` and persists the stable code, falling back to `WORKFLOW_FAILURE` only when no code was supplied.
+
+This verifies the source wiring, not a runtime pass. PR #303 exact-head run `44976387404` is still pending with zero allocated jobs, so the full chain remains unverified by an executed CI run. The proposed B projection continues to expose only the allowlisted public category, never the raw machine code or failure summary.
+
+
+### Publisher call-site regression evidence — 2026-11-22
+
+PR #303 HEAD is now `3dfb78df3a784d02f63b2378dff5f7a1af59ae24`. In addition to the helper's environment-file assertion, its regression suite now reads the publisher entrypoint and asserts that both explicit default-branch drift guards pass the task-scoped classification to the helper exactly once. This guards against a future edit silently removing the classification at either call site.
+
+The test has been committed but has not run on this exact SHA. It is source/test coverage only; do not treat it as a passing validation result or as independent review.
+
+
+### End-to-end stale-base classifier regression coverage — 2026-11-22
+
+PR #303 HEAD `9b1097484e868d8c78b752c1372f6c6964a36ed3` adds a second source-level regression guard: it reads the workflow and controller to assert that the failure classifier preserves task scope and that the controller consumes `AGENT_FACTORY_ERROR_CODE` when recording the task failure. Together with the publisher-callsite and helper environment-file tests, the regression coverage now spans the publisher guards → workflow classifier → controller error-code argument.
+
+This remains static regression coverage only. It has not executed on this exact HEAD, and it is not independent review or runtime acceptance.
