@@ -52,7 +52,8 @@ test("uses the secondary-rate-limit reset header when Retry-After is invalid", (
     rateLimited: true,
   }, { now, outputFile });
 
-  assert.equal(deadline, new Date(now + 2_000).toISOString());
+  // Provider reset values shorter than the safety floor are clamped to 60 seconds.
+  assert.equal(deadline, new Date(now + 60_000).toISOString());
   assert.equal(readFileSync(outputFile, "utf8"), "api_cooldown_until=" + deadline + "\n");
   rmSync(directory, { recursive: true, force: true });
 });
