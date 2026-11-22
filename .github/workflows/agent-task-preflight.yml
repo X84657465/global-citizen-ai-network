@@ -898,6 +898,8 @@ jobs:
     name: Publish the validated candidate with isolated write permissions
     needs: [prepare-task, begin-publication]
     if: needs.prepare-task.result == 'success' && needs.begin-publication.result == 'success' && needs.prepare-task.outputs.candidate_ready == 'true' && needs.prepare-task.outputs.issue_number != ''
+    outputs:
+      api_cooldown_until: ${{ steps.publish.outputs.api_cooldown_until }}
     permissions:
       actions: read
       contents: write
@@ -936,6 +938,7 @@ jobs:
           Move-Item -LiteralPath $source -Destination $destination -Force
 
       - name: Create a draft PR after isolated tests pass
+        id: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -1065,6 +1068,7 @@ jobs:
           AGENT_FACTORY_MODE: failure
           FAILED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
           FAILURE_STAGE: publish
+          AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.publish-task.outputs.api_cooldown_until }}
           FAILURE_SUMMARY: 'Isolated publisher/state recording failed for task issue #${{ needs.prepare-task.outputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-v2-controller.mjs
