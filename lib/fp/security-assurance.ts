@@ -107,6 +107,42 @@ function isCanonicalUtcTimestamp(value: string): boolean {
     !Number.isNaN(Date.parse(value)) &&
     new Date(value).toISOString() === value;
 }
+
+const F_MAX_EVIDENCE_RECORDS = 100;
+
+function isSafeRecord(value: unknown, allowed: readonly string[], required: readonly string[]): value is Record<string, unknown> {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
+  try {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return false;
+    const keys = Reflect.ownKeys(value);
+    if (keys.some((key) => typeof key !== "string" || !allowed.includes(key))) return false;
+    if (required.some((key) => !Object.prototype.hasOwnProperty.call(value, key))) return false;
+    return keys.every((key) => {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      return descriptor !== undefined && descriptor.enumerable && "value" in descriptor;
+    });
+  } catch {
+    return false;
+  }
+}
+
+function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | null {
+  try {
+    if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype || value.length > maximumLength) return null;
+    const keys = Reflect.ownKeys(value);
+    if (keys.length !== value.length + 1 || keys.some((key) => typeof key !== "string" || (key !== "length" && !/^(0|[1-9]\\d*)$/.test(key)))) return null;
+    const snapshot: unknown[] = [];
+    for (let index = 0; index < value.length; index += 1) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+      if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) return null;
+      snapshot.push(descriptor.value);
+    }
+    return snapshot;
+  } catch {
+    return null;
+  }
+}
 const CI_CONCLUSIONS = ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"] as const;
 
 function isSafeEvidencePath(value: string): boolean {
@@ -121,6 +157,9 @@ function isPositiveInteger(value: number): boolean {
 }
 
 function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRequestNumber: number): void {
+  if (!isSafeRecord(ci, ["repository", "pullRequestNumber", "headSha", "event", "baseRef", "workflowPath", "runId", "runAttempt", "runUrl", "jobRunAttempt", "jobKey", "jobConclusion", "jobUrl"], ["repository", "pullRequestNumber", "headSha", "event", "baseRef", "workflowPath", "runId", "runAttempt", "runUrl", "jobRunAttempt", "jobKey", "jobConclusion", "jobUrl"])) {
+    throw new TypeError("Invalid F evidence CI record; expected plain own-data fields.");
+  }
   if (
     !ci ||
     ci.repository !== repository ||
@@ -160,23 +199,26 @@ export function assessFPSecurityEvidence(
   bundle: FPSecurityEvidenceBundle,
 ): FPSecurityAssessment {
   if (
-    !bundle ||
+    !isSafeRecord(bundle, ["candidateRepository", "pullRequestNumber", "candidateSha", "evidence"], ["candidateRepository", "pullRequestNumber", "candidateSha", "evidence"]) ||
     !REPOSITORY_PATTERN.test(bundle.candidateRepository) ||
     !isPositiveInteger(bundle.pullRequestNumber) ||
     !SHA_PATTERN.test(bundle.candidateSha)
   ) {
     throw new TypeError("A candidate repository, PR number, and 40-character SHA are required.");
   }
-  if (!Array.isArray(bundle.evidence)) {
-    throw new TypeError("Security evidence must be an array.");
+  const evidenceItems = snapshotSafeArray(bundle.evidence, F_MAX_EVIDENCE_RECORDS);
+  if (evidenceItems === null) {
+    throw new TypeError("Security evidence must be a bounded dense plain array with own data slots.");
   }
 
   const byControl = new Map<FPSecurityControlId, FPSecurityEvidence>();
   let runIdentity: string | undefined;
-  for (const item of bundle.evidence) {
-    const expectedControl = item
-      ? FP_SECURITY_CONTROLS.find((control) => control.id === item.controlId)
-      : undefined;
+  for (const rawItem of evidenceItems) {
+    if (!isSafeRecord(rawItem, ["controlId", "testedSha", "status", "evidenceRef", "executedAt", "ci"], ["controlId", "testedSha", "status", "evidenceRef", "executedAt", "ci"])) {
+      throw new TypeError("Invalid F security evidence record; expected plain own-data fields.");
+    }
+    const item = rawItem as unknown as FPSecurityEvidence;
+    const expectedControl = FP_SECURITY_CONTROLS.find((control) => control.id === item.controlId);
     if (
       !item ||
       !expectedControl ||
