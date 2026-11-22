@@ -1920,6 +1920,144 @@ test("system-health success fails closed for missing or mismatched health eviden
   assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
 });
 
+test("system-health success rejects task candidates and ambiguous or mismatched PR associations", async () => {
+  const sha = "d".repeat(40);
+  const validBranch = "feature/system-health";
+  const basePullRequest = {
+    number: 180,
+    base: { ref: "main", repo: { full_name: "owner/repo" } },
+    head: { ref: validBranch, sha, repo: { full_name: "owner/repo" } },
+  };
+  const scenarios = [
+    {
+      name: "task candidate branch",
+      workflow: {
+        head_branch: "ai-task/issue-42-abcdef123456",
+        pull_requests: [{
+          ...basePullRequest,
+          head: { ...basePullRequest.head, ref: "ai-task/issue-42-abcdef123456" },
+        }],
+      },
+    },
+    { name: "missing PR association", workflow: { head_branch: validBranch, pull_requests: [] } },
+    {
+      name: "ambiguous PR associations",
+      workflow: {
+        head_branch: validBranch,
+        pull_requests: [basePullRequest, { ...basePullRequest, number: 181 }],
+      },
+    },
+    {
+      name: "workflow and PR branch mismatch",
+      workflow: {
+        head_branch: validBranch,
+        pull_requests: [{
+          ...basePullRequest,
+          head: { ...basePullRequest.head, ref: "feature/other-branch" },
+        }],
+      },
+    },
+  ];
+
+  for (const scenario of scenarios) {
+    const initial = awaitingCandidate();
+    initial.system.consecutive_failures = 2;
+    initial.system.cooldown_until = new Date(120_000).toISOString();
+    const store = fakeStore(initial);
+    const controller = createAgentFactoryController({
+      store,
+      repository: "owner/repo",
+      now: () => 3000,
+      api: {
+        async request(path) {
+          assert.equal(path, "/repos/owner/repo/actions/runs/555040", scenario.name);
+          return {
+            id: 555040,
+            run_attempt: 1,
+            head_sha: sha,
+            head_branch: scenario.workflow.head_branch,
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: scenario.workflow.pull_requests,
+          };
+        },
+      },
+    });
+
+    await assert.rejects(controller.run({
+      AGENT_FACTORY_MODE: "system-health-success",
+      SYSTEM_HEALTH_RUN_ID: "555040",
+      SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "180",
+      SYSTEM_HEALTH_HEAD_SHA: sha,
+    }), /exactly one non-task same-repository PR targeting main/);
+
+    assert.equal(store.state.state_version, initial.state_version, scenario.name);
+    assert.equal(store.state.system.consecutive_failures, 2, scenario.name);
+    assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString(), scenario.name);
+  }
+});
+
+test("system-health success rejects a PR whose current branch ref no longer matches the completed CI run", async () => {
+  const initial = awaitingCandidate();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555041") {
+          return {
+            id: 555041,
+            run_attempt: 1,
+            head_sha: sha,
+            head_branch: "feature/system-health",
+            status: "completed",
+            conclusion: "success",
+            path: ".github/workflows/ci.yml",
+            event: "pull_request",
+            pull_requests: [{
+              number: 180,
+              base: { ref: "main", repo: { full_name: "owner/repo" } },
+              head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
+            }],
+          };
+        }
+        if (path === "/repos/owner/repo/actions/runs/555041/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555041, 1, sha);
+        }
+        if (path === "/repos/owner/repo/pulls/180") {
+          return {
+            number: 180,
+            state: "open",
+            base: { ref: "main", repo: { full_name: "owner/repo" } },
+            head: { ref: "feature/renamed", sha, repo: { full_name: "owner/repo" } },
+          };
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555041",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+    SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "180",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  }), /current open same-repository non-task PR head and branch no longer match/);
+
+  assert.equal(store.state.state_version, initial.state_version);
+  assert.equal(store.state.system.consecutive_failures, 2);
+  assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
+});
+
 test("operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation", async () => {
   const invalid = [
     { GITHUB_EVENT_NAME: "issues" },
