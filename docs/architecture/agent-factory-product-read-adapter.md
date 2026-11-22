@@ -269,3 +269,44 @@ This section supersedes the earlier readiness snapshots in this document. The ve
 - Do not create Product tables/routes, enable feature flags, expose Factory data, or start billing/runtime integration until A passes the gates above.
 
 **Status:** PR #336 is integrated, but A Factory is not fully accepted. This document is a corrected handoff record only; it does not certify CI, failure-path persistence, independent review, Preview, or B activation.
+
+---
+
+## 12. Current-main continuation checkpoint — 2026-11-22
+
+This checkpoint supersedes the older readiness snapshots above where they conflict. It is a documentation-only status refresh; it does not accept A, activate B, or authorize Factory control-plane changes.
+
+### Verified baseline
+
+- Main SHA: `014c81482f2206e5783831270c3cbcf444d5945c`.
+- Root package version: `0.3.133`.
+- Agent Factory V2 manifest version: `2.0.84`.
+- The existing B read-adapter contract in this document remains a proposal. No A-owned Product projection endpoint, B runtime adapter, Factory Product route, workspace mapping, or B Runtime activation is established by this checkpoint.
+
+### A Factory acceptance gates
+
+- PR #353 is the focused F/G/H bounded-array validation follow-up. Exact candidate SHA: `bfacb1f861a156a2ecae558aa88ac50729acf1ed`; exact-head Actions run [#45024294958](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45024294958).
+- The Windows quality job has completed its substantive checks successfully: Runner/Docker/Ollama verification, bounded local inference, migration/schema guards, dependency audits, Factory syntax and CI-policy checks, unit tests, type check, lint, and production build. At the latest check, the job remained in post-step cleanup (`Post Set up Node.js`); the overall run had not returned a terminal conclusion. Do not record this as a completed Actions pass until GitHub reports a terminal success.
+- The PR has one `COMMENTED` review, not an independent approval. Exact-head CI completion and independent review remain mandatory before acceptance or merge.
+- The combined commit status reports Vercel `build-rate-limit`. This is a provider deployment quota issue, not a source-code test result; no READY Preview or same-SHA Preview smoke evidence is established.
+- Issue #136's read-only adversarial audit target is this exact Main SHA. Historical comments and current-assistant source inspection are not the requested independent report; no independent audit approval is recorded.
+- Issue #354 confirms the cross-job Lease ID handoff defect in `.github/workflows/agent-task-preflight.yml`. That workflow is protected. Its implementation gate remains the explicit `factory-control-plane-approved` label on Issue #354; no such label was present at this checkpoint. Do not modify the workflow, weaken controller fencing, or infer approval from the broad factory-first continuation instruction.
+- Issue #100 is machine-managed and must not be edited manually. The latest fetched snapshot was state version 181, updated `2026-11-22T12:40:08.922Z`; it is a historical observation, not a live-state assertion. No task counters, quarantine flags, cooldowns, leases, or other durable state were changed.
+
+### B mainline preparation
+
+- Keep B in preparation-only mode. The contract remains versioned and read-only, with a bounded public status projection, sanitized candidate status, exact SHA / PR / CI run ID / attempt verification, and allowlisted failure categories.
+- B must independently authenticate the caller, derive workspace identity from the authenticated session, enforce membership and RLS/IDOR protections, and resolve task ownership from a trusted server-side mapping.
+- Do not expose Factory Issue bodies, private lifecycle enums, leases, Runner/Sandbox details, raw logs, patches, raw machine error codes, cooldown state, or arbitrary URLs.
+- Existing B migration and adapter branches were compared with current Main and are substantially stale/diverged (the inspected migration branches were 878 commits behind; adapter documentation branches were 373–433 commits behind). Do not merge or transplant them wholesale. Use current Main and this canonical contract as the only handoff baseline after A acceptance.
+- Do not create B runtime routes, Product tables, migrations, connectors, billing paths, or enable feature flags before A acceptance and independent review.
+
+### Next authorized sequence
+
+1. Complete PR #353 exact-head Actions run and obtain independent review.
+2. Complete Issue #136's independent read-only audit against the exact Main SHA, refreshing its target if Main advances.
+3. Obtain the explicit Issue #354 control-plane authorization before implementing the minimal Lease output handoff and its fail-closed regression tests.
+4. Reconcile the A reliability and operational evidence on the resulting accepted Main baseline.
+5. Only then implement the A-owned read projection and B-owned tenant authorization, with exact-head CI and independent security review.
+
+**Status:** A is not accepted; B Runtime remains disabled. This checkpoint records the verified blockers and preserves the existing read-only contract boundary.
