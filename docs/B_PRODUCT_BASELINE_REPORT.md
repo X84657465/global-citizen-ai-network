@@ -300,3 +300,83 @@ PR #391 is the bounded candidate intended to separate project loading/error stat
 - RLS correctness for list paths and the full owner/cross-owner matrix remain NOT VERIFIED in this read-only pass.
 - Current main has a concrete project-load error/empty-state UX conflation; PR #391 is the focused candidate, not yet accepted.
 - No A Factory projection is consumed by these routes. No A→B Read Adapter, Factory task display, new Product table, paid provider call, runtime activation, migration, merge or deployment was introduced by this review.
+
+
+## 13. A→B Read Adapter — B consumer contract review — 2026-11-23
+
+This section records B-side consumer requirements and unresolved contract decisions for handoff to the A contract owner. It does not modify the canonical adapter proposal, implement an endpoint, authorize Factory access, or activate B Runtime. The canonical proposal remains in `docs/architecture/agent-factory-product-read-adapter.md` and is still marked proposal-only.
+
+### 13.1 Contract boundary and ownership
+
+| Concern | Owner | B-side requirement |
+|---|---|---|
+| Factory task lifecycle, candidate state and CI tuple | A | A is the source of truth; B consumes only the sanitized projection |
+| Product identity and workspace membership | B | Authenticate the member and derive workspace from the session; never accept client-supplied workspace as authority |
+| Task-to-workspace association | B-owned trusted mapping, established at authorized task submission | Resolve the opaque task reference through a server-side mapping; do not infer ownership from Issue, PR author, branch, repository name or client payload |
+| Service-to-service authorization | A + B contract owners | Authenticate the calling service independently of member authentication; actor/resource reference strings are not credentials |
+| Product display, audit and access denial | B | Re-check membership on every read; deny revoked membership and unknown/unmapped references without leaking cross-tenant existence |
+
+**Important DTO clarification:** the current proposal includes `workspaceRef` in `FactoryTaskReadModelV1`, while also stating that workspace binding is B-owned and must not be trusted from A alone. Treat this as an unresolved schema ambiguity. Preferred B-side shape is an A-owned task projection without an authoritative workspace claim, wrapped/enriched by B after resolving its own trusted task-to-workspace mapping. If the field remains for correlation, it must be explicitly non-authoritative and must match B's mapping or fail closed; it must never create or change that mapping.
+
+### 13.2 Required service authentication decisions
+
+The canonical proposal identifies server-side authorization but does not yet freeze a wire-level mechanism. Before implementation, A/B owners must specify and test:
+
+- Service identity and key/certificate ownership; issuer, audience and narrowly scoped read permission.
+- Credential issuance, secure storage, rotation overlap, emergency revocation and expiry.
+- Replay resistance and bounded clock skew; credentials must not be accepted as member session tokens.
+- Which service identity may read which task references, and how authorization is checked against B's trusted mapping.
+- Secret-free audit fields: caller service ID, action, opaque task reference, decision, timestamp and correlation ID; never log bearer tokens or raw Factory state.
+
+No authentication mechanism is selected or implemented by this B review. A short-lived, audience-bound service credential is a design direction for owner review, not an authorization to create secrets or change permissions.
+
+### 13.3 Resource lifecycle, freshness and bounded reads
+
+The current proposal needs explicit answers for these consumer-visible cases:
+
+1. **Reference lifecycle:** define reference creation, expiry, revocation, retention and deletion behavior. A revoked, expired, unmapped or wrong-tenant reference must not fall back to an Issue/PR lookup.
+2. **Not-found semantics:** external responses for unknown and unauthorized references should avoid cross-tenant enumeration; internal audit may retain the distinct denial reason without disclosing it to the caller.
+3. **Freshness:** add a monotonic projection revision and source observation timestamp (for example `projectionRevision` and `observedAt`), define a maximum acceptable staleness, and state whether stale reads are returned with an explicit stale marker or rejected. A stale success must never remain current after a candidate SHA/run attempt changes.
+4. **Candidate identity:** every terminal CI result must continue to bind the full SHA, PR number, run ID and attempt. A new SHA or run attempt invalidates prior terminal evidence for the current candidate.
+5. **Pagination and limits:** if task lists are supported later, define stable cursor semantics, maximum page size, bounded response size and per-service rate limits. Do not add list-all or unbounded query behavior to v1; a single-reference read is the safer initial surface.
+6. **Deletion/retention:** define what B displays when the source task or evidence reference is deleted or retained only for audit. Do not reconstruct deleted content from raw Issues, logs or descriptive evidence strings.
+
+### 13.4 Error and status semantics
+
+| Condition | Required consumer behavior |
+|---|---|
+| Unknown contract version / malformed DTO | Fail closed; do not partially render privileged status |
+| Unknown A lifecycle state | Reject projection; never display raw enum |
+| Missing, stale, skipped, cancelled or mismatched CI attempt | No terminal success; represent unavailable/pending according to the frozen mapping |
+| Unknown failure code/category | Display only `unknown`; never parse free-form error text |
+| Unauthorized / unmapped / revoked reference | Deny without cross-workspace existence disclosure |
+| A service unavailable / timeout | Show temporary unavailable state; do not convert to empty task list or failed task |
+| Stale projection revision | Do not overwrite a newer B-observed revision with older data |
+| Candidate CI failure | `not_passed` only when exact attempt is verified; failure category remains `unknown` unless a stable allowlisted code exists |
+
+The current failure-category proposal has a deliberately small mapping: `STALE_BASE → validation`, `WORKER_LEASE_EXPIRED → infrastructure`, and `WORKFLOW_FAILURE`, `TASK_FAILURE`, `SYSTEM_FAILURE`, missing or unrecognized codes → `unknown`. Generic CI failure is not enough to infer validation or execution. Keep this mapping provisional until A owner confirms the producer's stable codes and exact propagation evidence.
+
+The public `completed` task status must not be interpreted as merged, deployed, billed, paid or production-approved. Candidate CI `passed` means only that the configured checks passed for the exact verified candidate tuple.
+
+### 13.5 Minimal v1 consumer acceptance suite
+
+Before B displays Factory task data, the joint contract test suite must demonstrate:
+
+- Valid authenticated service read for an authorized mapped task.
+- Missing, expired, wrong-audience, wrong-scope and revoked service credential denial.
+- Member A cannot read Member B's task through guessed, copied or substituted references.
+- A revoked workspace membership immediately blocks subsequent reads.
+- A-side workspace claim cannot override or create B's trusted mapping.
+- Unknown task/state/contract version fails closed without leaking raw fields.
+- Stale SHA, stale run ID, wrong attempt, skipped/cancelled run and missing evidence cannot produce terminal success.
+- Unknown machine error code and free-form exception text map to `unknown`.
+- Reference revocation/deletion and source unavailability have deterministic consumer behavior.
+- A stale projection revision cannot overwrite a newer observed candidate.
+- Response size, list/page bounds (if list support is ever added), timeout and rate-limit behavior are bounded.
+
+### 13.6 Handoff and current disposition
+
+- B-side contract review is documented; A owner decisions and independent GPT3 security review are still required.
+- The canonical adapter proposal remains unchanged and proposal-only. No endpoint, credential, database mapping, Product route, feature flag, migration or Factory integration was created.
+- A-wide acceptance remains BLOCKED by its independent audit baseline gate and remaining exact-main operational evidence. The current Issue #136 audit target is stale relative to current main and must be explicitly refreshed by the project owner before GPT3/independent reviewer begins.
+- B Runtime remains BLOCKED / PREPARATION ONLY. This review is not a security approval, product acceptance, or activation authorization.
