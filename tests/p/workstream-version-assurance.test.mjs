@@ -143,3 +143,59 @@ test("rejects drift in the README P workstream version summary", () => {
   input.readme = input.readme.replace("P 線 Governance `" + manifest.tracks.P.version + "`", "P 線 Governance `0.1.2`");
   assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("README P workstream version")));
 });
+
+
+test("ignores Markdown fenced examples when finding the latest F–P changelog heading", () => {
+  const input = validInput();
+  input.trackChangelogs.F = [
+    "```md",
+    "## 0.0.9 — 2026-11-22",
+    "```",
+    "",
+    "## 0.1.0 — 2026-11-22",
+    "",
+    "- Current F release entry.",
+  ].join("\n");
+  const result = validateWorkstreamVersionContract(input);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.errors, []);
+});
+
+test("ignores tilde-fenced examples and still rejects a stale real latest heading", () => {
+  const input = validInput();
+  input.trackChangelogs.G = [
+    "~~~markdown",
+    "## 0.1.0 — 2026-11-22",
+    "~~~",
+    "",
+    "## 0.0.9 — 2026-11-22",
+  ].join("\n");
+  assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("Track G changelog")));
+});
+
+
+test("does not accept a latest heading hidden by an unterminated Markdown fence", () => {
+  const input = validInput();
+  input.trackChangelogs.F = [
+    "~~~markdown",
+    "## 0.1.0 — 2026-11-22",
+    "## 0.0.9 — 2026-11-22",
+  ].join("\n");
+  assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("Track F changelog")));
+});
+
+test("does not close a Markdown fence with a shorter delimiter or the wrong character", () => {
+  const input = validInput();
+  input.trackChangelogs.G = [
+    "````markdown",
+    "## 0.0.9 — 2026-11-22",
+    "```",
+    "~~~",
+    "## 0.0.8 — 2026-11-22",
+    "````",
+    "",
+    "## 0.1.0 — 2026-11-22",
+  ].join("\n");
+  assert.equal(validateWorkstreamVersionContract(input).valid, true);
+  assert.deepEqual(validateWorkstreamVersionContract(input).errors, []);
+});
