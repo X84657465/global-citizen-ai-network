@@ -1,3 +1,8 @@
+## 0.3.137 — 2026-11-23
+
+- F: reject canonical array-index properties outside the declared array length in security evidence snapshots.
+- Add a regression for zero-length arrays with hidden indexed properties; preserve advisory-only evaluation.
+
 ## 0.3.136 — 2026-11-22
 
 - P: enforce an independently versioned changelog entry for every F–P workstream, including explicit deferred status for L.
