@@ -630,3 +630,26 @@ This checkpoint supersedes earlier live-status snapshots above. It is an evidenc
 5. Keep B at the read-only adapter contract until A's acceptance gates are met.
 
 **Authority boundary:** this checkpoint changes documentation only. It does not change Factory runtime, machine-managed Issue state, task state, leases, retries, cooldowns, quarantine, Runner/workflow policy, secrets, permissions, production data, deployments or B Runtime behavior.
+
+
+---
+
+## Live continuation checkpoint — 2026-11-22 (subsequent Actions refresh)
+
+This section supersedes the earlier in-progress descriptions of Preflight #324 and PR #311 in the preceding checkpoint. It records observed job state only; it does not authorize runtime activation or release.
+
+### Verified progress
+- Preflight run [#324](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44986477890) is now **completed**. Its Windows self-hosted validation job concluded **success** on SHA `5fd3ff873bb9f541c46f0cc7654420c12c67e488`, which is older than current main `0d3c90e6dff36a458ceb38b51a3b80611b1988a2`. Toolchain/isolation, local Ollama plan/patch smoke tests, scratch patch application, offline candidate tests, publisher dry-run, locked dependency installation, full unit tests, TypeScript, ESLint and cleanup passed. The read-only task-plan job was **skipped**. This is not exact-current-main acceptance.
+- PR #311 is merged at exact candidate SHA `c1444cb74b0c5db2b546cdc37f578a44d4b95260`. Its exact-head run [#44985592683](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44985592683) now shows the Windows quality-gates job **success** and the PostgreSQL/migrations/RLS integration job **success**, including isolated Supabase migration application, pgTAP, and two-member application RLS tests.
+- The same PR #311 exact-head run still has **Windows Ollama and local execution integration in progress**. The latest observed active step is **Verify bounded local Ollama inference**. Do not declare the full candidate acceptance complete until this job reaches a terminal result.
+- Current main remains `0d3c90e6dff36a458ceb38b51a3b80611b1988a2`. Main push CI [#44986529515](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44986529515) remains pending at the exact main SHA; its only allocated job is the exact candidate metadata resolver, still pending with no steps exposed. No current-main test/type/lint/build/database/Ollama pass is established.
+- PR #317 remains Draft/open. Its exact-head run [#44988396529](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44988396529) has only a pending metadata resolver and no completed validation or formal review. Keep it unmerged.
+
+### Acceptance and authority boundaries
+- Treat the merged PR #311 code and its partial post-merge integration evidence separately: quality and PostgreSQL/RLS have passed; Ollama/local execution remains pending.
+- Do not rerun, dispatch, cancel or bypass the serialized Windows self-hosted Runner queue to manufacture green evidence.
+- Issue #136 remains a separate read-only independent adversarial audit; implementation-owner notes and CI do not substitute for its report.
+- Issue #202's five-minute scheduled delivery still requires owner/admin inspection of repository Actions settings and policy. A completed push-triggered Preflight run does not prove cron delivery.
+- Keep machine-managed Issue #100 untouched and B Runtime inactive. Continue only the proposed versioned read-only A→B adapter preparation until A acceptance gates are complete.
+
+**Authority boundary:** this checkpoint updates evidence documentation only. It does not alter Factory runtime/state, tasks, leases, retries, cooldowns, quarantine, Runner or workflow policy, secrets, permissions, production data, deployments, or B Runtime behavior.
