@@ -1191,3 +1191,50 @@ This checkpoint supersedes earlier live-status statements in this file where the
 6. Keep B Runtime blocked; do not change Runner, secrets, permissions, branch protection, production DB/RLS, deployments, or machine-managed Factory state.
 
 **Disposition:** #432 scoped candidate CI = PASS / PR acceptance = PENDING; #422 = FAIL; #425 = FAIL; #426 = FAIL; main GitHub Actions CI = UNKNOWN / NOT VERIFIED; Issue #117 = BLOCKED on DRI conflict; Issue #136 = BLOCKED on stale audit baseline; Issue #352 = BLOCKED / NOT OPERATIONAL. No merge, deployment, task dispatch, lease/quarantine/breaker mutation, Runner/secret/permission change, or production data operation was performed.
+
+
+---
+
+## Superseding GPT5 operations snapshot — 2026-11-23 (revalidated current main and exact PR heads)
+
+This checkpoint supersedes earlier live-status claims above wherever they differ. It is a documentation-only update on the existing GPT5 operations branch; it does not alter main or authorize any Factory state, workflow, Runner, secret, permission, database, deployment, merge, or task-dispatch operation.
+
+### Mainline and required governance
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Latest main HEAD from the newest GitHub commit search: `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Re-read `PROJECT_COORDINATION.md` from main; blob SHA: `849e4f43c87d7686f80ed2e6af9337e797403027`.
+- Re-read `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`, `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, and `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md` from main.
+- Role boundaries remain GPT1 A–E/Factory and Factory-side A→B, GPT2 F–P, GPT3 independent architecture/QA, GPT4 B Product, GPT5 global intelligence/operations and explicitly scoped execution support. GPT5 must not self-approve or replace GPT3.
+- Main commit workflow lookup returned no PR-triggered workflow runs for this SHA; this lookup does not establish a main push-CI result. Main GitHub Actions CI is therefore UNKNOWN / NOT VERIFIED in this snapshot. Do not reuse old main CI evidence.
+- B Runtime remains PREPARATION ONLY / BLOCKED pending Factory acceptance and a verified, versioned, sanitized, read-only A→B contract.
+
+### Exact-head PR and CI matrix
+- **PR #422** — current head `ad3126023b239526a2a6aafa57a1254b2515db78`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`, open/non-Draft, GitHub mergeable=true. Exact-head Actions run [#45073489969](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45073489969): metadata resolver, Windows quality gates (unit tests/typecheck/lint/audits/build), Ollama/local execution, and PostgreSQL/RLS integration all SUCCESS; persistence/diagnostic follow-ups were SKIPPED by workflow design. Scoped CI = PASS. This does not resolve Issue #117's canonical DRI/candidate conflict and does not authorize merge or deployment.
+- **PR #425** — head `4680526983ac1ab4b1d5c4d0e35397e9c806cd3e`; exact-head run [#45062346671](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062346671) FAILED in Unit tests (749 passed / 1 failed); typecheck, lint and build were skipped. The failure is `Missing expected rejection` in an operator-recovery negative test fixture. Ollama and PostgreSQL/RLS jobs were skipped.
+- **PR #426** — head `cb78df386c6a94892ff4d3c17ebe8a4208eb25cb`; exact-head run [#45077950482](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45077950482) FAILED at TypeScript. Compiler error: `app/contribute/contribution-client.tsx(152,21/100): Property 'closes_at' does not exist on type 'ContributionTask'`. Lint/build and integration jobs were skipped.
+- **PR #432** — head `49d541eaed8be94e9fd442155f0b6a10d0390428`, open/Draft, mergeable=true. Exact-head run [#45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302): Windows quality gates, Ollama/local execution, and PostgreSQL/RLS/two-member integration all SUCCESS. It combines the narrow legacy-secret negative-fixture correction and B contribution-task type-preservation fix. Recorded reviews are COMMENTED, not formal APPROVE. Scoped CI = PASS; overall PR = NOT ACCEPTED pending owner disposition and required review. It does not resolve #117.
+- **PR #433** — head `d23830839c1644594af162a5277d3ba1594a3bf8`; exact-head run [#45079849505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45079849505) FAILED in Unit tests (750 passed / 1 failed) with `Missing expected rejection`; typecheck/lint/build and integration jobs were skipped. The failure matches the shared operator-recovery negative-test fixture issue addressed in the #432 candidate; #433's own exact SHA remains failed and must be revalidated after the canonical owner chooses an integration path.
+- **PR #429** — head `6f2403ae26467fa025546351bd45a8519f2bcd43`; exact-head run [#45062245405](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062245405) FAILED at TypeScript with the same `ContributionTask.closes_at` error; downstream checks were skipped. The combined #432 candidate includes the type-preservation fix, but does not retroactively validate #429's SHA.
+- **PR #431** — this operations handoff PR, inspected head `c469fadcb7391447729597c896431ddd29abe5c3`; exact-head run [#45071161855](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45071161855) FAILED in Unit tests (746 passed / 1 failed) with `Missing expected rejection`; later gates were skipped. This documentation update creates a new head; verify a fresh exact-head CI run after GitHub schedules it. Keep Draft.
+- **PR #430** — head `1141ed47c143000998d66c3a9ffc6e6ec275dc9d`; exact-head run [#45066024613](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45066024613) FAILED. Failure details not re-inspected in this snapshot; do not infer a root cause.
+- **PR #434** — head `43453cad58d22de42cb13265687f56ad08aa2bba`; exact-head run [#45081635308](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45081635308) FAILED. Failure details not re-inspected in this snapshot; do not infer a root cause.
+- **PR #427** — head `6d12df4b056bb955cd537265a19b8fdee2778e72`; exact-head run [#45061403391](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45061403391) FAILED. Failure details not re-inspected in this snapshot; do not infer a root cause.
+- All PRs above target main at the inspected base SHA unless otherwise stated. A successful CI result is scoped to that exact PR head only; it does not imply approval, acceptance, mergeability of other heads, main CI success, deployment or product readiness.
+
+### P0 blockers and owner handoffs
+- **Issue #117** remains OPEN and carries `factory-control-plane-approved`. PR #422 and #425 are overlapping candidate implementations in Factory-owned paths. #422 now has exact-head CI PASS while #425 has exact-head CI FAIL, but canonical DRI/candidate ownership must still be resolved by the responsible Factory owner. Issue #117 explicitly prohibits merge/deployment as part of this task. GPT5 must not choose or merge the implementation on the owner's behalf.
+- **Issue #116** remains OPEN with its exact-path approval label and allowlist. PR #433's exact-head CI is failed as recorded above. The exact workflow-path exception must not be broadened; no workflow file or Runner/permission setting is authorized to change under Issue #116.
+- **Issue #136** remains strictly READ-ONLY and specifies immutable audit baseline `dce81ed801c41bca9bc364e3d0f248244d88f88f`. Current main `10fabef...` is newer. Stop and request owner reauthorization for a new immutable baseline; do not silently retarget, edit the issue, or claim the independent audit is complete.
+- **Issue #164** remains a P0 Factory control concern; do not change controller/state behavior without a current, explicit owner-assigned task and its allowlist.
+- **Issue #352** operator recovery remains unaccepted until protected GitHub Environment reviewer requirements, main-only restrictions and Environment-only secret scope are verified through authorized evidence.
+- **Issue #100** and all machine-managed task/lease/retry/cooldown/quarantine/breaker state remain strictly read-only.
+- Do not activate B Runtime or expose Factory private state, Runner/Sandbox controls, leases, raw logs, patches, secrets or privileged execution to B.
+
+### Next actions
+1. Factory owner: resolve #117's single canonical DRI/candidate; preserve #422's exact-head PASS as candidate evidence only, and do not merge under the current Issue restriction.
+2. Factory owner: reconcile #433's shared test-fixture failure with the #432 integration candidate, then run required checks on the resulting exact head.
+3. GPT4/B owner and Factory owner: separately disposition #432's B typing and Factory fixture changes; COMMENTED review is not APPROVED.
+4. GPT3/authorized independent reviewer: obtain owner-authorized fresh Issue #136 audit target before any A-wide audit.
+5. GPT5: keep this handoff branch documentation-only; do not duplicate core implementation or self-approve. Recheck this PR's newly generated exact-head CI before acceptance.
+
+**Disposition:** PR #422 scoped CI PASS / acceptance BLOCKED by Issue #117; PR #432 scoped CI PASS / owner and formal review pending; PR #425/#426/#429/#433/#431/#430/#434/#427 CI FAIL; main CI UNKNOWN / NOT VERIFIED; Issue #117 BLOCKED on canonical DRI and no-merge rule; Issue #136 BLOCKED on stale immutable baseline. No main modification, merge, deployment, task dispatch, durable Factory state mutation, Runner/secret/permission change, or production DB/RLS operation was performed.
