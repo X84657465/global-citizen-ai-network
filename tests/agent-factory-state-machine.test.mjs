@@ -1276,6 +1276,6 @@ test("quarantine recovery rejects a task that still owns an active lease", () =>
   state.tasks["42"].base_sha = "a".repeat(40);
   assert.throws(
     () => recoverQuarantinedTask(state, quarantineRecoveryInput(state), 2_000),
-    /active worker lease/,
+    /Active task lease is invalid/,
   );
 });
