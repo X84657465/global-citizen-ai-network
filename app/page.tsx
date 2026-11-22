@@ -166,6 +166,28 @@ export default function HomePage() {
      ].map(({title,text,icon:Icon})=><article className={styles.trustCard} key={title}><span><Icon size={20}/></span><div><h3>{title}</h3><p>{text}</p></div></article>)}
     </div>
    </section>
+   <section className={styles.factoryGovernanceSection} id="factory-governance" aria-labelledby="factory-governance-title">
+    <div className={styles.factoryGovernanceHeader}>
+     <div className={styles.sectionEyebrow}>FACTORY-FIRST · CROSS-CUTTING GOVERNANCE</div>
+     <h2 id="factory-governance-title">讓工廠具備完整、可驗收的<em>自主工程能力</em></h2>
+     <p>七項最新治理能力已納入 F6–F12，並與六項既有橫向能力共同執行。這是開發與驗收要求，不代表所有能力已經上線；所有進度以 repository、精確 SHA、CI 與獨立審查證據為準。</p>
+    </div>
+    <div className={styles.factoryGovernancePriority}>
+     <span><b>P0</b> 需求追溯與架構治理</span><span><b>P1</b> 測試環境、供應鏈、人類決策</span><span><b>P2</b> 效能成本、發布與災難復原</span>
+    </div>
+    <div className={styles.factoryGovernanceGrid}>
+     <article className={styles.factoryGovernanceCard}><span>01 · P0</span><h3>需求追溯與完整交付</h3><p>從需求、規格、Issue、PR、測試到獨立驗收雙向追蹤；需求變更必須分析程式、資料與跨線影響。</p><b>驗收：需求可追到程式與測試</b></article>
+     <article className={styles.factoryGovernanceCard}><span>02 · P0</span><h3>架構治理與技術債</h3><p>掌握模組、API、資料、依賴與 owner；找出循環依賴、重複實作、孤兒模組與高風險技術債。</p><b>驗收：架構地圖與債務有證據</b></article>
+     <article className={styles.factoryGovernanceCard}><span>03 · P1</span><h3>測試環境與資料可靠性</h3><p>隔離開發、測試、預覽與正式環境；測試資料可重建，失敗可重播，備份須實際還原。</p><b>驗收：他人可重現測試結果</b></article>
+     <article className={styles.factoryGovernanceCard}><span>04 · P1</span><h3>供應鏈與第三方安全</h3><p>追蹤套件來源、版本、授權、漏洞及外部服務風險；掃描結果綁定候選 SHA。</p><b>驗收：高風險依賴有處置紀錄</b></article>
+     <article className={styles.factoryGovernanceCard}><span>05 · P1</span><h3>人類決策與自治治理</h3><p>明確區分觀察、規劃、隔離修改、候選 PR 與需核准的合併／部署／付費／權限操作。</p><b>驗收：不越權，未知即阻擋</b></article>
+     <article className={styles.factoryGovernanceCard}><span>06 · P2</span><h3>效能、資源與成本</h3><p>先建立 API、資料庫、Worker、模型及重試基準，再以同條件量測改善效益與品質風險。</p><b>驗收：改善可重現且可回滾</b></article>
+     <article className={styles.factoryGovernanceCard}><span>07 · P2</span><h3>發布、災難復原與韌性</h3><p>候選版本具發布、監控、事故與回滾計畫；備份須經還原演練，正式部署需明確授權。</p><b>驗收：復原流程實際演練</b></article>
+    </div>
+    <div className={styles.factoryGovernanceFlow}><b>F6–F12 整合路線</b><p>F6 專案理解與需求追溯 → F7 除錯修復與可重現環境 → F8 任務調度與資源治理 → F9 獨立多層 QA → F10 版本化專案智慧 → F11 量測改善與復原 → F12 生產級端到端驗收</p></div>
+    <div className={styles.factoryGovernanceRoles}><b>GPT1–GPT5 共同執行</b><p><strong>GPT1／A–E</strong> 建設整合 Factory；<strong>GPT2／F–P</strong> 提供領域規格與驗收；<strong>GPT3</strong> 獨立架構、安全及 QA；<strong>GPT4／B</strong> 負責產品需求與產品驗收；<strong>GPT5</strong> 提供有來源的技術與風險情報。各線透過 Issue、PR、Review、CI、ADR 與 handoff 協作，每項任務唯一 DRI。</p><p className={styles.factoryGovernanceWarning}>治理規則不是功能完成證明。沒有精確 SHA、測試／CI 與獨立審查證據，一律不得宣稱 VERIFIED 或 ACCEPTED；合併、部署、付費、權限及不可逆操作仍須依核准流程。</p></div>
+    <a className={styles.factoryGovernanceLink} href="https://github.com/X84657465/global-citizen-ai-network/blob/docs/gcan-autonomous-intelligence-production-core/docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md" target="_blank" rel="noreferrer">閱讀完整治理總綱與驗收規格 <ArrowUpRight size={15}/></a>
+   </section>
    <section className={styles.docsSection} id="documentation"><div className={styles.docsHeading}><div><div className={styles.sectionEyebrow}>DOCUMENTATION & EVIDENCE</div><h2>網站說明與 GitHub 文件使用同一套定義</h2><p>架構、工作線責任、版本與技術細節以專案文件為準；首頁只呈現易讀摘要與各線入口。</p></div><a className={styles.textLink} href="https://github.com/X84657465/global-citizen-ai-network" target="_blank" rel="noreferrer">前往 GitHub 專案 <ArrowUpRight size={15}/></a></div><div className={styles.docsGrid}>{docs.map(({title,text,href,icon:Icon})=><a href={href} className={styles.docCard} key={title} target="_blank" rel="noreferrer"><span><Icon size={18}/></span><div><b>{title}</b><p>{text}</p></div><ArrowUpRight size={15}/></a>)}</div></section>
    <section className={styles.finalCta}><div className={styles.finalCtaMark}><Globe2 size={23}/></div><div><div className={styles.sectionEyebrow}>BUILD TOGETHER · LEARN TOGETHER</div><h2>讓每一份貢獻，都成為可驗證的進步</h2><p>GCAN 正在持續建置。歡迎先了解產品、檢視 A–O 工作線、P 治理與公開開發紀錄。</p></div><a href="https://github.com/X84657465/global-citizen-ai-network" className={styles.finalCtaButton} target="_blank" rel="noreferrer">查看 GitHub <ArrowRight size={16}/></a></section>
   </main>
