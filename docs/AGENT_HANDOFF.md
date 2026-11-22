@@ -7,7 +7,7 @@
 **Default branch:** `main`  
 **Main HEAD:** `061ccf621c228bae93b91cd8c53723c3fe08310a`  
 **Authoritative release:** `VERSION` and `package.json` on main both report `0.3.125`. README release label requires separate verification before use.  
-**A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
+**A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.20` (`versions/manifest.json` and `versions/gcan-product/VERSION`; not a release-readiness claim).
 
 ## 1. Highest-level strategy and authority
 
@@ -383,3 +383,45 @@ This checkpoint is authoritative for the state observed after PR #283 merged. Ol
 5. Only then rebase and validate the B read-only adapter against the accepted A contract; do not activate B runtime early.
 
 **Authority boundary:** this checkpoint records read-only observations and integration contracts only. It changes no Factory state, task issue, Runner policy, workflow permission, secrets, production database, or deployment configuration.
+
+
+---
+
+## Superseding live checkpoint — 2026-11-22 02:05 UTC (10:05 Taiwan)
+
+This checkpoint supersedes the earlier 09:47 Taiwan snapshot for the Factory run and task state below. The run was triggered from an older checked-out main SHA; do not treat it as current-main validation.
+
+### A — Factory execution and publication
+
+- Scheduled Preflight run [#44972336349](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44972336349), job #137054627179, checked out base SHA `23fb747ae4041bc28783a1b9039660ec952c7e0d`, not current main `061ccf621c228bae93b91cd8c53723c3fe08310a`.
+- Queue selection, cooldown check, lease reservation, safe handoff, read-only planning, bounded patch proposal, scratch application, restricted dependency installation, and offline candidate validation completed successfully.
+- The uploaded offline test artifact reports **602/602 unit tests passed**, TypeScript passed, and ESLint completed with zero errors and one existing unused-import warning. These are generic repository checks; they do not establish dependency-audit remediation.
+- The generated Issue #17 patch contains only `docs/security/dependency-audit-remediation.md`; it does not add the required `tests/security/dependency-audit.test.mjs`. The workflow ran unit tests, TypeScript and lint only; it did not run `npm audit` or a fresh production/full dependency audit.
+- The generated document proposes Next.js `13.5.6` and ESLint `8.55.0`, while main `package.json` specifies Next.js `15.5.29` and ESLint `^9.30.1`. This is an excluded major-version downgrade. The other proposed package versions were not substantiated by fresh audit/registry evidence. **Do not publish, merge, or accept this candidate.**
+- The draft-PR publication step failed. The job-log endpoint returned BlobNotFound, so the exact runtime API error is unavailable. Static inspection confirms the workflow grants only `contents: read` and `issues: read`, while `scripts/publish-agent-patch.mjs` attempts Git blob/tree/commit/ref writes, draft PR creation and repository dispatch using that token. This is a confirmed least-privilege permission mismatch; the precise failure response remains unverified.
+- The failure handler released the active lease. Machine-managed Issue #100 was read-only at state version 152, updated `2026-11-22T02:04:40.421Z`: no active task; Issue #17 is queued; system consecutive failures 9; cooldown through `2026-11-22T02:19:40.421Z`. No manual retry, state mutation, cooldown reset, quarantine change or workflow rerun was performed.
+- A read-only evidence note was added to Issue #136 (comment #7072665996) with the exact test scope, candidate quality rejection, static publisher-permission blocker and evidence limitations.
+
+### Current acceptance and candidate boundaries
+
+- Current main remains `061ccf621c228bae93b91cd8c53723c3fe08310a`. Main CI run #44973274417 remains pending with no allocated jobs; its combined status reports Vercel `build-rate-limit`.
+- PR #302 remains Draft/open, head `74d50d3b7197aa4ff96b827cae80344f7148e7b4`, with no formal reviews and exact-head run #44973451004 pending without allocated jobs. This handoff update itself must receive fresh exact-head validation; it is not an acceptance result.
+- PR #259 remains open and non-mergeable, based on a divergent historical base. Do not merge, retarget or transplant it wholesale.
+- Issue #136 remains the independent read-only adversarial audit gate. The new evidence note is not independent sign-off.
+- A remains integrated but **not operationally accepted**. Current-main CI, same-SHA Preview/Smoke, independent review, post-cooldown natural queue/lease progression, and serialized 24-hour Runner soak remain outstanding.
+
+### B — preparation only
+
+- GCAN Product version is `0.1.20` per `versions/manifest.json` and `versions/gcan-product/VERSION`.
+- Keep B Runtime, product API/database access to Factory state, billing and privileged execution inactive.
+- After A acceptance, rebase/revalidate the versioned read-only A→B projection against accepted main. A owns the sanitized evidence projection; B owns workspace/tenant authorization and RLS/IDOR isolation. B must not access Issue #100, A controller/state-store internals, leases, Runner/Sandbox, raw logs or private lifecycle enums.
+
+### Next execution order
+
+1. Do not retry Issue #17 unchanged. Preserve the normal cooldown/queue behavior; correct the evidence-backed candidate-quality and publisher-permission defects through the approved control-plane review path.
+2. Keep publisher credentials least-privileged and isolated to a dedicated publishing job; do not broaden the whole workflow token without review.
+3. Add semantic task-specific validation: reject excluded major downgrades, require evidence-backed package versions, require fresh audit evidence, and require the task-specific security test artifact before publication.
+4. Continue observing current-main CI and normal scheduled Factory progression; do not force-dispatch, reset machine state or cancel queued work.
+5. Complete independent Issue #136 review and all A operational gates before implementing or activating B Runtime.
+
+**Safety:** no workflow permission, secret, Runner policy, machine-managed state, production data, deployment or B Runtime was changed by this checkpoint.
