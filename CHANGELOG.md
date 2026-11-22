@@ -1,3 +1,8 @@
+## 0.3.137 — 2026-11-22
+
+- P: require the latest dated entry, not any historical matching heading, in overall and F–P workstream changelogs.
+- Reject impossible calendar dates in version-history headings and add stale-entry regression coverage.
+
 ## 0.3.136 — 2026-11-22
 
 - P: enforce an independently versioned changelog entry for every F–P workstream, including explicit deferred status for L.
