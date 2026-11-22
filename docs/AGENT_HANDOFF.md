@@ -863,3 +863,42 @@ This section supersedes prior PR #328 head/run snapshots and records the latest 
 4. Keep A acceptance gated on exact-SHA quality, disposable-container isolation, Ollama, PostgreSQL/RLS, operational progression/soak, and independent review. Only then implement the bounded read-only A→B projection and tenant boundary.
 
 **Authority boundary:** documentation-only checkpoint. No Factory runtime/state, Issue #100, tasks, leases, retry/cooldown/quarantine, scheduler, Runner concurrency, workflow permissions, secrets, production data, deployment, or B Runtime was changed.
+
+
+---
+
+## Superseding live continuation checkpoint — 2026-11-22 (current main refresh)
+
+This checkpoint supersedes earlier live snapshots above wherever the main SHA, PR state, CI run, or conclusion differs. It is a documentation refresh only; it is not Factory acceptance, B activation, or deployment authorization.
+
+### Verified repository baseline
+- Current `main` HEAD: `c4f46dbcc78b40cb3a4f31a6d3513f6e922aca79`.
+- Repository release: `0.3.125`; Agent Factory V2: `2.0.84`; GCAN Product: `0.1.20`. These are declared versions, not operational acceptance.
+- `docs/AGENT_HANDOFF.md` had a latest embedded live checkpoint at main `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`; that snapshot is now stale relative to this verified main SHA.
+
+### Open PRs and exact candidate evidence
+- PR #333 is the current narrow A-line candidate for publisher API cooldown handoff. It targets main from the verified base `c4f46dbcc78b40cb3a4f31a6d3513f6e922aca79`; current head `640e56a3d708fd3ef5dade982f45484114bba85a`. The diff is limited to `.github/workflows/agent-task-preflight.yml`, `lib/agent-factory-api-cooldown.mjs`, `tests/agent-factory-api-cooldown.test.mjs`, and `tests/ci-trigger-policy.test.mjs`.
+- Exact-head Actions run [#45010763373](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45010763373) remains **pending**. The Jobs API currently exposes only the pending “Resolve exact candidate PR metadata” job; no Windows quality, Ollama/local execution, PostgreSQL/RLS, or full integration result is yet available.
+- PR #333 has zero formal review submissions and zero inline review threads. The automated Codex review attempt failed because review usage limits were reached; this is not approval.
+- The only combined commit status returned for the candidate is Vercel failure with a `build-rate-limit` target. Treat it as an external Preview/deployment quota restriction, not source-code CI and not Preview success.
+- Candidate code now initializes a one-line sanitized UTC cooldown file, writes it only for structured rate-limit errors, uploads it with `if: always()`, downloads it in the issue-only state-writer job, validates the canonical timestamp, and restores it before the durable failure callback. Static/unit coverage exists; real 429/403 failure injection and cross-job durable-state readback remain unverified.
+- PR #259 remains stale/non-mergeable against an obsolete base and contains a broad A/F–P candidate. Do not merge, retarget, or transplant its diff wholesale.
+
+### A Factory acceptance and safety gates
+- Issue #136 remains open and READ-ONLY. The inspected comments contain owner-authored supplemental source audits, not an independent adversarial audit report or formal sign-off. Do not edit the issue or treat self-review/CI as independent approval.
+- Do not mutate machine-managed Issue #100, task leases, retry counters, cooldown/quarantine, scheduler state, Runner concurrency, workflow permissions, secrets, production data, or deployment settings to manufacture green evidence.
+- No PR merge or deployment is authorized by this checkpoint. Keep A operational acceptance gated on exact-head full CI, disposable-container isolation, Ollama/local execution, PostgreSQL/RLS, natural scheduler/lease progression, operational soak, and independent review.
+
+### B handoff boundary
+- `docs/architecture/agent-factory-product-read-adapter.md` remains a proposed, unimplemented, unaccepted contract. It defines a sanitized, versioned, read-only A projection and B-owned workspace authorization; it is not a live API.
+- B Runtime remains inactive. Do not expose Factory Issue/state-store internals, leases, Runner/Sandbox controls, raw logs, patches, secrets, or privileged execution to B.
+- After A acceptance only, implement the A-owned projection, bind exact candidate SHA/PR/run/attempt evidence, and validate B workspace tenancy with two-workspace RLS/IDOR tests.
+
+### Next execution order
+1. Observe PR #333 run #45010763373 until terminal; inspect every required job against exact head `640e56a3d708fd3ef5dade982f45484114bba85a`.
+2. If CI allocates and passes, perform explicit 429/403 failure-path validation and confirm the durable cooldown is written and read back without leaking provider headers, bodies, or credentials.
+3. Obtain the independent read-only Issue #136 audit and triage only verified findings.
+4. Keep stale PR #259 and unrelated F–P work out of the A critical path.
+5. After A passes all acceptance gates, implement the bounded A→B read projection and tenant authorization boundary.
+
+**Authority boundary:** this checkpoint changes documentation only. It does not change Factory runtime/state, Issue #100, tasks, leases, retry/cooldown/quarantine, scheduler, Runner policy, workflow permissions, secrets, production data, deployments, or B Runtime behavior.
