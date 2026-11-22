@@ -48,6 +48,7 @@ jobs:
       pull_request_number: ${{ steps.resolve.outputs.pull_request_number }}
       head_sha: ${{ steps.resolve.outputs.head_sha }}
       head_ref: ${{ steps.resolve.outputs.head_ref }}
+      api_cooldown_until: ${{ steps.resolve.outputs.api_cooldown_until }}
     steps:
       - name: Checkout resolver
         uses: actions/checkout@v5
@@ -592,6 +593,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: failure
           AGENT_FACTORY_FAILURE_SCOPE: system
+          AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.resolve-candidate.outputs.api_cooldown_until || needs.build.outputs.api_cooldown_until }}
           FAILURE_STAGE: ci
           FAILURE_SUMMARY: "CI run ${{ github.run_id }} failed for ref ${{ github.ref }}. Inspect build/database and candidate-resolution logs."
         run: node scripts/agent-factory-v2-controller.mjs

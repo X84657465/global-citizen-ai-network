@@ -4,8 +4,14 @@ import { taskDependenciesResolved } from "../lib/agent-task-dependencies.mjs";
 import { sortTaskIssues, isMergedTaskPullRequest, isTaskAlreadyPublished } from "../lib/agent-task-queue.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
+import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
 
-const fail = (message) => {
+const fail = (message, error = null) => {
+  if (error?.rateLimited === true) {
+    try { persistApiCooldownDeadline(error); } catch {
+      console.error("Unable to persist the provider rate-limit deadline; retaining the fail-closed breaker fallback.");
+    }
+  }
   console.error("Agent task selection failed: " + message);
   process.exit(1);
 };
@@ -32,7 +38,7 @@ const apiGet = async (path) => {
   try {
     return await api.request("/repos/" + repository + path);
   } catch (error) {
-    fail("GitHub queue lookup failed: " + (error instanceof Error ? error.message : String(error)));
+    fail("GitHub queue lookup failed: " + (error instanceof Error ? error.message : String(error)), error);
   }
 };
 
@@ -51,7 +57,12 @@ const stateStore = createFactoryStateStore(api, {
   repository,
   issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
 });
-const stored = await stateStore.read();
+let stored;
+try {
+  stored = await stateStore.read();
+} catch (error) {
+  fail("Durable Factory state lookup failed: " + (error instanceof Error ? error.message : String(error)), error);
+}
 const factoryState = stored.state;
 if (factoryState.active_task) {
   appendFileSync(output, "issue_number=\n", "utf8");
