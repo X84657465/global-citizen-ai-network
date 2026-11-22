@@ -32,7 +32,7 @@ const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle =
     workflowPath: ".github/workflows/ci.yml",
     status: "completed",
     conclusion: "success",
-    runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
+    runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/1",
     jobs: G_REQUIRED_CI_JOBS.map((id) => job(id)),
   },
   ...overrides,
@@ -124,6 +124,17 @@ test("treats queued or in-progress runs and jobs as incomplete", () => {
   }));
   assert.equal(queuedJob.status, "incomplete");
   assert.equal(queuedJob.pending, 1);
+});
+
+test("requires the run URL to identify the exact Actions attempt", () => {
+  for (const runUrl of [
+    "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
+    "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/2",
+  ]) {
+    assert.throws(() => assessGExactHeadEvidence(bundle({
+      run: { ...bundle().run, runUrl },
+    })), /exact repository, run ID, and attempt/);
+  }
 });
 
 test("rejects duplicate job records and malformed run evidence", () => {
