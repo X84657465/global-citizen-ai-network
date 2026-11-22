@@ -10,7 +10,7 @@ test("persists a task-scoped publication race for the following workflow failure
   try {
     const envPath = join(directory, "github-env");
     assert.equal(persistPublicationFailureScope("task", { GITHUB_ENV: envPath }), true);
-    assert.equal(readFileSync(envPath, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\\n");
+    assert.equal(readFileSync(envPath, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
