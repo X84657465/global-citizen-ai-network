@@ -235,3 +235,52 @@ Factory 每次向其他 GCAN 能力領域提供服務，至少應交付：
 ---
 
 **最終定義：Agent Factory 必須從「能派工、能呼叫模型、能產生 Patch」持續演進為「能理解、規劃、開發、測試、修復、審查、交付、監控並受控改善」的完整 AI Software Factory。**
+
+## 12. 保留既有成果與 Factory 受治理自我進化
+
+本節將 GCAN Master Charter 的零無故重工與能力持續進化原則落實到 Factory 工程流程。Factory 是受治理的生產引擎，不得為了升級而重建自身或建立重複控制面。
+
+### 12.1 Factory 開發的不可違反順序
+
+**盤點既有能力 → 確認 owner／依賴／契約 → 重用 → 擴充 → 修復 → 有證據才替換。**
+
+每項任務開始前，Developer 必須：
+1. 檢查目前 main 與目標 branch 的精確 SHA、相關程式碼、測試、Issue、PR、CI 及 handoff。
+2. 搜尋既有相同或近似能力，確認是否已有模組、函式、服務、Runner、Adapter、資料表或 workflow 可承接。
+3. 讀取模組 owner、API／資料 schema、呼叫者與下游依賴。
+4. 記錄選擇 REUSE、EXTEND、REPAIR、REPLACE 或 DEFER 的理由。
+5. 以最小差異修改原有 owner 範圍，避免跨模組大改與無必要的新抽象。
+
+### 12.2 替換與重構門檻
+
+任何核心模組替換、公開 API／事件／資料契約破壞、資料遷移、控制面重寫或 Runner 架構替換，均屬高風險變更。必須先提供現況證據、可量化收益、相容性分析、分階段遷移、回滾方案、回歸測試及受影響 owner 確認，並由 GPT3 獨立審查。未完成前只可提交提案，不可執行破壞性操作。
+
+### 12.3 Factory 自我改善閉環
+
+Factory 應逐步具備以下受治理流程：
+
+`SIGNAL → CAPABILITY INVENTORY → GAP ANALYSIS → PRIORITIZED PROPOSAL → AUTHORIZATION → ISOLATED IMPLEMENTATION → TEST / SECURITY / REGRESSION → GPT3 REVIEW → STAGED DELIVERY → MONITOR / ROLLBACK → LEARNING`
+
+- 改善訊號可來自任務失敗、CI、測試、成本、延遲、人工介入率、使用者回饋及安全事件。
+- 每項改善必須先確認不是既有功能未正確使用、設定錯誤或已知缺陷。
+- 以原有模組擴充為預設方案；新服務或新 Agent 必須證明既有模組無法合理承接。
+- 自我修改不得直接寫入 main；必須經隔離分支、精確 SHA 驗證及獨立審查。
+- 任何權限、政策、審查流程、資料隔離或 Factory 自身安全邊界修改，均不得由 Factory 自行批准。
+- 發布後若錯誤率、成本、延遲或安全風險超過事前門檻，必須停止擴大並執行回滾。
+
+### 12.4 自主能力成熟度不可自我宣告
+
+Factory 不得因已能產生程式碼、建立 Patch 或 Draft PR，就宣稱具備完整自主開發能力。A0–A6 每一階段均需有真實任務證據、失敗恢復案例、權限測試、回歸測試、成本紀錄及獨立審查。成熟度提升由獨立驗收結果決定，不由 Developer 或 Factory 自評決定。
+
+### 12.5 Factory Definition of Done
+
+每項 Factory 升級必須證明：
+- 既有功能及契約已盤點，且無未說明的行為退化。
+- 變更使用既有能力或已提出充分的新建理由。
+- 測試涵蓋正常、失敗、逾時、重試、取消、權限拒絕及恢復等相關路徑。
+- CI／測試結果對應本次精確候選 SHA。
+- 變更範圍、成本、風險、回滾及人工停止方式明確。
+- Developer 未自我批准；必要時 GPT3 已獨立審查。
+- Capability Inventory、Runbook、handoff 與決策紀錄同步更新。
+
+**Factory 的進化目標是讓既有資產越來越有能力，而不是每次升級都重做一次工廠。**
