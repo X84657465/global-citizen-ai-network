@@ -103,7 +103,7 @@ test("requires an independently versioned F–P changelog entry for every track,
 test("requires the first/latest changelog entry to match the current version", () => {
   const input = validInput();
   input.changelog = "## 0.3.133 — 2026-11-22\n\n## 0.3.134 — 2026-11-22";
-  input.pChangelog = "## P 0.1.2 — 2026-11-22\n\n## P 0.1.3 — 2026-11-22";
+  input.pChangelog = "## P 0.1.2 — 2026-11-22\\n\\n## P " + manifest.tracks.P.version + " — 2026-11-22";
   const rootAndP = validateWorkstreamVersionContract(input).errors;
   assert.ok(rootAndP.some((error) => error.includes("CHANGELOG.md")));
   assert.ok(rootAndP.some((error) => error.includes("P workstream changelog")));
@@ -120,7 +120,7 @@ test("requires the first/latest changelog entry to match the current version", (
 test("rejects impossible calendar dates in current changelog headings", () => {
   const input = validInput();
   input.changelog = "## 0.3.134 — 2026-02-30";
-  input.pChangelog = "## P 0.1.3 — 2026-02-30";
+  input.pChangelog = "## P " + manifest.tracks.P.version + " — 2026-02-30";
   input.trackChangelogs.F = "## 0.1.0 — 2026-02-30";
   const errors = validateWorkstreamVersionContract(input).errors;
   assert.ok(errors.some((error) => error.includes("CHANGELOG.md")));
