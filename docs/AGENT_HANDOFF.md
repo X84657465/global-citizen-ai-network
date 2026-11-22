@@ -769,7 +769,7 @@ This checkpoint supersedes every earlier live snapshot above wherever the main S
 
 ### Current exact-SHA CI and Preflight evidence
 - Main push CI run [#44999879910](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879910) targets exact current main SHA `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`. Latest query: **pending**, with no allocated jobs. Do not infer tests, types, lint, audits, build, Ollama, PostgreSQL, or RLS success.
-- Main CI run [#44995876495](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44995876495) targets the older SHA `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45`, not current main. Its Windows quality-gates job is still in progress; it is not current-main evidence.
+- Main CI run [#44995876495](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44995876495) targets the older SHA `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45`, not current main, and has now completed **failure**. Locked dependency installation succeeded, but the Windows quality-gates job stopped at `docker info` because Docker Desktop Linux Engine's named pipe `//./pipe/dockerDesktopLinuxEngine` was missing; Ollama verification and all migration/schema/audit/script-policy/unit/type/lint/build checks were skipped. This older-SHA failure is not current-main evidence.
 - Preflight run [#44999879809](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879809) targets exact current main SHA `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f` and completed **failure**. Toolchain verification, local Ollama synthetic plan generation, and Ollama patch proposal succeeded. Disposable-container isolation failed; all sandbox patch application, restricted dependency installation, offline candidate tests, publisher dry-run, and host-independent full quality checks were skipped.
 - The Preflight isolation failure is an environment blocker: Docker CLI exists, but Docker Desktop Linux Engine's named pipe `//./pipe/dockerDesktopLinuxEngine` is unavailable. PR #327 makes diagnostic inventory nonfatal; it does not repair Docker Engine or waive the mandatory disposable-container gate.
 - Do not execute candidate code directly on the Windows host, treat WSL presence as isolation, or weaken pinned-image/no-network/non-root/read-only/capability/resource restrictions.
@@ -792,3 +792,10 @@ This checkpoint supersedes every earlier live snapshot above wherever the main S
 5. Only then implement and activate the bounded A→B projection and B tenancy enforcement.
 
 **Authority boundary:** this checkpoint changes documentation only. It does not modify Factory runtime/state, task/lease/retry/cooldown/quarantine, scheduler or Runner policy, workflow permissions, secrets, production data, deployments, or B Runtime behavior.
+
+
+### Superseding PR #328 validation update — 2026-11-22 16:05 Taiwan
+- Re-inspected Main CI run #44995876495 job logs: it is **completed failure**, not in progress. The failure is precisely the missing Docker Desktop Linux Engine named pipe; downstream quality checks were skipped. This correction supersedes the earlier status sentence above.
+- Current-main CI run #44999879910 still reports pending with no allocated jobs.
+- PR #328 exact-head run #45000178867 is pending at resolver metadata stage. Commit status currently reports Vercel **failure** with target URL indicating a build-rate-limit/plan restriction; this is external deployment status, not a passing CI result or a source-code diagnosis. PR #328 has no submitted reviews and no inline review threads at this inspection.
+- No acceptance or merge is authorized by these observations. Keep PR #328 Draft until its exact-head checks and required review are resolved.
