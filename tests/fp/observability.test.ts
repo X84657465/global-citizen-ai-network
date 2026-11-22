@@ -97,6 +97,13 @@ test("fails closed when hostile proxy reflection traps throw", () => {
   for (const createProxy of trapFactories) {
     assert.throws(() => recorder.record(createProxy(event()) as never), TypeError);
   }
+
+  const revoked = Proxy.revocable(event(), {});
+  revoked.revoke();
+  assert.throws(
+    () => recorder.record(revoked.proxy as never),
+    (error: unknown) => error instanceof TypeError && error.message === "Invalid F–P observability event.",
+  );
   assert.equal(recorder.list().length, 0);
 });
 
