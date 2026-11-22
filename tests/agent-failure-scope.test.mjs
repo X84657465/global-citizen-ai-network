@@ -28,7 +28,7 @@ test("missing or unavailable GitHub Actions environment files do not throw", () 
 
 test("publisher classifies default-branch drift as a task-scoped candidate failure", () => {
   const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8");
-  assert.match(publisher, /const failTask = \(message\) => \{\\n  markAgentFactoryTaskFailure\(process\.env\.GITHUB_ENV\);\\n  fail\(message\);\\n\};/);
+  assert.match(publisher, /const failTask = \(message\) => \{\s*markAgentFactoryTaskFailure\(process\.env\.GITHUB_ENV\);\s*fail\(message\);\s*\};/);
   assert.match(publisher, /failTask\("Default branch advanced after candidate tests; rerun the task against the latest base\."\)/);
   assert.match(publisher, /failTask\("Default branch advanced during publication; rerun the task against the latest base\."\)/);
 });
