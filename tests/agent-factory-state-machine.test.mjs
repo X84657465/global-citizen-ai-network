@@ -4,7 +4,7 @@ import {
   createInitialFactoryState, reserveTask, transitionTask, recordTaskFailure,
   recordSystemFailure, recordTaskSuccess, recordSystemSuccess,
   recoverExpiredLease, requeueTask, recordCandidateFailure, recordCandidateStarted, isSystemCooldownActive, validateFactoryState, getTaskRetryAt,
-  normalizeLegacyRetryTimestamps,
+  normalizeLegacyRetryTimestamps, recoverQuarantinedTask,
 } from "../lib/agent-factory-state-machine.mjs";
 
 const metadata = (overrides = {}) => ({
@@ -1124,4 +1124,158 @@ test("rejects malformed publication evidence before changing the active task sta
     assert.equal(reserved.active_task.state, "reserved");
     assert.equal(reserved.tasks["42"].status, "reserved");
   }
+});
+
+
+function quarantinedTaskState(overrides = {}) {
+  const state = createInitialFactoryState(1000);
+  state.tasks["42"] = {
+    status: "quarantined",
+    attempts: 4,
+    failures: 3,
+    candidate_failures: 3,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: { code: "TASK_FAILURE", summary: "Repeated candidate failure", at: new Date(900).toISOString() },
+    last_success_at: null,
+    candidate_status: "failure",
+    candidate_error: "Candidate checks failed",
+    candidate_failed_at: new Date(900).toISOString(),
+    head_sha: "b".repeat(40),
+    pull_request_number: 88,
+    ci_run_id: "ci-run-123456",
+    ci_run_attempt: 1,
+    candidate_failure_history: [{
+      head_sha: "b".repeat(40),
+      pull_request_number: 88,
+      ci_run_id: "ci-run-123456",
+      ci_run_attempt: 1,
+      summary: "Candidate checks failed",
+      failed_at: new Date(900).toISOString(),
+    }],
+    ...overrides,
+  };
+  return state;
+}
+
+function quarantineRecoveryInput(state, overrides = {}) {
+  const issueNumber = 42;
+  const expectedStateVersion = state.state_version;
+  const evidenceIdentity = "c".repeat(64);
+  return {
+    issue_number: issueNumber,
+    expected_state_version: expectedStateVersion,
+    expected_status: "quarantined",
+    recovery_reason: "Reviewed fix addresses the repeated candidate failure.",
+    evidence_reference: "https://github.com/X84657465/global-citizen-ai-network/commit/" + "d".repeat(40),
+    evidence_identity: evidenceIdentity,
+    event_key: "quarantine-recovery-" + issueNumber + "-v" + expectedStateVersion + "-" + evidenceIdentity,
+    ...overrides,
+  };
+}
+
+test("recovers only the exact quarantined task with bounded retry and preserves history", () => {
+  const initial = quarantinedTaskState();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(90_000).toISOString();
+  initial.system.last_error_code = "RUNNER_FAILURE";
+  initial.system.last_error = "Unrelated infrastructure failure";
+  const beforeTask = structuredClone(initial.tasks["42"]);
+  const beforeSystem = structuredClone(initial.system);
+  const input = quarantineRecoveryInput(initial);
+
+  const result = recoverQuarantinedTask(initial, input, 2_000);
+  const recovered = result.state.tasks["42"];
+  assert.equal(result.recovered, true);
+  assert.equal(result.issue_number, 42);
+  assert.equal(recovered.status, "retry_wait");
+  assert.equal(recovered.quarantined, false);
+  assert.equal(Date.parse(recovered.next_attempt_at), 62_000);
+  assert.equal(recovered.attempts, beforeTask.attempts);
+  assert.equal(recovered.failures, beforeTask.failures);
+  assert.equal(recovered.candidate_failures, beforeTask.candidate_failures);
+  assert.deepEqual(recovered.last_error, beforeTask.last_error);
+  assert.deepEqual(recovered.candidate_failure_history, beforeTask.candidate_failure_history);
+  assert.equal(recovered.candidate_error, beforeTask.candidate_error);
+  assert.equal(recovered.candidate_status, undefined);
+  assert.deepEqual(recovered.recovery, {
+    reason: input.recovery_reason,
+    evidence_reference: input.evidence_reference,
+    evidence_identity: input.evidence_identity,
+    recovered_at: new Date(2_000).toISOString(),
+  });
+  assert.deepEqual(result.state.system, beforeSystem);
+  assert.equal(result.state.active_task, null);
+  assert.equal(validateFactoryState(result.state), true);
+});
+
+test("quarantine recovery rejects missing authorization context, invalid evidence, and malformed event identity", () => {
+  const state = quarantinedTaskState();
+  const valid = quarantineRecoveryInput(state);
+  const invalidInputs = [
+    [{ ...valid, expected_status: "retry_wait" }, /Expected task status/],
+    [{ ...valid, recovery_reason: "  " }, /Recovery reason/],
+    [{ ...valid, recovery_reason: "x".repeat(501) }, /Recovery reason/],
+    [{ ...valid, evidence_reference: "http://github.com/owner/repo/commit/abc" }, /HTTPS GitHub URL/],
+    [{ ...valid, evidence_reference: "https://example.com/fix" }, /HTTPS GitHub URL/],
+    [{ ...valid, evidence_identity: "not-a-digest" }, /SHA-256/],
+    [{ ...valid, event_key: "unrelated-event-0001" }, /event key must bind/],
+  ];
+  for (const [input, pattern] of invalidInputs) {
+    assert.throws(() => recoverQuarantinedTask(state, input, 2_000), pattern);
+    assert.equal(state.state_version, 0);
+    assert.equal(state.tasks["42"].status, "quarantined");
+  }
+});
+
+test("quarantine recovery fails closed on stale state version and non-quarantined task", () => {
+  const staleState = quarantinedTaskState();
+  assert.throws(
+    () => recoverQuarantinedTask(staleState, quarantineRecoveryInput(staleState, {
+      expected_state_version: 1,
+      event_key: "quarantine-recovery-42-v1-" + "c".repeat(64),
+    }), 2_000),
+    /state version changed/,
+  );
+
+  const activeState = quarantinedTaskState();
+  activeState.tasks["42"].status = "retry_wait";
+  activeState.tasks["42"].quarantined = false;
+  activeState.tasks["42"].next_attempt_at = new Date(1_500).toISOString();
+  assert.throws(
+    () => recoverQuarantinedTask(activeState, quarantineRecoveryInput(activeState), 2_000),
+    /not quarantined/,
+  );
+});
+
+test("quarantine recovery is idempotent and duplicate events do not advance state", () => {
+  const initial = quarantinedTaskState();
+  const input = quarantineRecoveryInput(initial);
+  const first = recoverQuarantinedTask(initial, input, 2_000);
+  const duplicate = recoverQuarantinedTask(first.state, input, 3_000);
+  assert.equal(first.recovered, true);
+  assert.equal(duplicate.duplicate, true);
+  assert.equal(duplicate.state, first.state);
+  assert.equal(duplicate.state.state_version, 1);
+  assert.equal(duplicate.state.processed_events.length, 1);
+});
+
+test("quarantine recovery rejects a task that still owns an active lease", () => {
+  const state = quarantinedTaskState();
+  state.active_task = {
+    issue_number: 42, attempt: 4, state: "quarantined",
+    lease_id: "lease-00000042", lease_owner: "runner",
+    lease_started_at: new Date(100).toISOString(),
+    lease_expires_at: new Date(10_000).toISOString(),
+    workflow_run_id: "run-123456", run_attempt: 1,
+    base_sha: "a".repeat(40), idempotency_key: "lease-event-42",
+  };
+  state.tasks["42"].lease_id = "lease-00000042";
+  state.tasks["42"].workflow_run_id = "run-123456";
+  state.tasks["42"].run_attempt = 1;
+  state.tasks["42"].base_sha = "a".repeat(40);
+  assert.throws(
+    () => recoverQuarantinedTask(state, quarantineRecoveryInput(state), 2_000),
+    /active worker lease/,
+  );
 });
