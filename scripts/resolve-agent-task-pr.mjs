@@ -1,4 +1,4 @@
-import { appendFileSync } from "node:fs";
+import { appendFileSync, writeFileSync } from "node:fs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
 import {
@@ -9,6 +9,31 @@ import {
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
 const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\/+$/, "");
+const resolverDiagnosticsOutput = process.env.RESOLVER_DIAGNOSTICS_OUTPUT ?? "";
+let resolverStage = "startup";
+
+function writeResolverDiagnostic(error) {
+  if (!resolverDiagnosticsOutput) return;
+  const safePath = typeof error?.path === "string" &&
+    /^\/repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/(pulls|issues)\/\d+$/.test(error.path)
+    ? error.path
+    : "";
+  const evidence = {
+    schemaVersion: 1,
+    stage: resolverStage,
+    errorName: typeof error?.name === "string" ? error.name.slice(0, 80) : "Error",
+    httpStatus: Number.isInteger(error?.status) ? error.status : null,
+    method: typeof error?.method === "string" ? error.method.slice(0, 12) : "",
+    path: safePath,
+    rateLimited: error?.rateLimited === true,
+    retryAfterMs: Number.isFinite(error?.retryAfterMs) ? error.retryAfterMs : null,
+  };
+  try {
+    writeFileSync(resolverDiagnosticsOutput, JSON.stringify(evidence, null, 2) + "\\n", "utf8");
+  } catch {
+    console.error("Resolver redacted diagnostic artifact could not be written.");
+  }
+}
 
 function writeOutput(key, value) {
   const output = process.env.GITHUB_OUTPUT;
@@ -17,11 +42,10 @@ function writeOutput(key, value) {
   appendFileSync(output, key + "=" + safeValue + "\n", "utf8");
 }
 
-async function main() {
-  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
+async function main() {\n  resolverStage = "validate_environment";\n  if (!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
     throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
   }
-  const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);
+  resolverStage = "parse_event_metadata";\n  const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);
   const api = createGitHubApiClient({
     baseUrl: apiBase,
     token,
@@ -41,8 +65,7 @@ async function main() {
     return;
   }
 
-  let pull;
-  console.log("Resolver stage: requesting PR metadata; repository=" + repository + ", pull_request=" + pullRequestNumber + ".");
+  let pull;\n  resolverStage = "fetch_pull_request";\n  console.log("Resolver stage: requesting PR metadata; repository=" + repository + ", pull_request=" + pullRequestNumber + ".");
   try {
     pull = await api.request("/repos/" + repository + "/pulls/" + pullRequestNumber);
     console.log("Resolver stage: PR metadata received; state=" + String(pull.state ?? "unknown") +
@@ -105,7 +128,7 @@ async function main() {
   // Defer the Issue scan until an authorized AI-task PR actually needs it.
   let stateIssueNumber = "";
   if (isTaskPr) {
-    const stateStore = createFactoryStateStore(api, {
+    resolverStage = "read_factory_state";\n    const stateStore = createFactoryStateStore(api, {
       repository,
       issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
     });
@@ -113,7 +136,7 @@ async function main() {
     const stateRecord = await stateStore.read();
     stateIssueNumber = stateRecord.issue?.number ?? "";
   }
-  writeOutput("state_issue_number", stateIssueNumber);
+  resolverStage = "write_outputs";\n  writeOutput("state_issue_number", stateIssueNumber);
 
   writeOutput("is_current_head", currentHead ? "true" : "false");
   writeOutput("is_task_pr", isTaskPr ? "true" : "false");
@@ -133,6 +156,12 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("Candidate PR metadata resolution failed: " + (error instanceof Error ? error.message : String(error)));
+  writeResolverDiagnostic(error);
+  console.error("Candidate PR metadata resolution failed: stage=" + resolverStage +
+    ", name=" + String(error?.name ?? "Error") +
+    ", status=" + String(error?.status ?? "unknown") +
+    ", method=" + String(error?.method ?? "unknown") +
+    ", path=" + String(error?.path ?? "unknown") +
+    ", rate_limited=" + String(error?.rateLimited === true) + ".");
   process.exitCode = 1;
 });
