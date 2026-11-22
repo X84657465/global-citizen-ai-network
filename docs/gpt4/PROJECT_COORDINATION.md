@@ -3,7 +3,7 @@
 > **Owner：** GPT4 — B-Line Product Lead / GCAN Product Owner（工程交付責任）
 > **工作線：** B — Global Citizen AI Network
 > **文件狀態：** Draft；本文件位於獨立 PR，合併前不宣稱已在 main 完成採納。
-> **建立基準：** main `600b0f0f804ea0907684038bed88ed0f034b588e`（2026-11-23）
+> **初始分支基準：** main `f4439b4db2d361d4a40005f7aedb8e19ff743908`（2026-11-23）
 > **治理依據：** main `PROJECT_COORDINATION.md`、main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`，以及 PR #376 中的 B Line Lead Charter / Product North Star 候選文件。
 
 本文件是 GPT4 的角色工作協調紀錄，不取代 Repository 根目錄的正式 `PROJECT_COORDINATION.md`，不修改其他 GPT 的角色或 A–P 模組 owner，也不授予額外權限。若本文件與最新 main 正式規範衝突，以最新 main 及專案負責人的明確決策為準。
@@ -136,7 +136,7 @@ SKIPPED、NOT RUN、PENDING、BLOCKED 不得標示為 PASS。舊 SHA 的 CI 不�
 
 > 本節是建立文件時的觀測快照；每次接手工作都必須重新查詢，不可把此快照當成永久即時狀態。
 
-- main SHA：`600b0f0f804ea0907684038bed88ed0f034b588e`。
+- main SHA：`f4439b4db2d361d4a40005f7aedb8e19ff743908`。
 - Overall version：`0.3.136`；B Product：`0.1.20`。
 - PR #391 Workspace Navigation：當時 Metadata Resolver 與 Windows Quality Gates PASS；PostgreSQL／RLS integration 為 IN_PROGRESS，Ollama integration 為 PENDING；PR 為 Draft，尚無正式獨立批准。此狀態需重新查證。
 - PR #374 Factory schedule offset：先前 exact-head CI 已通過必要工作，但正式 APPROVE 尚未提供；GPT4 不代替 GPT3 審查或合併。
