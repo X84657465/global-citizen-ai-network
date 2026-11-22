@@ -387,3 +387,77 @@ test("rejects Proxy reflection traps that report unexpected own keys or invalid 
   });
   assert.throws(() => assessFPGovernanceDossier(invalidDescriptor), TypeError);
 });
+
+
+test("rejects non-primitive string and enum fields before any attacker-controlled coercion", () => {
+  const makeCoercionValue = () => {
+    let coercionCalls = 0;
+    const value = new Proxy({
+      [Symbol.toPrimitive]() {
+        coercionCalls += 1;
+        throw new Error("unexpected primitive coercion");
+      },
+      toString() {
+        coercionCalls += 1;
+        throw new Error("unexpected string coercion");
+      },
+    }, {
+      get(target, property, receiver) {
+        if (property === Symbol.toPrimitive || property === "toString") coercionCalls += 1;
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    return { value, coercionCalls: () => coercionCalls };
+  };
+
+  const replaceRoot = (field: "candidateSha" | "policyVersion", value: unknown): FPGovernanceDossier =>
+    ({ ...dossier(), [field]: value }) as unknown as FPGovernanceDossier;
+  const replaceWorkstream = (field: "workstream" | "ownerRef" | "lifecycle", value: unknown): FPGovernanceDossier => {
+    const base = dossier();
+    const workstreams = [...base.workstreams];
+    workstreams[0] = { ...workstreams[0], [field]: value } as typeof workstreams[number];
+    return dossier({ workstreams });
+  };
+  const replaceEvidence = (field: "kind" | "testedSha" | "status" | "evidenceRef", value: unknown): FPGovernanceDossier => {
+    const base = dossier();
+    const workstreams = [...base.workstreams];
+    workstreams[0] = {
+      ...workstreams[0],
+      evidence: [{ ...workstreams[0].evidence[0], [field]: value }],
+    } as typeof workstreams[number];
+    return dossier({ workstreams });
+  };
+  const replaceReview = (
+    field: "reviewedSha" | "decision" | "reviewRef" | "reviewerRef" |
+      "reviewerAuthorizationRef" | "reviewerAuthorizationStatus" | "submittedAt",
+    value: unknown,
+  ): FPGovernanceDossier => ({
+    ...dossier(),
+    reviews: [{ ...review(), [field]: value }] as unknown as FPGovernanceReviewEvidence[],
+  });
+
+  const cases: Array<[string, (value: unknown) => FPGovernanceDossier]> = [
+    ["candidateSha", (value) => replaceRoot("candidateSha", value)],
+    ["policyVersion", (value) => replaceRoot("policyVersion", value)],
+    ["workstream", (value) => replaceWorkstream("workstream", value)],
+    ["ownerRef", (value) => replaceWorkstream("ownerRef", value)],
+    ["lifecycle", (value) => replaceWorkstream("lifecycle", value)],
+    ["evidence.kind", (value) => replaceEvidence("kind", value)],
+    ["evidence.testedSha", (value) => replaceEvidence("testedSha", value)],
+    ["evidence.status", (value) => replaceEvidence("status", value)],
+    ["evidence.evidenceRef", (value) => replaceEvidence("evidenceRef", value)],
+    ["review.reviewedSha", (value) => replaceReview("reviewedSha", value)],
+    ["review.decision", (value) => replaceReview("decision", value)],
+    ["review.reviewRef", (value) => replaceReview("reviewRef", value)],
+    ["review.reviewerRef", (value) => replaceReview("reviewerRef", value)],
+    ["review.reviewerAuthorizationRef", (value) => replaceReview("reviewerAuthorizationRef", value)],
+    ["review.reviewerAuthorizationStatus", (value) => replaceReview("reviewerAuthorizationStatus", value)],
+    ["review.submittedAt", (value) => replaceReview("submittedAt", value)],
+  ];
+
+  for (const [field, build] of cases) {
+    const hostile = makeCoercionValue();
+    assert.throws(() => assessFPGovernanceDossier(build(hostile.value)), TypeError, field);
+    assert.equal(hostile.coercionCalls(), 0, field);
+  }
+});
