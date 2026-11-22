@@ -262,3 +262,31 @@ test("change-log noun phrase is not treated as a production change command", () 
   assert.equal(result.evidence.high_risk_scope_detected, false, title);
   assert.equal(result.decision, "approve_for_sandbox_validation", title);
 });
+
+
+test("modal requests for object-target operations remain high risk", () => {
+  for (const title of [
+    "Can you deploy the service to production",
+    "Could you deploy the service to production",
+    "Would you deploy the service to production",
+    "Could you please deploy the service to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("modal requests to inspect production evidence remain non-mutating", () => {
+  for (const title of [
+    "Can you review production deployment metrics",
+    "Could you inspect the production migration plan",
+    "Would you review change log to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
