@@ -24,7 +24,7 @@
 
 主要責任：
 - A：Agent Factory V2（最高優先級）。
-- B：GCAN Product（Factory 銜接準備與 B 主線）。
+- B：Factory→Product 公開介面、版本相容與交接協調（不擁有 B 產品方向、需求、UX 或交付；由 GPT 4 負責）。
 - C：Predictive Coding。
 - D：Deep Neural。
 - E：Deep Research。
@@ -77,10 +77,10 @@
 
 ### GPT 4：B — GCAN Product 產品負責人
 
-GPT4 是 GCAN B 產品主線的正式負責人，依 PR #376 所建立的 `GCAN_B_LINE_LEAD_CHARTER.md` 與 `GCAN_PRODUCT_NORTH_STAR.md` 執行。GPT4 對 B 產品方向、需求、產品契約、使用者體驗、產品交付、品質、營運與演進負責；A→B 仍須遵守 GPT1 的 Factory 交接及 GPT3 的獨立驗收。
+GPT4 是 GCAN B 產品主線的正式負責人。`GCAN_B_LINE_LEAD_CHARTER.md` 與 `GCAN_PRODUCT_NORTH_STAR.md` 目前仍在 PR #376 候選分支，尚未進入 main；合併及完成 exact-head CI／獨立審查前，不得將其描述為 mainline 已具備的正式文件。GPT4 對 B 產品方向、需求、產品契約、使用者體驗、產品交付、品質、營運與演進負責；A→B 仍須遵守 GPT1 的 Factory 交接及 GPT3 的獨立驗收。
 
 主要工作要求：
-- 先閱讀 B 線負責人章程、產品北極星、協調文件及 B 主線最新狀態。
+- 先閱讀 main 已存在的 B 產品文件、協調文件及 B 主線最新狀態；PR #376 的章程與產品北極星在合併前僅屬候選文件。
 - 負責 B 產品探索、需求分析、產品策略、資訊架構、UX、技術產品契約與路線圖。
 - 維護 B 工作區、會員旅程、產品流程、分析指標、成本與商業驗證規劃。
 - 以明確契約承接 Factory 公開資料，不得直接讀取 Factory 私有狀態、內部資料表或 Runner 權限。
@@ -296,7 +296,7 @@ P4：非必要擴充、重構與外觀改善。
 - GPT 1：A–E／Agent Factory V2 主線。
 - GPT 2：F–P 平行專業能力建設。
 - GPT 3：跨 A–P 獨立架構審查、整合與 QA。
-- GPT 4：B — GCAN Product 產品負責角色，依 PR #376 的 B 線正式章程及產品北極星執行。
+- GPT 4：B — GCAN Product 產品負責角色；PR #376 的 B 線章程與產品北極星仍屬候選，尚未合併至 main。
 - GPT 5：Global Intelligence & Operations，全域情報研究與營運支援；不擁有 A–P 模組、不取代核心 owner 或 GPT3 獨立驗收。
 - 五個 GPT 不假設彼此共享對話、隱性記憶或即時私訊能力；共同事實必須落在 Repository、Issues、PR、commits、CI 與正式文件。
 
