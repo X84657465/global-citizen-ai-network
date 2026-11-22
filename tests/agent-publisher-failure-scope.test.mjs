@@ -34,3 +34,12 @@ test("preserves the original publisher failure when writing the workflow environ
   assert.equal(persistPublicationFailureScope("task", { GITHUB_ENV: "/unavailable" }, append), false);
   assert.equal(writes.length, 0);
 });
+
+
+test("both explicit default-branch drift guards persist the stale-base task classification", () => {
+  const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8");
+  const afterTests = 'fail("Default branch advanced after candidate tests; rerun the task against the latest base.", "task");';
+  const duringPublish = 'fail("Default branch advanced during publication; rerun the task against the latest base.", "task");';
+  assert.equal(publisher.split(afterTests).length - 1, 1);
+  assert.equal(publisher.split(duringPublish).length - 1, 1);
+});
