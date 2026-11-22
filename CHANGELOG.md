@@ -1,3 +1,9 @@
+## 0.3.135 — 2026-11-22
+
+- K: add reusable architecture index, evidence-first work-item record, handoff checklist and decision-record template.
+- Establish K workstream change history and synchronize the repository release metadata.
+- Documentation-only change; no A–E implementation, Factory runtime, production data or deployment changes.
+
 ## 0.3.134 — 2026-11-22
 
 - P: extend the executable A–P version contract to validate the engineering-workstream planning baseline against the canonical release version.
