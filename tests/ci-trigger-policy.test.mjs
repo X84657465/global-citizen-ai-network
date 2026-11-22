@@ -723,7 +723,16 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
   assert.equal(prepareSection.slice(prepareSection.indexOf("      - name: Upload exact validated publication bundle"), prepareSection.indexOf("      - name: Classify known task-scoped failures")).includes("artifacts/agent-scratch.json"), false,
     "the machine-local scratch directory path must never be uploaded");
 
-  assert.ok(publishSection.includes("needs: [prepare-task]"));
+  const begin = findJobSection(jobsSource, "begin-publication");
+  const beginSection = jobsSource.slice(begin.start, begin.end);
+  assert.ok(beginSection.includes("NEXT_TASK_STATE: publishing"));
+  assert.ok(beginSection.includes("issues: write"));
+  assert.ok(beginSection.includes("contents: read"));
+  assert.ok(publishSection.includes("needs: [prepare-task, begin-publication]"));
+  assert.ok(publishSection.includes("needs.begin-publication.result == 'success'"));
+  assert.ok(recordSection.includes("needs: [prepare-task, begin-publication, publish-task]"));
+  assert.equal(recordSection.includes("NEXT_TASK_STATE: publishing"), false,
+    "the durable publishing transition must complete before the publisher job starts");
   assert.ok(publishSection.includes("contents: write"));
   assert.ok(publishSection.includes("pull-requests: write"));
   assert.ok(publishSection.includes("issues: none"), "publisher must not receive issue-write permission");
