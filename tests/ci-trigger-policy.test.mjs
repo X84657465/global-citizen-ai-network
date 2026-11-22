@@ -18,6 +18,15 @@ function findJobSection(source, name) {
   return { start, end: headers[0] ? start + 1 + headers[0].index : source.length };
 }
 
+function findNamedStepBlock(source, name, sectionStart = 0, sectionEnd = source.length) {
+  const marker = "      - name: " + name + "\n";
+  const start = source.indexOf(marker, sectionStart);
+  assert.ok(start >= 0 && start < sectionEnd, "missing workflow step: " + name);
+  const next = source.indexOf("\n      - name:", start + marker.length);
+  const end = next >= 0 && next < sectionEnd ? next : sectionEnd;
+  return source.slice(start, end);
+}
+
 test("root and Agent Factory numeric release metadata stay synchronized", () => {
   const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   const packageLock = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url), "utf8"));
