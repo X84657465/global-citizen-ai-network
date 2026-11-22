@@ -1,3 +1,7 @@
+## 0.3.138 — 2026-11-22
+
+- P: validate the README's advertised P workstream version against the manifest and add a drift regression.
+
 ## 0.3.137 — 2026-11-22
 
 - P: require the latest dated entry, not any historical matching heading, in overall and F–P workstream changelogs.
