@@ -1,3 +1,20 @@
+## 0.3.133 — 2026-11-22
+
+- H: accept only plain data records with required own data properties; reject inherited values, accessors and exotic prototypes at the untrusted telemetry boundary.
+- Add regression tests for inherited event fields and getter-backed event/bundle fields.
+
+
+- H: reject undeclared event and bundle fields at the observability evaluator boundary to prevent arbitrary payload metadata from entering the privacy-minimized contract.
+- Add regression coverage for member identifiers, prompts and unexpected bundle metadata; H remains planned pending trusted collection and operational acceptance.
+
+## 0.3.131 — 2026-11-22
+
+- H: add deterministic, privacy-minimized queue/runner/task/cost observability evaluation.
+- Validate canonical UTC windows, opaque event IDs, bounded event batches and durations, and integer micro-unit cost aggregation.
+- Reject duplicate/out-of-window events, mixed currencies, malformed cost provenance and unsafe aggregate precision.
+- Quota warning/exceeded states remain advisory; no billing, telemetry collection, quota enforcement or runner mutation is enabled.
+- Keep H planned until trusted collector coverage, retention, alerting, SLO and independent acceptance evidence are available.
+
 ## 0.3.130 — 2026-11-22
 
 - F: require security evidence to bind to the exact GitHub Actions run attempt and matching job attempt metadata.
