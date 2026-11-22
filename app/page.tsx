@@ -188,6 +188,27 @@ export default function HomePage() {
     <div className={styles.factoryGovernanceRoles}><b>GPT1–GPT5 共同執行</b><p><strong>GPT1／A–E</strong> 建設整合 Factory；<strong>GPT2／F–P</strong> 提供領域規格與驗收；<strong>GPT3</strong> 獨立架構、安全及 QA；<strong>GPT4／B</strong> 負責產品需求與產品驗收；<strong>GPT5</strong> 提供有來源的技術與風險情報。各線透過 Issue、PR、Review、CI、ADR 與 handoff 協作，每項任務唯一 DRI。</p><p className={styles.factoryGovernanceWarning}>治理規則不是功能完成證明。沒有精確 SHA、測試／CI 與獨立審查證據，一律不得宣稱 VERIFIED 或 ACCEPTED；合併、部署、付費、權限及不可逆操作仍須依核准流程。</p></div>
     <a className={styles.factoryGovernanceLink} href="https://github.com/X84657465/global-citizen-ai-network/blob/docs/gcan-autonomous-intelligence-production-core/docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md" target="_blank" rel="noreferrer">閱讀完整治理總綱與驗收規格 <ArrowUpRight size={15}/></a>
    </section>
+
+   <section className={styles.factoryNextRoadmap} id="factory-f13-f19" aria-labelledby="factory-f13-f19-title">
+    <div className={styles.factoryGovernanceHeader}>
+     <div className={styles.sectionEyebrow}>FACTORY PHASE II · F13–F19</div>
+     <h2 id="factory-f13-f19-title">從自主工程工廠，走向<em>全球智慧協作網路</em></h2>
+     <p>F13–F19 是 F12 生產級驗收後的第二階段路線。每一階段都必須有真實任務、明確 DRI、精確 SHA、測試、CI、獨立審查及人類核准紀錄；此路線圖不代表功能已上線。</p>
+    </div>
+    <div className={styles.factoryNextNotice}><b>階段入口：F12 ACCEPTED</b><span>F13 → F14／F15／F16 → F17 → F18 → F19。前置條件未達、證據不足或風險不可控時，該工作包維持 BLOCKED，不得跳級。</span></div>
+    <div className={styles.factoryNextGrid}>
+     <article className={styles.factoryNextCard}><span>F13 · RESEARCH INTELLIGENCE</span><h3>研究與情報引擎</h3><p>接入經授權的研究來源，完成擷取、解析、去重、索引、主張抽取、交叉核對與來源引用；追蹤時效、版本、衝突及可信度。</p><b>驗收：每項重要主張可反查來源並重建研究結果。</b></article>
+     <article className={styles.factoryNextCard}><span>F14 · PRODUCT ASSEMBLY</span><h3>產品與解決方案組裝</h3><p>把核准需求、UX、架構、API／資料契約及已驗證能力組成可交付方案；產生 Issue DAG、實作候選、測試矩陣與交付包。</p><b>驗收：需求到程式、測試與產品接受條件雙向追溯。</b></article>
+     <article className={styles.factoryNextCard}><span>F15 · FEDERATED AGENTS</span><h3>聯邦多智能體協作</h3><p>建立 Agent 身分、能力註冊、版本化協定、受控委派、事件追蹤、租約、取消、撤銷及跨節點故障處理。</p><b>驗收：隔離節點可委派、驗證、撤權、稽核並抵禦重放。</b></article>
+     <article className={styles.factoryNextCard}><span>F16 · OPERATIONS INTELLIGENCE</span><h3>營運與商業智慧</h3><p>整合經授權事件與指標，提供資料品質、KPI、異常偵測、容量／成本預測、瓶頸分析及可審核的行動建議。</p><b>驗收：指標可重算、來源可追溯，預設只讀與建議模式。</b></article>
+     <article className={styles.factoryNextCard}><span>F17 · MODEL LIFECYCLE</span><h3>模型生命週期與持續評估</h3><p>管理模型、提示、工具策略版本；建立 benchmark、安全紅隊、漂移監控、成本比較、灰度切換及回滾。</p><b>驗收：升級可重現比較，退化可偵測並回復已接受版本。</b></article>
+     <article className={styles.factoryNextCard}><span>F18 · CAPABILITY ECOSYSTEM</span><h3>能力生態系與擴充市集</h3><p>管理 Worker、Skill、Tool、Connector、Workflow 與 Template 的登錄、簽章、相依性、沙箱、權限、更新及撤銷。</p><b>驗收：未授權擴充遭拒，安裝與撤銷全程可稽核。</b></article>
+     <article className={styles.factoryNextCard}><span>F19 · GLOBAL INTELLIGENCE NETWORK</span><h3>受治理的全球智慧網路</h3><p>整合研究、產品、聯邦 Agent、營運、模型與能力生態；支援跨專案／組織協作、資料主權、政策傳播及退出機制。</p><b>驗收：多節點跨域任務可授權、追溯、撤回、隔離及獨立審查。</b></article>
+    </div>
+    <div className={styles.factoryNextGovernance}><b>GPT1–GPT5 強制協作分工</b><p><strong>GPT1／A–E：</strong>Factory 架構、實作、整合與交付；<strong>GPT2／F–P：</strong>領域規格、邊界案例、資料／法規風險與領域驗收；<strong>GPT3：</strong>獨立架構、安全、整合與 QA，不審查自己主導的實作；<strong>GPT4／B：</strong>產品方向、需求、UX、產品契約及產品接受；<strong>GPT5：</strong>可追溯研究、技術／供應鏈情報及授權範圍內支援。所有協作以 Issue、PR、Review、CI、ADR 與 handoff 為共同證據，每個任務只有一位 DRI。</p><p className={styles.factoryGovernanceWarning}>正式合併、部署、付費資源、憑證／權限變更、正式資料寫入與不可逆操作仍須明確授權。任何階段不得自我核准、越權或把文件規格當成功能完成證明。</p>
+    </div>
+    <a className={styles.factoryGovernanceLink} href="https://github.com/X84657465/global-citizen-ai-network/blob/docs/gcan-autonomous-intelligence-production-core/docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md" target="_blank" rel="noreferrer">閱讀 F13–F19 完整總綱與驗收規格 <ArrowUpRight size={15}/></a>
+   </section>
    <section className={styles.docsSection} id="documentation"><div className={styles.docsHeading}><div><div className={styles.sectionEyebrow}>DOCUMENTATION & EVIDENCE</div><h2>網站說明與 GitHub 文件使用同一套定義</h2><p>架構、工作線責任、版本與技術細節以專案文件為準；首頁只呈現易讀摘要與各線入口。</p></div><a className={styles.textLink} href="https://github.com/X84657465/global-citizen-ai-network" target="_blank" rel="noreferrer">前往 GitHub 專案 <ArrowUpRight size={15}/></a></div><div className={styles.docsGrid}>{docs.map(({title,text,href,icon:Icon})=><a href={href} className={styles.docCard} key={title} target="_blank" rel="noreferrer"><span><Icon size={18}/></span><div><b>{title}</b><p>{text}</p></div><ArrowUpRight size={15}/></a>)}</div></section>
    <section className={styles.finalCta}><div className={styles.finalCtaMark}><Globe2 size={23}/></div><div><div className={styles.sectionEyebrow}>BUILD TOGETHER · LEARN TOGETHER</div><h2>讓每一份貢獻，都成為可驗證的進步</h2><p>GCAN 正在持續建置。歡迎先了解產品、檢視 A–O 工作線、P 治理與公開開發紀錄。</p></div><a href="https://github.com/X84657465/global-citizen-ai-network" className={styles.finalCtaButton} target="_blank" rel="noreferrer">查看 GitHub <ArrowRight size={16}/></a></section>
   </main>
