@@ -1,4 +1,8 @@
-## 0.3.132 — 2026-11-22
+## 0.3.133 — 2026-11-22
+
+- H: accept only plain data records with required own data properties; reject inherited values, accessors and exotic prototypes at the untrusted telemetry boundary.
+- Add regression tests for inherited event fields and getter-backed event/bundle fields.
+
 
 - H: reject undeclared event and bundle fields at the observability evaluator boundary to prevent arbitrary payload metadata from entering the privacy-minimized contract.
 - Add regression coverage for member identifiers, prompts and unexpected bundle metadata; H remains planned pending trusted collection and operational acceptance.
