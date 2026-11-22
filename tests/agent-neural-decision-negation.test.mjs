@@ -172,3 +172,18 @@ test("actionable high-impact operations remain rejected after narrowing prose cu
     assert.equal(result.decision, "reject_and_replan", title);
   }
 });
+
+test("passive deployment and migration evidence reviews remain non-mutating", () => {
+  for (const title of [
+    "Review deployment history",
+    "Inspect the production migration plan",
+    "Audit credential rotation history",
+    "Verify production deployment status",
+    "Read the billing change audit report",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
