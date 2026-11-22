@@ -1,4 +1,10 @@
-## 0.3.126 — 2026-11-22
+## 0.3.128 — 2026-11-22
+
+- H: harden telemetry cost provenance and explicitly mark event completeness as unverifiable without trusted collector coverage.
+- Require cost fields only on cost events with explicit non-negative integer micro-units and supported currency.
+- Add regression coverage and synchronize README, governance, package and lockfile release metadata.
+- Live event collection, alert delivery, invoice reconciliation and quota enforcement remain out of scope.
+
 
 - H: add privacy-minimized, deterministic queue/runner/task/cost telemetry validation and reporting.
 - Add bounded event windows, deduplication, UTC timestamp validation, integer micro-unit cost accounting, duration percentiles and advisory quota thresholds.
