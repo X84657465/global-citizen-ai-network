@@ -812,7 +812,7 @@ This checkpoint supersedes every earlier live snapshot above wherever the main S
 
 ---
 
-## Superseding live continuation checkpoint — 2026-11-22 16:xx Taiwan (time intentionally omitted)
+## Superseding live continuation checkpoint — 2026-11-22
 
 This checkpoint supersedes earlier snapshots above wherever their main SHA, PR state, run IDs, or conclusions differ. It records a read-only verification plus a docs-branch handoff update; it is not A acceptance, B activation, or deployment authorization.
 
