@@ -244,7 +244,8 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
       approved_paths: batchPaths,
     },
   };
-  // Enforce each required output in its own batch, then enforce the full contract below.\n  const scopedTask = scopePatchTaskToBatch(task, batchPaths);
+  // Enforce each required output in its own batch, then enforce the full contract below.
+  const scopedTask = scopePatchTaskToBatch(task, batchPaths);
 
   console.log("Starting patch batch " + (batchIndex + 1) + "/" + patchBatches.length +
     ": files=" + batchPaths.length +
