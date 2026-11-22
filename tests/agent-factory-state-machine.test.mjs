@@ -108,6 +108,23 @@ test("never shortens an existing provider cooldown when a later deadline or gene
   assert.equal(genericTwo.state.system.cooldown_until, existingUntil);
 });
 
+test("reports an expired historical cooldown as inactive after a new system failure", () => {
+  const initial = createInitialFactoryState(1_000);
+  initial.system.cooldown_until = new Date(2_000).toISOString();
+
+  const result = recordSystemFailure(
+    initial,
+    "expired-cooldown-followup",
+    "SYSTEM_FAILURE",
+    "ordinary failure after cooldown expiry",
+    3_000,
+  );
+
+  assert.equal(result.state.system.cooldown_until, new Date(2_000).toISOString());
+  assert.equal(result.cooldown_active, false);
+  assert.equal(isSystemCooldownActive(result.state, 3_000), false);
+});
+
 test("keeps task-scoped failures isolated from provider system cooldown", () => {
   const state = createInitialFactoryState(1_000);
   const reserved = reserveTask(state, metadata(), 1_000);
