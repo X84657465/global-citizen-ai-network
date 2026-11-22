@@ -23,9 +23,8 @@ const validInput = () => ({
   pChangelog: "## P 0.1.3 — 2026-11-22\n\n- Enforce version contract.",
   trackChangelogs: Object.fromEntries(WORKSTREAM_IDS.slice(5).map((id) => [
     id,
-    `## ${id} ${id === "H" ? "0.1.4" : id === "J" ? "0.1.1" : id === "K" ? "0.1.1" : id === "M" ? "0.1.1" : id === "P" ? "0.1.3" : "0.1.0"} — 2026-11-22\n`,
-  ])),
-});
+    `## ${manifest.tracks[id].version} — 2026-11-22\\n`,
+  ])),});
 
 test("accepts a complete independently versioned A–P registry with synchronized repository metadata", () => {
   const result = validateWorkstreamVersionContract(validInput());
