@@ -1,3 +1,9 @@
+## 0.3.126 — 2026-11-22
+
+- F: require every security evidence run URL to identify its exact GitHub Actions attempt, preventing ambiguous run-level URLs from being accepted for a rerun attempt.
+- Add regression coverage for matching and mismatched attempt URLs; keep the evaluator advisory and acceptance authority disabled.
+- F advances to 0.1.1. Exact-head CI and independent review remain required; no production change is included.
+
 ## 0.3.125 — 2026-11-22
 
 - Align the public GCAN homepage and repository landing page with the A–O fifteen-workstream model and P cross-cutting governance.
