@@ -1,3 +1,29 @@
+## Latest execution correction — 2026-11-23 (PR #420 head 60325ed)
+
+This correction supersedes any conflicting PR/run details in the continuation snapshot below. It is documentation-only and does not change runtime or governance state.
+
+### Re-fetched exact-head evidence
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- PR #420 head is `60325eddef8135af735d7c530b82314a30407eeb`, base main `10fabef...`, non-Draft and mergeable=true. Exact-head Actions run [#45060047810](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060047810) is PENDING (attempt 1); this is not PASS. The earlier run #45057706557 was for a prior candidate commit and is CANCELLED.
+- PR #422 head `535daef3edb0ee81abfb003131d4149e81620357`: exact-head PR run [#45058587659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058587659) is PENDING; associated push run #45058582257 is FAILURE. Do not treat either as a passing PR validation.
+- PR #425 head `2a1d27388f7586405f62f04f6a8544a6dd36360e`: exact-head run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) is PENDING.
+- PR #426 head `542d315d0c3733aeef155d51f9a662528050b1bb`: exact-head run [#45058900487](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058900487) is PENDING.
+- PR #427 head `beabff34d7aa728655ed96f7375ce4bfd07e84f6`: exact-head run [#45059914601](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45059914601) is CANCELLED.
+- The latest main-branch workflow runs visible in the branch listing are System Health Recovery runs with conclusion SKIPPED. Standard CI for exact main SHA remains UNKNOWN / NOT RUN in this evidence set.
+- PR #420 has a COMMENTED review from the repository author identifying stale documentation; no independent GPT3 APPROVE is recorded. Mergeability alone is not acceptance.
+- The current Vercel status `build-rate-limit` is a provider quota/deployment status, not GitHub Actions test evidence.
+
+### Integration decision
+- No PR in this set is accepted or eligible for merge based on the evidence above.
+- Keep #422/#425 as competing Issue #117 candidates; do not edit overlapping paths or close either until a canonical DRI/PR is agreed. The malformed-exit coercion finding on #425 remains a blocking review finding.
+- Keep #426 blocked pending exact-head CI and independent formal review.
+- Issue #136 remains READ-ONLY and its pinned audit SHA is stale; stop and obtain a fresh owner-authorized baseline rather than silently retargeting it.
+- Continue Factory-first. Do not dispatch/retry workflows, alter Runner/queue policy, modify machine-managed Factory state, change permissions/secrets, touch production DB/RLS, or activate B Runtime.
+
+**Verification status:** documentation snapshot correction only; no repository test suite was run. Exact-head CI is pending/cancelled/failed as itemized above. No merge, deployment or runtime acceptance occurred.
+
+---
+
 ## Superseding verified continuation snapshot — 2026-11-23 (main 10fabef7; refreshed after PR #427)
 
 This section supersedes the prior live-state snapshot immediately below. It is a point-in-time operations record; re-fetch all exact SHAs, run IDs, review states and labels before the next write.
