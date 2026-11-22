@@ -364,3 +364,21 @@ Worker 可以由不同模型、同一模型的不同 system profile、確定性�
 7. 交由獨立 Reviewer／GPT3 驗收；實作者不得自行批准。
 
 F0–F5 必須逐階段驗收，且每階段均須具備可追溯證據。不得以文件完成、架構圖、Prompt、模型接通或合成測試，宣稱真實 Worker Fleet、端到端自主開發、平行執行或自我修復已經完成。遇到缺少工具、權限、Runner、CI 或獨立 Reviewer，明確標示 BLOCKED 並提供解除條件；不可跳過門檻。
+
+## 14. Factory 與產品／專業工作線的協作邊界
+
+Factory 是共用生產核心，不是產品 owner，也不是所有領域的最終決策者。
+
+- B Product owner 提供產品需求、優先級、使用者體驗、產品驗收條件及發布決策。
+- A–E owner 維護 Factory、工程基礎與必要 A→B 技術契約。
+- F–P owner 提供各自正式範圍的專業知識、領域規格、決策依據及領域驗收。
+- GPT3 保持獨立架構、整合與 QA 審查。
+- GPT5 僅在明確授權範圍內提供情報、營運、技術驗證及執行支援。
+
+工作線採 RUN（使用已驗證 Factory 能力）、BUILD（定義專業缺口並交由 Factory 建設）、UNBLOCK（處理領域決策或跨線阻塞）三種模式。任何工作先查 Capability Inventory，採 REUSE／EXTEND／REPAIR／BUILD 決策，禁止無證據複製 Worker、Engine、Tool、Runner 或共用服務。
+
+標準流程為：需求 owner 定義規格與驗收 → Factory 檢查能力並派工 → 隔離執行 → 測試與證據 → 領域 owner 驗收 → 必要的 GPT3 獨立審查 → B 產品整合／發布。產品決策、Factory 私有執行權及獨立審查權不可互相混淆。
+
+A→B 必須使用版本化、文件化、可測試的契約；B 不得直接操作 Factory 私有 Lease、Runner、Sandbox、Secrets 或內部狀態。Factory 不得未經 B owner 同意改變產品行為。Factory 尚未通過真實任務與獨立驗收前，不得宣稱已成熟或已向 B 開放完整自主 Runtime。
+
+Factory-first 是當前資源優先順序，不是永久忽略產品。當 Factory 通過端到端、QA、資安、恢復與容量驗收後，應逐步讓 Factory 維運與 B 產品交付並行。詳細責任、衝突處理及強制執行規範以 Master Charter §18 為準。
