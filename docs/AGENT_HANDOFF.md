@@ -337,3 +337,12 @@ This section supersedes earlier live PR/CI snapshots above. Historical evidence 
 - PR #286 is a documentation-only stacked branch. Its original base snapshot predates the latest A test-consolidation commit; reconcile/rebase the docs branch against the final accepted main SHA before considering merge. No docs-only CI pass is claimed for its current head.
 
 **Disposition:** PR #283 remains Draft/unmerged. Do not merge A or activate B until independent review, same-SHA Preview/Smoke, post-cooldown scheduler/worker progression and the real 24-hour Runner soak are evidenced. Do not manually dispatch tasks, mutate Issue #100, reset leases/cooldowns/quarantine, or bypass Runner serialization.
+
+
+## Post-cooldown scheduler checkpoint — 2026-11-22 (read-only)
+
+- Machine-managed Issue #100 was read without modification. Durable state remains version `144`, updated `2026-11-21T21:46:11.529Z`; system cooldown expiry was `2026-11-21T21:51:20.864Z`.
+- State snapshot: no active task/lease; 11 tasks queued; 7 tasks quarantined; system consecutive-failure count 7. Do not edit Issue #100 or reset cooldown/quarantine/retry state.
+- Latest scheduled AI Agent Task Preflight visible in the first 20 repository schedule runs remains run #314 / `44953122918`, created `2026-11-21T21:44:47Z` on main SHA `fc1933e669dd2d49300e45fa5d69bf63e906141f`, before cooldown expiry. Its cooldown guard succeeded, but task-selection/worker execution did not run; the Windows validation job was skipped.
+- No later scheduled Preflight run is currently visible after cooldown expiry. The workflow on main still declares `schedule: "*/5 * * * *"`. The cause of missing schedule invocations is not established by available read-only evidence; do not change workflow enablement/settings or manually dispatch to force progress.
+- This confirms an operational evidence gap, not that queued tasks are invalid or that the scheduler code itself is defective. A post-cooldown scheduled run must demonstrate selection, reservation/lease and worker progression before A acceptance.
