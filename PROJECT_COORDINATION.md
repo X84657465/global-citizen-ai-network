@@ -576,3 +576,14 @@ GPT 2 不得擅改專案方向、修改 A–E 核心架構、與 GPT 1 重複開
 **F/G/H 回歸修正說明：** ECMAScript 原生陣列對 canonical index property 會自動調整 length，因此原先以 Object.defineProperty 在空陣列上建立 index「1」並期望 length 仍為 0 的測試本身不成立。現改用可報告額外 configurable own key 的 Proxy，保留 target 陣列真實 length descriptor 為 0，以測試 snapshot guard 對 hostile reflection 的拒絕行為。修正僅涉及 F/G/H 測試檔，未改變 A–E、Runner、workflow、資料庫或權限。
 
 以上狀態依本次查得的精確 PR head／Actions run 更新；新 commit 或 main 前進後必須重新查核。Vercel build-rate-limit 是部署供應商限制，不等於程式測試失敗或通過。
+
+
+### 12.9 基底更新後的最新狀態（2026-11-23）
+
+- PR #376 的 head 已由 6cae34bbe195352d34e4122d04b71adf7c6a6d98 前進至 dfb8ad1f1c2303f0309ffcfa0042b33277ab2f01。舊 SHA 的 run 45044869836 雖完成 SUCCESS，但對新 head 屬 STALE；新 exact-head run 45047546318 目前只完成 metadata resolver 排程／仍 pending，不能標示 PASS。
+- GPT2 整合候選已更新為 PR #387，base 為 PR #376 最新 head dfb8ad1f1c2303f0309ffcfa0042b33277ab2f01，candidate head 為 8bd8d27294fcc9be602c9b30a0cdc4c862290e44。PR #387 為 Draft，尚無 Actions workflow run；runtime tests NOT RUN（文件變更）。
+- PR #382 因 base 前進而被 PR #387 取代並關閉；PR #380 原始 F–P 文件候選已由整合分支吸收並關閉。兩者的有效內容保留於 PR #387。
+- PR #377 新 head 6ec7fe71dec58faf79d02fdb020f313798b28a44 的 run 45047451228 已完成 metadata resolver，Windows quality gates 尚 pending。
+- PR #379 新 head 8cbc92460983bf88830d446cbb0fd87f6d7b28db 的 run 45047457547 已完成 metadata resolver，Windows quality gates 尚 pending。
+- PR #373 head 9d04b0fae6f0126193426cff889b3e9c2fafe7f9 的 run 45041251133 為 SUCCESS；GPT3 技術 review 留言為 COMMENTED，沒有獨立 formal APPROVE，故整體接受仍 BLOCKED。
+- Vercel 對上述候選的 build-rate-limit failure 屬部署預覽供應商限制，不可視為程式測試結果；不得因預覽配額限制而繞過其他必要 CI／Review。
