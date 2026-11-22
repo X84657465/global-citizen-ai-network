@@ -5,7 +5,7 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `061ccf621c228bae93b91cd8c53723c3fe08310a`  
+**Main HEAD (superseded by the current snapshot below):** `584c0b778ebd6c4a5a2b61df60474c948924aa4f`  
 **Authoritative release:** `VERSION` and `package.json` on main both report `0.3.125`. README release label requires separate verification before use.  
 **A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.20` (`versions/manifest.json` and `versions/gcan-product/VERSION`; not a release-readiness claim).
 
@@ -41,7 +41,49 @@ CI success permits review; it does not itself authorize merge, deployment, secre
 
 F–P manifest registration or a “ready” label is not implementation acceptance or operational readiness.
 
-## 2A. Authoritative live snapshot — supersedes older checkpoints below (2026-11-22)
+## 2A. Current authoritative live snapshot — 2026-11-22 11:12 Taiwan
+
+This section is the authoritative current state. All later dated snapshots in this document are historical unless they explicitly verify the current SHA.
+
+### Mainline and merged integration
+
+- **Verified `main` HEAD:** `584c0b778ebd6c4a5a2b61df60474c948924aa4f`.
+- `VERSION` and `package.json` both report `0.3.125`. This is a repository version label, not a release-readiness claim.
+- The following changes are now integrated into the mainline merge chain:
+  - PR #302 — governance / A→B handoff documentation; merge commit `d128424210174a9eee89e8e67988a1f161de2e68`.
+  - PR #306 — Resolver queue and redacted diagnostics workflow changes; merge commit `d9bfcc15470c4d82a21281262920d9a5e3570e28`.
+  - PR #305 — Agent Factory task-declared output contract; merge commit `fd1624aa4a19880540aa91e5750a93cc73a53548`.
+  - PR #303 — stale-base task-failure classification; merge commit `584c0b778ebd6c4a5a2b61df60474c948924aa4f` (current main tip).
+- These PRs were merged without formal review submissions recorded in the queried review endpoints. Their merge status is not independent approval or acceptance.
+
+### Exact-SHA CI and runtime validation
+
+- Main CI run [#44979457960](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44979457960) targets the exact current main SHA. Its `Resolve exact candidate PR metadata` job is pending, has no runner assigned and has executed no steps.
+- Main push Preflight run [#44979457931](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44979457931) targets the same SHA. `Windows self-hosted project validation` is pending with no runner assigned; `Validate task and generate read-only AI plan` was skipped. Skipped is not success.
+- The PR-head runs for #302 (`44978101569`), #303 (`44976773308`), #305 (`44977858601`) and #306 (`44978887097`) were still pending at the latest inspection. Earlier successful resolver/quality subjobs on #303 or #305 do not establish full integration acceptance.
+- For #306, the latest PR-head run had zero jobs allocated. The new Resolver queue configuration, redacted failure artifact and related policy tests have not yet been runtime-verified on that exact head. Do not claim a diagnostics artifact exists until a current relevant run uploads it and it is inspected.
+- No complete current-main Windows quality, Ollama/local execution, PostgreSQL/migrations/RLS, production build, or exact-head integration pass is established by the evidence above.
+- No same-SHA READY Preview/Smoke result is established in this checkpoint. Do not retry or bypass any external deployment rate limit to manufacture evidence.
+
+### Acceptance and safety gates
+
+- A / Agent Factory V2 remains **integrated but not operationally accepted**.
+- Issue #136 remains a **read-only independent adversarial audit** gate. No independent audit report or formal sign-off against current main SHA `584c0b778ebd6c4a5a2b61df60474c948924aa4f` is established. Implementation-owner notes and internal source inspection are not independent approval.
+- Cross-process race/ambiguous-write injection, natural scheduled Runner/lease progression, and the required serialized Runner soak remain unverified.
+- B Runtime remains inactive and downstream of A acceptance. L Federation remains deferred and disabled.
+- Preserve the 500-event processed-event ledger fail-closed behavior. Do not evict idempotency keys or add unreviewed compaction.
+- Do not mutate machine-managed Factory state Issues, task leases, retry/cooldown/quarantine, scheduler selection, Runner concurrency, workflow permissions, secrets, production data, or deployment settings to manufacture passing evidence.
+
+### Next execution order
+
+1. Observe and inspect the current-main CI and Preflight jobs when GitHub assigns runners; verify every required step on exact SHA `584c0b778ebd6c4a5a2b61df60474c948924aa4f`.
+2. Complete the full Windows quality, Ollama/local execution, PostgreSQL/migration/RLS and applicable build/audit gates; distinguish skipped, pending, cancelled, failed and successful.
+3. Verify the #306 resolver diagnostics path only from a real exact-head run and inspect the uploaded redacted artifact.
+4. Obtain the independent read-only Issue #136 audit against the current main SHA; do not self-approve or alter the audit's read-only scope.
+5. Verify scheduled/lease progression only through naturally occurring authorized runs; no manual dispatch, duplicate task event or machine-state mutation.
+6. Keep B Runtime and L Federation inactive until A has passed every acceptance gate.
+
+## 2B. Historical snapshot — superseded by current section 2A (2026-11-22)
 
 This is the newest verified repository snapshot. All later sections below are historical context unless independently re-verified.
 
