@@ -719,7 +719,9 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
   assert.equal(prepareSection.includes("contents: write"), false);
   assert.equal(prepareSection.includes("pull-requests: write"), false);
   assert.equal(prepareSection.includes("Create a draft PR after isolated tests pass"), false);
-  assert.ok(prepareSection.includes("artifacts/agent-scratch.json"), "publication evidence must include the exact scratch manifest");
+  assert.ok(prepareSection.includes("artifacts/agent-scratch-publication.json"), "publication evidence must include the sanitized scratch manifest");
+  assert.equal(prepareSection.slice(prepareSection.indexOf("      - name: Upload exact validated publication bundle"), prepareSection.indexOf("      - name: Classify known task-scoped failures")).includes("artifacts/agent-scratch.json"), false,
+    "the machine-local scratch directory path must never be uploaded");
 
   assert.ok(publishSection.includes("needs: [prepare-task]"));
   assert.ok(publishSection.includes("contents: write"));
