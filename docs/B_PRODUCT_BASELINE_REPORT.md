@@ -17,7 +17,7 @@
 - `main` is `25d5ed519eb923d3001df6d43aec1670a0d4851a`; `VERSION` and `versions/manifest.json` agree on overall `0.3.137`, with B at `0.1.20`. PR #410 (operations-intelligence documentation), PR #411 (B baseline) and PR #413 (GPT1/GPT4 ownership clarification) are merged into main.
 - B has source-level foundations for member accounts, projects, conversations, AI workspace, contribution tasks/submissions, member contribution summaries/appeals, admin review, and AI cost/reconciliation views.
 - The repository architecture describes an early MVP, not a production-ready service. Live provider billing, payouts, and distributed compute are not enabled by default. AI calls remain gated by server-side provider configuration and budget controls.
-- B Runtime remains **PREPARATION ONLY / BLOCKED** because the Factory-wide independent audit/acceptance gate is not complete. Issue #136 is open against this exact main SHA. The main CI run below is pending, not passed.
+- B Runtime remains **PREPARATION ONLY / BLOCKED** because the Factory-wide independent audit/acceptance gate is not complete. Issue #136 remains open but still targets the prior main SHA `dce81ed801c41bca9bc364e3d0f248244d88f8f`; its immutable audit baseline is stale after main advanced to `25d5ed519eb923d3001df6d43aec1670a0d4851a`. Do not silently retarget it; obtain owner authorization for a new exact-main audit target. The main CI run below is pending, not passed.
 - No B application code, database schema, RLS, workflow, Runner, secret, permission, production data, or deployment changes are made by this report.
 
 ## 2. Exact mainline and CI evidence
@@ -102,6 +102,7 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 | B source inventory | DOCUMENTED | Tree and selected source files inspected |
 | Focused B test files | PRESENT; NOT RUN in this report | No local test command executed by this report |
 | Main exact-SHA CI | PENDING | Run 45055645581; 0 jobs at inspection |
+| PR #414 exact-head CI | PENDING | Run 45055727322 for head `c2e813dc1056adfb7b1ea74050903779a618ac0c`; metadata resolver job pending |
 | A independent audit | BLOCKED / PENDING | Issue #136 remains open |
 | B end-to-end auth / live provider / operational readiness | NOT VERIFIED | Issues #84 and #86 remain open; architecture lists pre-launch gaps |
 | PR #376 exact-head CI / formal review | NOT PASS | Run observed is for an older SHA; formal approval not observed |
