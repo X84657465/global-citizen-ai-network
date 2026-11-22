@@ -703,7 +703,7 @@ test("CI carries provider rate-limit cooldown from the candidate controller to t
 
 
 test("Agent Factory isolates candidate generation, PR publication, state writes, and dispatch permissions", () => {
-  const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\\njobs:".length);
+  const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\njobs:".length);
   const prepare = findJobSection(jobsSource, "prepare-task");
   const prepareSection = jobsSource.slice(prepare.start, prepare.end);
   const publish = findJobSection(jobsSource, "publish-task");
@@ -744,7 +744,12 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
   const planStepEnd = prepareSection.indexOf("      - name: Transition task to patching", planStepStart);
   assert.ok(planStepStart >= 0 && planStepEnd > planStepStart);
   assert.equal(prepareSection.slice(planStepStart, planStepEnd).includes("GITHUB_TOKEN"), false,
-    "local model planning and patch generation must not receive the GitHub token");
+    "local model planning must not receive the GitHub token");
+  const patchStepStart = prepareSection.indexOf("      - name: Generate and validate a bounded patch proposal");
+  const patchStepEnd = prepareSection.indexOf("      - name: Apply validated patch to a disposable scratch workspace", patchStepStart);
+  assert.ok(patchStepStart >= 0 && patchStepEnd > patchStepStart);
+  assert.equal(prepareSection.slice(patchStepStart, patchStepEnd).includes("GITHUB_TOKEN"), false,
+    "local model patch generation must not receive the GitHub token");
   assert.ok(publisher.includes('process.env.PUBLISH_SKIP_ISSUE_COMMENT !== "true"'),
     "publisher must support operation without issue-write permission");
 });
