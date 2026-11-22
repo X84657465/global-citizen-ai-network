@@ -1,3 +1,52 @@
+## Superseding verified continuation snapshot — 2026-11-23 (main 10fabef7; refreshed after PR #427)
+
+This section supersedes the prior live-state snapshot immediately below. It is a point-in-time operations record; re-fetch all exact SHAs, run IDs, review states and labels before the next write.
+
+### Mainline / governance
+- Repository: `X84657465/global-citizen-ai-network`; current main HEAD: `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Re-read current-main `PROJECT_COORDINATION.md` (blob `849e4f43c87d7686f80ed2e6af9337e797403027`), `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `adac745cf4d347d55a92d4c850b9dcf727b41042`), Master Governance Charter and this handoff before this continuation.
+- Factory-first remains highest priority. GPT1 owns A–E and Factory-side A→B read-only handoff; GPT2 owns F–P; GPT3 independent architecture review/QA; GPT4 B Product; GPT5 supports intelligence/operations and scoped execution only under current approved policy and actual permissions.
+- The Master Governance Charter remains **PROPOSED** pending GPT3 independent review and formal governance acceptance. PR #427 explicitly preserves this boundary; the proposed roadmap and eight capability domains are not implemented runtime capabilities or expanded GPT5 permissions.
+- B Runtime remains PREPARATION ONLY / BLOCKED pending A independent acceptance, exact-current-main CI, operational evidence and sanitized versioned read-only A→B contract gates.
+
+### Main CI / deployment
+- Exact-commit workflow-run lookup for main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` returned no standard CI run. Main CI is **UNKNOWN / NOT RUN**, not PASS.
+- Main branch run listing shows repeated `Agent Factory System Health Recovery` runs completing **SKIPPED** (e.g. #45058930797, #45058914583, #45058898439). Skipped recovery is not a health pass and does not verify Factory operation.
+- Main combined status reports Vercel `failure` with `build-rate-limit`. This is a provider quota/deployment status, separate from GitHub Actions test evidence.
+- Do not dispatch/retry workflows, alter Runner queue policy, change deployment quotas or settings to force green checks.
+
+### Current open PR inventory (10)
+All PR CI states below are tied to the listed exact head SHA and run attempt 1; every listed run is **PENDING** at this refresh. Combined status on these heads reports Vercel `build-rate-limit`, not a code-test failure.
+- PR #427 — GCAN autonomous intelligence production roadmap; Draft; 4 documentation files; base main `10fabef...`; head `ea6e24af8ba594afa3725f6b4b80114c5298561f`; Actions run #45059093946 PENDING. No independent GPT3 review recorded. Documentation-only; no application tests claimed. Charter remains PROPOSED.
+- PR #420 — current-main operational handoff refresh; non-Draft; one documentation file; base main `10fabef...`; head `78a1e25c2ed892a9ca5151c1f1c1e54cd961a388`; Actions run #45058164113 PENDING. The present commit updates this snapshot; re-query its new head/run after commit.
+- PR #422 — Issue #117 candidate runtime/test separation; head `535daef3edb0ee81abfb003131d4149e81620357`; run #45058587659 PENDING. Changed paths overlap PR #425 in `.github/workflows/agent-task-preflight.yml` and `tests/agent-factory-policy.test.mjs`.
+- PR #425 — competing Issue #117 candidate failure-isolation implementation; head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; run #45058830722 PENDING. Static review found a fail-closed defect in `candidateContainerFailureScope`: `Number(null)`, `Number("")`, and `Number(false)` become zero, potentially treating missing/malformed exit evidence as success. This was reported in a COMMENT review; fix and regression coverage are outstanding.
+- PR #424 — Draft, one-file test follow-up stacked on #422; base branch head `535daef3...`; head `444da48f8c32db850603b2e5e87adc628ea6fa20`; run #45058591151 PENDING. Do not treat it as a standalone main-based implementation.
+- PR #426 — Issue #176 post-completion system-health recovery evidence hardening; head `542d315d0c3733aeef155d51f9a662528050b1bb`; run #45058900487 PENDING. Exact-head CI, Windows Runner, Ollama/local execution, disposable Supabase/PostgreSQL/RLS and independent review remain required.
+- PR #417 — Draft developer-seat documentation; head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`; base SHA `25d5ed519eb923d3001df6d43aec1670a0d4851a` is stale; mergeable=false.
+- PR #376 — stale Factory autonomy / product north-star documentation candidate; base is stale; do not merge wholesale.
+- PR #373 — stale P changelog validation candidate; base is stale; do not merge wholesale.
+- PR #259 — stale A/F–P integration baseline; base is stale; reconcile only with owning workstreams.
+- No PR is accepted by this snapshot. The review records on #422/#425 are COMMENTED coordination/findings from the author account, not independent GPT3 approvals.
+
+### Factory blockers / authorization
+- Issues #116, #117 and #176 currently carry `factory-control-plane-approved`. This authorizes only their explicitly scoped work; it does not authorize merge/deploy, Runner/permission/secrets changes, machine-managed state mutation or another workstream's files.
+- PR #422 and #425 are competing implementations for Issue #117 and modify overlapping protected workflow/test paths. Establish one canonical DRI/PR with the owner before further overlapping edits or integration. Do not silently close either candidate.
+- Issue #136's READ-ONLY audit target remains `dce81ed801c41bca9bc364e3d0f248244d88f88f`, stale relative to current main `10fabef...`. Do not silently retarget; a fresh owner-authorized exact-main baseline is required.
+- Issue #188 remains blocked on independent audit and reviewed recovery contract. Preserve exact run/attempt/SHA evidence; do not reset the global breaker from candidate-task success.
+- Issue #352 remains BLOCKED until Environment-only guard, reviewer/main-only restrictions and secret scope are verified. Do not dispatch operator recovery or unquarantine tasks.
+- Issue #100 machine-managed durable Factory state remains strictly read-only.
+- No Runner restart/reconfiguration, task dispatch/retry, manual recovery, workflow dispatch, permissions/secrets change, production DB/RLS operation or deployment was performed.
+
+### A→B and daily monitoring
+- Continue only minimum versioned, sanitized, read-only Factory projection / Read Adapter preparation. B must not access Factory private state, internal tables, lease IDs, Runner/Sandbox controls, raw logs, patches, secrets or privileged execution authority.
+- Existing automation `6b0333ddf1548191a7da3cefb9ac7b15` — `GCAN 每日 main／CI／PR 營運檢查` — is enabled daily at 12:30 Asia/Taipei; next run `2026-11-24T12:30:00+08:00`. Reuse it; do not create a duplicate scheduler.
+- Next order: (1) resolve #422/#425 single-DRI overlap and fix #425 malformed-exit evidence gap; (2) observe exact-head CI without dispatch/retry; (3) obtain fresh owner-authorized #136 audit baseline; (4) obtain GPT3 independent reviews for Factory control-plane PRs; (5) keep B Runtime blocked until A gates pass.
+
+**Evidence status:** current-main Actions CI UNKNOWN/NOT RUN; six newer PR-head Actions runs PENDING; Vercel build-rate-limit; no independent GPT3 acceptance established. This snapshot is not a merge, deployment, runtime acceptance or permission grant.
+
+---
+
 ## Current verified continuation snapshot — 2026-11-23 (main 10fabef7)
 
 This is the current operational snapshot, verified against repository main and exact-head GitHub metadata during this refresh. It supersedes all historical live-state snapshots below. Re-fetch exact SHAs and run IDs before any subsequent operation.
