@@ -209,6 +209,13 @@ test("rejects forged run/job URLs, duplicate controls, invalid SHAs, and unregis
     ),
   })), TypeError);
   assert.throws(() => assessFPSecurityEvidence(bundle({
+    evidence: [evidence("member-isolation", {
+      ci: ci("database", {
+        jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/0",
+      }),
+    })],
+  })), /F CI job URL does not belong to the evidence run/);
+  assert.throws(() => assessFPSecurityEvidence(bundle({
     evidence: [evidence("member-isolation", { evidenceRef: "tests/other-unrelated.test.ts" })],
   })), TypeError);
 });
