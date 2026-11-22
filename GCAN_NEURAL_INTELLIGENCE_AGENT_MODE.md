@@ -27,7 +27,8 @@
 | GPT 1 | A–E；Agent Factory V2 與 Factory→B 主線協調 | 維護 Factory 優先、A–E 工作及必要交接 |
 | GPT 2 | F–P 平行專業能力建設 | 維護 F–P 工作線，不任意修改 A–E 核心 |
 | GPT 3 | A–P 獨立架構審查、整合與 QA | 提供獨立審查與驗收，不取代功能 owner |
-| GPT 4 | B — GCAN Product 產品負責角色（依 PR #376 的 `GCAN_B_LINE_LEAD_CHARTER.md` 與 `GCAN_PRODUCT_NORTH_STAR.md`） | 負責 B 產品方向、需求與產品契約；A→B 仍須通過 GPT1 Factory 交接及 GPT3 獨立驗收 |\n| GPT 5 | Global Intelligence & Operations — 全域情報研究與營運支援 | 負責最新資訊研究、來源查核、風險預警、工程行政與知識整理；不擁有 A–P 模組、不取代核心 owner 或 GPT3 獨立驗收 |
+| GPT 4 | B — GCAN Product 產品負責角色（依 PR #376 的 `GCAN_B_LINE_LEAD_CHARTER.md` 與 `GCAN_PRODUCT_NORTH_STAR.md`） | 負責 B 產品方向、需求與產品契約；A→B 仍須通過 GPT1 Factory 交接及 GPT3 獨立驗收 |
+| GPT 5 | Global Intelligence & Operations — 全域情報研究與營運支援 | 負責最新資訊研究、來源查核、風險預警、工程行政與知識整理；不擁有 A–P 模組、不取代核心 owner 或 GPT3 獨立驗收 |
 
 ### 2.2 本 ChatGPT 協作角色
 
