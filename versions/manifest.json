@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.136",
+  "overall": "0.3.137",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -91,7 +91,7 @@
     },
     "P": {
       "name": "Governance, Ethics & Trust/Policy Evolution",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "status": "implementation-candidate",
       "responsibility": "Cross-track autonomy boundaries, human-approval thresholds, trust principles and governance arbitration."
     }
