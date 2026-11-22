@@ -42,8 +42,11 @@ async function main() {
   }
 
   let pull;
+  console.log("Resolver stage: requesting PR metadata; repository=" + repository + ", pull_request=" + pullRequestNumber + ".");
   try {
     pull = await api.request("/repos/" + repository + "/pulls/" + pullRequestNumber);
+    console.log("Resolver stage: PR metadata received; state=" + String(pull.state ?? "unknown") +
+      ", head_sha=" + String(pull.head?.sha ?? "unknown") + ".");
   } catch (error) {
     if (error?.status === 404) {
       writeOutput("is_current_head", "false");
@@ -55,6 +58,11 @@ async function main() {
       console.log("Pull request no longer exists; stale event will be ignored.");
       return;
     }
+    console.error("Resolver PR metadata request failed: status=" + String(error?.status ?? "unknown") +
+      ", method=" + String(error?.method ?? "GET") +
+      ", path=" + String(error?.path ?? "unknown") +
+      ", rate_limited=" + String(error?.rateLimited === true) +
+      ", retry_after_ms=" + String(error?.retryAfterMs ?? "unknown") + ".");
     throw error;
   }
 
@@ -80,6 +88,7 @@ async function main() {
   if (issueNumber && sameRepository && trustedPullAuthor &&
       isAgentTaskBranchForIssue(pull.head?.ref, issueNumber)) {
     try {
+      console.log("Resolver stage: verifying authorized task issue #" + issueNumber + ".");
       const issue = await api.request("/repos/" + repository + "/issues/" + issueNumber);
       authorizedTaskIssue = issue?.state === "open" &&
         String(issue?.user?.login ?? "").toLowerCase() === owner &&
@@ -100,6 +109,7 @@ async function main() {
       repository,
       issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
     });
+    console.log("Resolver stage: reading durable Factory state for authorized task PR #" + pullRequestNumber + ".");
     const stateRecord = await stateStore.read();
     stateIssueNumber = stateRecord.issue?.number ?? "";
   }
