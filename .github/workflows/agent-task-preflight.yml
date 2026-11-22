@@ -916,6 +916,12 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
 
+      - name: Initialize sanitized publisher cooldown handoff
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          [System.IO.File]::WriteAllText("artifacts/agent-api-cooldown.txt", "", [System.Text.UTF8Encoding]::new($false))
+
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
@@ -942,8 +948,18 @@ jobs:
           ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
           CANDIDATE_TESTS_PASSED: "true"
           PUBLISH_SKIP_ISSUE_COMMENT: "true"
+          AGENT_FACTORY_API_COOLDOWN_FILE: artifacts/agent-api-cooldown.txt
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/publish-agent-patch.mjs
+
+      - name: Upload sanitized publisher cooldown for the durable failure callback
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-api-cooldown-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/agent-api-cooldown.txt
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Upload publication result for the state writer
         if: success()
@@ -984,6 +1000,30 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
+
+      - name: Download sanitized publisher cooldown handoff
+        if: always()
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ai-agent-api-cooldown-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/cooldown
+
+      - name: Restore validated publisher cooldown for durable failure callback
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $path = "artifacts/cooldown/agent-api-cooldown.txt"
+          if (Test-Path $path -PathType Leaf) {
+            $value = [System.IO.File]::ReadAllText($path).Trim()
+            $parsed = [DateTimeOffset]::MinValue
+            $valid = [DateTimeOffset]::TryParseExact($value, "yyyy-MM-dd'T'HH:mm:ss.fff'Z'", [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal, [ref]$parsed)
+            if ($valid) {
+              [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_API_COOLDOWN_UNTIL=$value" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+            } elseif ($value.Length -gt 0) {
+              Write-Warning "Ignoring malformed publisher cooldown handoff."
+            }
+          }
 
       - name: Download publication result
         if: needs.publish-task.result == 'success'
