@@ -31,7 +31,7 @@ export interface FPObservabilitySink {
   record(event: FPOperationEvent): void;
 }
 
-const UTC_TIMESTAMP = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/;
+const UTC_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const SAFE_ERROR_CODE = /^[A-Z][A-Z0-9_:-]{0,63}$/;
 const EVENT_KEYS = [
   "schemaVersion",
