@@ -1,3 +1,9 @@
+## 0.3.127 — 2026-11-22
+
+- G: require the release evidence URL to identify the exact GitHub Actions run attempt; reject reusable run-level URLs and mismatched attempt paths.
+- Add regression tests for ambiguous and stale attempt URLs, and align F–G integration fixtures with the exact-attempt contract.
+- G advances to 0.1.1. Exact-head CI and independent review remain required; no merge, deployment or production acceptance is implied.
+
 ## 0.3.126 — 2026-11-22
 
 - F: require every security evidence run URL to identify its exact GitHub Actions attempt, preventing ambiguous run-level URLs from being accepted for a rerun attempt.
