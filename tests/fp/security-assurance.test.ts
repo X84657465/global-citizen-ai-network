@@ -306,3 +306,17 @@ test("rejects non-index array properties at the ECMAScript array-index boundary"
     );
   }
 });
+
+ 
+test("rejects array properties outside the ECMAScript array-index range", () => {
+  const extraProperty = [] as FPSecurityEvidence[];
+  Object.defineProperty(extraProperty, "4294967295", {
+    configurable: true,
+    enumerable: true,
+    value: evidence("member-isolation"),
+  });
+  assert.throws(
+    () => assessFPSecurityEvidence(bundle({ evidence: extraProperty })),
+    /bounded dense plain array/,
+  );
+});
