@@ -781,8 +781,10 @@ test("preflight transports only the validated publisher cooldown through an arti
     "missing artifacts must not mask the original publisher failure");
   assert.ok(record.includes("Restore validated publisher cooldown for durable failure callback"),
     "the state writer must validate and restore the deadline into its own environment");
-  assert.ok(record.includes("yyyy-MM-dd'T'HH:mm:ss.fff'Z'"),
-    "the handoff must accept only the helper's canonical UTC timestamp");
+  assert.ok(record.includes("node scripts/restore-agent-factory-api-cooldown.mjs"),
+    "the state writer must use the tested strict artifact restore helper");
+  assert.ok(record.includes('"$env:GITHUB_ENV"'),
+    "the validated deadline must be restored only into the state-writer environment");
 
   const failureStart = record.indexOf("      - name: Record publication failure and preserve the task lease state");
   assert.ok(failureStart >= 0, "the publication failure callback must remain explicit");
