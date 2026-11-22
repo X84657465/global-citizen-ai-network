@@ -740,7 +740,7 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
   assert.ok(publishSection.includes("ai-agent-publication-result-${{ github.run_id }}"));
   assert.ok(publishSection.includes("ref: ${{ github.sha }}"), "publisher must validate against the exact workflow SHA");
 
-  assert.ok(recordSection.includes("needs: [prepare-task, publish-task]"));
+  assert.ok(recordSection.includes("needs: [prepare-task, begin-publication, publish-task]"));
   assert.ok(recordSection.includes("issues: write"));
   assert.ok(recordSection.includes("contents: read"));
   assert.equal(recordSection.includes("contents: write"), false);
