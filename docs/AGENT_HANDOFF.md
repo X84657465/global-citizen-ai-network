@@ -384,3 +384,36 @@ This checkpoint is authoritative for the state observed after PR #283 merged. Ol
 5. Only then rebase and validate the B read-only adapter against the accepted A contract; do not activate B runtime early.
 
 **Authority boundary:** this checkpoint records read-only observations and integration contracts only. It changes no Factory state, task issue, Runner policy, workflow permission, secrets, production database, or deployment configuration.
+
+---
+
+## Exact-head validation correction — 2026-11-22 (Runner queue / PR #306)
+
+This checkpoint supersedes the earlier statement that PR #306 run 44977771018 was pending. A fresh read of the exact run and job records shows it has **completed with failure**.
+
+### Current exact-head evidence
+
+| PR | Exact HEAD | Actions run | Observed result |
+|---|---|---:|---|
+| #302 — handoff / acceptance ledger | `07e5826522631275c902d9d10f5ffa61e97f378e` | `44977000732` | Resolver passed; Windows quality job pending. |
+| #303 — stale-base scope / error code | `9b1097484e868d8c78b752c1372f6c6964a36ed3` | `44976773308` | Resolver pending; no downstream jobs allocated. |
+| #305 — task output contract | `97f2051161a6c5a9c24bc93a144d6c045bc183b5` | `44977858601` | Run pending; zero jobs allocated. |
+| #306 — hosted metadata / diagnostics | `ed735cfff51e080df841fb8b991966a1d00914f0` | `44977771018` | **Completed / failure.** Resolver and hosted diagnostics both failed; Windows quality, PostgreSQL/RLS and Ollama jobs were skipped. |
+
+### PR #306 failure diagnosis boundary
+
+- The hosted resolver and hosted diagnostics jobs both completed as failed on exact HEAD `ed735cfff51e080df841fb8b991966a1d00914f0`.
+- GitHub reports the expected downstream Windows validation jobs as skipped because their prerequisite resolver did not succeed.
+- Fetching the failed job logs returned GitHub storage `BlobNotFound` for every job; the run has no downloadable diagnostic artifact. The underlying resolver and diagnostics error messages therefore remain **unverified**.
+- Do not claim the hosted-runner change is validated, and do not infer that the resolver failure is caused by Bash, token permissions, API rate limiting, or application code without the missing logs.
+- The PR remains Draft/open, has no formal review submission, and its combined status reports the Vercel daily deployment rate limit. No same-SHA READY Preview/Smoke evidence exists.
+
+### Required next actions
+
+1. Recover trustworthy exact-run diagnostics through GitHub's available run/check evidence or a fresh naturally triggered exact-head run; do not fabricate or infer missing logs.
+2. Identify and fix the actual resolver and diagnostics failure before changing the runner design further.
+3. Require exact-head success for Windows quality, PostgreSQL/RLS and Ollama/local execution before treating #306 as accepted.
+4. Continue #302/#303/#305 only against their exact current HEADs; pending or unallocated jobs are not passing.
+5. Obtain independent formal review and the separate read-only Issue #136 audit. No implementation-owner note substitutes for it.
+
+**Authority boundary:** evidence/documentation only. No Factory state, task, lease, retry/cooldown/quarantine, Runner settings, workflow permissions, secrets, production data, deployment or B Runtime state was changed.
