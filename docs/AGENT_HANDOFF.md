@@ -801,7 +801,7 @@ This checkpoint supersedes every earlier live snapshot above wherever the main S
 - No acceptance or merge is authorized by these observations. Keep PR #328 Draft until its exact-head checks and required review are resolved.
 
 
-### Superseding exact-main CI terminal result — 2026-11-22 16:xx Taiwan
+### Superseding exact-main CI terminal result — 2026-11-22 (Taiwan)
 - Main push CI run [#44999879910](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879910) has now completed **failure** on exact main SHA `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`; the earlier statement that it was pending is superseded.
 - Exact run jobs: candidate metadata resolution **success**; Windows Runner quality gates **failure**; diagnostics and failure-state persistence **success**; Ollama/local execution, PostgreSQL/RLS, and success persistence **skipped**.
 - The failing quality-gates log confirms Docker CLI is installed but Docker Engine is unreachable: named pipe `//./pipe/dockerDesktopLinuxEngine` does not exist. The workflow stopped before Ollama verification, migration/schema guards, dependency audits, script policy, unit tests, TypeScript, lint, and production build. These checks are **not validated**, not passed.
