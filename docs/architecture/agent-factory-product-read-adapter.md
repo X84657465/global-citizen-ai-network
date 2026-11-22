@@ -196,3 +196,33 @@ The test has been committed but has not run on this exact SHA. It is source/test
 PR #303 HEAD `9b1097484e868d8c78b752c1372f6c6964a36ed3` adds a second source-level regression guard: it reads the workflow and controller to assert that the failure classifier preserves task scope and that the controller consumes `AGENT_FACTORY_ERROR_CODE` when recording the task failure. Together with the publisher-callsite and helper environment-file tests, the regression coverage now spans the publisher guards → workflow classifier → controller error-code argument.
 
 This remains static regression coverage only. It has not executed on this exact HEAD, and it is not independent review or runtime acceptance.
+
+## 10. Current-main handoff checkpoint — 2026-11-22
+
+This section supersedes the older source-SHA snapshots above where they conflict. The authoritative mainline inspected for this checkpoint is `c4f46dbcc78b40cb3a4f31a6d3513f6e922aca79` (root release `0.3.125`; Agent Factory V2 `2.0.84`).
+
+### A source-of-truth verification
+
+- `lib/agent-factory-state-machine.mjs` stores candidate evidence as structured `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt` fields. Terminal candidate transitions require the evidence tuple to match the task's current candidate tuple; the controller re-fetches the PR and verifies repository, PR, branch, author, head SHA, workflow run and attempt before persisting success/failure evidence.
+- `lib/agent-factory-evidence.mjs` still creates `EvidenceRecord v1.0.0` for C/D consumption. Its `command` field is descriptive text containing Issue/PR/run/attempt references; it is not a structured B API and MUST NOT be parsed to reconstruct security-sensitive evidence.
+- The current `lib` tree contains the internal Factory state/controller/evidence modules but no dedicated A-owned Product read-projection module. The current `app/api` tree has Product project/conversation routes but no Factory projection route. Therefore the proposed A-owned projection remains **not implemented**.
+- Existing B project/conversation routes use the authenticated Supabase client and owner-scoped queries. Those routes are not evidence that Factory task ownership has been mapped to a Product workspace; the adapter still needs an explicit trusted task-to-workspace mapping and cross-workspace tests.
+
+### B stack and activation status
+
+- The earlier governance/migration/B stack is not integrated into current `main`: PR #185 was closed unmerged; PR #186 merged only into the governance branch; PR #187 merged only into the migration branch. Their branch ancestry does not authorize transplanting the old stack or enabling B Runtime on current main.
+- B remains a preparation-only consumer of the proposed v1 contract. Do not add a Factory route, Product table, connector, feature flag activation, billing path, or write API before A's projection and acceptance gates pass.
+- The F–P `FPCapabilityEnvelope` contract remains a separate F–P workstream transport boundary. It does not implement or authorize the A-to-B Product read adapter.
+
+### Current A gate
+
+- Current A-line CI-policy candidate PR #331 is at head `5a2ea25036c859340534b7b4fd7adae6b454238f`. Its exact-head Actions run [#45007169638](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45007169638) was still in progress at this checkpoint; no pass is claimed for the new head.
+- The previous #331 head `c19aec7195421dd74e2e244561e80b7495d8a07f` had four substantive CI jobs pass, but that result does not transfer to the newer head. No formal PR review has been submitted.
+- Issue #136's requested independent read-only adversarial review remains an outstanding A governance gate. A source-level inspection by the current assistant is not an independent reviewer sign-off.
+
+### Required next implementation boundary
+
+After A is accepted and integrated, implement the projection as an A-owned read-only server-side boundary. It must emit only the bounded public status mapping, sanitized candidate status, verified exact-SHA/run-ID/run-attempt result and allowlisted failure category. B must independently authenticate the caller, derive workspace from the authenticated session, enforce membership/RLS/IDOR protections, and resolve task ownership from a trusted server-side mapping. Unknown A states, stale/missing CI attempts, unrecognized failure codes, invalid workspace mappings, and unknown contract versions must fail closed.
+
+Until then, this document remains a design handoff only. A Factory internals remain private, B Runtime remains disabled, and no Product-facing Factory data is exposed.
+
