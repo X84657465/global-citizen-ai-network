@@ -143,6 +143,28 @@ test("rejects inherited fields and accessor-backed telemetry records", () => {
   assert.throws(() => assessHObservation(accessorBundle), /Invalid H observation window/);
 });
 
+test("fails closed when proxy reflection traps throw", () => {
+  const hostileBundle = new Proxy(bundle([]), {
+    getPrototypeOf() {
+      throw new Error("hostile reflection trap");
+    },
+  });
+  assert.throws(
+    () => assessHObservation(hostileBundle),
+    /Invalid H observation window/,
+  );
+
+  const hostileEvent = new Proxy(event("proxy-event-0001"), {
+    ownKeys() {
+      throw new Error("hostile reflection trap");
+    },
+  });
+  assert.throws(
+    () => assessHObservation(bundle([hostileEvent])),
+    /Invalid, duplicate, or out-of-window/,
+  );
+});
+
 test("rejects custom iterators, sparse arrays and accessor-backed event slots", () => {
   const customIterator = [] as unknown as HTelemetryEvent[];
   Object.defineProperty(customIterator, Symbol.iterator, {
