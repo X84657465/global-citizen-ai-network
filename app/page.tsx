@@ -38,7 +38,7 @@ const rules = [
  { title:"展示資料不冒充真實營運", text:"示範數據、尚未連接的 AI／搜尋服務、尚未啟用的獎勵支付與分散式運算都會清楚標示。", icon:ClipboardCheck },
 ];
 const docs = [
- { title:"神經智慧體協作模式", text:"六層自主工程閉環、四 GPT 責任邊界、Factory-first、授權執行與驗收標準。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md", icon:BrainCircuit },
+ { title:"神經智慧體協作模式", text:"六層自主工程閉環、五 GPT 責任邊界、Factory-first、授權執行與驗收標準。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md", icon:BrainCircuit },
  { title:"A–P 工程治理規範", text:"A–O 工作線責任、P 橫向治理、版本制度、相容性測試與接收線審核。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/docs/engineering-governance.md", icon:GitBranch },
  { title:"版本清單與變更紀錄", text:"查看平台版本、各主線版本、治理狀態與可追溯變更。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/versions/manifest.json", icon:Layers3 },
  { title:"Predictive Coding 架構", text:"預測、觀測、誤差、校準、漂移與更新提案的資料契約。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/feat/github-project-showcase/docs/predictive-coding-architecture.md", icon:Activity },
