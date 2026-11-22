@@ -57,3 +57,30 @@ test("uses the secondary-rate-limit reset header when Retry-After is invalid", (
   assert.equal(readFileSync(outputFile, "utf8"), "api_cooldown_until=" + deadline + "\n");
   rmSync(directory, { recursive: true, force: true });
 });
+
+test("preflight transports provider cooldown deadlines across failed job boundaries", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
+  const section = (start, end) => {
+    const from = workflow.indexOf(start);
+    assert.notEqual(from, -1, "missing workflow section: " + start);
+    const to = workflow.indexOf(end, from + start.length);
+    assert.notEqual(to, -1, "missing workflow section end: " + end);
+    return workflow.slice(from, to);
+  };
+
+  const prepare = section("  prepare-task:\\n", "  dispatch-roadmap-task:\\n");
+  assert.match(prepare, /api_cooldown_until: \\$\\{\\{ steps\\.prepare-task\\.outputs\\.api_cooldown_until \\|\\| steps\\.select-task\\.outputs\\.api_cooldown_until \\}\\}/);
+  assert.match(prepare, /id: select-task/);
+  assert.match(prepare, /id: prepare-task/);
+
+  const begin = section("  begin-publication:\\n", "  publish-task:\\n");
+  assert.match(begin, /api_cooldown_until: \\$\\{\\{ steps\\.record-publishing\\.outputs\\.api_cooldown_until \\}\\}/);
+  assert.match(begin, /id: record-publishing/);
+
+  const publish = section("  publish-task:\\n", "  record-publication:\\n");
+  assert.match(publish, /api_cooldown_until: \\$\\{\\{ steps\\.publish-candidate\\.outputs\\.api_cooldown_until \\}\\}/);
+  assert.match(publish, /id: publish-candidate/);
+
+  const record = section("  record-publication:\\n", "");
+  assert.match(record, /AGENT_FACTORY_API_COOLDOWN_UNTIL: \\$\\{\\{ needs\\.begin-publication\\.outputs\\.api_cooldown_until \\|\\| needs\\.publish-task\\.outputs\\.api_cooldown_until \\|\\| needs\\.prepare-task\\.outputs\\.api_cooldown_until \\}\\}/);
+});
