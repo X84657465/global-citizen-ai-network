@@ -196,7 +196,7 @@ function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
       evidence,
     });
   }
-  let reviews: FPGovernanceReviewEvidence[] = [];
+  const reviews: FPGovernanceReviewEvidence[] = [];
   if (root.reviews !== undefined) {
     const reviewItems = snapshotSafeArray(root.reviews, 100);
     if (!reviewItems) return null;
