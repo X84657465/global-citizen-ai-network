@@ -296,4 +296,13 @@ test("unclassified candidate container outcomes fail closed to system scope", ()
   assert.equal(candidateContainerFailureScope(null), "system");
   assert.equal(candidateContainerFailureScope({ Status: "unknown", ExitCode: 1 }), "system");
   assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "not-a-number" }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: null }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "" }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "" }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: false }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: 1.5 }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: Number.MAX_SAFE_INTEGER + 1 }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "9007199254740992" }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "0" }), "none");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "2" }), "task");
 });
