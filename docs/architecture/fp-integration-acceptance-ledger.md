@@ -269,3 +269,12 @@ PR #295 and #299 both touch this ledger. Their branches are distinct and their t
 4. Implement the A-owned projection and B-owned workspace authorization only after A acceptance.
 
 This section is a documentation checkpoint, not A acceptance, B activation, deployment authorization, or permission to mutate machine-managed Factory state.
+
+
+## 14. Stale-base machine-code propagation and B projection — 2026-11-22
+
+- PR #303 latest HEAD: `0b521e654de819098fb59e86eb024bd75cc56810`. The helper writes both task failure scope and `AGENT_FACTORY_ERROR_CODE=STALE_BASE`; the regression test asserts both environment values.
+- The A controller consumes the structured error-code variable and otherwise defaults to `WORKFLOW_FAILURE`. This makes explicit stale-base coding necessary for a future safe B category projection.
+- Proposed allowlist mapping: `STALE_BASE` → `validation`; `WORKER_LEASE_EXPIRED` → `infrastructure`; generic `WORKFLOW_FAILURE`, `TASK_FAILURE`, `SYSTEM_FAILURE`, missing and unknown codes → `unknown`.
+- Candidate CI failures currently have no dedicated stable failure code and must remain `unknown`; do not infer a category from a generic failed conclusion or free-form error summary.
+- PR #303 remains Draft pending exact-head CI and independent review. This is a targeted A→B data-contract improvement, not A acceptance or B activation.
