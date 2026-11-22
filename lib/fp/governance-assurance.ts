@@ -114,6 +114,108 @@ function isSafeEvidenceRef(value: string): boolean {
     !value.includes("//");
 }
 
+/** Snapshot untrusted governance inputs using own data descriptors only. */
+function snapshotSafeRecord(value: unknown, allowed: readonly string[], required: readonly string[]): Record<string, unknown> | null {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
+  try {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return null;
+    const keys = Reflect.ownKeys(value);
+    if (keys.some((key) => typeof key !== "string" || !allowed.includes(key))) return null;
+    const keySet = new Set(keys as string[]);
+    if (required.some((key) => !keySet.has(key))) return null;
+    const snapshot = Object.create(null) as Record<string, unknown>;
+    for (const key of keys as string[]) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) return null;
+      snapshot[key] = descriptor.value;
+    }
+    return snapshot;
+  } catch {
+    return null;
+  }
+}
+
+function isCanonicalArrayIndexKey(key: string): boolean {
+  if (!/^(0|[1-9]\\d*)$/.test(key)) return false;
+  const index = Number(key);
+  return Number.isInteger(index) && index >= 0 && index < 0xFFFFFFFF;
+}
+
+function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | null {
+  try {
+    if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return null;
+    const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
+    if (!lengthDescriptor || !("value" in lengthDescriptor) ||
+        !Number.isSafeInteger(lengthDescriptor.value) || lengthDescriptor.value < 0 ||
+        lengthDescriptor.value > maximumLength) return null;
+    const length = lengthDescriptor.value as number;
+    const keys = Reflect.ownKeys(value);
+    if (keys.length !== length + 1 ||
+        keys.some((key) => typeof key !== "string" ||
+          (key !== "length" && !isCanonicalArrayIndexKey(key)))) return null;
+    const snapshot: unknown[] = [];
+    for (let index = 0; index < length; index += 1) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+      if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) return null;
+      snapshot.push(descriptor.value);
+    }
+    return snapshot;
+  } catch {
+    return null;
+  }
+}
+
+function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
+  const root = snapshotSafeRecord(value,
+    ["candidateSha", "policyVersion", "workstreams", "reviews"],
+    ["candidateSha", "policyVersion", "workstreams"]);
+  if (!root) return null;
+  const workstreamItems = snapshotSafeArray(root.workstreams, 11);
+  if (!workstreamItems) return null;
+  const workstreams: FPGovernanceWorkstreamRecord[] = [];
+  for (const rawRecord of workstreamItems) {
+    const record = snapshotSafeRecord(rawRecord,
+      ["workstream", "ownerRef", "evidence", "lifecycle"],
+      ["workstream", "ownerRef", "evidence", "lifecycle"]);
+    if (!record) return null;
+    const evidenceItems = snapshotSafeArray(record.evidence, 1);
+    if (!evidenceItems) return null;
+    const evidence: FPGovernanceEvidence[] = [];
+    for (const rawEvidence of evidenceItems) {
+      const item = snapshotSafeRecord(rawEvidence,
+        ["kind", "testedSha", "status", "evidenceRef"],
+        ["kind", "testedSha", "status", "evidenceRef"]);
+      if (!item) return null;
+      evidence.push(item as unknown as FPGovernanceEvidence);
+    }
+    workstreams.push({
+      workstream: record.workstream as WorkstreamId,
+      ownerRef: record.ownerRef as string,
+      lifecycle: record.lifecycle as "active" | "deferred",
+      evidence,
+    });
+  }
+  let reviews: FPGovernanceReviewEvidence[] = [];
+  if (root.reviews !== undefined) {
+    const reviewItems = snapshotSafeArray(root.reviews, 100);
+    if (!reviewItems) return null;
+    for (const rawReview of reviewItems) {
+      const item = snapshotSafeRecord(rawReview,
+        ["reviewedSha", "decision", "reviewRef", "reviewerRef", "reviewerAuthorizationRef", "reviewerAuthorizationStatus", "submittedAt"],
+        ["reviewedSha", "decision", "reviewRef", "reviewerRef", "reviewerAuthorizationRef", "reviewerAuthorizationStatus", "submittedAt"]);
+      if (!item) return null;
+      reviews.push(item as unknown as FPGovernanceReviewEvidence);
+    }
+  }
+  return {
+    candidateSha: root.candidateSha as string,
+    policyVersion: root.policyVersion as typeof FP_GOVERNANCE_POLICY_VERSION,
+    workstreams,
+    reviews,
+  };
+}
+
 function assessReviews(
   reviews: readonly FPGovernanceReviewEvidence[],
   candidateSha: string,
@@ -219,17 +321,14 @@ function assessReviews(
 export function assessFPGovernanceDossier(
   dossier: FPGovernanceDossier,
 ): FPGovernanceAssessment {
-  if (
-    !dossier ||
-    !SHA_PATTERN.test(dossier.candidateSha) ||
-    dossier.policyVersion !== FP_GOVERNANCE_POLICY_VERSION ||
-    !Array.isArray(dossier.workstreams)
-  ) {
-    throw new TypeError("Invalid F–P governance dossier header.");
+  const input = snapshotGovernanceDossier(dossier);
+  if (!input || !SHA_PATTERN.test(input.candidateSha) ||
+      input.policyVersion !== FP_GOVERNANCE_POLICY_VERSION) {
+    throw new TypeError("Invalid F–P governance dossier header or unsafe input structure.");
   }
 
   const byWorkstream = new Map<WorkstreamId, FPGovernanceWorkstreamRecord>();
-  for (const record of dossier.workstreams) {
+  for (const record of input.workstreams) {
     if (
       !record ||
       !FP_GOVERNANCE_REQUIREMENTS.some((requirement) => requirement.workstream === record.workstream) ||
@@ -268,7 +367,7 @@ export function assessFPGovernanceDossier(
     if (!evidence) {
       return { workstream: requirement.workstream, status: "missing-evidence", evidenceKind: requirement.evidenceKind };
     }
-    if (evidence.testedSha.toLowerCase() !== dossier.candidateSha.toLowerCase()) {
+    if (evidence.testedSha.toLowerCase() !== input.candidateSha.toLowerCase()) {
       return {
         workstream: requirement.workstream,
         status: "stale-evidence",
@@ -295,7 +394,7 @@ export function assessFPGovernanceDossier(
     };
   });
 
-  const reviewAssessment = assessReviews(dossier.reviews ?? [], dossier.candidateSha);
+  const reviewAssessment = assessReviews(input.reviews ?? [], input.candidateSha);
   const count = (status: FPGovernanceWorkstreamResult["status"]) =>
     results.filter((result) => result.status === status).length;
   const failed = count("failed");
@@ -314,7 +413,7 @@ export function assessFPGovernanceDossier(
 
   return Object.freeze({
     schemaVersion: "1",
-    candidateSha: dossier.candidateSha,
+    candidateSha: input.candidateSha,
     policyVersion: FP_GOVERNANCE_POLICY_VERSION,
     status,
     results: Object.freeze(results),
