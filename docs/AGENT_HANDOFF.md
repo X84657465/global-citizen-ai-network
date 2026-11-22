@@ -1,3 +1,54 @@
+## Superseding verified continuation snapshot — 2026-11-23 (main 9cb3107f)
+
+This section supersedes all historical live-state snapshots below. Re-fetch SHAs, Actions runs, reviews, labels and issue state before the next operation; historical entries remain traceability only.
+
+### Mainline / authority
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Verified current main HEAD: `9cb3107f34cdd03a803788bbd65899868c5293b6` (merge commit for PR #414).
+- PR #415 and PR #414 are merged. Their merge state is not independent acceptance of Factory runtime.
+- Authority remains: GPT1 owns A–E and Factory-side A→B read-only handoff; GPT2 owns F–P; GPT3 independent architecture review/QA; GPT4 B Product ownership; GPT5 execution support only under explicit task scope and allowlist.
+- Factory-first remains highest engineering priority. B Runtime is PREPARATION ONLY / BLOCKED until A acceptance and versioned sanitized read-only handoff gates pass.
+
+### Main CI / deployment
+- Exact-main Actions run [#45057198301](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057198301) targets `9cb3107f34cdd03a803788bbd65899868c5293b6` and is **PENDING**. The jobs endpoint returned an empty list at this check; no CI pass is established.
+- System Health Recovery run #45057208887 completed **SKIPPED**; this is not recovery evidence.
+- Main combined status reports Vercel `build-rate-limit`; this is a deployment-provider quota failure, separate from GitHub Actions CI.
+- Recent older main runs #45057065958, #45057046133 and #45057001364 were cancelled; do not treat them as successful verification or launch duplicate runs to force a pass.
+
+### Open PRs
+- PR #417 — `docs(factory): register Neural Intelligence Agent developer seat`; open, Draft; head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`; base main SHA is stale `25d5ed519eb923d3001df6d43aec1670a0d4851a`; current metadata reports mergeable=false. Exact-head run #45056447505 was pending at last recorded check. It requires GPT3 independent review; do not self-approve or represent seat registration as accepted.
+- PR #376, #373 and #259 remain stale/diverged candidates. Do not wholesale merge or transplant. Reconcile only owner-approved, isolated changes against current main.
+- PR #414 is merged (head `ebbe878eb8e15df50457c17f086b1c2d58dedbb3`); it is no longer an open PR.
+
+### Factory P0 — failure classification / recovery
+- Issue #117 is open and currently has **no labels**. Its existing policy/controller implementation covers explicit task/system scopes, task-only success isolation and candidate success preserving the global breaker.
+- Remaining verified defect candidate: `candidate-tests` combines Docker/container startup and in-container candidate commands in one workflow step; a Docker/OCI infrastructure failure may be classified as task-scoped. This is a Developer finding only, not an independently accepted defect or completed fix.
+- Issue #116 requires the `factory-control-plane-approved` label before the exact control-plane path `.github/workflows/agent-task-preflight.yml` can be modified by the task path validator. Issue #117 currently lacks that label; do not edit the workflow until the required authorization is recorded.
+- The latest finding and authorization boundary were recorded in Issue #117 comment #7083889575. No workflow, Runner, scheduler, machine-managed state, permissions or secrets were modified.
+- Issue #136 audit target in its issue body is stale relative to current main. Do not silently retarget; require a fresh owner-authorized exact-main audit baseline.
+- Issue #188 recovery callback remains blocked on independent audit and workflow timing design. Do not call system-health-success inside the same active CI run; its verifier requires completed source-run evidence.
+- Issue #352 operator recovery remains blocked pending verified environment-only guard and authorization. Issue #100 machine-managed Factory state remains read-only.
+
+### A→B
+- Continue only versioned, sanitized, read-only contracts and necessary handoff preparation.
+- Do not expose Factory private state, lease IDs, Runner/Sandbox controls, raw logs, patches, secrets or privileged execution authority to B.
+- Do not activate B Runtime until A independent acceptance, exact-main CI, operational soak and sanitized contract gates are satisfied.
+
+### Daily monitoring
+- Existing automation `6b000cb5c28c8191956a3575bd40d35f` — `GCAN 工廠每日巡檢`; enabled; daily at 19:00 Asia/Taipei; next scheduled run `2026-11-23T19:00:00+08:00`; last recorded run completed on 2026-11-22.
+- Reuse this automation; do not create a duplicate scheduler.
+
+### Next execution order
+1. Observe exact-main CI #45057198301; do not call Pending/empty jobs PASS.
+2. Keep Factory-first; obtain the exact Issue #117 control-plane authorization before workflow classification changes.
+3. Obtain a fresh authorized Issue #136 audit baseline for the current main SHA.
+4. Reconcile stale PRs only through owning-line review and narrow fresh branches.
+5. Keep B Runtime blocked until A acceptance and A→B contract gates pass.
+
+**Safety boundary:** this is a documentation snapshot only. It does not authorize task dispatch/retry, Issue #100 mutation, Runner/configuration/permission/secret changes, workflow changes, production DB/RLS operations, deployment, paid upgrades or B Runtime activation. None of those operations was performed in this continuation.
+
+---
+
 ## Superseding verified continuation snapshot — 2026-11-23 (main 25d5ed51; refreshed)
 
 This is the current operational snapshot. Everything below the next horizontal rule is historical evidence and must not override this section. Re-fetch exact SHAs and run IDs before any subsequent action.
