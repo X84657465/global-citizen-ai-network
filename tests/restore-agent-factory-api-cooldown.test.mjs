@@ -1,8 +1,10 @@
 import test from "node:test";
+import { spawnSync } from "node:child_process";
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { restoreApiCooldownDeadline } from "../scripts/restore-agent-factory-api-cooldown.mjs";
 
 function fixture() {
@@ -75,6 +77,22 @@ test("treats a missing artifact as an absent cooldown and does not mutate the en
   try {
     assert.deepEqual(restoreApiCooldownDeadline(f), { status: "missing" });
     assert.equal(existsSync(f.envFile), false);
+  } finally {
+    f.cleanup();
+  }
+});
+
+
+test("CLI restores the deadline on Windows-compatible Node invocation", () => {
+  const f = fixture();
+  try {
+    const deadline = "2026-11-22T12:34:56.789Z";
+    writeFileSync(f.artifactFile, deadline + "\n", "utf8");
+    const script = fileURLToPath(new URL("../scripts/restore-agent-factory-api-cooldown.mjs", import.meta.url));
+    const result = spawnSync(process.execPath, [script, f.artifactFile, f.envFile], { encoding: "utf8" });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(readFileSync(f.envFile, "utf8"), "AGENT_FACTORY_API_COOLDOWN_UNTIL=" + deadline + "\n");
   } finally {
     f.cleanup();
   }
