@@ -44,7 +44,7 @@ function writeOutput(key, value) {
 
 async function main() {
   resolverStage = "validate_environment";
-  if (!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
     throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
   }
   resolverStage = "parse_event_metadata";
@@ -68,7 +68,8 @@ async function main() {
     return;
   }
 
-  let pull;\n  resolverStage = "fetch_pull_request";\n  console.log("Resolver stage: requesting PR metadata; repository=" + repository + ", pull_request=" + pullRequestNumber + ".");
+  let pull;
+  resolverStage = "fetch_pull_request";\n  console.log("Resolver stage: requesting PR metadata; repository=" + repository + ", pull_request=" + pullRequestNumber + ".");
   try {
     pull = await api.request("/repos/" + repository + "/pulls/" + pullRequestNumber);
     console.log("Resolver stage: PR metadata received; state=" + String(pull.state ?? "unknown") +
@@ -131,7 +132,8 @@ async function main() {
   // Defer the Issue scan until an authorized AI-task PR actually needs it.
   let stateIssueNumber = "";
   if (isTaskPr) {
-    resolverStage = "read_factory_state";\n    const stateStore = createFactoryStateStore(api, {
+    resolverStage = "read_factory_state";
+    const stateStore = createFactoryStateStore(api, {
       repository,
       issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
     });
@@ -139,7 +141,8 @@ async function main() {
     const stateRecord = await stateStore.read();
     stateIssueNumber = stateRecord.issue?.number ?? "";
   }
-  resolverStage = "write_outputs";\n  writeOutput("state_issue_number", stateIssueNumber);
+  resolverStage = "write_outputs";
+  writeOutput("state_issue_number", stateIssueNumber);
 
   writeOutput("is_current_head", currentHead ? "true" : "false");
   writeOutput("is_task_pr", isTaskPr ? "true" : "false");
