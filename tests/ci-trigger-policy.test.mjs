@@ -18,14 +18,32 @@ function findJobSection(source, name) {
   return { start, end: headers[0] ? start + 1 + headers[0].index : source.length };
 }
 
-function findNamedStepBlock(source, name, fromIndex = 0) {
+function findNamedStepBlock(source, name, fromIndex = 0, endIndex = source.length) {
   const marker = `      - name: ${name}\n`;
   const start = source.indexOf(marker, fromIndex);
-  assert.ok(start >= 0, "missing workflow step: " + name);
+  assert.ok(start >= 0 && start < endIndex, "missing workflow step in requested job: " + name);
   const next = source.indexOf("\n      - name:", start + marker.length);
-  const end = next >= 0 ? next : source.length;
+  const end = next >= 0 && next < endIndex ? next : endIndex;
   return source.slice(start, end);
 }
+
+test("named workflow step extraction never crosses into a later job", () => {
+  const source = [
+    "  prepare-task:\n",
+    "    steps:\n",
+    "      - name: Existing step\n",
+    "        run: echo safe\n",
+    "  publish-task:\n",
+    "    steps:\n",
+    "      - name: Target step\n",
+    "        run: echo other-job\n",
+  ].join("");
+  const prepare = findJobSection(source, "prepare-task");
+  assert.throws(
+    () => findNamedStepBlock(source, "Target step", prepare.start, prepare.end),
+    /missing workflow step in requested job/,
+  );
+});
 
 test("root and Agent Factory numeric release metadata stay synchronized", () => {
   const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
@@ -445,11 +463,11 @@ test("preflight separates least-privilege task planning from the isolated publis
 });
 
 test("untrusted candidate install and test steps never receive GitHub write credentials", () => {
-  const prepareStart = findJobSection(preflight, "prepare-task").start;
+  const { start: prepareStart, end: prepareEnd } = findJobSection(preflight, "prepare-task");
   const candidateSteps = [
-    findNamedStepBlock(preflight, "Install candidate dependencies inside restricted container (attempt 1)", prepareStart),
-    findNamedStepBlock(preflight, "Retry candidate dependency installation once", prepareStart),
-    findNamedStepBlock(preflight, "Test patched candidate offline inside restricted container", prepareStart),
+    findNamedStepBlock(preflight, "Install candidate dependencies inside restricted container (attempt 1)", prepareStart, prepareEnd),
+    findNamedStepBlock(preflight, "Retry candidate dependency installation once", prepareStart, prepareEnd),
+    findNamedStepBlock(preflight, "Test patched candidate offline inside restricted container", prepareStart, prepareEnd),
   ];
 
   for (const step of candidateSteps) {
@@ -484,10 +502,10 @@ test("preflight GitHub tokens remain limited to the exact trusted orchestration 
 });
 
 test("candidate dependency install and offline test retain separate least-network container profiles", () => {
-  const prepareStart = findJobSection(preflight, "prepare-task").start;
-  const install = findNamedStepBlock(preflight, "Install candidate dependencies inside restricted container (attempt 1)", prepareStart);
-  const retry = findNamedStepBlock(preflight, "Retry candidate dependency installation once", prepareStart);
-  const offlineTest = findNamedStepBlock(preflight, "Test patched candidate offline inside restricted container", prepareStart);
+  const { start: prepareStart, end: prepareEnd } = findJobSection(preflight, "prepare-task");
+  const install = findNamedStepBlock(preflight, "Install candidate dependencies inside restricted container (attempt 1)", prepareStart, prepareEnd);
+  const retry = findNamedStepBlock(preflight, "Retry candidate dependency installation once", prepareStart, prepareEnd);
+  const offlineTest = findNamedStepBlock(preflight, "Test patched candidate offline inside restricted container", prepareStart, prepareEnd);
 
   for (const section of [install, retry]) {
     assert.ok(section.includes("--network bridge"), "dependency installation may use network only inside the disposable container");
