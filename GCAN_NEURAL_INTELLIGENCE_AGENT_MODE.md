@@ -1,7 +1,8 @@
 # GCAN 神經智慧體協作模式
 ## Neural Intelligence Agent Mode
 
-**文件狀態：** 工程協作規範／能力建設目標。  
+**文件狀態：** 工程協作規範／能力建設目標。
+**治理權責上位文件：** `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`。本文件定義神經智慧體工程工作方法；角色權責、GPT5 執行型開發授權、任務 DRI、跨線協調與獨立驗收，以 Master Charter 為準。若本文件與 Master Charter 對角色權責有任何差異，依 Master Charter；本文件不自行授予任何模型或 Agent 寫入、Runner、合併或部署權限。  
 **適用範圍：** Global Citizen AI Network 全專案；供 GPT 1、GPT 2、GPT 3、GPT 4、GPT 5 及專案負責人共同閱讀。  
 **權威關係：** 本文件補充 `PROJECT_COORDINATION.md`，不取代 A–P 模組文件、工作線 owner、既有安全政策或專案負責人的決策權。  
 **重要聲明：** 「神經智慧體」是工程工作模式與系統能力目標，不代表模型具有生物神經系統、意識、無限制自主權或未部署的常駐執行能力。
