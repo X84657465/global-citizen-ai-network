@@ -1,3 +1,9 @@
+## 0.3.134 — 2026-11-22
+
+- P: extend the executable A–P version contract to validate the engineering-workstream planning baseline against the canonical release version.
+- Add regression coverage for stale architecture-baseline metadata and synchronize repository/P version metadata.
+- Keep validation read-only; no release, merge, or deployment authority is granted.
+
 ## 0.3.133 — 2026-11-22
 
 - H: accept only plain data records with required own data properties; reject inherited values, accessors and exotic prototypes at the untrusted telemetry boundary.
