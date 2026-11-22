@@ -133,3 +133,17 @@ Two narrowly scoped remediation candidates have been opened against the verified
 Both PRs remain Draft/unmerged with no recorded independent review. The Vercel deployment provider has reported the account's daily deployment limit (`api-deployments-free-per-day`); this is a provider quota limitation, not evidence of a successful Preview or a code build failure. Do not retry deployment or infer Preview readiness until the quota window clears and a same-SHA deployment plus smoke test are observed.
 
 **Immediate acceptance gate:** obtain exact-head Actions results and independent review for PR #292 and #293; verify the scheduled preflight and synthetic validation after the Node pin; separately complete the read-only adversarial audit requested by Issue #136. Until then, keep A operational acceptance and B Runtime activation blocked.
+
+
+### 2026-11-22 Agent Factory audit finding reconciliation
+
+The historical Issue #136 report dated 2026-11-21 reviewed retired branch HEAD `cd9f732fc101cc20b27700b6b97ec10b59d6abc3`, not the currently integrated main SHA. Its Medium finding that candidate-task success also reset the global system breaker must not be carried forward as a confirmed defect on current main without revalidation.
+
+Read-only inspection of current main `23fb747ae4041bc28783a1b9039660ec952c7e0d` establishes the following implementation separation:
+
+- Candidate CI success in `lib/agent-factory-controller.mjs` calls `recordTaskSuccess` and persists that task transition; this branch does not call `recordSystemSuccess`.
+- The separate `system-health` controller mode validates the required exact-SHA CI job set and current open same-repository PR head before calling `recordSystemSuccess`.
+- `lib/agent-factory-state-machine.mjs` keeps `recordTaskSuccess` scoped to the target task and does not mutate `state.system`.
+- The state-machine regression suite includes distinct tests for “task success clears only that task retry record” and “system success clears system cooldown without erasing task failures”.
+
+**Disposition:** the historical coupling finding appears corrected in the current integrated tree and is not presently a confirmed current-main defect. This is a code-path reconciliation, not a substitute for the still-required independent read-only audit of current main, and not proof of operational acceptance. Issue #136 must be completed against the exact integrated SHA; preserve its read-only restrictions. A remains not operationally accepted and B Runtime remains inactive.
