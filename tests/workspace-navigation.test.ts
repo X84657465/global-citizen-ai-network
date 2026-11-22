@@ -6,6 +6,10 @@ const workspaceSource = readFileSync(
   new URL("../app/workspace/workspace-client.tsx", import.meta.url),
   "utf8",
 );
+const globalStyles = readFileSync(
+  new URL("../app/globals.css", import.meta.url),
+  "utf8",
+);
 
 test("workspace exposes a clearly labeled project navigation section", () => {
   assert.match(workspaceSource, /<strong style=\{\{ fontSize: 13 \}\}>我的專案<\/strong>/);
@@ -37,4 +41,9 @@ test("existing conversation history and new-conversation actions remain availabl
   assert.match(workspaceSource, /尚無已保存的對話/);
   assert.match(workspaceSource, /conversationLoadRef\.current \+= 1/);
   assert.match(workspaceSource, /setConversationId\(""\)/);
+});
+
+test("workspace navigation remains single-column and usable on mobile", () => {
+  assert.match(globalStyles, /\.workspace-layout\s*\{\s*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+280px/);
+  assert.match(globalStyles, /@media\s*\(max-width:\s*760px\)[\s\S]*?\.workspace-layout\s*\{\s*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
 });
