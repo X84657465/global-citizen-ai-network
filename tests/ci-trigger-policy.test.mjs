@@ -446,7 +446,7 @@ test("preflight separates least-privilege task planning from the isolated publis
   const preparePermissions = prepareTask.slice(preparePermissionsStart, preparePermissionsEnd);
   assert.equal(
     preparePermissions.trim(),
-    ["    permissions:", "      actions: none", "      contents: read", "      issues: write", "      pull-requests: read"].join("\n"),
+    ["permissions:", "      actions: none", "      contents: read", "      issues: write", "      pull-requests: read"].join("\n"),
     "prepare-task must retain its exact least-privilege permission set",
   );
 
@@ -457,7 +457,7 @@ test("preflight separates least-privilege task planning from the isolated publis
   const publisherPermissions = publisherJob.slice(publisherPermissionsStart, publisherPermissionsEnd);
   assert.equal(
     publisherPermissions.trim(),
-    ["    permissions:", "      actions: read", "      contents: write", "      issues: none", "      pull-requests: write"].join("\n"),
+    ["permissions:", "      actions: read", "      contents: write", "      issues: none", "      pull-requests: write"].join("\n"),
     "publish-task must retain its exact isolated publisher permission set",
   );
 });
