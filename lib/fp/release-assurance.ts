@@ -118,8 +118,8 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
 
   const expectedRunUrl = `https://github.com/${run.repository}/actions/runs/${run.runId}`;
   const expectedRunAttemptUrl = `${expectedRunUrl}/attempts/${run.runAttempt}`;
-  if (run.runUrl !== expectedRunUrl && run.runUrl !== expectedRunAttemptUrl) {
-    throw new TypeError("G run URL does not match its repository, run ID, and attempt.");
+  if (run.runUrl !== expectedRunAttemptUrl) {
+    throw new TypeError("G run URL must identify the exact repository, run ID, and attempt.");
   }
 
   const expectedJobPrefix = `${expectedRunUrl}/job/`;
