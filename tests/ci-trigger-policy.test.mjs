@@ -51,11 +51,11 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
-test("CI coalesces pending commits and serializes every job on the available Windows Runner", () => {
+test("CI keeps stateful quality and integration jobs serialized on the Windows Runner", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
-  const jobs = ["resolve-candidate", "quality", "build", "database", "circuit-breaker", "circuit-breaker-success", "ci-diagnostics"];
+  const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success"];
   for (const job of jobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
@@ -72,6 +72,18 @@ test("CI coalesces pending commits and serializes every job on the available Win
   }
   assert.ok(quality.includes("needs: [resolve-candidate]"));
   assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
+});
+
+test("read-only PR metadata resolution runs on hosted Linux without reserving Windows capacity", () => {
+  const { start, end } = findJobSection(workflow, "resolve-candidate");
+  const resolverJob = workflow.slice(start, end);
+  assert.ok(resolverJob.includes("runs-on: ubuntu-24.04"));
+  assert.ok(resolverJob.includes("shell: bash"));
+  assert.ok(resolverJob.includes("contents: read"));
+  assert.ok(resolverJob.includes("issues: read"));
+  assert.ok(resolverJob.includes("pull-requests: read"));
+  assert.equal(resolverJob.includes("global-citizen-ai-network-self-hosted-runner"), false);
+  assert.equal(resolverJob.includes("queue: max"), false);
 });
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
@@ -501,7 +513,21 @@ test("CI candidate execution is fenced to the exact event head SHA", () => {
   assert.ok(resolver.includes("pull.head?.sha === expectedSha"));
   assert.ok(workflow.includes("github.event.client_payload.head_sha || github.event.pull_request.head.sha"));
 });
-test("CI diagnostics use the shared Windows Runner, read-only Actions access and redacted evidence", () => { const x = findJobSection(workflow, "ci-diagnostics"); const s = workflow.slice(x.start, x.end); assert.ok(s.includes("runs-on: [self-hosted, Windows, X64]")); assert.ok(s.includes("group: global-citizen-ai-network-self-hosted-runner")); assert.ok(s.includes("queue: max")); assert.ok(s.includes("actions: read")); assert.ok(s.includes("Invoke-RestMethod")); assert.ok(s.includes("CI_EXPECTED_HEAD_SHA")); assert.ok(s.includes("ci-failure-diagnostics.json")); assert.ok(s.includes("retention-days: 90")); assert.equal(s.includes("issues: write"), false); });
+test("CI diagnostics run on hosted Linux with read-only access and redacted evidence", () => {
+  const x = findJobSection(workflow, "ci-diagnostics");
+  const s = workflow.slice(x.start, x.end);
+  assert.ok(s.includes("runs-on: ubuntu-24.04"));
+  assert.ok(s.includes("shell: pwsh"));
+  assert.equal(s.includes("global-citizen-ai-network-self-hosted-runner"), false);
+  assert.equal(s.includes("queue: max"), false);
+  assert.ok(s.includes("actions: read"));
+  assert.ok(s.includes("contents: read"));
+  assert.ok(s.includes("Invoke-RestMethod"));
+  assert.ok(s.includes("CI_EXPECTED_HEAD_SHA"));
+  assert.ok(s.includes("ci-failure-diagnostics.json"));
+  assert.ok(s.includes("retention-days: 90"));
+  assert.equal(s.includes("issues: write"), false);
+});
 
 
 test("ordinary PR metadata resolution does not depend on durable factory-state storage", () => {
