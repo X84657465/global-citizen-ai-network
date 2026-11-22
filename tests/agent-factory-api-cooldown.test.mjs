@@ -60,27 +60,27 @@ test("uses the secondary-rate-limit reset header when Retry-After is invalid", (
 
 test("preflight transports provider cooldown deadlines across failed job boundaries", () => {
   const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
-  const section = (start, end) => {
+  const section = (start, end = null) => {
     const from = workflow.indexOf(start);
     assert.notEqual(from, -1, "missing workflow section: " + start);
-    const to = workflow.indexOf(end, from + start.length);
+    const to = end === null ? workflow.length : workflow.indexOf(end, from + start.length);
     assert.notEqual(to, -1, "missing workflow section end: " + end);
     return workflow.slice(from, to);
   };
 
-  const prepare = section("  prepare-task:\\n", "  dispatch-roadmap-task:\\n");
-  assert.match(prepare, /api_cooldown_until: \\$\\{\\{ steps\\.prepare-task\\.outputs\\.api_cooldown_until \\|\\| steps\\.select-task\\.outputs\\.api_cooldown_until \\}\\}/);
-  assert.match(prepare, /id: select-task/);
-  assert.match(prepare, /id: prepare-task/);
+  const prepare = section("  prepare-task:", "  dispatch-roadmap-task:");
+  assert.ok(prepare.includes("api_cooldown_until: ${{ steps.prepare-task.outputs.api_cooldown_until || steps.select-task.outputs.api_cooldown_until }}"));
+  assert.ok(prepare.includes("id: select-task"));
+  assert.ok(prepare.includes("id: prepare-task"));
 
-  const begin = section("  begin-publication:\\n", "  publish-task:\\n");
-  assert.match(begin, /api_cooldown_until: \\$\\{\\{ steps\\.record-publishing\\.outputs\\.api_cooldown_until \\}\\}/);
-  assert.match(begin, /id: record-publishing/);
+  const begin = section("  begin-publication:", "  publish-task:");
+  assert.ok(begin.includes("api_cooldown_until: ${{ steps.record-publishing.outputs.api_cooldown_until }}"));
+  assert.ok(begin.includes("id: record-publishing"));
 
-  const publish = section("  publish-task:\\n", "  record-publication:\\n");
-  assert.match(publish, /api_cooldown_until: \\$\\{\\{ steps\\.publish-candidate\\.outputs\\.api_cooldown_until \\}\\}/);
-  assert.match(publish, /id: publish-candidate/);
+  const publish = section("  publish-task:", "  record-publication:");
+  assert.ok(publish.includes("api_cooldown_until: ${{ steps.publish-candidate.outputs.api_cooldown_until }}"));
+  assert.ok(publish.includes("id: publish-candidate"));
 
-  const record = section("  record-publication:\\n", "");
-  assert.match(record, /AGENT_FACTORY_API_COOLDOWN_UNTIL: \\$\\{\\{ needs\\.begin-publication\\.outputs\\.api_cooldown_until \\|\\| needs\\.publish-task\\.outputs\\.api_cooldown_until \\|\\| needs\\.prepare-task\\.outputs\\.api_cooldown_until \\}\\}/);
+  const record = section("  record-publication:");
+  assert.ok(record.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.begin-publication.outputs.api_cooldown_until || needs.publish-task.outputs.api_cooldown_until || needs.prepare-task.outputs.api_cooldown_until }}"));
 });
