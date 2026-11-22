@@ -30,9 +30,23 @@ test("keeps unknown and empty submission statuses understandable", () => {
 });
 
 test("treats inherited object property names as unknown submission statuses", () => {
-  for (const status of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
+  for (const status of [
+    "constructor",
+    "__proto__",
+    "toString",
+    "hasOwnProperty",
+    "valueOf",
+    "isPrototypeOf",
+    "__defineGetter__",
+    "__defineSetter__",
+  ]) {
     assert.equal(getSubmissionStatusLabel(status), `狀態待確認（${status.toLowerCase()}）`);
   }
+});
+
+test("sanitizes control characters and bounds unknown submission labels", () => {
+  const noisyStatus = `\u0000\u001f\u007f${"x".repeat(100)}`;
+  assert.equal(getSubmissionStatusLabel(noisyStatus), `狀態待確認（${"x".repeat(80)}）`);
 });
 
 test("maps persisted appeal lifecycle states", () => {
@@ -44,7 +58,16 @@ test("maps persisted appeal lifecycle states", () => {
 });
 
 test("treats inherited object property names as unknown appeal statuses", () => {
-  for (const status of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
+  for (const status of [
+    "constructor",
+    "__proto__",
+    "toString",
+    "hasOwnProperty",
+    "valueOf",
+    "isPrototypeOf",
+    "__defineGetter__",
+    "__defineSetter__",
+  ]) {
     assert.equal(getAppealStatusLabel(status), `狀態待確認（${status.toLowerCase()}）`);
   }
 });
