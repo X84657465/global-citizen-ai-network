@@ -863,3 +863,42 @@ This section supersedes prior PR #328 head/run snapshots and records the latest 
 4. Keep A acceptance gated on exact-SHA quality, disposable-container isolation, Ollama, PostgreSQL/RLS, operational progression/soak, and independent review. Only then implement the bounded read-only A→B projection and tenant boundary.
 
 **Authority boundary:** documentation-only checkpoint. No Factory runtime/state, Issue #100, tasks, leases, retry/cooldown/quarantine, scheduler, Runner concurrency, workflow permissions, secrets, production data, deployment, or B Runtime was changed.
+
+
+---
+
+## Superseding live continuation checkpoint — 2026-11-22 (latest verified main)
+
+This checkpoint supersedes earlier live snapshots wherever their main SHA, PR state, run status, or conclusion differs. Documentation only; not A acceptance, B activation, or deployment authorization.
+
+### Repository baseline
+- Verified current `main` HEAD: `9934158d58fd2155c570cef8254d720c65df6741`.
+- Repository version: `0.3.125`; Agent Factory V2: `2.0.84`; GCAN Product: `0.1.20`. These are declared versions, not acceptance claims.
+
+### A-line candidate status
+- PR #333 proposes the narrow publisher API cooldown handoff fix. Its candidate head is `640e56a3d708fd3ef5dade982f45484114bba85a`, originally based on `c4f46dbcc78b40cb3a4f31a6d3513f6e922aca79`.
+- Current main has advanced to `9934158d58fd2155c570cef8254d720c65df6741`. Comparing current main to PR #333 head reports **diverged**: candidate ahead 18 commits, behind 26. Do not merge, retarget, or transplant the branch without a fresh selective reconciliation against current main.
+- Exact-head Actions run [#45010763373](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45010763373) for PR #333's old head remains pending. The Jobs API exposes only a pending exact-candidate metadata resolver; no current-main-compatible full CI evidence exists.
+- PR #333 has zero formal review submissions and zero inline review threads. Automated Codex review did not complete because the review usage limit was reached; this is not approval.
+- Candidate combined status reports Vercel `build-rate-limit`; this is an external deployment quota failure, not CI success or READY Preview evidence.
+- The candidate's artifact handoff implementation and static/unit tests are present, but real publisher 429/403 failure injection, artifact transfer under a failed publisher job, and durable cooldown write/readback remain unverified.
+
+### Other candidates and independent audit
+- PR #259 remains a broad, stale, non-mergeable candidate; do not merge, retarget, or transplant wholesale.
+- PR #334 was a docs-only refresh branch based on the prior main and was closed unmerged when main advanced 26 commits. Its stale branch must not be revived.
+- Issue #136 remains open and strictly READ-ONLY. The inspected comments are owner-authored supplemental checks; no independent adversarial audit report or formal sign-off is established.
+- Do not mutate machine-managed Issue #100, task leases, retry counters, cooldown/quarantine, scheduler state, Runner concurrency, workflow permissions, secrets, production data, or deployment settings to manufacture passing evidence.
+
+### B handoff boundary
+- `docs/architecture/agent-factory-product-read-adapter.md` remains proposed, unimplemented and unaccepted. It defines a versioned, sanitized, read-only A projection and B-owned workspace authorization; it is not a live API.
+- B Runtime remains inactive. No Factory state, leases, Runner/Sandbox controls, raw logs, patches, secrets or privileged execution may be exposed to B.
+- After A acceptance only, implement the A-owned projection with exact SHA/PR/run/attempt binding and verify B workspace tenancy with two-workspace RLS/IDOR tests.
+
+### Next execution order
+1. Reconcile PR #333's four-file cooldown handoff change selectively against current main; do not reuse its divergent 18-commit branch as a merge candidate.
+2. Preserve the failure-safe artifact design, then add/execute real 429/403 failure injection and durable cooldown readback on a fresh exact-head candidate.
+3. Require full exact-head Windows quality, Ollama/local execution and PostgreSQL/RLS CI, plus independent review.
+4. Obtain the independent read-only Issue #136 report and triage only verified findings.
+5. Keep B Runtime inactive until A passes its complete acceptance and operational-soak gates.
+
+**Authority boundary:** this checkpoint changes documentation only. It does not change Factory runtime/state, Issue #100, tasks, leases, retry/cooldown/quarantine, scheduler, Runner policy, workflow permissions, secrets, production data, deployments, or B Runtime behavior.
