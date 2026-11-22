@@ -85,6 +85,29 @@ test("persists a bounded provider rate-limit deadline without weakening the defa
   );
 });
 
+test("never shortens an existing provider cooldown when a later deadline or generic breaker is shorter", () => {
+  const initial = createInitialFactoryState(1_000);
+  const existingUntil = new Date(1_000 + 3 * 60 * 60 * 1000).toISOString();
+  const first = recordSystemFailure(
+    initial, "provider-long-1", "API_RATE_LIMIT", "long provider cooldown", 1_000, existingUntil,
+  );
+  assert.equal(first.state.system.cooldown_until, existingUntil);
+
+  const shorterProvider = recordSystemFailure(
+    first.state, "provider-short-2", "API_RATE_LIMIT", "shorter provider deadline", 2_000,
+    new Date(2_000 + 60 * 60 * 1000).toISOString(),
+  );
+  assert.equal(shorterProvider.state.system.cooldown_until, existingUntil);
+
+  const genericOne = recordSystemFailure(
+    shorterProvider.state, "generic-short-3", "SYSTEM_FAILURE", "ordinary failure", 3_000,
+  );
+  const genericTwo = recordSystemFailure(
+    genericOne.state, "generic-short-4", "SYSTEM_FAILURE", "ordinary failure", 4_000,
+  );
+  assert.equal(genericTwo.state.system.cooldown_until, existingUntil);
+});
+
 test("keeps task-scoped failures isolated from provider system cooldown", () => {
   const state = createInitialFactoryState(1_000);
   const reserved = reserveTask(state, metadata(), 1_000);
