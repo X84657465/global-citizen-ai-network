@@ -48,6 +48,20 @@ function makeRequest(query = `pull_request=42&sha=${sha}`) {
   return new Request(`https://example.test/api/admin/fp/governance-reviews?${query}`);
 }
 
+test("authentication provider failure returns 503 without profile or GitHub access", async () => {
+  const deps = makeDependencies({
+    getAuthenticatedClient: async () => {
+      deps.calls.push("auth");
+      throw new Error("auth provider unavailable");
+    },
+  });
+  const response = await handleGovernanceReviewsGet(makeRequest(), deps);
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  assert.deepEqual(deps.calls, ["auth"]);
+});
+
 test("unauthenticated request returns 401 and private headers before any profile/GitHub access", async () => {
   const deps = makeDependencies({
     getAuthenticatedClient: async () => { deps.calls.push("auth"); return null; },
@@ -82,6 +96,16 @@ test("profile lookup error returns 503 without creating a GitHub client", async 
   });
   const response = await handleGovernanceReviewsGet(makeRequest(), deps);
   assert.equal(response.status, 503);
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
+});
+
+test("admin profile evaluator failure returns 503 without GitHub access", async () => {
+  const deps = makeDependencies({
+    isActiveAdminProfile: () => { throw new Error("profile evaluator unavailable"); },
+  });
+  const response = await handleGovernanceReviewsGet(makeRequest(), deps);
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("cache-control"), "no-store");
   assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
 
