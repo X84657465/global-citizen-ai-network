@@ -235,7 +235,7 @@ Until then, this document remains a design handoff only. A Factory internals rem
 
 This section supersedes the earlier readiness snapshots in this document. The verified integrated baseline for this refresh is:
 
-- Main SHA: `ee6507cad11bc9709e46a8423912df17e08d2164` (merge commit for PR #336).
+- A implementation baseline SHA (main immediately before this documentation-only refresh): `ee6507cad11bc9709e46a8423912df17e08d2164` (merge commit for PR #336).
 - Repository version: `0.3.126`.
 - Agent Factory V2: `2.0.84`.
 - GCAN Product track metadata: `0.1.20`.
