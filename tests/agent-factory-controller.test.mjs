@@ -174,7 +174,7 @@ function operatorRecoveryEnv(overrides = {}) {
     GITHUB_REF: "refs/heads/main",
     GITHUB_REPOSITORY: "owner/repo",
     GITHUB_ACTOR: "owner",
-    FACTORY_OPERATOR_RECOVERY_GUARD: "configured-secret-marker",
+    FACTORY_OPERATOR_RECOVERY_ENV_GUARD: "configured-secret-marker",
     ISSUE_NUMBER: "42",
     EXPECTED_STATE_VERSION: "0",
     EXPECTED_TASK_STATUS: "quarantined",
@@ -1913,7 +1913,9 @@ test("operator recovery requires owner, main, workflow_dispatch, protected secre
     { GITHUB_EVENT_NAME: "issues" },
     { GITHUB_REF: "refs/heads/feature" },
     { GITHUB_ACTOR: "contributor" },
-    { FACTORY_OPERATOR_RECOVERY_GUARD: "" },
+    { FACTORY_OPERATOR_RECOVERY_ENV_GUARD: "" },
+    // A legacy repository/org-scoped secret must never satisfy the Environment-only guard.
+    { FACTORY_OPERATOR_RECOVERY_GUARD: "legacy-repository-secret" },
     { OPERATOR_RECOVERY_CONFIRMATION: "yes" },
   ];
   for (const overrides of invalid) {
