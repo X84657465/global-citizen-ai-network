@@ -1,4 +1,4 @@
-import { appendFileSync, readFileSync } from "node:fs";
+import { appendFileSync, closeSync, fstatSync, openSync, readSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -17,15 +17,23 @@ export function restoreApiCooldownDeadline({ artifactFile, envFile } = {}) {
   }
 
   let raw;
+  let descriptor;
   try {
-    raw = readFileSync(artifactFile, "utf8");
+    descriptor = openSync(artifactFile, "r");
+    if (fstatSync(descriptor).size > MAX_ARTIFACT_BYTES) {
+      return { status: "invalid" };
+    }
+    // Read at most one byte beyond the accepted limit to remain bounded even
+    // if the artifact changes between the size check and the read.
+    const buffer = Buffer.alloc(MAX_ARTIFACT_BYTES + 1);
+    const bytesRead = readSync(descriptor, buffer, 0, buffer.length, 0);
+    if (bytesRead > MAX_ARTIFACT_BYTES) return { status: "invalid" };
+    raw = buffer.subarray(0, bytesRead).toString("utf8");
   } catch (error) {
     if (error?.code === "ENOENT") return { status: "missing" };
     throw error;
-  }
-
-  if (Buffer.byteLength(raw, "utf8") > MAX_ARTIFACT_BYTES) {
-    return { status: "invalid" };
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor);
   }
 
   const value = raw.endsWith("\n") ? raw.slice(0, -1) : raw;
