@@ -131,7 +131,7 @@ test("rejects impossible calendar dates in current changelog headings", () => {
 
 test("accepts a workstream-labelled latest entry after a descriptive title", () => {
   const input = validInput();
-  input.trackChangelogs.K = "# K changelog\\n\\n## K 0.1.0 — 2026-11-22\\n";
+  input.trackChangelogs.K = "# K changelog\n\n## K 0.1.0 — 2026-11-22\n";
   const result = validateWorkstreamVersionContract(input);
   assert.equal(result.valid, true);
   assert.deepEqual(result.errors, []);
