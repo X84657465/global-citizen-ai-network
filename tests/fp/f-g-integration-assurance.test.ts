@@ -15,7 +15,8 @@ const repository = "X84657465/global-citizen-ai-network";
 const sha = "a".repeat(40);
 const runId = 123;
 const runAttempt = 1;
-const runUrl = `https://github.com/${repository}/actions/runs/${runId}`;
+const runBaseUrl = `https://github.com/${repository}/actions/runs/${runId}`;
+const runUrl = `${runBaseUrl}/attempts/${runAttempt}`;
 
 const securityCI = (
   jobKey: "quality" | "database",
@@ -29,10 +30,11 @@ const securityCI = (
   workflowPath: ".github/workflows/ci.yml",
   runId,
   runAttempt,
+  jobRunAttempt: runAttempt,
   runUrl,
   jobKey,
   jobConclusion: "success",
-  jobUrl: `${runUrl}/job/${jobKey === "database" ? 456 : 789}`,
+  jobUrl: `${runBaseUrl}/job/${jobKey === "database" ? 456 : 789}`,
   ...overrides,
 });
 
@@ -61,7 +63,8 @@ const bundle = (overrides: {
 } = {}): FPGIntegrationEvidenceBundle => {
   const releaseRunId = overrides.releaseRunId ?? runId;
   const releaseAttempt = overrides.releaseAttempt ?? runAttempt;
-  const releaseRunUrl = `https://github.com/${repository}/actions/runs/${releaseRunId}`;
+  const releaseRunBaseUrl = `https://github.com/${repository}/actions/runs/${releaseRunId}`;
+  const releaseRunUrl = `${releaseRunBaseUrl}/attempts/${releaseAttempt}`;
   return {
     security: {
       candidateRepository: repository,
@@ -90,7 +93,7 @@ const bundle = (overrides: {
           jobId,
           status: "completed" as const,
           conclusion: jobId === overrides.failedJob ? "failure" as const : "success" as const,
-          jobUrl: `${releaseRunUrl}/job/456`,
+          jobUrl: `${releaseRunBaseUrl}/job/456`,
         })),
       },
     },
