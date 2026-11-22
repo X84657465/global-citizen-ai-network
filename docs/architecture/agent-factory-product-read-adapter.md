@@ -189,3 +189,10 @@ This verifies the source wiring, not a runtime pass. PR #303 exact-head run `449
 PR #303 HEAD is now `3dfb78df3a784d02f63b2378dff5f7a1af59ae24`. In addition to the helper's environment-file assertion, its regression suite now reads the publisher entrypoint and asserts that both explicit default-branch drift guards pass the task-scoped classification to the helper exactly once. This guards against a future edit silently removing the classification at either call site.
 
 The test has been committed but has not run on this exact SHA. It is source/test coverage only; do not treat it as a passing validation result or as independent review.
+
+
+### End-to-end stale-base classifier regression coverage — 2026-11-22
+
+PR #303 HEAD `9b1097484e868d8c78b752c1372f6c6964a36ed3` adds a second source-level regression guard: it reads the workflow and controller to assert that the failure classifier preserves task scope and that the controller consumes `AGENT_FACTORY_ERROR_CODE` when recording the task failure. Together with the publisher-callsite and helper environment-file tests, the regression coverage now spans the publisher guards → workflow classifier → controller error-code argument.
+
+This remains static regression coverage only. It has not executed on this exact HEAD, and it is not independent review or runtime acceptance.
