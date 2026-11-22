@@ -257,3 +257,24 @@ test("scopes required outputs to each single-file generation batch and preserves
     existing,
   ));
 });
+
+
+test("batch scoping cannot expand the validated task path allowlist", () => {
+  const contractTask = {
+    schema_version: 1,
+    allowed_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+    required_patch_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+  };
+  assert.throws(
+    () => scopePatchTaskToBatch(contractTask, ["lib/agent-factory-state-machine.mjs"]),
+    /cannot expand the task's explicitly authorized path allowlist/,
+  );
+  assert.throws(
+    () => scopePatchTaskToBatch(contractTask, []),
+    /non-empty batch path list/,
+  );
+  assert.throws(
+    () => scopePatchTaskToBatch(contractTask, [null]),
+    /non-empty batch path list/,
+  );
+});
