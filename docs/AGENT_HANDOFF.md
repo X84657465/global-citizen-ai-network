@@ -449,3 +449,41 @@ This checkpoint supersedes the earlier 09:47 Taiwan snapshot for the Factory run
 5. Keep B Runtime inactive. Prepare only the sanitized, versioned, read-only A→B projection until A passes every acceptance gate.
 
 This is an observation and sequencing checkpoint, not an acceptance, merge, deployment, Factory-state mutation, or B activation.
+
+
+---
+
+## Superseding continuation checkpoint — 2026-11-22 (A Factory / B contract)
+
+This checkpoint supersedes earlier live-status statements in this document where exact SHAs, run IDs, or failure diagnoses differ. It is based on read-only GitHub evidence observed for current main `061ccf621c228bae93b91cd8c53723c3fe08310a`.
+
+### A — Factory candidate work
+
+- **PR #303 — stale-base failure classification:** HEAD `aec814f93c60fdda501c158cbd622377625a5c61`; exact-head Actions run `44975519823` is pending with no jobs allocated. It preserves both stale-base guards and marks only the two explicit default-branch-drift publication rejections as task-scoped. It does not rebase, retry, publish, or weaken the SHA checks.
+- **PR #305 — task-declared patch output contracts:** HEAD `2a2d35114c88ba0cce6d8478a72d908a8b277985`; exact-head Actions run `44976078839` is pending with no jobs allocated. It parses required output paths and forbidden literal content, enforces allowlist containment and aggregate manifest validation, and now rejects empty/invalid batch scopes or any batch expansion beyond the validated task allowlist.
+- Both PRs remain Draft/open, GitHub reports mergeable, neither has a formal review submission or review thread, and neither has exact-head CI success. Their combined statuses report Vercel `build-rate-limit`; no same-SHA READY Preview/Smoke is established. Mergeability is not acceptance.
+- Run `44972336349` / job `137054627179` established the stale-base incident: scratch application and generic offline validation passed, then publication correctly rejected the stale candidate because main had advanced after tests. The classifier treated that known task-level race as system-scoped. PR #303 addresses that narrow misclassification.
+- **Evidence correction:** Issue #136's latest correction records effective job-token permissions as Contents: write, Issues: write and PullRequests: write, and explicitly withdraws the earlier read-only-token mismatch diagnosis. Do not repeat the old permission-mismatch claim as a confirmed cause. The observed publisher failure was the stale-base rejection.
+- Issue #100 remains machine-managed and was not modified: state version 152 at `2026-11-22T02:04:40.421Z`, no active task, 9 consecutive system failures, cooldown through `02:19:40.421Z` (elapsed), Issue #17 queued, and 7 quarantined tasks. The historical lease/run fields on task #17 are not a live lease. No manual retry, state reset, or forced dispatch is authorized by this checkpoint.
+- Issue #17's previous candidate was not publishable: it omitted the required security regression test, proposed excluded Next.js/ESLint major downgrades, and lacked fresh dependency-audit evidence. Do not retry the unchanged task. After #305 is merged and validated, add its required test path and literal prohibitions to #17; the contract alone does not replace fresh audit/registry evidence or task-specific validation.
+
+### Independent A acceptance
+
+- Issue #136 remains a read-only audit gate. Its latest comments contain owner-authored evidence and corrections, but no independent adversarial audit report or formal sign-off was found. CI, code inspection, and implementation-owner notes are not substitutes.
+- Keep #303 and #305 Draft until their own exact-head CI, independent review, and applicable Preview evidence are complete. Merge only after those gates pass.
+- Do not edit Issue #100, reset failure/cooldown/quarantine/lease state, broaden workflow permissions, change Runner/concurrency policy, or bypass the normal scheduler.
+
+### B — contract preparation only
+
+- Current main's `lib/agent-factory-state-machine.mjs` already stores structured `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt` fields and validates the exact tuple for candidate evidence. The current B proposal's public-state mapping covers every declared `TASK_STATES` value.
+- This confirms a usable source-data foundation, **not** a dedicated A-owned product projection or public API. The B read adapter remains a proposal; B Runtime, product routes/tables, billing, and Factory access stay inactive.
+- Before implementation, freeze the A projection contract after A acceptance, explicitly map failure categories from an allowlist (default unknown; never expose raw exception text), and implement B-owned workspace authorization plus two-workspace RLS/IDOR tests. B must not read Issue #100 or import A controller/state-store internals.
+
+### Next execution order
+
+1. Complete exact-head Actions and independent review for #303 and #305; do not treat pending/unallocated jobs as passing.
+2. After #305 acceptance, amend Issue #17 with the required test output and prohibited recommendation literals, then allow the normal scheduler to process it against current main.
+3. Complete Issue #136's independent read-only audit and the remaining A operational gates, including same-SHA Preview/Smoke and natural queue/lease progression.
+4. Only after A acceptance, implement the A-owned sanitized projection and B-owned workspace boundary under the versioned read-only contract.
+
+**Authority boundary:** this checkpoint is documentation-only. It changes no runtime, Factory state, task issue, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production database, deployment, or B Runtime behavior.
