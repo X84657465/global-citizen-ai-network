@@ -69,10 +69,13 @@ test("rejects invalid system breaker counters and timestamps", () => {
 
 test("persists a bounded provider rate-limit deadline without weakening the default breaker cooldown", () => {
   const initial = createInitialFactoryState(1_000);
-  const first = recordSystemFailure(initial, "rate-limit-1", "API_RATE_LIMIT", "provider asked us to wait", 1_000, new Date(3_600_000).toISOString());
-  assert.equal(first.state.system.cooldown_until, new Date(3_600_000).toISOString());
+  const first = recordSystemFailure(initial, "rate-limit-1", "API_RATE_LIMIT", "first system failure", 1_000);
+  const second = recordSystemFailure(first.state, "rate-limit-2", "API_RATE_LIMIT", "second system failure", 1_001);
+  assert.equal(second.state.system.cooldown_until, null);
+  const third = recordSystemFailure(second.state, "rate-limit-3", "API_RATE_LIMIT", "provider asked us to wait", 1_002, new Date(3_600_000).toISOString());
+  assert.equal(third.state.system.cooldown_until, new Date(3_600_000).toISOString());
 
-  const capped = recordSystemFailure(first.state, "rate-limit-2", "API_RATE_LIMIT", "provider deadline exceeds policy", 2_000, new Date(90_000_000).toISOString());
+  const capped = recordSystemFailure(third.state, "rate-limit-4", "API_RATE_LIMIT", "provider deadline exceeds policy", 2_000, new Date(90_000_000).toISOString());
   assert.equal(Date.parse(capped.state.system.cooldown_until), 2_000 + 24 * 60 * 60 * 1000);
 
   assert.throws(
