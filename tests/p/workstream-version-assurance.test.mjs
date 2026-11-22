@@ -16,7 +16,7 @@ const validInput = () => ({
   packageVersion: "0.3.134",
   lockfileVersion: "0.3.134",
   lockfileRootVersion: "0.3.134",
-  readme: `**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` · P 線 Governance `${manifest.tracks.P.version}` ·`,
+  readme: "**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` · P 線 Governance `" + manifest.tracks.P.version + "` ·",
   governance: "**Repository release baseline: 0.3.134**",
   workstreams: "**Planning baseline:** repository release 0.3.134",
   changelog: "## 0.3.134 — 2026-11-22\n\n- P governance validator.",
