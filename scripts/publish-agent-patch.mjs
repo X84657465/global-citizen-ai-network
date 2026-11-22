@@ -8,9 +8,15 @@ import { scratchPatchEvidenceMatches } from "../lib/agent-scratch-evidence.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { ensureDeterministicBranch } from "../lib/agent-publisher-branch.mjs";
 import { collectGitHubPages } from "../lib/github-pagination.mjs";
+import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
 
-const fail = (message, failureScope = null) => {
+const fail = (message, failureScope = null, error = null) => {
   if (failureScope) persistPublicationFailureScope(failureScope);
+  if (error?.rateLimited === true) {
+    try { persistApiCooldownDeadline(error); } catch {
+      console.error("Unable to persist the publisher's provider rate-limit deadline.");
+    }
+  }
   console.error("Agent PR publishing rejected: " + message);
   process.exit(1);
 };
@@ -363,5 +369,5 @@ try {
   });
   console.log("Created draft PR after successful isolated validation: " + pull.html_url);
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Unexpected GitHub publication failure.");
+  fail(error instanceof Error ? error.message : "Unexpected GitHub publication failure.", null, error);
 }
