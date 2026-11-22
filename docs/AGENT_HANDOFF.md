@@ -487,3 +487,13 @@ This checkpoint supersedes earlier live-status statements in this document where
 4. Only after A acceptance, implement the A-owned sanitized projection and B-owned workspace boundary under the versioned read-only contract.
 
 **Authority boundary:** this checkpoint is documentation-only. It changes no runtime, Factory state, task issue, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production database, deployment, or B Runtime behavior.
+
+
+---
+
+## A→B failure-code projection cross-check — 2026-11-22
+
+- PR #303 latest HEAD is `0b521e654de819098fb59e86eb024bd75cc56810`. Both stale-default-branch publisher guards now persist `AGENT_FACTORY_FAILURE_SCOPE=task` and `AGENT_FACTORY_ERROR_CODE=STALE_BASE` to `GITHUB_ENV`; the regression test asserts both values. Exact-head CI is pending/not yet observed as passing; PR remains Draft.
+- This closes a narrow evidence gap for the proposed B projection: the controller reads `AGENT_FACTORY_ERROR_CODE`, otherwise defaults workflow failures to `WORKFLOW_FAILURE`. Without the explicit code, stale candidate drift would be indistinguishable from generic workflow failure in durable state.
+- Proposed public mapping (subject to independent contract review): `STALE_BASE` → `validation`; `WORKER_LEASE_EXPIRED` → `infrastructure`; generic `WORKFLOW_FAILURE`, `TASK_FAILURE`, and `SYSTEM_FAILURE` → `unknown`. Candidate CI failure currently has no distinct persisted error code and therefore remains `unknown` until A supplies a structured, exact-attempt code.
+- Never derive public categories from free-form `last_error` summaries. Unknown codes map to `unknown`; raw summaries, internal codes, and scope details are not exposed to B.
