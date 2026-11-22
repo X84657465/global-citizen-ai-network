@@ -187,3 +187,61 @@ This addendum preserves the original source-inspection snapshot and corrects iss
 ### Evidence boundary
 
 This addendum is a GitHub metadata and source-status correction only. No local tests, browser/device acceptance, live database query, production operation or deployment was performed. The original baseline snapshot and its limitations remain intact; revalidate all SHA-bound evidence whenever main or the candidate branch advances.
+
+
+## 11. B Product delivery map refresh — 2026-11-23
+
+This section converts the North Star into a delivery-oriented map. It supplements the source-inspection inventory above; it does not replace the pinned mainline snapshot or turn roadmap items into accepted features.
+
+### 11.1 Evidence anchors and current candidate status
+
+- Source baseline: main `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`, the current main SHA confirmed at the start of this work cycle.
+- Four-GPT / Product North Star documentation candidate: PR #376, branch `docs/agent-factory-autonomy-core-20261123`, last verified head before this addendum `1912539b22f7d0bb315caec135ffd8a1b5a1f2a3`. This is open and unmerged; its exact-head Actions run `45050003548` was PENDING. This earlier run cannot validate a later commit.
+- Workspace navigation candidate: PR #391, last reported head `d252439e0b03d8ea155b8d483b8bec7a60aa1e77`, limited to the Issue #72 allowlist. Exact-head Actions run `45049125831` was PENDING; no exact-head PASS or browser/device visual acceptance is established. PR #391 remains Draft and unmerged.
+- Issue #354 is CLOSED by PR #362; the lease-ID handoff fix is integrated, but that bounded fix is not full Factory acceptance.
+- Issue #136 remains OPEN. Its recorded audit target predates the currently confirmed main SHA; under its stop-on-baseline-change rule, its independent audit owner must refresh/confirm the target before treating any audit as current.
+- A→B Read Adapter remains proposal-only. Authentication, audience/scope, rotation/revocation, replay protection, resource binding, anti-enumeration, reference lifecycle, freshness/cache semantics and closed failure mapping remain pre-implementation design requirements.
+- B Runtime remains BLOCKED / PREPARATION ONLY. No paid AI traffic, production migration, deployment or new execution path is enabled.
+
+### 11.2 Product capability delivery matrix
+
+| Product capability | Current source / candidate evidence | Delivery status | Next acceptance proof |
+|---|---|---|---|
+| Public product entry and navigation | Main: `app/page.tsx`, `app/layout.tsx`, homepage test | Source present; visual/accessibility/deployed smoke acceptance UNKNOWN | Current-SHA browser smoke, mobile layout, keyboard/accessibility checks |
+| Identity, account and profile | Main: login/account/auth callback/signup routes and authentication docs | Source present; signup closed by default; real-user E2E UNKNOWN | Authenticated signup/login/recovery E2E, role boundary and account lifecycle checks |
+| Workspace, projects and conversations | Main: workspace/project/conversation routes, ownership/locking migrations and tests; PR #391 adds project navigation and failure/empty states | Base source present; PR enhancement PENDING | Exact-head CI, browser/device tests, project/conversation navigation, empty/error states, cross-owner and concurrency tests |
+| AI Service Center / Gateway | Main: `app/api/ai/chat/route.ts`, pending route, `lib/ai/`, gateway docs and SQL tests | Source present; live provider use BLOCKED by default controls/configuration; no paid traffic authorized | Contract tests with a non-production approved provider only after explicit authorization; budget, idempotency, uncertain-outcome and fail-closed verification |
+| Contribution task discovery and submission | Main: contribute routes, task API, validation, active-submission migrations | Lifecycle foundations present; end-to-end acceptance UNKNOWN | Contributor-to-task-to-submission E2E, duplicate/concurrent submission and permission tests |
+| Review, appeal and moderation | Main: admin contribution/appeal routes, review/appeal APIs, atomic migrations and SQL tests | Source present; lifecycle, authorization and atomicity NOT RUN in this baseline | Reviewer/admin authorization matrix, atomic transition tests, appeal and audit-history E2E |
+| Personal contribution / reward ledger | Main: contributions page, summary API, reward snapshot schema | Read-only/personal record foundations present; actual payout NOT ENABLED / NOT VERIFIED | Reconcile source events to ledger snapshots; prove pending/confirmed/reversed semantics; legal/finance approval before any payout |
+| Cost, provider invoices and admin operations | Main: AI costs/operations pages, admin cost and reconciliation APIs | Source present; real invoice ingestion, cost accuracy and reconciliation operations UNKNOWN | Test imported invoice provenance, usage-to-invoice reconciliation, duplicate handling and budget alerts in non-production |
+| Knowledge and research assets | Data model documentation describes entities; no dedicated B-facing management page/API was found in inspected route inventory | NOT FOUND IN INSPECTED ROUTES / roadmap | Define ownership, consent, provenance, versioning, search, correction and deletion before implementation |
+| Developer portal and partner integrations | Current API documentation exists; dedicated portal/OAuth/webhook/API-key management routes not found in inspected route inventory | NOT FOUND IN INSPECTED ROUTES / roadmap | Versioned API contract, scoped credentials, webhook signature/replay protection, quota and revocation design |
+| Globalization and accessibility | Profile language default is zh-TW; complete locale/accessibility evidence not established | PARTIAL / UNKNOWN | Locale inventory, translation fallback, timezone/currency rules, WCAG-oriented keyboard and screen-reader checks |
+| Voluntary distributed compute | Product-scope docs describe later opt-in research; no B node runtime/client route found | NOT IMPLEMENTED; long-term research only | Separate threat model, informed consent, isolation, resource caps, independent security/legal review and explicit owner authorization |
+
+### 11.3 Prioritized B delivery backlog and dependencies
+
+| Priority | Work package | Owner / dependency | Exit evidence |
+|---|---|---|---|
+| P0 | Keep the A acceptance gate current; refresh Issue #136's target to the confirmed main SHA and obtain the assigned independent read-only audit | GPT 1 / independent auditor; GPT 3 tracks acceptance evidence | Current-SHA audit report, findings disposition and A charter gates; GPT4 must not substitute self-review |
+| P1 | Close A→B Read Adapter design before any implementation | GPT 1 owns A-side contract; GPT4 defines B consumer needs; GPT3 reviews | Approved auth/audience/scope, reference lifecycle, anti-enumeration, freshness, failure mapping and contract tests |
+| P1 | Finish Workspace navigation candidate | GPT4 / Issue #72 and PR #391 | Exact-head Actions PASS, focused tests, browser/mobile visual acceptance, no out-of-allowlist files |
+| P1 | Prove account, tenant and workspace isolation | B engineering with GPT2 security review; depends on disposable test environment and existing RLS policy | Anonymous/member/cross-user/cross-tenant/admin matrix, RLS integration and API IDOR tests |
+| P1 | Verify AI Gateway safety without enabling paid production traffic | B engineering; depends on provider contract and spend-control review | Budget/fail-closed/idempotency/reconciliation tests using authorized non-production fixtures |
+| P2 | Validate contribution lifecycle end to end | B engineering; depends on task state machine, reviewer permissions and appeal contract | Submission → review → revision/appeal → decision → ledger event trace |
+| P2 | Reconcile cost and contribution ledger semantics | B engineering / finance-policy owner; depends on verified source events and invoice provenance | Reproducible usage/invoice reconciliation, duplicate protection, immutable audit trail; no payout claim |
+| P3 | Specify Knowledge & Research Assets | B product/design; depends on consent, provenance, retention and search requirements | Approved domain model, privacy classification and user correction/deletion journey |
+| P3 | Specify developer portal and ecosystem APIs | B product/API owner; depends on identity, scoped credentials and governance | Versioned API and webhook threat model, scope matrix, revocation and quota policy |
+| P3 | Complete localization and accessibility baseline | B product/design; cross-cutting | Supported locale matrix, mobile/keyboard/screen-reader evidence and localized formatting tests |
+| P4 | Research voluntary distributed compute | Separate future authorization; depends on security, legal, economics and consent gates | Research-only threat model and feasibility report; no node runtime or task execution |
+
+### 11.4 Delivery rules
+
+1. A source file, route, migration or test fixture proves source presence only. It does not prove that a feature is connected, correctly configured, secure in a live environment or accepted.
+2. Every implementation slice must name the user journey, exact allowed paths, owner, upstream dependency, failure states, test plan and rollback/forward-fix plan before coding.
+3. Keep PR #391 within Issue #72's three allowed paths. Version metadata, changelog and manifest changes must be coordinated separately; do not silently expand its allowlist.
+4. Do not start paid AI, real reward settlement, public knowledge ingestion, external partner credentials or distributed compute without the relevant explicit product, security, legal and operational approvals.
+5. Reconfirm main SHA, candidate head, exact-head CI, review state and preview/browser evidence before every acceptance decision.
+
+**B delivery disposition:** Phase 0 remains IN PROGRESS. Phase 1 has partial source foundations but is NOT ACCEPTED. Phase 2 live AI service is BLOCKED. Phases 3–5 have partial foundations or roadmap-only components and remain NOT ACCEPTED. Phase 6 remains research-only. B Runtime remains BLOCKED / PREPARATION ONLY.
