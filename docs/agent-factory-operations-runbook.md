@@ -183,3 +183,22 @@ Record each rehearsal with UTC start/end time, commit SHA, workflow run URL, run
 - GitHub Actions uploads `candidate-evidence.json` for 90 days. Predictive Coding may ingest it only after checking repository, branch, SHA, run URL, timestamp and source provenance. It is evidence, never a production command.
 - Duplicate callback replays do not emit another artifact. Durable task state and callback idempotency remain authoritative.
 - This creates an export path only; live C/D ingestion still requires an explicit receiver and compatibility tests.
+
+## Audited operator recovery for one quarantined task
+
+The dedicated workflow `.github/workflows/agent-factory-operator-recovery.yml` is the only supported operator path for a quarantined task. It is separate from the post-CI system-breaker workflow.
+
+Before enabling the workflow:
+
+1. In **Settings → Environments**, create `factory-operator-recovery` and configure required reviewers (preferably an independent maintainer) and deployment branch restrictions for `main`. Do not rely on the workflow creating an unprotected environment automatically.
+2. Configure the repository Actions secret `FACTORY_OPERATOR_RECOVERY_GUARD` with a non-empty random value. The controller checks that this secret is present but never prints or persists it. If it is absent, recovery fails closed.
+3. Confirm the repository owner account is the only permitted dispatcher. The controller independently requires `workflow_dispatch`, `refs/heads/main`, exact repository identity, and `GITHUB_ACTOR` equal to the repository owner.
+4. Inspect the task's remediation PR/commit and successful exact-head validation evidence. Record the current machine-managed Factory state version and confirm the task is still quarantined and has no active lease.
+5. Dispatch the dedicated workflow with the exact task Issue number, observed state version, concise reason, HTTPS GitHub evidence URL, and literal confirmation `RECOVER_QUARANTINED_TASK`.
+
+The trusted controller derives the event identity from the evidence URL and binds it to task number and expected state version. It rejects stale state versions, non-quarantined tasks, missing authorization context, invalid evidence and duplicate requests. The state transition preserves attempt/failure history, changes only the selected task to delayed `retry_wait`, creates no lease, and does not change the global breaker.
+
+All state writers share the serialized Windows Runner concurrency group. The durable store performs read-before-write and exact-payload read-after-write reconciliation; the controller additionally re-reads after an ambiguous write and treats only an exact version-and-payload match as success. If read-back is unavailable or differs, the operation fails closed. Never retry by changing the expected version until the durable state has been inspected.
+
+The workflow does not itself dispatch the task. The normal scheduler may select it only after the bounded retry deadline and under the existing lease, cooldown, path-allowlist, scratch, test and publication gates. Do not edit Issue #100, reset global cooldowns, clear event history, or create a lease manually.
+

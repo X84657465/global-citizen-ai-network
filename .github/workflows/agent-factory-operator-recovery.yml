@@ -1,0 +1,71 @@
+name: Agent Factory Operator Quarantine Recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Exact quarantined task Issue number"
+        required: true
+        type: string
+      expected_state_version:
+        description: "Exact durable Factory state version observed immediately before approval"
+        required: true
+        type: string
+      recovery_reason:
+        description: "Bounded reason for the reviewed recovery"
+        required: true
+        type: string
+      evidence_reference:
+        description: "HTTPS GitHub URL for the reviewed remediation commit, PR, or CI evidence"
+        required: true
+        type: string
+      confirmation:
+        description: "Type RECOVER_QUARANTINED_TASK to confirm this one-task recovery"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: global-citizen-ai-network-self-hosted-runner
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  recover-quarantined-task:
+    name: Owner-authorized single-task quarantine recovery
+    if: github.ref == 'refs/heads/main' && github.actor == github.repository_owner
+    runs-on: [self-hosted, Windows, X64]
+    environment: factory-operator-recovery
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted mainline controller
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+
+      - name: Recover exactly one quarantined task
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF: ${{ github.ref }}
+          AGENT_FACTORY_MODE: operator-recovery
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: "100"
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          EXPECTED_STATE_VERSION: ${{ inputs.expected_state_version }}
+          EXPECTED_TASK_STATUS: quarantined
+          RECOVERY_REASON: ${{ inputs.recovery_reason }}
+          EVIDENCE_REFERENCE: ${{ inputs.evidence_reference }}
+          OPERATOR_RECOVERY_CONFIRMATION: ${{ inputs.confirmation }}
+          FACTORY_OPERATOR_RECOVERY_GUARD: ${{ secrets.FACTORY_OPERATOR_RECOVERY_GUARD }}
+        run: node scripts/agent-factory-v2-controller.mjs
