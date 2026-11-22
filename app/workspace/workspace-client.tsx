@@ -94,9 +94,25 @@ export default function WorkspaceClient() {
     ])
       .then(async ([conversationResponse, pendingResponse, projectResponse]) => {
         const data = await conversationResponse.json() as { conversations?: Conversation[] } & ApiError;
-        const projectData = projectResponse?.ok
-          ? await projectResponse.json() as { projects?: unknown }
-          : null;
+        let projectData: { projects?: unknown } | null = null;
+        let projectUnavailable = !projectResponse?.ok;
+        if (projectResponse?.ok) {
+          try {
+            const parsedProjectData: unknown = await projectResponse.json();
+            if (
+              parsedProjectData &&
+              typeof parsedProjectData === "object" &&
+              !Array.isArray(parsedProjectData) &&
+              Array.isArray((parsedProjectData as { projects?: unknown }).projects)
+            ) {
+              projectData = parsedProjectData as { projects: unknown[] };
+            } else {
+              projectUnavailable = true;
+            }
+          } catch {
+            projectUnavailable = true;
+          }
+        }
         const pendingData = await pendingResponse.json() as {
           pending?: { conversationId: string; idempotencyKey: string; content: string; status: string } | null;
           unresolved?: boolean;
@@ -106,7 +122,7 @@ export default function WorkspaceClient() {
         if (!cancelled) {
           setConversations(filterWorkspaceConversations(data.conversations));
           setProjects(filterWorkspaceProjects(projectData?.projects));
-          setProjectsUnavailable(!projectResponse?.ok);
+          setProjectsUnavailable(projectUnavailable);
           const recovered = pendingData.pending;
           if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
