@@ -749,3 +749,10 @@ This checkpoint supersedes earlier assumptions that the Docker diagnostic alone 
 Restore Docker Desktop Linux Engine availability on the Windows Runner host (including its named pipe) under the authorized host administrator, then let the existing exact-head queue progress. Re-run the pinned disposable-container test and full main CI on their exact current SHAs. If Docker cannot be made available, stop at the isolation gate and record the environment blocker; do not weaken the sandbox or run candidate code on the host.
 
 No task state, Issue #100, lease, cooldown, quarantine, scheduler dispatch, Runner concurrency, workflow permissions, secrets, production data, or deployment was modified by this checkpoint.
+
+
+### Handoff metadata refresh after this checkpoint
+
+- The handoff update itself advanced PR #326 to exact head `56ca1554027b58c3061203782deaf85932f2a24b`; the previously observed run `44999527039` targets the superseded head `f3510966bc2ba3bd08c5bc8e2064ca79aaf577a3` and is not valid evidence for this latest documentation revision.
+- PR #327 remains Draft at exact head `df228022fed7ac18cbc3f8accf18bf71ca00a8b1`, base main `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45`. GitHub reports mergeable/clean, but exact-head CI run `44999696562` remains pending with no allocated job and no formal review; mergeability is not acceptance.
+- Main CI run `44995876495` remains pending with no final result. Do not use historical PR-head CI or the preflight failure on a different SHA as a substitute for exact-head acceptance.
