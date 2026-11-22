@@ -121,3 +121,15 @@ This initial slice is additive test and documentation work. Revert the integrati
 ### Acceptance status
 
 No F–P workstream is promoted to L4/L5 by this refresh. Each remains subject to exact-HEAD CI, focused runtime/integration evidence, independent review where required, and an auditable handover. A passing PR-head run, a merged commit, or this document alone does not satisfy acceptance.
+
+
+### 2026-11-22 post-merge P0 remediation evidence
+
+Two narrowly scoped remediation candidates have been opened against the verified main baseline; neither is accepted yet:
+
+- **PR #292 — evidence-grounded patch generation:** the independent audit finding in Issue #136 documented unsupported factual claims in synthetic Preflight #315 output (encryption/anonymization, real-time monitoring and automated approval). The proposed prompt-contract guard limits factual claims to the task goal, acceptance criteria and supplied source files, with a regression assertion. This is not a semantic fact-checker; exact-head CI and independent review remain mandatory.
+- **PR #293 — pinned Preflight Node runtime:** the same Preflight #315 logs confirmed host Node `v26.13.0` rejected `--experimental-transform-types`, while the isolated pinned-Node test completed 602 tests. The proposed correction pins both `validation-tests` and `prepare-task` to Node `22.13.0`, matching CI, and asserts parity in `tests/ci-trigger-policy.test.mjs`. It does not change scheduler or durable-state policy.
+
+Both PRs remain Draft/unmerged with no recorded independent review. The Vercel deployment provider has reported the account's daily deployment limit (`api-deployments-free-per-day`); this is a provider quota limitation, not evidence of a successful Preview or a code build failure. Do not retry deployment or infer Preview readiness until the quota window clears and a same-SHA deployment plus smoke test are observed.
+
+**Immediate acceptance gate:** obtain exact-head Actions results and independent review for PR #292 and #293; verify the scheduled preflight and synthetic validation after the Node pin; separately complete the read-only adversarial audit requested by Issue #136. Until then, keep A operational acceptance and B Runtime activation blocked.
