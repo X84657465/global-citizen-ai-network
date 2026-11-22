@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createFactoryStateStore, FACTORY_STATE_ISSUE_TITLE, MAX_STATE_ISSUE_BODY_CHARS } from "../lib/agent-factory-state-store.mjs";
+import { createFactoryStateStore, FACTORY_STATE_ISSUE_TITLE, MAX_STATE_ISSUE_BODY_CHARS, inspectFactoryStateCapacity } from "../lib/agent-factory-state-store.mjs";
 import { createInitialFactoryState, recordSystemFailure } from "../lib/agent-factory-state-machine.mjs";
 
 function fakeApi(initialIssues = []) {
@@ -30,6 +30,36 @@ function fakeApi(initialIssues = []) {
     } },
   };
 }
+
+test("reports state capacity warning, critical, and blocked thresholds without mutating state", () => {
+  const state = createInitialFactoryState(1000);
+  assert.equal(inspectFactoryStateCapacity(state).status, "healthy");
+
+  state.processed_events = Array.from({ length: 400 }, (_, index) => "capacity-event-" + String(index).padStart(4, "0"));
+  const warning = inspectFactoryStateCapacity(state);
+  assert.equal(warning.status, "warning");
+  assert.equal(warning.processed_events.count, 400);
+  assert.equal(warning.processed_events.limit, 500);
+
+  state.processed_events = Array.from({ length: 475 }, (_, index) => "capacity-event-" + String(index).padStart(4, "0"));
+  assert.equal(inspectFactoryStateCapacity(state).status, "critical");
+
+  state.processed_events = Array.from({ length: 500 }, (_, index) => "capacity-event-" + String(index).padStart(4, "0"));
+  const blocked = inspectFactoryStateCapacity(state);
+  assert.equal(blocked.status, "blocked");
+  assert.equal(blocked.processed_events.count, 500);
+  assert.equal(state.processed_events.length, 500);
+});
+
+test("reports encoded Issue body utilization without exposing state payload contents", () => {
+  const state = createInitialFactoryState(1000);
+  state.system.last_error = "x".repeat(36_000);
+  const capacity = inspectFactoryStateCapacity(state);
+  assert.equal(capacity.status, "warning");
+  assert.ok(capacity.issue_body.characters >= 48_000);
+  assert.equal(capacity.issue_body.limit, MAX_STATE_ISSUE_BODY_CHARS);
+  assert.equal(JSON.stringify(capacity).includes("x".repeat(100)), false);
+});
 
 test("initializes a versioned state when no state Issue exists", async () => {
   const fake = fakeApi();
