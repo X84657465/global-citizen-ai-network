@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { persistPublicationFailureScope } from "../lib/agent-publisher-failure-scope.mjs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { scratchPatchEvidenceMatches } from "../lib/agent-scratch-evidence.mjs";
@@ -8,7 +9,8 @@ import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { ensureDeterministicBranch } from "../lib/agent-publisher-branch.mjs";
 import { collectGitHubPages } from "../lib/github-pagination.mjs";
 
-const fail = (message) => {
+const fail = (message, failureScope = null) => {
+  if (failureScope) persistPublicationFailureScope(failureScope);
   console.error("Agent PR publishing rejected: " + message);
   process.exit(1);
 };
@@ -215,7 +217,7 @@ try {
 
   const branchInfo = await api("/repos/" + repository + "/branches/" + encodeURIComponent(defaultBranch));
   if (branchInfo.commit?.sha !== baseCommit) {
-    fail("Default branch advanced after candidate tests; rerun the task against the latest base.");
+    fail("Default branch advanced after candidate tests; rerun the task against the latest base.", "task");
   }
 
   const openPulls = await collectGitHubPages((page) =>
@@ -276,7 +278,7 @@ try {
   const commitSha = branchResult.commit_sha;
   const confirmedBase = await api("/repos/" + repository + "/branches/" + encodeURIComponent(defaultBranch));
   if (confirmedBase.commit?.sha !== baseCommit) {
-    fail("Default branch advanced during publication; rerun the task against the latest base.");
+    fail("Default branch advanced during publication; rerun the task against the latest base.", "task");
   }
 
   if (existingPull) {
