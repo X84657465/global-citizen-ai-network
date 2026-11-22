@@ -83,6 +83,13 @@ If the PC sleeps, restarts, loses network, or Docker/Ollama stops:
 
 Do not delete the Runner's `_work` directory, remove Docker volumes, reset the repository checkout, or clear durable task state as a first-line recovery action. These actions can destroy evidence or active work.
 
+## GitHub API rate-limit cooldown and persistence boundary
+
+- The Factory controller captures a classified GitHub API rate-limit deadline from `Retry-After` or `x-ratelimit-reset`, bounds it, and passes it to the system-failure callback. The state machine preserves the later of that provider deadline, any existing cooldown, and the 15-minute system breaker floor once the three-failure threshold is reached.
+- Capturing the deadline in a workflow output is **not** proof that it was durably persisted. The callback writes the cooldown to the machine-managed Factory state Issue through the same GitHub API provider; a hard API rate limit can block that write too.
+- Treat the cooldown as durable only after a subsequent read confirms the expected state version and `system.cooldown_until`. If the failure callback itself is rate-limited or its write cannot be confirmed, record the workflow/run evidence and allow the normal scheduler to retry after provider access recovers. Do not claim a persisted cooldown, manually edit the state Issue, dispatch duplicate workers, or weaken the breaker to bypass the provider limit.
+- A failed state write followed by a failed read-back is an ambiguous outcome. The state store is designed to reconcile a later read against the intended version/payload; inspect the durable Issue before any operator retry and preserve event idempotency.
+
 ## Failure triage
 
 - **Build/test failure:** inspect the failed step and classify whether it is a candidate assertion failure or a host/system failure. Do not mark a candidate successful from partial checks.
