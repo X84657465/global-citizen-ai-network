@@ -338,6 +338,8 @@ Keep the existing acceptance criteria and constrain the implementation output.
     goal: task.goal,
     acceptance_criteria: task.acceptance_criteria,
     explicit_exclusions: task.explicit_exclusions,
+    required_patch_paths: [],
+    forbidden_content: [],
     additional_context: task.additional_context,
   });
   assert.deepEqual(
@@ -383,4 +385,26 @@ test("rejects duplicate supplemental context sections and still rejects unknown 
     () => validateAndBuildTask(unknown, "X84657465/global-citizen-ai-network"),
     /Unexpected section: Unrecognized operational instructions/,
   );
+});
+
+
+test("parses required patch outputs and literal forbidden-content rules into the validated task", () => {
+  const body = validIssue().body + "\n\n## Required patch paths\n- tests/security/dependency-audit.test.mjs\n\n## Forbidden content\n- Recommended Next.js version: 13.5.6\n- Recommended ESLint version: 8.55.0\n- Run command: npm audit fix --force\n";
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.required_patch_paths, ["tests/security/dependency-audit.test.mjs"]);
+  assert.deepEqual(task.forbidden_content, [
+    "Recommended Next.js version: 13.5.6",
+    "Recommended ESLint version: 8.55.0",
+    "Run command: npm audit fix --force",
+  ]);
+  const context = buildAgentTaskContext(task);
+  assert.deepEqual(context.required_patch_paths, task.required_patch_paths);
+  assert.deepEqual(context.forbidden_content, task.forbidden_content);
+});
+
+test("rejects required patch outputs outside the task allowlist and duplicate contract entries", () => {
+  const outside = validIssue({ body: validIssue().body + "\n\n## Required patch paths\n- docs/not-allowed.md\n" });
+  assert.throws(() => validateAndBuildTask(outside, "X84657465/global-citizen-ai-network"), /also appear in the task allowlist/);
+  const duplicate = validIssue({ body: validIssue().body + "\n\n## Required patch paths\n- tests/settings-page.test.ts\n- tests/settings-page.test.ts\n" });
+  assert.throws(() => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"), /must not contain duplicates/);
 });
