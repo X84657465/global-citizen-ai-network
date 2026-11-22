@@ -20,7 +20,8 @@ const ci = (jobKey: "quality" | "database", overrides: Partial<FPSecurityCIEvide
   workflowPath: ".github/workflows/ci.yml",
   runId: 123,
   runAttempt: 1,
-  runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
+  runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/1",
+  jobRunAttempt: 1,
   jobKey,
   jobConclusion: "success",
   jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${jobKey === "database" ? 456 : 789}`,
@@ -132,6 +133,33 @@ test("rejects a CI run from another PR, repository, workflow, base, or event", (
   }
 });
 
+test("requires the CI run URL to identify the exact attempt", () => {
+  const attemptTwo = "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/2";
+  const valid = assessFPSecurityEvidence(bundle({
+    evidence: FP_SECURITY_CONTROLS.map((control) => evidence(control.id, {
+      ci: ci(control.requiredJob, { runAttempt: 2, runUrl: attemptTwo }),
+    })),
+  }));
+  assert.equal(valid.status, "ready-for-review");
+
+  assert.throws(() => assessFPSecurityEvidence(bundle({
+    evidence: [evidence("member-isolation", {
+      ci: ci("database", { runAttempt: 2, runUrl: attemptTwo, jobRunAttempt: 1 }),
+    })],
+  })), /Invalid F evidence CI identity or job metadata/);
+
+  for (const runUrl of [
+    "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
+    "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/1",
+  ]) {
+    assert.throws(() => assessFPSecurityEvidence(bundle({
+      evidence: [evidence("member-isolation", {
+        ci: ci("database", { runAttempt: 2, runUrl }),
+      })],
+    })), /exact repository, run ID, and attempt/);
+  }
+});
+
 test("rejects impossible or non-canonical evidence timestamps", () => {
   for (const executedAt of [
     "2026-02-30T12:00:00.000Z",
@@ -160,7 +188,7 @@ test("rejects controls assigned to the wrong job and evidence mixed across CI ru
       evidence(control.id, control.id === "route-authorization"
         ? { ci: ci("quality", {
             runId: 124,
-            runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/124",
+            runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/124/attempts/1",
             jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/124/job/789",
           }) }
         : {}),
@@ -180,6 +208,13 @@ test("rejects forged run/job URLs, duplicate controls, invalid SHAs, and unregis
         : {}),
     ),
   })), TypeError);
+  assert.throws(() => assessFPSecurityEvidence(bundle({
+    evidence: [evidence("member-isolation", {
+      ci: ci("database", {
+        jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/0",
+      }),
+    })],
+  })), /F CI job URL does not belong to the evidence run/);
   assert.throws(() => assessFPSecurityEvidence(bundle({
     evidence: [evidence("member-isolation", { evidenceRef: "tests/other-unrelated.test.ts" })],
   })), TypeError);
