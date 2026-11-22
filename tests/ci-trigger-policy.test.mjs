@@ -91,12 +91,15 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   const prepareBounds = findJobSection(jobsSource, "prepare-task");
   const prepareSection = jobsSource.slice(prepareBounds.start, prepareBounds.end);
   assert.ok(validationSection.includes("if: github.event_name == 'push' && github.actor == github.repository_owner"));
-  const pinnedNodeSetup = [
-    '      - name: Set up Node.js\n        uses: actions/setup-node@v5\n        with:\n          node-version: "22.13.0"',
-  ];
+  const ciQualityBounds = findJobSection(workflow, "quality");
+  const ciQualitySection = workflow.slice(ciQualityBounds.start, ciQualityBounds.end);
+  const ciNodeVersion = /uses: actions\\/setup-node@v5\\n\\s+with:\\n\\s+node-version: "([^"]+)"/.exec(ciQualitySection);
+  assert.ok(ciNodeVersion, "CI quality job must declare its supported Node.js runtime");
   for (const [name, section] of [["validation-tests", validationSection], ["prepare-task", prepareSection]]) {
-    assert.ok(pinnedNodeSetup.some((setup) => section.includes(setup)),
-      name + " must pin Node.js to the same supported 22.13.0 runtime as CI");
+    const nodeVersion = /uses: actions\\/setup-node@v5\\n\\s+with:\\n\\s+node-version: "([^"]+)"/.exec(section);
+    assert.ok(nodeVersion, name + " must install a pinned Node.js runtime");
+    assert.equal(nodeVersion[1], ciNodeVersion[1],
+      name + " must use the same Node.js runtime as the CI quality job");
   }
   assert.equal(prepareSection.includes("github.event_name == 'push'"), false,
     "A-line push validation must never activate live task reservation or PR publication");
