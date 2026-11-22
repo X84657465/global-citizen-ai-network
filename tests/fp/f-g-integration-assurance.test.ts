@@ -15,7 +15,8 @@ const repository = "X84657465/global-citizen-ai-network";
 const sha = "a".repeat(40);
 const runId = 123;
 const runAttempt = 1;
-const runUrl = `https://github.com/${repository}/actions/runs/${runId}`;
+const runBaseUrl = `https://github.com/${repository}/actions/runs/${runId}`;
+const runUrl = `${runBaseUrl}/attempts/${runAttempt}`;
 
 const securityCI = (
   jobKey: "quality" | "database",
@@ -29,10 +30,11 @@ const securityCI = (
   workflowPath: ".github/workflows/ci.yml",
   runId,
   runAttempt,
+  jobRunAttempt: runAttempt,
   runUrl,
   jobKey,
   jobConclusion: "success",
-  jobUrl: `${runUrl}/job/${jobKey === "database" ? 456 : 789}`,
+  jobUrl: `${runBaseUrl}/job/${jobKey === "database" ? 456 : 789}`,
   ...overrides,
 });
 
