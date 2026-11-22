@@ -16,7 +16,7 @@ const event = (overrides: Record<string, unknown> = {}) => ({
 
 test("records privacy-minimized outcomes and calculates health counters", () => {
   const recorder = new FPObservabilityRecorder();
-  recorder.record(event());
+  recorder.record(event({ errorCode: "UPSTREAM_TIMEOUT" }));
   recorder.record(event({ workstream: "F", outcome: "denied", durationMs: 2 }));
   const snapshot = recorder.snapshot(new Date("2026-11-21T12:01:00.000Z"));
 
@@ -43,9 +43,38 @@ test("rejects invalid event metadata, workstream, outcome and capacities", () =>
   assert.throws(() => recorder.record(event({ durationMs: -1 })), TypeError);
   assert.throws(() => recorder.record(event({ correlationId: "bad\\nvalue" })), TypeError);
   assert.throws(() => recorder.record(event({ occurredAt: "not-a-date" })), TypeError);
+  assert.throws(() => recorder.record(event({ occurredAt: "2026-02-30T12:00:00.000Z" })), TypeError);
+  assert.throws(() => recorder.record(event({ occurredAt: "2026-11-21T12:00:00+08:00" })), TypeError);
+  assert.throws(() => recorder.record(event({ errorCode: "sensitive upstream response: token=abc" })), TypeError);
+  assert.throws(() => recorder.record(event({ errorCode: "A".repeat(65) })), TypeError);
   assert.throws(() => recorder.record(event({ workstream: "__proto__" })), TypeError);
   assert.throws(() => recorder.record(event({ workstream: "Q" })), TypeError);
   assert.throws(() => recorder.record(event({ outcome: "unexpected" })), TypeError);
+});
+
+test("drops runtime-only fields that are outside the observability allowlist", () => {
+  const recorder = new FPObservabilityRecorder();
+  recorder.record(event({
+    actorId: "unapproved-actor-field",
+    requestBody: { message: "unapproved-request-field" },
+    credential: "unapproved-credential-field",
+    arbitraryMetadata: "unapproved-metadata-field",
+  }));
+
+  const retained = recorder.list()[0] as unknown as Record<string, unknown>;
+  assert.deepEqual(Object.keys(retained).sort(), [
+    "capability",
+    "correlationId",
+    "durationMs",
+    "eventType",
+    "occurredAt",
+    "outcome",
+    "schemaVersion",
+    "workstream",
+  ]);
+  assert.equal(JSON.stringify(retained).includes("unapproved-actor-field"), false);
+  assert.equal(JSON.stringify(retained).includes("unapproved-request-field"), false);
+  assert.equal(JSON.stringify(retained).includes("unapproved-credential-field"), false);
 });
 
 test("does not expose mutable internal event storage", () => {
