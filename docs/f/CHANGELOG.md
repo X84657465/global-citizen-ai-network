@@ -1,5 +1,10 @@
 # F — Cyber Security & Defense
 
+## 0.1.3 — 2026-11-23
+
+- Require each own array-index key in a security evidence snapshot to be below the declared array length.
+- Reject empty arrays with hidden canonical index properties; preserve fail-closed hostile-reflection handling.
+
 ## 0.1.2 — 2026-11-22
 
 - Add adversarial regression coverage proving security evidence snapshots fail closed when Proxy reflection traps throw during prototype, own-key, or property-descriptor inspection.

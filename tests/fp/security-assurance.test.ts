@@ -362,3 +362,18 @@ test("fails closed when reflective Proxy traps throw across F evidence boundarie
     );
   }
 });
+
+
+test("rejects canonical array-index properties outside the declared evidence-array length", () => {
+  const emptyWithHiddenIndex = [] as FPSecurityEvidence[];
+  Object.defineProperty(emptyWithHiddenIndex, "1", {
+    configurable: true,
+    enumerable: true,
+    value: evidence("member-isolation"),
+  });
+  assert.equal(emptyWithHiddenIndex.length, 0);
+  assert.throws(
+    () => assessFPSecurityEvidence(bundle({ evidence: emptyWithHiddenIndex })),
+    /bounded dense plain array/,
+  );
+});
