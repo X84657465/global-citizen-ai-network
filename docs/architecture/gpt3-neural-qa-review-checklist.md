@@ -18,7 +18,21 @@ Use the six-layer engineering loop for every material A–P review:
 
 This is a review method, not a seventh workstream or an additional GPT role. It does not reassign D / Deep Neural, grant background execution, or relax Factory-first and human-approval constraints.
 
-## 2. Mandatory review intake
+## 2. Developer–Reviewer separation and anti-self-approval
+
+For every change produced by the Neural Intelligence Agent (the authorized ChatGPT Factory Developer seat):
+
+- Treat that seat as the implementation owner / Developer only; it must not issue or simulate GPT3 review, approval, PASS, or ACCEPTED status for its own change.
+- GPT3 remains the independent architecture Reviewer and QA authority. Review must be performed from the exact candidate repository, PR, and head SHA, with the reviewer identity and review record visible in GitHub or another approved immutable project record.
+- The Developer may run tests and provide evidence, but test execution is not independent acceptance.
+- GPT3 must independently inspect the diff, architecture / contracts, security boundaries, regression coverage, and exact-SHA CI evidence; it may return PASS, FAIL, BLOCKED, NOT RUN, PENDING, UNKNOWN, or STALE.
+- No GPT3 review, unavailable reviewer, missing review record, stale evidence, or SHA mismatch means no acceptance. The release / merge gate remains closed (Fail-Closed).
+- The Developer must not alter acceptance criteria, required checks, branch protection, reviewer identity, or review policy to make its own change pass.
+- A separate Integrator may confirm that all required gates are satisfied, but cannot manufacture or override GPT3's review disposition.
+
+This rule applies equally to Factory code and Factory self-improvement changes. Any exception requires an explicit project-owner decision recorded in the repository and cannot be self-approved by the Developer.
+
+## 3. Mandatory review intake
 
 Before reviewing a change, record:
 
