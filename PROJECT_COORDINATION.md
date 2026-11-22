@@ -109,7 +109,8 @@ GPT 之間不假設具有跨對話即時通訊能力。所有交接必須落在�
 4. CI／測試報告：對應 commit SHA 的執行結果。
 5. 專案文件：架構決策、介面契約、版本政策、交接紀錄。
 6. 本文件：角色、工作邊界、協調規則與驗收流程。
-7. [B 主線總負責人章程](docs/GCAN_B_LINE_LEAD_CHARTER.md)：GPT 4 的完整職責、首輪必讀清單及接手流程。
+7. [B 主線總負責人章程](docs/GCAN_B_LINE_LEAD_CHARTER.md)：GPT 4 的完整職責、權限邊界、首輪必讀清單及接手流程。
+8. [GCAN Product North Star](docs/GCAN_PRODUCT_NORTH_STAR.md)：B 主線的長期產品使命、使用者、產品能力、核心旅程、階段路線圖、永續營運與成功指標；GPT 4 必須先讀。
 
 每個 GPT 開始工作前，必須先讀取本文件及其角色專屬章程，再檢查最新 mainline、相關 Issues、PR 與 CI 狀態；不得只依賴舊對話摘要或歷史 SHA。GPT 4 的首輪必讀順序與盤點要求以 [B 主線總負責人章程](docs/GCAN_B_LINE_LEAD_CHARTER.md) 為準。
 
