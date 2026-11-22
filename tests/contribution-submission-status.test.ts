@@ -29,12 +29,24 @@ test("keeps unknown and empty submission statuses understandable", () => {
   assert.equal(getSubmissionStatusLabel("  ACCEPTED "), "已通過");
 });
 
+test("treats inherited object property names as unknown submission statuses", () => {
+  for (const status of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
+    assert.equal(getSubmissionStatusLabel(status), `狀態待確認（${status.toLowerCase()}）`);
+  }
+});
+
 test("maps persisted appeal lifecycle states", () => {
   assert.equal(getAppealStatusLabel("submitted"), "申訴已送出");
   assert.equal(getAppealStatusLabel("under_review"), "申訴審核中");
   assert.equal(getAppealStatusLabel("resolved"), "申訴已結案");
   assert.equal(getAppealStatusLabel("dismissed"), "申訴未成立");
   assert.equal(getAppealStatusLabel("future_state"), "狀態待確認（future_state）");
+});
+
+test("treats inherited object property names as unknown appeal statuses", () => {
+  for (const status of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
+    assert.equal(getAppealStatusLabel(status), `狀態待確認（${status.toLowerCase()}）`);
+  }
 });
 
 test("does not expose appeal details when no API details are present", () => {
