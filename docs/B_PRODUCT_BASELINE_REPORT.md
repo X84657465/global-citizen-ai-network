@@ -1,9 +1,9 @@
 # GCAN B Product Baseline Report
 
-**Snapshot date:** 2026-11-23 (Asia/Taipei; refreshed after PR #410, #411 and #413 merges)  
+**Snapshot date:** 2026-11-23 (Asia/Taipei; refreshed against main after PR #414, #415, #416, #418 and #419 merges)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Baseline main SHA:** `25d5ed519eb923d3001df6d43aec1670a0d4851a`  
+**Baseline main SHA:** `10fabef703ee3865d208196f46ee71ddd1b7e149`  
 **Overall release:** `0.3.137`  
 **B / GCAN Product:** `0.1.20`  
 **Status:** BASELINE DOCUMENTED — NOT PRODUCT ACCEPTANCE
@@ -12,12 +12,12 @@
 
 ## 1. Executive summary
 
-> **Live-state refresh:** This report was merged through PR #411, then refreshed against main `25d5ed519eb923d3001df6d43aec1670a0d4851a`. PR #410, #411 and #413 are merged. The latest exact-main Actions run is #45055645581 and is PENDING. The Vercel status is a separate build-rate-limit failure, not a GitHub test result. Issue #136's immutable review target has not been reauthorized for this new main SHA; Factory-wide independent acceptance remains BLOCKED.
+> **Live-state refresh:** This report is refreshed against main `10fabef703ee3865d208196f46ee71ddd1b7e149`. PR #414, #415, #416, #418 and #419 are merged. The current main combined status reports Vercel `build-rate-limit` failure; this is a deployment-provider quota status, not a GitHub test result. The available commit-workflow query is PR-triggered-only and returned no runs for this main SHA, so main Actions CI is UNKNOWN / NOT VERIFIED (not PASS). Issue #136 still targets `dce81ed801c41bca9bc364e3d0f248244d88f88f`; Factory-wide independent acceptance remains BLOCKED.
 
-- `main` is `25d5ed519eb923d3001df6d43aec1670a0d4851a`; `VERSION` and `versions/manifest.json` agree on overall `0.3.137`, with B at `0.1.20`. PR #410 (operations-intelligence documentation), PR #411 (B baseline) and PR #413 (GPT1/GPT4 ownership clarification) are merged into main.
+- `main` is `10fabef703ee3865d208196f46ee71ddd1b7e149`; `VERSION` and `versions/manifest.json` agree on overall `0.3.137`, with Agent Factory A at `2.0.84` and B at `0.1.20`. PR #414 (B baseline refresh), #415 (operations handoff), #416 (B contribution filters), #418 (Master Charter) and #419 (Factory handoff refresh) are merged into main.
 - B has source-level foundations for member accounts, projects, conversations, AI workspace, contribution tasks/submissions, member contribution summaries/appeals, admin review, and AI cost/reconciliation views.
 - The repository architecture describes an early MVP, not a production-ready service. Live provider billing, payouts, and distributed compute are not enabled by default. AI calls remain gated by server-side provider configuration and budget controls.
-- B Runtime remains **PREPARATION ONLY / BLOCKED** because the Factory-wide independent audit/acceptance gate is not complete. Issue #136 remains open but still targets the prior main SHA `dce81ed801c41bca9bc364e3d0f248244d88f8f`; its immutable audit baseline is stale after main advanced to `25d5ed519eb923d3001df6d43aec1670a0d4851a`. Do not silently retarget it; obtain owner authorization for a new exact-main audit target. The main CI run below is pending, not passed.
+- B Runtime remains **PREPARATION ONLY / BLOCKED** because the Factory-wide independent audit/acceptance gate is not complete. Issue #136 remains open but still targets `dce81ed801c41bca9bc364e3d0f248244d88f88f`; its immutable audit baseline is stale after main advanced to `10fabef703ee3865d208196f46ee71ddd1b7e149`. Do not silently retarget it; obtain owner authorization for a new exact-main audit target. Main Actions CI is UNKNOWN / NOT VERIFIED from the available PR-only run query; the Vercel status is a separate failure.
 - No B application code, database schema, RLS, workflow, Runner, secret, permission, production data, or deployment changes are made by this report.
 
 ## 2. Exact mainline and CI evidence
@@ -25,14 +25,14 @@
 | Item | Observed value | Disposition |
 |---|---|---|
 | Default branch | `main` | VERIFIED |
-| Main HEAD | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | VERIFIED |
+| Main HEAD | `10fabef703ee3865d208196f46ee71ddd1b7e149` | VERIFIED |
 | Overall version | `0.3.137` | VERIFIED |
 | B version | `0.1.20` | VERIFIED |
-| Main CI run | [45055645581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45055645581), attempt 1, exact main SHA | PENDING; 0 jobs returned at inspection |
-| Main combined status | Vercel `build-rate-limit` failure status | BLOCKED for Preview evidence; not a code-test conclusion |
+| Main CI run | No current main-triggered run ID verified | UNKNOWN / NOT VERIFIED; available PR-only commit workflow query returned no records for this main SHA |
+| Main combined status | Vercel `build-rate-limit` failure status | BLOCKED for Preview evidence; not a code-test conclusion or GitHub CI result |
 | Main PR-triggered workflow query | No PR-triggered runs returned for this SHA | NOT evidence of scheduler health or CI pass |
 
-The handoff snapshot in `docs/AGENT_HANDOFF.md` still names an older main SHA/version tuple. Treat that portion as stale; this report uses the live `main` ref and files fetched at the baseline SHA.
+`docs/AGENT_HANDOFF.md` still names an older main SHA (`25d5ed51…`) in its latest snapshot. Treat it as stale; this report uses live `main` and files fetched at `10fabef…`.
 
 ## 3. Current B implementation inventory
 
@@ -68,7 +68,7 @@ A migration filename or source definition is not proof that a production databas
 
 | Issue | Title / scope | Status at inspection | Owner / phase note |
 |---|---|---|---|
-| [#76](https://github.com/X84657465/global-citizen-ai-network/issues/76) | Account profile clarity and accessibility | OPEN | B UX; limited paths and focused tests specified |
+| [#74](https://github.com/X84657465/global-citizen-ai-network/issues/74) | Contribution task category / member submission-status filters | OPEN | PR #416 merged; follow-up typing fix PR #428 open, exact-head CI pending and B owner scope confirmation recorded |
 | [#84](https://github.com/X84657465/global-citizen-ai-network/issues/84) | Production AI provider adapter and budget-control integration tests | OPEN | B AI; keep live billable calls disabled until gates pass |
 | [#86](https://github.com/X84657465/global-citizen-ai-network/issues/86) | End-to-end authentication and account security verification | OPEN | B closed-MVP release gate; signup remains disabled by default |
 | [#87](https://github.com/X84657465/global-citizen-ai-network/issues/87) | Recurring AI workspace use cases and paid-pilot economics | OPEN | Phase 2 commercial validation; not a Phase 1 runtime prerequisite to improvise |
@@ -79,7 +79,10 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 
 ### Factory acceptance
 
-- [Issue #136](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains OPEN, but its immutable audit target is now stale: it still names the prior baseline `dce81ed801c41bca9bc364e3d0f248244d88f88f`, while current main is `25d5ed519eb923d3001df6d43aec1670a0d4851a`. Its stop condition requires a fresh owner-authorized audit baseline; do not silently switch the target.
+- [Issue #136](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains OPEN, but its immutable audit target is now stale: it still names the prior baseline `dce81ed801c41bca9bc364e3d0f248244d88f88f`, while current main is `10fabef703ee3865d208196f46ee71ddd1b7e149`. Its stop condition requires a fresh owner-authorized audit baseline; do not silently switch the target.
+- [Issue #164](https://github.com/X84657465/global-citizen-ai-network/issues/164) is an open P0 Factory task/system circuit-breaker isolation finding (GPT1/Factory owner); [Issue #188](https://github.com/X84657465/global-citizen-ai-network/issues/188) is an open P2 recovery-wiring follow-up explicitly blocked on Issue #136 independent review. Neither is a B-owned implementation task.
+- PR #427 is open/Draft; its exact-head run #45061403391 failed (746 unit tests passed, 1 failed; downstream typecheck/lint/build skipped). PR #429 is the Factory test-fixture correction; exact-head run #45062245405 has Windows quality gates in progress, not passed.
+- PR #428 is the B-owned type-preservation follow-up for Issue #74; exact head `1bd38fff2a330ed97d5ab298323b0512e6e348ab`, Actions run #45062174946 remains pending at metadata resolution, and B owner scope confirmation is recorded. GPT3 independent review and full exact-head gates remain required.
 - Current main CI run [45055645581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45055645581) is PENDING; no CI pass is claimed.
 - [Issue #354](https://github.com/X84657465/global-citizen-ai-network/issues/354) is CLOSED. Do not carry its former lease-handoff defect forward as an open blocker without fresh evidence.
 - [PR #259](https://github.com/X84657465/global-citizen-ai-network/pull/259) is an old, divergent, non-mergeable broad candidate. Its historical CI is not evidence for current main; do not merge, force-retarget, or transplant the full diff.
@@ -101,20 +104,23 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 | Repository / main SHA / versions | PASS (metadata only) | Live Git ref and files at exact main SHA |
 | B source inventory | DOCUMENTED | Tree and selected source files inspected |
 | Focused B test files | PRESENT; NOT RUN in this report | No local test command executed by this report |
-| Main exact-SHA CI | PENDING | Run 45055645581; 0 jobs at inspection |
-| A independent audit | BLOCKED / PENDING | Issue #136 remains open |
+| Main exact-SHA CI | UNKNOWN / NOT VERIFIED | No current main-triggered run ID returned by available PR-only workflow query |
+| A independent audit | BLOCKED | Issue #136 still targets stale SHA `dce81ed…`; owner-authorized exact-main retarget required |
 | B end-to-end auth / live provider / operational readiness | NOT VERIFIED | Issues #84 and #86 remain open; architecture lists pre-launch gaps |
+| B Issue #74 follow-up PR #428 | PENDING | Exact-head Actions #45062174946 pending; B scope confirmation recorded; GPT3/full CI gates outstanding |
 | PR #376 exact-head CI / formal review | NOT PASS | Run observed is for an older SHA; formal approval not observed |
 | Production deployment / production DB | NOT RUN | No deployment or production database action performed |
 
 ## 8. Next actions (Factory-first)
 
-1. GPT1 / independent auditor: complete the read-only Issue #136 audit against the current exact main SHA; if main advances before the audit starts, refresh the target first.
-2. Factory owner: resolve any audit findings through the authorized A workflow and exact-head CI; do not bypass Runner, lease, or branch protections.
-3. GPT4 / B: keep this baseline current; prepare B-only test plans and narrow product slices without starting B Runtime.
-4. GPT4 / B + GPT1: close the A→B read-contract authentication, reference lifecycle, freshness and failure-mapping design before any adapter implementation.
-5. GPT2 / relevant F–P owners: review B security / governance needs within their ownership; GPT3 remains the independent architecture and QA reviewer.
-6. After A acceptance, refresh main, B branch, issues, PRs, exact SHA CI, RLS/Tenant evidence and then propose a B Runtime readiness plan for human approval.
+1. GPT1 / project owner: obtain explicit authorization to refresh Issue #136's immutable audit target from `dce81ed…` to current main `10fabef703ee3865d208196f46ee71ddd1b7e149`; the independent auditor must re-fetch main before starting.
+2. GPT1 / Factory: resolve P0 Issue #164 and dependent Issue #188 only through their owner-approved workflow and independent review.
+3. GPT1 / Factory: resolve the current main test regression through the owner-controlled exact-head CI path; PR #429 remains in progress and is not yet a pass.
+4. GPT4 / B: keep PR #428 Draft until exact-head unit, typecheck, lint, build and repository-required integration gates complete and GPT3 independently reviews the same SHA.
+5. GPT4 / B: continue B-only product preparation; do not start B Runtime while A acceptance and A→B gates remain blocked.
+6. GPT4 / B + GPT1: close A→B read-contract authentication, reference lifecycle, freshness and failure-mapping design before adapter implementation.
+7. GPT2 / relevant F–P owners: review B security / governance needs within their ownership; GPT3 remains the independent architecture and QA reviewer.
+8. After A acceptance, refresh main, B branch, issues, PRs, exact-SHA CI, RLS/Tenant evidence and then propose a B Runtime readiness plan for human approval.
 
 ## 9. Evidence boundaries
 
