@@ -1,3 +1,52 @@
+## Superseding verified continuation snapshot — 2026-11-23 (main 25d5ed51)
+
+This snapshot supersedes the immediately preceding dce81ed8 snapshot below. Earlier records are retained as historical evidence; do not reuse their main SHAs, CI states, or PR dispositions as current.
+
+### Mainline and policy baseline
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Current main HEAD: `25d5ed519eb923d3001df6d43aec1670a0d4851a` (merge of PR #411).
+- Root `VERSION` / manifest overall: `0.3.137`; A / Agent Factory V2: `2.0.84`; B / GCAN Product: `0.1.20`. Version labels are not acceptance claims.
+- Re-read current-main `PROJECT_COORDINATION.md` blob `3d0b977feed819ad19bb204f598a3c8d704b4722` and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `ed1a00ce998e38a05d6e6f38af34c37851da9cf5`.
+- PR #413 is integrated at merge commit `f20a93381e0c29ba91f7cfcd6a569611048925ce`; its diff changed only `PROJECT_COORDINATION.md` (2 additions / 2 deletions), explicitly assigning GPT1 the Factory-side A→B interface/read-only handoff and GPT4 the B Product direction, requirements, architecture, UX, implementation and delivery.
+- Current B Product baseline report blob: `docs/B_PRODUCT_BASELINE_REPORT.md` / `596bd1151e61a167512a33a8cc4cda3586bc41f9`. Current Factory operations addendum blob: `docs/research/factory-operations-intelligence-addendum-2026-11-23.md` / `d3398163d9dbb59dc3ada2437d66781cc549d90e`. Both reports describe baseline `dce81ed801c41bca9bc364e3d0f248244d88f88f`; they are useful historical snapshots but must be refreshed before being treated as current-main reports.
+- Five-GPT boundaries remain: GPT1 A–E plus Factory-side A→B handoff; GPT2 F–P; GPT3 independent A–P review/QA; GPT4 B Product owner; GPT5 Global Intelligence & Operations support. Manifest maturity labels: A/B active; C/D/E/P implementation-candidate; F–O planned (L remains deferred by workstream policy). These labels are not acceptance evidence.
+
+### Mainline CI / deployment
+- No exact-current-main Actions run for `25d5ed519eb923d3001df6d43aec1670a0d4851a` was returned by the available PR-triggered workflow query; current-main Actions status is **UNKNOWN / NOT VERIFIED**, not PASS.
+- The previously recorded main CI run #45054514027 targets older SHA `dce81ed801c41bca9bc364e3d0f248244d88f88f` and was PENDING with no jobs; it cannot validate the new main SHA.
+- Current main combined status reports Vercel `build-rate-limit` failure. This is a provider Preview/deployment limitation, not a GitHub Actions test result.
+
+### Recent merged documentation PRs — merged does not mean accepted
+The following PRs are present in main, but their exact-head Actions runs were still PENDING at this check and formal review lists were empty. Record them as **MERGED / ACCEPTANCE EVIDENCE INCOMPLETE**; do not convert merge state into PASS:
+- PR #410 → merge `2f0d12b0d63698a151be21ff432def0fea2b0043`; head `82e6ffcfed0bd3a0ad08bfb241974cf8320f2f32`; run #45055030009 PENDING; no formal review.
+- PR #411 → merge `25d5ed519eb923d3001df6d43aec1670a0d4851a`; head `654f12556863300e72cce49ed3eb90535884680d`; run #45055464181 PENDING; no formal review.
+- PR #412 → merge `bb8fb236594dad77c65b1fa2a20a668c0d9cabca`; head `a0c3207e01ef622f951b6f770bd8d3929de38cca`; run #45055478329 PENDING (latest job query: metadata resolver pending); no formal review.
+- PR #413 → merge `f20a93381e0c29ba91f7cfcd6a569611048925ce`; head `001687c533786639c60b568a97807275ae661393`; run #45055507403 PENDING (latest job query: metadata resolver pending); no formal review.
+- These merges do not satisfy the coordination document's exact-head CI and independent-review requirements. Treat the missing evidence as a governance/acceptance gap and revalidate current main before any release or operational acceptance.
+
+### Factory P0 / P1 blockers
+- **Issue #354 — cross-job Lease handoff:** implementation is integrated via PR #362 / merge `388b25f354ea887727f7cfe54dd7081d4f8eb6a2`. Current workflow exports the exact reserved Lease to both privileged state-writer jobs, fails closed on missing output, and does not expose the Lease to the isolated publisher. PR #362 exact-head run #45029877567 for `fe2b16e66e47cfddfd135387a954600655903ade` passed metadata resolution, Windows quality, Ollama/local execution and isolated Supabase/PostgreSQL/RLS. Review records were COMMENTED; no formal APPROVED review was found. This resolves the narrow code defect, not full Factory acceptance.
+- **Issue #136 — independent A-wide adversarial audit:** its locked target is `dce81ed801c41bca9bc364e3d0f248244d88f88f`, but main has advanced to `25d5ed519eb923d3001df6d43aec1670a0d4851a`. Its stop-on-advance rule applies: the audit must STOP / NOT START against the stale target. Obtain an explicitly refreshed exact-main baseline/authorization before the designated independent reviewer begins. No A-wide audit report or acceptance is claimed.
+- **Issue #352 — operator recovery:** implementation is present, but actual GitHub Environment `factory-operator-recovery` required reviewers, main-only deployment restrictions and Environment-only secret scope remain UNKNOWN through repository reads. Keep recovery BLOCKED; do not dispatch or mutate Issue #100.
+- **Issue #164 / #188:** remain downstream of the independent A review and owner reconciliation. Preserve task/system breaker separation; do not enable a legacy non-evidence-gated success reset.
+- **Stale open PRs:** #259 (broad A/F–P stack), #373 (P changelog), and #376 (B/Factory charter stack) remain open in the latest open-PR listing. Their exact current heads/base/CI/reviews must be re-fetched before disposition. #376's charter documents are already integrated through PR #408; do not merge the stale candidate as-is.
+
+### B handoff
+- B Runtime remains **PREPARATION ONLY / BLOCKED** until A's independent review, exact-current-main quality/isolation/database/RLS/Ollama and operational gates, and GPT3 independent acceptance are evidenced.
+- B may consume only an approved, versioned, sanitized, read-only A projection; no Factory state, Lease, Runner/Sandbox, raw logs, patches, secrets or privileged execution.
+
+### Next execution order
+1. Refresh Issue #136's authorized audit target to the exact current main SHA `25d5ed519eb923d3001df6d43aec1670a0d4851a` before the designated independent reviewer starts; if main advances again, stop and refresh again.
+2. Obtain exact-current-main CI and job/Runner evidence; do not reuse #45054514027 from the prior SHA.
+3. Reconcile the four merged documentation PRs' pending exact-head CI and missing formal review records; record exceptions transparently rather than implying acceptance.
+4. Have the authorized administrator verify Issue #352 Environment settings and record non-secret evidence; no recovery dispatch before the gate passes.
+5. Keep #259/#373/#376 owner-routed and stale until exact head/base, CI and review are refreshed; no force-retarget or broad transplant.
+6. Keep B Runtime inactive until A acceptance and A→B handoff gates pass.
+
+**Safety boundary:** this snapshot is documentation-only. It does not authorize task dispatch/retry, Issue #100 mutation, Runner/configuration/permission/secret changes, workflow changes, production data/database/RLS operations, deployment, or B Runtime activation.
+
+---
+
 ## Superseding verified continuation snapshot — 2026-11-23 (main dce81ed8)
 
 This snapshot supersedes the older live-state snapshot at the top of this file. Historical sections below are retained for traceability; do not reuse their SHAs, run IDs, PR states, or blocker status as current.
