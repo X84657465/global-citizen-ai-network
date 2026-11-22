@@ -1,3 +1,13 @@
+## Additional exact-head failure diagnosis — 2026-11-23
+
+- Retrieved the full Windows quality-job log for PR #425 run #45058830722 (job #137323550242). The failure is deterministic in `tests/ci-trigger-policy.test.mjs`: subtest at line 631 fails at line 652 with `preserve the native Docker exit code` (`expected: true`, `actual: false`). The policy test found 42 passed / 1 failed among 43 checks. Type check, lint and production build were skipped after this failure.
+- This is a mismatch between the CI workflow text and the test's expected exit-code capture contract, not evidence of a Docker daemon outage. The job had already passed Docker/Ollama verification, bounded local inference, migration/schema guards, dependency audits and script syntax.
+- Source inspection of #422 reveals its second offline-test step captures `$dockerExecExitCode = $LASTEXITCODE`, while the existing policy regression checks for the literal `$testExitCode = $LASTEXITCODE` in every matching offline-test step. This indicates a likely same policy-test failure if #422 reaches that test unchanged; it is a source-based prediction, not a completed #422 CI result.
+- Before editing either overlapping candidate, establish one canonical DRI. Then reconcile the test contract semantically: preserve the actual native Docker exit code for each offline test invocation and assert the behavior without coupling the test to an arbitrary local variable name. Keep diagnostic output persistence before raising failure. Do not weaken the exit-code handling or sandbox constraints.
+- Evidence: [#425 run #45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722), [failing Windows job](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722/job/137323550242).
+
+---
+
 ## Latest P0 CI failure evidence — 2026-11-23 (Issue #117 candidates)
 
 This note supersedes earlier PR #422/#425 CI descriptions below.
