@@ -164,3 +164,28 @@ This report is a documentation snapshot, not a formal security audit, GPT3 accep
 - PR #431 run [#45063086722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063086722) completed after the prior snapshot: metadata resolver passed, but the Windows quality-gates job failed with 746 unit tests passed / 1 failed at `tests/agent-factory-controller.test.mjs:1917` (`Missing expected rejection`). Typecheck, lint, production build, PostgreSQL/RLS and Ollama integration were skipped. This is the same inherited Factory fixture failure seen on #428; it does not establish a B Product regression.
 - PR #430 latest head `a0dff3e26dd08fb05dd435cfb573712a7dd5f953` has Actions run [#45063262289](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063262289) still PENDING with no jobs returned at this observation. Do not infer success or failure.
 - The daily automation record is enabled for 08:00 Asia/Taipei, but its metadata reports `last_run_time=null` and no recorded run result yet. Scheduling is configured; an actual completed automated run is not evidenced.
+
+
+## 12. Live Operations delta — 2026-11-23 (PR #432 integration candidate)
+
+### Current main and governance
+- Current main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`; `PROJECT_COORDINATION.md` was re-read from main at blob `849e4f43c87d7686f80ed2e6af9337e797403027`.
+- Current versions remain overall `0.3.137`, Agent Factory `2.0.84`, B Product `0.1.20`.
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` and `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` were re-read. The Master Charter still labels itself PROPOSED pending GPT3 independent review and formal governance acceptance.
+- Main combined status returns only Vercel `build-rate-limit` failure. The available commit-workflow wrapper filters to PR-triggered runs and returns no main Actions run; Main Actions therefore remains UNKNOWN / NOT VERIFIED, not PASS.
+
+### New combined integration candidate — PR #432
+- [PR #432](https://github.com/X84657465/global-citizen-ai-network/pull/432) is OPEN / DRAFT, base `main` at `10fabef703ee3865d208196f46ee71ddd1b7e149`, head `49d541eaed8be94e9fd442155f0b6a10d0390428`, GitHub mergeable=true.
+- The exact three changed files are `lib/contribution-task-filters.mjs`, `tests/agent-factory-controller.test.mjs`, and `tests/contribution-task-filters.test.ts`.
+- The diff combines the Factory negative-test fixture correction sourced from PR #429 head `6f2403ae26467fa025546351bd45a8519f2bcd43`, and the B Product generic task-shape preservation plus compile-time/runtime regression assertion sourced from PR #428 head `1bd38fff2a330ed97d5ab298323b0512e6e348ab`.
+- This is a promising single exact-main integration candidate and resolves the prior source-PR separation at the diff level. It is NOT yet validated: no GitHub Actions workflow run was returned for this head, no formal PR review submission or inline review thread was returned, and Vercel reports a provider quota error (`api-deployments-free-per-day`, retry after 24 hours). The Vercel deployment limit is not a GitHub test failure.
+- Required next evidence: run unit tests, TypeScript, lint, production build, security audit and required integration gates on this exact head SHA; then GPT3 independent review. Keep Draft; do not merge based on diff inspection or GitHub mergeability.
+
+### Other live PR and issue boundaries
+- PR #428 remains open/draft at `1bd38fff2a330ed97d5ab298323b0512e6e348ab`; PR #429 remains open/draft at `6f2403ae26467fa025546351bd45a8519f2bcd43`. PR #432 combines their narrow changes but does not make their prior exact-head failures disappear or establish current candidate acceptance.
+- PR #431 remains open/draft at `2f8b0e4bd3db6e9c344f048d7708a528cb63a7b9`; its last observed quality-gates job failed at the Factory fixture assertion.
+- Factory Issues #164 (P0 task/system breaker isolation), #176 and #188 (recovery wiring), #136 (read-only independent audit) remain open in the current issue listing. #136's immutable audit target remains `dce81ed801c41bca9bc364e3d0f248244d88f88f`; its stop condition prohibits silently switching to the current main SHA. Owner-authorized fresh audit baseline is required.
+- B Product readiness remains PREPARATION ONLY. No Runtime activation, production provider traffic, database/RLS change, payout or deployment is authorized by this report.
+
+### Automation evidence boundary
+- The GCAN daily audit automation is enabled for 08:00 Asia/Taipei, but its record still has `last_run_time=null` and no latest run result. Scheduling is configured; completed background execution is not yet evidenced.
