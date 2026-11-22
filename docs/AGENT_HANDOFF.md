@@ -14,7 +14,7 @@ This section supersedes earlier live-state statements below. Re-fetch all exact 
 - #425: head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; exact-head run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) has metadata resolver SUCCESS and Windows quality job PENDING. Its helper still uses `Number(state.ExitCode)`; null, empty string and false can coerce to zero. Existing review requires strict raw-value validation and regression cases.
 - #426: head `542d315d0c3733aeef155d51f9a662528050b1bb`; exact-head run [#45058900487](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058900487) remains PENDING at metadata resolution; independent formal review is absent.
 - #424: Draft and stacked on #422, base is #422 head; not independently mergeable to main. Its prior successful workflow does not establish independent integration or full validation.
-- #427: head `5516d4b207a016b0a6d55c112a5fd6887611ff7d`; Draft, base main. Its exact-head run lookup is recorded separately in the current execution report; roadmap documentation is not implemented runtime capability.
+- #427: head `5516d4b207a016b0a6d55c112a5fd6887611ff7d`; Draft, base main. Exact-head run [#45060267113](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060267113) is PENDING; roadmap documentation is not implemented runtime capability.
 - Other open PRs include #417, #376, #373 and #259. Stale/diverged candidates must not be wholesale merged.
 
 ### Governance / Factory-first
