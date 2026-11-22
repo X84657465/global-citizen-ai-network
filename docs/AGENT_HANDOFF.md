@@ -756,3 +756,110 @@ No task state, Issue #100, lease, cooldown, quarantine, scheduler dispatch, Runn
 - The handoff update itself advanced PR #326 to exact head `56ca1554027b58c3061203782deaf85932f2a24b`; the previously observed run `44999527039` targets the superseded head `f3510966bc2ba3bd08c5bc8e2064ca79aaf577a3` and is not valid evidence for this latest documentation revision.
 - PR #327 remains Draft at exact head `df228022fed7ac18cbc3f8accf18bf71ca00a8b1`, base main `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45`. GitHub reports mergeable/clean, but exact-head CI run `44999696562` remains pending with no allocated job and no formal review; mergeability is not acceptance.
 - Main CI run `44995876495` remains pending with no final result. Do not use historical PR-head CI or the preflight failure on a different SHA as a substitute for exact-head acceptance.
+
+
+## Superseding live continuation checkpoint — 2026-11-22 15:55 Taiwan
+
+This checkpoint supersedes every earlier live snapshot above wherever the main SHA, workflow run, PR state, or conclusion differs. It is evidence documentation only, not A acceptance or release authorization.
+
+### Verified mainline and recent integrations
+- Verified `main` HEAD: `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`.
+- PR #326 (handoff evidence refresh) and PR #327 (nonfatal Docker diagnostic inventory) are merged into this mainline. PR #327's exact source-head CI run #44999696562 succeeded on `df228022fed7ac18cbc3f8accf18bf71ca00a8b1`; that source-head CI result is not a substitute for current-main CI, sandbox validation, or independent review.
+- Root release declarations remain GCAN `0.3.125`, Agent Factory V2 `2.0.84`, and GCAN Product `0.1.20`. These are version declarations only.
+
+### Current exact-SHA CI and Preflight evidence
+- Main push CI run [#44999879910](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879910) targets exact current main SHA `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`. Latest query: **pending**, with no allocated jobs. Do not infer tests, types, lint, audits, build, Ollama, PostgreSQL, or RLS success.
+- Main CI run [#44995876495](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44995876495) targets the older SHA `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45`, not current main, and has now completed **failure**. Locked dependency installation succeeded, but the Windows quality-gates job stopped at `docker info` because Docker Desktop Linux Engine's named pipe `//./pipe/dockerDesktopLinuxEngine` was missing; Ollama verification and all migration/schema/audit/script-policy/unit/type/lint/build checks were skipped. This older-SHA failure is not current-main evidence.
+- Preflight run [#44999879809](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879809) targets exact current main SHA `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f` and completed **failure**. Toolchain verification, local Ollama synthetic plan generation, and Ollama patch proposal succeeded. Disposable-container isolation failed; all sandbox patch application, restricted dependency installation, offline candidate tests, publisher dry-run, and host-independent full quality checks were skipped.
+- The Preflight isolation failure is an environment blocker: Docker CLI exists, but Docker Desktop Linux Engine's named pipe `//./pipe/dockerDesktopLinuxEngine` is unavailable. PR #327 makes diagnostic inventory nonfatal; it does not repair Docker Engine or waive the mandatory disposable-container gate.
+- Do not execute candidate code directly on the Windows host, treat WSL presence as isolation, or weaken pinned-image/no-network/non-root/read-only/capability/resource restrictions.
+
+### PR and independent-review status
+- PR #259 is the only open PR returned by the latest open-PR query. It is based on stale main SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, head `3330cd04a77358cf0ff780940d09f938cab1dc3a`, and GitHub reports `mergeable=false`. Do not merge or transplant its broad historical diff.
+- Issue #136 remains open and strictly read-only. The latest inspected comments do not contain an independent final audit report or sign-off. Owner-authored notes and CI are not independent review.
+- Do not alter machine-managed Issue #100, task state, lease, retry/cooldown/quarantine, scheduler dispatch, Runner concurrency, workflow permissions, secrets, production data, or deployments.
+
+### B handoff boundary
+- `docs/architecture/agent-factory-product-read-adapter.md` remains a **proposed, unimplemented, unaccepted** contract. Its versioned read model and exact SHA/PR/run/attempt binding are design requirements, not a live API.
+- B Runtime remains inactive. Do not expose Factory state Issues, controller/state-store internals, leases, Runner/Sandbox controls, raw logs, patches, secrets, or privileged execution to B.
+- After A acceptance only: implement an A-owned sanitized projection, B-owned workspace authorization and tenant mapping, and two-workspace RLS/IDOR tests. Keep the failure-category mapping allowlisted and fail closed.
+
+### Next execution order
+1. Restore Docker Desktop Linux Engine on the authorized Windows Runner host and verify the named pipe; then allow the existing serialized queue to run the mandatory isolation test.
+2. Observe Main CI run #44999879910 against the exact SHA above and record each terminal job result. Do not dispatch duplicate work or bypass Runner serialization.
+3. Obtain the independent read-only Issue #136 report against the current integrated mainline.
+4. Complete current-main quality, isolation, natural scheduler/lease progression, Preview/Smoke where applicable, and operational soak before declaring A accepted.
+5. Only then implement and activate the bounded A→B projection and B tenancy enforcement.
+
+**Authority boundary:** this checkpoint changes documentation only. It does not modify Factory runtime/state, task/lease/retry/cooldown/quarantine, scheduler or Runner policy, workflow permissions, secrets, production data, deployments, or B Runtime behavior.
+
+
+### Superseding PR #328 validation update — 2026-11-22 16:05 Taiwan
+- Re-inspected Main CI run #44995876495 job logs: it is **completed failure**, not in progress. The failure is precisely the missing Docker Desktop Linux Engine named pipe; downstream quality checks were skipped. This correction supersedes the earlier status sentence above.
+- Current-main CI run #44999879910 still reports pending with no allocated jobs.
+- PR #328 exact-head run #45000178867 is pending at resolver metadata stage. Commit status currently reports Vercel **failure** with target URL indicating a build-rate-limit/plan restriction; this is external deployment status, not a passing CI result or a source-code diagnosis. PR #328 has no submitted reviews and no inline review threads at this inspection.
+- No acceptance or merge is authorized by these observations. Keep PR #328 Draft until its exact-head checks and required review are resolved.
+
+
+### Superseding exact-main CI terminal result — 2026-11-22 (Taiwan)
+- Main push CI run [#44999879910](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879910) has now completed **failure** on exact main SHA `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`; the earlier statement that it was pending is superseded.
+- Exact run jobs: candidate metadata resolution **success**; Windows Runner quality gates **failure**; diagnostics and failure-state persistence **success**; Ollama/local execution, PostgreSQL/RLS, and success persistence **skipped**.
+- The failing quality-gates log confirms Docker CLI is installed but Docker Engine is unreachable: named pipe `//./pipe/dockerDesktopLinuxEngine` does not exist. The workflow stopped before Ollama verification, migration/schema guards, dependency audits, script policy, unit tests, TypeScript, lint, and production build. These checks are **not validated**, not passed.
+- Main Preflight run [#44999879809](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879809) also completed **failure** on the same SHA. Toolchain checks and local Ollama plan/patch generation succeeded; disposable-container isolation failed because the pinned sandbox image could not be pulled / Docker Engine was unavailable. Candidate patch application, offline tests, publisher dry-run, and downstream quality checks were skipped.
+- This is an execution-environment blocker, not evidence of a source-code regression. Do not weaken the sandbox boundary, run candidate code on the Windows host, bypass the shared Runner queue, or treat skipped jobs as passes.
+- Recovery gate: restore Docker Desktop Linux Engine on the authorized Windows Runner host; verify `docker info` and the pinned sandbox image pull; then inspect the next naturally triggered exact-SHA CI/Preflight runs. Do not create duplicate dispatches or mutate machine-managed state to force progress.
+
+
+---
+
+## Superseding live continuation checkpoint — 2026-11-22
+
+This checkpoint supersedes earlier snapshots above wherever their main SHA, PR state, run IDs, or conclusions differ. It records a read-only verification plus a docs-branch handoff update; it is not A acceptance, B activation, or deployment authorization.
+
+### Current repository and Factory PR state
+- Verified `main` HEAD: `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`.
+- PR #329 proposed the narrow A-core provider cooldown propagation fix across `prepare-task`, `begin-publication`, `publish-task`, and the durable publication-failure callback, with a workflow-contract regression test. Exact head: `2cabf35d0faf6d0e5f682ec42aa5f8a81b261cdd`.
+- PR #329 was subsequently **closed unmerged by repository owner `X84657465`** at 2026-11-22 08:07:53 UTC. Do not reopen or recreate this candidate automatically; preserve the closure decision. Its exact-head CI run #45001181741 later completed **failure**: metadata resolution passed, but Windows Runner quality gates stopped at `docker info` because the Docker Desktop Linux Engine named pipe `//./pipe/dockerDesktopLinuxEngine` was unavailable. Unit/type/lint/build/audit, Ollama execution, and PostgreSQL/RLS jobs were skipped. The new workflow-contract test was therefore not reached by this CI run. No formal review was observed; the branch change is not accepted or merged.
+- PR #328 remains Draft/open, docs-only, exact head at the time of this checkpoint `070c15c67fa08581b9c054d5f322fd4a61c665a9`, base main `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`. Its exact-head CI run #45001420085 was pending when queried; the earlier run #45001414083 targeted a superseded intermediate commit and was cancelled. This handoff update advances the branch again, so neither run is acceptance evidence for the resulting new head; verify the fresh exact-head run after this update. No review sign-off was found.
+- PR #259 remains stale/non-mergeable and is not a candidate for transplant or merge.
+
+### Exact-main execution blockers
+- Main CI run #44999879910 completed **failure** because the Windows Runner had Docker CLI but no available Docker Desktop Linux Engine (named pipe `//./pipe/dockerDesktopLinuxEngine` unavailable). Downstream isolated execution and database/RLS validation did not run; do not infer those gates passed.
+- Preflight run #44999879809 completed **failure** at disposable-container isolation for the same Docker Engine/sandbox availability blocker. Ollama synthetic plan generation and patch proposal completed, but candidate patch application, offline tests, publisher dry-run, and downstream quality validation were skipped.
+- Vercel reported a per-day deployment rate limit; this is a deployment-provider quota issue, not evidence of a source-code failure or successful deployment.
+- Restore Docker Desktop Linux Engine on the authorized Windows Runner host and verify `docker info` plus the pinned sandbox image. Do not bypass container isolation, execute candidate code directly on the host, change Runner concurrency, or force duplicate workflow dispatches.
+
+### Independent review and B handoff
+- Issue #136 remains open and strictly READ-ONLY. Its latest inspected comments contain earlier supplemental static inspection, not the requested independent Claude adversarial audit report or sign-off. Do not edit the issue or treat self-review as independent approval.
+- B's workspace shell and authenticated product APIs exist, but `docs/architecture/agent-factory-product-read-adapter.md` remains a **proposal only**. It defines the future versioned, sanitized, read-only projection; no accepted A→B runtime adapter is established.
+- Keep B Runtime inactive until A has exact-head CI, Docker-isolated execution, PostgreSQL/RLS, Preview/Smoke, natural scheduler/lease progression, and independent review acceptance. Then implement only the A-owned projection and B-owned tenant authorization/RLS boundary.
+
+### Next execution order
+1. Respect PR #329's owner-initiated closure; do not reopen it without a new explicit direction. Preserve its proposed fix as unaccepted historical work until a future authorized candidate is created.
+2. Restore Docker Desktop Linux Engine on the Windows Runner host; allow the existing serialized exact-SHA queue to complete naturally.
+3. Re-run/verify current-main CI and disposable-container Preflight on exact current SHAs; inspect actual terminal job results, PostgreSQL/RLS and Ollama outcomes.
+4. Obtain the independent read-only Issue #136 report, then triage any confirmed findings with narrow A-core changes and regression tests.
+5. Accept A only after all required runtime, isolation, database, review, and operational soak evidence passes. Then connect B through the documented read-only adapter; no privileged Factory state access from B.
+
+**Authority boundary:** this checkpoint changes documentation on the PR #328 branch only. It does not modify Factory runtime/state, machine-managed Issue #100, tasks, leases, retry/cooldown/quarantine records, Runner/workflow policy, secrets, permissions, production data, deployments, or B Runtime behavior.
+
+
+### Superseding exact-head continuation — 2026-11-22 (latest live refresh)
+
+This section supersedes prior PR #328 head/run snapshots and records the latest state after the documentation branch advanced.
+
+- Current `main` remains `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`.
+- PR #328 remains Draft/open and docs-only. Current exact head: `9e6d16a1831c8348948a7433e3cbcdbf34f3125b`; changed path: `docs/AGENT_HANDOFF.md`. Exact-head CI run [#45001495150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45001495150) completed **failure**. Metadata resolution succeeded; Windows Runner quality gates failed before substantive checks because Docker CLI could not connect to the Docker Desktop Linux Engine named pipe `//./pipe/dockerDesktopLinuxEngine`. Ollama/local execution and PostgreSQL/migrations/RLS jobs were skipped. Therefore tests, types, lint, audits, production build, Ollama integration, and database/RLS are not validated for this head.
+- Earlier runs #45001420085 and #45001414083 target superseded commits and are not evidence for the current head. The newest exact-head failure is an environment failure at the Docker precondition, not a source-code regression finding.
+- Current-main combined status and PR #328 exact-head combined status each report Vercel **failure** with a build-rate-limit/plan-upgrade target. Treat this only as an external deployment quota restriction; it is neither source-code CI nor deployment success.
+- PR #259 remains open but stale/non-mergeable; its head is `3330cd04a77358cf0ff780940d09f938cab1dc3a`, based on an obsolete mainline. Do not merge, rebase, transplant, or revive it automatically.
+- Issue #136 remains open. Its latest comments are owner-authored historical notes and supplemental self-review; no independent Claude adversarial report or approval is present. Preserve its READ-ONLY scope and do not modify the issue.
+- No code PR is currently eligible for merge. Keep PR #328 Draft; do not convert it to ready or merge while its exact-head CI and required review are absent.
+
+### Next action boundary
+1. The Docker Engine recovery requires the authorized Windows Runner host operator; repository edits cannot restore the missing local Docker Desktop service or named pipe.
+2. After the host is repaired, verify `docker info` and the pinned sandbox image, then let the existing serialized queue run exact-current-SHA CI and Preflight naturally.
+3. Obtain the independent read-only Issue #136 report; owner-authored source checks and CI do not substitute for it.
+4. Keep A acceptance gated on exact-SHA quality, disposable-container isolation, Ollama, PostgreSQL/RLS, operational progression/soak, and independent review. Only then implement the bounded read-only A→B projection and tenant boundary.
+
+**Authority boundary:** documentation-only checkpoint. No Factory runtime/state, Issue #100, tasks, leases, retry/cooldown/quarantine, scheduler, Runner concurrency, workflow permissions, secrets, production data, deployment, or B Runtime was changed.
