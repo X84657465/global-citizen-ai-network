@@ -1,3 +1,22 @@
+## Live evidence correction — 2026-11-23 (exact main CI and governance labels)
+
+This note supersedes any conflicting statement in the snapshots below.
+
+- Main SHA remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Exact-main standard CI **does exist**: [run #45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077), workflow `.github/workflows/ci.yml`, event `push`, attempt 1, currently **PENDING**. Jobs endpoint currently returns an empty job list. It is not PASS and must not be described as NOT RUN.
+- Main's combined commit status currently exposes Vercel `build-rate-limit` failure separately; that is not the GitHub Actions CI conclusion.
+- Issue #117 currently has `factory-control-plane-approved`; Issue #176 also has that label. Their labels do not override their explicit issue-level acceptance restrictions. Issue #117 explicitly says do not merge any PR or deploy as part of that task.
+- The current open PR list contains 10 entries (#427, #426, #425, #424, #422, #420, #417, #376, #373, #259). Some are stacked or target non-main bases; do not count them as mainline-ready work.
+- PR #422's exact-head CI run #45058587659 is still in progress: metadata resolver succeeded, Windows quality job is pending. Its associated push workflow run #45058582257 failed. PR #424's exact-head PR run #45058591151 is successful, but it is stacked on #422 and does not independently authorize integration.
+- PR #425's exact-head run #45058830722 remains pending; its review has a blocking malformed-exit evidence finding (Number(null)/empty/false coercion may falsely yield zero).
+- PR #426's exact-head run #45058900487 remains pending at metadata resolution; there are no formal reviews. Issue #176 requires full exact-head CI matrix and independent formal review.
+- PR #420's latest candidate head is `ada2cd84dc32583904e1a428629d8af89654b00c`; exact-head run #45060107358 is pending. Its existing review is COMMENTED by the repository owner, not an independent approval.
+- PR #427's latest head is `71ba10a6d0c8297568a17120f6bcbdf38815c4cf`; exact-head run #45060080901 is pending. It remains Draft and its proposed roadmap is not implemented runtime capability.
+
+**Acceptance:** no PR in this evidence set is eligible for merge now. Keep #422/#425 blocked by the #117 no-merge rule and competing implementation review; keep #426 blocked by pending exact-head CI and missing independent review; keep #420 blocked by pending CI and missing independent review. Do not merge based on mergeable=true.
+
+---
+
 ## Latest execution correction — 2026-11-23 (PR #420 head 60325ed)
 
 This correction supersedes any conflicting PR/run details in the continuation snapshot below. It is documentation-only and does not change runtime or governance state.
