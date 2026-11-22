@@ -33,7 +33,7 @@ test("project loading failure is not mislabeled as an empty account", () => {
 test("project network failure is isolated from conversation and pending-request loading", () => {
   assert.match(workspaceSource, /fetch\("\/api\/projects", \{ cache: "no-store" \}\)\.catch\(\(\) => null\)/);
   assert.match(workspaceSource, /projectResponse\?\.ok/);
-  assert.match(workspaceSource, /setProjectsUnavailable\(!projectResponse\?\.ok\)/);
+  assert.match(workspaceSource, /setProjectsUnavailable\(projectUnavailable\)/);
 });
 
 test("malformed project responses are shown as unavailable, not as an empty project list", () => {
