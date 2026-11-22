@@ -219,3 +219,41 @@ test("rejects forged run/job URLs, duplicate controls, invalid SHAs, and unregis
     evidence: [evidence("member-isolation", { evidenceRef: "tests/other-unrelated.test.ts" })],
   })), TypeError);
 });
+
+
+test("rejects hostile F evidence arrays and accessor-backed evidence records", () => {
+  const valid = FP_SECURITY_CONTROLS.map((control) => evidence(control.id));
+  const customIterator = [...valid] as FPSecurityEvidence[] & { [Symbol.iterator]?: () => Iterator<FPSecurityEvidence> };
+  Object.defineProperty(customIterator, Symbol.iterator, {
+    value: function* () { yield valid[0]; },
+  });
+  assert.throws(() => assessFPSecurityEvidence(bundle({ evidence: customIterator })), /bounded dense plain array/);
+
+  const sparse = new Array<FPSecurityEvidence>(1);
+  assert.throws(() => assessFPSecurityEvidence(bundle({ evidence: sparse })), /bounded dense plain array/);
+
+  const accessorSlot = [...valid];
+  Object.defineProperty(accessorSlot, "0", { enumerable: true, configurable: true, get: () => valid[0] });
+  assert.throws(() => assessFPSecurityEvidence(bundle({ evidence: accessorSlot })), /bounded dense plain array/);
+
+  let getterCalled = false;
+  const getterRecord = { ...valid[0] };
+  Object.defineProperty(getterRecord, "controlId", {
+    enumerable: true,
+    configurable: true,
+    get() { getterCalled = true; return "member-isolation"; },
+  });
+  assert.throws(() => assessFPSecurityEvidence(bundle({ evidence: [getterRecord as FPSecurityEvidence] })), /plain own-data fields/);
+  assert.equal(getterCalled, false);
+
+  const ciGetterRecord = { ...valid[0].ci };
+  Object.defineProperty(ciGetterRecord, "repository", {
+    enumerable: true,
+    configurable: true,
+    get() { getterCalled = true; return repository; },
+  });
+  assert.throws(() => assessFPSecurityEvidence(bundle({
+    evidence: [evidence("member-isolation", { ci: ciGetterRecord as FPSecurityCIEvidence })],
+  })), /plain own-data fields/);
+  assert.equal(getterCalled, false);
+});
