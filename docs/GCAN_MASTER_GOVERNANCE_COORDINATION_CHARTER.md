@@ -1015,3 +1015,48 @@ F6–F12 是既有 F0–F5 基礎上的後續能力階段；它們是有依賴�
 - 若依賴、權限、Runner、CI 或 Reviewer 不足，標示 BLOCKED 並提供解除條件，不可繞過。
 - 文件、架構圖、Prompt、模型可連線或合成測試均不能單獨證明能力已成熟。
 - 本章是目標架構與工程執行規範；不自動啟用模型付費、增加 Runner、開放網路、授予新權限、合併 PR 或部署正式環境。Master Charter 的正式生效仍受其獨立審查與接受狀態約束。
+
+
+## 20. Factory 自主能力六項橫向強化與全工作線協同執行令
+
+本節是 §17–§19 的補強執行要求，必須與 F0–F12 階段閘門合併執行；不另創 F13–F18、不新增 GPT 席位、不複製控制面，也不改變 Factory-first、A→B 邊界或 GPT3 獨立驗收權。
+
+### 20.1 六項橫向核心能力（納入 F6–F12 驗收）
+
+1. **全域專案理解（Project Intelligence）：** 在修改前建立可更新的 Repository 地圖，涵蓋目錄／模組、入口點、依賴圖、API／資料契約、資料庫 schema、測試、部署設定、owner、技術債與關鍵執行路徑。對每項變更列出受影響模組、相容性風險及需要執行的測試。資料必須可追溯到路徑、版本與 SHA；無法確認的部分標示 UNKNOWN，不得臆測。
+2. **自主任務拆解與調度（Planning & Orchestration）：** 將目標拆成有唯一 DRI、依賴、修改 allowlist、資源預算、DoD 與停止條件的任務 DAG；依能力證據路由 Worker／Engine／Tool，處理鎖定、lease/fencing、取消、重試、優先級、公平性與衝突。先證明單任務可靠，再逐步開放並行。
+3. **多層獨立驗證（Verification）：** 對需求、靜態分析、單元、整合、端對端、回歸、安全、效能及相容性採風險導向測試。Developer 不得自我批准；測試必須綁定精確 SHA 與實際 CI run/attempt。缺少測試、審查者、最新 CI 或證據時 Fail-Closed。
+4. **自主除錯與有界修復（Debug & Repair）：** 從可重現失敗與日誌分類症狀、定位根因、產生最小修復、執行回歸並比較前後結果。設定最大重試次數、時間、成本與修改範圍；禁止無限修復迴圈、刪測試求綠或掩蓋失敗。無法安全修復時停止並提交診斷與人工處理條件。
+5. **自我評估與受控能力進化（Evaluation & Evolution）：** 量測任務成功率、缺陷逃逸率、修復成功率、回歸率、人工介入率、延遲、成本、資源利用及恢復時間。改善必須有基線、可比較結果、獨立審查、分階段發布與回滾；模型不得自行更改驗收門檻或批准自身改善。
+6. **安全治理與資源控制（Security & Resource Governance）：** Worker 使用隔離工作區、最小權限、路徑／命令／網路 allowlist、短期憑證與資源配額；具備審計、秘密遮罩、任務取消、隔離、備份及復原。模型不得持有不必要的 host／production secrets，不得自行提升權限、建立付費資源或觸發未核准支出。
+
+### 20.2 Factory 能力證據登錄（Capability Evidence Registry）
+
+每項 Worker、Engine、Tool、Runtime、Orchestration、QA、Memory、Recovery 能力都必須有唯一識別、owner、版本、適用範圍、狀態、證據與最後驗證時間。狀態統一為：
+
+`PLANNED → IMPLEMENTED → TESTED → VERIFIED → ACCEPTED`
+
+另可標記 `PARTIAL`、`BLOCKED`、`STALE`、`DEPRECATED`、`UNKNOWN`。狀態不得跳級；每次狀態轉換須附 repository、branch、精確 SHA、測試命令／結果、CI run/attempt、獨立 reviewer、限制與回滾資訊。文件存在、角色命名、合成測試或未執行的工作流程，不構成 VERIFIED／ACCEPTED 證據。證據過期、程式改版或依賴變動時，相關能力退回待重新驗證狀態。
+
+### 20.3 全工作線協同與責任分配
+
+- **GPT1／A–E：** 擔任 Factory 技術整合與核心能力建設主責；盤點現有系統、提出最小實作、維護 Factory 能力目錄與 A→B 安全輸出契約。
+- **GPT2／F–P：** 各專業 owner 提供其領域的需求、規格、風險、測試案例及領域驗收；僅在 Factory 能力缺口或真實 P0/P1 阻塞時承接專業建設，不複製通用引擎。
+- **GPT3：** 獨立審查架構、能力證據、故障注入、權限隔離、回歸、恢復及階段放行；不得由 Developer 或 GPT5 自評替代。
+- **GPT4／B：** 維護產品目標、需求、UX、產品優先級與產品驗收；提供可驗證的產品需求及 A→B 契約需求，不直接控制 Factory 私有 Runner／Lease／Sandbox。
+- **GPT5：** 提供外部技術情報、供應鏈／安全研究、基準與營運分析；僅在明確指派、路徑與權限受限的任務內執行，不接管 A–P owner 或 GPT3 QA。
+- **專案負責人：** 對正式產品方向、預算、不可逆操作及需人類決策事項保留核准權。
+
+所有角色透過 Repository 文件、Issue、PR、Review、CI 與正式 handoff 協作；不得假設 GPT 間存在未部署的私訊或背景通訊。每項任務只有一位 DRI 與一位主導 Developer，Reviewer／QA 必須獨立。
+
+### 20.4 強制執行順序與當前工作令
+
+1. 先讀取最新 main、PR #427、Issues、CI、Factory 程式與既有能力證據；不以聊天摘要或文件宣告代替現況盤點。
+2. 建立「已存在／可重用／需修復／真正缺失」矩陣，標出每項能力 owner、依賴、狀態及精確證據；先 REUSE，再 EXTEND／REPAIR，只有具備 ADR、遷移及回滾證據才 REPLACE。
+3. 以全域專案理解、能力證據登錄及安全單任務 Issue→Plan→Worker→Isolated Edit→Build/Test→Draft PR→Independent Review 作為最優先的端到端驗證。
+4. 把六項橫向能力分配到既有 F6–F12 階段 DoD，不另起平行 roadmap；未達前置條件不得跳級或擴大並行。
+5. GPT2 各線先提交可供 Factory 消費的領域規格與驗收案例；GPT4 提供 B 的產品／介面需求；GPT5 提供有來源的技術與風險情報；GPT1 整合執行；GPT3 獨立驗收。
+6. 可在既有授權範圍內安全、可逆且證據充分的文件整理、測試、程式修復與 PR 準備工作，直接推進；遇到正式部署、合併政策、權限／Secrets、付費資源、不可逆資料操作或對外承諾，遵守既有核准閘門，不得因「全力執行」而越權。
+7. 每輪交付回報完成項、未完成項、BLOCKED 原因、下一個最高優先級、精確 SHA、測試／CI 證據、風險與回滾。無證據一律標示 NOT RUN／UNKNOWN／BLOCKED，不得宣稱已完成。
+
+**最高執行原則：全體工作線以 Factory-first 為當前共同優先級，合力補足真實能力缺口；不重造已有能力、不虛報完成、不削弱獨立 QA、不越權。**
