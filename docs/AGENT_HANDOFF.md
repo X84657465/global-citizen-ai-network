@@ -1,3 +1,38 @@
+## Superseding verified continuation snapshot — 2026-11-23 (main dce81ed8)
+
+This snapshot supersedes the older live-state snapshot at the top of this file. Historical sections below are retained for traceability; do not reuse their SHAs, run IDs, PR states, or blocker status as current.
+
+### Mainline, versions and mandatory policy reads
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Verified current main HEAD: `dce81ed801c41bca9bc364e3d0f248244d88f88f` (merge of PR #409; PR #408 also merged immediately before it).
+- Root `VERSION` and `versions/manifest.json` overall: `0.3.137`; Agent Factory V2 (A): `2.0.84`; GCAN Product (B): `0.1.20`. Version declarations are not acceptance claims.
+- Re-read current-main `PROJECT_COORDINATION.md` (blob `ce4798608779fafaea242eec6c9ef0392e9bdc38`) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `ed1a00ce998e38a05d6e6f38af34c37851da9cf5`) before this continuation. Factory-first, five-GPT boundaries, exact-SHA evidence and human approval limits remain in force.
+- Current-main Factory charter: `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md` (blob `db3eaf7c0e4c97455c522e5135101ae429deaa12`).
+- Current-main B lead charter: `docs/GCAN_B_LINE_LEAD_CHARTER.md` (blob `998ab95d69ddfed91095c1e095cca69f874a97dd`); Product North Star: `docs/GCAN_PRODUCT_NORTH_STAR.md` (blob `4c4d6e35c105e429559fa616c84e67756ba800d8`). B remains preparation-only until A acceptance and the required A→B gates are met.
+
+### Current CI / delivery evidence
+- Main exact-SHA Actions run #45054514027 targets `dce81ed801c41bca9bc364e3d0f248244d88f88f` and is **PENDING**; the latest jobs query returned no jobs. Do not infer a mainline CI pass or Runner health from the empty job list.
+- PR #410 is open as a documentation correction based on this main SHA. Candidate head: `82e6ffcfed0bd3a0ad08bfb241974cf8320f2f32`; compare: 1 commit ahead / 0 behind, one added file (`docs/research/factory-operations-intelligence-addendum-2026-11-23.md`). Exact-head Actions run #45055030009 is **PENDING**. No formal review submissions or inline threads were returned at this check. Do not merge or claim acceptance on this evidence.
+- Recent integrated mainline commits include PR #408 (Factory/B charter integration) and PR #409 (Factory operations intelligence record), with main now at the SHA above. Their merged status alone is not proof of exact-head CI or independent acceptance.
+
+### Factory P0 status and owner-routed blockers
+- **Issue #354 — cross-job Lease propagation:** the implementation blocker is resolved on main via PR #362, merge commit `388b25f354ea887727f7cfe54dd7081d4f8eb6a2`. Current workflow blob `ae2498994c55298cb48ad11e4d3a0bc93d9f9cfe` exports the exact `reserve-task` Lease output as `prepare-task.outputs.lease_id`, gates publication on non-empty output, and passes the same Lease to `begin-publication` and `record-publication`; `publish-task` does not receive it. Current workflow-contract test blob `c872513244aec4ea4d56d846cf92b5bf9e8172dc` asserts these boundaries. PR #362 exact-head run #45029877567 for `fe2b16e66e47cfddfd135387a954600655903ade` completed SUCCESS: metadata resolver, Windows quality, Ollama/local execution and isolated Supabase/PostgreSQL/RLS jobs all succeeded. Conditional diagnostics/persistence jobs were SKIPPED, not counted as passes. Review records were COMMENTED; no formal APPROVED review was found. This validates the reviewed candidate head, not the current main SHA.
+- **Issue #136 — independent A-wide adversarial audit:** the issue now names `dce81ed801c41bca9bc364e3d0f248244d88f88f` as its sole audit baseline. It remains READ-ONLY and assigned to an independent reviewer. No audit report/sign-off is claimed here; do not switch the baseline if main advances before the audit begins.
+- **Main CI:** run #45054514027 remains PENDING with no jobs returned. This is an unresolved current-main verification gap.
+- **Stale integration candidates:** PRs #259, #373 and #376 remain open in the current open-PR listing. Re-fetch their exact heads, compare each against current main, inspect reviews and exact-head CI before any disposition. Do not force-retarget or merge stale/broad candidates; rebuild selectively with owning GPTs.
+- **B handoff:** remain PREPARATION ONLY. No B Runtime, second Runner, privileged Factory state access, lease/Runner/Sandbox access or production activity is authorized.
+
+### Next execution order
+1. Obtain the independent read-only Issue #136 report against the exact current main SHA; stop and refresh authorization/baseline if main advances.
+2. Recheck current-main CI run #45054514027 and Runner/job allocation; Pending or empty job results are not PASS.
+3. Keep Issue #354's merged code correction as implemented; do not reopen or duplicate the workflow change. Track any new regression only with fresh evidence.
+4. Reconcile PR #376 and other stale candidates with their owners, in dependency order, using fresh branches from current main and exact-head CI/review.
+5. Keep B Runtime inactive until A's complete acceptance and explicit A→B handoff gates are satisfied.
+
+**Safety boundary:** this snapshot is documentation-only. It does not authorize task dispatch/retry, Issue #100 mutation, Runner/configuration/permission/secret changes, workflow changes, production data/database/RLS operations, deployment, or B Runtime activation. No such operation was performed in this continuation.
+
+---
+
 ## Superseding verified continuation snapshot — 2026-11-22 (main 1330cec4)
 
 This snapshot is the current operational reference and supersedes earlier live-state sections below wherever they conflict. Older sections remain historical evidence; do not treat their SHAs, run IDs, PR states, or blocker descriptions as current.
