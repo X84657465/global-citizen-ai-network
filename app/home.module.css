@@ -138,3 +138,26 @@
 .evolutionRule p{margin:0;color:#d9e9f7;font-size:13px;line-height:1.85}
 @media(max-width:1040px){.evolutionGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.evolutionCard{min-height:245px}}
 @media(max-width:700px){.evolutionSection{width:min(100% - 34px,540px);padding:60px 0}.evolutionGrid{grid-template-columns:1fr;gap:9px}.evolutionCard{min-height:0;padding:17px}.evolutionHeader h2{font-size:27px}.evolutionHeader>p{font-size:14px}.evolutionCard h3{font-size:16px}.evolutionCard p{font-size:14px}.evolutionRule{padding:13px}.evolutionRule p{font-size:12px}}
+
+
+.factoryGovernanceSection{width:min(100% - 64px,1180px);margin:0 auto;padding:76px 0}
+.factoryGovernanceHeader{max-width:780px;margin:0 auto 26px;text-align:center}
+.factoryGovernanceHeader h2{margin:10px 0;font-size:clamp(27px,4vw,40px);letter-spacing:-.04em}
+.factoryGovernanceHeader h2 em{font-style:normal;color:var(--cyan)}
+.factoryGovernanceHeader>p{color:#a9bed2;font-size:14px;line-height:1.9}
+.factoryGovernancePriority{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:24px 0}
+.factoryGovernancePriority span{padding:9px 13px;border:1px solid rgba(120,170,200,.2);border-radius:999px;background:rgba(20,45,65,.38);color:#c5d7e7;font-size:12px}
+.factoryGovernancePriority b{color:var(--cyan);margin-right:5px}
+.factoryGovernanceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.factoryGovernanceCard{display:flex;flex-direction:column;min-height:205px;padding:19px;border:1px solid rgba(120,170,200,.18);border-radius:16px;background:linear-gradient(145deg,rgba(22,48,68,.62),rgba(10,25,42,.55))}
+.factoryGovernanceCard>span{color:var(--cyan);font-size:10px;letter-spacing:.12em;font-weight:800}
+.factoryGovernanceCard h3{margin:12px 0 8px;color:#eff7ff;font-size:16px}
+.factoryGovernanceCard p{margin:0 0 14px;color:#b3c5d6;font-size:13px;line-height:1.8}
+.factoryGovernanceCard>b{margin-top:auto;color:#80dfe7;font-size:11px;line-height:1.6}
+.factoryGovernanceFlow,.factoryGovernanceRoles{margin-top:17px;padding:19px 21px;border:1px solid rgba(64,190,204,.2);border-radius:15px;background:rgba(26,104,120,.09)}
+.factoryGovernanceFlow>b,.factoryGovernanceRoles>b{color:var(--cyan);font-size:14px}
+.factoryGovernanceFlow p,.factoryGovernanceRoles p{margin:8px 0 0;color:#c5d6e5;font-size:13px;line-height:1.9}
+.factoryGovernanceWarning{color:#f1d9a4!important}
+.factoryGovernanceLink{display:inline-flex;align-items:center;gap:8px;margin-top:19px;color:var(--cyan);font-size:13px;text-decoration:none}
+@media(max-width:900px){.factoryGovernanceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.factoryGovernanceSection{width:min(100% - 34px,540px);padding:58px 0}.factoryGovernanceGrid{grid-template-columns:1fr;gap:9px}.factoryGovernanceCard{min-height:0;padding:17px}.factoryGovernanceHeader h2{font-size:27px}.factoryGovernanceHeader>p{font-size:13px}.factoryGovernancePriority{justify-content:flex-start}.factoryGovernancePriority span{font-size:11px}.factoryGovernanceFlow,.factoryGovernanceRoles{padding:15px}.factoryGovernanceFlow p,.factoryGovernanceRoles p{font-size:12px}}
