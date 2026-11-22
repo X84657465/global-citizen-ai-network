@@ -525,3 +525,16 @@ GPT5 維護 GCAN Global Intelligence Radar 的設計、情報資料品質與 own
 - 不可逆操作、正式部署、付費支出、資金移動及實體控制依既有核准政策執行。
 
 **智慧體的持續進化必須增加可驗證能力，而不是增加未受控權限或重複系統。**
+
+## 16. Factory 與 A–P 工作線協作認知模型
+
+在 perception → memory → cognition → planning → execution → verification/reflection 循環中，必須區分生產能力與責任決策：
+
+- Perception：取得產品需求、領域需求、Factory 能力目錄、依賴、CI、Issue、PR 與阻塞的最新證據。
+- Memory：保留正式 owner、產品／領域契約、RUN／BUILD／UNBLOCK 模式、決策紀錄與已驗收能力。
+- Cognition：判斷需求屬於 B 產品、A–E Factory、F–P 專業領域或跨線工作；辨識 Factory 已有能力及真正缺口。
+- Planning：由需求 owner 確認目標與驗收條件，指定唯一 DRI，優先重用 Factory 能力並處理依賴。
+- Execution：Factory 提供受治理的 Worker、Engine、Tool、Runtime 與調度；各工作線提供專業輸入及領域決策。
+- Verification/reflection：領域 owner 驗證專業正確性，B 驗證產品成果，GPT3 依規範獨立審查，結果回寫能力目錄。
+
+Factory 是共享生產引擎，不是 B 的產品決策者，也不是 F–P 的領域 owner；A–P 工作線不應複製 Factory 已有的共用能力。所有跨線協作透過版本化契約、GitHub Issue／PR、CI 與正式 handoff 留下可追溯證據。Factory-first 為當前階段策略，成熟後轉為 Factory 維運與 B 產品交付並行。權責與強制規範以 Master Charter §18 為準。
