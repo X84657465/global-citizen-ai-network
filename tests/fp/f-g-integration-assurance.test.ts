@@ -63,7 +63,8 @@ const bundle = (overrides: {
 } = {}): FPGIntegrationEvidenceBundle => {
   const releaseRunId = overrides.releaseRunId ?? runId;
   const releaseAttempt = overrides.releaseAttempt ?? runAttempt;
-  const releaseRunUrl = `https://github.com/${repository}/actions/runs/${releaseRunId}`;
+  const releaseRunBaseUrl = `https://github.com/${repository}/actions/runs/${releaseRunId}`;
+  const releaseRunUrl = `${releaseRunBaseUrl}/attempts/${releaseAttempt}`;
   return {
     security: {
       candidateRepository: repository,
@@ -92,7 +93,7 @@ const bundle = (overrides: {
           jobId,
           status: "completed" as const,
           conclusion: jobId === overrides.failedJob ? "failure" as const : "success" as const,
-          jobUrl: `${releaseRunUrl}/job/456`,
+          jobUrl: `${releaseRunBaseUrl}/job/456`,
         })),
       },
     },
