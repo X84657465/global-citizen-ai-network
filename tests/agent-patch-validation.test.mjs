@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { getPatchManifestFiles, PatchValidationError, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { getPatchManifestFiles, PatchValidationError, scopePatchTaskToBatch, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 const task = {
   schema_version: 1,
@@ -185,4 +185,102 @@ test("patch generation prompt follows the repository test and UI integration con
   ]) {
     assert.ok(generator.includes(requiredRule), "Missing patch-generation policy: " + requiredRule);
   }
+});
+
+
+test("requires every task-declared output and rejects literal prohibited content", () => {
+  const contractTask = {
+    schema_version: 1,
+    allowed_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+    required_patch_paths: ["tests/security/remediation.test.mjs"],
+    forbidden_content: ["Recommended Next.js version: 13.5.6", "Run command: npm audit fix --force"],
+  };
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([file("docs/security/remediation.md", "add", "A reproducible plan.")]),
+      contractTask,
+      existing,
+    ),
+    /missing a required output path/,
+  );
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([
+        file("docs/security/remediation.md", "add", "Recommended Next.js version: 13.5.6"),
+        file("tests/security/remediation.test.mjs", "add", "import test from 'node:test';"),
+      ]),
+      contractTask,
+      existing,
+    ),
+    /task-prohibited text/,
+  );
+  const accepted = validatePatchManifest(
+    manifest([
+      file("docs/security/remediation.md", "add", "Preserve the current supported major versions."),
+      file("tests/security/remediation.test.mjs", "add", "import test from 'node:test';"),
+    ]),
+    contractTask,
+    existing,
+  );
+  assert.equal(accepted.safety.required_patch_paths_enforced, true);
+  assert.equal(accepted.safety.forbidden_content_enforced, true);
+});
+
+
+test("scopes required outputs to each single-file generation batch and preserves final aggregate enforcement", () => {
+  const contractTask = {
+    schema_version: 1,
+    allowed_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+    required_patch_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+    forbidden_content: ["do not downgrade"],
+  };
+  const firstBatch = scopePatchTaskToBatch(contractTask, ["docs/security/remediation.md"]);
+  const secondBatch = scopePatchTaskToBatch(contractTask, ["tests/security/remediation.test.mjs"]);
+  assert.deepEqual(firstBatch.required_patch_paths, ["docs/security/remediation.md"]);
+  assert.deepEqual(secondBatch.required_patch_paths, ["tests/security/remediation.test.mjs"]);
+  assert.deepEqual(firstBatch.allowed_paths, ["docs/security/remediation.md"]);
+  assert.deepEqual(firstBatch.forbidden_content, contractTask.forbidden_content);
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([file("docs/security/remediation.md", "add", "A safe remediation plan.")]),
+      contractTask,
+      existing,
+    ),
+    /missing a required output path/,
+  );
+  assert.doesNotThrow(() => validatePatchManifest(
+    manifest([
+      file("docs/security/remediation.md", "add", "A safe remediation plan."),
+      file("tests/security/remediation.test.mjs", "add", "import test from 'node:test';"),
+    ]),
+    contractTask,
+    existing,
+  ));
+});
+
+
+test("batch scoping cannot expand the validated task path allowlist", () => {
+  const contractTask = {
+    schema_version: 1,
+    allowed_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+    required_patch_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+  };
+  assert.throws(
+    () => scopePatchTaskToBatch(contractTask, ["lib/agent-factory-state-machine.mjs"]),
+    /cannot expand the task's explicitly authorized path allowlist/,
+  );
+  assert.throws(
+    () => scopePatchTaskToBatch(contractTask, []),
+    /non-empty batch path list/,
+  );
+  assert.throws(
+    () => scopePatchTaskToBatch(contractTask, [null]),
+    /non-empty batch path list/,
+  );
+});
+
+
+test("each generation prompt receives only the required outputs assigned to its current batch", () => {
+  const generator = readFileSync(new URL("../scripts/generate-agent-patch.mjs", import.meta.url), "utf8");
+  assert.match(generator, /const scopedTask = scopePatchTaskToBatch\(task, batchPaths\);[\s\S]*?required_patch_paths: scopedTask\.required_patch_paths/);
 });

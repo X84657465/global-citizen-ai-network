@@ -9,7 +9,7 @@ import {
 import { execFileSync } from "node:child_process";
 import { resolve, sep } from "node:path";
 import { resolveSafeExistingParent } from "../lib/agent-path-safety.mjs";
-import { getPatchManifestFiles, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { getPatchManifestFiles, scopePatchTaskToBatch, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStreamWithRetry } from "../lib/ollama-generate-stream.mjs";
 import { calculateNewFilePatchOutputTokenBudget, calculatePatchOutputTokenBudget, getMinimumPlannedOutputBytesForPath, selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 import { markAgentFactoryTaskFailure } from "../lib/agent-failure-scope.mjs";
@@ -131,6 +131,8 @@ const systemPrompt = [
   "If a factual claim cannot be grounded in the supplied evidence, omit it or label it as an assumption requiring verification.",
   "Never invent encryption, anonymization, monitoring, approval, audit, privacy, compliance, or production guarantees.",
   "Keep changes minimal and satisfy the stated acceptance criteria.",
+  "If task context includes required_patch_paths, every listed path must be included in the patch manifest.",
+  "If task context includes forbidden_content, none of the listed literal strings may appear in any proposed file content; the validator enforces these rules.",
   "Follow the repository's existing package scripts, installed dependencies, and established test conventions; never invent a test runner or dependency.",
   "This repository's unit tests run through scripts/run-unit-tests.mjs with Node's built-in test runner and --experimental-strip-types; use node:test and node:assert/strict for .test.ts and .test.mjs files.",
   "Do not assume Jest, Vitest, Playwright component testing, jsdom, browser globals, jest.fn, or any undeclared test dependency.",
@@ -231,8 +233,11 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
     fail("The total Ollama patch-generation time budget expired before batch " + (batchIndex + 1) + ".");
   }
 
+  // Enforce each required output in its own batch, then enforce the full contract below.
+  const scopedTask = scopePatchTaskToBatch(task, batchPaths);
   const planningInput = {
     ...basePlanningInput,
+    required_patch_paths: scopedTask.required_patch_paths,
     source_files: batchSourceFiles,
     approved_patch_paths: batchPaths,
     implementation_plan: implementationPlan,
@@ -242,8 +247,6 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
       approved_paths: batchPaths,
     },
   };
-  const scopedTask = { ...task, allowed_paths: batchPaths };
-
   console.log("Starting patch batch " + (batchIndex + 1) + "/" + patchBatches.length +
     ": files=" + batchPaths.length +
     ", source_bytes=" + batchSourceBytes +
