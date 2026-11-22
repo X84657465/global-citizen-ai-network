@@ -1,9 +1,10 @@
-## 0.3.126 — 2026-11-22
+## 0.3.129 — 2026-11-22
 
 - P: add an executable A–P numeric version governance contract.
 - Validate all sixteen independently versioned workstreams and synchronize VERSION, package.json, package-lock, manifest and release changelog.
 - Add a P-specific changelog and regression tests; run the governance validator before the unit-test suite.
-- P advances to 0.1.1; A–E runtime and tests remain untouched.
+- P advances to 0.1.2; A–E runtime and tests remain untouched.
+- Extend validation to the package-lock root entry, README release and governance baseline.
 - Exact-head CI and independent formal review remain required; no merge or production acceptance is implied.
 
 ## 0.3.125 — 2026-11-22
