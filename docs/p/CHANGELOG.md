@@ -1,3 +1,8 @@
+## P 0.1.5 — 2026-11-22
+
+- Enforce latest-entry position and valid calendar dates for root, P and F–P changelog headings.
+- Add regression coverage preventing stale historical headings from satisfying current version governance.
+
 ## P 0.1.4 — 2026-11-22
 
 - Require a current, independently versioned changelog entry for every F–P workstream.
