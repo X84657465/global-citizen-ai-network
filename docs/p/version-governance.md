@@ -16,7 +16,8 @@ P is a separately versioned cross-cutting governance workstream. It does not rep
 `lib/p/workstream-version-assurance.mjs` provides a pure validator for:
 - the exact A–P registry (no missing, duplicate-by-key, or extra track identifiers);
 - a numeric version owned by every track;
-- synchronized overall release values in root and package metadata;
+- synchronized overall release values in root, package and both package-lock metadata copies;
+- README release and engineering-governance baseline matching the overall version;
 - an overall changelog entry matching the release version;
 - a P-specific changelog entry matching the P track version.
 
