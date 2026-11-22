@@ -412,16 +412,16 @@ test("all workflow checkouts disable persisted Git credentials", () => {
 });
 
 test("preflight task publisher uses least-privilege API permissions", () => {
-  const start = preflight.indexOf("  prepare-task:\\n");
+  const start = preflight.indexOf("  prepare-task:\n");
   assert.notEqual(start, -1, "expected the durable task publisher job");
-  const permissionsStart = preflight.indexOf("    permissions:\\n", start);
-  const permissionsEnd = preflight.indexOf("    concurrency:\\n", permissionsStart);
+  const permissionsStart = preflight.indexOf("    permissions:\n", start);
+  const permissionsEnd = preflight.indexOf("    concurrency:\n", permissionsStart);
   const permissions = preflight.slice(permissionsStart, permissionsEnd);
-  assert.match(permissions, /actions:\\s+none/);
-  assert.match(permissions, /contents:\\s+read/);
-  assert.match(permissions, /issues:\\s+write/);
-  assert.match(permissions, /pull-requests:\\s+read/);
-  assert.doesNotMatch(permissions, /contents:\\s+write|pull-requests:\\s+write/);
+  assert.match(permissions, /actions:\s+none/);
+  assert.match(permissions, /contents:\s+read/);
+  assert.match(permissions, /issues:\s+write/);
+  assert.match(permissions, /pull-requests:\s+read/);
+  assert.doesNotMatch(permissions, /contents:\s+write|pull-requests:\s+write/);
 });
 
 
@@ -431,10 +431,10 @@ test("untrusted candidate install and test containers never receive GitHub write
   assert.notEqual(candidateStart, -1, "expected candidate install step");
   assert.notEqual(candidateEnd, -1, "expected publishing boundary after candidate tests");
   const candidateSection = preflight.slice(candidateStart, candidateEnd);
-  const dockerCommands = candidateSection.split("\\n").filter((line) => /\\bdocker run\\b/.test(line));
+  const dockerCommands = candidateSection.split("\n").filter((line) => /\bdocker run\b/.test(line));
   assert.ok(dockerCommands.length >= 3, "expected isolated install, retry, and offline-test containers");
   for (const command of dockerCommands) {
-    assert.doesNotMatch(command, /--env\\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\\b/i);
+    assert.doesNotMatch(command, /--env\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\b/i);
   }
   assert.match(candidateSection, /--network none/);
   assert.match(candidateSection, /--cap-drop ALL/);
@@ -442,12 +442,12 @@ test("untrusted candidate install and test containers never receive GitHub write
 });
 
 test("preflight GitHub write credentials are scoped to trusted orchestration and publisher steps", () => {
-  const lines = preflight.split("\\n");
+  const lines = preflight.split("\n");
   const tokenSteps = [];
   for (let index = 0; index < lines.length; index += 1) {
-    if (!/GITHUB_TOKEN:\\s*\\$\\{\\{\\s*secrets\\.GITHUB_TOKEN\\s*\\}\\}/.test(lines[index])) continue;
+    if (!/GITHUB_TOKEN:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/.test(lines[index])) continue;
     let start = index;
-    while (start > 0 && !/^\\s*- name:/.test(lines[start])) start -= 1;
+    while (start > 0 && !/^\s*- name:/.test(lines[start])) start -= 1;
     tokenSteps.push(lines[start]?.trim() || "unknown step");
   }
   assert.ok(tokenSteps.length > 0, "expected explicit step-scoped token injection");
@@ -467,7 +467,7 @@ test("candidate install and offline test use separate least-network container pr
   const offlineTest = preflight.slice(testStart, diagnosticsStart);
 
   for (const section of [install, retry]) {
-    const command = section.split("\\n").find((line) => /\\bdocker run\\b/.test(line)) ?? "";
+    const command = section.split("\n").find((line) => /\bdocker run\b/.test(line)) ?? "";
     assert.match(command, /--network bridge/, "dependency installation may use network only inside the disposable container");
     assert.doesNotMatch(command, /--network none/, "dependency installation must not claim to be offline");
     assert.match(command, /--read-only/);
@@ -475,18 +475,18 @@ test("candidate install and offline test use separate least-network container pr
     assert.match(command, /--security-opt no-new-privileges/);
     assert.match(command, /--user 1000:1000/);
     assert.match(command, /--ignore-scripts/, "candidate dependency lifecycle scripts must stay disabled");
-    assert.match(command, /--env npm_config_cache=\\/npm-cache/);
-    assert.doesNotMatch(command, /--env\\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\\b/i);
+    assert.match(command, /--env npm_config_cache=\/npm-cache/);
+    assert.doesNotMatch(command, /--env\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\b/i);
   }
 
-  const offlineCommand = offlineTest.split("\\n").find((line) => /\\bdocker run\\b/.test(line)) ?? "";
+  const offlineCommand = offlineTest.split("\n").find((line) => /\bdocker run\b/.test(line)) ?? "";
   assert.match(offlineCommand, /--network none/, "candidate code tests must run without network access");
   assert.match(offlineCommand, /--read-only/);
   assert.match(offlineCommand, /--cap-drop ALL/);
   assert.match(offlineCommand, /--security-opt no-new-privileges/);
   assert.match(offlineCommand, /--user 1000:1000/);
   assert.match(offlineCommand, /npm run test:unit && npx --no-install tsc --noEmit && npm run lint/);
-  assert.doesNotMatch(offlineCommand, /--env\\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\\b/i);
+  assert.doesNotMatch(offlineCommand, /--env\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\b/i);
 });
 
  
