@@ -1,3 +1,15 @@
+## 0.1.23 — 2026-11-23
+
+### Added — Trace Workspace to AI Service Center source flow
+- Record exact-main source anchors for Workspace bootstrap, projects/conversations APIs, authenticated pending recovery, AI chat idempotency, cost preflight, provider configuration and reconciliation.
+- Identify the current-main project-list error/empty-state conflation and preserve PR #391 as the bounded candidate under Issue #72's allowlist.
+- Define RLS, cross-owner, idempotency, budget, uncertain-outcome, reconciliation and browser UX evidence required before accepting the user journey.
+- Explicitly distinguish source inspection from database/RLS, runtime, billing and browser acceptance.
+
+### Verification
+- Read-only source inspection and documentation/version metadata only; no application code, database schema/RLS, migrations, runtime, paid provider calls, browser/device tests or deployment changed/run.
+- Candidate metadata increment only. Exact-head CI and independent review remain pending; no release or acceptance is claimed.
+
 ## 0.1.22 — 2026-11-23
 
 ### Added — Refresh the B product delivery map and dependency backlog
