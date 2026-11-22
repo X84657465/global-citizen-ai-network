@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import SubmissionStatus from "@/components/contributions/submission-status";
 import { useEffect, useState, type CSSProperties } from "react";
 
 type Contribution = { id: string; event_type: string; points: number | string; occurred_at: string };
@@ -101,7 +102,7 @@ export default function MemberContributionsClient() {
                 const appeal = (data.appeals ?? []).find(item => item.submission_id === row.id);
                 return <div key={row.id} style={{ borderTop: "1px solid #edf1f5", paddingTop: 10 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                    <strong style={{ fontSize: 12 }}>任務提交：{row.status}</strong>
+                    <SubmissionStatus status={row.status} appeal={appeal} />
                     <span style={{ color: "#8793a5", fontSize: 10 }}>{new Date(row.submitted_at).toLocaleString("zh-TW")}</span>
                   </div>
                   {row.status === "rejected" && !appeal ? <div style={{ marginTop: 9 }}>
@@ -110,7 +111,7 @@ export default function MemberContributionsClient() {
                       <button type="button" disabled={appealBusy === row.id} onClick={() => void submitAppeal(row.id)} style={{ border: 0, borderRadius: 8, background: "#315d91", color: "#fff", padding: "8px 12px", fontWeight: 700 }}>{appealBusy === row.id ? "送出中…" : "提出申訴"}</button>
                     </div>
                   </div> : null}
-                  {appeal ? <p style={{ color: "#64748b", fontSize: 11, lineHeight: 1.7 }}>申訴狀態：{appeal.status}{appeal.resolution ? " · 處理結果：" + appeal.resolution : ""}</p> : null}
+                  
                 </div>;
               })}</div>}
           </section>
