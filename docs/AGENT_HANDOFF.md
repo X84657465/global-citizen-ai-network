@@ -17,7 +17,7 @@ This section supersedes older live-state snapshots below. Re-fetch current SHAs,
 ### PR state (re-fetch before acting)
 - PR #419 is merged; merge commit `10fabef703ee3865d208196f46ee71ddd1b7e149`. Its exact-head Actions run #45057311354 remained PENDING at the last check; the jobs endpoint showed only the metadata resolver pending. The documentation merge is delivered, but exact-head quality CI is NOT VERIFIED.
 - PR #417 remains open and Draft; head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`, base SHA `25d5ed519eb923d3001df6d43aec1670a0d4851a`, mergeable=false, no review records returned. Exact-head run #45056447505 remained PENDING.
-- PR #373 remains open/diverged; head `cb90b213d76f1e353c3bae39c9800cecf8a07274`, base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`, 36 ahead / 106 behind main at last comparison; exact-head run #45052753388 PENDING.
+- PR #373 remains open/diverged; head `cb90b213d76f1e353c3bae39c9800cecf8a07274`, base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`, 36 ahead / 106 behind main at last comparison. Exact-head run #45052753388 is active: metadata resolver completed, Windows quality-gates job is IN_PROGRESS at locked dependency installation; downstream test/type/lint/build steps have not yet run.
 - PR #376 remains open/diverged; head `d10e6dd6d428d9ce35dbd14778e01c628f909742`, base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`, 50 ahead / 106 behind at last comparison; no exact-head run record returned.
 - PR #259 remains open/diverged; head `3330cd04a77358cf0ff780940d09f938cab1dc3a`, base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, 111 ahead / 846 behind at last comparison. Its old exact-head run #44949425719 succeeded, but this does not validate current main or resolve the extreme divergence. Vercel status remains failure.
 
@@ -26,7 +26,8 @@ This section supersedes older live-state snapshots below. Re-fetch current SHAs,
 - The remaining candidate failure-scope gap is that the `candidate-tests` workflow step combines Docker/container startup and candidate test commands; a Docker/OCI infrastructure failure can be classified as task-scoped.
 - Issue #116 requires the `factory-control-plane-approved` label before the exact control-plane workflow path can be authorized by the task validator. Issue #117 currently lacks that label. Therefore the workflow portion of #117 is **BLOCKED**; do not modify the workflow or add the label without repository-owner authorization.
 - Issue #136 retains stale immutable audit target `dce81ed801c41bca9bc364e3d0f248244d88f88f`; current main is `10fabef...`. Per its stop-on-advance rule, A-wide audit remains STOPPED / NOT STARTED until a fresh owner-authorized exact SHA is recorded.
-- Issue #352 operator recovery remains BLOCKED pending verified Environment-only guard and authorization. Issue #100 machine-managed Factory state remains read-only.
+- Issue #354 cross-job lease propagation is CLOSED / implementation delivered through merged PR #362 (`388b25f354ea887727f7cfe54dd7081d4f8eb6a2`); exact-head run #45029877567 was SUCCESS with Windows quality gates and isolated integration jobs. This validates that PR's exact candidate, not a live production publication operation.
+- Issue #352 operator recovery remains BLOCKED: implementation source/tests are present, but actual GitHub Environment reviewers, main-only restriction and Environment-only secret scope remain UNKNOWN; no recovery operation is authorized. Issue #100 machine-managed Factory state remains read-only.
 - B Runtime remains PREPARATION ONLY / BLOCKED until A independent acceptance and the versioned, sanitized, read-only A→B handoff gates pass.
 
 ### Daily monitoring
