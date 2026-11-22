@@ -1,3 +1,15 @@
+## 0.1.21 — 2026-11-23
+
+### Governance and baseline — Keep the B product plan evidence-aligned
+- Add the GCAN B Product Lead charter and long-term Product North Star, explicitly separating roadmap intent from implemented or accepted capability.
+- Add the B source-inspection baseline and refresh its live dependency evidence: Issue #354 is closed by the integrated PR #362 lease-handoff fix; PR #383 is closed; neither result is misrepresented as full Factory acceptance.
+- Preserve the four-GPT coordination model as a candidate pending independent review, exact-head CI and integration into main.
+- Keep the A→B Read Adapter proposal-only and B Runtime BLOCKED / PREPARATION ONLY; no paid AI traffic, runtime activation, migration, deployment or new execution authority is introduced.
+
+### Verification
+- Documentation and version metadata only; no runtime, database, browser/device or deployment tests were run for this changelog entry.
+- Exact-head CI and independent review remain pending; this version is a candidate metadata increment, not a release or acceptance claim.
+
 ## 0.1.20 — 2026-11-22
 
 ### Changed — Align the public GCAN homepage with the A–P architecture
