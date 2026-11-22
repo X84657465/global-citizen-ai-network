@@ -863,3 +863,14 @@ This section supersedes prior PR #328 head/run snapshots and records the latest 
 4. Keep A acceptance gated on exact-SHA quality, disposable-container isolation, Ollama, PostgreSQL/RLS, operational progression/soak, and independent review. Only then implement the bounded read-only A→B projection and tenant boundary.
 
 **Authority boundary:** documentation-only checkpoint. No Factory runtime/state, Issue #100, tasks, leases, retry/cooldown/quarantine, scheduler, Runner concurrency, workflow permissions, secrets, production data, deployment, or B Runtime was changed.
+
+
+---
+
+### Publisher cooldown artifact write-path correction — 2026-11-22
+
+Current-main inspection found that the preflight workflow already creates, uploads, downloads, and validates the run-scoped publisher cooldown artifact, and the publisher sets `AGENT_FACTORY_API_COOLDOWN_FILE`. However, the current-main `persistApiCooldownDeadline` helper wrote only to `GITHUB_ENV` and `GITHUB_OUTPUT`; it did not consume `AGENT_FACTORY_API_COOLDOWN_FILE`. Consequently the cross-job artifact could remain empty on the structured rate-limit failure path.
+
+A narrow remediation candidate adds the missing sanitized artifact write, two unit tests (positive artifact persistence and no artifact for non-rate-limit errors), and static workflow assertions for failure-safe upload/download and callback wiring. This is a candidate only until exact-head CI, real 429/403 failure-path integration, durable state readback, and independent review complete. Do not infer runtime validation from the static assertions.
+
+**Authority boundary:** code/test candidate only. No machine-managed state, task/lease, cooldown/quarantine runtime record, secrets, permissions, deployment, or B Runtime was changed.
