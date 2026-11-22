@@ -179,7 +179,22 @@ test("passive deployment and migration evidence reviews remain non-mutating", ()
     "Inspect the production migration plan",
     "Audit credential rotation history",
     "Verify production deployment status",
+    "Review production deployment metrics",
+    "Audit production deployment readiness",
     "Read the billing configuration audit report",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
+
+test("a fresh prohibition after a sequencing boundary remains negated", () => {
+  for (const title of [
+    "Do not modify the report, then do not deploy to production",
+    "Never change the documentation; subsequently do not rotate credentials",
+    "Do not update the draft, next never change billing settings",
   ]) {
     const result = evaluateAgentDecision(withImplementerText(title), task);
     assert.equal(result.signals.no_high_risk_scope, true, title);
