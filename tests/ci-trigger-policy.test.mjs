@@ -87,12 +87,12 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\njobs:".length);
   const validationStart = jobsSource.indexOf("  validation-tests:\n");
   const prepareStart = jobsSource.indexOf("  prepare-task:\n");
-  const prepareNext = jobsSource.indexOf("\n  ", prepareStart + 4);
   const validationSection = jobsSource.slice(validationStart, prepareStart);
-  const prepareSection = jobsSource.slice(prepareStart, prepareNext < 0 ? jobsSource.length : prepareNext);
+  const prepareBounds = findJobSection(jobsSource, "prepare-task");
+  const prepareSection = jobsSource.slice(prepareBounds.start, prepareBounds.end);
   assert.ok(validationSection.includes("if: github.event_name == 'push' && github.actor == github.repository_owner"));
   const pinnedNodeSetup = [
-    '      - name: Set up Node.js\\n        uses: actions/setup-node@v5\\n        with:\\n          node-version: "22.13.0"',
+    '      - name: Set up Node.js\n        uses: actions/setup-node@v5\n        with:\n          node-version: "22.13.0"',
   ];
   for (const [name, section] of [["validation-tests", validationSection], ["prepare-task", prepareSection]]) {
     assert.ok(pinnedNodeSetup.some((setup) => section.includes(setup)),
