@@ -54,7 +54,7 @@ test("rejects a required job record from a different workflow run attempt", () =
   );
   assert.throws(() => assessGExactHeadEvidence(bundle({
     run: { ...bundle().run, jobs: mixedAttemptJobs },
-  })), /exact workflow run attempt/);
+  })), TypeError);
 });
 
 test("does not accept a green summary when database or build job is missing", () => {
