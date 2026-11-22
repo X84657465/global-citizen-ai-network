@@ -762,7 +762,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Unable to retrieve candidate command exit evidence; no task-failure marker was written, so this remains system-scoped." }
           if (-not (Test-Path -LiteralPath $statusFile -PathType Leaf)) { throw "Candidate command exit evidence is missing; no task-failure marker was written, so this remains system-scoped." }
           $candidateExitCodeText = (Get-Content -LiteralPath $statusFile -Raw).Trim()
-          if ($candidateExitCodeText -notmatch '^\d+      - name: Preserve candidate offline test diagnostics
+          if ($candidateExitCodeText -notmatch '\A[0-9]+\z') { throw "Candidate command exit evidence is invalid; no task-failure marker was written, so this remains system-scoped." }
+          $candidateExitCode = [int]$candidateExitCodeText
+          if ($candidateExitCode -ne 0) {
+            [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+            throw "Patched candidate commands failed inside the confirmed-running restricted container (exit $candidateExitCode). See the uploaded diagnostic artifact."
+          }
+          Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+
+      - name: Preserve candidate offline test diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
