@@ -1,3 +1,39 @@
+## Latest live evidence — 2026-11-23 (main 10fabef7; PR #420 refresh)
+
+This section supersedes earlier live-state statements below. Re-fetch all exact refs and run attempts before further writes.
+
+### Main / CI
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Exact-main standard CI run [#45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077) remains **PENDING**. Its latest jobs response shows only `Resolve exact candidate PR metadata` as PENDING; no test/quality job pass is evidenced.
+- Main's latest System Health Recovery runs include [#45060259449](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060259449), [#45060221714](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060221714), and [#45060214096](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060214096), all **SKIPPED**. Skipped is not a health pass.
+- Combined status previously returned Vercel `build-rate-limit`; treat provider deployment quota separately from GitHub Actions CI. Do not retry/dispatch workflows to force green.
+
+### Open PRs — current exact heads
+- #420 (this documentation PR): head `057a982a1d50e34aa554fc4f808f912c27df4a3a`, base main `10fabef...`; exact-head CI [#45060207407](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060207407) is **PENDING**. This update is documentation-only; no repository test suite was run.
+- #422: head `535daef3edb0ee81abfb003131d4149e81620357`; exact-head PR run [#45058587659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058587659) has metadata resolver SUCCESS and Windows quality job PENDING. Associated push run [#45058582257](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058582257) failed. No exact-head full CI PASS.
+- #425: head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; exact-head run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) has metadata resolver SUCCESS and Windows quality job PENDING. Its helper still uses `Number(state.ExitCode)`; null, empty string and false can coerce to zero. Existing review requires strict raw-value validation and regression cases.
+- #426: head `542d315d0c3733aeef155d51f9a662528050b1bb`; exact-head run [#45058900487](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058900487) remains PENDING at metadata resolution; independent formal review is absent.
+- #424: Draft and stacked on #422, base is #422 head; not independently mergeable to main. Its prior successful workflow does not establish independent integration or full validation.
+- #427: head `5516d4b207a016b0a6d55c112a5fd6887611ff7d`; Draft, base main. Its exact-head run lookup is recorded separately in the current execution report; roadmap documentation is not implemented runtime capability.
+- Other open PRs include #417, #376, #373 and #259. Stale/diverged candidates must not be wholesale merged.
+
+### Governance / Factory-first
+- Issues #116 and #117 both currently carry `factory-control-plane-approved`.
+- Issue #117's own explicit exclusions still prohibit merging a PR or deploying under that task. The label does not override those exclusions, exact-head CI or GPT3 independent review.
+- #422 and #425 remain competing implementations of the same P0 Issue #117 scope and overlapping workflow/test paths. Do not make overlapping edits or declare either accepted before one canonical DRI is established.
+- GPT3 independent architecture review/QA remains separate. The current review records are COMMENTED, not GPT3 APPROVED.
+- Issue #136 remains READ-ONLY with a stale pinned audit baseline; obtain a fresh owner-authorized exact-main baseline before proceeding.
+- No merge, deployment, workflow dispatch, Runner/queue change, permission/secret change, production DB/RLS operation or machine-managed Factory-state mutation occurred.
+
+### Verification and delivery status
+- Main CI: PENDING / NOT PASS.
+- Recovery: SKIPPED / NOT PASS.
+- #420 docs: updated in this PR branch only; no tests run because this is documentation-only.
+- #422/#425/#426: exact-head quality/CI remains pending; no candidate acceptance.
+- No PR merge or runtime acceptance is claimed.
+
+---
+
 ## Live evidence correction — 2026-11-23 (exact main CI and governance labels)
 
 This note supersedes any conflicting statement in the snapshots below.
