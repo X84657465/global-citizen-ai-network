@@ -16,7 +16,7 @@ const validInput = () => ({
   packageVersion: "0.3.134",
   lockfileVersion: "0.3.134",
   lockfileRootVersion: "0.3.134",
-  readme: "**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` ·",
+  readme: `**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` · P 線 Governance `${manifest.tracks.P.version}` ·`,
   governance: "**Repository release baseline: 0.3.134**",
   workstreams: "**Planning baseline:** repository release 0.3.134",
   changelog: "## 0.3.134 — 2026-11-22\n\n- P governance validator.",
@@ -135,4 +135,11 @@ test("accepts a workstream-labelled latest entry after a descriptive title", () 
   const result = validateWorkstreamVersionContract(input);
   assert.equal(result.valid, true);
   assert.deepEqual(result.errors, []);
+});
+
+
+test("rejects drift in the README P workstream version summary", () => {
+  const input = validInput();
+  input.readme = input.readme.replace("P 線 Governance \`0.1.3\`", "P 線 Governance \`0.1.2\`");
+  assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("README P workstream version")));
 });
