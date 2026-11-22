@@ -131,8 +131,8 @@ This section supersedes earlier PR/run status statements above where they confli
 | H / PR #296 — privacy-safe event metadata | `e4c3cb3fa68f12400fb3da00d40fc087768d55ca` | Exact-head run `44969692123` has no allocated jobs | Draft; no formal review; not accepted |
 | P / PR #297 — fail-closed authentication provider | `858d1ae886a95b9fec41076287d4c4466d2a46cb` | Exact-head run `44969394408` has no allocated jobs | Draft; no formal review; not accepted |
 | F / PR #298 — canonical UTC evidence timestamps | `e35ad0bb955f2a04c6375e4989f2fbbea7ba3086` | Resolver pending; no substantive job evidence yet (run `44969187760`) | Draft; no formal review; not accepted |
-| K / PR #294 — authoritative handoff | `765d0ee023b2343ffe6b37042a6d3cbedf3a9f01` | Exact-head run has no allocated jobs | Draft; documentation-only; not accepted |
-| K / PR #295 — F–P ledger baseline | `8733ae9c1ad7106ed1f2bea187af46f298ebac53` | Exact-head run `44969840874` has no allocated jobs | Draft; documentation-only; not accepted |
+| K / PR #294 — authoritative handoff | `765d0ee023b2343ffe6b37042a6d3cbedf3a9f01` | Exact-head run `44970030548` pending; no conclusion yet | Draft; documentation-only; not accepted |
+| K / PR #295 — F–P ledger baseline | `0f74351e44f9e5af83fc1295b4ec09e9069451a5` | No workflow run returned for this new exact HEAD at latest check | Draft; documentation-only; not accepted |
 
 ### Verified code-review notes
 
