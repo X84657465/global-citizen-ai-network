@@ -107,8 +107,10 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
       !input ||
       input.schemaVersion !== "1" ||
       input.eventType !== "fp.capability.outcome" ||
+      typeof input.workstream !== "string" ||
       !isFPWorkstream(input.workstream) ||
-      !["succeeded", "denied", "rejected", "failed"].includes(String(input.outcome)) ||
+      typeof input.outcome !== "string" ||
+      !["succeeded", "denied", "rejected", "failed"].includes(input.outcome) ||
       typeof input.correlationId !== "string" ||
       !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(input.correlationId) ||
       typeof input.capability !== "string" ||
