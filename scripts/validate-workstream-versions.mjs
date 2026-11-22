@@ -13,6 +13,7 @@ const result = validateWorkstreamVersionContract({
   lockfileRootVersion: lockfile.packages?.[""]?.version,
   readme: readFileSync("README.md", "utf8"),
   governance: readFileSync("docs/engineering-governance.md", "utf8"),
+  workstreams: readFileSync("docs/engineering-workstreams.md", "utf8"),
   changelog: readFileSync("CHANGELOG.md", "utf8"),
   pChangelog: readFileSync("docs/p/CHANGELOG.md", "utf8"),
 });
