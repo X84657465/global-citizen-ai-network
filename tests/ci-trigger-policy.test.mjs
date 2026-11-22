@@ -19,10 +19,10 @@ function findJobSection(source, name) {
 }
 
 function findNamedStepBlock(source, name, fromIndex = 0) {
-  const marker = `      - name: ${name}\\n`;
+  const marker = `      - name: ${name}\n`;
   const start = source.indexOf(marker, fromIndex);
   assert.ok(start >= 0, "missing workflow step: " + name);
-  const next = source.indexOf("\\n      - name:", start + marker.length);
+  const next = source.indexOf("\n      - name:", start + marker.length);
   const end = next >= 0 ? next : source.length;
   return source.slice(start, end);
 }
@@ -423,23 +423,23 @@ test("all workflow checkouts disable persisted Git credentials", () => {
 test("preflight separates least-privilege task planning from the isolated publisher permissions", () => {
   const { start: prepareStart, end: prepareEnd } = findJobSection(preflight, "prepare-task");
   const prepareTask = preflight.slice(prepareStart, prepareEnd);
-  const preparePermissionsStart = prepareTask.indexOf("    permissions:\\n");
+  const preparePermissionsStart = prepareTask.indexOf("    permissions:\n");
   const preparePermissionsEnd = prepareTask.indexOf("    concurrency:", preparePermissionsStart);
   const preparePermissions = prepareTask.slice(preparePermissionsStart, preparePermissionsEnd);
-  assert.match(preparePermissions, /actions:\\s+none/);
-  assert.match(preparePermissions, /contents:\\s+read/);
-  assert.match(preparePermissions, /issues:\\s+write/);
-  assert.match(preparePermissions, /pull-requests:\\s+read/);
+  assert.ok(preparePermissions.includes("actions: none"));
+  assert.ok(preparePermissions.includes("contents: read"));
+  assert.ok(preparePermissions.includes("issues: write"));
+  assert.ok(preparePermissions.includes("pull-requests: read"));
 
   const { start: publisherStart, end: publisherEnd } = findJobSection(preflight, "publish-task");
   const publisherJob = preflight.slice(publisherStart, publisherEnd);
-  const publisherPermissionsStart = publisherJob.indexOf("    permissions:\\n");
+  const publisherPermissionsStart = publisherJob.indexOf("    permissions:\n");
   const publisherPermissionsEnd = publisherJob.indexOf("    concurrency:", publisherPermissionsStart);
   const publisherPermissions = publisherJob.slice(publisherPermissionsStart, publisherPermissionsEnd);
-  assert.match(publisherPermissions, /actions:\\s+read/);
-  assert.match(publisherPermissions, /contents:\\s+write/);
-  assert.match(publisherPermissions, /issues:\\s+none/);
-  assert.match(publisherPermissions, /pull-requests:\\s+write/);
+  assert.ok(publisherPermissions.includes("actions: read"));
+  assert.ok(publisherPermissions.includes("contents: write"));
+  assert.ok(publisherPermissions.includes("issues: none"));
+  assert.ok(publisherPermissions.includes("pull-requests: write"));
 });
 
 test("untrusted candidate install and test steps never receive GitHub write credentials", () => {
@@ -451,9 +451,9 @@ test("untrusted candidate install and test steps never receive GitHub write cred
   ];
 
   for (const step of candidateSteps) {
-    assert.doesNotMatch(step, /GITHUB_TOKEN:\\s*\\$\\{\\{\\s*secrets\\.GITHUB_TOKEN\\s*\\}\\}/);
-    assert.doesNotMatch(step, /--env\\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]+)/);
-    assert.doesNotMatch(step, /^\\s+GITHUB_TOKEN:/m);
+    assert.equal(step.includes("secrets.GITHUB_TOKEN"), false);
+    assert.doesNotMatch(step, /--env\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]+)/);
+    assert.equal(step.includes("GITHUB_TOKEN:"), false);
   }
 });
 
@@ -464,23 +464,23 @@ test("candidate dependency install and offline test retain separate least-networ
   const offlineTest = findNamedStepBlock(preflight, "Test patched candidate offline inside restricted container", prepareStart);
 
   for (const section of [install, retry]) {
-    assert.match(section, /--network bridge/, "dependency installation may use network only inside the disposable container");
-    assert.doesNotMatch(section, /--network none/, "dependency installation must not claim to be offline");
-    assert.match(section, /--read-only/);
-    assert.match(section, /--cap-drop ALL/);
-    assert.match(section, /--security-opt no-new-privileges/);
-    assert.match(section, /--user 1000:1000/);
-    assert.match(section, /--ignore-scripts/, "candidate dependency lifecycle scripts must stay disabled");
-    assert.match(section, /--env npm_config_cache=\\/npm-cache/);
+    assert.ok(section.includes("--network bridge"), "dependency installation may use network only inside the disposable container");
+    assert.equal(section.includes("--network none"), false, "dependency installation must not claim to be offline");
+    assert.ok(section.includes("--read-only"));
+    assert.ok(section.includes("--cap-drop ALL"));
+    assert.ok(section.includes("--security-opt no-new-privileges"));
+    assert.ok(section.includes("--user 1000:1000"));
+    assert.ok(section.includes("--ignore-scripts"), "candidate dependency lifecycle scripts must stay disabled");
+    assert.ok(section.includes("--env npm_config_cache=/npm-cache"));
     assert.doesNotMatch(section, /GITHUB_TOKEN|GH_TOKEN/);
   }
 
-  assert.match(offlineTest, /--network none/, "candidate code tests must run without network access");
-  assert.match(offlineTest, /--read-only/);
-  assert.match(offlineTest, /--cap-drop ALL/);
-  assert.match(offlineTest, /--security-opt no-new-privileges/);
-  assert.match(offlineTest, /--user 1000:1000/);
-  assert.match(offlineTest, /npm run test:unit && npx --no-install tsc --noEmit && npm run lint/);
+  assert.ok(offlineTest.includes("--network none"), "candidate code tests must run without network access");
+  assert.ok(offlineTest.includes("--read-only"));
+  assert.ok(offlineTest.includes("--cap-drop ALL"));
+  assert.ok(offlineTest.includes("--security-opt no-new-privileges"));
+  assert.ok(offlineTest.includes("--user 1000:1000"));
+  assert.ok(offlineTest.includes("npm run test:unit && npx --no-install tsc --noEmit && npm run lint"));
   assert.doesNotMatch(offlineTest, /GITHUB_TOKEN|GH_TOKEN/);
 });
 
