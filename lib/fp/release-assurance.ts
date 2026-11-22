@@ -97,7 +97,7 @@ function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | n
   try {
     if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype || value.length > maximumLength) return null;
     const keys = Reflect.ownKeys(value);
-    if (keys.length !== value.length + 1 || keys.some((key) => typeof key !== "string" || (key !== "length" && !/^(0|[1-9]\\d*)$/.test(key)))) return null;
+    if (keys.length !== value.length + 1 || keys.some((key) => typeof key !== "string" || (key !== "length" && !/^(0|[1-9]\d*)$/.test(key)))) return null;
     const snapshot: unknown[] = [];
     for (let index = 0; index < value.length; index += 1) {
       const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
@@ -149,10 +149,10 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
     jobItems.some((rawJob) =>
       !isSafeRecord(rawJob, ["jobId", "status", "conclusion", "jobUrl"], ["jobId", "status", "conclusion", "jobUrl"]) ||
       typeof rawJob.jobId !== "string" ||
-      !job.jobId ||
-      !["completed", "in_progress", "queued"].includes(job.status) ||
-      !(job.conclusion === null || ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"].includes(job.conclusion)) ||
-      !GITHUB_JOB_URL_PATTERN.test(job.jobUrl)
+      !rawJob.jobId ||
+      !["completed", "in_progress", "queued"].includes(rawJob.status) ||
+      !(rawJob.conclusion === null || ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"].includes(rawJob.conclusion)) ||
+      !GITHUB_JOB_URL_PATTERN.test(rawJob.jobUrl)
     )
   ) {
     throw new TypeError("Invalid G GitHub Actions run evidence.");
