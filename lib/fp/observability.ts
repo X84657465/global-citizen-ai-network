@@ -31,6 +31,9 @@ export interface FPObservabilitySink {
   record(event: FPOperationEvent): void;
 }
 
+const UTC_TIMESTAMP = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/;
+const SAFE_ERROR_CODE = /^[A-Z][A-Z0-9_:-]{0,63}$/;
+
 /**
  * Bounded, process-local H recorder. It intentionally retains only operational
  * metadata: never pass request payloads, actor references, credentials, or
@@ -48,6 +51,13 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
   }
 
   record(event: FPOperationEvent): void {
+    const validTimestamp = typeof event?.occurredAt === "string" &&
+      UTC_TIMESTAMP.test(event.occurredAt) &&
+      !Number.isNaN(Date.parse(event.occurredAt)) &&
+      new Date(event.occurredAt).toISOString() === event.occurredAt;
+    const validErrorCode = event?.errorCode === undefined ||
+      (typeof event.errorCode === "string" && SAFE_ERROR_CODE.test(event.errorCode));
+
     if (
       !event ||
       event.schemaVersion !== "1" ||
@@ -58,7 +68,8 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
       !/^[a-z][a-z0-9-]{1,63}$/.test(event.capability) ||
       !Number.isFinite(event.durationMs) ||
       event.durationMs < 0 ||
-      Number.isNaN(Date.parse(event.occurredAt))
+      !validTimestamp ||
+      !validErrorCode
     ) {
       throw new TypeError("Invalid F–P observability event.");
     }
