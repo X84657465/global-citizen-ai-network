@@ -538,3 +538,30 @@ GPT5 維護 GCAN Global Intelligence Radar 的設計、情報資料品質與 own
 - Verification/reflection：領域 owner 驗證專業正確性，B 驗證產品成果，GPT3 依規範獨立審查，結果回寫能力目錄。
 
 Factory 是共享生產引擎，不是 B 的產品決策者，也不是 F–P 的領域 owner；A–P 工作線不應複製 Factory 已有的共用能力。所有跨線協作透過版本化契約、GitHub Issue／PR、CI 與正式 handoff 留下可追溯證據。Factory-first 為當前階段策略，成熟後轉為 Factory 維運與 B 產品交付並行。權責與強制規範以 Master Charter §18 為準。
+
+
+## 17. Factory 六項橫向能力的神經智慧體協同執行模型
+
+本節將六項 Factory 強化要求落實到感知→記憶→認知→規劃→執行→驗證／反思循環，並要求 GPT1–GPT5 依正式職責協同，不新增角色或重複控制面。
+
+### 17.1 六項能力在認知循環中的責任
+- **全域專案理解：** PERCEPTION 讀取最新 Repository、模組依賴、API／資料契約、測試、部署、owner、Issue／PR／CI；COGNITION 產生變更影響圖，未知標 UNKNOWN。
+- **自主拆解與調度：** PLANNING 將需求拆成有依賴 DAG、唯一 DRI、allowlist、預算、DoD、停止條件的任務；EXECUTION 使用既有 Worker／Runtime／Scheduler，具鎖、lease/fencing、取消及有限重試。
+- **多層獨立驗證：** VERIFICATION 執行風險導向測試，綁定精確 SHA 與 CI run/attempt；Developer 不自我批准，GPT3 保留獨立審查。
+- **自主除錯修復：** COGNITION 分析可重現失敗與根因；EXECUTION 只做最小有界修復；VERIFICATION 確認回歸與前後差異；超限即停止。
+- **自我評估與進化：** REFLECTION 比較基線、成功率、回歸、成本、延遲、人工介入及恢復指標；提出改善 PR，經獨立審查後才更新能力。
+- **安全與資源治理：** 全循環套用最小權限、隔離、allowlist、秘密遮罩、配額、審計、取消及回復；不得因自主程度提高而擴張權限。
+
+### 17.2 能力記憶必須帶證據
+能力目錄使用 `PLANNED → IMPLEMENTED → TESTED → VERIFIED → ACCEPTED`，另標示 PARTIAL／BLOCKED／STALE／UNKNOWN／DEPRECATED。每筆紀錄必須含 owner、版本、Repository 路徑、精確 SHA、測試與 CI、reviewer、最後驗證時間、限制與回滾。過期或 SHA 不符的知識不得作為當前執行依據。
+
+### 17.3 GPT1–GPT5 協同路由
+- GPT1：Factory 核心建設、整合、能力盤點及 A→B 安全輸出。
+- GPT2：F–P 領域規格、風險、測試案例與領域驗收；不重建通用 Factory 能力。
+- GPT3：獨立架構、整合、安全與 QA 審查，維持 Fail-Closed。
+- GPT4：B 產品目標、需求、UX、契約與產品驗收，不介入 Factory 私有執行狀態。
+- GPT5：技術／安全／供應鏈情報與量測分析；執行開發須有明確任務授權。
+- 所有交接透過 Issue、PR、Review、CI、ADR 及 handoff，不假設存在未部署的 GPT 私訊或背景協調。
+
+### 17.4 執行與反思閘門
+當前優先建立真實能力盤點與證據目錄，完成一條隔離單任務 Issue→Plan→Worker→Edit→Test→Draft PR→GPT3 Review 閉環；驗收前不得擴大並行或宣稱自主生產成熟。每次循環記錄精確 SHA、實際測試／CI、風險、成本、回滾及未解阻塞。合併、部署、Secrets／權限、付費資源與不可逆操作仍遵循既有核准政策。
