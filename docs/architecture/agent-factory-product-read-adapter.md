@@ -23,13 +23,16 @@ type FactoryTaskStatus =
   | "completed" | "needs_attention" | "closed";
 
 type CandidateStatus = "pending" | "passed" | "not_passed";
+type CandidateCiState = "not_started" | "queued" | "in_progress" | "completed" | "unavailable";
 type CandidateCiConclusion = "success" | "failure";
+type FactoryFailureCategory =
+  | "validation" | "execution" | "infrastructure" | "policy" | "unknown";
 
 interface FactoryTaskReadModelV1 {
   contractVersion: "1";
   taskRef: string;
   workspaceRef: string; // B-owned tenancy binding; never trusted from A alone
-  status: FactoryTaskStatus; // mirrors A's durable state-machine enum exactly
+  status: FactoryTaskStatus; // A-owned projection only; never exposes A internal enum values
   createdAt: string;        // RFC 3339 UTC; sourced by A's projection
   updatedAt: string;        // RFC 3339 UTC; sourced by A's projection
   candidate?: {
@@ -38,17 +41,30 @@ interface FactoryTaskReadModelV1 {
     pullRequestNumber: number;
     candidateStatus: CandidateStatus;
     ci: {
-      conclusion: CandidateCiConclusion | null; // derived only from verified exact-attempt evidence
-      startedAt: string;    // RFC 3339 UTC
-      completedAt?: string; // present only for terminal candidate evidence
-      evidenceRef?: string; // opaque reference to sanitized evidence
+      state: CandidateCiState;
+      conclusion: CandidateCiConclusion | null; // non-null only for verified terminal exact-attempt evidence
+      startedAt?: string;   // RFC 3339 UTC; absent until an attempt actually starts
+      completedAt?: string; // present only for verified terminal candidate evidence
+      evidenceRef?: string; // opaque reference; present only with verified terminal evidence
     };
   };
-  failureCategory?: string; // allowlisted enum only; no raw exception text
+  failureCategory?: FactoryFailureCategory; // allowlisted enum only; no raw exception text
 }
 ```
 
 
+
+### Normative projection rules
+
+The table below is the sole public mapping authority for v1. The TypeScript DTO above describes the public contract; it does not mirror or re-export A's private lifecycle enum. Implementations MUST reject unknown A states and MUST NOT fall back to serializing their raw value.
+
+For candidate CI:
+- Before any CI attempt exists, use `state: "not_started"`, `conclusion: null`, and omit `startedAt`, `completedAt`, and `evidenceRef`.
+- For queued or running attempts, use `queued` or `in_progress`; keep `conclusion: null` and omit terminal timestamps/evidence.
+- Use `completed` and a non-null conclusion only after the A-owned projection verifies the candidate SHA, PR number, CI run ID, and run attempt as one exact tuple.
+- A completed failure may expose `conclusion: "failure"` and `candidateStatus: "not_passed"`. A success may expose `conclusion: "success"` and `candidateStatus: "passed"`.
+- If the current attempt is unavailable, stale, cancelled, skipped, or cannot be verified, use `state: "unavailable"`, `conclusion: null`, and omit `evidenceRef`; never infer success from an earlier SHA or attempt.
+- `startedAt` and `completedAt` are optional because a candidate can exist before a CI attempt starts. They must be sourced from the verified attempt, not synthesized from task timestamps.
 
 ### Source-of-truth alignment and privacy-preserving status projection
 
