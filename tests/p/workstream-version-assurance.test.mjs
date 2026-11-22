@@ -15,6 +15,9 @@ const validInput = () => ({
   rootVersion: "0.3.127",
   packageVersion: "0.3.127",
   lockfileVersion: "0.3.127",
+  lockfileRootVersion: "0.3.127",
+  readme: "**Release:** `0.3.127` · A 線 Agent Factory V2 `2.0.84` ·",
+  governance: "**Repository release baseline: 0.3.127**",
   changelog: "## 0.3.127 — 2026-11-22\n\n- P governance validator.",
   pChangelog: "## P 0.1.1 — 2026-11-22\n\n- Enforce version contract.",
 });
@@ -41,6 +44,18 @@ test("rejects non-numeric versions and mismatched repository release copies", ()
   const errors = validateWorkstreamVersionContract(input).errors;
   assert.ok(errors.some((error) => error.includes("Track F")));
   assert.ok(errors.some((error) => error.includes("package.json version")));
+});
+
+test("rejects drift in package-lock root, README and governance release baselines", () => {
+  const lockRoot = validInput();
+  lockRoot.lockfileRootVersion = "0.3.126";
+  assert.ok(validateWorkstreamVersionContract(lockRoot).errors.some((error) => error.includes("packages[\"\"] root")));
+  const readme = validInput();
+  readme.readme = "**Release:** `0.3.126` · A 線 Agent Factory V2 `2.0.84` ·";
+  assert.ok(validateWorkstreamVersionContract(readme).errors.some((error) => error.includes("README")));
+  const governance = validInput();
+  governance.governance = "**Repository release baseline: 0.3.126**";
+  assert.ok(validateWorkstreamVersionContract(governance).errors.some((error) => error.includes("governance release baseline")));
 });
 
 test("requires root changelog and P changelog to record their current versions", () => {
