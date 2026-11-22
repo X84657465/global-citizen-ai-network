@@ -653,3 +653,39 @@ This section supersedes the earlier in-progress descriptions of Preflight #324 a
 - Keep machine-managed Issue #100 untouched and B Runtime inactive. Continue only the proposed versioned read-only A→B adapter preparation until A acceptance gates are complete.
 
 **Authority boundary:** this checkpoint updates evidence documentation only. It does not alter Factory runtime/state, tasks, leases, retries, cooldowns, quarantine, Runner or workflow policy, secrets, permissions, production data, deployments, or B Runtime behavior.
+
+
+---
+
+## Superseding live continuation checkpoint — 2026-11-22 (verified current-main refresh)
+
+This checkpoint supersedes earlier live snapshots above wherever their branch tips, run IDs, or conclusions differ. It records read-only evidence observed during this refresh; it is not a runtime acceptance or release authorization.
+
+### Mainline and integrated A baseline
+- Verified default branch `main` HEAD: `ef7769239ac328ba18ec256718fe7fd269b5a8c5`.
+- The current main tree contains the durable Factory state capacity inspector and its regression tests (`inspectFactoryStateCapacity`, `MAX_PROCESSED_EVENTS`, and the shared state-Issue encoder). This is source-presence evidence only; do not infer an operational capacity warning or successful long-running soak from it.
+- Recent merged work includes PRs #309, #311, #316 and #317. Their merge status does not establish exact-current-main CI or full A operational acceptance.
+
+### Current CI and candidate status
+- Main push CI run `44989681054` targets exact current main SHA `ef7769239ac328ba18ec256718fe7fd269b5a8c5`; latest observation is **pending** with no jobs allocated. No current-main test, typecheck, lint, audit, build, database/RLS, or Ollama pass is established.
+- CI run `44989538934` targets older SHA `401d5192d84bcc574020541c68d545c26483a360`; it is not evidence for current main. Latest observation is pending with no jobs allocated.
+- PR #259 is the only open PR returned by the latest open-PR query. It remains open/non-draft, based on stale base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, head `3330cd04a77358cf0ff780940d09f938cab1dc3a`, and GitHub reports `mergeable=false`. Its broad historical diff must not be force-merged, wholesale transplanted, or treated as an accepted integration candidate.
+- The current combined commit status reports Vercel failure with `build-rate-limit`. No same-SHA READY Preview/Smoke or production deployment evidence is established.
+
+### Independent review and machine-managed state
+- Issue #136 remains an independent, read-only adversarial audit gate. The latest inspected comments contain implementation-owner evidence/corrections, but no independent final audit report or formal sign-off was found. Do not substitute source inspection, CI, or owner-authored notes for independent review.
+- Factory Issue #100 remains machine-managed and outside manual-write scope. It was read only during this refresh; do not edit its encoded payload, task records, counters, lease, retry, cooldown, or quarantine state. Allow the controller/scheduler to own state transitions.
+- Do not dispatch or rerun workflows, reset cooldown/failure/quarantine state, bypass the serialized Windows Runner queue, change workflow permissions/secrets, or touch production data to manufacture green evidence.
+
+### A acceptance and B boundary
+- A remains integrated but **not operationally accepted**. Required evidence still includes exact-current-main CI, natural queue/lease/worker progression, the serialized Runner soak, same-SHA Preview/Smoke where applicable, and the independent Issue #136 audit.
+- Keep B Runtime inactive. Continue only the versioned, sanitized, read-only A→B projection contract. B must not access Factory Issue state, A controller/state-store internals, Runner/Sandbox controls, raw logs, patches, secrets, or privileged execution paths.
+
+### Next execution order
+1. Observe the existing exact-main CI and serialized Runner queue; record actual terminal job results against their exact SHAs.
+2. Fix only reproducible A defects with narrow code changes and regression tests; do not transplant the stale PR #259 diff.
+3. Obtain the independent read-only Issue #136 report and applicable same-SHA Preview/Smoke evidence.
+4. Complete natural scheduler/lease progression and the operational soak before A acceptance.
+5. Only after A acceptance, implement the A-owned sanitized projection and B-owned workspace authorization/RLS boundary.
+
+**Authority boundary:** this checkpoint is documentation-only. It changes no Factory runtime/state, task, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production data, deployment, or B Runtime behavior.
