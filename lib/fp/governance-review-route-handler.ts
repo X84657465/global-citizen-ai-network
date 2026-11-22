@@ -38,21 +38,33 @@ export async function handleGovernanceReviewsGet<TAuth = unknown>(
   request: Request,
   dependencies: GovernanceReviewsRouteDependencies<TAuth>,
 ) {
-  const auth = await dependencies.getAuthenticatedClient();
+  let auth: TAuth | null;
+  try {
+    auth = await dependencies.getAuthenticatedClient();
+  } catch {
+    return privateJson({ error: "目前無法驗證登入狀態。" }, { status: 503 });
+  }
   if (!auth) {
     return privateJson({ error: "請先登入。" }, { status: 401 });
   }
 
-  let profileResult: { data: unknown; error: unknown };
+  let activeAdmin: boolean;
   try {
-    profileResult = await dependencies.getProfile(auth);
+    const profileResult = await dependencies.getProfile(auth);
+    if (
+      !profileResult ||
+      typeof profileResult !== "object" ||
+      !("data" in profileResult) ||
+      !("error" in profileResult) ||
+      profileResult.error
+    ) {
+      return privateJson({ error: "無法驗證管理員權限。" }, { status: 503 });
+    }
+    activeAdmin = dependencies.isActiveAdminProfile(profileResult.data);
   } catch {
     return privateJson({ error: "無法驗證管理員權限。" }, { status: 503 });
   }
-  if (profileResult.error) {
-    return privateJson({ error: "無法驗證管理員權限。" }, { status: 503 });
-  }
-  if (!dependencies.isActiveAdminProfile(profileResult.data)) {
+  if (!activeAdmin) {
     return privateJson({ error: "只有有效管理員可以讀取治理審查證據。" }, { status: 403 });
   }
 
