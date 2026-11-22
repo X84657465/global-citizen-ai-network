@@ -10,15 +10,15 @@ This section supersedes the prior live-state snapshot immediately below. It is a
 - B Runtime remains PREPARATION ONLY / BLOCKED pending A independent acceptance, exact-current-main CI, operational evidence and sanitized versioned read-only A→B contract gates.
 
 ### Main CI / deployment
-- Exact-commit workflow-run lookup for main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` returned no standard CI run. Main CI is **UNKNOWN / NOT RUN**, not PASS.
+- Exact-commit workflow-run lookup for main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` returned no standard CI run. The latest branch run listing shows only `Agent Factory System Health Recovery` runs (including #45059516792, #45059364906 and #45059255818), all **SKIPPED**. Main CI is **UNKNOWN / NOT RUN**, not PASS.
 - Main branch run listing shows repeated `Agent Factory System Health Recovery` runs completing **SKIPPED** (e.g. #45058930797, #45058914583, #45058898439). Skipped recovery is not a health pass and does not verify Factory operation.
 - Main combined status reports Vercel `failure` with `build-rate-limit`. This is a provider quota/deployment status, separate from GitHub Actions test evidence.
 - Do not dispatch/retry workflows, alter Runner queue policy, change deployment quotas or settings to force green checks.
 
 ### Current open PR inventory (10)
 All PR CI states below are tied to the listed exact head SHA and run attempt 1; every listed run is **PENDING** at this refresh. Combined status on these heads reports Vercel `build-rate-limit`, not a code-test failure.
-- PR #427 — GCAN autonomous intelligence production roadmap; Draft; 4 documentation files; base main `10fabef...`; head `ea6e24af8ba594afa3725f6b4b80114c5298561f`; Actions run #45059093946 PENDING. No independent GPT3 review recorded. Documentation-only; no application tests claimed. Charter remains PROPOSED.
-- PR #420 — current-main operational handoff refresh; non-Draft; one documentation file; base main `10fabef...`; head `78a1e25c2ed892a9ca5151c1f1c1e54cd961a388`; Actions run #45058164113 PENDING. The present commit updates this snapshot; re-query its new head/run after commit.
+- PR #427 — GCAN autonomous intelligence production roadmap; Draft; 4 documentation files; base main `10fabef...`; head `d28f414b7da09eae5ab126e0d5fef0f35e358c44`; Actions run #45059510103 PENDING. No independent GPT3 review recorded. Documentation-only; no application tests claimed. Charter remains PROPOSED.
+- PR #420 — current-main operational handoff refresh; non-Draft; one documentation file; base main `10fabef...`; head `5d4345a31781fdf6c889451e92c84c3da1662cba`; Actions run #45059387402 PENDING (attempt 1; jobs endpoint returned no jobs). This handoff refresh is documentation-only; no tests were executed.
 - PR #422 — Issue #117 candidate runtime/test separation; head `535daef3edb0ee81abfb003131d4149e81620357`; run #45058587659 PENDING. Changed paths overlap PR #425 in `.github/workflows/agent-task-preflight.yml` and `tests/agent-factory-policy.test.mjs`.
 - PR #425 — competing Issue #117 candidate failure-isolation implementation; head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; run #45058830722 PENDING. Static review found a fail-closed defect in `candidateContainerFailureScope`: `Number(null)`, `Number("")`, and `Number(false)` become zero, potentially treating missing/malformed exit evidence as success. This was reported in a COMMENT review; fix and regression coverage are outstanding.
 - PR #424 — Draft, one-file test follow-up stacked on #422; base branch head `535daef3...`; head `444da48f8c32db850603b2e5e87adc628ea6fa20`; run #45058591151 PENDING. Do not treat it as a standalone main-based implementation.
