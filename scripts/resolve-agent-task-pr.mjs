@@ -69,7 +69,8 @@ async function main() {
   }
 
   let pull;
-  resolverStage = "fetch_pull_request";\n  console.log("Resolver stage: requesting PR metadata; repository=" + repository + ", pull_request=" + pullRequestNumber + ".");
+  resolverStage = "fetch_pull_request";
+  console.log("Resolver stage: requesting PR metadata; repository=" + repository + ", pull_request=" + pullRequestNumber + ".");
   try {
     pull = await api.request("/repos/" + repository + "/pulls/" + pullRequestNumber);
     console.log("Resolver stage: PR metadata received; state=" + String(pull.state ?? "unknown") +
