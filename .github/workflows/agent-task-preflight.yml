@@ -1013,17 +1013,8 @@ jobs:
         if: always()
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
-          $path = "artifacts/cooldown/agent-api-cooldown.txt"
-          if (Test-Path $path -PathType Leaf) {
-            $value = [System.IO.File]::ReadAllText($path).Trim()
-            $parsed = [DateTimeOffset]::MinValue
-            $valid = [DateTimeOffset]::TryParseExact($value, "yyyy-MM-dd'T'HH:mm:ss.fff'Z'", [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal, [ref]$parsed)
-            if ($valid) {
-              [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_API_COOLDOWN_UNTIL=$value" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
-            } elseif ($value.Length -gt 0) {
-              Write-Warning "Ignoring malformed publisher cooldown handoff."
-            }
-          }
+          node scripts/restore-agent-factory-api-cooldown.mjs "artifacts/cooldown/agent-api-cooldown.txt" "$env:GITHUB_ENV"
+          if ($LASTEXITCODE -ne 0) { throw "Unable to restore publisher cooldown handoff." }
 
       - name: Download publication result
         if: needs.publish-task.result == 'success'
