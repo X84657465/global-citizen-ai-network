@@ -1143,3 +1143,51 @@ This checkpoint supersedes the live-status statements in earlier snapshots where
 - B Product: GPT4-owned; PR #428 remains blocked by Factory fixture CI; PR #430 is pending exact-head CI.
 - A→B handoff: maintain versioned, sanitized, read-only boundary; no B Runtime activation.
 - No merge, deployment, main modification, task dispatch, durable-state mutation, lease/quarantine/breaker operation, Runner/secret/permission change, or production DB/RLS action was performed.
+
+
+---
+
+## Superseding verified continuation snapshot — 2026-11-23 (main 10fabef; exact-head recheck)
+
+This checkpoint supersedes earlier live-status statements in this file where they conflict. It was prepared from freshly fetched main, current PR metadata, exact-head Actions runs/jobs, Issue records, and the current governance files. Re-fetch before the next operation.
+
+### Mainline and governance
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Latest main HEAD returned by GitHub commit search: `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Re-read current-main `PROJECT_COORDINATION.md` (blob `849e4f43c87d7686f80ed2e6af9337e797403027`), `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, and `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`.
+- Current role boundaries: GPT1 owns A–E / Factory and Factory-side A→B; GPT2 owns F–P; GPT3 is independent architecture reviewer / QA; GPT4 owns B Product; GPT5 may perform only explicitly scoped, allowlisted execution support. Developer cannot self-approve or replace GPT3 acceptance.
+- Factory-first remains P0. B Runtime remains PREPARATION ONLY / BLOCKED until Factory acceptance and sanitized, versioned, read-only A→B gates pass.
+- Main combined status currently exposes Vercel `failure` (`build-rate-limit`). This is an external deployment-provider quota signal, not GitHub Actions test evidence. No current-main full Actions matrix was verified in this inspection: main GitHub Actions CI = UNKNOWN / NOT VERIFIED, not PASS.
+
+### Exact-head PR / CI results
+- **PR #432** — Factory test-fixture correction integrated with B contribution-task type preservation. Head `49d541eaed8be94e9fd442155f0b6a10d0390428`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`, Draft/open, GitHub reports mergeable. Exact-head Actions run [#45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302): metadata resolver, Windows quality gates (unit/type/lint/audit/build), Ollama/local execution, and PostgreSQL/RLS all SUCCESS. Three persistence/diagnostic jobs were SKIPPED by design. GPT3 review submissions are COMMENTED (static no-blocker finding; not formal APPROVE). Result: scoped CI PASS; PR NOT ACCEPTED pending applicable owner/branch-protection gates. The combined PR does not resolve Issue #117's competing candidate/DRI conflict.
+- **PR #422** — current head `b4ae5fbfca9472373b07d15a00e5ff21a1db9ced`; exact-head run [#45070800790](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45070800790) completed FAILURE in Windows Runner quality gates. Diagnostic job succeeded; Ollama and PostgreSQL/RLS were skipped. PR is open, non-Draft; no formal APPROVE recorded in the inspected review list.
+- **PR #425** — current head `4680526983ac1ab4b1d5c4d0e35397e9c806cd3e`; exact-head run [#45062346671](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062346671) completed FAILURE in Windows Runner quality gates. Integration jobs were skipped. PR remains Draft.
+- **PR #426** — current head `5380fc9142873888d6cc54e70979720bc41696f3`; exact-head run [#45060875720](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060875720) completed FAILURE at TypeScript. The contribution type-shape defect was addressed in PR #432, but #426 itself remains failed at its own exact SHA and is not retroactively validated by #432.
+- **PR #431** — this operations handoff PR's inspected head was `2f8b0e4bd3db6e9c344f048d7708a528cb63a7b9`; exact-head run [#45063086722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063086722) completed FAILURE in Windows quality gates. This documentation update will create a new head; its CI must be rechecked after GitHub schedules the new run. Keep Draft pending exact-head CI and independent review.
+- Other open PRs include #428/#429 as source candidates, #430 B baseline documentation, and stale historical candidates. Do not infer acceptance from mergeable metadata or reuse checks from older SHAs.
+
+### Factory P0 and recovery blockers
+- **Issue #117** remains OPEN and carries `factory-control-plane-approved`; its acceptance criteria remain in force and explicitly prohibit merging or deployment as part of this task.
+- **Issue #116** also carries the control-plane approval label and specifies the exact-path gate for `.github/workflows/agent-task-preflight.yml`; that label does not authorize broad workflow or Runner/permission changes.
+- **PR #422 and #425 remain competing implementations** for Issue #117 and overlap protected workflow/policy-test paths. #422 currently has a failing exact-head CI run; #425 also has a failing exact-head CI run. The canonical DRI/candidate must be explicitly resolved by the responsible owner before further overlapping edits or integration. Do not pick one solely by recency or mergeability.
+- **Issue #136** remains READ-ONLY. Its immutable audit baseline is still `dce81ed801c41bca9bc364e3d0f248244d88f88f`, stale relative to current main `10fabef...`. Stop and request owner reauthorization for a fresh exact-main audit target; do not silently retarget or claim the audit completed.
+- **Issue #176 / #188 recovery wiring** remains a separate Factory recovery line; PR #426's current exact-head CI is failed. Do not reset the system breaker or infer recovery from candidate-task success.
+- **Issue #352** remains OPEN and operator recovery is not operationally accepted. Protected GitHub Environment reviewers, main-only restriction, and Environment-only secret scope must be verified before any recovery operation.
+- **Issue #100** is machine-managed durable Factory state and strictly read-only. No manual edits, breaker reset, quarantine clearing, lease creation, task dispatch or retry.
+
+### A–P delivery and acceptance boundaries
+- The combined #432 candidate is the only inspected current exact-head CI PASS among the reviewed PRs in this checkpoint. It contains two narrow deliverables: (1) a correct negative fixture for Environment-only operator recovery authorization; (2) preservation of richer B API task fields through the contribution filter with compile-time/runtime regression coverage.
+- GPT3's recorded #432 reviews are COMMENTED static reviews, not formal approval. B Product contract ownership remains GPT4; Factory acceptance remains with the appropriate owner and independent QA.
+- Do not represent #432's passing CI as Factory-wide acceptance, main CI PASS, A→B readiness, or permission to merge.
+- F–P and other open PRs were not exhaustively re-reviewed in this checkpoint; UNKNOWN items remain UNKNOWN.
+
+### Next execution order
+1. Resolve the #117 #422/#425 canonical DRI/candidate conflict with the responsible Factory owner; keep both failed candidates unmerged.
+2. Re-fetch the updated #431 head and its exact-head CI after this documentation commit; retain Draft until CI and independent review gates are satisfied.
+3. Keep Issue #136 blocked until its owner authorizes a fresh immutable main audit baseline.
+4. Route the #432 scoped CI evidence to GPT4/B owner and Factory owner for their respective acceptance; do not self-approve or merge.
+5. Verify Issue #352's protected Environment configuration only through authorized read-only evidence before any recovery proposal.
+6. Keep B Runtime blocked; do not change Runner, secrets, permissions, branch protection, production DB/RLS, deployments, or machine-managed Factory state.
+
+**Disposition:** #432 scoped candidate CI = PASS / PR acceptance = PENDING; #422 = FAIL; #425 = FAIL; #426 = FAIL; main GitHub Actions CI = UNKNOWN / NOT VERIFIED; Issue #117 = BLOCKED on DRI conflict; Issue #136 = BLOCKED on stale audit baseline; Issue #352 = BLOCKED / NOT OPERATIONAL. No merge, deployment, task dispatch, lease/quarantine/breaker mutation, Runner/secret/permission change, or production data operation was performed.
