@@ -1945,6 +1945,16 @@ test("system-health success rejects task candidates and ambiguous or mismatched 
         }],
       },
     },
+    {
+      name: "Codex task candidate branch",
+      workflow: {
+        head_branch: "codex/issue-42-abcdef123456",
+        pull_requests: [{
+          ...basePullRequest,
+          head: { ...basePullRequest.head, ref: "codex/issue-42-abcdef123456" },
+        }],
+      },
+    },
     { name: "missing PR association", workflow: { head_branch: validBranch, pull_requests: [] } },
     {
       name: "ambiguous PR associations",

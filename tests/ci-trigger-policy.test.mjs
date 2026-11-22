@@ -685,7 +685,9 @@ test("system breaker recovery waits for a completed successful exact-head CI wor
   assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.repo.full_name == github.repository"));
   assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.ref == github.event.workflow_run.head_branch"));
   assert.ok(recovery.includes("!startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-')"),
-    "task-candidate PRs must never be treated as independent system-health evidence");
+    "AI task-candidate PRs must never be treated as independent system-health evidence");
+  assert.ok(recovery.includes("!startsWith(github.event.workflow_run.head_branch, 'codex/issue-')"),
+    "Codex task-candidate PRs must never be treated as independent system-health evidence");
   const recoveryWorkflowHeader = recovery.slice(0, recovery.indexOf("\njobs:"));
   assert.equal(recoveryWorkflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false,
     "cancelled/failed workflow_run events must not reserve the shared Runner queue at workflow scope");
