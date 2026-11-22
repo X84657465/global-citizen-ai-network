@@ -73,7 +73,7 @@
     },
     "M": {
       "name": "Compliance, Policy Audit & Risk Governance",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "planned",
       "responsibility": "Evidence retention, change and audit trails, policy checks, exception ownership and risk register."
     },
