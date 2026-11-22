@@ -26,7 +26,10 @@ function normalizeStatus(status: string | null | undefined): string {
 
 function unknownStatusLabel(status: string): string {
   if (!status) return "狀態待確認";
-  const safeStatus = status.replace(/[\u0000-\u001f\u007f]/g, "").slice(0, 80);
+  // Remove C0/C1 controls and Unicode direction controls from untrusted status values.
+  const safeStatus = status
+    .replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, "")
+    .slice(0, 80);
   return safeStatus ? `狀態待確認（${safeStatus}）` : "狀態待確認";
 }
 
