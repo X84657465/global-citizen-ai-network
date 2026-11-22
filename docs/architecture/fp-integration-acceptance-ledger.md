@@ -225,7 +225,7 @@ PR #295 and #299 both touch this ledger. Their branches are distinct and their t
 
 ### Current exact-SHA evidence
 - Main push CI run `44973274417` for `061ccf621c228bae93b91cd8c53723c3fe08310a` is pending and has no allocated jobs in the latest query. No test pass is inferred.
-- The latest observed Preflight run `44972991644` is pending on the Windows self-hosted project-validation job and skipped its read-only task-plan job; it targets prior main SHA `aa63b74f9d23d2316ec7b59116632d686afb8fe1`, not this merge commit.
+- Scheduled Preflight run `44972336349` targets older SHA `23fb747ae4041bc28783a1b9039660ec952c7e0d`; its read-only task-plan job is pending and Windows validation was skipped. Later push-triggered Preflight `44972991644` targets `aa63b74f9d23d2316ec7b59116632d686afb8fe1`; Windows validation is pending and task-plan validation was skipped. Neither is evidence for current main `061ccf621c228bae93b91cd8c53723c3fe08310a` or successful scheduled progression.
 - Combined status for `061ccf621c228bae93b91cd8c53723c3fe08310a` reports Vercel `build-rate-limit` failure; no same-SHA Preview/Smoke evidence is established.
 - PR #301 exact-head run `44973266726` was pending at merge; no CI pass is claimed.
 
