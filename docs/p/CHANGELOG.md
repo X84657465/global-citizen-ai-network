@@ -1,3 +1,8 @@
+## P 0.1.6 — 2026-11-22
+
+- Enforce README P workstream version summary against the P manifest entry.
+- Add regression coverage for stale advertised P version.
+
 ## P 0.1.5 — 2026-11-22
 
 - Enforce latest-entry position and valid calendar dates for root, P and F–P changelog headings.
