@@ -757,6 +757,44 @@ test("CI carries provider rate-limit cooldown from the candidate controller to t
 });
 
 
+test("preflight transports only the validated publisher cooldown through an artifact on job failure", () => {
+  const publisherJob = findJobSection(preflight, "publish-task");
+  const publisher = preflight.slice(publisherJob.start, publisherJob.end);
+  assert.ok(publisher.includes("AGENT_FACTORY_API_COOLDOWN_FILE: artifacts/agent-api-cooldown.txt"),
+    "the publisher must write the sanitized deadline to a dedicated handoff file");
+  assert.ok(publisher.includes("- name: Initialize sanitized publisher cooldown handoff"),
+    "the handoff file must exist before the publisher can fail");
+  assert.ok(publisher.includes("if: always()\n        uses: actions/upload-artifact@v4"),
+    "the sanitized handoff artifact must upload even when the publisher step fails");
+  assert.ok(publisher.includes("name: ai-agent-api-cooldown-${{ github.run_id }}-${{ github.run_attempt }}"),
+    "the handoff artifact must be scoped to this workflow run");
+  assert.ok(!publisher.includes("api_cooldown_until: ${{ steps.publish.outputs.api_cooldown_until }}"),
+    "the workflow must not rely on outputs from a failed publisher job");
+
+  const recordJob = findJobSection(preflight, "record-publication");
+  const record = preflight.slice(recordJob.start, recordJob.end);
+  assert.ok(record.includes("needs: [prepare-task, begin-publication, publish-task]"),
+    "the state-writer job must explicitly depend on the publisher job");
+  assert.ok(record.includes("Download sanitized publisher cooldown handoff"),
+    "the state writer must retrieve the sanitized artifact");
+  assert.ok(record.includes("if: always()\n        continue-on-error: true\n        uses: actions/download-artifact@v4"),
+    "missing artifacts must not mask the original publisher failure");
+  assert.ok(record.includes("Restore validated publisher cooldown for durable failure callback"),
+    "the state writer must validate and restore the deadline into its own environment");
+  assert.ok(record.includes("yyyy-MM-dd'T'HH:mm:ss.fff'Z'"),
+    "the handoff must accept only the helper's canonical UTC timestamp");
+
+  const failureStart = record.indexOf("      - name: Record publication failure and preserve the task lease state");
+  assert.ok(failureStart >= 0, "the publication failure callback must remain explicit");
+  const nextStep = record.indexOf("\n      - name:", failureStart + 1);
+  const failureStep = record.slice(failureStart, nextStep < 0 ? record.length : nextStep);
+  assert.ok(failureStep.includes("if: failure() || needs.begin-publication.result != 'success' || needs.publish-task.result != 'success'"),
+    "the callback must run when the publisher job fails");
+  assert.ok(failureStep.includes("AGENT_FACTORY_MODE: failure"));
+  assert.ok(!failureStep.includes("needs.publish-task.outputs.api_cooldown_until"),
+    "the failure callback must consume the validated artifact-restored environment, not failed-job outputs");
+});
+
 test("Agent Factory isolates candidate generation, PR publication, state writes, and dispatch permissions", () => {
   const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\njobs:".length);
   const jobNames = [...jobsSource.matchAll(/^  ([A-Za-z0-9_-]+):\s*$/gm)].map((match) => match[1]);
