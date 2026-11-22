@@ -76,3 +76,33 @@ test("uses a bounded fallback when both provider cooldown headers are invalid", 
   assert.doesNotMatch(readFileSync(envFile, "utf8"), /private details|invalid-reset/);
   rmSync(directory, { recursive: true, force: true });
 });
+
+test("writes only the validated ISO cooldown to the cross-job handoff artifact", () => {
+  const directory = mkdtempSync(join(tmpdir(), "agent-factory-cooldown-"));
+  const artifactFile = join(directory, "cooldown.txt");
+  const now = 1_000_000;
+  const deadline = persistApiCooldownDeadline({
+    status: 429,
+    message: "private provider response must not cross jobs",
+    retryAfter: "120",
+    rateLimited: true,
+  }, { now, artifactFile });
+
+  assert.equal(deadline, new Date(now + 120_000).toISOString());
+  assert.equal(readFileSync(artifactFile, "utf8"), deadline + "\n");
+  assert.doesNotMatch(readFileSync(artifactFile, "utf8"), /private provider|429|retryAfter/);
+  rmSync(directory, { recursive: true, force: true });
+});
+
+test("does not create a cross-job handoff artifact for non-rate-limit failures", () => {
+  const directory = mkdtempSync(join(tmpdir(), "agent-factory-cooldown-"));
+  const artifactFile = join(directory, "cooldown.txt");
+
+  assert.equal(persistApiCooldownDeadline({
+    status: 403,
+    message: "permission denied",
+    rateLimited: false,
+  }, { now: 1_000_000, artifactFile }), null);
+  assert.equal(existsSync(artifactFile), false);
+  rmSync(directory, { recursive: true, force: true });
+});
