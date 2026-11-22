@@ -301,6 +301,8 @@ test("candidate container startup failures remain system-scoped while confirmed 
   assert.doesNotMatch(startupStep, /AGENT_FACTORY_FAILURE_SCOPE=task/);
 
   assert.match(candidateStep, /docker exec/);
+  assert.match(candidateStep, /docker cp/);
+  assert.match(candidateStep, /tmp\/agent-candidate-test-exit-code/);
   assert.match(candidateStep, /candidateExitCode -ne 0/);
   assert.match(candidateStep, /AGENT_FACTORY_FAILURE_SCOPE=task/);
   assert.ok(candidateStep.indexOf("Test-Path -LiteralPath $statusFile") < candidateStep.indexOf("AGENT_FACTORY_FAILURE_SCOPE=task"));
