@@ -326,3 +326,30 @@ P4：非必要擴充、重構與外觀改善。
 - 發現既有行為退化、資料不一致、成本失控或安全邊界遭破壞時，停止擴張並優先修復／回滾。
 
 **日常口訣：先查現有、再選方案；能沿用不新建、能擴充不重寫；沒有獨立證據不算完成。**
+
+## 14. Factory 工人、引擎與工具的執行排程
+
+GCAN Agent Factory 的持續開發必須同時強化三個生產核心：專業 Worker 能力池、可替換智慧引擎、可治理工具鏈，並以隔離 Runner、調度、QA 與觀測支撐。這是 Factory 主線能力，不是可有可無的未來裝飾。
+
+### 14.1 工作優先順序
+
+- **P0 — Inventory & bottleneck audit：** 盤點既有 Worker／Agent、模型、工具、Runner、排程、狀態機、驗證器、PR publisher、Recovery 與 CI。找出目前實際阻塞吞吐量、可靠性與自主閉環的瓶頸。
+- **P1 — Worker contracts：** 建立技能描述、任務輸入輸出 schema、權限 allowlist、成本／逾時、證據及失敗回報契約。
+- **P1 — Engine & Tool registry：** 標準化現有模型與工具 Adapter，支援路由、Fallback、版本、評測、權限及稽核。
+- **P1 — Safe execution：** 隔離工作區、Runner 配額、檔案 ownership、任務鎖、取消、逾時與中斷恢復。
+- **P1 — Independent QA & metrics：** 真實任務端到端測試、獨立驗收、成功率、Lead Time、返工率、成本與人工介入率。
+- **P2 — Adaptive orchestration：** 根據任務類型、Worker 能力、模型評測、成本、Runner 負載與依賴關係動態派工及安全併發。
+
+### 14.2 近期執行規則
+
+1. 不先買模型、不先增加 Runner、不先增加常駐 Agent；先用 Repository 證據盤點現有能力與實際瓶頸。
+2. 已有能力符合契約時直接登記重用；部分符合就補缺口；不可只因名稱不同重寫。
+3. 先讓一條真實 Issue → Worker → 隔離實作 → 測試 → Draft PR → 獨立 Review → 驗收的路徑穩定，再擴大 Worker 數與併發。
+4. 每次新增工具或 Worker 都要證明相較既有方式帶來可量測收益，並計入成本與維護負擔。
+5. Factory 自我修改與跨模組任務維持獨立審查及 Fail-Closed。
+
+### 14.3 本工作線的交付證據
+
+每個里程碑必須交付：能力盤點、架構／契約文件、程式碼差異、測試結果、精確 SHA、CI、成本與效能 baseline、失敗恢復證據、風險與回滾方案。僅有角色名單、Prompt 或架構圖，不算 Worker Fleet 已建成。
+
+**Factory 強度看可驗證的有效交付能力，不看 Agent 數量或模型品牌數量。**
