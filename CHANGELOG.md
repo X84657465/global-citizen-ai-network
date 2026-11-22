@@ -1,3 +1,11 @@
+## 0.3.130 — 2026-11-22
+
+- F: require security evidence to bind to the exact GitHub Actions run attempt and matching job attempt metadata.
+- G: require release evidence URLs to identify the exact Actions run attempt; reject base run URLs and mismatched attempts.
+- Add regression coverage for exact-attempt identity and preserve F/G as planned until full acceptance evidence is available.
+- Correct the A–P version-status regression test to preserve P's already accepted implementation-candidate status.
+- Exact-head CI and independent review remain required; no release or merge authorization is implied.
+
 ## 0.3.129 — 2026-11-22
 
 - P: extend the A–P version contract to verify both package-lock root copies, README release version and engineering-governance baseline.
