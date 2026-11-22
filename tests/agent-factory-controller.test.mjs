@@ -2104,7 +2104,7 @@ test("operator recovery requires owner, main, workflow_dispatch, protected secre
     { GITHUB_ACTOR: "contributor" },
     { FACTORY_OPERATOR_RECOVERY_ENV_GUARD: "" },
     // A legacy repository/org-scoped secret must never satisfy the Environment-only guard.
-    { FACTORY_OPERATOR_RECOVERY_GUARD: "legacy-repository-secret" },
+    { FACTORY_OPERATOR_RECOVERY_ENV_GUARD: "", FACTORY_OPERATOR_RECOVERY_GUARD: "legacy-repository-secret" },
     { OPERATOR_RECOVERY_CONFIRMATION: "yes" },
   ];
   for (const overrides of invalid) {
