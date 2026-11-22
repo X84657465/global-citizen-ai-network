@@ -161,3 +161,19 @@
 .factoryGovernanceLink{display:inline-flex;align-items:center;gap:8px;margin-top:19px;color:var(--cyan);font-size:13px;text-decoration:none}
 @media(max-width:900px){.factoryGovernanceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.factoryGovernanceSection{width:min(100% - 34px,540px);padding:58px 0}.factoryGovernanceGrid{grid-template-columns:1fr;gap:9px}.factoryGovernanceCard{min-height:0;padding:17px}.factoryGovernanceHeader h2{font-size:27px}.factoryGovernanceHeader>p{font-size:13px}.factoryGovernancePriority{justify-content:flex-start}.factoryGovernancePriority span{font-size:11px}.factoryGovernanceFlow,.factoryGovernanceRoles{padding:15px}.factoryGovernanceFlow p,.factoryGovernanceRoles p{font-size:12px}}
+
+
+/* Factory F13–F19 second-phase roadmap */
+.factoryNextRoadmap{margin:30px 0;padding:clamp(22px,4vw,42px);border:1px solid rgba(117,153,196,.22);border-radius:24px;background:linear-gradient(145deg,rgba(19,39,66,.55),rgba(12,20,34,.9));}
+.factoryNextNotice{display:flex;gap:14px;align-items:flex-start;margin:24px 0;padding:16px 18px;border:1px solid rgba(102,174,219,.3);border-radius:14px;background:rgba(47,113,157,.09);color:var(--muted,#aebed0);font-size:14px;line-height:1.7}
+.factoryNextNotice b{flex:0 0 auto;color:var(--foreground,#f2f6fb)}
+.factoryNextGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.factoryNextCard{min-width:0;padding:20px;border:1px solid rgba(133,164,196,.18);border-radius:16px;background:rgba(7,17,30,.52)}
+.factoryNextCard>span{font-size:11px;letter-spacing:.09em;font-weight:800;color:#83c5ee}
+.factoryNextCard h3{margin:10px 0 8px;font-size:18px;line-height:1.4;color:var(--foreground,#f2f6fb)}
+.factoryNextCard p{margin:0 0 14px;color:var(--muted,#aebed0);font-size:13px;line-height:1.75}
+.factoryNextCard>b{display:block;padding-top:12px;border-top:1px solid rgba(133,164,196,.16);font-size:12px;line-height:1.6;color:#b8d8ef}
+.factoryNextGovernance{margin-top:20px;padding:20px;border-radius:16px;background:rgba(5,13,24,.7);border:1px solid rgba(133,164,196,.18)}
+.factoryNextGovernance>b{font-size:15px;color:var(--foreground,#f2f6fb)}
+.factoryNextGovernance p{margin:10px 0 0;color:var(--muted,#aebed0);font-size:13px;line-height:1.8}
+@media(max-width:680px){.factoryNextRoadmap{padding:20px 16px;border-radius:18px}.factoryNextGrid{grid-template-columns:1fr}.factoryNextNotice{display:block}.factoryNextNotice b{display:block;margin-bottom:5px}.factoryNextCard{padding:17px}}
