@@ -1,3 +1,15 @@
+## 0.1.22 — 2026-11-23
+
+### Added — Refresh the B product delivery map and dependency backlog
+- Translate the Product North Star into a capability-by-capability delivery matrix, separating mainline source presence, candidate work, unknown acceptance, blocked capabilities and future research.
+- Refresh Workspace PR #391 evidence and keep its exact-head CI/browser acceptance gates explicit.
+- Correctly distinguish the closed #354 lease-handoff fix from the still-open Factory-wide acceptance and independent #136 audit gate.
+- Add prioritized B delivery packages with owners, dependencies and evidence-based exit conditions.
+
+### Verification
+- Documentation and B version metadata only; no application code, migrations, runtime, database, browser/device tests or deployment were changed/run.
+- Candidate metadata increment only. Exact-head CI and independent review remain pending; no release or acceptance is claimed.
+
 ## 0.1.21 — 2026-11-23
 
 ### Governance and baseline — Keep the B product plan evidence-aligned
