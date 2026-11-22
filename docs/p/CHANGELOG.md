@@ -1,3 +1,9 @@
+## P 0.1.4 — 2026-11-22
+
+- Require a current, independently versioned changelog entry for every F–P workstream.
+- Preserve deferred L as a versioned roadmap baseline without enabling federation or cluster implementation.
+- Add missing H, I, L, N and O track-history baselines and reject missing/stale history during the canonical validation command.
+
 ## P 0.1.3 — 2026-11-22
 
 - Validate the A–P engineering-workstream planning baseline against the canonical repository release version.
