@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `4bf472881ea4afabd9f29c4d58365c3ae6c3d2af`  
+**Baseline:** `main` at `23fb747ae4041bc28783a1b9039660ec952c7e0d` (2026-11-22 post-PR #283)  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -86,3 +86,38 @@
 ## 8. Rollback
 
 This initial slice is additive test and documentation work. Revert the integration PR to remove it. No schema, secret, runtime execution, or production deployment changes are included.
+
+
+## 9. Post-merge engineering refresh (2026-11-22)
+
+**Verified main baseline:** `23fb747ae4041bc28783a1b9039660ec952c7e0d` (merge commit for PR #283).  
+**Protected boundary:** This ledger authorizes F–P integration work only. A–E, Agent Factory V2 runtime state, task leases, Runner policy and production controls remain outside this workstream.
+
+### Current implementation evidence
+
+- **F / G:** The integrated baseline includes the shared security/release assurance work and exact-run identity checks. Acceptance still requires current, same-HEAD evidence for every required quality and database/RLS job; evaluators remain advisory and cannot grant merge or deployment authority.
+- **H:** Request correlation is propagated through the existing middleware contract. The bounded outcome recorder is process-local, not a durable telemetry service. End-to-end route/job correlation and a real persistent sink remain unverified/not implemented.
+- **P:** The production GET route is now wired to the trusted-host collector. The route handler has runtime tests for authentication, active-admin authorization, input validation, private response headers, stale candidates and provider failures. The collector checks the current open same-repository PR head, paginates review history and delegates reviewer-permission verification to the trusted host. This is implementation evidence, not independent approval or governance authorization.
+- **I / J / M / N / O:** Keep capabilities bounded/advisory. No live external writes, autonomous production repair, compliance certification, user-level analytics collection or automatic lifecycle retirement is enabled.
+- **K:** Keep this ledger and handover evidence synchronized with the actual mainline; documentation is not acceptance evidence.
+- **L:** Remains deferred and disabled.
+
+### Mainline and acceptance reconciliation
+
+- PR #283 is merged at the baseline above. Its PR-head Actions run #3369 passed the four substantive Windows quality, Ollama/local execution and Supabase/PostgreSQL/RLS jobs on PR HEAD `abe983db3f2f6e657fbc39c2777fdb28e0bd2573`. This result is bound to that PR HEAD; it is not post-merge CI evidence for merge commit `23fb747ae4041bc28783a1b9039660ec952c7e0d`.
+- The merge commit's combined status currently reports a Vercel failure with provider `build-rate-limit`; no READY Preview or same-SHA smoke result is established.
+- The independent read-only adversarial audit in Issue #136 remains outstanding against the integrated A baseline. Post-cooldown scheduled task/worker progression and a real 24-hour Runner soak are also not established. Therefore A is integrated but not operationally accepted, and B Runtime remains inactive.
+- The previous consolidated PR #259 is stale/diverged from current main and must not be merged or wholesale transplanted. Reconcile only demonstrably missing F–P changes against the current baseline.
+- Machine-managed Factory state (Issue #100), leases, retry counters, quarantine, cooldowns, Actions settings, workflow permissions, secrets and production data are not to be edited as part of this F–P work.
+
+### Next F–P implementation order
+
+1. **F/G:** Build a current-main, exact-SHA acceptance bundle proving repository/PR/SHA/run-ID/run-attempt identity and all required security/database jobs; retain fail-closed behavior when evidence is missing.
+2. **H:** Add tests for correlation continuity across real route boundaries and explicitly label process-local metrics as non-durable. Do not claim distributed tracing or persistent telemetry without a configured sink.
+3. **P:** Preserve the now-wired read-only route; close any remaining review/permission edge cases with runtime tests and independent review. The route must never grant approval, merge or deployment authority.
+4. **I/J/M/N/O/K:** Advance one bounded capability at a time with contract tests, privacy minimization and owner-controlled side effects.
+5. **L:** No implementation or activation until its security, isolation, capacity and independent-review gates are satisfied.
+
+### Acceptance status
+
+No F–P workstream is promoted to L4/L5 by this refresh. Each remains subject to exact-HEAD CI, focused runtime/integration evidence, independent review where required, and an auditable handover. A passing PR-head run, a merged commit, or this document alone does not satisfy acceptance.
