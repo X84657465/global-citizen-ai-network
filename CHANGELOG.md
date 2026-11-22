@@ -1,3 +1,10 @@
+## 0.3.126 — 2026-11-22
+
+- H: add privacy-minimized, deterministic queue/runner/task/cost telemetry validation and reporting.
+- Add bounded event windows, deduplication, UTC timestamp validation, integer micro-unit cost accounting, duration percentiles and advisory quota thresholds.
+- Explicitly prohibit PII payloads and automatic enforcement; live collectors, alerts, invoice reconciliation and retention remain unverified.
+- H advances to 0.1.1; exact-head CI and independent review remain required.
+
 ## 0.3.125 — 2026-11-22
 
 - Align the public GCAN homepage and repository landing page with the A–O fifteen-workstream model and P cross-cutting governance.
