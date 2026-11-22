@@ -4,6 +4,8 @@
 > 適用專案：Agent Factory V2 / GCAN Product  
 > 優先順序：Agent Factory V2（A 線）優先；只處理必要的 A→B 銜接阻塞；準備 GCAN Product（B 主線）。
 
+> **最高核心章程：** 本專案 Agent Factory 的最高使命與自主開發目標，以 [Agent Factory 自主開發最高核心章程](docs/AGENT_FACTORY_AUTONOMY_CHARTER.md) 為準。所有 A 線工作須朝完整 AI Software Factory 演進；先守住現有穩定性，再逐階段建立自主規劃、開發、測試修復、獨立審查與受控交付能力。此章程不授權繞過安全、證據、分支保護或人工核准門檻。
+
 ## 1. 目的與基本原則
 
 本文件建立三個 GPT 之間可追蹤、可交接、可審查的協作制度。三個 GPT 不假設能直接讀取彼此的對話或共享隱性記憶；GitHub 專案中的文件、Issues、Pull Requests、commits、CI 與測試證據才是共同事實來源。
