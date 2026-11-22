@@ -70,7 +70,7 @@ test("uses a bounded fallback when both provider cooldown headers are invalid", 
     rateLimited: true,
   }, { now, envFile, outputFile });
 
-  assert.equal(deadline, new Date(now + 24 * 60 * 60 * 1000).toISOString());
+  assert.equal(deadline, new Date(now + 15 * 60 * 1000).toISOString());
   assert.equal(readFileSync(envFile, "utf8"), "AGENT_FACTORY_API_COOLDOWN_UNTIL=" + deadline + "\n");
   assert.equal(readFileSync(outputFile, "utf8"), "api_cooldown_until=" + deadline + "\n");
   assert.doesNotMatch(readFileSync(envFile, "utf8"), /private details|invalid-reset/);
