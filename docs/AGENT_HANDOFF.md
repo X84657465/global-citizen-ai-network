@@ -314,3 +314,26 @@ This section supersedes all earlier live PR/CI snapshots above. Historical resul
 5. Only after all A gates pass, integrate A through the required review process, then rebuild/revalidate B from accepted main.
 
 **Safety:** no production deployment, production database/data mutation, secret/permission change, workflow/Runner policy change, manual Factory-state mutation, lease/retry/quarantine/cooldown reset, or B Runtime activation is authorized by this checkpoint.
+
+
+## Live checkpoint refresh — 2026-11-22 (A test consolidation)
+
+This section supersedes earlier live PR/CI snapshots above. Historical evidence remains valid only for its recorded SHA.
+
+### A — PR #283
+- Current A candidate HEAD: `abe983db3f2f6e657fbc39c2777fdb28e0bd2573`, based on main `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
+- This commit consolidates two additional operations-runbook assertions from the former PR #285 into the existing A test file. It does not weaken tests or change runtime/workflow/Runner/Factory state.
+- New exact-head Actions run #44966561450 is in progress at metadata resolution. The prior green run #3362 applies only to parent SHA `ea6a320ec7f7156b6f7465b829b29dd7243553ea`; it does not validate this new commit.
+- Former PR #285 was closed as superseded after its two assertions were integrated directly into A. Its old-base run #3342 had 21 unrelated base-mismatch failures; the runbook-specific test passed. No test was removed or weakened.
+
+### Remaining A acceptance gates
+- Independent read-only adversarial review in Issue #136: still outstanding; no independent reviewer report is recorded.
+- Same-SHA Vercel Preview/Smoke: still unavailable due the provider daily deployment quota; ancestor deployments are not equivalent evidence.
+- Scheduler/worker operation: no verified post-cooldown task selection, lease reservation and lifecycle progression. Issue #100 remains machine-managed/read-only.
+- Real 24-hour Runner soak: not evidenced.
+
+### B and documentation handoff
+- PR #290 remains a documentation-only read-adapter contract; its base is the A candidate branch and it must be revalidated against the accepted main SHA after A acceptance. B Runtime/API/database access and Factory permissions remain inactive.
+- PR #286 is a documentation-only stacked branch. Its original base snapshot predates the latest A test-consolidation commit; reconcile/rebase the docs branch against the final accepted main SHA before considering merge. No docs-only CI pass is claimed for its current head.
+
+**Disposition:** PR #283 remains Draft/unmerged. Do not merge A or activate B until independent review, same-SHA Preview/Smoke, post-cooldown scheduler/worker progression and the real 24-hour Runner soak are evidenced. Do not manually dispatch tasks, mutate Issue #100, reset leases/cooldowns/quarantine, or bypass Runner serialization.
