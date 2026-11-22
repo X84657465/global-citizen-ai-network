@@ -425,3 +425,27 @@ This checkpoint supersedes the earlier 09:47 Taiwan snapshot for the Factory run
 5. Complete independent Issue #136 review and all A operational gates before implementing or activating B Runtime.
 
 **Safety:** no workflow permission, secret, Runner policy, machine-managed state, production data, deployment or B Runtime was changed by this checkpoint.
+
+
+---
+
+## Follow-up observation — 2026-11-22 02:10 UTC
+
+### Current exact-head and Factory observations
+
+- Main/base SHA remains `061ccf621c228bae93b91cd8c53723c3fe08310a` for PR #302.
+- Main CI run `44973274417` has only the metadata-resolver job allocated and it is still pending; no downstream validation result is available.
+- PR #302 currently points to `e9a444bf2bb4d07130ad64bf25e7879a7128cb3e`, remains Draft/open, has no formal review, and exact-head run `44973451004` still has no allocated jobs. Keep it Draft; do not merge.
+- Factory run `44972336349` is completed/failure. The bounded patch, scratch application, restricted dependency install and generic offline checks succeeded; the publisher step failed. The Windows self-hosted validation job was skipped by schedule policy.
+- Issue #100 remains at state version 152 (updated `2026-11-22T02:04:40.421Z`): no active task, task #17 queued, system cooldown through `2026-11-22T02:19:40.421Z`, 9 consecutive system failures. Task metadata still contains the historical `lease_id`/run reference; do not infer a new active lease from that historical field. Do not edit the machine-managed Issue or manually retry during cooldown.
+- No available evidence justifies merging PR #302 or PR #259. PR #259 remains divergent and non-mergeable.
+
+### Safe next actions
+
+1. Preserve the Factory queue and cooldown; observe the native scheduler after cooldown rather than force-dispatching or resetting state.
+2. Fix the publisher design in a dedicated, separately reviewed code change. Keep the workflow's default token read-only; move only the publication operation to a narrowly scoped job/token with explicit contents and pull-request write access, and confirm the repository-dispatch permission/event semantics. Do not grant write access to the entire planning/testing job.
+3. Before publication, add task-specific semantic validation: reject prohibited major-version downgrades, require current audit/registry evidence, and require the requested security regression test artifact. General unit tests alone are insufficient.
+4. Require exact-head CI, same-SHA Preview/Smoke, independent Issue #136 review, and the serialized Runner soak before declaring A operationally accepted.
+5. Keep B Runtime inactive. Prepare only the sanitized, versioned, read-only A→B projection until A passes every acceptance gate.
+
+This is an observation and sequencing checkpoint, not an acceptance, merge, deployment, Factory-state mutation, or B activation.
