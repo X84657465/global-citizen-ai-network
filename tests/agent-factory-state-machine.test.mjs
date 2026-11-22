@@ -1039,3 +1039,47 @@ test("rejects malformed publication evidence before changing the active task sta
     assert.equal(reserved.tasks["42"].status, "reserved");
   }
 });
+
+
+test("persists a bounded provider rate-limit deadline without weakening the default breaker cooldown", () => {
+  const initial = createInitialFactoryState(1_000);
+  const first = recordSystemFailure(initial, "rate-limit-1", "API_RATE_LIMIT", "provider asked us to wait", 1_000, new Date(3_600_000).toISOString());
+  assert.equal(first.state.system.cooldown_until, new Date(3_600_000).toISOString());
+
+  const capped = recordSystemFailure(first.state, "rate-limit-2", "API_RATE_LIMIT", "provider deadline exceeds policy", 2_000, new Date(90_000_000).toISOString());
+  assert.equal(Date.parse(capped.state.system.cooldown_until), 2_000 + 24 * 60 * 60 * 1000);
+
+  assert.throws(
+    () => recordSystemFailure(capped.state, "rate-limit-3", "API_RATE_LIMIT", "malformed deadline", 3_000, "not-a-date"),
+    /valid future timestamp/,
+  );
+  assert.throws(
+    () => recordSystemFailure(capped.state, "rate-limit-4", "API_RATE_LIMIT", "expired deadline", 3_000, new Date(2_000).toISOString()),
+    /valid future timestamp/,
+  );
+});
+
+test("never shortens an existing provider cooldown when a later deadline or generic breaker is shorter", () => {
+  const initial = createInitialFactoryState(1_000);
+  const existingUntil = new Date(1_000 + 3 * 60 * 60 * 1000).toISOString();
+  const first = recordSystemFailure(initial, "provider-long-1", "API_RATE_LIMIT", "long provider cooldown", 1_000, existingUntil);
+  assert.equal(first.state.system.cooldown_until, existingUntil);
+
+  const shorterProvider = recordSystemFailure(
+    first.state, "provider-short-2", "API_RATE_LIMIT", "shorter provider deadline", 2_000,
+    new Date(2_000 + 60 * 60 * 1000).toISOString(),
+  );
+  assert.equal(shorterProvider.state.system.cooldown_until, existingUntil);
+
+  const genericOne = recordSystemFailure(shorterProvider.state, "generic-short-3", "SYSTEM_FAILURE", "ordinary failure", 3_000);
+  const genericTwo = recordSystemFailure(genericOne.state, "generic-short-4", "SYSTEM_FAILURE", "ordinary failure", 4_000);
+  assert.equal(genericTwo.state.system.cooldown_until, existingUntil);
+});
+
+test("keeps task-scoped failures isolated from provider system cooldown", () => {
+  const state = createInitialFactoryState(1_000);
+  const reserved = reserveTask(state, metadata(), 1_000);
+  const failed = recordTaskFailure(state=reserved, 42, reserved.active_task.lease_id, "task-failure-rate-limit", "TASK_FAILURE", "candidate failed", 2_000);
+  assert.equal(failed.state.system.cooldown_until, null);
+  assert.equal(failed.state.system.consecutive_failures, 0);
+});
