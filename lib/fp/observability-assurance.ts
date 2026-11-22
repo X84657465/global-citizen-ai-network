@@ -44,7 +44,8 @@ export interface HObservationAssessment {
   readonly quotaLimitMicros: number;
   readonly quotaUsagePercent: number;
   readonly quotaStatus: "within-budget" | "warning" | "exceeded";
-  readonly evidenceComplete: true;
+  /** Completeness cannot be established from caller-supplied events alone. */
+  readonly evidenceCompleteness: "not-verifiable";
   readonly enforcementAuthorized: false;
 }
 
@@ -63,6 +64,10 @@ function isCanonicalUtc(value: string): boolean {
 
 function positiveSafeInteger(value: number): boolean {
   return Number.isSafeInteger(value) && value > 0;
+}
+
+function nonNegativeSafeInteger(value: number): boolean {
+  return Number.isSafeInteger(value) && value >= 0;
 }
 
 function percentile(sorted: readonly number[], p: number): number | null {
@@ -126,24 +131,24 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
       durations.push(event.durationMs);
     }
 
-    if (event.kind === "cost" || event.costMicros !== undefined || event.currency !== undefined) {
+    if (event.kind === "cost") {
       if (
-        !positiveSafeInteger(event.costMicros ?? 0) &&
-        event.costMicros !== 0
+        event.costMicros === undefined ||
+        !nonNegativeSafeInteger(event.costMicros) ||
+        !(CURRENCIES as readonly string[]).includes(event.currency ?? "")
       ) {
-        throw new TypeError("H cost must use non-negative safe integer micro-units.");
-      }
-      if (!(CURRENCIES as readonly string[]).includes(event.currency ?? "")) {
-        throw new TypeError("H cost event requires an explicit supported currency.");
+        throw new TypeError("H cost events require non-negative safe integer micro-units and an explicit supported currency.");
       }
       if (currency !== null && currency !== event.currency) {
         throw new TypeError("H cost events with mixed currencies cannot be aggregated.");
       }
       currency = event.currency!;
-      costMicros += event.costMicros ?? 0;
+      costMicros += event.costMicros;
       if (!Number.isSafeInteger(costMicros) || costMicros > MAX_COST_MICROS) {
         throw new TypeError("H aggregate cost exceeds safe integer precision.");
       }
+    } else if (event.costMicros !== undefined || event.currency !== undefined) {
+      throw new TypeError("H cost fields are only permitted on cost events.");
     }
   }
 
@@ -170,7 +175,7 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
     quotaLimitMicros: bundle.quotaLimitMicros,
     quotaUsagePercent,
     quotaStatus,
-    evidenceComplete: true,
+    evidenceCompleteness: "not-verifiable",
     enforcementAuthorized: false,
   });
 }
