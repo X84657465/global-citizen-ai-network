@@ -12,6 +12,8 @@ H defines a privacy-minimized, deterministic reporting contract for queue, runne
 - Durations are bounded non-negative integer milliseconds.
 - Money is represented only as integer micro-units with an explicit currency.
 - Mixed currencies fail closed and must be reconciled in separate windows or by an explicitly reviewed conversion process.
+- Cost fields are accepted only on `cost` events; every cost event must carry an explicit non-negative integer amount and supported currency.
+- Event completeness is not inferable from caller-supplied batches; results explicitly report `evidenceCompleteness: not-verifiable` until a trusted collector supplies independently verifiable coverage evidence.
 - Duplicate event IDs, malformed values, out-of-window events, and oversized batches are rejected.
 
 ## Reporting and quota semantics
