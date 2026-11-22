@@ -1,7 +1,9 @@
 import { appendFileSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const ENV_KEY = "AGENT_FACTORY_API_COOLDOWN_UNTIL";
-const CANONICAL_UTC_MILLIS = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/;
+const CANONICAL_UTC_MILLIS = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const MAX_ARTIFACT_BYTES = 64;
 
 /**
@@ -26,7 +28,7 @@ export function restoreApiCooldownDeadline({ artifactFile, envFile } = {}) {
     return { status: "invalid" };
   }
 
-  const value = raw.endsWith("\\n") ? raw.slice(0, -1) : raw;
+  const value = raw.endsWith("\n") ? raw.slice(0, -1) : raw;
   if (value.length === 0) return { status: "empty" };
   if (!CANONICAL_UTC_MILLIS.test(value)) return { status: "invalid" };
 
@@ -35,11 +37,11 @@ export function restoreApiCooldownDeadline({ artifactFile, envFile } = {}) {
     return { status: "invalid" };
   }
 
-  appendFileSync(envFile, ENV_KEY + "=" + value + "\\n", "utf8");
+  appendFileSync(envFile, ENV_KEY + "=" + value + "\n", "utf8");
   return { status: "restored", deadline: value };
 }
 
-if (process.argv[1] && import.meta.url === new URL(process.argv[1], "file:").href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const [artifactFile, envFile] = process.argv.slice(2);
   try {
     const result = restoreApiCooldownDeadline({ artifactFile, envFile });
