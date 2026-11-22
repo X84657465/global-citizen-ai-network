@@ -103,6 +103,12 @@ function snapshotSafeRecord(
   }
 }
 
+function isCanonicalArrayIndexKey(key: string): boolean {
+  if (!/^(0|[1-9]\d*)$/.test(key)) return false;
+  const index = Number(key);
+  return Number.isInteger(index) && index >= 0 && index < 0xFFFFFFFF;
+}
+
 function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | null {
   try {
     if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return null;
@@ -114,7 +120,7 @@ function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | n
     const keys = Reflect.ownKeys(value);
     if (keys.length !== length + 1 ||
         keys.some((key) => typeof key !== "string" ||
-          (key !== "length" && !/^(0|[1-9]\\d*)$/.test(key)))) return null;
+          (key !== "length" && !isCanonicalArrayIndexKey(key)))) return null;
 
     const snapshot: unknown[] = [];
     for (let index = 0; index < length; index += 1) {
@@ -174,8 +180,10 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
       ["jobId", "runAttempt", "status", "conclusion", "jobUrl"],
       ["jobId", "runAttempt", "status", "conclusion", "jobUrl"],
     ) as unknown as GJobEvidence | null;
+    if (!job) {
+      throw new TypeError("Invalid G job record; expected plain own-data fields.");
+    }
     if (
-      !job ||
       typeof job.jobId !== "string" ||
       !job.jobId ||
       typeof job.runAttempt !== "number" ||

@@ -291,3 +291,19 @@ test("uses descriptor snapshots for F bundle, evidence, and CI Proxy records", (
   assert.equal(result.passed, FP_SECURITY_CONTROLS.length);
   assert.equal(getTrapCalls, 0);
 });
+
+test("rejects non-index array properties at the ECMAScript array-index boundary", () => {
+  for (const key of ["4294967294", "4294967295"]) {
+    const hostile = [] as unknown as FPSecurityEvidence[] & Record<string, FPSecurityEvidence>;
+    Object.defineProperty(hostile, key, {
+      configurable: true,
+      enumerable: true,
+      value: evidence("member-isolation"),
+    });
+    assert.throws(
+      () => assessFPSecurityEvidence(bundle({ evidence: hostile })),
+      /bounded dense plain array/,
+    );
+  }
+});
+

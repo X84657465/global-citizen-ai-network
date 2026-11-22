@@ -224,3 +224,19 @@ test("uses descriptor snapshots for G bundle, run, and job Proxy records", () =>
   assert.equal(result.runAttempt, 1);
   assert.equal(getTrapCalls, 0);
 });
+
+ 
+test("rejects job-array properties outside the ECMAScript array-index range", () => {
+  const extraProperty = [] as GJobEvidence[];
+  Object.defineProperty(extraProperty, "4294967295", {
+    configurable: true,
+    enumerable: true,
+    value: job("quality"),
+  });
+  assert.throws(
+    () => assessGExactHeadEvidence(bundle({
+      run: { ...bundle().run, jobs: extraProperty },
+    })),
+    /bounded dense plain array/,
+  );
+});
