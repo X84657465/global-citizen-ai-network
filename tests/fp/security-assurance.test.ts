@@ -257,3 +257,37 @@ test("rejects hostile F evidence arrays and accessor-backed evidence records", (
   })), /plain own-data fields/);
   assert.equal(getterCalled, false);
 });
+
+test("uses descriptor snapshots for F bundle, evidence, and CI Proxy records", () => {
+  let getTrapCalls = 0;
+  const items = FP_SECURITY_CONTROLS.map((control) => {
+    const base = evidence(control.id);
+    const ciProxy = new Proxy(base.ci, {
+      get(target, property, receiver) {
+        getTrapCalls += 1;
+        if (property === "repository") return "attacker/fork";
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    return new Proxy({ ...base, ci: ciProxy }, {
+      get(target, property, receiver) {
+        getTrapCalls += 1;
+        if (property === "controlId") return "forged-control";
+        return Reflect.get(target, property, receiver);
+      },
+    });
+  });
+  const baseBundle = bundle({ evidence: items });
+  const proxiedBundle = new Proxy(baseBundle, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "candidateSha") return "b".repeat(40);
+      return Reflect.get(target, property, receiver);
+    },
+  });
+
+  const result = assessFPSecurityEvidence(proxiedBundle);
+  assert.equal(result.status, "ready-for-review");
+  assert.equal(result.passed, FP_SECURITY_CONTROLS.length);
+  assert.equal(getTrapCalls, 0);
+});
