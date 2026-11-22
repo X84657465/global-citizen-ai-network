@@ -771,3 +771,23 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
   assert.ok(publisher.includes('process.env.PUBLISH_SKIP_ISSUE_COMMENT !== "true"'),
     "publisher must support operation without issue-write permission");
 });
+
+
+test("preflight forwards only the publisher's validated API cooldown output to the cross-job failure callback", () => {
+  const publisherJob = findJobSection(preflight, "publish-task");
+  const publisher = preflight.slice(publisherJob.start, publisherJob.end);
+  assert.ok(publisher.includes("api_cooldown_until: ${{ steps.publish.outputs.api_cooldown_until }}"),
+    "publisher job must expose only the sanitized cooldown output");
+  assert.ok(publisher.includes("- name: Create a draft PR after isolated tests pass\\n        id: publish\\n"),
+    "the publisher invocation must have a stable output-producing step id");
+
+  const recordJob = findJobSection(preflight, "record-publication");
+  const record = preflight.slice(recordJob.start, recordJob.end);
+  assert.ok(record.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.publish-task.outputs.api_cooldown_until }}"),
+    "the durable failure callback must receive the publisher job output");
+  const failureStart = record.indexOf("- name: Record publication failure and preserve the task lease state");
+  assert.ok(failureStart >= 0, "the publication failure callback must remain explicit");
+  const failureStep = record.slice(failureStart);
+  assert.ok(failureStep.includes("AGENT_FACTORY_MODE: failure"));
+  assert.ok(failureStep.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.publish-task.outputs.api_cooldown_until }}"));
+});
