@@ -40,6 +40,19 @@ function fakeStore(initialState, options = {}) {
   };
 }
 
+test("rejects malformed and dot-segment repository names before controller use", () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  for (const repository of ["owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo", "owner./repo", "owner/repo.", "owner/repo..archive", "owner/repo/extra", "/repo", "owner/", "owner\\repo", "owner/%2e%2e", "owner/%2Fadmin", "owner/repo?query", "owner/repo#fragment", "owner/" + "r".repeat(101), "o".repeat(40) + "/repo", "owner.with.dot/repo", "_owner/repo"]) {
+    assert.throws(
+      () => createAgentFactoryController({ store, repository }),
+      /A valid repository name is required/,
+      repository,
+    );
+  }
+  assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo" }));
+  assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo.v2" }));
+});
+
 const leaseEnv = {
   AGENT_FACTORY_MODE: "reserve",
   ISSUE_NUMBER: "42",
@@ -332,6 +345,51 @@ test("failure event identity rejects a missing workflow run attempt", async () =
   }), /Workflow run attempt must be a positive integer/);
 
   assert.equal(store.state.state_version, 0);
+});
+
+test("system failure callback persists a provider cooldown on the first rate-limit event", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const cooldownUntil = new Date(2_000 + 60 * 60 * 1000).toISOString();
+  const env = {
+    AGENT_FACTORY_MODE: "failure",
+    AGENT_FACTORY_FAILURE_SCOPE: "system",
+    GITHUB_RUN_ID: "777001",
+    GITHUB_RUN_ATTEMPT: "1",
+    FAILURE_STAGE: "build",
+    AGENT_FACTORY_ERROR_CODE: "API_RATE_LIMIT",
+    FAILURE_SUMMARY: "GitHub requested a retry delay.",
+    AGENT_FACTORY_API_COOLDOWN_UNTIL: cooldownUntil,
+  };
+
+  const result = await controller.run(env);
+  const duplicate = await controller.run(env);
+
+  assert.equal(result.state.system.consecutive_failures, 1);
+  assert.equal(result.state.system.cooldown_until, cooldownUntil);
+  assert.equal(result.outputs.cooldown_active, true);
+  assert.equal(duplicate.outputs.duplicate, true);
+  assert.equal(duplicate.state.state_version, result.state.state_version);
+  assert.equal(store.writes, 1);
+});
+
+test("system failure callback rejects malformed provider cooldown without persisting partial state", async () => {
+  const store = fakeStore(createInitialFactoryState(1000));
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+
+  await assert.rejects(controller.run({
+    AGENT_FACTORY_MODE: "failure",
+    AGENT_FACTORY_FAILURE_SCOPE: "system",
+    GITHUB_RUN_ID: "777002",
+    GITHUB_RUN_ATTEMPT: "1",
+    FAILURE_STAGE: "build",
+    AGENT_FACTORY_ERROR_CODE: "API_RATE_LIMIT",
+    AGENT_FACTORY_API_COOLDOWN_UNTIL: "not-a-timestamp",
+  }), /valid future timestamp/);
+
+  assert.equal(store.writes, 0);
+  assert.equal(store.state.state_version, 0);
+  assert.equal(store.state.system.consecutive_failures, 0);
 });
 
 test("task-scoped failure requires and releases the exact active lease", async () => {
