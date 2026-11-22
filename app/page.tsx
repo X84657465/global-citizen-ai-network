@@ -53,7 +53,7 @@ export default function HomePage() {
   <a className={styles.skipLink} href="#main-content">跳至主要內容</a>
   <header className={styles.header}><div className={styles.headerInner}>
    <Link href="/" className={styles.brand} aria-label="Global Citizen AI Network 首頁"><span className={styles.brandMark}><Globe2 size={22}/></span><span className={styles.brandText}><strong>GLOBAL CITIZEN</strong><small>AI NETWORK</small></span></Link>
-   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#workstreams">A–O 工作線</a><a href="#neural-intelligence">神經智慧體</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
+   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#evolution-roadmap">進化路線</a><a href="#workstreams">A–O 工作線</a><a href="#neural-intelligence">神經智慧體</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
    <div className={styles.headerActions}><Link href="/login" className={styles.loginLink}>會員登入</Link><Link href="/workspace" className={styles.headerCta}>進入平台 <ArrowUpRight size={15}/></Link></div>
   </div></header>
   <main id="main-content" tabIndex={-1}>
@@ -68,6 +68,21 @@ export default function HomePage() {
     <div className={styles.heroVisual}><div className={styles.visualGlow}/><div className={styles.visualFrame}><Image src="/brand/gcan-hero.svg" alt="GCAN 全球 AI 協作網路品牌主視覺" width={1600} height={520} priority className={styles.heroImage} sizes="(max-width: 900px) 100vw, 52vw"/></div><div className={styles.visualTagTop}><span className={styles.liveDot}/> A–O 十五條工作線 + P 治理層</div><div className={styles.visualTagBottom}><Network size={15}/> INDEPENDENT · CONNECTED · REVIEWED</div></div>
    </div><div className={styles.heroBottom}><div className={styles.heroBottomLabel}>THE GCAN OPERATING MODEL</div><div className={styles.heroFact}><b>15 + 1</b><span>十五條工作線 + 一個治理層</span></div><div className={styles.heroFact}><b>01</b><span>共用證據協作閉環</span></div><div className={styles.heroFact}><b>A–O OWNED</b><span>十五條工作線獨立負責與版本管理</span></div><div className={styles.heroFact}><b>P GOVERNANCE</b><span>整合前審核、測試與治理</span></div></div></section>
    <section className={styles.stageBar} aria-label="專案狀態"><div className={styles.stageLabel}><span/> EARLY DEVELOPMENT / MVP · 早期建置與預覽階段 · A–P ARCHITECTURE · 平台 {releaseManifest.overall} · A 線 {releaseManifest.tracks.A.version} · B 產品 {releaseManifest.tracks.B.version}</div><p>目前為早期建置與預覽階段；任何功能成熟度、正式部署與驗收均須以同一精確 SHA 的 CI、Preview、接收線確認及必要人工審查為準。展示資料不代表正式營運或生產成熟度。</p><div className={styles.stageLinks}><a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">查看版本紀錄 <ArrowUpRight size={14}/></a><a href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">查看 CI 執行紀錄 <ArrowUpRight size={14}/></a></div></section>
+   <section className={styles.evolutionSection} id="evolution-roadmap" aria-labelledby="evolution-title">
+    <div className={styles.evolutionHeader}>
+     <div className={styles.sectionEyebrow}>GCAN LONG-TERM EVOLUTION · EVIDENCE-DRIVEN</div>
+     <h2 id="evolution-title">從自主生產，逐步走向<em>全球智慧協作</em></h2>
+     <p>五層進化是 GCAN 的長期能力路線，不代表所有能力已經上線。當前仍以 Agent Factory 穩定交付為優先，必要時補足 A→B 銜接；每一層都必須以真實使用、測試與獨立驗收證據逐步解鎖。</p>
+    </div>
+    <div className={styles.evolutionGrid}>
+     <article className={styles.evolutionCard} data-stage="active"><span className={styles.evolutionStep}>01 · CURRENT FOUNDATION</span><div className={styles.evolutionIcon}><Workflow size={22}/></div><h3>自主生產</h3><p>研究、規劃、建置、測試、修復與交付，先讓 Factory 成為可靠的生產核心。</p><b>目前優先：Factory-first</b></article>
+     <article className={styles.evolutionCard}><span className={styles.evolutionStep}>02 · OPERATE</span><div className={styles.evolutionIcon}><Activity size={22}/></div><h3>自主經營</h3><p>在授權與預算內管理品質、成本、資源、服務健康及營運流程。</p><b>以可量測營運證據驗收</b></article>
+     <article className={styles.evolutionCard}><span className={styles.evolutionStep}>03 · INNOVATE</span><div className={styles.evolutionIcon}><Sparkles size={22}/></div><h3>自主創新</h3><p>發現需求、提出假設、進行原型與實驗，再由正式 owner 決定產品方向。</p><b>以真實需求與實驗驗收</b></article>
+     <article className={styles.evolutionCard}><span className={styles.evolutionStep}>04 · FEDERATE</span><div className={styles.evolutionIcon}><Network size={22}/></div><h3>全球智慧協作</h3><p>透過身分、能力目錄、標準契約、隔離與稽核，安全連接外部 Agent 與系統。</p><b>以信任與互通證據驗收</b></article>
+     <article className={styles.evolutionCard}><span className={styles.evolutionStep}>05 · EVOLVE</span><div className={styles.evolutionIcon}><Globe2 size={22}/></div><h3>受治理的自主進化生態系</h3><p>將經獨立驗證的改善轉成可重用能力，持續擴展 GCAN 的公共價值。</p><b>持續進化，不自行擴權</b></article>
+    </div>
+    <div className={styles.evolutionRule}><ShieldCheck size={19}/><p><b>進化不等於推倒重做：</b>先盤點、先重用、先擴充；只有具備相容性、遷移、回滾與獨立審查證據，才可替換既有能力。未經驗收的規劃不標示為已上線。</p></div>
+   </section>
    <section className={styles.pillarsSection} id="pillars"><Heading label="THE PLATFORM" title="四大平台價值，承載 A–O 十五條工作線與 P 治理" text="四大價值描述 GCAN 最終要提供的公共能力；A–O 十五條工作線各自負責建設、驗證與持續改善；P 是適用於 A–O 與整體產品的橫向治理層。"/><div className={styles.pillarGrid}>{pillars.map(({n,title,text,icon:Icon})=><article className={styles.pillarCard} key={n}><div className={styles.pillarTop}><span>{n}</span><div className={styles.pillarIcon}><Icon size={21}/></div></div><h3>{title}</h3><p>{text}</p></article>)}</div></section>
    <section className={styles.prioritySection} id="priority-charter" aria-labelledby="priority-charter-title">
     <div className={styles.priorityHeader}>
