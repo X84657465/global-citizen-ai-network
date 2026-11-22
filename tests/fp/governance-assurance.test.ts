@@ -222,3 +222,242 @@ test("rejects unsupported policy versions and non-F–P workstreams", () => {
       : item),
   })), TypeError);
 });
+
+
+test("snapshots governance dossier and nested review evidence without invoking Proxy get traps", () => {
+  let getTrapCalls = 0;
+  const wrap = <T extends object>(value: T): T => new Proxy(value, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      return Reflect.get(target, property, receiver);
+    },
+  });
+  const base = dossier({ reviews: [review()] });
+  const nested = {
+    ...base,
+    workstreams: base.workstreams.map((record) => wrap({
+      ...record,
+      evidence: record.evidence.map((item) => wrap({ ...item })),
+    })),
+    reviews: base.reviews!.map((item) => wrap({ ...item })),
+  };
+  const hostile = wrap(nested);
+  const result = assessFPGovernanceDossier(hostile);
+  assert.equal(result.status, "ready-for-human-review");
+  assert.equal(result.reviewStatus, "reviewed-approved");
+  assert.equal(getTrapCalls, 0);
+});
+
+test("rejects accessor-backed dossier, workstream, evidence, and review records without invoking getters", () => {
+  let getterCalls = 0;
+  const withGetter = <T extends object>(value: T, key: keyof T): T => {
+    const copy = { ...value };
+    Object.defineProperty(copy, key, {
+      enumerable: true,
+      configurable: true,
+      get() {
+        getterCalls += 1;
+        return Reflect.get(value, key);
+      },
+    });
+    return copy;
+  };
+
+  assert.throws(() => assessFPGovernanceDossier(withGetter(dossier(), "candidateSha")), TypeError);
+
+  const base = dossier();
+  const badWorkstreams = [...base.workstreams];
+  badWorkstreams[0] = withGetter(badWorkstreams[0], "ownerRef");
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: badWorkstreams })), TypeError);
+
+  const badEvidenceWorkstreams = [...base.workstreams];
+  badEvidenceWorkstreams[0] = {
+    ...badEvidenceWorkstreams[0],
+    evidence: [withGetter(badEvidenceWorkstreams[0].evidence[0], "testedSha")],
+  };
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: badEvidenceWorkstreams })), TypeError);
+
+  assert.throws(() => assessFPGovernanceDossier(dossier({
+    reviews: [withGetter(review(), "decision")],
+  })), TypeError);
+  assert.equal(getterCalls, 0);
+});
+
+test("rejects sparse, accessor-backed, subclassed, and custom-iterator governance arrays", () => {
+  const base = dossier();
+  const sparse = new Array(base.workstreams.length);
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: sparse })), TypeError);
+
+  const accessorArray = [...base.workstreams];
+  Object.defineProperty(accessorArray, "0", {
+    enumerable: true,
+    configurable: true,
+    get: () => base.workstreams[0],
+  });
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: accessorArray })), TypeError);
+
+  const customIterator = [...base.workstreams] as typeof base.workstreams & {
+    [Symbol.iterator]?: () => Iterator<(typeof base.workstreams)[number]>;
+  };
+  Object.defineProperty(customIterator, Symbol.iterator, {
+    value: function* () { yield base.workstreams[0]; },
+  });
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: customIterator })), TypeError);
+
+  class WorkstreamArray extends Array<(typeof base.workstreams)[number]> {}
+  const subclassed = new WorkstreamArray(...base.workstreams);
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: subclassed })), TypeError);
+});
+
+test("rejects unknown own fields and oversized governance collections", () => {
+  const extra = { ...dossier(), trusted: true };
+  assert.throws(() => assessFPGovernanceDossier(extra), TypeError);
+  assert.throws(() => assessFPGovernanceDossier(dossier({
+    workstreams: [...dossier().workstreams, ...dossier().workstreams],
+  })), TypeError);
+  assert.throws(() => assessFPGovernanceDossier(dossier({
+    reviews: Array.from({ length: 101 }, (_, index) => review({
+      reviewRef: `pull/42/review/${index + 1}`,
+      reviewerRef: `reviewer:${index + 1}`,
+    })),
+  })), TypeError);
+});
+
+
+test("fails closed when hostile Proxy reflection traps throw during governance snapshots", () => {
+  const baseDossier = dossier();
+  const firstWorkstream = baseDossier.workstreams[0];
+  const firstEvidence = firstWorkstream.evidence[0];
+
+  const throwingProxy = <T extends object>(
+    value: T,
+    trap: "getPrototypeOf" | "ownKeys" | "getOwnPropertyDescriptor",
+  ): T => new Proxy(value, {
+    getPrototypeOf() {
+      if (trap === "getPrototypeOf") throw new Error("hostile getPrototypeOf");
+      return Reflect.getPrototypeOf(value);
+    },
+    ownKeys(target) {
+      if (trap === "ownKeys") throw new Error("hostile ownKeys");
+      return Reflect.ownKeys(target);
+    },
+    getOwnPropertyDescriptor(target, property) {
+      if (trap === "getOwnPropertyDescriptor") throw new Error("hostile descriptor");
+      return Reflect.getOwnPropertyDescriptor(target, property);
+    },
+  });
+
+  for (const trap of ["getPrototypeOf", "ownKeys", "getOwnPropertyDescriptor"] as const) {
+    assert.throws(() => assessFPGovernanceDossier(throwingProxy(baseDossier, trap)), TypeError);
+
+    const nestedWorkstreams = [...baseDossier.workstreams];
+    nestedWorkstreams[0] = throwingProxy(firstWorkstream, trap);
+    assert.throws(() => assessFPGovernanceDossier(dossier({
+      workstreams: nestedWorkstreams,
+    })), TypeError);
+
+    const nestedEvidence = [...firstWorkstream.evidence];
+    nestedEvidence[0] = throwingProxy(firstEvidence, trap);
+    const evidenceWorkstreams = [...baseDossier.workstreams];
+    evidenceWorkstreams[0] = { ...firstWorkstream, evidence: nestedEvidence };
+    assert.throws(() => assessFPGovernanceDossier(dossier({
+      workstreams: evidenceWorkstreams,
+    })), TypeError);
+
+    assert.throws(() => assessFPGovernanceDossier(dossier({
+      reviews: [throwingProxy(review(), trap)],
+    })), TypeError);
+  }
+});
+
+test("rejects Proxy reflection traps that report unexpected own keys or invalid descriptors", () => {
+  const base = dossier();
+  const extraKey = new Proxy(base, {
+    ownKeys(target) {
+      return [...Reflect.ownKeys(target), "unexpected"];
+    },
+  });
+  assert.throws(() => assessFPGovernanceDossier(extraKey), TypeError);
+
+  const invalidDescriptor = new Proxy(base, {
+    getOwnPropertyDescriptor(target, property) {
+      if (property === "candidateSha") return undefined;
+      return Reflect.getOwnPropertyDescriptor(target, property);
+    },
+  });
+  assert.throws(() => assessFPGovernanceDossier(invalidDescriptor), TypeError);
+});
+
+
+test("rejects non-primitive string and enum fields before any attacker-controlled coercion", () => {
+  const makeCoercionValue = () => {
+    let coercionCalls = 0;
+    const value = new Proxy({
+      [Symbol.toPrimitive]() {
+        coercionCalls += 1;
+        throw new Error("unexpected primitive coercion");
+      },
+      toString() {
+        coercionCalls += 1;
+        throw new Error("unexpected string coercion");
+      },
+    }, {
+      get(target, property, receiver) {
+        if (property === Symbol.toPrimitive || property === "toString") coercionCalls += 1;
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    return { value, coercionCalls: () => coercionCalls };
+  };
+
+  const replaceRoot = (field: "candidateSha" | "policyVersion", value: unknown): FPGovernanceDossier =>
+    ({ ...dossier(), [field]: value }) as unknown as FPGovernanceDossier;
+  const replaceWorkstream = (field: "workstream" | "ownerRef" | "lifecycle", value: unknown): FPGovernanceDossier => {
+    const base = dossier();
+    const workstreams = [...base.workstreams];
+    workstreams[0] = { ...workstreams[0], [field]: value } as typeof workstreams[number];
+    return dossier({ workstreams });
+  };
+  const replaceEvidence = (field: "kind" | "testedSha" | "status" | "evidenceRef", value: unknown): FPGovernanceDossier => {
+    const base = dossier();
+    const workstreams = [...base.workstreams];
+    workstreams[0] = {
+      ...workstreams[0],
+      evidence: [{ ...workstreams[0].evidence[0], [field]: value }],
+    } as typeof workstreams[number];
+    return dossier({ workstreams });
+  };
+  const replaceReview = (
+    field: "reviewedSha" | "decision" | "reviewRef" | "reviewerRef" |
+      "reviewerAuthorizationRef" | "reviewerAuthorizationStatus" | "submittedAt",
+    value: unknown,
+  ): FPGovernanceDossier => ({
+    ...dossier(),
+    reviews: [{ ...review(), [field]: value }] as unknown as FPGovernanceReviewEvidence[],
+  });
+
+  const cases: Array<[string, (value: unknown) => FPGovernanceDossier]> = [
+    ["candidateSha", (value) => replaceRoot("candidateSha", value)],
+    ["policyVersion", (value) => replaceRoot("policyVersion", value)],
+    ["workstream", (value) => replaceWorkstream("workstream", value)],
+    ["ownerRef", (value) => replaceWorkstream("ownerRef", value)],
+    ["lifecycle", (value) => replaceWorkstream("lifecycle", value)],
+    ["evidence.kind", (value) => replaceEvidence("kind", value)],
+    ["evidence.testedSha", (value) => replaceEvidence("testedSha", value)],
+    ["evidence.status", (value) => replaceEvidence("status", value)],
+    ["evidence.evidenceRef", (value) => replaceEvidence("evidenceRef", value)],
+    ["review.reviewedSha", (value) => replaceReview("reviewedSha", value)],
+    ["review.decision", (value) => replaceReview("decision", value)],
+    ["review.reviewRef", (value) => replaceReview("reviewRef", value)],
+    ["review.reviewerRef", (value) => replaceReview("reviewerRef", value)],
+    ["review.reviewerAuthorizationRef", (value) => replaceReview("reviewerAuthorizationRef", value)],
+    ["review.reviewerAuthorizationStatus", (value) => replaceReview("reviewerAuthorizationStatus", value)],
+    ["review.submittedAt", (value) => replaceReview("submittedAt", value)],
+  ];
+
+  for (const [field, build] of cases) {
+    const hostile = makeCoercionValue();
+    assert.throws(() => assessFPGovernanceDossier(build(hostile.value)), TypeError, field);
+    assert.equal(hostile.coercionCalls(), 0, field);
+  }
+});
