@@ -485,7 +485,7 @@ test("candidate install and offline test use separate least-network container pr
   assert.match(offlineCommand, /--cap-drop ALL/);
   assert.match(offlineCommand, /--security-opt no-new-privileges/);
   assert.match(offlineCommand, /--user 1000:1000/);
-  assert.match(offlineCommand, /npm run test:unit && npx --no-install tsc --noEmit && npm run lint/);
+  assert.ok(offlineTest.includes('$checks = "npm run test:unit && npx --no-install tsc --noEmit && npm run lint"'));
   assert.doesNotMatch(offlineCommand, /--env\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\b/i);
 });
 
