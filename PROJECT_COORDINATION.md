@@ -1,12 +1,15 @@
 # 五 GPT 協作與神經智慧體專案協調規範
 
-> **治理入口：** 全域角色權責、GPT5 執行型開發授權、單一任務 owner、跨線協調、風險分級與獨立驗收，以 [`docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`](docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md) 為準；本文件保留工作線與操作性交接細節。發生衝突時依 Master Charter 的權威文件順序處理。
+> **治理提案入口：** [GCAN Master Governance & Coordination Charter](docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md) 已合併入 Repository，但文件狀態仍為 **PROPOSED**，尚待 GPT3 獨立審查及既有治理流程正式接受。正式接受前，現行已核准的角色／權限政策仍有效；本提案不得作為 GPT5 權限擴張、模組 owner 變更或跳過審查的依據。正式接受後，才依核准紀錄切換治理優先序。本文件保留現行工作線與操作性交接細節。
 
 > 狀態：協作規範（文件新增）；不代表任何尚未執行的開發、測試、驗收或部署已完成。  
 > 適用專案：Agent Factory V2 / GCAN Product  
 > 優先順序：Agent Factory V2（A 線）優先；只處理必要的 A→B 銜接阻塞；準備 GCAN Product（B 主線）。
 
 ## 1. 目的與基本原則
+
+GCAN 的長期方向是發展為自主智慧生產與全球協作生態系；八大能力領域及分階段路線目前以 Master Charter 的 PROPOSED 藍圖為準，尚不得視為已核准或已實作能力。當前工程執行仍以 Factory-first、A0 穩定及必要 A→B 銜接為優先。
+
 
 本文件建立五個 GPT 之間可追蹤、可交接、可審查的協作制度。五個 GPT 不假設能直接讀取彼此的對話或共享隱性記憶；GitHub 專案中的文件、Issues、Pull Requests、commits、CI 與測試證據才是共同事實來源。
 
@@ -92,7 +95,7 @@ GPT4 是 GCAN B 產品主線的正式負責人，依 `docs/GCAN_B_LINE_LEAD_CHAR
 
 ### GPT 5：Global Intelligence、Operations 與授權執行型開發支援
 
-本節舊版 GPT5 職責已由 `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` 的第 2.5 節完整取代。GPT5 除情報與營運支援外，可在明確任務授權、實際工具權限、指定 DRI、檔案 allowlist 與驗收條件下承擔執行型開發；不因此取得 A–P 模組 owner 權，也不得自我驗收。所有研究、執行及權限邊界以 Master Charter 為準。
+Master Charter 第 2.5 節所載 GPT5 執行型開發支援屬治理提案，待 GPT3 獨立審查及正式接受前，不構成新的寫入或執行授權。現行有效的 GPT5 權限仍依已核准政策及實際工具設定；任何未來執行任務都必須有明確授權、唯一 DRI、精確檔案 allowlist、測試條件及獨立 Reviewer。不得因 PR 已合併或文件已存在就推定權限已生效。
 
 ### 專案負責人（使用者）
 
