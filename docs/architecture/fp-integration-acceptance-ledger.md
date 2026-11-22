@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `4bf472881ea4afabd9f29c4d58365c3ae6c3d2af`  
+**Baseline:** `main` at `23fb747ae4041bc28783a1b9039660ec952c7e0d`  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
