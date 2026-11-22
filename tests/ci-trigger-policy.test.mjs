@@ -192,6 +192,20 @@ test("Next.js output tracing is scoped to the repository and ignores unrelated R
   assert.ok(nextConfig.includes("outputFileTracingRoot: process.cwd()"));
 });
 
+test("source syntax and CI policy regressions are classified as task-scoped quality failures", () => {
+  const qualityBounds = findJobSection(workflow, "quality");
+  const quality = workflow.slice(qualityBounds.start, qualityBounds.end);
+  assert.match(quality, /- name: Validate Agent Factory script syntax\\n        id: script-syntax\\n/);
+  assert.match(quality, /- name: Verify CI trigger and Runner policy\\n        id: ci-trigger-policy\\n/);
+  const classifierStart = quality.indexOf("- name: Classify quality-gate failure");
+  assert.ok(classifierStart >= 0, "quality failure classifier must exist");
+  const classifier = quality.slice(classifierStart);
+  assert.ok(classifier.includes("SCRIPT_SYNTAX: ${{ steps.script-syntax.outcome }}"));
+  assert.ok(classifier.includes("CI_TRIGGER_POLICY: ${{ steps.ci-trigger-policy.outcome }}"));
+  assert.match(classifier, /\\$env:SCRIPT_SYNTAX/);
+  assert.match(classifier, /\\$env:CI_TRIGGER_POLICY/);
+});
+
 test("full dependency audit is a blocking CI security gate", () => {
   const start = workflow.indexOf("- name: Full dependency security audit");
   const end = workflow.indexOf("- name: Unit tests", start);
