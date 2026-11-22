@@ -426,20 +426,22 @@ test("preflight separates least-privilege task planning from the isolated publis
   const preparePermissionsStart = prepareTask.indexOf("    permissions:\n");
   const preparePermissionsEnd = prepareTask.indexOf("    concurrency:", preparePermissionsStart);
   const preparePermissions = prepareTask.slice(preparePermissionsStart, preparePermissionsEnd);
-  assert.ok(preparePermissions.includes("actions: none"));
-  assert.ok(preparePermissions.includes("contents: read"));
-  assert.ok(preparePermissions.includes("issues: write"));
-  assert.ok(preparePermissions.includes("pull-requests: read"));
+  assert.equal(
+    preparePermissions.trim(),
+    ["    permissions:", "      actions: none", "      contents: read", "      issues: write", "      pull-requests: read"].join("\n"),
+    "prepare-task must retain its exact least-privilege permission set",
+  );
 
   const { start: publisherStart, end: publisherEnd } = findJobSection(preflight, "publish-task");
   const publisherJob = preflight.slice(publisherStart, publisherEnd);
   const publisherPermissionsStart = publisherJob.indexOf("    permissions:\n");
   const publisherPermissionsEnd = publisherJob.indexOf("    concurrency:", publisherPermissionsStart);
   const publisherPermissions = publisherJob.slice(publisherPermissionsStart, publisherPermissionsEnd);
-  assert.ok(publisherPermissions.includes("actions: read"));
-  assert.ok(publisherPermissions.includes("contents: write"));
-  assert.ok(publisherPermissions.includes("issues: none"));
-  assert.ok(publisherPermissions.includes("pull-requests: write"));
+  assert.equal(
+    publisherPermissions.trim(),
+    ["    permissions:", "      actions: read", "      contents: write", "      issues: none", "      pull-requests: write"].join("\n"),
+    "publish-task must retain its exact isolated publisher permission set",
+  );
 });
 
 test("untrusted candidate install and test steps never receive GitHub write credentials", () => {
@@ -455,6 +457,30 @@ test("untrusted candidate install and test steps never receive GitHub write cred
     assert.doesNotMatch(step, /--env\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]+)/);
     assert.equal(step.includes("GITHUB_TOKEN:"), false);
   }
+});
+
+test("preflight GitHub tokens remain limited to the exact trusted orchestration steps", () => {
+  const { start, end } = findJobSection(preflight, "prepare-task");
+  const prepareTask = preflight.slice(start, end);
+  const lines = prepareTask.split("\n");
+  const tokenSteps = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    if (!/GITHUB_TOKEN:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/.test(lines[index])) continue;
+    let stepIndex = index;
+    while (stepIndex > 0 && !/^\s*- name:/.test(lines[stepIndex])) stepIndex -= 1;
+    tokenSteps.push(lines[stepIndex]?.trim() || "unknown step");
+  }
+  assert.deepEqual(tokenSteps.sort(), [
+    "- name: Check durable circuit-breaker cooldown",
+    "- name: Generate one bounded roadmap task when the queue is truly empty",
+    "- name: Record failed task and activate cooldown after three consecutive failures",
+    "- name: Reserve durable V2 worker lease",
+    "- name: Select one queued task for every queue trigger",
+    "- name: Transition task to patching",
+    "- name: Transition task to planning",
+    "- name: Transition task to preparing",
+    "- name: Validate task and create a safe handoff bundle",
+  ].sort(), "only trusted state/orchestration steps may receive the job token");
 });
 
 test("candidate dependency install and offline test retain separate least-network container profiles", () => {
