@@ -125,31 +125,51 @@ const ADVICE: Record<FPResilienceFailureCode, {
   },
 };
 
-function validateEvidence(value: unknown): asserts value is FPResilienceEvidence {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new TypeError("Resilience evidence must be an object.");
-  }
-  const evidence = value as Record<string, unknown>;
-  const keys = Object.keys(evidence).sort();
-  const expected = [
-    "attemptCount", "componentRef", "evidenceRef", "failureCode",
-    "occurredAt", "schemaVersion", "source",
-  ].sort();
-  if (keys.length !== expected.length || keys.some((key, index) => key !== expected[index])) {
-    throw new TypeError("Resilience evidence contains missing or unsupported fields.");
-  }
-  if (
-    evidence.schemaVersion !== "1" ||
-    typeof evidence.source !== "string" || !SOURCES.has(evidence.source as FPResilienceSource) ||
-    typeof evidence.failureCode !== "string" || !CODES.has(evidence.failureCode as FPResilienceFailureCode) ||
-    typeof evidence.evidenceRef !== "string" || !SAFE_REF.test(evidence.evidenceRef) ||
-    typeof evidence.componentRef !== "string" || !SAFE_REF.test(evidence.componentRef) ||
-    typeof evidence.occurredAt !== "string" || !ISO_UTC.test(evidence.occurredAt) ||
-    Number.isNaN(Date.parse(evidence.occurredAt)) ||
-    typeof evidence.attemptCount !== "number" ||
-    !Number.isSafeInteger(evidence.attemptCount) ||
-    evidence.attemptCount < 1 || evidence.attemptCount > 1_000_000
-  ) {
+function snapshotEvidence(value: unknown): FPResilienceEvidence {
+  try {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new TypeError("Resilience evidence must be an object.");
+    }
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) {
+      throw new TypeError("Resilience evidence must be a plain data object.");
+    }
+    const expected = [
+      "attemptCount", "componentRef", "evidenceRef", "failureCode",
+      "occurredAt", "schemaVersion", "source",
+    ].sort();
+    const keys = Reflect.ownKeys(value);
+    if (keys.length !== expected.length || keys.some((key, index) =>
+      typeof key !== "string" || key !== expected[index])) {
+      throw new TypeError("Resilience evidence contains missing or unsupported fields.");
+    }
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    const snapshot: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
+    for (const key of expected) {
+      const descriptor = descriptors[key];
+      if (!descriptor || !descriptor.enumerable || !("value" in descriptor) ||
+          descriptor.get !== undefined || descriptor.set !== undefined) {
+        throw new TypeError("Resilience evidence must contain enumerable data properties only.");
+      }
+      snapshot[key] = descriptor.value;
+    }
+    if (
+      snapshot.schemaVersion !== "1" ||
+      typeof snapshot.source !== "string" || !SOURCES.has(snapshot.source as FPResilienceSource) ||
+      typeof snapshot.failureCode !== "string" || !CODES.has(snapshot.failureCode as FPResilienceFailureCode) ||
+      typeof snapshot.evidenceRef !== "string" || !SAFE_REF.test(snapshot.evidenceRef) ||
+      typeof snapshot.componentRef !== "string" || !SAFE_REF.test(snapshot.componentRef) ||
+      typeof snapshot.occurredAt !== "string" || !ISO_UTC.test(snapshot.occurredAt) ||
+      Number.isNaN(Date.parse(snapshot.occurredAt)) ||
+      typeof snapshot.attemptCount !== "number" ||
+      !Number.isSafeInteger(snapshot.attemptCount) ||
+      snapshot.attemptCount < 1 || snapshot.attemptCount > 1_000_000
+    ) {
+      throw new TypeError("Resilience evidence is invalid.");
+    }
+    return Object.freeze(snapshot) as unknown as FPResilienceEvidence;
+  } catch {
+    // Do not leak provider-controlled Proxy trap or accessor details.
     throw new TypeError("Resilience evidence is invalid.");
   }
 }
@@ -175,7 +195,7 @@ export function createFPResilienceProposal(
   context: Pick<FPHostRequestContext, "correlationId">,
   now: Date = new Date(),
 ): FPResilienceProposal | null {
-  validateEvidence(evidence);
+  const safeEvidence = snapshotEvidence(evidence);
   validatePolicyDecision(policyDecision);
   if (!context || typeof context.correlationId !== "string" || !SAFE_REF.test(context.correlationId)) {
     throw new TypeError("A valid host correlation ID is required.");
@@ -185,14 +205,14 @@ export function createFPResilienceProposal(
   }
   if (policyDecision.decision !== "allow-advisory") return null;
 
-  const advice = ADVICE[evidence.failureCode];
+  const advice = ADVICE[safeEvidence.failureCode];
   return Object.freeze({
     schemaVersion: "1",
-    proposalId: `j:${evidence.evidenceRef}:${evidence.failureCode.toLowerCase()}`,
+    proposalId: `j:${safeEvidence.evidenceRef}:${safeEvidence.failureCode.toLowerCase()}`,
     correlationId: context.correlationId,
-    evidenceRef: evidence.evidenceRef,
-    componentRef: evidence.componentRef,
-    classification: evidence.failureCode,
+    evidenceRef: safeEvidence.evidenceRef,
+    componentRef: safeEvidence.componentRef,
+    classification: safeEvidence.failureCode,
     ...advice,
     suggestedChecks: Object.freeze([...advice.suggestedChecks]),
     policyVersion: policyDecision.policyVersion,
@@ -228,7 +248,7 @@ export function registerFPResilienceCapability(input: {
       } catch {
         throw new Error("Trusted resilience evidence is unavailable.");
       }
-      validateEvidence(evidence);
+      evidence = snapshotEvidence(evidence);
       if (evidence.evidenceRef !== request.evidenceRef) {
         throw new TypeError("Resolved evidence does not match the requested reference.");
       }
