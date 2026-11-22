@@ -68,7 +68,7 @@ A migration filename or source definition is not proof that a production databas
 
 | Issue | Title / scope | Status at inspection | Owner / phase note |
 |---|---|---|---|
-| [#74](https://github.com/X84657465/global-citizen-ai-network/issues/74) | Contribution task category / member submission-status filters | OPEN | PR #416 merged; follow-up typing fix PR #428 open, exact-head CI pending and B owner scope confirmation recorded |
+| [#74](https://github.com/X84657465/global-citizen-ai-network/issues/74) | Contribution task category / member submission-status filters | OPEN | PR #416 merged; B-owned type-preservation fix PR #428 remains Draft after exact-head unit-test failure; owner scope confirmation and GPT3 static review are recorded |
 | [#84](https://github.com/X84657465/global-citizen-ai-network/issues/84) | Production AI provider adapter and budget-control integration tests | OPEN | B AI; keep live billable calls disabled until gates pass |
 | [#86](https://github.com/X84657465/global-citizen-ai-network/issues/86) | End-to-end authentication and account security verification | OPEN | B closed-MVP release gate; signup remains disabled by default |
 | [#87](https://github.com/X84657465/global-citizen-ai-network/issues/87) | Recurring AI workspace use cases and paid-pilot economics | OPEN | Phase 2 commercial validation; not a Phase 1 runtime prerequisite to improvise |
@@ -81,9 +81,11 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 
 - [Issue #136](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains OPEN, but its immutable audit target is now stale: it still names the prior baseline `dce81ed801c41bca9bc364e3d0f248244d88f88f`, while current main is `10fabef703ee3865d208196f46ee71ddd1b7e149`. Its stop condition requires a fresh owner-authorized audit baseline; do not silently switch the target.
 - [Issue #164](https://github.com/X84657465/global-citizen-ai-network/issues/164) is an open P0 Factory task/system circuit-breaker isolation finding (GPT1/Factory owner); [Issue #188](https://github.com/X84657465/global-citizen-ai-network/issues/188) is an open P2 recovery-wiring follow-up explicitly blocked on Issue #136 independent review. Neither is a B-owned implementation task.
-- PR #427 is open/Draft; its exact-head run #45061403391 failed (746 unit tests passed, 1 failed; downstream typecheck/lint/build skipped). PR #429 is the Factory test-fixture correction; exact-head run #45062245405 has Windows quality gates in progress, not passed.
-- PR #428 is the B-owned type-preservation follow-up for Issue #74; exact head `1bd38fff2a330ed97d5ab298323b0512e6e348ab`, Actions run #45062174946 remains pending at metadata resolution, and B owner scope confirmation is recorded. GPT3 independent review and full exact-head gates remain required.
-- Current main CI run [45055645581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45055645581) is PENDING; no CI pass is claimed.
+- PR #427 is open/Draft; exact-head run [#45061403391](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45061403391) failed with 746 unit tests passed / 1 failed at `tests/agent-factory-controller.test.mjs:1917` (`Missing expected rejection`); typecheck, lint and build were skipped.
+- PR #429 is open/Draft and fixes that Factory test fixture. Its exact-head run [#45062245405](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062245405) passed all 747 unit tests, but TypeScript failed in unchanged `app/contribute/contribution-client.tsx` because the filter return type omits API fields (`acceptance_criteria`, `title`, `description`, `reward_amount`, `reward_currency`, `closes_at`) and callback types. Lint/build and integration gates were skipped.
+- PR #428 is the B-owned generic type-preservation fix for Issue #74. Its exact-head run [#45062174946](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062174946) failed at unit tests (747 passed / 1 failed) on the same Factory fixture at `tests/agent-factory-controller.test.mjs:1917`; typecheck/lint/build and integration gates were skipped. GPT3 static review and B owner scope confirmation are recorded, but this does not make the failed run pass.
+- The two narrow fixes expose a cross-PR integration dependency: #428 addresses the TypeScript failure seen on #429, while #429 addresses the unit failure seen on #428. Neither isolated PR has a green complete run. Coordinate a same-head integration candidate with the relevant Factory/B owners; do not merge either by treating the other PR's unmerged changes as present.
+- PR #430's own exact-head run [#45062704981](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062704981) was still in progress at this snapshot (metadata resolver only). Main Actions CI remains UNKNOWN / NOT VERIFIED from the available PR-only workflow query; Vercel `build-rate-limit` is a separate deployment status, not a code-test result.
 - [Issue #354](https://github.com/X84657465/global-citizen-ai-network/issues/354) is CLOSED. Do not carry its former lease-handoff defect forward as an open blocker without fresh evidence.
 - [PR #259](https://github.com/X84657465/global-citizen-ai-network/pull/259) is an old, divergent, non-mergeable broad candidate. Its historical CI is not evidence for current main; do not merge, force-retarget, or transplant the full diff.
 
@@ -107,7 +109,7 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 | Main exact-SHA CI | UNKNOWN / NOT VERIFIED | No current main-triggered run ID returned by available PR-only workflow query |
 | A independent audit | BLOCKED | Issue #136 still targets stale SHA `dce81ed…`; owner-authorized exact-main retarget required |
 | B end-to-end auth / live provider / operational readiness | NOT VERIFIED | Issues #84 and #86 remain open; architecture lists pre-launch gaps |
-| B Issue #74 follow-up PR #428 | PENDING | Exact-head Actions #45062174946 pending; B scope confirmation recorded; GPT3/full CI gates outstanding |
+| B Issue #74 follow-up PR #428 | BLOCKED | Exact-head Actions #45062174946 failed at unit tests (747 passed / 1 failed); typecheck/lint/build/integration skipped; GPT3 static review and B scope confirmation recorded |
 | PR #376 exact-head CI / formal review | NOT PASS | Run observed is for an older SHA; formal approval not observed |
 | Production deployment / production DB | NOT RUN | No deployment or production database action performed |
 
@@ -115,8 +117,8 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 
 1. GPT1 / project owner: obtain explicit authorization to refresh Issue #136's immutable audit target from `dce81ed…` to current main `10fabef703ee3865d208196f46ee71ddd1b7e149`; the independent auditor must re-fetch main before starting.
 2. GPT1 / Factory: resolve P0 Issue #164 and dependent Issue #188 only through their owner-approved workflow and independent review.
-3. GPT1 / Factory: resolve the current main test regression through the owner-controlled exact-head CI path; PR #429 remains in progress and is not yet a pass.
-4. GPT4 / B: keep PR #428 Draft until exact-head unit, typecheck, lint, build and repository-required integration gates complete and GPT3 independently reviews the same SHA.
+3. GPT1 / Factory + GPT4 / B: coordinate the cross-PR integration dependency. #429's fixture fix clears the unit regression but its isolated branch fails TypeScript; #428's generic typing fix clears that type contract but its isolated branch still fails the Factory fixture. Validate both together on one exact candidate SHA with all required gates; preserve each owner's path boundaries and do not merge a partial fix.
+4. GPT4 / B: keep PR #428 Draft; after the authorized combined candidate is available, re-run unit, typecheck, lint, production build and repository-required integration gates, then obtain GPT3 independent review on that exact SHA.
 5. GPT4 / B: continue B-only product preparation; do not start B Runtime while A acceptance and A→B gates remain blocked.
 6. GPT4 / B + GPT1: close A→B read-contract authentication, reference lifecycle, freshness and failure-mapping design before adapter implementation.
 7. GPT2 / relevant F–P owners: review B security / governance needs within their ownership; GPT3 remains the independent architecture and QA reviewer.
