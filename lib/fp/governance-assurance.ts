@@ -170,7 +170,7 @@ function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
   const root = snapshotSafeRecord(value,
     ["candidateSha", "policyVersion", "workstreams", "reviews"],
     ["candidateSha", "policyVersion", "workstreams"]);
-  if (!root) return null;
+  if (!root || typeof root.candidateSha !== "string" || typeof root.policyVersion !== "string") return null;
   const workstreamItems = snapshotSafeArray(root.workstreams, 11);
   if (!workstreamItems) return null;
   const workstreams: FPGovernanceWorkstreamRecord[] = [];
@@ -178,7 +178,8 @@ function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
     const record = snapshotSafeRecord(rawRecord,
       ["workstream", "ownerRef", "evidence", "lifecycle"],
       ["workstream", "ownerRef", "evidence", "lifecycle"]);
-    if (!record) return null;
+    if (!record || typeof record.workstream !== "string" || typeof record.ownerRef !== "string" ||
+        typeof record.lifecycle !== "string") return null;
     const evidenceItems = snapshotSafeArray(record.evidence, 1);
     if (!evidenceItems) return null;
     const evidence: FPGovernanceEvidence[] = [];
@@ -186,7 +187,8 @@ function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
       const item = snapshotSafeRecord(rawEvidence,
         ["kind", "testedSha", "status", "evidenceRef"],
         ["kind", "testedSha", "status", "evidenceRef"]);
-      if (!item) return null;
+      if (!item || typeof item.kind !== "string" || typeof item.testedSha !== "string" ||
+          typeof item.status !== "string" || typeof item.evidenceRef !== "string") return null;
       evidence.push(item as unknown as FPGovernanceEvidence);
     }
     workstreams.push({
@@ -204,7 +206,10 @@ function snapshotGovernanceDossier(value: unknown): FPGovernanceDossier | null {
       const item = snapshotSafeRecord(rawReview,
         ["reviewedSha", "decision", "reviewRef", "reviewerRef", "reviewerAuthorizationRef", "reviewerAuthorizationStatus", "submittedAt"],
         ["reviewedSha", "decision", "reviewRef", "reviewerRef", "reviewerAuthorizationRef", "reviewerAuthorizationStatus", "submittedAt"]);
-      if (!item) return null;
+      if (!item || typeof item.reviewedSha !== "string" || typeof item.decision !== "string" ||
+          typeof item.reviewRef !== "string" || typeof item.reviewerRef !== "string" ||
+          typeof item.reviewerAuthorizationRef !== "string" ||
+          typeof item.reviewerAuthorizationStatus !== "string" || typeof item.submittedAt !== "string") return null;
       reviews.push(item as unknown as FPGovernanceReviewEvidence);
     }
   }
