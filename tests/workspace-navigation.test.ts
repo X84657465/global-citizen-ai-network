@@ -36,6 +36,13 @@ test("project network failure is isolated from conversation and pending-request 
   assert.match(workspaceSource, /setProjectsUnavailable\(!projectResponse\?\.ok\)/);
 });
 
+test("malformed project responses are shown as unavailable, not as an empty project list", () => {
+  assert.match(workspaceSource, /const parsedProjectData: unknown = await projectResponse\.json\(\)/);
+  assert.match(workspaceSource, /Array\.isArray\(\(parsedProjectData as \{ projects\?: unknown \}\)\.projects\)/);
+  assert.match(workspaceSource, /catch \{\s*projectUnavailable = true;\s*\}/);
+  assert.match(workspaceSource, /setProjectsUnavailable\(projectUnavailable\)/);
+});
+
 test("project navigation uses validated, non-archived project records", () => {
   assert.match(workspaceSource, /filterWorkspaceProjects\(projectData\?\.projects\)/);
   assert.match(workspaceSource, /projects\.map\(project => <Link/);
