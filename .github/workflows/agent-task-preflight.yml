@@ -989,12 +989,17 @@ jobs:
                 [int]$publish.pull_request_number -lt 1) {
               throw "Publisher did not return exact candidate commit and PR evidence."
             }
+            $pullNumber = [int]$publish.pull_request_number
+            if ($pullNumber -lt 1) {
+              throw "Publisher returned an invalid pull-request number."
+            }
             $pullUrl = [string]$publish.pull_request_url
-            if ($pullUrl -notmatch '^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+$') {
-              throw "Publisher returned an invalid pull-request URL."
+            $expectedPullUrl = "https://github.com/$env:GITHUB_REPOSITORY/pull/$pullNumber"
+            if ($pullUrl -cne $expectedPullUrl) {
+              throw "Publisher returned a pull-request URL outside the exact target repository and PR number."
             }
             $env:HEAD_SHA = [string]$publish.commit_sha
-            $env:PULL_REQUEST_NUMBER = [string]$publish.pull_request_number
+            $env:PULL_REQUEST_NUMBER = [string]$pullNumber
             $env:NEXT_TASK_STATE = "draft_pr_created"
             node scripts/agent-factory-v2-controller.mjs
             if ($LASTEXITCODE -ne 0) { throw "Unable to record the exact draft PR candidate." }
