@@ -164,10 +164,33 @@ jobs:
           if ($docker) {
             Write-Host "Docker CLI: installed"
             docker.exe --version
-            docker.exe info --format "Server={{.ServerVersion}} OS={{.OperatingSystem}}"
-            if ($LASTEXITCODE -ne 0) { Write-Host "Docker daemon is unavailable (exit $LASTEXITCODE)" }
+
+            # This step is diagnostic only. Capture the native process exit code
+            # without allowing PowerShell's native-command error handling to abort
+            # the entire preflight before the dedicated isolation gate can report
+            # the actionable failure.
+            $dockerStdout = Join-Path $env:RUNNER_TEMP "docker-info.stdout.txt"
+            $dockerStderr = Join-Path $env:RUNNER_TEMP "docker-info.stderr.txt"
+            try {
+              $dockerInfo = Start-Process -FilePath $docker.Source -ArgumentList @(
+                "info",
+                "--format",
+                "Server={{.ServerVersion}};OS={{.OperatingSystem}}"
+              ) -Wait -PassThru -NoNewWindow -RedirectStandardOutput $dockerStdout -RedirectStandardError $dockerStderr
+              if ($dockerInfo.ExitCode -eq 0) {
+                Get-Content -LiteralPath $dockerStdout | ForEach-Object { Write-Host $_ }
+              } else {
+                $dockerError = if (Test-Path $dockerStderr) { (Get-Content -LiteralPath $dockerStderr -Raw).Trim() } else { "" }
+                Write-Host "Docker daemon is unavailable (exit $($dockerInfo.ExitCode)). The disposable-container isolation gate remains mandatory."
+                if ($dockerError) { Write-Host $dockerError }
+              }
+            } catch {
+              Write-Host "Docker daemon diagnostic unavailable: $($_.Exception.Message). The disposable-container isolation gate remains mandatory."
+            } finally {
+              Remove-Item -LiteralPath $dockerStdout,$dockerStderr -Force -ErrorAction SilentlyContinue
+            }
           } else {
-            Write-Host "Docker CLI: not found"
+            Write-Host "Docker CLI: not found; the disposable-container isolation gate remains mandatory."
           }
 
           try {
