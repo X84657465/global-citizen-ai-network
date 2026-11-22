@@ -689,3 +689,42 @@ This checkpoint supersedes earlier live snapshots above wherever their branch ti
 5. Only after A acceptance, implement the A-owned sanitized projection and B-owned workspace authorization/RLS boundary.
 
 **Authority boundary:** this checkpoint is documentation-only. It changes no Factory runtime/state, task, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production data, deployment, or B Runtime behavior.
+
+
+---
+
+## Superseding live continuation checkpoint — 2026-11-22 15:40 Taiwan
+
+This checkpoint supersedes earlier live snapshots above wherever their main SHA, run IDs, PR states, or conclusions differ. It is a verified repository/evidence snapshot, not an acceptance or release authorization.
+
+### Current mainline and A factory priority
+- Verified default branch `main` HEAD: `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45` (merge commit for PR #322).
+- Current root release metadata: GCAN `0.3.125`; Agent Factory V2 `2.0.84`; GCAN Product `0.1.20`. These are declared versions, not operational acceptance.
+- Recent factory changes integrated into main include PR #322 (secondary API rate-limit cooldown regression coverage), #323 (task preparation routed through the shared GitHub API client), #324 (transient GitHub response-body retry), and #325 (publisher write-permission separation). Their merge status is not evidence of current-main CI success or end-to-end factory operation.
+- Exact-current-main CI run [#44995876495](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44995876495) targets `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45` and remains `pending`; the queried Jobs API returned no allocated jobs. No current-main unit, type, lint, audit, build, PostgreSQL/RLS, or Ollama integration result is established.
+- Preflight push run [#44995857680](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44995857680) targets PR #323 merge commit `a2b06ba9eac789cbc9971f55bdf497c6c50f6d41` and remains pending. It is not evidence of successful task selection, lease acquisition, candidate execution, or publication on the latest main SHA.
+
+### A candidate and independent review
+- PR #259 is the only open PR returned by the latest open-PR query. It is open, non-draft, but GitHub reports `mergeable=false`; it targets stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` and head `3330cd04a77358cf0ff780940d09f938cab1dc3a`. Its historical exact-head CI run [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) succeeded on that old candidate SHA only. Do not merge, retarget, or transplant its broad diff wholesale.
+- PR #259 combined status still reports Vercel deployment rate limiting; no current-main or current-candidate same-SHA READY Preview/Smoke acceptance is established.
+- Issue #136 remains open for the independent read-only adversarial audit. The latest inspected issue body still targets the integrated A baseline and explicitly prohibits writes; no independent final audit report or formal sign-off was found in the inspected comments. Owner-authored static inspection and green historical CI are not substitutes.
+- Do not modify machine-managed Issue #100, task records, retry counters, lease, cooldown, or quarantine. Do not manually dispatch/rerun the scheduler, bypass Runner serialization, change Actions permissions/secrets, or manufacture green evidence.
+
+### B product handoff status
+- The mainline B workspace route exists at `app/workspace/page.tsx`, is force-dynamic, checks Supabase configuration, obtains the authenticated user with `auth.getUser()`, and redirects unauthenticated users to login.
+- The workspace client currently loads conversations, pending-AI recovery state, and projects through product APIs. This proves the authenticated B workspace shell exists; it does not prove a stable, accepted A→B capability adapter or production AI-provider readiness.
+- B must consume only a versioned, sanitized, read-only projection from accepted A contracts. It must not access Factory Issue state, A controller/state-store internals, Runner/Sandbox controls, raw logs, patches, secrets, leases, or privileged execution paths. Keep B Runtime activation behind A acceptance.
+
+### Integration/documentation drift identified
+- Root README still contains a historical five-track snapshot and legacy PR/branch links, while its later architecture section describes A–O plus P. The README itself labels the five-track snapshot historical, but its navigation and current-state pointers still require a later evidence-driven cleanup.
+- `app/factory/page.tsx` still contains older static references to PR #200/#217/#212/#218 and prior CI/Preview checkpoints. These must not be read as live current-main status. Refresh this A control-center evidence view only after obtaining the current run/deployment facts; do not replace dynamic evidence with guessed status.
+- PR #207 remains closed unmerged and is not a safe B homepage integration source. Recover its A–O + P architecture selectively only after A acceptance; rebuild on the then-current main baseline, not from the stale branch.
+
+### Next execution order
+1. Observe exact-current-main CI #44995876495 and the serialized Windows Runner/preflight path; record terminal results only against their exact SHAs.
+2. Resolve only reproducible A factory defects with narrow tests and changes. Preserve publisher privilege separation and shared GitHub API retry policy.
+3. Obtain the independent read-only Issue #136 report, then triage findings and complete any required exact-SHA Preview/Smoke and natural scheduler/lease progression.
+4. After A acceptance, build the versioned read-only A→B adapter and verify B workspace authorization/RLS and product API boundaries.
+5. Rebuild B homepage/architecture integration selectively from current main; refresh README and factory evidence links as a separately testable documentation/UI change.
+
+**Authority boundary:** this checkpoint is documentation-only. It changes no Factory runtime/state, task, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production data, deployment, or B Runtime behavior.
