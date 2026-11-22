@@ -666,11 +666,10 @@ jobs:
           retention-days: 90
 
   ci-diagnostics:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
     name: Exact-SHA CI failure diagnostics and evidence
+    defaults:
+      run:
+        shell: pwsh
     needs: [resolve-candidate, quality, build, database]
     if: >-
       always() &&
@@ -678,7 +677,7 @@ jobs:
        needs.quality.result == 'failure' ||
        needs.build.result == 'failure' ||
        needs.database.result == 'failure')
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       actions: read
