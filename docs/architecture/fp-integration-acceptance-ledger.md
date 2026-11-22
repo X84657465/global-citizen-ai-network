@@ -213,3 +213,25 @@ PR #295 and #299 both touch this ledger. Their branches are distinct and their t
 5. Refresh this ledger only from observed evidence. Keep A–E protected, B inactive, and L deferred.
 
 **Authority boundary:** this is a K documentation checkpoint only. It changes no runtime, database, migration, Factory state, lease, retry/cooldown/quarantine, Runner policy, secret, permission, or deployment behavior.
+
+## 12. Post-PR #301 live mainline checkpoint (2026-11-22)
+
+**Verified main SHA:** `061ccf621c228bae93b91cd8c53723c3fe08310a` (merge commit for PR #301).
+
+### Integrated state
+- PR #301 merged: documentation-only refresh of `docs/AGENT_HANDOFF.md` and this F–P ledger. It records merged implementation PRs #292, #293, #296, #297, #298 and #300 without promoting them to operational acceptance.
+- The handoff and ledger now explicitly distinguish the current main SHA from earlier snapshots, and distinguish merged changes from accepted/operational behavior.
+- No runtime, schema, database, migration, Factory state, lease, Runner, secrets, permissions or deployment behavior changed in PR #301.
+
+### Current exact-SHA evidence
+- Main push CI run `44973274417` for `061ccf621c228bae93b91cd8c53723c3fe08310a` is pending and has no allocated jobs in the latest query. No test pass is inferred.
+- The latest observed Preflight run `44972991644` is pending on the Windows self-hosted project-validation job and skipped its read-only task-plan job; it targets prior main SHA `aa63b74f9d23d2316ec7b59116632d686afb8fe1`, not this merge commit.
+- Combined status for `061ccf621c228bae93b91cd8c53723c3fe08310a` reports Vercel `build-rate-limit` failure; no same-SHA Preview/Smoke evidence is established.
+- PR #301 exact-head run `44973266726` was pending at merge; no CI pass is claimed.
+
+### Outstanding gates
+- Issue #136 remains read-only and requires an independent adversarial audit. No independent sign-off is recorded.
+- A remains integrated but not operationally accepted; B Runtime remains inactive; L remains deferred.
+- Keep Factory state and all production/runtime safety boundaries unchanged.
+
+**Authority boundary:** documentation-only K checkpoint; not an A/B acceptance or deployment authorization.
