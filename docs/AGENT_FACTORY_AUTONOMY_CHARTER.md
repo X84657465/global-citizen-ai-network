@@ -92,6 +92,21 @@ Ollama／Qwen 可以是目前的推理供應者；OpenCode 或其他 IDE Agent �
 - 每項外部寫入、資料庫操作、套件安裝與部署都要有任務級權限及可追溯紀錄。
 - Runner 是執行節點，不是任務真相來源；持久任務狀態仍由受控控制面管理。
 
+### 3.6 外部 Neural Intelligence Agent Developer 席位
+
+經專案負責人明確授權的外部 ChatGPT 執行席位，可作為 Factory Developer 參與任務規劃、程式實作、測試執行、有限修復及 PR 交付，但必須遵守與內建 Developer Agent 相同的任務 allowlist、檔案 owner、控制面授權、最小權限、隔離、預算及審計要求。
+
+此席位透過目前對話中的已授權 GitHub 工具工作，不代表已成為 Factory Runner 的持久 worker、已註冊模型 Adapter 或已部署背景代理。未完成 runtime 身分、Adapter、隔離執行、任務派工、取消／逾時、審計與端到端測試前，Factory 自動呼叫此席位的能力為 NOT IMPLEMENTED。
+
+**強制職責隔離：**
+- Developer 席位負責實作與提交證據，不具有自己變更的獨立驗收權。
+- GPT3 是獨立架構 Reviewer／QA，必須針對精確候選 SHA 審查架構、程式、安全、回歸及測試證據。
+- Developer 不得以自測、自評、自己建立的報告或其他非 GPT3 回覆取代 GPT3 的正式審查。
+- GPT3 未完成、審查者身分無法確認、證據缺失／過期或 SHA 不一致時，Fail-Closed，不得整合放行。
+- GPT3 的 PASS 只表示其審查範圍內的獨立驗收結果；整合仍須滿足 CI、Branch Protection、必要人工核准及既有發布政策。
+
+此席位不改變 GPT1–GPT5 的既有工作線 owner，也不取得控制面、Runner、Secrets、Branch Protection 或正式環境權限。
+
 ## 4. 自主能力成熟度與驗收階段
 
 能力成熟度採以下階段管理，不得僅因某個模型能產生 Patch 就宣稱已達完整自主。
