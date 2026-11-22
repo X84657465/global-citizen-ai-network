@@ -207,6 +207,7 @@ jobs:
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
       candidate_start_ignored: ${{ steps.register-candidate.outputs.ignored || 'false' }}
+      api_cooldown_until: ${{ steps.register-candidate.outputs.api_cooldown_until }}
     if: >-
       needs.resolve-candidate.result == 'success' &&
       needs.quality.result == 'success' &&
@@ -503,6 +504,7 @@ jobs:
       pull-requests: read
     env:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+      AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.build.outputs.api_cooldown_until }}
       CI_FAILURE_SCOPE: ${{ (needs.quality.result != 'failure' || needs.quality.outputs.failure_scope == 'task') && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.quality.outputs.failure_scope == 'task' || needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
     steps:
       - name: Checkout exact tested revision
