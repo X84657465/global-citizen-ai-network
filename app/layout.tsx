@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: { default: siteTitle, template: "%s｜Global Citizen AI Network" },
   description: siteDescription,
   applicationName: "Global Citizen AI Network",
-  keywords: ["GCAN", "Global Citizen AI Network", "全球公民 AI 網路", "AI collaboration", "Predictive Coding", "Deep Neural", "Deep Research"],
+  keywords: ["GCAN", "Global Citizen AI Network", "全球公民 AI 網路", "AI collaboration", "Predictive Coding", "Deep Neural", "Deep Research", "GPT5 Global Intelligence", "Global Intelligence and Operations"],
   openGraph: { type: "website", locale: "zh_TW", url: siteUrl, siteName: "Global Citizen AI Network", title: siteTitle, description: siteDescription, images: [{ url: "/brand/gcan-hero.svg", width: 1600, height: 520, alt: "Global Citizen AI Network" }] },
   twitter: { card: "summary_large_image", title: siteTitle, description: siteDescription, images: ["/brand/gcan-hero.svg"] },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
