@@ -728,3 +728,24 @@ This checkpoint supersedes earlier live snapshots above wherever their main SHA,
 5. Rebuild B homepage/architecture integration selectively from current main; refresh README and factory evidence links as a separately testable documentation/UI change.
 
 **Authority boundary:** this checkpoint is documentation-only. It changes no Factory runtime/state, task, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production data, deployment, or B Runtime behavior.
+
+
+## 2026-11-22 Runner isolation blocker — exact Preflight evidence
+
+This checkpoint supersedes earlier assumptions that the Docker diagnostic alone was the complete blocker.
+
+- Main remains `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45` at inspection time.
+- Preflight run `44995857680` completed **failure** on exact main-derived commit `a2b06ba9eac789cbc9971f55bdf497c6c50f6d41`.
+- The Windows 11 Pro self-hosted Runner has Node `22.13.0`, WSL installed (Ubuntu, WSL 2), Ollama `0.40.17`, local API available, and models `qwen3:8b` / `qwen3.6:latest`.
+- Docker CLI `29.9.3` exists, but Docker Engine is unavailable: named pipe `//./pipe/dockerDesktopLinuxEngine` does not exist. The Windows Sandbox feature query also requires elevation.
+- The failure occurred in the diagnostic inventory step before Ollama plan/patch smoke tests. PR #327 makes this inventory diagnostic-only, but does **not** claim that sandbox isolation works.
+- The dedicated pinned-image disposable-container test still requires a working Docker Engine and remains a hard gate. It uses a non-root user, read-only root and input mounts, no network, dropped capabilities, no-new-privileges, process/memory/CPU limits, and a dedicated output mount. Do not replace it with direct host execution or treat WSL presence alone as isolation evidence.
+- PR #327 exact head `df228022fed7ac18cbc3f8accf18bf71ca00a8b1` remains Draft; exact-head CI run `44999696562` is pending with no job allocated at this checkpoint. An earlier intermediate head run is also pending and must not be treated as latest-head evidence.
+- Main CI `44995876495` is likewise pending with only its resolver job queued. The CI workflow also has a separate hard Docker Engine requirement; a diagnostic-only change in the Preflight workflow does not repair that main CI prerequisite.
+- The shared self-hosted Runner concurrency group serializes CI jobs. Do not dispatch duplicate runs or alter concurrency to force throughput.
+
+### Required next action
+
+Restore Docker Desktop Linux Engine availability on the Windows Runner host (including its named pipe) under the authorized host administrator, then let the existing exact-head queue progress. Re-run the pinned disposable-container test and full main CI on their exact current SHAs. If Docker cannot be made available, stop at the isolation gate and record the environment blocker; do not weaken the sandbox or run candidate code on the host.
+
+No task state, Issue #100, lease, cooldown, quarantine, scheduler dispatch, Runner concurrency, workflow permissions, secrets, production data, or deployment was modified by this checkpoint.
