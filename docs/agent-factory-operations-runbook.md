@@ -202,3 +202,14 @@ All state writers share the serialized Windows Runner concurrency group. The dur
 
 The workflow does not itself dispatch the task. The normal scheduler may select it only after the bounded retry deadline and under the existing lease, cooldown, path-allowlist, scratch, test and publication gates. Do not edit Issue #100, reset global cooldowns, clear event history, or create a lease manually.
 
+
+
+## Exact scheduler workflow write exception (Issue #116)
+
+The task agent may name only `.github/workflows/agent-task-preflight.yml` as a control-plane exception. This is not a general `.github` or workflow-directory allowlist.
+
+- The task Issue must carry the existing `factory-control-plane-approved` label; the validator records that authorization in the validated task bundle.
+- The path must match the exact lowercase repository path. Case variants, sibling workflow files, arbitrary `.github` paths, and traversal attempts remain rejected.
+- Patch validation requires the exact path to already exist in the base checkout and permits only a modification; it rejects an add operation and does not permit creating or replacing another workflow.
+- The shared control-plane write-policy check remains active at patch validation. The approval label is necessary but does not replace the task's explicit allowed-path list, isolated scratch validation, publisher revalidation, normal PR review, or CI.
+- Workflow edits remain subject to Draft PR review and all normal branch protections. This exception does not authorize changing Runner permissions, secrets, production database settings, deployment behavior, auto-merge, or approval requirements.
