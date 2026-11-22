@@ -1,6 +1,6 @@
 # GCAN F–P Integration Acceptance Ledger
 
-**Baseline:** `main` at `4bf472881ea4afabd9f29c4d58365c3ae6c3d2af`  
+**Baseline:** `main` at `23fb747ae4041bc28783a1b9039660ec952c7e0d` (2026-11-22 post-PR #283)  
 **Scope:** F–P shared-core integration only  
 **Protected boundary:** A–E and Agent Factory V2 execution authority remain unchanged  
 **Status:** Initial engineering ledger; no workstream is declared accepted by this document.
@@ -86,3 +86,92 @@
 ## 8. Rollback
 
 This initial slice is additive test and documentation work. Revert the integration PR to remove it. No schema, secret, runtime execution, or production deployment changes are included.
+
+
+## 9. Post-merge engineering refresh (2026-11-22)
+
+**Verified main baseline:** `23fb747ae4041bc28783a1b9039660ec952c7e0d` (merge commit for PR #283).  
+**Protected boundary:** This ledger authorizes F–P integration work only. A–E, Agent Factory V2 runtime state, task leases, Runner policy and production controls remain outside this workstream.
+
+### Current implementation evidence
+
+- **F / G:** The integrated baseline includes the shared security/release assurance work and exact-run identity checks. Acceptance still requires current, same-HEAD evidence for every required quality and database/RLS job; evaluators remain advisory and cannot grant merge or deployment authority.
+- **H:** Request correlation is propagated through the existing middleware contract. The bounded outcome recorder is process-local, not a durable telemetry service. End-to-end route/job correlation and a real persistent sink remain unverified/not implemented.
+- **P:** The production GET route is now wired to the trusted-host collector. The route handler has runtime tests for authentication, active-admin authorization, input validation, private response headers, stale candidates and provider failures. The collector checks the current open same-repository PR head, paginates review history and delegates reviewer-permission verification to the trusted host. This is implementation evidence, not independent approval or governance authorization.
+- **I / J / M / N / O:** Keep capabilities bounded/advisory. No live external writes, autonomous production repair, compliance certification, user-level analytics collection or automatic lifecycle retirement is enabled.
+- **K:** Keep this ledger and handover evidence synchronized with the actual mainline; documentation is not acceptance evidence.
+- **L:** Remains deferred and disabled.
+
+### Mainline and acceptance reconciliation
+
+- PR #283 is merged at the baseline above. Its PR-head Actions run #3369 passed the four substantive Windows quality, Ollama/local execution and Supabase/PostgreSQL/RLS jobs on PR HEAD `abe983db3f2f6e657fbc39c2777fdb28e0bd2573`. This result is bound to that PR HEAD; it is not post-merge CI evidence for merge commit `23fb747ae4041bc28783a1b9039660ec952c7e0d`.
+- The merge commit's combined status currently reports a Vercel failure with provider `build-rate-limit`; no READY Preview or same-SHA smoke result is established.
+- The independent read-only adversarial audit in Issue #136 remains outstanding against the integrated A baseline. Post-cooldown scheduled task/worker progression and a real 24-hour Runner soak are also not established. Therefore A is integrated but not operationally accepted, and B Runtime remains inactive.
+- The previous consolidated PR #259 is stale/diverged from current main and must not be merged or wholesale transplanted. Reconcile only demonstrably missing F–P changes against the current baseline.
+- Machine-managed Factory state (Issue #100), leases, retry counters, quarantine, cooldowns, Actions settings, workflow permissions, secrets and production data are not to be edited as part of this F–P work.
+
+### Next F–P implementation order
+
+1. **F/G:** Build a current-main, exact-SHA acceptance bundle proving repository/PR/SHA/run-ID/run-attempt identity and all required security/database jobs; retain fail-closed behavior when evidence is missing.
+2. **H:** Add tests for correlation continuity across real route boundaries and explicitly label process-local metrics as non-durable. Do not claim distributed tracing or persistent telemetry without a configured sink.
+3. **P:** Preserve the now-wired read-only route; close any remaining review/permission edge cases with runtime tests and independent review. The route must never grant approval, merge or deployment authority.
+4. **I/J/M/N/O/K:** Advance one bounded capability at a time with contract tests, privacy minimization and owner-controlled side effects.
+5. **L:** No implementation or activation until its security, isolation, capacity and independent-review gates are satisfied.
+
+### Acceptance status
+
+No F–P workstream is promoted to L4/L5 by this refresh. Each remains subject to exact-HEAD CI, focused runtime/integration evidence, independent review where required, and an auditable handover. A passing PR-head run, a merged commit, or this document alone does not satisfy acceptance.
+
+
+### 2026-11-22 post-merge P0 remediation evidence
+
+Two narrowly scoped remediation candidates have been opened against the verified main baseline; neither is accepted yet:
+
+- **PR #292 — evidence-grounded patch generation:** the independent audit finding in Issue #136 documented unsupported factual claims in synthetic Preflight #315 output (encryption/anonymization, real-time monitoring and automated approval). The proposed prompt-contract guard limits factual claims to the task goal, acceptance criteria and supplied source files, with a regression assertion. This is not a semantic fact-checker; exact-head CI and independent review remain mandatory.
+- **PR #293 — pinned Preflight Node runtime:** the same Preflight #315 logs confirmed host Node `v26.13.0` rejected `--experimental-transform-types`, while the isolated pinned-Node test completed 602 tests. The proposed correction pins both `validation-tests` and `prepare-task` to Node `22.13.0`, matching CI, and asserts parity in `tests/ci-trigger-policy.test.mjs`. It does not change scheduler or durable-state policy.
+
+Both PRs remain Draft/unmerged with no recorded independent review. The Vercel deployment provider has reported the account's daily deployment limit (`api-deployments-free-per-day`); this is a provider quota limitation, not evidence of a successful Preview or a code build failure. Do not retry deployment or infer Preview readiness until the quota window clears and a same-SHA deployment plus smoke test are observed.
+
+**Immediate acceptance gate:** obtain exact-head Actions results and independent review for PR #292 and #293; verify the scheduled preflight and synthetic validation after the Node pin; separately complete the read-only adversarial audit requested by Issue #136. Until then, keep A operational acceptance and B Runtime activation blocked.
+
+
+### 2026-11-22 Agent Factory audit finding reconciliation
+
+The historical Issue #136 report dated 2026-11-21 reviewed retired branch HEAD `cd9f732fc101cc20b27700b6b97ec10b59d6abc3`, not the currently integrated main SHA. Its Medium finding that candidate-task success also reset the global system breaker must not be carried forward as a confirmed defect on current main without revalidation.
+
+Read-only inspection of current main `23fb747ae4041bc28783a1b9039660ec952c7e0d` establishes the following implementation separation:
+
+- Candidate CI success in `lib/agent-factory-controller.mjs` calls `recordTaskSuccess` and persists that task transition; this branch does not call `recordSystemSuccess`.
+- The separate `system-health` controller mode validates the required exact-SHA CI job set and current open same-repository PR head before calling `recordSystemSuccess`.
+- `lib/agent-factory-state-machine.mjs` keeps `recordTaskSuccess` scoped to the target task and does not mutate `state.system`.
+- The state-machine regression suite includes distinct tests for “task success clears only that task retry record” and “system success clears system cooldown without erasing task failures”.
+
+**Disposition:** the historical coupling finding appears corrected in the current integrated tree and is not presently a confirmed current-main defect. This is a code-path reconciliation, not a substitute for the still-required independent read-only audit of current main, and not proof of operational acceptance. Issue #136 must be completed against the exact integrated SHA; preserve its read-only restrictions. A remains not operationally accepted and B Runtime remains inactive.
+
+
+## 10. Live candidate status snapshot (2026-11-22; verified main `23fb747ae4041bc28783a1b9039660ec952c7e0d`)
+
+This snapshot supersedes earlier candidate SHA/run status statements where they differ. Status is bound to the exact HEAD shown; no evidence transfers between commits or runs.
+
+| PR | Exact HEAD | Latest observed Actions evidence | Review / disposition |
+|---|---|---|---|
+| #292 — evidence-grounded patch claims | `2ed61e76b2045832d769dfd893b02ee6753de70c` | Run `44967914868` completed; resolver, Windows quality gates, Ollama/local execution, and Supabase/PostgreSQL/RLS jobs succeeded. | No formal review submissions or threads. Ready for review, not merge-approved. Vercel status is failure; no same-SHA Preview/Smoke. |
+| #293 — Preflight Node 22.13.0 pin | `85555594c4bd167489bddd64f07b69e2a0a8e094` | Run `44970303726` is pending; only resolver job is allocated and pending. No substantive quality/integration result yet. | Draft; no formal review. |
+| #294 — authoritative handoff | `c704dbbdbe580a984f306cc7f82a659a2dafc284` | Run `44970329125` pending. | Draft; no formal review. |
+| #295 — earlier F–P ledger reconciliation | `4cfa4b31cd9a9b0d3735c8351d8395b49160b7a8` | Run `44970333841` pending. Its ledger candidate snapshot contains superseded PR #293 and other run details; do not treat those historical entries as current evidence. | Draft; no formal review. |
+| #296 — privacy-safe H event metadata | `e4c3cb3fa68f12400fb3da00d40fc087768d55ca` | Run `44969692123` pending; no jobs allocated at last inspection. | Draft; no formal review. |
+| #297 — P auth-provider fail-closed handling | `858d1ae886a95b9fec41076287d4c4466d2a46cb` | Run `44969394408` pending; no substantive job result at last inspection. | Draft; no formal review. |
+| #298 — canonical UTC security evidence timestamps | `e35ad0bb955f2a04c6375e4989f2fbbea7ba3086` | Run `44969187760` pending; no substantive job result established. | Draft; no formal review. |
+| #299 — this ledger refresh | Latest head is recorded in the PR description; exact-head run `44970935043` is pending with zero jobs allocated at last inspection. | No formal review; documentation-only. Keep Draft until exact-head CI and review evidence exist. |
+
+PR #295 and #299 both touch this ledger. Their branches are distinct and their text is not identical; use this PR's latest mainline reconciliation and candidate evidence as the current proposed update, while preserving any unique historical context only when it remains accurate. Do not merge either documentation PR solely because its content is non-runtime.
+
+### Current cross-cutting blockers
+
+1. No candidate PR above has a formal independent review submission in the latest review check.
+2. Issue #136 remains a strictly read-only independent adversarial audit request; current-main code inspection by the implementation author does not satisfy it.
+3. Vercel combined status continues to report `build-rate-limit`; no READY same-SHA Preview and Smoke evidence is established.
+4. Post-cooldown scheduled task selection, durable lease/worker progression, and a real 24-hour Runner soak remain unverified.
+5. The self-hosted Windows Runner queue is serialized. Pending or unallocated jobs are unknown, not passing, and do not justify changing concurrency or dispatching ad hoc runs.
+
+**Authority boundary:** this status refresh is documentation-only. It does not authorize merge, deployment, Factory-state mutation, lease/retry/cooldown/quarantine changes, workflow or Runner-policy changes, secrets/permissions changes, A operational acceptance, or B Runtime activation.
