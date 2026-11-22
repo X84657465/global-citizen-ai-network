@@ -5,7 +5,7 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `fc1933e669dd2d49300e45fa5d69bf63e906141f`  
+**Main HEAD:** `23fb747ae4041bc28783a1b9039660ec952c7e0d`  
 **Authoritative release:** `VERSION` and `package.json` on main both report `0.3.125`. README release label requires separate verification before use.  
 **A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
 
@@ -246,8 +246,8 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ## Live checkpoint — 2026-11-22 (verified GitHub state)
 
 ### Main / Factory-first
-- Current `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`; release baseline `0.3.125`.
-- Integrated A/G acceptance PR #279 is the sole active code candidate, Draft/open at exact HEAD `edf0b86c15d599c772f51f31dc4030874ea27d9b`, based on current main `fc1933e669dd2d49300e45fa5d69bf63e906141f`. It combines A Factory lifecycle/repository-validation changes with only the required G/FP test and integration repairs. Exact-head CI #3287 (`44954636255`) is pending; no test result is inferred yet.
+- Current `main`: `23fb747ae4041bc28783a1b9039660ec952c7e0d`; release baseline `0.3.125`.
+- Integrated A/G acceptance PR #279 is the sole active code candidate, Draft/open at exact HEAD `edf0b86c15d599c772f51f31dc4030874ea27d9b`, based on current main `23fb747ae4041bc28783a1b9039660ec952c7e0d`. It combines A Factory lifecycle/repository-validation changes with only the required G/FP test and integration repairs. Exact-head CI #3287 (`44954636255`) is pending; no test result is inferred yet.
 - The earlier A-only #273, G-only #278 and test-repair #277 candidates are closed unmerged as superseded by #279. Their historical failures remain diagnostic evidence only; none is acceptance evidence for #279.
 - #279 must pass full unit tests, typecheck, lint, audits, production build, PostgreSQL/RLS and Ollama integration on its exact SHA. Exact-SHA Vercel Preview and independent Issue #136 review remain separate required gates.
 - Exact-SHA Vercel status for the current candidates remains build-rate-limited; no READY Preview or same-SHA smoke evidence is available.
@@ -274,7 +274,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 This section supersedes earlier live-checkpoint statements in this handoff where candidate SHAs or CI run IDs differ. Older entries remain historical records, not current acceptance evidence.
 
 ### A / Agent Factory V2 — priority 0
-- Current integrated `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
+- Current integrated `main`: `23fb747ae4041bc28783a1b9039660ec952c7e0d`.
 - Sole active A/G integration candidate: PR #279, Draft/open, based on that main.
 - Current exact PR HEAD: `99f67c6a1f6a4cbff3522de14bb1508f8d4c52a4`.
 - The focused latest change corrects `tests/account-summary.test.ts` to inspect the actual CSS Module and assert both keyboard-focus selectors; no runtime behavior changed.
