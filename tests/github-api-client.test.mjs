@@ -161,3 +161,26 @@ test("honors HTTP-date Retry-After values for rate-limited safe requests", async
   assert.equal(calls, 2);
   assert.deepEqual(delays, [2_000]);
 });
+
+test("surfaces long HTTP-date Retry-After waits instead of sleeping inside the worker", async () => {
+  const now = 1_000_000;
+  const retryAt = new Date(now + 300_000).toUTCString();
+  const delays = [];
+  let calls = 0;
+  const client = createGitHubApiClient({
+    now: () => now,
+    maxInlineRetryDelayMs: 30_000,
+    fetchImpl: async () => {
+      calls += 1;
+      return response(429, { message: "rate limit" }, { "retry-after": retryAt });
+    },
+    sleep: async (ms) => delays.push(ms),
+  });
+
+  await assert.rejects(
+    client.request("/rate_limit"),
+    (error) => error.status === 429 && error.retryAfterMs === 300_000,
+  );
+  assert.equal(calls, 1);
+  assert.deepEqual(delays, []);
+});
