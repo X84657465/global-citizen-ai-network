@@ -1241,6 +1241,7 @@ test("quarantine recovery fails closed on stale state version and non-quarantine
   const activeState = quarantinedTaskState();
   activeState.tasks["42"].status = "retry_wait";
   activeState.tasks["42"].quarantined = false;
+  delete activeState.tasks["42"].candidate_status;
   activeState.tasks["42"].next_attempt_at = new Date(1_500).toISOString();
   assert.throws(
     () => recoverQuarantinedTask(activeState, quarantineRecoveryInput(activeState), 2_000),
