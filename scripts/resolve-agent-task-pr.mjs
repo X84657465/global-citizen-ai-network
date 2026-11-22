@@ -1,6 +1,7 @@
 import { appendFileSync, writeFileSync } from "node:fs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
+import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
 import {
   isAgentTaskBranchForIssue,
   parseAgentTaskIssueNumber,
@@ -13,6 +14,11 @@ const resolverDiagnosticsOutput = process.env.RESOLVER_DIAGNOSTICS_OUTPUT ?? "";
 let resolverStage = "startup";
 
 function writeResolverDiagnostic(error) {
+  if (error?.rateLimited === true) {
+    try { persistApiCooldownDeadline(error); } catch {
+      console.error("Unable to persist the resolver's provider rate-limit deadline.");
+    }
+  }
   if (!resolverDiagnosticsOutput) return;
   const safePath = typeof error?.path === "string" &&
     /^\/repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/(pulls|issues)\/\d+$/.test(error.path)
