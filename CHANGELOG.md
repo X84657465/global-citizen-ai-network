@@ -1,3 +1,11 @@
+## 0.3.131 — 2026-11-22
+
+- H: add deterministic, privacy-minimized queue/runner/task/cost observability evaluation.
+- Validate canonical UTC windows, opaque event IDs, bounded event batches and durations, and integer micro-unit cost aggregation.
+- Reject duplicate/out-of-window events, mixed currencies, malformed cost provenance and unsafe aggregate precision.
+- Quota warning/exceeded states remain advisory; no billing, telemetry collection, quota enforcement or runner mutation is enabled.
+- Keep H planned until trusted collector coverage, retention, alerting, SLO and independent acceptance evidence are available.
+
 ## 0.3.130 — 2026-11-22
 
 - F: require security evidence to bind to the exact GitHub Actions run attempt and matching job attempt metadata.
