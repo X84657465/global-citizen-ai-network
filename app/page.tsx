@@ -38,6 +38,7 @@ const rules = [
  { title:"展示資料不冒充真實營運", text:"示範數據、尚未連接的 AI／搜尋服務、尚未啟用的獎勵支付與分散式運算都會清楚標示。", icon:ClipboardCheck },
 ];
 const docs = [
+ { title:"神經智慧體協作模式", text:"六層自主工程閉環、四 GPT 責任邊界、Factory-first、授權執行與驗收標準。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md", icon:BrainCircuit },
  { title:"A–P 工程治理規範", text:"A–O 工作線責任、P 橫向治理、版本制度、相容性測試與接收線審核。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/docs/engineering-governance.md", icon:GitBranch },
  { title:"版本清單與變更紀錄", text:"查看平台版本、各主線版本、治理狀態與可追溯變更。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/main/versions/manifest.json", icon:Layers3 },
  { title:"Predictive Coding 架構", text:"預測、觀測、誤差、校準、漂移與更新提案的資料契約。", href:"https://github.com/X84657465/global-citizen-ai-network/blob/feat/github-project-showcase/docs/predictive-coding-architecture.md", icon:Activity },
@@ -52,7 +53,7 @@ export default function HomePage() {
   <a className={styles.skipLink} href="#main-content">跳至主要內容</a>
   <header className={styles.header}><div className={styles.headerInner}>
    <Link href="/" className={styles.brand} aria-label="Global Citizen AI Network 首頁"><span className={styles.brandMark}><Globe2 size={22}/></span><span className={styles.brandText}><strong>GLOBAL CITIZEN</strong><small>AI NETWORK</small></span></Link>
-   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#workstreams">A–O 工作線</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
+   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#workstreams">A–O 工作線</a><a href="#neural-intelligence">神經智慧體</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
    <div className={styles.headerActions}><Link href="/login" className={styles.loginLink}>會員登入</Link><Link href="/workspace" className={styles.headerCta}>進入平台 <ArrowUpRight size={15}/></Link></div>
   </div></header>
   <main id="main-content" tabIndex={-1}>
@@ -81,6 +82,43 @@ export default function HomePage() {
      <article className={styles.priorityCard} data-priority="4"><span className={styles.priorityNumber}>04 · EXPAND</span><h3>全球 AI 生態系｜最後擴張</h3><p>在產品價值、營運能力、單位經濟、安全與合規具備證據後，再逐步擴展多語系、外部串接、合作夥伴與自願式分散運算。</p><b>核心驗收：可持續營運、可治理、可規模化。</b></article>
     </div>
     <div className={styles.priorityRule}><ShieldCheck size={18}/><p><b>共同執行規則：</b>證據優先於進度；必要線只解卡、不搶主線；未完成精確 SHA CI、Preview、接收線驗收及必要人工審查，不宣稱完成；不以 AI 提案取代正式核准。</p></div>
+   </section>
+   <section className={styles.governanceSection} id="neural-intelligence">
+    <div className={styles.governanceHeader}>
+     <div className={styles.sectionEyebrow}>NEURAL INTELLIGENCE AGENT MODE · GCAN CORE</div>
+     <h2>神經智慧體模式：<em>從回答問題，走向可驗證的自主工程協作</em></h2>
+     <p>GCAN 將感知、記憶、認知、規劃、授權執行、驗證與反思整合成共同工作閉環。目標不是無限制自主，而是在明確責任、最小權限與人類監督下，讓 AI 能持續理解專案、推進任務並以證據交付。</p>
+    </div>
+    <div className={styles.trustGrid}>
+     {[
+      {title:"01 · 感知 PERCEPTION",text:"讀取最新 Repository、Issues、PR、CI、版本、測試與需求；區分事實、推論、未知與過期資訊。",icon:Activity},
+      {title:"02 · 記憶 MEMORY",text:"把架構、決策、缺陷、風險、交接與驗收結果保存為有來源、版本與更新紀錄的共同知識。",icon:BookOpen},
+      {title:"03 · 認知 COGNITION",text:"進行根因分析、依賴推理、方案比較、風險預測與反例檢查；模型信心不能取代外部證據。",icon:BrainCircuit},
+      {title:"04 · 規劃 PLANNING",text:"將目標拆成有優先級、負責人、依賴、修改範圍、驗收條件與停止／回復條件的任務。",icon:GitBranch},
+      {title:"05 · 授權執行 EXECUTION",text:"在明確權限內直接修改、測試、修復與交付；高風險、不可逆與正式環境操作保留人工核准。",icon:Workflow},
+      {title:"06 · 驗證與反思 VERIFY / REFLECT",text:"以精確 SHA 核對測試與 CI，分析預期和實際差異，更新 Issue、PR、文件及下一輪計畫。",icon:CheckCircle2}
+     ].map(({title,text,icon:Icon})=><article className={styles.trustCard} key={title}><span><Icon size={20}/></span><div><h3>{title}</h3><p>{text}</p></div></article>)}
+    </div>
+    <div className={styles.governanceHeader} style={{marginTop:34}}>
+     <div className={styles.sectionEyebrow}>FOUR-GPT COORDINATION · CLEAR OWNERSHIP</div>
+     <h2>四個 GPT，各有責任；共同使用一套工程閉環</h2>
+     <p>GPT 之間不假設能直接讀取彼此對話。共同事實以 Repository、Issue、PR、Commit、CI 與正式交接紀錄為準。</p>
+    </div>
+    <div className={styles.trustGrid}>
+     {[
+      {title:"GPT1 · A–E / FACTORY → B",text:"主責 Agent Factory V2、A–E 工作線及必要 Factory→B 交接；維持工廠優先。",icon:Workflow},
+      {title:"GPT2 · F–P",text:"主責 F–P 平行專業能力建設；先確認介面與依賴，不任意覆蓋 A–E 核心。",icon:Layers3},
+      {title:"GPT3 · INDEPENDENT QA",text:"負責跨 A–P 獨立架構審查、整合與 QA；以可重現證據驗收，不取代功能 owner。",icon:ShieldCheck},
+      {title:"GPT4 · ROLE VERIFICATION",text:"第四正式協作角色；正式職責尚待權威 Repository 證據確認，未確認前保持 UNKNOWN。",icon:SearchCheck}
+     ].map(({title,text,icon:Icon})=><article className={styles.trustCard} key={title}><span><Icon size={20}/></span><div><h3>{title}</h3><p>{text}</p></div></article>)}
+    </div>
+    <div className={styles.loopPrinciple} style={{marginTop:20}}>
+     <ShieldCheck size={18}/><p><b>最高原則：</b>Factory-first；必要線只補銜接卡點；安全、可回復且已授權的工作主動推進；所有成果以精確 SHA、測試、Review 與稽核證據驗證。神經智慧體模式不是第五個 GPT，也不接管 D｜Deep Neural 的既有 owner 責任。</p>
+    </div>
+    <div className={styles.stageLinks} style={{marginTop:18}}>
+     <a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md" target="_blank" rel="noreferrer">閱讀完整神經智慧體規範 <ArrowUpRight size={14}/></a>
+     <a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/PROJECT_COORDINATION.md" target="_blank" rel="noreferrer">閱讀四 GPT 協作規範 <ArrowUpRight size={14}/></a>
+    </div>
    </section>
    <section className={styles.workstreamsSection} id="workstreams"><div className={styles.workstreamsTop}><Heading label="15 ENGINEERING WORKSTREAMS + P GOVERNANCE" title="A–O 十五條工作線，P 橫向治理、協同整合" text="A–O 各線都有獨立使命、職責、功能範圍、版本與驗收證據；P 提供共同治理底線。I–O 依路線圖分階段建置，規劃或研究中的能力不代表已正式上線。"/><a className={styles.textLink} href="https://github.com/X84657465/global-citizen-ai-network/blob/main/docs/engineering-governance.md" target="_blank" rel="noreferrer">閱讀 A–P 治理規範 <ArrowUpRight size={15}/></a></div>
     <div className={styles.trackGrid}>{tracks.map(({code,title,subtitle,mission,scope,status,href,action,external,icon:Icon})=>{const body=<><div className={styles.trackTop}><span className={styles.trackCode}>{code === "P" ? "GOVERNANCE LAYER · P" : `WORKSTREAM · ${code}`}</span><span className={styles.trackOrb}><Icon size={21}/></span></div><div className={styles.trackTitleGroup}><h3>{title}</h3><span>{subtitle}</span></div><p className={styles.trackMission}>{mission}</p><ul className={styles.trackScope}>{scope.map(item=><li key={item}><CheckCircle2 size={13}/>{item}</li>)}</ul><div className={styles.trackFooter}><span className={styles.trackStatus}>{status}</span><span className={styles.trackAction}>{action} <ArrowUpRight size={15}/></span></div></>;return external?<a className={styles.trackCard} data-track={code} href={href} key={code} target="_blank" rel="noreferrer" aria-label={action+"（開啟 GitHub 工程分支）"}>{body}</a>:<Link className={styles.trackCard} data-track={code} href={href} key={code} aria-label={action}>{body}</Link>;})}</div>
