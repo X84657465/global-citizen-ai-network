@@ -1583,7 +1583,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
             pull_requests: [{
               number: 168,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
-              head: { sha, repo: { full_name: "owner/repo" } },
+              head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
             }],
           };
         }
@@ -1592,7 +1592,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
             number: 168,
             state: "open",
             base: { ref: "main", repo: { full_name: "owner/repo" } },
-            head: { sha, repo: { full_name: "owner/repo" } },
+            head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
           };
         }
         throw new Error("Unexpected API request: " + path);
@@ -1658,7 +1658,7 @@ test("system-health success rejects an overall successful run when required CI j
             pull_requests: [{
               number: 170,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
-              head: { sha, repo: { full_name: "owner/repo" } },
+              head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
             }],
           };
         }
@@ -1714,7 +1714,7 @@ test("system-health success rejects a required CI job from another attempt or SH
             pull_requests: [{
               number: 171,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
-              head: { sha, repo: { full_name: "owner/repo" } },
+              head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
             }],
           };
         }
@@ -1768,7 +1768,7 @@ test("system-health success rejects a closed PR even when its old CI run was suc
             pull_requests: [{
               number: 172,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
-              head: { sha, repo: { full_name: "owner/repo" } },
+              head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
             }],
           };
         }
@@ -1780,7 +1780,7 @@ test("system-health success rejects a closed PR even when its old CI run was suc
             number: 172,
             state: "closed",
             base: { ref: "main", repo: { full_name: "owner/repo" } },
-            head: { sha, repo: { full_name: "owner/repo" } },
+            head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
           };
         }
         throw new Error("Unexpected API request: " + path);
