@@ -11,6 +11,7 @@ const sha = "a".repeat(40);
 const repo = "X84657465/global-citizen-ai-network";
 const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence => ({
   jobId,
+  runAttempt: 1,
   status: "completed",
   conclusion: "success",
   jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456",
@@ -32,7 +33,7 @@ const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle =
     workflowPath: ".github/workflows/ci.yml",
     status: "completed",
     conclusion: "success",
-    runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
+    runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/1",
     jobs: G_REQUIRED_CI_JOBS.map((id) => job(id)),
   },
   ...overrides,
@@ -45,6 +46,15 @@ test("requires all four mainline CI jobs to pass for the exact candidate SHA", (
   assert.equal(result.acceptanceGranted, false);
   assert.equal(result.mergeAuthorized, false);
   assert.equal(result.deploymentAuthorized, false);
+});
+
+test("rejects a required job record from a different workflow run attempt", () => {
+  const mixedAttemptJobs = G_REQUIRED_CI_JOBS.map((id) =>
+    job(id, id === "quality" ? { runAttempt: 2 } : {}),
+  );
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: mixedAttemptJobs },
+  })), TypeError);
 });
 
 test("does not accept a green summary when database or build job is missing", () => {
@@ -126,6 +136,17 @@ test("treats queued or in-progress runs and jobs as incomplete", () => {
   assert.equal(queuedJob.pending, 1);
 });
 
+test("requires the run URL to identify the exact Actions attempt", () => {
+  for (const runUrl of [
+    "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
+    "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/2",
+  ]) {
+    assert.throws(() => assessGExactHeadEvidence(bundle({
+      run: { ...bundle().run, runUrl },
+    })), /exact repository, run ID, and attempt/);
+  }
+});
+
 test("rejects duplicate job records and malformed run evidence", () => {
   assert.throws(() => assessGExactHeadEvidence(bundle({
     run: { ...bundle().run, jobs: [job("quality"), job("quality")] },
@@ -136,4 +157,70 @@ test("rejects duplicate job records and malformed run evidence", () => {
   assert.throws(() => assessGExactHeadEvidence(bundle({
     candidateSha: "bad",
   })), TypeError);
+});
+
+
+test("rejects hostile G job arrays and accessor-backed job records", () => {
+  const validJobs = G_REQUIRED_CI_JOBS.map((id) => job(id));
+  const customIterator = [...validJobs] as GJobEvidence[] & { [Symbol.iterator]?: () => Iterator<GJobEvidence> };
+  Object.defineProperty(customIterator, Symbol.iterator, {
+    value: function* () { yield validJobs[0]; },
+  });
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: customIterator },
+  })), /bounded dense plain array/);
+
+  const sparse = new Array<GJobEvidence>(1);
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: sparse },
+  })), /bounded dense plain array/);
+
+  const accessorSlot = [...validJobs];
+  Object.defineProperty(accessorSlot, "0", { enumerable: true, configurable: true, get: () => validJobs[0] });
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: accessorSlot },
+  })), /bounded dense plain array/);
+
+  let getterCalled = false;
+  const getterJob = { ...validJobs[0] };
+  Object.defineProperty(getterJob, "jobId", {
+    enumerable: true,
+    configurable: true,
+    get() { getterCalled = true; return "resolve-candidate"; },
+  });
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: [getterJob as GJobEvidence, ...validJobs.slice(1)] },
+  })), /plain own-data fields/);
+  assert.equal(getterCalled, false);
+});
+
+test("uses descriptor snapshots for G bundle, run, and job Proxy records", () => {
+  let getTrapCalls = 0;
+  const base = bundle();
+  const jobs = base.run.jobs.map((item) => new Proxy(item, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "runAttempt") return 2;
+      return Reflect.get(target, property, receiver);
+    },
+  }));
+  const run = new Proxy({ ...base.run, jobs }, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "runAttempt") return 2;
+      return Reflect.get(target, property, receiver);
+    },
+  });
+  const proxiedBundle = new Proxy({ ...base, run }, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "candidateSha") return "b".repeat(40);
+      return Reflect.get(target, property, receiver);
+    },
+  });
+
+  const result = assessGExactHeadEvidence(proxiedBundle);
+  assert.equal(result.status, "ready-for-review");
+  assert.equal(result.runAttempt, 1);
+  assert.equal(getTrapCalls, 0);
 });

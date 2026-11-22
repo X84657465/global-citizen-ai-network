@@ -20,7 +20,8 @@ const ci = (jobKey: "quality" | "database", overrides: Partial<FPSecurityCIEvide
   workflowPath: ".github/workflows/ci.yml",
   runId: 123,
   runAttempt: 1,
-  runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
+  runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/1",
+  jobRunAttempt: overrides.runAttempt ?? 1,
   jobKey,
   jobConclusion: "success",
   jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${jobKey === "database" ? 456 : 789}`,
@@ -132,6 +133,33 @@ test("rejects a CI run from another PR, repository, workflow, base, or event", (
   }
 });
 
+test("requires the CI run URL to identify the exact attempt", () => {
+  const attemptTwo = "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/2";
+  const valid = assessFPSecurityEvidence(bundle({
+    evidence: FP_SECURITY_CONTROLS.map((control) => evidence(control.id, {
+      ci: ci(control.requiredJob, { runAttempt: 2, runUrl: attemptTwo }),
+    })),
+  }));
+  assert.equal(valid.status, "ready-for-review");
+
+  assert.throws(() => assessFPSecurityEvidence(bundle({
+    evidence: [evidence("member-isolation", {
+      ci: ci("database", { runAttempt: 2, runUrl: attemptTwo, jobRunAttempt: 1 }),
+    })],
+  })), /Invalid F evidence CI identity or job metadata/);
+
+  for (const runUrl of [
+    "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
+    "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/1",
+  ]) {
+    assert.throws(() => assessFPSecurityEvidence(bundle({
+      evidence: [evidence("member-isolation", {
+        ci: ci("database", { runAttempt: 2, runUrl }),
+      })],
+    })), /exact repository, run ID, and attempt/);
+  }
+});
+
 test("rejects impossible or non-canonical evidence timestamps", () => {
   for (const executedAt of [
     "2026-02-30T12:00:00.000Z",
@@ -160,7 +188,7 @@ test("rejects controls assigned to the wrong job and evidence mixed across CI ru
       evidence(control.id, control.id === "route-authorization"
         ? { ci: ci("quality", {
             runId: 124,
-            runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/124",
+            runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/124/attempts/1",
             jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/124/job/789",
           }) }
         : {}),
@@ -181,6 +209,85 @@ test("rejects forged run/job URLs, duplicate controls, invalid SHAs, and unregis
     ),
   })), TypeError);
   assert.throws(() => assessFPSecurityEvidence(bundle({
+    evidence: [evidence("member-isolation", {
+      ci: ci("database", {
+        jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/0",
+      }),
+    })],
+  })), /F CI job URL does not belong to the evidence run/);
+  assert.throws(() => assessFPSecurityEvidence(bundle({
     evidence: [evidence("member-isolation", { evidenceRef: "tests/other-unrelated.test.ts" })],
   })), TypeError);
+});
+
+
+test("rejects hostile F evidence arrays and accessor-backed evidence records", () => {
+  const valid = FP_SECURITY_CONTROLS.map((control) => evidence(control.id));
+  const customIterator = [...valid] as FPSecurityEvidence[] & { [Symbol.iterator]?: () => Iterator<FPSecurityEvidence> };
+  Object.defineProperty(customIterator, Symbol.iterator, {
+    value: function* () { yield valid[0]; },
+  });
+  assert.throws(() => assessFPSecurityEvidence(bundle({ evidence: customIterator })), /bounded dense plain array/);
+
+  const sparse = new Array<FPSecurityEvidence>(1);
+  assert.throws(() => assessFPSecurityEvidence(bundle({ evidence: sparse })), /bounded dense plain array/);
+
+  const accessorSlot = [...valid];
+  Object.defineProperty(accessorSlot, "0", { enumerable: true, configurable: true, get: () => valid[0] });
+  assert.throws(() => assessFPSecurityEvidence(bundle({ evidence: accessorSlot })), /bounded dense plain array/);
+
+  let getterCalled = false;
+  const getterRecord = { ...valid[0] };
+  Object.defineProperty(getterRecord, "controlId", {
+    enumerable: true,
+    configurable: true,
+    get() { getterCalled = true; return "member-isolation"; },
+  });
+  assert.throws(() => assessFPSecurityEvidence(bundle({ evidence: [getterRecord as FPSecurityEvidence] })), /plain own-data fields/);
+  assert.equal(getterCalled, false);
+
+  const ciGetterRecord = { ...valid[0].ci };
+  Object.defineProperty(ciGetterRecord, "repository", {
+    enumerable: true,
+    configurable: true,
+    get() { getterCalled = true; return repository; },
+  });
+  assert.throws(() => assessFPSecurityEvidence(bundle({
+    evidence: [evidence("member-isolation", { ci: ciGetterRecord as FPSecurityCIEvidence })],
+  })), /plain own-data fields/);
+  assert.equal(getterCalled, false);
+});
+
+test("uses descriptor snapshots for F bundle, evidence, and CI Proxy records", () => {
+  let getTrapCalls = 0;
+  const items = FP_SECURITY_CONTROLS.map((control) => {
+    const base = evidence(control.id);
+    const ciProxy = new Proxy(base.ci, {
+      get(target, property, receiver) {
+        getTrapCalls += 1;
+        if (property === "repository") return "attacker/fork";
+        return Reflect.get(target, property, receiver);
+      },
+    });
+    return new Proxy({ ...base, ci: ciProxy }, {
+      get(target, property, receiver) {
+        getTrapCalls += 1;
+        if (property === "controlId") return "forged-control";
+        return Reflect.get(target, property, receiver);
+      },
+    });
+  });
+  const baseBundle = bundle({ evidence: items });
+  const proxiedBundle = new Proxy(baseBundle, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      if (property === "candidateSha") return "b".repeat(40);
+      return Reflect.get(target, property, receiver);
+    },
+  });
+
+  const result = assessFPSecurityEvidence(proxiedBundle);
+  assert.equal(result.status, "ready-for-review");
+  assert.equal(result.passed, FP_SECURITY_CONTROLS.length);
+  assert.equal(getTrapCalls, 0);
 });

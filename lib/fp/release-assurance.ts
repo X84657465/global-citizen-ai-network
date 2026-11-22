@@ -17,6 +17,7 @@ export type GJobConclusion = "success" | "failure" | "cancelled" | "skipped" | "
 
 export interface GJobEvidence {
   readonly jobId: string;
+  readonly runAttempt: number;
   readonly status: "completed" | "in_progress" | "queued";
   readonly conclusion: GJobConclusion | null;
   readonly jobUrl: string;
@@ -73,6 +74,59 @@ export interface GAcceptanceAssessment {
 const SHA_PATTERN = /^[a-f0-9]{40}$/i;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const GITHUB_RUN_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+(?:\/attempts\/\d+)?$/;
+
+const G_MAX_JOBS = 100;
+
+function snapshotSafeRecord(
+  value: unknown,
+  allowed: readonly string[],
+  required: readonly string[],
+): Record<string, unknown> | null {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
+  try {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return null;
+    const keys = Reflect.ownKeys(value);
+    if (keys.some((key) => typeof key !== "string" || !allowed.includes(key))) return null;
+    const keySet = new Set(keys as string[]);
+    if (required.some((key) => !keySet.has(key))) return null;
+
+    const snapshot = Object.create(null) as Record<string, unknown>;
+    for (const key of keys as string[]) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (descriptor === undefined || !descriptor.enumerable || !("value" in descriptor)) return null;
+      snapshot[key] = descriptor.value;
+    }
+    return snapshot;
+  } catch {
+    return null;
+  }
+}
+
+function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | null {
+  try {
+    if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return null;
+    const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
+    if (!lengthDescriptor || !("value" in lengthDescriptor) ||
+        !Number.isSafeInteger(lengthDescriptor.value) || lengthDescriptor.value < 0 ||
+        lengthDescriptor.value > maximumLength) return null;
+    const length = lengthDescriptor.value as number;
+    const keys = Reflect.ownKeys(value);
+    if (keys.length !== length + 1 ||
+        keys.some((key) => typeof key !== "string" ||
+          (key !== "length" && !/^(0|[1-9]\\d*)$/.test(key)))) return null;
+
+    const snapshot: unknown[] = [];
+    for (let index = 0; index < length; index += 1) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+      if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) return null;
+      snapshot.push(descriptor.value);
+    }
+    return snapshot;
+  } catch {
+    return null;
+  }
+}
 const GITHUB_JOB_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+\/job\/\d+$/;
 
 function validPositiveInteger(value: number): boolean {
@@ -84,47 +138,91 @@ function validPositiveInteger(value: number): boolean {
  * jobs and may proceed to human review. It is never an approval or release.
  */
 export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptanceAssessment {
+  const candidate = snapshotSafeRecord(
+    bundle,
+    ["candidateRepository", "candidateSha", "pullRequestNumber", "run"],
+    ["candidateRepository", "candidateSha", "pullRequestNumber", "run"],
+  );
   if (
-    !bundle ||
-    !REPOSITORY_PATTERN.test(bundle.candidateRepository) ||
-    !SHA_PATTERN.test(bundle.candidateSha) ||
-    !validPositiveInteger(bundle.pullRequestNumber)
+    !candidate ||
+    typeof candidate.candidateRepository !== "string" ||
+    typeof candidate.candidateSha !== "string" ||
+    !REPOSITORY_PATTERN.test(candidate.candidateRepository) ||
+    !SHA_PATTERN.test(candidate.candidateSha) ||
+    typeof candidate.pullRequestNumber !== "number" ||
+    !validPositiveInteger(candidate.pullRequestNumber)
   ) {
     throw new TypeError("Invalid G candidate repository, SHA, or pull request number.");
   }
 
-  const run = bundle.run;
-  if (
-    !run ||
-    !validPositiveInteger(run.runId) ||
-    !validPositiveInteger(run.runAttempt) ||
-    !validPositiveInteger(run.pullRequestNumber) ||
-    !REPOSITORY_PATTERN.test(run.repository) ||
-    !REPOSITORY_PATTERN.test(run.headRepository) ||
-    !SHA_PATTERN.test(run.headSha) ||
-    !GITHUB_RUN_URL_PATTERN.test(run.runUrl) ||
-    !Array.isArray(run.jobs) ||
-    run.jobs.some((job) =>
+  const run = snapshotSafeRecord(
+    candidate.run,
+    ["runId", "runAttempt", "pullRequestNumber", "repository", "headRepository", "event", "baseRef", "headSha", "workflowPath", "status", "conclusion", "runUrl", "jobs"],
+    ["runId", "runAttempt", "pullRequestNumber", "repository", "headRepository", "event", "baseRef", "headSha", "workflowPath", "status", "conclusion", "runUrl", "jobs"],
+  ) as unknown as GExactRunEvidence | null;
+  if (!run) {
+    throw new TypeError("Invalid G run record; expected plain own-data fields.");
+  }
+  const rawJobs = snapshotSafeArray(run.jobs, G_MAX_JOBS);
+  if (rawJobs === null) {
+    throw new TypeError("G jobs must be a bounded dense plain array with own data slots.");
+  }
+  const jobItems: GJobEvidence[] = [];
+  for (const rawJob of rawJobs) {
+    const job = snapshotSafeRecord(
+      rawJob,
+      ["jobId", "runAttempt", "status", "conclusion", "jobUrl"],
+      ["jobId", "runAttempt", "status", "conclusion", "jobUrl"],
+    ) as unknown as GJobEvidence | null;
+    if (
       !job ||
       typeof job.jobId !== "string" ||
       !job.jobId ||
+      typeof job.runAttempt !== "number" ||
+      !validPositiveInteger(job.runAttempt) ||
+      job.runAttempt !== run.runAttempt ||
+      typeof job.status !== "string" ||
       !["completed", "in_progress", "queued"].includes(job.status) ||
-      !(job.conclusion === null || ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"].includes(job.conclusion)) ||
+      !(job.conclusion === null || (typeof job.conclusion === "string" &&
+        ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"].includes(job.conclusion))) ||
+      typeof job.jobUrl !== "string" ||
       !GITHUB_JOB_URL_PATTERN.test(job.jobUrl)
-    )
+    ) {
+      throw new TypeError("Invalid G GitHub Actions run evidence.");
+    }
+    jobItems.push(job);
+  }
+
+  if (
+    !validPositiveInteger(run.runId) ||
+    !validPositiveInteger(run.runAttempt) ||
+    !validPositiveInteger(run.pullRequestNumber) ||
+    typeof run.repository !== "string" ||
+    typeof run.headRepository !== "string" ||
+    typeof run.event !== "string" ||
+    typeof run.baseRef !== "string" ||
+    typeof run.headSha !== "string" ||
+    typeof run.workflowPath !== "string" ||
+    typeof run.status !== "string" ||
+    !(run.conclusion === null || typeof run.conclusion === "string") ||
+    typeof run.runUrl !== "string" ||
+    !REPOSITORY_PATTERN.test(run.repository) ||
+    !REPOSITORY_PATTERN.test(run.headRepository) ||
+    !SHA_PATTERN.test(run.headSha) ||
+    !GITHUB_RUN_URL_PATTERN.test(run.runUrl)
   ) {
     throw new TypeError("Invalid G GitHub Actions run evidence.");
   }
 
   const expectedRunUrl = `https://github.com/${run.repository}/actions/runs/${run.runId}`;
   const expectedRunAttemptUrl = `${expectedRunUrl}/attempts/${run.runAttempt}`;
-  if (run.runUrl !== expectedRunUrl && run.runUrl !== expectedRunAttemptUrl) {
-    throw new TypeError("G run URL does not match its repository, run ID, and attempt.");
+  if (run.runUrl !== expectedRunAttemptUrl) {
+    throw new TypeError("G run URL must identify the exact repository, run ID, and attempt.");
   }
 
   const expectedJobPrefix = `${expectedRunUrl}/job/`;
   const jobIds = new Set<string>();
-  for (const job of run.jobs) {
+  for (const job of jobItems) {
     if (jobIds.has(job.jobId)) throw new TypeError("Duplicate G CI job evidence.");
     if (!job.jobUrl.startsWith(expectedJobPrefix)) {
       throw new TypeError("G job URL does not belong to the candidate workflow run.");
@@ -133,7 +231,7 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
   }
 
   const jobs: GJobAssessment[] = G_REQUIRED_CI_JOBS.map((jobId) => {
-    const evidence = run.jobs.find((item) => item.jobId === jobId);
+    const evidence = jobItems.find((item) => item.jobId === jobId);
     if (!evidence) return { jobId, status: "missing" };
     if (evidence.status !== "completed") return { jobId, status: "pending" };
     if (evidence.conclusion !== "success") {
@@ -152,13 +250,13 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
   const passed = jobs.filter((job) => job.status === "passed").length;
 
   const identityMatches =
-    run.repository === bundle.candidateRepository &&
-    run.headRepository === bundle.candidateRepository &&
-    run.pullRequestNumber === bundle.pullRequestNumber &&
+    run.repository === candidate.candidateRepository &&
+    run.headRepository === candidate.candidateRepository &&
+    run.pullRequestNumber === candidate.pullRequestNumber &&
     run.event === "pull_request" &&
     run.baseRef === "main" &&
     run.workflowPath === ".github/workflows/ci.yml" &&
-    run.headSha.toLowerCase() === bundle.candidateSha.toLowerCase();
+    run.headSha.toLowerCase() === candidate.candidateSha.toLowerCase();
 
   const status = failed > 0
     ? "blocked"
@@ -178,9 +276,9 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
 
   return Object.freeze({
     schemaVersion: "1",
-    candidateRepository: bundle.candidateRepository,
-    candidateSha: bundle.candidateSha,
-    pullRequestNumber: bundle.pullRequestNumber,
+    candidateRepository: candidate.candidateRepository as string,
+    candidateSha: candidate.candidateSha as string,
+    pullRequestNumber: candidate.pullRequestNumber as number,
     runId: run.runId,
     runAttempt: run.runAttempt,
     status,
