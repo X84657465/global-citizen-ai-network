@@ -1,3 +1,8 @@
+## P 0.1.3 — 2026-11-22
+
+- Validate the A–P engineering-workstream planning baseline against the canonical repository release version.
+- Add a regression test that rejects stale architecture-document baselines.
+
 ## P 0.1.2 — 2026-11-22
 
 - Add a pure A–P version contract validator.
