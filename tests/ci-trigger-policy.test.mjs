@@ -18,6 +18,15 @@ function findJobSection(source, name) {
   return { start, end: headers[0] ? start + 1 + headers[0].index : source.length };
 }
 
+function findNamedStepBlock(source, name, fromIndex = 0) {
+  const marker = `      - name: ${name}\\n`;
+  const start = source.indexOf(marker, fromIndex);
+  assert.ok(start >= 0, "missing workflow step: " + name);
+  const next = source.indexOf("\\n      - name:", start + marker.length);
+  const end = next >= 0 ? next : source.length;
+  return source.slice(start, end);
+}
+
 test("root and Agent Factory numeric release metadata stay synchronized", () => {
   const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   const packageLock = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url), "utf8"));
@@ -411,56 +420,48 @@ test("all workflow checkouts disable persisted Git credentials", () => {
   }
 });
 
-test("preflight task publisher does not request Actions API permissions", () => {
-  const start = preflight.indexOf("  prepare-task:\n");
-  assert.notEqual(start, -1, "expected the durable task publisher job");
-  const permissionsStart = preflight.indexOf("    permissions:\n", start);
-  const permissionsEnd = preflight.indexOf("    runs-on:", permissionsStart);
-  const permissions = preflight.slice(permissionsStart, permissionsEnd);
-  assert.match(permissions, /actions:\s+none/);
-  assert.match(permissions, /contents:\s+write/);
-  assert.match(permissions, /issues:\s+write/);
-  assert.match(permissions, /pull-requests:\s+write/);
+test("preflight separates least-privilege task planning from the isolated publisher permissions", () => {
+  const { start: prepareStart, end: prepareEnd } = findJobSection(preflight, "prepare-task");
+  const prepareTask = preflight.slice(prepareStart, prepareEnd);
+  const preparePermissionsStart = prepareTask.indexOf("    permissions:\\n");
+  const preparePermissionsEnd = prepareTask.indexOf("    concurrency:", preparePermissionsStart);
+  const preparePermissions = prepareTask.slice(preparePermissionsStart, preparePermissionsEnd);
+  assert.match(preparePermissions, /actions:\\s+none/);
+  assert.match(preparePermissions, /contents:\\s+read/);
+  assert.match(preparePermissions, /issues:\\s+write/);
+  assert.match(preparePermissions, /pull-requests:\\s+read/);
+
+  const { start: publisherStart, end: publisherEnd } = findJobSection(preflight, "publish-task");
+  const publisherJob = preflight.slice(publisherStart, publisherEnd);
+  const publisherPermissionsStart = publisherJob.indexOf("    permissions:\\n");
+  const publisherPermissionsEnd = publisherJob.indexOf("    concurrency:", publisherPermissionsStart);
+  const publisherPermissions = publisherJob.slice(publisherPermissionsStart, publisherPermissionsEnd);
+  assert.match(publisherPermissions, /actions:\\s+read/);
+  assert.match(publisherPermissions, /contents:\\s+write/);
+  assert.match(publisherPermissions, /issues:\\s+none/);
+  assert.match(publisherPermissions, /pull-requests:\\s+write/);
 });
 
+test("untrusted candidate install and test steps never receive GitHub write credentials", () => {
+  const prepareStart = findJobSection(preflight, "prepare-task").start;
+  const candidateSteps = [
+    findNamedStepBlock(preflight, "Install candidate dependencies inside restricted container (attempt 1)", prepareStart),
+    findNamedStepBlock(preflight, "Retry candidate dependency installation once", prepareStart),
+    findNamedStepBlock(preflight, "Test patched candidate offline inside restricted container", prepareStart),
+  ];
 
-test("untrusted candidate install and test containers never receive GitHub write credentials", () => {
-  const candidateStart = preflight.indexOf('      - name: Install candidate dependencies inside restricted container (attempt 1)');
-  const candidateEnd = preflight.indexOf('      - name: Transition task to publishing', candidateStart);
-  assert.notEqual(candidateStart, -1, "expected candidate install step");
-  assert.notEqual(candidateEnd, -1, "expected publishing boundary after candidate tests");
-  const candidateSection = preflight.slice(candidateStart, candidateEnd);
-  assert.equal(/GITHUB_TOKEN:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/.test(candidateSection), false);
-  assert.equal(/--env\s+GITHUB_TOKEN|--env\s+GH_TOKEN|--env\s+GITHUB_/.test(candidateSection), false);
-  assert.match(candidateSection, /--network none/);
-  assert.match(candidateSection, /--cap-drop ALL/);
-  assert.match(candidateSection, /--read-only/);
-});
-
-test("preflight GitHub write credentials are scoped to trusted orchestration and publisher steps", () => {
-  const lines = preflight.split("\n");
-  const tokenSteps = [];
-  for (let index = 0; index < lines.length; index += 1) {
-    if (!/GITHUB_TOKEN:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/.test(lines[index])) continue;
-    let start = index;
-    while (start > 0 && !/^\s*- name:/.test(lines[start])) start -= 1;
-    tokenSteps.push(lines[start]?.trim() || "unknown step");
+  for (const step of candidateSteps) {
+    assert.doesNotMatch(step, /GITHUB_TOKEN:\\s*\\$\\{\\{\\s*secrets\\.GITHUB_TOKEN\\s*\\}\\}/);
+    assert.doesNotMatch(step, /--env\\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]+)/);
+    assert.doesNotMatch(step, /^\\s+GITHUB_TOKEN:/m);
   }
-  assert.ok(tokenSteps.length > 0, "expected explicit step-scoped token injection");
-  assert.ok(tokenSteps.every((name) => !/Install candidate dependencies|Retry candidate dependency|Test patched candidate/i.test(name)), "candidate install/test execution must not receive a token");
 });
 
-test("candidate install and offline test use separate least-network container profiles", () => {
-  const installStart = preflight.indexOf('      - name: Install candidate dependencies inside restricted container (attempt 1)');
-  const retryStart = preflight.indexOf('      - name: Retry candidate dependency installation once', installStart);
-  const testStart = preflight.indexOf('      - name: Test patched candidate offline inside restricted container', retryStart);
-  const publishStart = preflight.indexOf('      - name: Transition task to publishing', testStart);
-  assert.ok(installStart >= 0 && retryStart > installStart && testStart > retryStart && publishStart > testStart,
-    "candidate install, retry, offline test, and publisher boundaries must remain explicit");
-
-  const install = preflight.slice(installStart, retryStart);
-  const retry = preflight.slice(retryStart, testStart);
-  const offlineTest = preflight.slice(testStart, publishStart);
+test("candidate dependency install and offline test retain separate least-network container profiles", () => {
+  const prepareStart = findJobSection(preflight, "prepare-task").start;
+  const install = findNamedStepBlock(preflight, "Install candidate dependencies inside restricted container (attempt 1)", prepareStart);
+  const retry = findNamedStepBlock(preflight, "Retry candidate dependency installation once", prepareStart);
+  const offlineTest = findNamedStepBlock(preflight, "Test patched candidate offline inside restricted container", prepareStart);
 
   for (const section of [install, retry]) {
     assert.match(section, /--network bridge/, "dependency installation may use network only inside the disposable container");
@@ -470,7 +471,7 @@ test("candidate install and offline test use separate least-network container pr
     assert.match(section, /--security-opt no-new-privileges/);
     assert.match(section, /--user 1000:1000/);
     assert.match(section, /--ignore-scripts/, "candidate dependency lifecycle scripts must stay disabled");
-    assert.match(section, /--env npm_config_cache=\/npm-cache/);
+    assert.match(section, /--env npm_config_cache=\\/npm-cache/);
     assert.doesNotMatch(section, /GITHUB_TOKEN|GH_TOKEN/);
   }
 
