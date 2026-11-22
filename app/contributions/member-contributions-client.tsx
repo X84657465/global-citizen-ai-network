@@ -111,7 +111,6 @@ export default function MemberContributionsClient() {
                       <button type="button" disabled={appealBusy === row.id} onClick={() => void submitAppeal(row.id)} style={{ border: 0, borderRadius: 8, background: "#315d91", color: "#fff", padding: "8px 12px", fontWeight: 700 }}>{appealBusy === row.id ? "送出中…" : "提出申訴"}</button>
                     </div>
                   </div> : null}
-                  
                 </div>;
               })}</div>}
           </section>
