@@ -88,7 +88,7 @@ test("double-negated risk language remains high risk instead of being treated as
   for (const title of [
     "There is no reason not to deploy to production",
     "Credentials are not prohibited from being rotated",
-    "Production is not out of scope for this task",
+    "Production is not out of scope for this task, so deploy now",
   ]) {
     const result = evaluateAgentDecision(withImplementerText(title), task);
     assert.equal(result.signals.no_high_risk_scope, false, title);
