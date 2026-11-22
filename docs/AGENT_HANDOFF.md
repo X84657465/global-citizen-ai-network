@@ -1,3 +1,32 @@
+## Superseding live execution snapshot — 2026-11-23 (main 10fabef7)
+
+This section supersedes older live-state snapshots below. Always re-fetch exact refs before acting; historical snapshots are retained for audit history, not current status.
+
+### Main / CI
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Exact-main standard CI [#45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077) remains **PENDING**. Do not treat this as PASS.
+- Recent main-branch System Health Recovery workflow runs are **SKIPPED**, including #45060377211, #45060360765 and #45060335850. Skipped is not a recovery success.
+- Vercel `build-rate-limit` is provider quota status and must remain separate from GitHub Actions CI.
+
+### Current exact-head PR evidence
+- #420: live head at last check `b1671f72ae6a8c5475da5ac59595a1bfe2c21eae`, base main. Exact-head run [#45060370063](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060370063) is **PENDING**; its only visible job, metadata resolver, is PENDING. Documentation-only change; no repository test suite run. Re-fetch the head and exact-head run after every further update.
+- #422: head `535daef3edb0ee81abfb003131d4149e81620357`; exact-head PR run [#45058587659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058587659): metadata resolver SUCCESS, Windows quality job PENDING. Associated push run #45058582257 failed. Author COMMENTED review records say the previously observed three-way classifier assertion mismatch was fixed in current head; a separate COMMENTED finding says #422 and #425 overlap and require one canonical DRI. No independent formal APPROVE.
+- #425: head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; exact-head run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) has metadata resolver SUCCESS but **Windows Runner quality gates FAILURE** at `Verify CI trigger and Runner policy`. Unit tests, type check, lint and production build were SKIPPED; diagnostics remain pending at this check. Ollama and Supabase/PostgreSQL/RLS jobs were SKIPPED. Separately, the blocking COMMENTED review finding remains: `Number(state.ExitCode)` can coerce null, empty string and false to zero. Require raw-value validation and regressions for missing/null/empty/boolean/fractional/out-of-range values.
+- #426: head `542d315d0c3733aeef155d51f9a662528050b1bb`; exact-head run [#45058900487](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058900487) has resolver SUCCESS and Windows quality job PENDING. No formal review submitted; full exact-head matrix and independent review remain required.
+- #424 remains Draft and stacked on #422. Its workflow-level success did not establish substantive validation; do not integrate independently.
+- #427 remains Draft; head `5516d4b207a016b0a6d55c112a5fd6887611ff7d`; exact-head run [#45060267113](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060267113) is PENDING. Roadmap text is not implemented runtime capability.
+- Other open PRs #417, #376, #373 and #259 have stale/non-main bases or Draft/failure constraints; do not bulk merge.
+
+### Governance / decision
+- Issue #117 explicitly says **do not merge a pull request or deploy any environment**. The `factory-control-plane-approved` label does not override that explicit exclusion.
+- #422 and #425 are competing implementations for the same P0 scope and overlapping protected workflow/test paths. Do not make overlapping edits or choose a canonical implementation without owner/DRI coordination. Prefer evaluating #422's workflow-level explicit evidence approach, but no acceptance or merge is authorized by this note.
+- Issue #176 requires exact-head full CI, including Windows quality, Ollama/local execution, disposable Supabase/PostgreSQL/RLS, and independent formal review. Its approval label does not waive these gates.
+- Issue #136 audit baseline remains stale; stop until owner-authorized current-main baseline is supplied.
+- No PR is accepted or mergeable for policy purposes on this evidence. No merge, deployment, production state mutation, Runner change or B Runtime activation occurred.
+- Factory-first next actions: (1) diagnose #425 CI trigger-policy failure and strict exit-evidence gap only after canonical DRI is resolved; (2) observe #422 exact-head Windows quality result; (3) track #426 full matrix and independent review; (4) keep B handoff versioned, redacted and read-only until A gates pass.
+
+---
+
 ## Latest live evidence — 2026-11-23 (main 10fabef7; PR #420 refresh)
 
 This section supersedes earlier live-state statements below. Re-fetch all exact refs and run attempts before further writes.
