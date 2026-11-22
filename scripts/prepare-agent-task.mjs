@@ -1,5 +1,6 @@
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { validateAndBuildTask } from "../lib/agent-task-validation.mjs";
+import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
 
 const fail = (message, error = null) => {
@@ -29,42 +30,18 @@ if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
 }
 if (!token) fail("GITHUB_TOKEN is unavailable.");
 
-const response = await fetch(
-  "https://api.github.com/repos/" + repository + "/issues/" + issueNumber,
-  {
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: "Bearer " + token,
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    signal: AbortSignal.timeout(10000),
-  },
-);
+const githubApi = createGitHubApiClient({
+  baseUrl: process.env.GITHUB_API_URL || undefined,
+  token,
+});
 
 let issue;
-if (!response.ok) {
-  let responseBody = {};
-  try { responseBody = await response.json(); } catch { /* retain status and headers */ }
-  const message = String(responseBody?.message ?? response.statusText ?? "request failed").slice(0, 500);
-  const rateLimited = response.status === 429 ||
-    (response.status === 403 && (
-      response.headers?.get?.("x-ratelimit-remaining") === "0" ||
-      /secondary rate|abuse detection|rate limit/i.test(message)
-    ));
-  const error = {
-    status: response.status,
-    message,
-    retryAfter: response.headers?.get?.("retry-after") ?? null,
-    rateLimitReset: response.headers?.get?.("x-ratelimit-reset") ?? null,
-    rateLimitRemaining: response.headers?.get?.("x-ratelimit-remaining") ?? null,
-    rateLimited,
-  };
-  fail("GitHub issue lookup returned HTTP " + response.status + ".", error);
-}
 try {
-  issue = await response.json();
-} catch {
-  fail("GitHub issue response was not valid JSON.");
+  issue = await githubApi.request("/repos/" + repository + "/issues/" + issueNumber);
+} catch (error) {
+  const status = Number(error?.status) || 0;
+  const reason = status > 0 ? "HTTP " + status : "network/timeout";
+  fail("GitHub issue lookup failed (" + reason + ").", error);
 }
 
 let task;
