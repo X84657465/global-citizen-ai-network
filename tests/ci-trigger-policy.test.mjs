@@ -47,8 +47,9 @@ test("named workflow step extraction never crosses into a later job", () => {
   );
 
   const windowsSource = source.replace(/\n/g, "\r\n");
-  const windowsPrepare = findJobSection(windowsSource, "prepare-task");
-  const existing = findNamedStepBlock(windowsSource, "Existing step", windowsPrepare.start, windowsPrepare.end);
+  const windowsPrepareStart = windowsSource.indexOf("  prepare-task:");
+  const windowsPrepareEnd = windowsSource.indexOf("  publish-task:");
+  const existing = findNamedStepBlock(windowsSource, "Existing step", windowsPrepareStart, windowsPrepareEnd);
   assert.match(existing, /echo safe/);
   assert.doesNotMatch(existing, /echo other-job/);
 });
