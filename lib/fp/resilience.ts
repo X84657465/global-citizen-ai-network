@@ -139,8 +139,9 @@ function snapshotEvidence(value: unknown): FPResilienceEvidence {
       "occurredAt", "schemaVersion", "source",
     ].sort();
     const keys = Reflect.ownKeys(value);
-    if (keys.length !== expected.length || keys.some((key) => typeof key !== "string") ||
-        [...keys as string[]].sort().some((key, index) => key !== expected[index])) {
+    const sortedKeys = keys.filter((key): key is string => typeof key === "string").sort();
+    if (keys.length !== expected.length || sortedKeys.length !== expected.length ||
+        sortedKeys.some((key, index) => key !== expected[index])) {
       throw new TypeError("Resilience evidence contains missing or unsupported fields.");
     }
     const descriptors = Object.getOwnPropertyDescriptors(value);
@@ -184,8 +185,9 @@ function snapshotPolicyDecision(value: unknown): FPResiliencePolicyDecision {
       throw new TypeError("Trusted resilience policy decision must be a plain data object.");
     }
     const keys = Reflect.ownKeys(value);
-    if (keys.length !== 2 || keys.some((key) => typeof key !== "string") ||
-        [...keys as string[]].sort().join(",") !== "decision,policyVersion") {
+    const sortedKeys = keys.filter((key): key is string => typeof key === "string").sort();
+    if (keys.length !== 2 || sortedKeys.length !== 2 ||
+        sortedKeys.join(",") !== "decision,policyVersion") {
       throw new TypeError("Trusted resilience policy decision contains unsupported fields.");
     }
     const descriptors = Object.getOwnPropertyDescriptors(value);
