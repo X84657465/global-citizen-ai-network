@@ -195,7 +195,8 @@ function snapshotPolicyDecision(value: unknown): FPResiliencePolicyDecision {
     const policyVersion = descriptors.policyVersion;
     if (!decision?.enumerable || !("value" in decision) || !policyVersion?.enumerable ||
         !("value" in policyVersion) ||
-        !["allow-advisory", "deny"].includes(String(decision.value)) ||
+        typeof decision.value !== "string" ||
+        !["allow-advisory", "deny"].includes(decision.value) ||
         typeof policyVersion.value !== "string" || !POLICY_VERSION.test(policyVersion.value)) {
       throw new TypeError("Trusted resilience policy decision is invalid.");
     }

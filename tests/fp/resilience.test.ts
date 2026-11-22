@@ -264,6 +264,25 @@ test("snapshots trusted policy decisions without invoking accessors", () => {
   );
 });
 
+test("rejects coercible policy decision values without invoking coercion hooks", () => {
+  let coercionCalls = 0;
+  const coercible = {
+    [Symbol.toPrimitive]() { coercionCalls += 1; throw new Error("must not coerce"); },
+    toString() { coercionCalls += 1; throw new Error("must not stringify"); },
+  };
+  const supplied = Object.create(null) as Record<string, unknown>;
+  supplied.decision = coercible;
+  supplied.policyVersion = "policy-v3";
+
+  assert.throws(() => createFPResilienceProposal(
+    evidence(),
+    supplied as unknown as FPResiliencePolicyDecision,
+    { correlationId: "corr-123" },
+  ), (error: unknown) => error instanceof TypeError &&
+    error.message === "Trusted resilience policy decision is invalid.");
+  assert.equal(coercionCalls, 0);
+});
+
 test("rejects evidence objects with symbol keys and non-plain prototypes", () => {
   const withSymbol = evidence() as unknown as Record<PropertyKey, unknown>;
   withSymbol[Symbol("hidden")] = "unsupported";
