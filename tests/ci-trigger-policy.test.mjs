@@ -19,11 +19,13 @@ function findJobSection(source, name) {
 }
 
 function findNamedStepBlock(source, name, fromIndex = 0, endIndex = source.length) {
-  const marker = `      - name: ${name}\n`;
+  const marker = "      - name: " + name;
   const start = source.indexOf(marker, fromIndex);
   assert.ok(start >= 0 && start < endIndex, "missing workflow step in requested job: " + name);
-  const next = source.indexOf("\n      - name:", start + marker.length);
-  const end = next >= 0 && next < endIndex ? next : endIndex;
+  const boundary = /\r?\n {6}- name:/g;
+  boundary.lastIndex = start + marker.length;
+  const next = boundary.exec(source);
+  const end = next && next.index < endIndex ? next.index : endIndex;
   return source.slice(start, end);
 }
 
@@ -43,6 +45,12 @@ test("named workflow step extraction never crosses into a later job", () => {
     () => findNamedStepBlock(source, "Target step", prepare.start, prepare.end),
     /missing workflow step in requested job/,
   );
+
+  const windowsSource = source.replace(/\n/g, "\r\n");
+  const windowsPrepare = findJobSection(windowsSource, "prepare-task");
+  const existing = findNamedStepBlock(windowsSource, "Existing step", windowsPrepare.start, windowsPrepare.end);
+  assert.match(existing, /echo safe/);
+  assert.doesNotMatch(existing, /echo other-job/);
 });
 
 test("root and Agent Factory numeric release metadata stay synchronized", () => {
