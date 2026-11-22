@@ -30,14 +30,18 @@ function unknownStatusLabel(status: string): string {
   return safeStatus ? `狀態待確認（${safeStatus}）` : "狀態待確認";
 }
 
+function lookupStatusLabel(labels: Record<string, string>, normalized: string): string {
+  return Object.prototype.hasOwnProperty.call(labels, normalized)
+    ? labels[normalized]
+    : unknownStatusLabel(normalized);
+}
+
 export function getSubmissionStatusLabel(status: string | null | undefined): string {
-  const normalized = normalizeStatus(status);
-  return submissionStatusLabels[normalized] ?? unknownStatusLabel(normalized);
+  return lookupStatusLabel(submissionStatusLabels, normalizeStatus(status));
 }
 
 export function getAppealStatusLabel(status: string | null | undefined): string {
-  const normalized = normalizeStatus(status);
-  return appealStatusLabels[normalized] ?? unknownStatusLabel(normalized);
+  return lookupStatusLabel(appealStatusLabels, normalizeStatus(status));
 }
 
 export function getAppealDetails(
