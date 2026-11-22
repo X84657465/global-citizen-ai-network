@@ -70,6 +70,10 @@ function nonNegativeSafeInteger(value: number): boolean {
   return Number.isSafeInteger(value) && value >= 0;
 }
 
+function hasOnlyOwnKeys(value: object, allowed: readonly string[]): boolean {
+  return Reflect.ownKeys(value).every((key) => typeof key === "string" && allowed.includes(key));
+}
+
 function percentile(sorted: readonly number[], p: number): number | null {
   if (sorted.length === 0) return null;
   return sorted[Math.max(0, Math.ceil(sorted.length * p) - 1)];
@@ -83,6 +87,7 @@ function percentile(sorted: readonly number[], p: number): number | null {
 export function assessHObservation(bundle: HObservationBundle): HObservationAssessment {
   if (
     !bundle ||
+    !hasOnlyOwnKeys(bundle, ["windowStart", "windowEnd", "quotaLimitMicros", "quotaWarningPercent", "events"]) ||
     !isCanonicalUtc(bundle.windowStart) ||
     !isCanonicalUtc(bundle.windowEnd) ||
     Date.parse(bundle.windowStart) >= Date.parse(bundle.windowEnd) ||
@@ -108,6 +113,7 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
   for (const event of bundle.events) {
     if (
       !event ||
+      !hasOnlyOwnKeys(event, ["eventId", "occurredAt", "kind", "outcome", "durationMs", "costMicros", "currency"]) ||
       typeof event.eventId !== "string" ||
       !EVENT_ID.test(event.eventId) ||
       ids.has(event.eventId) ||
