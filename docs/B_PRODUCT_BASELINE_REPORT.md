@@ -320,3 +320,32 @@ This is a new observation against the live repository; it supersedes earlier ope
 ### Daily automation
 - Automation `GCAN 每日工程巡檢` remains enabled with daily 08:00 Asia/Taipei schedule.
 - Its run history still has `last_run_time=null` / no latest result at this observation. Scheduling is configured; successful background execution is NOT VERIFIED.
+
+
+## 18. Operations delta — 2026-11-23 (fresh focused-test rerun)
+
+This entry records the latest read-only repository checks and a new isolated focused-test execution. It supersedes earlier statements about the Issue #75 focused test being last run in a previous session.
+
+### Current repository / PR evidence
+- Re-read `PROJECT_COORDINATION.md` from live `main`, blob `849e4f43c87d7686f80ed2e6af9337e797403027`; also re-read the Neural Intelligence Agent Mode, Master Charter, B Line Lead Charter, and Product North Star from `main`.
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`. Latest queried main Actions entries are Agent Factory System Health Recovery runs with conclusion SKIPPED; no main quality-gate PASS was evidenced. Main GitHub test CI remains UNKNOWN / NOT VERIFIED.
+- Main combined status reports Vercel FAILURE at the build-rate-limit target. This is a deployment quota status, not a GitHub test result.
+- PR #432 remains OPEN / DRAFT at exact head `49d541eaed8be94e9fd442155f0b6a10d0390428`; its exact-head quality gates, Ollama/local execution, and PostgreSQL/RLS integration checks are SUCCESS. Conditional persistence/diagnostic checks are SKIPPED. Formal GPT3 APPROVED review was not observed.
+- PR #430 remains OPEN / DRAFT at exact head `542aadacec0403e1ce92aa74bcc37991120152f2`. Exact-head run [45065095758](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45065095758) is FAILURE: Windows quality gates failed in `tests/agent-factory-controller.test.mjs:1930` with `Missing expected rejection`; 746 passed, 1 failed. This is a Factory-owned test failure, not a B Product source failure.
+
+### Issue #75 — fresh focused validation
+- Candidate remains `gpt4/issue-75-submission-status-main-10fab`, head `32d2beb1581e0770c7e85fbf0c83c746801ae1b3`, four commits ahead / zero behind main, with only the four allowlisted paths.
+- Re-fetched the candidate helper and test from GitHub. Exact helper blob: `e1494694b8c7243b6e93b1d75ae6e0538c7ce107`; exact test blob: `24a5ee5c6fa50146247da4bbce85cab01a03ce56`.
+- Re-ran `node --experimental-strip-types --experimental-transform-types --test tests/contribution-submission-status.test.ts` in an isolated temporary workspace with Node v22.16.0: **5 passed / 0 failed / 0 skipped**.
+- This focused run validates the pure helper tests only. It is not a complete repository test suite and does not validate the member client against the complete app build.
+- Attempted to obtain a complete candidate checkout for the required full-suite run; the environment could not resolve `github.com` (DNS/network unavailable). Therefore `npm run test:unit`, `npm run lint`, `npx --no-install tsc --noEmit`, and `npm run build` remain NOT RUN. The Issue #75 gate requires the complete isolated offline suite before PR publication; candidate remains BLOCKED and no PR was created.
+- No API/schema/migration/RLS/reward/payout/paid-service/production/Runtime changes were made.
+
+### Automation
+- `GCAN 每日工程巡檢` remains enabled for 08:00 Asia/Taipei; `last_run_time` remains null and latest background delivery/result is UNKNOWN. This manual inspection does not prove scheduled background execution.
+
+### Next actions
+1. GPT1 owns the Factory Operator Recovery test failure and its exact-SHA repair.
+2. GPT3 must provide independent review against a valid, current audit baseline; no self-approval is substituted.
+3. GPT4 / B keeps Issue #75 candidate un-published until full isolated offline validation is available.
+4. Keep B Runtime PREPARATION ONLY / DISABLED until Factory acceptance and A→B contract gates pass.
