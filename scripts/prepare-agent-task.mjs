@@ -1,7 +1,13 @@
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { validateAndBuildTask } from "../lib/agent-task-validation.mjs";
+import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
 
-const fail = (message) => {
+const fail = (message, error = null) => {
+  if (error?.rateLimited === true) {
+    try { persistApiCooldownDeadline(error); } catch {
+      console.error("Unable to persist the task-preparation rate-limit deadline.");
+    }
+  }
   console.error("Task preflight rejected: " + message);
   process.exit(1);
 };
@@ -35,9 +41,26 @@ const response = await fetch(
   },
 );
 
-if (!response.ok) fail("GitHub issue lookup returned HTTP " + response.status + ".");
-
 let issue;
+if (!response.ok) {
+  let responseBody = {};
+  try { responseBody = await response.json(); } catch { /* retain status and headers */ }
+  const message = String(responseBody?.message ?? response.statusText ?? "request failed").slice(0, 500);
+  const rateLimited = response.status === 429 ||
+    (response.status === 403 && (
+      response.headers?.get?.("x-ratelimit-remaining") === "0" ||
+      /secondary rate|abuse detection|rate limit/i.test(message)
+    ));
+  const error = {
+    status: response.status,
+    message,
+    retryAfter: response.headers?.get?.("retry-after") ?? null,
+    rateLimitReset: response.headers?.get?.("x-ratelimit-reset") ?? null,
+    rateLimitRemaining: response.headers?.get?.("x-ratelimit-remaining") ?? null,
+    rateLimited,
+  };
+  fail("GitHub issue lookup returned HTTP " + response.status + ".", error);
+}
 try {
   issue = await response.json();
 } catch {
