@@ -389,7 +389,7 @@ test("rejects duplicate supplemental context sections and still rejects unknown 
 
 
 test("parses required patch outputs and literal forbidden-content rules into the validated task", () => {
-  const body = validIssue().body + "\n\n## Required patch paths\n- tests/security/dependency-audit.test.mjs\n\n## Forbidden content\n- Recommended Next.js version: 13.5.6\n- Recommended ESLint version: 8.55.0\n- Run command: npm audit fix --force\n";
+  const body = validIssue().body.replace("- tests/settings-page.test.ts", "- tests/settings-page.test.ts\\n- tests/security/dependency-audit.test.mjs") + "\n\n## Required patch paths\n- tests/security/dependency-audit.test.mjs\n\n## Forbidden content\n- Recommended Next.js version: 13.5.6\n- Recommended ESLint version: 8.55.0\n- Run command: npm audit fix --force\n";
   const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
   assert.deepEqual(task.required_patch_paths, ["tests/security/dependency-audit.test.mjs"]);
   assert.deepEqual(task.forbidden_content, [
@@ -407,4 +407,15 @@ test("rejects required patch outputs outside the task allowlist and duplicate co
   assert.throws(() => validateAndBuildTask(outside, "X84657465/global-citizen-ai-network"), /also appear in the task allowlist/);
   const duplicate = validIssue({ body: validIssue().body + "\n\n## Required patch paths\n- tests/settings-page.test.ts\n- tests/settings-page.test.ts\n" });
   assert.throws(() => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"), /must not contain duplicates/);
+});
+
+
+test("rejects empty structured patch-contract sections instead of silently ignoring them", () => {
+  for (const section of ["Required patch paths", "Forbidden content"]) {
+    const body = validIssue().body + "\n\n## " + section + "\n";
+    assert.throws(
+      () => validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network"),
+      /must contain between 1 and/,
+    );
+  }
 });
