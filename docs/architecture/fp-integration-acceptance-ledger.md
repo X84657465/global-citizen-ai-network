@@ -126,7 +126,7 @@ This section supersedes earlier PR/run status statements above where they confli
 
 | Candidate | Exact HEAD | Latest exact-head evidence | Current disposition |
 |---|---|---|---|
-| A / PR #292 — evidence-grounded patch prompt | `2ed61e76b2045832d769dfd893b02ee6753de70c` | Resolver, Windows quality gates and Ollama/local execution passed; Supabase/PostgreSQL/RLS integration in progress (run `44967914868`) | Draft; no formal review; not accepted |
+| A / PR #292 — evidence-grounded patch prompt | `2ed61e76b2045832d769dfd893b02ee6753de70c` | Exact-head run `44967914868` completed successfully: resolver, Windows quality gates, Ollama/local execution and Supabase/PostgreSQL/RLS all passed | CI accepted; Draft; no formal review; not merge-approved |
 | A / PR #293 — Node 22.13.0 Preflight pin | `2278bb471392c1b92e43971191c2c103017e9cf3` | Resolver and Windows quality gates passed; Ollama/local execution and Supabase/PostgreSQL/RLS jobs pending (run `44968035839`) | Draft; no formal review; not accepted |
 | H / PR #296 — privacy-safe event metadata | `e4c3cb3fa68f12400fb3da00d40fc087768d55ca` | Exact-head run `44969692123` has no allocated jobs | Draft; no formal review; not accepted |
 | P / PR #297 — fail-closed authentication provider | `858d1ae886a95b9fec41076287d4c4466d2a46cb` | Exact-head run `44969394408` has no allocated jobs | Draft; no formal review; not accepted |
