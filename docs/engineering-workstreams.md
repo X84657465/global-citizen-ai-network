@@ -1,7 +1,7 @@
 # GCAN A–P Engineering Workstream Architecture
 
-**Architecture revision:** 1.0.0  
-**Planning baseline:** repository release 0.3.125  
+**Architecture revision:** 1.0.1  
+**Planning baseline:** repository release 0.3.127  
 **Scope:** A–P workstream ownership, dependencies, implementation stages and acceptance evidence.
 
 > Status is evidence-driven: the table defines ownership and boundaries, not release readiness. Current implementation maturity must be verified against the latest mainline PR, exact candidate SHA, required CI, review and acceptance records. A candidate, planned track, merged document or green partial job is not proof of operational readiness.
