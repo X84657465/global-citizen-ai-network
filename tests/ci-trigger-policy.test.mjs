@@ -192,6 +192,37 @@ test("Next.js output tracing is scoped to the repository and ignores unrelated R
   assert.ok(nextConfig.includes("outputFileTracingRoot: process.cwd()"));
 });
 
+test("source syntax and CI policy regressions are classified as task-scoped quality failures", () => {
+  const qualityBounds = findJobSection(workflow, "quality");
+  const quality = workflow.slice(qualityBounds.start, qualityBounds.end);
+  assert.ok(quality.includes("- name: Validate Agent Factory script syntax\n        id: script-syntax\n"));
+  assert.ok(quality.includes("- name: Verify CI trigger and Runner policy\n        id: ci-trigger-policy\n"));
+  const classifierStart = quality.indexOf("- name: Classify quality-gate failure");
+  assert.ok(classifierStart >= 0, "quality failure classifier must exist");
+  const classifier = quality.slice(classifierStart);
+  assert.ok(classifier.includes("SCRIPT_SYNTAX: ${{ steps.script-syntax.outcome }}"));
+  assert.ok(classifier.includes("CI_TRIGGER_POLICY: ${{ steps.ci-trigger-policy.outcome }}"));
+  assert.ok(classifier.includes("$env:SCRIPT_SYNTAX"));
+  assert.ok(classifier.includes("$env:CI_TRIGGER_POLICY"));
+
+  const taskOutcomes = classifier.match(/\$taskOutcomes = @\(([^)]*)\)/)?.[1] ?? "";
+  assert.ok(taskOutcomes.includes("$env:SCRIPT_SYNTAX"), "script syntax outcome must affect failure scope");
+  assert.ok(taskOutcomes.includes("$env:CI_TRIGGER_POLICY"), "CI policy outcome must affect failure scope");
+  assert.ok(classifier.includes('if ($taskOutcomes -contains "failure")'));
+  assert.ok(classifier.includes('"scope=task"'));
+  assert.ok(classifier.includes('"scope=system"'));
+
+  const qualityOutput = quality.match(/failure_scope: \$\{\{ steps\.classify-failure\.outputs\.scope \}\}/);
+  assert.ok(qualityOutput, "quality job must publish the classified failure scope");
+  const { start: breakerStart, end: breakerEnd } = findJobSection(workflow, "circuit-breaker");
+  const breaker = workflow.slice(breakerStart, breakerEnd);
+  const scopeExpression = breaker.match(/CI_FAILURE_SCOPE: \$\{\{ ([^\n]+) \}\}/)?.[1] ?? "";
+  assert.ok(scopeExpression.includes("needs.quality.outputs.failure_scope == 'task'"),
+    "circuit breaker must consume the quality job's classified scope");
+  assert.ok(scopeExpression.includes("needs.quality.result != 'failure'"),
+    "quality result must participate in the task/system failure decision");
+});
+
 test("full dependency audit is a blocking CI security gate", () => {
   const start = workflow.indexOf("- name: Full dependency security audit");
   const end = workflow.indexOf("- name: Unit tests", start);
@@ -658,4 +689,14 @@ test("hosted resolver persists redacted failure metadata even when the resolver 
   assert.ok(section.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"));
   assert.ok(section.includes("if-no-files-found: ignore"));
   assert.ok(section.includes("retention-days: 90"));
+});
+
+test("CI carries provider rate-limit cooldown from the candidate controller to the cross-job breaker", () => {
+  const buildJob = findJobSection(workflow, "build");
+  const buildSection = workflow.slice(buildJob.start, buildJob.end);
+  assert.ok(buildSection.includes("api_cooldown_until: ${{ steps.register-candidate.outputs.api_cooldown_until }}"));
+
+  const breakerJob = findJobSection(workflow, "circuit-breaker");
+  const breakerSection = workflow.slice(breakerJob.start, breakerJob.end);
+  assert.ok(breakerSection.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.build.outputs.api_cooldown_until }}"));
 });
