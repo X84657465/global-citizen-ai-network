@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState } from "../lib/agent-factory-policy.mjs";
+import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState, candidateContainerFailureScope } from "../lib/agent-factory-policy.mjs";
 import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 
@@ -280,4 +280,20 @@ test("durable cooldown preserves x-ratelimit-reset from a classified secondary r
     assert.equal(apiCooldownUntil(error, now), new Date(now + 15 * 60_000).toISOString());
     return true;
   });
+});
+
+test("candidate container command failures are task-scoped only after a normal container exit", () => {
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: 1 }), "task");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: 0 }), "none");
+});
+
+test("candidate container startup and runtime failures remain system-scoped", () => {
+  assert.equal(candidateContainerFailureScope({ Status: "created", Error: "", ExitCode: 0 }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "OCI runtime create failed", ExitCode: 126 }), "system");
+});
+
+test("unclassified candidate container outcomes fail closed to system scope", () => {
+  assert.equal(candidateContainerFailureScope(null), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "unknown", ExitCode: 1 }), "system");
+  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "not-a-number" }), "system");
 });
