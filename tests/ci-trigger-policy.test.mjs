@@ -616,3 +616,21 @@ test("system breaker recovery waits for a completed successful exact-head CI wor
   assert.equal(recovery.includes("ref: " + "$" + "{{ github.event.workflow_run.head_sha }}"), false,
     "the privileged workflow must execute trusted mainline controller code, never PR code");
 });
+
+
+test("hosted PR resolver emits stage-scoped diagnostics without exposing credentials", () => {
+  for (const marker of [
+    "Resolver stage: requesting PR metadata",
+    "Resolver stage: PR metadata received",
+    "Resolver stage: verifying authorized task issue",
+    "Resolver stage: reading durable Factory state",
+    "Resolver PR metadata request failed: status=",
+    "rate_limited=",
+    "retry_after_ms=",
+  ]) {
+    assert.ok(resolver.includes(marker), "missing safe resolver diagnostic: " + marker);
+  }
+  assert.equal(resolver.includes("console.log(token"), false);
+  assert.equal(resolver.includes("Authorization"), false,
+    "resolver diagnostics must not emit authorization headers or token values");
+});
