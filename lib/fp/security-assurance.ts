@@ -99,7 +99,13 @@ export interface FPSecurityAssessment {
 
 const SHA_PATTERN = /^[a-f0-9]{40}$/i;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-const ISO_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
+const ISO_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+
+function isCanonicalUtcTimestamp(value: string): boolean {
+  return ISO_UTC_PATTERN.test(value) &&
+    !Number.isNaN(Date.parse(value)) &&
+    new Date(value).toISOString() === value;
+}
 const CI_CONCLUSIONS = ["success", "failure", "cancelled", "skipped", "timed_out", "action_required", "neutral"] as const;
 
 function isSafeEvidencePath(value: string): boolean {
@@ -176,8 +182,7 @@ export function assessFPSecurityEvidence(
       !SHA_PATTERN.test(item.testedSha) ||
       !["passed", "failed", "not-run"].includes(item.status) ||
       !isSafeEvidencePath(item.evidenceRef) ||
-      !ISO_UTC_PATTERN.test(item.executedAt) ||
-      Number.isNaN(Date.parse(item.executedAt))
+      !isCanonicalUtcTimestamp(item.executedAt)
     ) {
       throw new TypeError("Invalid or duplicate F security evidence record.");
     }
