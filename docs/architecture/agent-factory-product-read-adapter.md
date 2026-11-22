@@ -148,3 +148,25 @@ The proposal was compared against current main `061ccf621c228bae93b91cd8c53723c3
 The DTO includes `failureCategory`, but a reviewed allowlist mapping from A error codes to the public categories is not yet implemented. Before B consumes it, define that mapping from concrete A error codes, default unknown/unrecognized codes to `unknown`, and never expose raw exception text, internal transition reasons, or arbitrary error objects.
 
 B still owns authentication, workspace membership, tenant mapping, and RLS/IDOR enforcement. A's internal issue/lease/Runner state is not a product API. Do not implement or activate the adapter until A passes its acceptance gates.
+
+
+## 9. Failure-category allowlist proposal — 2026-11-22
+
+The DTO's `failureCategory` MUST be derived only from a reviewed allowlist of stable machine error codes. Never classify by matching free-form `last_error` text, exception messages, workflow log text, or task summaries.
+
+| A persisted machine code | Product category | Evidence / limitation |
+|---|---|---|
+| `STALE_BASE` | `validation` | PR #303 writes this code for the two explicit default-branch-drift publisher guards, alongside task scope. It means the tested candidate base is stale and must not be treated as a repository-wide infrastructure fault. |
+| `WORKER_LEASE_EXPIRED` | `infrastructure` | A state-machine recovery code after confirming the worker workflow is no longer running and the lease expired. |
+| `WORKFLOW_FAILURE` | `unknown` | Controller fallback when the workflow does not supply a structured code. |
+| `TASK_FAILURE` | `unknown` | State-machine fallback; too broad to imply validation or execution semantics. |
+| `SYSTEM_FAILURE` | `unknown` | State-machine fallback; too broad to imply a specific infrastructure cause. |
+| Missing or unrecognized code | `unknown` | Fail closed; never pass through the source value. |
+
+Candidate CI failures are currently recorded through the candidate-evidence path without a dedicated stable failure code. They MUST remain `unknown` unless A later adds a structured, exact-SHA/run-attempt failure code and contract tests. Do not infer `validation` from a generic failed CI conclusion; a failed run can include infrastructure or provider failures.
+
+### Exact implementation dependency
+
+PR #303 HEAD `0b521e654de819098fb59e86eb024bd75cc56810` now writes both `AGENT_FACTORY_FAILURE_SCOPE=task` and `AGENT_FACTORY_ERROR_CODE=STALE_BASE` to GitHub Actions' environment file. The existing A controller consumes `AGENT_FACTORY_ERROR_CODE`, with `WORKFLOW_FAILURE` as its fallback. This source change is not accepted until its own exact-head CI and independent review pass.
+
+The category table is a proposed public projection mapping, not a new A internal state enum. B receives only the public category; it must not receive raw machine codes, failure summaries, task/system scope, or internal transition details.
