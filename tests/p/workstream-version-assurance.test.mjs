@@ -155,7 +155,7 @@ test("ignores Markdown fenced examples when finding the latest F–P changelog h
     "## 0.1.0 — 2026-11-22",
     "",
     "- Current F release entry.",
-  ].join("\\n");
+  ].join("\n");
   const result = validateWorkstreamVersionContract(input);
   assert.equal(result.valid, true);
   assert.deepEqual(result.errors, []);
@@ -169,6 +169,6 @@ test("ignores tilde-fenced examples and still rejects a stale real latest headin
     "~~~",
     "",
     "## 0.0.9 — 2026-11-22",
-  ].join("\\n");
+  ].join("\n");
   assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("Track G changelog")));
 });
