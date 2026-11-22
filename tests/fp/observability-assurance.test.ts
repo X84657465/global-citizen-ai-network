@@ -143,6 +143,38 @@ test("rejects inherited fields and accessor-backed telemetry records", () => {
   assert.throws(() => assessHObservation(accessorBundle), /Invalid H observation window/);
 });
 
+test("rejects custom iterators, sparse arrays and accessor-backed event slots", () => {
+  const customIterator = [] as unknown as HTelemetryEvent[];
+  Object.defineProperty(customIterator, Symbol.iterator, {
+    configurable: true,
+    value: function* () {
+      yield event("iterator-event-0001");
+    },
+  });
+  assert.throws(
+    () => assessHObservation(bundle(customIterator)),
+    /bounded dense plain array/,
+  );
+
+  const sparse = new Array(1) as HTelemetryEvent[];
+  assert.throws(
+    () => assessHObservation(bundle(sparse)),
+    /bounded dense plain array/,
+  );
+
+  const accessorSlot = [] as unknown as HTelemetryEvent[];
+  Object.defineProperty(accessorSlot, "0", {
+    configurable: true,
+    enumerable: true,
+    get: () => event("accessor-slot-0001"),
+  });
+  accessorSlot.length = 1;
+  assert.throws(
+    () => assessHObservation(bundle(accessorSlot)),
+    /bounded dense plain array/,
+  );
+});
+
 test("uses a half-open UTC window and rejects malformed event identity or taxonomy", () => {
   const atStart = assessHObservation(bundle([
     event("boundary-0001", { occurredAt: start }),
