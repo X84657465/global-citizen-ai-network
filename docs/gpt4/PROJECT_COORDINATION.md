@@ -3,7 +3,7 @@
 > **Owner：** GPT4 — B-Line Product Lead / GCAN Product Owner（工程交付責任）
 > **工作線：** B — Global Citizen AI Network
 > **文件狀態：** Active coordination record；已由 PR #398 合併至 main。此文件採納的是 GPT4 的 B Product 文件／工作流程規範，不代表產品 Runtime 已實作或通過驗收。
-> **本次快照確認基準：** main `29b6d775b2cc59f84d9fd3d86418bdabf3b1e83c`（2026-11-23）
+> **本次快照確認基準：** main `a3a35bcc79f66f3566b6cb63b1077a35645b804e`（2026-11-23）
 > **治理依據：** main `PROJECT_COORDINATION.md`、main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`，以及 PR #376 中的 B Line Lead Charter / Product North Star 候選文件。
 
 本文件是 GPT4 的角色工作協調紀錄，不取代 Repository 根目錄的正式 `PROJECT_COORDINATION.md`，不修改其他 GPT 的角色或 A–P 模組 owner，也不授予額外權限。若本文件與最新 main 正式規範衝突，以最新 main 及專案負責人的明確決策為準。
@@ -136,11 +136,11 @@ SKIPPED、NOT RUN、PENDING、BLOCKED 不得標示為 PASS。舊 SHA 的 CI 不�
 
 > 本節是建立文件時的觀測快照；每次接手工作都必須重新查詢，不可把此快照當成永久即時狀態。
 
-- main SHA：`29b6d775b2cc59f84d9fd3d86418bdabf3b1e83c`。
+- main SHA：`a3a35bcc79f66f3566b6cb63b1077a35645b804e`。
 - Overall version：`0.3.137`；B Product：`0.1.20`。
 - PR #391 Workspace Navigation：已合併（merge commit `8f08a0f3536b055388dd2a51e7f5aae0ed3363a0`）。Exact-head Run `45049125831` 的 Metadata Resolver、Windows Quality Gates、PostgreSQL／RLS integration、Ollama integration 均 PASS；條件式診斷／狀態寫入工作 SKIPPED，不列為 PASS。
 - PR #374 Factory schedule offset：已合併（merge commit `f4439b4db2d361d4a40005f7aedb8e19ff743908`）。Exact-head Run `45047958898` 的 Metadata Resolver、Windows Quality Gates、Ollama integration、PostgreSQL／RLS integration 均 PASS；條件式診斷／狀態寫入工作 SKIPPED，不列為 PASS。
-- Issue #136 A-wide audit：仍鎖定 `1330cec486e5d4c264800935b878cd8016965e93`；目前 main 已前進至 `29b6d775b2cc59f84d9fd3d86418bdabf3b1e83c`。依 Issue 原規則必須停止，等待任務 owner 明確更新／授權稽核基準；GPT4 不代替獨立稽核者。
+- Issue #136 A-wide audit：仍鎖定 `1330cec486e5d4c264800935b878cd8016965e93`；目前 main 已前進至 `a3a35bcc79f66f3566b6cb63b1077a35645b804e`。依 Issue 原規則必須停止，等待任務 owner 明確更新／授權稽核基準；GPT4 不代替獨立稽核者。
 - A→B Read Adapter：仍需明確服務身份、scope、資源綁定、資料新鮮度、撤銷及錯誤語意；在正式契約核准前為 BLOCKED。
 - B Runtime：BLOCKED / PREPARATION ONLY。
 
