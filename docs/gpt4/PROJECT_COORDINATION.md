@@ -137,7 +137,7 @@ SKIPPED、NOT RUN、PENDING、BLOCKED 不得標示為 PASS。舊 SHA 的 CI 不�
 > 本節是建立文件時的觀測快照；每次接手工作都必須重新查詢，不可把此快照當成永久即時狀態。
 
 - main SHA：`f4439b4db2d361d4a40005f7aedb8e19ff743908`。
-- Overall version：`0.3.136`；B Product：`0.1.20`。
+- Overall version：`0.3.137`；B Product：`0.1.20`。
 - PR #391 Workspace Navigation：當時 Metadata Resolver 與 Windows Quality Gates PASS；PostgreSQL／RLS integration 為 IN_PROGRESS，Ollama integration 為 PENDING；PR 為 Draft，尚無正式獨立批准。此狀態需重新查證。
 - PR #374 Factory schedule offset：先前 exact-head CI 已通過必要工作，但正式 APPROVE 尚未提供；GPT4 不代替 GPT3 審查或合併。
 - Issue #136 A-wide audit：鎖定目標 SHA 與當時 main 不一致，依 Issue 原規則必須停止並等待任務 owner 明確更新／授權稽核基準。
