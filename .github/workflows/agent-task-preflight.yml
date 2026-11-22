@@ -507,6 +507,7 @@ jobs:
       issue_number: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
       candidate_ready: ${{ steps.candidate-tests.outcome == 'success' }}
       created_issue_number: ${{ steps.create-roadmap-task.outputs.created_issue_number }}
+      lease_id: ${{ steps.reserve-task.outputs.lease_id }}
     permissions:
       actions: none
       contents: read
@@ -862,7 +863,7 @@ jobs:
   begin-publication:
     name: Record publishing state before granting publisher write access
     needs: [prepare-task]
-    if: needs.prepare-task.result == 'success' && needs.prepare-task.outputs.candidate_ready == 'true' && needs.prepare-task.outputs.issue_number != ''
+    if: needs.prepare-task.result == 'success' && needs.prepare-task.outputs.candidate_ready == 'true' && needs.prepare-task.outputs.issue_number != '' && needs.prepare-task.outputs.lease_id != ''
     permissions:
       contents: read
       issues: write
@@ -890,6 +891,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: transition
           ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
+          AGENT_FACTORY_LEASE_ID: ${{ needs.prepare-task.outputs.lease_id }}
           NEXT_TASK_STATE: publishing
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-v2-controller.mjs
@@ -1031,6 +1033,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: transition
           ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
+          AGENT_FACTORY_LEASE_ID: ${{ needs.prepare-task.outputs.lease_id }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $publish = Get-Content "artifacts/agent-publish.json" -Raw | ConvertFrom-Json
