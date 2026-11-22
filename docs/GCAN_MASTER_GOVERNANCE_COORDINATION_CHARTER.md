@@ -603,3 +603,108 @@ Handoff 必須寫明：
 - Factory-first、必要 A→B 銜接與安全邊界優先於新增功能及表面速度。
 
 **最終目標不是讓更多 GPT 互相討論，而是讓最少必要的角色，以清楚責任、低協調成本和可驗證交付，持續建設真正自主、可靠且受治理的 GCAN 工程工廠。**
+
+## 15. 零無故重工與能力持續進化總綱
+
+本節是 GCAN 全專案的強制工程治理原則，適用於 A–P、Agent Factory、B Product、共用平台、文件、資料模型、Agent、Runner、工具 Adapter 與後續能力領域。其目的在於保護既有投資、降低重複建設與回歸風險，並讓 GCAN 能在可驗證、可回滾及獨立審查的條件下持續升級。
+
+### 15.1 Preserve-before-replace：保留優先，不得無故重做
+
+所有角色與自動化執行器必須遵守以下順序：
+
+1. **Inventory before build：** 動工前先盤點 Repository、既有模組、服務、API／資料契約、測試、Issue、PR、CI、部署與 owner；搜尋同類功能及歷史決策。
+2. **Reuse before duplicate：** 已有且可滿足需求的模組、服務、Runner、資料庫、模型 Adapter、工具與工作流程，優先直接重用。
+3. **Extend before rewrite：** 既有能力部分符合需求時，優先在原 owner 與原契約下做最小增量擴充；不得因個人偏好、工具習慣或新技術流行而重寫。
+4. **Repair before replace：** 已有模組存在缺陷時，先定位根因並修補原模組；只有證據證明原設計無法安全達標，才評估替換。
+5. **Preserve verified behavior：** 既有且已驗證的行為、API、資料格式、權限邊界與使用流程必須保留；任何變更都要有回歸測試或等效驗證。
+6. **No silent deletion：** 不得默默刪除、停用、改名、搬移或取代既有功能、文件、資料欄位、工作線或自動化流程。
+7. **No parallel duplicate core：** 不得無證據新增第二套控制面、任務狀態機、身份系統、Runner 池、知識庫、排程器、模型 Gateway 或相同職責的服務。
+
+### 15.2 替換／重大重構的必要證據與批准
+
+若確有必要替換既有模組、改變公開契約、搬遷資料或進行大規模重構，提案必須先提供：
+
+- 現有實作與依賴盤點、owner、使用者及實際問題證據。
+- 至少一項可量化且可驗證的替換理由（安全、可靠性、維護成本、效能、擴展性或總持有成本）。
+- 「修補原模組」與「替換」的比較，包含成本、風險及不採用替換的後果。
+- API／事件／資料 schema 相容性分析、版本策略及下游影響清單。
+- 分階段遷移計畫、資料驗證、雙讀／雙寫（若必要）、切換條件及向後相容方案。
+- 可實際執行的回滾計畫、備份／復原證據及失敗停止條件。
+- 回歸測試、效能／安全測試及精確 SHA 的 CI 證據。
+- 受影響模組 owner 確認與 GPT3 獨立架構／品質審查。
+
+未完成上述條件前，狀態必須是 PROPOSED 或 BLOCKED，不得執行破壞性替換。不可逆資料遷移、公開介面破壞、權限邊界變更與正式環境切換，仍須依既有政策取得專案負責人及相關核准；本總綱不構成預先授權。
+
+### 15.3 能力盤點與重用登記
+
+每個主要能力都應維護可追溯的 Capability Inventory，至少包含：
+
+| 欄位 | 必填內容 |
+|---|---|
+| Capability ID / Name | 唯一識別與能力名稱 |
+| Current owner | 唯一模組 owner／DRI |
+| Existing implementation | 現有檔案、服務、API、工作流及版本 |
+| Status | IMPLEMENTED、PARTIAL、MISSING、BLOCKED、DEPRECATED 或 UNKNOWN |
+| Evidence | 精確路徑、commit SHA、PR、測試／CI run |
+| Consumers / Dependencies | 上游、下游及契約 |
+| Gap | 尚缺能力與實際影響 |
+| Decision | REUSE、EXTEND、REPAIR、REPLACE 或 DEFER |
+| Migration / Rollback | 如涉及替換，列出遷移與回復方式 |
+
+沒有來源與精確版本證據的能力不得標記 IMPLEMENTED。若尚未完成盤點，必須標示 UNKNOWN，不可先假定缺少再新增。
+
+### 15.4 五層持續進化目標
+
+GCAN 的長期進化分為五個能力層次；這是生態系統的演進方向，不是新增 GPT 角色或立即啟動五條平行專案：
+
+1. **自主生產（Autonomous Production）：** 在授權範圍內完成研究、規劃、建置、測試、修復、交付與維運。
+2. **自主經營（Autonomous Operations）：** 依核准目標監測品質、成本、資源、服務狀態與營運流程，提出或執行可逆且授權的最佳化。
+3. **自主創新（Autonomous Innovation）：** 發現使用者／技術／市場需求，形成可驗證假設、原型、實驗與產品提案；產品方向仍由正式 owner 決定。
+4. **全球智慧協作（Federated Intelligence）：** 透過可驗證身分、能力目錄、標準契約、租戶隔離與稽核，安全協作外部 Agent、服務與組織。
+5. **受治理的自主進化生態系（Governed Self-Evolving Ecosystem）：** 持續發現能力缺口、改善共用核心、擴展新領域並把經驗轉成可重用能力，同時維持人工監督與獨立驗收。
+
+每層均須以實際使用價值、可靠性、安全、成本、可維護性與回滾證據驗收；不可因文件描述或模型自評而升級成熟度。
+
+### 15.5 能力發現與自我升級引擎
+
+GCAN 應逐步建立 Capability Discovery & Evolution Engine，作為共用的受治理改善流程，而非另一套與 Factory 重複的控制面。其標準閉環如下：
+
+`OBSERVE → INVENTORY → IDENTIFY GAP → PRIORITIZE → DESIGN → AUTHORIZE → ISOLATED BUILD → VERIFY → INDEPENDENT REVIEW → STAGED RELEASE → MONITOR → ROLLBACK OR ACCEPT → LEARN`
+
+具體要求：
+
+1. **Observe：** 從已授權的使用者回饋、Issue、CI、執行指標、故障、成本及外部技術情報發現訊號。
+2. **Inventory：** 對照現有 Capability Inventory，確認問題是否已有能力可重用，避免重複建置。
+3. **Identify gap：** 將真實缺口與單純偏好／新技術嘗試分開，列出證據、影響與受影響 owner。
+4. **Prioritize：** 依 Factory-first、必要 A→B、風險、價值、成本與依賴排序；不得排擠 P0/P1。
+5. **Design：** 優先提出修補／擴充方案；替換方案必須符合 15.2 節。
+6. **Authorize：** 指定唯一 DRI、Developer、檔案 allowlist、預算、工具權限、風險級別與停止條件。
+7. **Isolated build：** 在隔離分支／工作區實作，限制網路、Secrets、資料及執行權限；不直接修改 main 或生產環境。
+8. **Verify：** 執行單元、整合、回歸、安全、故障注入、效能及成本驗證，並鎖定精確 SHA。
+9. **Independent review：** Developer 不得自我批准；跨模組、高風險、Factory 自我修改與核心契約變更必須由 GPT3 獨立審查。
+10. **Staged release：** 依核准發布策略分階段推出，保留監控、停止與回滾能力。
+11. **Monitor：** 觀察預先定義的成功指標、錯誤率、延遲、資源成本及使用者影響。
+12. **Rollback or accept：** 未達門檻或出現風險即停止／回滾；通過後才可標記 ACCEPTED。
+13. **Learn：** 把驗證結果更新到測試、Runbook、Capability Inventory、ADR 與知識紀錄。
+
+### 15.6 自主進化的硬性禁止事項
+
+- Agent／Factory 不得自行提高自己的角色、檔案、Runner、網路、Secrets、合併或部署權限。
+- 不得自行修改驗收標準、風險分級、Branch Protection 或審查者名單以放行自己的成果。
+- 不得以自我評估取代 GPT3 或政策指定的獨立 Reviewer。
+- Reviewer 不可用、證據不足、SHA 不一致、CI 未完成或狀態 UNKNOWN 時，必須 Fail-Closed。
+- 不得未經核准執行不可逆資料操作、付費支出、正式部署、對外承諾、資金移動或實體設備控制。
+- 不得將模型生成的計畫、程式碼或報告視為已驗證成果。
+- 不得為追求自主化而新增不必要 GPT、服務、資料庫、Runner 或常態管理層。
+
+### 15.7 本原則的執行責任與 Definition of Done
+
+- GPT1：維護 Factory 能力盤點、A0–A6 既有成果與增量升級；避免重做 Factory 核心。
+- GPT2：維護 F–P 能力盤點與依賴；優先重用共用底座，不另建重複能力。
+- GPT3：獨立審查替換理由、相容性、遷移、回滾、回歸及自我升級安全性。
+- GPT4：確認 B Product 需求與產品價值；不得以產品需求直接要求破壞 A／Factory 契約。
+- GPT5：提供技術／市場／資安證據與差距研究；不越權替模組 owner 決策。
+- 每個變更的 Definition of Done：保留既有行為或明確核准其改變、更新能力盤點、提供精確 SHA、測試／CI 證據、owner 確認、必要獨立審查、風險與回滾紀錄。
+- 每個新工作開始前必須回答：**現有什麼可以沿用？為何不能直接擴充？是否已確認不會重複建設？如何證明沒有破壞既有能力？**
+
+**最高執行原則：先盤點、再決策；先重用、再擴充；最後才考慮替換。GCAN 必須持續進化，但不得以重做既有成果作為進化的代價。**
