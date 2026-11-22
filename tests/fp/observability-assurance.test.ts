@@ -273,3 +273,18 @@ test("rejects event-array properties outside the ECMAScript array-index range", 
   );
 });
 
+
+
+test("rejects Proxy-reported canonical event-array indices outside the declared length", () => {
+  const emptyWithReportedIndex = new Proxy([] as HTelemetryEvent[], {
+    ownKeys: () => ["1", "length"],
+    getOwnPropertyDescriptor: (target, key) => key === "1"
+      ? { configurable: true, enumerable: true, writable: true, value: event("hidden-index-0001") }
+      : Reflect.getOwnPropertyDescriptor(target, key),
+  });
+  assert.equal(Object.getOwnPropertyDescriptor(emptyWithReportedIndex, "length")?.value, 0);
+  assert.throws(
+    () => assessHObservation(bundle(emptyWithReportedIndex)),
+    /bounded dense plain array/,
+  );
+});
