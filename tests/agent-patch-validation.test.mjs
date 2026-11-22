@@ -177,6 +177,11 @@ test("patch generation prompt follows the repository test and UI integration con
     "Only the supplied source_files are available as repository context",
     "New UI must be wired into the existing page, component, and data flow",
     "Derive choices and displayed values from real API fields, never fabricated categories or statuses",
+    "Factual grounding is mandatory: treat the task goal, acceptance criteria, and supplied source_files as the complete evidence base",
+    "Do not assert that a capability, integration, security control, data-handling practice, operational behavior, metric, or compliance property exists unless directly supported by those inputs",
+    "When a capability is requested but the supplied evidence does not establish it is implemented, describe it explicitly as proposed or desired, never as current behavior",
+    "If a factual claim cannot be grounded in the supplied evidence, omit it or label it as an assumption requiring verification",
+    "Never invent encryption, anonymization, monitoring, approval, audit, privacy, compliance, or production guarantees",
   ]) {
     assert.ok(generator.includes(requiredRule), "Missing patch-generation policy: " + requiredRule);
   }
