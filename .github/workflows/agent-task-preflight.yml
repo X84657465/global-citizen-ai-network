@@ -175,7 +175,7 @@ jobs:
               $dockerInfo = Start-Process -FilePath $docker.Source -ArgumentList @(
                 "info",
                 "--format",
-                "Server={{.ServerVersion}} OS={{.OperatingSystem}}"
+                "Server={{.ServerVersion}};OS={{.OperatingSystem}}"
               ) -Wait -PassThru -NoNewWindow -RedirectStandardOutput $dockerStdout -RedirectStandardError $dockerStderr
               if ($dockerInfo.ExitCode -eq 0) {
                 Get-Content -LiteralPath $dockerStdout | ForEach-Object { Write-Host $_ }
