@@ -137,22 +137,28 @@ function percentile(sorted: readonly number[], p: number): number | null {
  * no estimated value is promoted to an actual charge.
  */
 export function assessHObservation(bundle: HObservationBundle): HObservationAssessment {
+  const input = snapshotSafeRecord(
+    bundle,
+    ["windowStart", "windowEnd", "quotaLimitMicros", "quotaWarningPercent", "events"],
+    ["windowStart", "windowEnd", "quotaLimitMicros", "quotaWarningPercent", "events"],
+  ) as unknown as HObservationBundle | null;
   if (
-    !bundle ||
-    !isSafeRecord(bundle, ["windowStart", "windowEnd", "quotaLimitMicros", "quotaWarningPercent", "events"], ["windowStart", "windowEnd", "quotaLimitMicros", "quotaWarningPercent", "events"]) ||
-    !isCanonicalUtc(bundle.windowStart) ||
-    !isCanonicalUtc(bundle.windowEnd) ||
-    Date.parse(bundle.windowStart) >= Date.parse(bundle.windowEnd) ||
-    !positiveSafeInteger(bundle.quotaLimitMicros) ||
-    !Number.isFinite(bundle.quotaWarningPercent) ||
-    bundle.quotaWarningPercent <= 0 ||
-    bundle.quotaWarningPercent >= 100
+    !input ||
+    typeof input.windowStart !== "string" ||
+    typeof input.windowEnd !== "string" ||
+    !isCanonicalUtc(input.windowStart) ||
+    !isCanonicalUtc(input.windowEnd) ||
+    Date.parse(input.windowStart) >= Date.parse(input.windowEnd) ||
+    !positiveSafeInteger(input.quotaLimitMicros) ||
+    !Number.isFinite(input.quotaWarningPercent) ||
+    input.quotaWarningPercent <= 0 ||
+    input.quotaWarningPercent >= 100
   ) {
     throw new TypeError("Invalid H observation window or quota policy.");
   }
 
-  const events = snapshotSafeEventArray(bundle.events);
-  if (events === null) {
+  const eventItems = snapshotSafeEventArray(input.events);
+  if (eventItems === null) {
     throw new TypeError("Invalid H event collection; expected a bounded dense plain array.");
   }
 
@@ -165,18 +171,24 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
   let costMicros = 0;
   let currency: HObservationAssessment["currency"] = null;
 
-  for (let eventIndex = 0; eventIndex < events.length; eventIndex += 1) {
-    const event = events[eventIndex] as HTelemetryEvent;
+  for (const rawEvent of eventItems) {
+    const event = snapshotSafeRecord(
+      rawEvent,
+      ["eventId", "occurredAt", "kind", "outcome", "durationMs", "costMicros", "currency"],
+      ["eventId", "occurredAt", "kind", "outcome"],
+    ) as unknown as HTelemetryEvent | null;
     if (
       !event ||
-      !isSafeRecord(event, ["eventId", "occurredAt", "kind", "outcome", "durationMs", "costMicros", "currency"], ["eventId", "occurredAt", "kind", "outcome"]) ||
       typeof event.eventId !== "string" ||
       !EVENT_ID.test(event.eventId) ||
       ids.has(event.eventId) ||
+      typeof event.occurredAt !== "string" ||
       !isCanonicalUtc(event.occurredAt) ||
-      Date.parse(event.occurredAt) < Date.parse(bundle.windowStart) ||
-      Date.parse(event.occurredAt) >= Date.parse(bundle.windowEnd) ||
+      Date.parse(event.occurredAt) < Date.parse(input.windowStart) ||
+      Date.parse(event.occurredAt) >= Date.parse(input.windowEnd) ||
+      typeof event.kind !== "string" ||
       !(H_EVENT_KINDS as readonly string[]).includes(event.kind) ||
+      typeof event.outcome !== "string" ||
       !(OUTCOMES as readonly string[]).includes(event.outcome)
     ) {
       throw new TypeError("Invalid, duplicate, or out-of-window H telemetry event.");
@@ -186,7 +198,8 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
     outcomes[event.outcome] += 1;
 
     if (event.durationMs !== undefined) {
-      if (!Number.isSafeInteger(event.durationMs) || event.durationMs < 0 ||
+      if (typeof event.durationMs !== "number" ||
+          !Number.isSafeInteger(event.durationMs) || event.durationMs < 0 ||
           event.durationMs > MAX_DURATION_MS) {
         throw new TypeError("H event duration must be a bounded non-negative integer.");
       }
@@ -196,15 +209,17 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
     if (event.kind === "cost") {
       if (
         event.costMicros === undefined ||
+        typeof event.costMicros !== "number" ||
         !nonNegativeSafeInteger(event.costMicros) ||
-        !(CURRENCIES as readonly string[]).includes(event.currency ?? "")
+        typeof event.currency !== "string" ||
+        !(CURRENCIES as readonly string[]).includes(event.currency)
       ) {
         throw new TypeError("H cost events require non-negative safe integer micro-units and an explicit supported currency.");
       }
       if (currency !== null && currency !== event.currency) {
         throw new TypeError("H cost events with mixed currencies cannot be aggregated.");
       }
-      currency = event.currency!;
+      currency = event.currency;
       costMicros += event.costMicros;
       if (!Number.isSafeInteger(costMicros) || costMicros > MAX_COST_MICROS) {
         throw new TypeError("H aggregate cost exceeds safe integer precision.");
@@ -215,18 +230,18 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
   }
 
   const sorted = [...durations].sort((a, b) => a - b);
-  const quotaUsagePercent = costMicros / bundle.quotaLimitMicros * 100;
-  const quotaStatus = costMicros >= bundle.quotaLimitMicros
+  const quotaUsagePercent = costMicros / input.quotaLimitMicros * 100;
+  const quotaStatus = costMicros >= input.quotaLimitMicros
     ? "exceeded"
-    : quotaUsagePercent >= bundle.quotaWarningPercent
+    : quotaUsagePercent >= input.quotaWarningPercent
       ? "warning"
       : "within-budget";
 
   return Object.freeze({
     schemaVersion: "1",
-    windowStart: bundle.windowStart,
-    windowEnd: bundle.windowEnd,
-    eventCount: events.length,
+    windowStart: input.windowStart,
+    windowEnd: input.windowEnd,
+    eventCount: eventItems.length,
     counts: Object.freeze(counts),
     outcomes: Object.freeze(outcomes),
     durationSampleCount: sorted.length,
@@ -234,7 +249,7 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
     durationP95Ms: percentile(sorted, 0.95),
     costMicros,
     currency,
-    quotaLimitMicros: bundle.quotaLimitMicros,
+    quotaLimitMicros: input.quotaLimitMicros,
     quotaUsagePercent,
     quotaStatus,
     evidenceCompleteness: "not-verifiable",
