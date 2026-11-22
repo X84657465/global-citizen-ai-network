@@ -21,6 +21,7 @@ const ci = (jobKey: "quality" | "database", overrides: Partial<FPSecurityCIEvide
   runId: 123,
   runAttempt: 1,
   runUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/attempts/1",
+  jobRunAttempt: 1,
   jobKey,
   jobConclusion: "success",
   jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${jobKey === "database" ? 456 : 789}`,
@@ -140,6 +141,12 @@ test("requires the CI run URL to identify the exact attempt", () => {
     })),
   }));
   assert.equal(valid.status, "ready-for-review");
+
+  assert.throws(() => assessFPSecurityEvidence(bundle({
+    evidence: [evidence("member-isolation", {
+      ci: ci("database", { runAttempt: 2, runUrl: attemptTwo, jobRunAttempt: 1 }),
+    })],
+  })), /Invalid F evidence CI identity or job metadata/);
 
   for (const runUrl of [
     "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123",
