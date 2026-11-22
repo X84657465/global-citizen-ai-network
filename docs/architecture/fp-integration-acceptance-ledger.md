@@ -235,3 +235,37 @@ PR #295 and #299 both touch this ledger. Their branches are distinct and their t
 - Keep Factory state and all production/runtime safety boundaries unchanged.
 
 **Authority boundary:** documentation-only K checkpoint; not an A/B acceptance or deployment authorization.
+
+
+## 13. A Factory continuation and B contract cross-check (2026-11-22)
+
+**Main baseline:** `061ccf621c228bae93b91cd8c53723c3fe08310a`.
+
+| Candidate | Exact HEAD | Exact-head Actions | Review / disposition |
+|---|---|---|---|
+| #303 — stale-base failure scope | `aec814f93c60fdda501c158cbd622377625a5c61` | Run `44975519823` pending; no jobs allocated. | Draft; no formal review or threads; Vercel build-rate limit; no same-SHA Preview. |
+| #305 — task output contract | `2a2d35114c88ba0cce6d8478a72d908a8b277985` | Run `44976078839` pending; no jobs allocated. | Draft; no formal review or threads; Vercel build-rate limit; no same-SHA Preview. |
+
+### Verified A-side details
+
+- #303 preserves stale-base guards and narrows task-scoped classification to the explicit default-branch-drift rejection branches. The triggering Preflight run `44972336349` failed publication only after scratch/offline checks; it is not evidence that candidate code tests failed.
+- #305 validates task-declared required patch paths and forbidden literal strings, including final aggregate validation. Its latest batch-scoping helper rejects empty/invalid batch lists and any path outside the validated task allowlist.
+- Issue #100 is still machine-managed, state version 152 (`2026-11-22T02:04:40.421Z`): no active task, 9 system failures, elapsed cooldown, Issue #17 queued, 7 quarantined. No state mutation or forced dispatch was performed.
+- The earlier publisher-token permission mismatch diagnosis was explicitly withdrawn in Issue #136 after logs confirmed effective Contents/Issues/PullRequests write permissions. The stale-base rejection is the verified publisher failure for run `44972336349`.
+- Issue #136 has no independent audit report/sign-off in the latest comment history. Its read-only boundary remains in force.
+
+### B contract source cross-check
+
+- Current main's A state machine stores and validates the structured candidate evidence tuple: full `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt`.
+- The proposal's public status mapping covers every current A task state, but no A-owned product projection/API has been implemented or accepted.
+- The remaining contract item before B implementation is an explicit allowlisted `failureCategory` mapping; unknown codes must map to `unknown`, and raw exception text must never cross the boundary.
+- B remains inactive. No B runtime/API/database, billing, Factory permission, or cross-workspace access was enabled.
+
+### Required sequence
+
+1. Pass exact-head CI and independent review for #303/#305.
+2. After #305 acceptance, add the required security test path and literal prohibitions to Issue #17; preserve fresh audit evidence and no-major-downgrade acceptance criteria.
+3. Complete the independent read-only audit and A operational acceptance.
+4. Implement the A-owned projection and B-owned workspace authorization only after A acceptance.
+
+This section is a documentation checkpoint, not A acceptance, B activation, deployment authorization, or permission to mutate machine-managed Factory state.
