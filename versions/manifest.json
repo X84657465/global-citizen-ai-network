@@ -61,7 +61,7 @@
     },
     "K": {
       "name": "Knowledge Base, Docs & Governance Playbooks",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "planned",
       "responsibility": "Architecture records, runbooks, handoff templates, decision logs and operator playbooks."
     },
