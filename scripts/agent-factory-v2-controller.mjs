@@ -46,7 +46,9 @@ async function main() {
     // GITHUB_ENV is scoped to subsequent steps in this job; no raw headers or tokens are exported.
     if (error?.rateLimited === true) {
       try {
-        writeEnv("AGENT_FACTORY_API_COOLDOWN_UNTIL", apiCooldownUntil(error, Date.now()));
+        const cooldownUntil = apiCooldownUntil(error, Date.now());
+        writeEnv("AGENT_FACTORY_API_COOLDOWN_UNTIL", cooldownUntil);
+        writeOutput("api_cooldown_until", cooldownUntil);
       } catch {
         // Keep the original failure; the normal breaker cooldown remains the fallback.
       }
