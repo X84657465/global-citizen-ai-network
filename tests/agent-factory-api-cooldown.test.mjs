@@ -39,3 +39,21 @@ test("does not export a cooldown for non-rate-limit failures", () => {
   assert.equal(existsSync(outputFile), false);
   rmSync(directory, { recursive: true, force: true });
 });
+
+test("uses the secondary-rate-limit reset header when Retry-After is invalid", () => {
+  const directory = mkdtempSync(join(tmpdir(), "agent-factory-cooldown-"));
+  const outputFile = join(directory, "output");
+  const now = 1_000_000;
+  const deadline = persistApiCooldownDeadline({
+    status: 403,
+    message: "You have exceeded a secondary rate limit.",
+    retryAfter: "not-a-date",
+    rateLimitReset: "1002",
+    rateLimited: true,
+  }, { now, outputFile });
+
+  // Provider reset values shorter than the safety floor are clamped to 60 seconds.
+  assert.equal(deadline, new Date(now + 60_000).toISOString());
+  assert.equal(readFileSync(outputFile, "utf8"), "api_cooldown_until=" + deadline + "\n");
+  rmSync(directory, { recursive: true, force: true });
+});
