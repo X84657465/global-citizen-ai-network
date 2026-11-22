@@ -43,3 +43,13 @@ test("both explicit default-branch drift guards persist the stale-base task clas
   assert.equal(publisher.split(afterTests).length - 1, 1);
   assert.equal(publisher.split(duringPublish).length - 1, 1);
 });
+
+
+test("the workflow classifier and controller consume the persisted stale-base code", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
+  const controller = readFileSync(new URL("../lib/agent-factory-controller.mjs", import.meta.url), "utf8");
+  assert.match(workflow, /if \(\$env:AGENT_FACTORY_FAILURE_SCOPE -eq "task"/);
+  assert.match(workflow, /AGENT_FACTORY_FAILURE_SCOPE=task/);
+  assert.match(controller, /const errorCode = env\.AGENT_FACTORY_ERROR_CODE \|\| "WORKFLOW_FAILURE";/);
+  assert.match(controller, /recordTaskFailure\(state, issueNumber, leaseId, eventKey, errorCode, summary, timestamp\)/);
+});
