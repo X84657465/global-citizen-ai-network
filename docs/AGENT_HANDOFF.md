@@ -2,6 +2,38 @@
 
 ---
 
+## Superseding live continuation snapshot — 2026-11-23 (main 93e7ac35)
+
+This checkpoint supersedes earlier live-state statements below wherever they conflict. It records source inspection and GitHub metadata only; it is not Factory acceptance, runtime validation, or deployment authorization.
+
+### Mainline identity
+- Verified `main` base from the current GitHub comparison: `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1`.
+- Root release: `0.3.136`; Agent Factory V2: `2.0.84`; GCAN Product (B): `0.1.20`. Version labels are not acceptance claims.
+- Autonomy charter is available on PR #376 branch `docs/agent-factory-autonomy-core-20261123`; it is documentation-only, 5 commits ahead / 0 behind at this checkpoint, and remains open/unmerged. Do not tell other GPT sessions it is already on `main`.
+
+### A — Factory lease-publication handoff recheck
+- Issue #354's original missing cross-job lease finding is no longer accurate for the inspected `main` workflow source.
+- `.github/workflows/agent-task-preflight.yml` exposes `steps.reserve-task.outputs.lease_id` as `prepare-task.outputs.lease_id`.
+- `begin-publication` passes that exact job output as `AGENT_FACTORY_LEASE_ID` for the `publishing` transition.
+- `record-publication` passes the same exact output for both `draft_pr_created` and `awaiting_ci` transitions.
+- `lib/agent-factory-controller.mjs` still requires the lease ID and routes transitions through the lease-fenced state machine; the guard was not weakened.
+- A verification note was added to Issue #354 on 2026-11-23. Disposition: **STATIC FIX PRESENT; RUNTIME VERIFICATION NOT ESTABLISHED**. The commit-run lookup returned no PR-triggered runs for this SHA; this does not prove scheduled Runner health or end-to-end publication success. No task was dispatched and no machine-managed state was changed.
+
+### Remaining A acceptance gates
+- Issue #136 remains the required independent, read-only adversarial audit. Its recorded target SHA `1330cec486e5d4c264800935b878cd8016965e93` is older than current main; the audit must not silently switch targets. An authorized independent reviewer must refresh the target before starting. Owner self-review and CI are not independent approval.
+- A remains **not independently accepted** until exact-current-head quality/isolation/database/Ollama evidence, natural scheduler and lease progression, operational soak, and independent review are recorded.
+- Keep B Runtime inactive. Continue only bounded A→B contract preparation; B receives no Factory state, leases, Runner/Sandbox controls, raw logs, patches, secrets, or privileged execution.
+
+### Next execution order
+1. Obtain the authorized independent read-only A audit against a freshly confirmed current main SHA; preserve Issue #136's read-only scope.
+2. Observe naturally triggered authorized workflow runs to verify the already-present lease handoff end to end; do not fabricate leases, manually edit Issue #100, or retry stale tasks.
+3. Resolve only evidence-backed A-core defects with narrow branches, fail-closed tests, exact-head CI, and independent review.
+4. Keep B Runtime inactive until A acceptance gates pass.
+
+**Authority boundary:** this checkpoint updates handoff documentation only. No Factory runtime, workflow, task/lease state, Runner configuration, permissions, secrets, database, production data, deployment, or B Runtime was changed.
+
+---
+
 ## Superseding verified continuation snapshot — 2026-11-22 (main 1330cec4)
 
 This snapshot is the current operational reference and supersedes earlier live-state sections below wherever they conflict. Older sections remain historical evidence; do not treat their SHAs, run IDs, PR states, or blocker descriptions as current.
