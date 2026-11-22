@@ -1,3 +1,9 @@
+## 0.3.136 — 2026-11-22
+
+- P: enforce an independently versioned changelog entry for every F–P workstream, including explicit deferred status for L.
+- Add regression coverage so a missing or stale track history fails the canonical version-governance check.
+- Establish H, I, L, N and O changelog baselines without claiming new implementation maturity.
+
 ## 0.3.135 — 2026-11-22
 
 - F: add fail-closed regression coverage for throwing Proxy reflection traps across security evidence snapshots.
