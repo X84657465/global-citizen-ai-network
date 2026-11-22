@@ -780,7 +780,7 @@ test("preflight transports only the validated publisher cooldown through an arti
     "the publisher must write the sanitized deadline to a dedicated handoff file");
   assert.ok(publisher.includes("- name: Initialize sanitized publisher cooldown handoff"),
     "the handoff file must exist before the publisher can fail");
-  assert.ok(publisher.includes("if: always()\\n        uses: actions/upload-artifact@v4"),
+  assert.ok(publisher.includes("if: always()\n        uses: actions/upload-artifact@v4"),
     "the sanitized handoff artifact must upload even when the publisher step fails");
   assert.ok(publisher.includes("name: ai-agent-api-cooldown-\${{ github.run_id }}"),
     "the handoff artifact must be scoped to this workflow run");
@@ -793,7 +793,7 @@ test("preflight transports only the validated publisher cooldown through an arti
     "the state-writer job must explicitly depend on the publisher job");
   assert.ok(record.includes("Download sanitized publisher cooldown handoff"),
     "the state writer must retrieve the sanitized artifact");
-  assert.ok(record.includes("if: always()\\n        continue-on-error: true\\n        uses: actions/download-artifact@v4"),
+  assert.ok(record.includes("if: always()\n        continue-on-error: true\n        uses: actions/download-artifact@v4"),
     "missing artifacts must not mask the original publisher failure");
   assert.ok(record.includes("Restore validated publisher cooldown for durable failure callback"),
     "the state writer must validate and restore the deadline into its own environment");
@@ -802,7 +802,7 @@ test("preflight transports only the validated publisher cooldown through an arti
 
   const failureStart = record.indexOf("      - name: Record publication failure and preserve the task lease state");
   assert.ok(failureStart >= 0, "the publication failure callback must remain explicit");
-  const nextStep = record.indexOf("\\n      - name:", failureStart + 1);
+  const nextStep = record.indexOf("\n      - name:", failureStart + 1);
   const failureStep = record.slice(failureStart, nextStep < 0 ? record.length : nextStep);
   assert.ok(failureStep.includes("if: failure() || needs.begin-publication.result != 'success' || needs.publish-task.result != 'success'"),
     "the callback must run when the publisher job fails");
