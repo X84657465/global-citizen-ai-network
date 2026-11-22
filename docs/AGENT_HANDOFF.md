@@ -756,3 +756,39 @@ No task state, Issue #100, lease, cooldown, quarantine, scheduler dispatch, Runn
 - The handoff update itself advanced PR #326 to exact head `56ca1554027b58c3061203782deaf85932f2a24b`; the previously observed run `44999527039` targets the superseded head `f3510966bc2ba3bd08c5bc8e2064ca79aaf577a3` and is not valid evidence for this latest documentation revision.
 - PR #327 remains Draft at exact head `df228022fed7ac18cbc3f8accf18bf71ca00a8b1`, base main `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45`. GitHub reports mergeable/clean, but exact-head CI run `44999696562` remains pending with no allocated job and no formal review; mergeability is not acceptance.
 - Main CI run `44995876495` remains pending with no final result. Do not use historical PR-head CI or the preflight failure on a different SHA as a substitute for exact-head acceptance.
+
+
+## Superseding live continuation checkpoint — 2026-11-22 15:55 Taiwan
+
+This checkpoint supersedes every earlier live snapshot above wherever the main SHA, workflow run, PR state, or conclusion differs. It is evidence documentation only, not A acceptance or release authorization.
+
+### Verified mainline and recent integrations
+- Verified `main` HEAD: `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`.
+- PR #326 (handoff evidence refresh) and PR #327 (nonfatal Docker diagnostic inventory) are merged into this mainline. PR #327's exact source-head CI run #44999696562 succeeded on `df228022fed7ac18cbc3f8accf18bf71ca00a8b1`; that source-head CI result is not a substitute for current-main CI, sandbox validation, or independent review.
+- Root release declarations remain GCAN `0.3.125`, Agent Factory V2 `2.0.84`, and GCAN Product `0.1.20`. These are version declarations only.
+
+### Current exact-SHA CI and Preflight evidence
+- Main push CI run [#44999879910](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879910) targets exact current main SHA `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f`. Latest query: **pending**, with no allocated jobs. Do not infer tests, types, lint, audits, build, Ollama, PostgreSQL, or RLS success.
+- Main CI run [#44995876495](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44995876495) targets the older SHA `9b43e2a87a7c791a10333d4b0a9ec51b15e6ab45`, not current main. Its Windows quality-gates job is still in progress; it is not current-main evidence.
+- Preflight run [#44999879809](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44999879809) targets exact current main SHA `c0e54f52b04c77b52a9b82f7b82ba971cd117b4f` and completed **failure**. Toolchain verification, local Ollama synthetic plan generation, and Ollama patch proposal succeeded. Disposable-container isolation failed; all sandbox patch application, restricted dependency installation, offline candidate tests, publisher dry-run, and host-independent full quality checks were skipped.
+- The Preflight isolation failure is an environment blocker: Docker CLI exists, but Docker Desktop Linux Engine's named pipe `//./pipe/dockerDesktopLinuxEngine` is unavailable. PR #327 makes diagnostic inventory nonfatal; it does not repair Docker Engine or waive the mandatory disposable-container gate.
+- Do not execute candidate code directly on the Windows host, treat WSL presence as isolation, or weaken pinned-image/no-network/non-root/read-only/capability/resource restrictions.
+
+### PR and independent-review status
+- PR #259 is the only open PR returned by the latest open-PR query. It is based on stale main SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, head `3330cd04a77358cf0ff780940d09f938cab1dc3a`, and GitHub reports `mergeable=false`. Do not merge or transplant its broad historical diff.
+- Issue #136 remains open and strictly read-only. The latest inspected comments do not contain an independent final audit report or sign-off. Owner-authored notes and CI are not independent review.
+- Do not alter machine-managed Issue #100, task state, lease, retry/cooldown/quarantine, scheduler dispatch, Runner concurrency, workflow permissions, secrets, production data, or deployments.
+
+### B handoff boundary
+- `docs/architecture/agent-factory-product-read-adapter.md` remains a **proposed, unimplemented, unaccepted** contract. Its versioned read model and exact SHA/PR/run/attempt binding are design requirements, not a live API.
+- B Runtime remains inactive. Do not expose Factory state Issues, controller/state-store internals, leases, Runner/Sandbox controls, raw logs, patches, secrets, or privileged execution to B.
+- After A acceptance only: implement an A-owned sanitized projection, B-owned workspace authorization and tenant mapping, and two-workspace RLS/IDOR tests. Keep the failure-category mapping allowlisted and fail closed.
+
+### Next execution order
+1. Restore Docker Desktop Linux Engine on the authorized Windows Runner host and verify the named pipe; then allow the existing serialized queue to run the mandatory isolation test.
+2. Observe Main CI run #44999879910 against the exact SHA above and record each terminal job result. Do not dispatch duplicate work or bypass Runner serialization.
+3. Obtain the independent read-only Issue #136 report against the current integrated mainline.
+4. Complete current-main quality, isolation, natural scheduler/lease progression, Preview/Smoke where applicable, and operational soak before declaring A accepted.
+5. Only then implement and activate the bounded A→B projection and B tenancy enforcement.
+
+**Authority boundary:** this checkpoint changes documentation only. It does not modify Factory runtime/state, task/lease/retry/cooldown/quarantine, scheduler or Runner policy, workflow permissions, secrets, production data, deployments, or B Runtime behavior.
