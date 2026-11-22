@@ -39,6 +39,7 @@ test("summarizes bounded queue, runner, task and cost telemetry deterministicall
   assert.equal(result.currency, "USD");
   assert.equal(result.quotaStatus, "warning");
   assert.equal(result.enforcementAuthorized, false);
+  assert.equal(result.evidenceCompleteness, "not-verifiable");
 });
 
 test("marks quota exceeded without mutating or enforcing quota", () => {
@@ -79,6 +80,21 @@ test("rejects mixed currencies, fractional costs and invalid durations", () => {
   assert.throws(() => assessHObservation(bundle([
     event("duration-frac", { durationMs: 1.5 }),
   ])), /duration/);
+});
+
+
+test("requires cost evidence to be explicit and keeps cost fields off non-cost events", () => {
+  assert.throws(() => assessHObservation(bundle([
+    event("cost-missing", { kind: "cost", currency: "USD" }),
+  ])), /require non-negative safe integer/);
+  assert.throws(() => assessHObservation(bundle([
+    event("task-cost", { kind: "task", costMicros: 10, currency: "USD" }),
+  ])), /only permitted on cost events/);
+  const zeroCost = assessHObservation(bundle([
+    event("cost-zero", { kind: "cost", costMicros: 0, currency: "USD" }),
+  ]));
+  assert.equal(zeroCost.costMicros, 0);
+  assert.equal(zeroCost.currency, "USD");
 });
 
 test("rejects malformed timestamps, unsafe quota settings and excessive event batches", () => {
