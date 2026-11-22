@@ -86,3 +86,36 @@
 ## 8. Rollback
 
 This initial slice is additive test and documentation work. Revert the integration PR to remove it. No schema, secret, runtime execution, or production deployment changes are included.
+
+
+## 9. Mainline reconciliation checkpoint (2026-11-22, authoritative SHA `23fb747ae4041bc28783a1b9039660ec952c7e0d`)
+
+This section supersedes historical branch/PR status statements above where they conflict with the current mainline. Earlier entries are retained as historical evidence, not current acceptance claims.
+
+### Current implementation inventory
+
+- **F — Security:** the current mainline contains the security-assurance evaluator, member-isolation and database-privilege regression tests, transitive API-role membership checks, security-header checks and route-authorization checks. These are implementation/test artifacts, not proof that the required database and quality jobs passed on the current candidate SHA.
+- **G — Release assurance:** the exact-head release evaluator and required CI-job contract are present. The F–G integration evaluator binds security and release evidence to the same repository, PR, candidate SHA, workflow run ID and attempt. It remains advisory and cannot authorize merge or deployment.
+- **H — Observability:** request correlation is paired through the existing middleware edge. The outcome recorder remains process-local; no durable central telemetry backend or end-to-end route/job trace coverage is established by that fact alone.
+- **P — Governance:** the read-only governance-review endpoint is now present on mainline and uses authenticated active-admin access plus a configured read-only GitHub token. Review evidence is tied to the live same-repository PR head and trusted-host reviewer-permission checks. The endpoint explicitly does not grant governance approval, merge authority or deployment authority. Route/test presence is not equivalent to current-SHA CI acceptance.
+- **I/J/M/N/O/K:** retain their bounded/advisory/documentation-only authority contracts. No live external side effects, autonomous production repair, user-level analytics collection, automatic lifecycle retirement or compliance certification is authorized.
+- **L:** remains deferred and disabled.
+
+### Exact current acceptance blockers
+
+1. Mainline is `23fb747ae4041bc28783a1b9039660ec952c7e0d`. The latest inspected push Preflight run #315 (`44967397478`) failed after the isolated Docker test run reported 602 unit tests passing; host-side validation then used unsupported system Node `v26.13.0` with `--experimental-transform-types`. The subsequent host TypeScript/ESLint steps were skipped. This is not a passing mainline quality gate. The Node 22.13.0 pin proposal is Draft PR #293 and must pass its own exact-head CI before acceptance.
+2. The latest inspected combined status for this mainline SHA reports Vercel `Deployment rate limited — retry in 24 hours`. No same-SHA READY Preview or Smoke evidence was established in this checkpoint.
+3. Independent adversarial review Issue #136 remains open and explicitly read-only. No internal inspection, merged code, or CI run substitutes for that independent review of Agent Factory V2. A remains unaccepted; dependent activation stays blocked.
+4. PR #259 is a stale integration candidate based on an older mainline. Its earlier exact-head CI cannot validate `23fb747ae4041bc28783a1b9039660ec952c7e0d`; do not merge it, retarget it, or transplant its full diff. Reconcile only individually justified changes against current main.
+5. No F–P workstream is declared accepted by this checkpoint. Acceptance requires current exact-SHA evidence for each required job, complete non-stale review evidence, and explicit human review. Missing, pending, skipped, stale or provider-rate-limited evidence is not a pass.
+
+### Next execution order
+
+1. Preserve the current mainline and all existing local staged/untracked work.
+2. Resolve the supported Node runtime mismatch in isolated Draft PR #293; require exact-head CI and independent review.
+3. Re-run and capture the complete F/G security + quality evidence bundle on one exact candidate SHA, run ID and attempt.
+4. Verify H correlation end-to-end; keep process-local counters clearly distinguished from durable telemetry.
+5. Verify P runtime response branches and security headers on the exact candidate SHA; keep the endpoint read-only.
+6. Update this ledger only from observed current-SHA evidence. Keep I/J/M/N/O/K bounded; keep L deferred.
+
+**Authority boundary:** this checkpoint is documentation-only. It changes no runtime, database, migration, secret, permission, workflow policy, Factory state, Runner state or deployment behavior.
