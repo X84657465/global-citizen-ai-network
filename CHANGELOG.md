@@ -1,3 +1,9 @@
+## 0.3.129 — 2026-11-22
+
+- P: extend the A–P version contract to verify both package-lock root copies, README release version and engineering-governance baseline.
+- Add regression coverage for duplicated release metadata drift; P advances to 0.1.2.
+- Validator remains read-only; it does not grant merge, release, or deployment authority.
+
 ## 0.3.126 — 2026-11-22
 
 - P: add an executable A–P numeric version governance contract.
