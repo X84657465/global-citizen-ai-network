@@ -147,3 +147,31 @@ Read-only inspection of current main `23fb747ae4041bc28783a1b9039660ec952c7e0d` 
 - The state-machine regression suite includes distinct tests for “task success clears only that task retry record” and “system success clears system cooldown without erasing task failures”.
 
 **Disposition:** the historical coupling finding appears corrected in the current integrated tree and is not presently a confirmed current-main defect. This is a code-path reconciliation, not a substitute for the still-required independent read-only audit of current main, and not proof of operational acceptance. Issue #136 must be completed against the exact integrated SHA; preserve its read-only restrictions. A remains not operationally accepted and B Runtime remains inactive.
+
+
+## 10. Live candidate status snapshot (2026-11-22; verified main `23fb747ae4041bc28783a1b9039660ec952c7e0d`)
+
+This snapshot supersedes earlier candidate SHA/run status statements where they differ. Status is bound to the exact HEAD shown; no evidence transfers between commits or runs.
+
+| PR | Exact HEAD | Latest observed Actions evidence | Review / disposition |
+|---|---|---|---|
+| #292 — evidence-grounded patch claims | `2ed61e76b2045832d769dfd893b02ee6753de70c` | Run `44967914868` completed; resolver, Windows quality gates, Ollama/local execution, and Supabase/PostgreSQL/RLS jobs succeeded. | No formal review submissions or threads. Ready for review, not merge-approved. Vercel status is failure; no same-SHA Preview/Smoke. |
+| #293 — Preflight Node 22.13.0 pin | `85555594c4bd167489bddd64f07b69e2a0a8e094` | Run `44970303726` is pending; only resolver job is allocated and pending. No substantive quality/integration result yet. | Draft; no formal review. |
+| #294 — authoritative handoff | `c704dbbdbe580a984f306cc7f82a659a2dafc284` | Run `44970329125` pending. | Draft; no formal review. |
+| #295 — earlier F–P ledger reconciliation | `4cfa4b31cd9a9b0d3735c8351d8395b49160b7a8` | Run `44970333841` pending. Its ledger candidate snapshot contains superseded PR #293 and other run details; do not treat those historical entries as current evidence. | Draft; no formal review. |
+| #296 — privacy-safe H event metadata | `e4c3cb3fa68f12400fb3da00d40fc087768d55ca` | Run `44969692123` pending; no jobs allocated at last inspection. | Draft; no formal review. |
+| #297 — P auth-provider fail-closed handling | `858d1ae886a95b9fec41076287d4c4466d2a46cb` | Run `44969394408` pending; no substantive job result at last inspection. | Draft; no formal review. |
+| #298 — canonical UTC security evidence timestamps | `e35ad0bb955f2a04c6375e4989f2fbbea7ba3086` | Run `44969187760` pending; no substantive job result established. | Draft; no formal review. |
+| #299 — this ledger refresh | Latest head is recorded in the PR description; exact-head run `44970935043` is pending with zero jobs allocated at last inspection. | No formal review; documentation-only. Keep Draft until exact-head CI and review evidence exist. |
+
+PR #295 and #299 both touch this ledger. Their branches are distinct and their text is not identical; use this PR's latest mainline reconciliation and candidate evidence as the current proposed update, while preserving any unique historical context only when it remains accurate. Do not merge either documentation PR solely because its content is non-runtime.
+
+### Current cross-cutting blockers
+
+1. No candidate PR above has a formal independent review submission in the latest review check.
+2. Issue #136 remains a strictly read-only independent adversarial audit request; current-main code inspection by the implementation author does not satisfy it.
+3. Vercel combined status continues to report `build-rate-limit`; no READY same-SHA Preview and Smoke evidence is established.
+4. Post-cooldown scheduled task selection, durable lease/worker progression, and a real 24-hour Runner soak remain unverified.
+5. The self-hosted Windows Runner queue is serialized. Pending or unallocated jobs are unknown, not passing, and do not justify changing concurrency or dispatching ad hoc runs.
+
+**Authority boundary:** this status refresh is documentation-only. It does not authorize merge, deployment, Factory-state mutation, lease/retry/cooldown/quarantine changes, workflow or Runner-policy changes, secrets/permissions changes, A operational acceptance, or B Runtime activation.
