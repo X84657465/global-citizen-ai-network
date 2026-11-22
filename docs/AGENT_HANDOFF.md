@@ -302,3 +302,11 @@ This checkpoint is authoritative for the state observed after PR #283 merged. Ol
 5. Only after A acceptance, implement the A-owned sanitized projection and B-owned workspace authorization behind a reviewed, versioned read-only contract.
 
 **Safety:** do not modify machine-managed Issue #100, reset retry/quarantine/cooldown, force-dispatch tasks, change workflow/Runner policy, alter secrets/permissions, deploy Production, or activate B Runtime to manufacture acceptance evidence.
+
+
+### Vercel evidence correction — supersedes any quota-only interpretation above
+- The latest concrete Vercel `main` deployment inspected was `dpl_CCYZPoBvWHT7rVVEAKXHxLy1g9D5`, built from pre-A-merge main SHA `27dba5e6f32d74e803f1ac814cd964d0af88364f`.
+- That deployment ended `ERROR` with `errorCode: module_not_found`; build log: `lib/fp/governance-review-route-handler.ts` could not resolve `../github-repository-name.mjs`.
+- PR #283 subsequently added `lib/github-repository-name.mjs` and the merge commit `23fb747ae4041bc28783a1b9039660ec952c7e0d` contains both the helper and the matching import. This is a code correction in the merged tree, not proof of a successful deployment.
+- Vercel currently returns no deployment record for merge SHA `23fb747...` or documentation candidate SHA `20cf328...`. The combined status target string contains `build-rate-limit`, but the inspected concrete deployment failure is `module_not_found`; do not label the old failure as quota-only.
+- No Production redeploy was triggered. Require a new same-SHA Preview/build and smoke result through the normal project flow before deployment acceptance.
