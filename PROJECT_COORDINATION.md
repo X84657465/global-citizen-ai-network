@@ -2011,7 +2011,7 @@ GPT3 必須確保任何工作都不是只有文件宣稱，而是能夠在真實
 ## 13. GPT 2 神經智慧體工作模式採納（Issue #384）
 
 **採納狀態：DOCUMENTED（本 PR 候選）；跨角色正式採納與實作狀態不得由本段單方面宣告。**  
-共同規範候選：PR #390 的 `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`。該文件目前位於以本 PR 為上游的下游整合候選；在 #390 合併前，不能宣稱此路徑已存在於 main。
+共同規範候選：本 PR #394 新增的 `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`。該文件目前仍屬 Draft 候選；在 #394 合併前，不能宣稱此路徑已存在於 main。
 
 GPT 2 將六層閉環映射至 F–P 工作如下：
 
