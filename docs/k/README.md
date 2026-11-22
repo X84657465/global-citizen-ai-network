@@ -28,6 +28,9 @@ K maintains the navigable engineering knowledge layer: architecture references, 
 - [Work-item evidence record](work-item-record-template.md)
 - [Handoff checklist](handoff-checklist.md)
 - [Architecture decision record](decision-record-template.md)
+- [CI failure evidence runbook](ci-failure-runbook.md)
+- [Runner recovery runbook](runner-recovery-runbook.md)
+- [Incident response runbook](incident-response-runbook.md)
 
 ## Maintenance
 
