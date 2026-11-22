@@ -1963,6 +1963,37 @@ test("system-health success rejects task candidates and ambiguous or mismatched 
         }],
       },
     },
+    {
+      name: "fork PR association",
+      workflow: {
+        head_branch: validBranch,
+        head_repository: { full_name: "contributor/repo" },
+        pull_requests: [{
+          ...basePullRequest,
+          head: { ...basePullRequest.head, repo: { full_name: "contributor/repo" } },
+        }],
+      },
+    },
+    {
+      name: "wrong base branch",
+      workflow: {
+        head_branch: validBranch,
+        pull_requests: [{
+          ...basePullRequest,
+          base: { ...basePullRequest.base, ref: "release" },
+        }],
+      },
+    },
+    {
+      name: "wrong base repository",
+      workflow: {
+        head_branch: validBranch,
+        pull_requests: [{
+          ...basePullRequest,
+          base: { ref: "main", repo: { full_name: "other/repo" } },
+        }],
+      },
+    },
   ];
 
   for (const scenario of scenarios) {
