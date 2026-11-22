@@ -411,16 +411,17 @@ test("all workflow checkouts disable persisted Git credentials", () => {
   }
 });
 
-test("preflight task publisher does not request Actions API permissions", () => {
-  const start = preflight.indexOf("  prepare-task:\n");
+test("preflight task publisher uses least-privilege API permissions", () => {
+  const start = preflight.indexOf("  prepare-task:\\n");
   assert.notEqual(start, -1, "expected the durable task publisher job");
-  const permissionsStart = preflight.indexOf("    permissions:\n", start);
-  const permissionsEnd = preflight.indexOf("    runs-on:", permissionsStart);
+  const permissionsStart = preflight.indexOf("    permissions:\\n", start);
+  const permissionsEnd = preflight.indexOf("    concurrency:\\n", permissionsStart);
   const permissions = preflight.slice(permissionsStart, permissionsEnd);
-  assert.match(permissions, /actions:\s+none/);
-  assert.match(permissions, /contents:\s+write/);
-  assert.match(permissions, /issues:\s+write/);
-  assert.match(permissions, /pull-requests:\s+write/);
+  assert.match(permissions, /actions:\\s+none/);
+  assert.match(permissions, /contents:\\s+read/);
+  assert.match(permissions, /issues:\\s+write/);
+  assert.match(permissions, /pull-requests:\\s+read/);
+  assert.doesNotMatch(permissions, /contents:\\s+write|pull-requests:\\s+write/);
 });
 
 
@@ -430,20 +431,23 @@ test("untrusted candidate install and test containers never receive GitHub write
   assert.notEqual(candidateStart, -1, "expected candidate install step");
   assert.notEqual(candidateEnd, -1, "expected publishing boundary after candidate tests");
   const candidateSection = preflight.slice(candidateStart, candidateEnd);
-  assert.equal(/GITHUB_TOKEN:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/.test(candidateSection), false);
-  assert.equal(/--env\s+GITHUB_TOKEN|--env\s+GH_TOKEN|--env\s+GITHUB_/.test(candidateSection), false);
+  const dockerCommands = candidateSection.split("\\n").filter((line) => /\\bdocker run\\b/.test(line));
+  assert.ok(dockerCommands.length >= 3, "expected isolated install, retry, and offline-test containers");
+  for (const command of dockerCommands) {
+    assert.doesNotMatch(command, /--env\\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\\b/i);
+  }
   assert.match(candidateSection, /--network none/);
   assert.match(candidateSection, /--cap-drop ALL/);
   assert.match(candidateSection, /--read-only/);
 });
 
 test("preflight GitHub write credentials are scoped to trusted orchestration and publisher steps", () => {
-  const lines = preflight.split("\n");
+  const lines = preflight.split("\\n");
   const tokenSteps = [];
   for (let index = 0; index < lines.length; index += 1) {
-    if (!/GITHUB_TOKEN:\s*\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}/.test(lines[index])) continue;
+    if (!/GITHUB_TOKEN:\\s*\\$\\{\\{\\s*secrets\\.GITHUB_TOKEN\\s*\\}\\}/.test(lines[index])) continue;
     let start = index;
-    while (start > 0 && !/^\s*- name:/.test(lines[start])) start -= 1;
+    while (start > 0 && !/^\\s*- name:/.test(lines[start])) start -= 1;
     tokenSteps.push(lines[start]?.trim() || "unknown step");
   }
   assert.ok(tokenSteps.length > 0, "expected explicit step-scoped token injection");
@@ -454,35 +458,38 @@ test("candidate install and offline test use separate least-network container pr
   const installStart = preflight.indexOf('      - name: Install candidate dependencies inside restricted container (attempt 1)');
   const retryStart = preflight.indexOf('      - name: Retry candidate dependency installation once', installStart);
   const testStart = preflight.indexOf('      - name: Test patched candidate offline inside restricted container', retryStart);
-  const publishStart = preflight.indexOf('      - name: Transition task to publishing', testStart);
-  assert.ok(installStart >= 0 && retryStart > installStart && testStart > retryStart && publishStart > testStart,
-    "candidate install, retry, offline test, and publisher boundaries must remain explicit");
+  const diagnosticsStart = preflight.indexOf('      - name: Preserve candidate offline test diagnostics', testStart);
+  assert.ok(installStart >= 0 && retryStart > installStart && testStart > retryStart && diagnosticsStart > testStart,
+    "candidate install, retry, offline test, and diagnostics boundaries must remain explicit");
 
   const install = preflight.slice(installStart, retryStart);
   const retry = preflight.slice(retryStart, testStart);
-  const offlineTest = preflight.slice(testStart, publishStart);
+  const offlineTest = preflight.slice(testStart, diagnosticsStart);
 
   for (const section of [install, retry]) {
-    assert.match(section, /--network bridge/, "dependency installation may use network only inside the disposable container");
-    assert.doesNotMatch(section, /--network none/, "dependency installation must not claim to be offline");
-    assert.match(section, /--read-only/);
-    assert.match(section, /--cap-drop ALL/);
-    assert.match(section, /--security-opt no-new-privileges/);
-    assert.match(section, /--user 1000:1000/);
-    assert.match(section, /--ignore-scripts/, "candidate dependency lifecycle scripts must stay disabled");
-    assert.match(section, /--env npm_config_cache=\/npm-cache/);
-    assert.doesNotMatch(section, /GITHUB_TOKEN|GH_TOKEN/);
+    const command = section.split("\\n").find((line) => /\\bdocker run\\b/.test(line)) ?? "";
+    assert.match(command, /--network bridge/, "dependency installation may use network only inside the disposable container");
+    assert.doesNotMatch(command, /--network none/, "dependency installation must not claim to be offline");
+    assert.match(command, /--read-only/);
+    assert.match(command, /--cap-drop ALL/);
+    assert.match(command, /--security-opt no-new-privileges/);
+    assert.match(command, /--user 1000:1000/);
+    assert.match(command, /--ignore-scripts/, "candidate dependency lifecycle scripts must stay disabled");
+    assert.match(command, /--env npm_config_cache=\\/npm-cache/);
+    assert.doesNotMatch(command, /--env\\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\\b/i);
   }
 
-  assert.match(offlineTest, /--network none/, "candidate code tests must run without network access");
-  assert.match(offlineTest, /--read-only/);
-  assert.match(offlineTest, /--cap-drop ALL/);
-  assert.match(offlineTest, /--security-opt no-new-privileges/);
-  assert.match(offlineTest, /--user 1000:1000/);
-  assert.match(offlineTest, /npm run test:unit && npx --no-install tsc --noEmit && npm run lint/);
-  assert.doesNotMatch(offlineTest, /GITHUB_TOKEN|GH_TOKEN/);
+  const offlineCommand = offlineTest.split("\\n").find((line) => /\\bdocker run\\b/.test(line)) ?? "";
+  assert.match(offlineCommand, /--network none/, "candidate code tests must run without network access");
+  assert.match(offlineCommand, /--read-only/);
+  assert.match(offlineCommand, /--cap-drop ALL/);
+  assert.match(offlineCommand, /--security-opt no-new-privileges/);
+  assert.match(offlineCommand, /--user 1000:1000/);
+  assert.match(offlineCommand, /npm run test:unit && npx --no-install tsc --noEmit && npm run lint/);
+  assert.doesNotMatch(offlineCommand, /--env\\s+(?:GITHUB_TOKEN|GH_TOKEN|GITHUB_[A-Z0-9_]*TOKEN)\\b/i);
 });
 
+ 
 test("database job discovers isolated PostgreSQL by Supabase DB port and separates infrastructure from RLS assertion failures", () => {
   assert.ok(workflow.includes("- name: Run two-member application RLS integration tests"));
   assert.ok(workflow.includes("SUPABASE_DB_URL"));
