@@ -1,3 +1,16 @@
+## Latest P0 CI failure evidence — 2026-11-23 (Issue #117 candidates)
+
+This note supersedes earlier PR #422/#425 CI descriptions below.
+
+- PR #425 exact head remains `2a1d27388f7586405f62f04f6a8544a6dd36360e`; run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) has failed its Windows Runner quality-gate job.
+- Failure is in `tests/ci-trigger-policy.test.mjs:652`, test `preflight captures and uploads both synthetic and real candidate offline-test diagnostics`. Assertion `preserve the native Docker exit code` expected the old `$testExitCode = $LASTEXITCODE` text, but the candidate workflow now uses `docker create`, `docker start --attach`, and `docker inspect` with `$createExitCode` / `$startExitCode` / inspected state. The job reports 42 passing, 1 failing; unit tests, type check, lint and production build were skipped after the earlier policy test failure. Exact-SHA diagnostics job remains PENDING.
+- The same stale test assertion is present in PR #422's exact head `535daef3edb0ee81abfb003131d4149e81620357`. This is an observed shared test-contract defect and a likely blocker if its Windows quality job reaches this test; #422's exact-head quality job is currently PENDING, not failed.
+- Minimal repair recommendation: update the structural regression test to assert the new container create/start/inspect flow, preserve both create/start command outcomes and the inspected container exit evidence, and continue requiring diagnostics to be uploaded on failure. Do not weaken the actual fail-closed runtime behavior merely to satisfy the old assertion.
+- #422 and #425 remain competing implementations on the same workflow/test paths. Do not independently patch both branches or merge either under Issue #117; establish the canonical DRI and obtain GPT3 adversarial review first.
+- No test was run by this assistant. The failure evidence above comes from the exact-head GitHub Actions job log.
+
+---
+
 ## Superseding live execution snapshot — 2026-11-23 (main 10fabef7)
 
 This section supersedes older live-state snapshots below. Always re-fetch exact refs before acting; historical snapshots are retained for audit history, not current status.
@@ -38,7 +51,7 @@ This section supersedes earlier live-state statements below. Re-fetch all exact 
 - Combined status previously returned Vercel `build-rate-limit`; treat provider deployment quota separately from GitHub Actions CI. Do not retry/dispatch workflows to force green.
 
 ### Open PRs — current exact heads
-- #420 (this documentation PR): its live head SHA and exact-head CI run are intentionally not hard-coded here because each documentation refresh creates a new candidate commit. Re-fetch the PR head and matching run from GitHub immediately before review/merge; do not reuse a prior SHA or run. Latest checked before this note: head `2fc578df2e79b9edca574da5a27e872cc6dbe81f`, run [#45060325149](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060325149) **PENDING**. This update is documentation-only; no repository test suite was run.
+- #420 (this documentation PR): its live head SHA and exact-head CI run are intentionally not hard-coded here because each documentation refresh creates a new candidate commit. Re-fetch the PR head and matching run from GitHub immediately before review/merge; do not reuse a prior SHA or run. Latest checked before this correction: head `b1671f72ae6a8c5475da5ac59595a1bfe2c21eae`, run [#45060370063](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060370063) **PENDING**. This update is documentation-only; no repository test suite was run.
 - #422: head `535daef3edb0ee81abfb003131d4149e81620357`; exact-head PR run [#45058587659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058587659) has metadata resolver SUCCESS and Windows quality job PENDING. Associated push run [#45058582257](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058582257) failed. No exact-head full CI PASS.
 - #425: head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; exact-head run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) has metadata resolver SUCCESS and Windows quality job PENDING. Its helper still uses `Number(state.ExitCode)`; null, empty string and false can coerce to zero. Existing review requires strict raw-value validation and regression cases.
 - #426: head `542d315d0c3733aeef155d51f9a662528050b1bb`; exact-head run [#45058900487](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058900487) remains PENDING at metadata resolution; independent formal review is absent.
