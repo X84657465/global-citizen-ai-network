@@ -5,7 +5,7 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `23fb747ae4041bc28783a1b9039660ec952c7e0d`  
+**Main HEAD:** `aa63b74f9d23d2316ec7b59116632d686afb8fe1`  
 **Authoritative release:** `VERSION` and `package.json` on main both report `0.3.125`. README release label requires separate verification before use.  
 **A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
 
@@ -346,3 +346,36 @@ This checkpoint is authoritative for the state observed after PR #283 merged. Ol
 - PR #283 subsequently added `lib/github-repository-name.mjs` and the merge commit `23fb747ae4041bc28783a1b9039660ec952c7e0d` contains both the helper and the matching import. This is a code correction in the merged tree, not proof of a successful deployment.
 - Vercel currently returns no deployment record for merge SHA `23fb747...` or documentation candidate SHA `20cf328...`. The combined status target string contains `build-rate-limit`, but the inspected concrete deployment failure is `module_not_found`; do not label the old failure as quota-only.
 - No Production redeploy was triggered. Require a new same-SHA Preview/build and smoke result through the normal project flow before deployment acceptance.
+
+
+## 2B. Live continuation checkpoint — 2026-11-22 09:47 Taiwan (supersedes earlier run/state snapshots)
+
+**Verified main HEAD:** `aa63b74f9d23d2316ec7b59116632d686afb8fe1` (PR #293 merge). Release remains `0.3.125`.
+
+### A — Factory priority
+- PR #293 merged the Node.js `22.13.0` runtime alignment for Preflight validation/preparation jobs.
+- PR #300 merged read-only durable-state capacity telemetry: processed-event ledger limit 500 and state-Issue body ceiling 60,000 characters, with warning/critical/blocked classifications. The ledger remains fail-closed; do not evict keys or compact without a separately reviewed design.
+- Latest scheduled `AI Agent Task Preflight` run observed: #44972336349, created `2026-11-22T01:37:42Z`, checked out older main SHA `23fb747ae4041bc28783a1b9039660ec952c7e0d`. The task-plan job #137054627179 remains pending with no steps; the Windows validation job was skipped. This is a delivered scheduled event, not a successful selection/lease/progression cycle.
+- Current-main push Preflight #44972991644 is pending at Windows self-hosted job #137056615492 with no allocated steps; its read-only task-plan job is skipped because the event is a push. Main CI #44972991698 is pending with no jobs returned.
+- Machine-managed Issue #100 was read-only at state version 145, updated `2026-11-22T00:47:18.173Z`: no active task; system consecutive failures 8; recorded cooldown ended `2026-11-22T01:02:18.173Z`; last successful system run remains `2026-11-20T17:37:29.527Z`. Multiple tasks remain queued. Do not edit the issue, reset counters/cooldowns/leases/quarantine, or dispatch duplicates.
+- A is integrated but **not operationally accepted**. Required gaps remain: current-main CI/Preflight completion, post-cooldown normal queue/lease progression, 24-hour serialized Runner soak, same-SHA Preview/Smoke, and independent read-only adversarial review in Issue #136.
+
+### Candidate and review boundaries
+- PR #301 is a Draft K documentation checkpoint based on `aa63b74...`; its exact-head CI run #44973118291 is pending at the candidate metadata resolver. No CI pass is claimed.
+- PR #295 is based on older main `23fb747...` and is non-mergeable; do not merge or transplant wholesale.
+- PR #259 is a 111-commit legacy A/F–P candidate based on `a1c1b58...`, diverged from current main; do not merge or copy its diff wholesale.
+- Issue #136 remains a separate read-only audit requirement. Owner-authored review and CI are not substitutes for an independent reviewer.
+
+### B — preparation only
+- Keep B Runtime inactive. The versioned read-only A→B projection remains a proposal, not a public API.
+- After A acceptance, A must expose a structured server-side projection binding full candidate SHA, PR number, CI run ID and attempt. B owns authenticated workspace/tenant authorization and RLS/IDOR isolation.
+- B must not import A controller/state-store internals, read or mutate Issue #100, manage leases, call Runner/Sandbox, or expose internal lifecycle enums, run identifiers, raw Issue bodies or logs.
+
+### Next execution order
+1. Observe the pending scheduled and main-push runs; inspect exact run/attempt/job logs and a fresh read-back of Issue #100 only after normal execution.
+2. Diagnose only evidence-backed Windows queue/Runner or CI blockers. Do not alter Runner/concurrency/workflow permissions or cancel queued work.
+3. Complete Issue #136's independent read-only audit and remediate concrete findings through isolated A PRs with exact-head tests.
+4. Require current-SHA CI, same-SHA READY Preview/Smoke, post-cooldown queue progression and the serialized 24-hour soak before A acceptance.
+5. Only then rebase and validate the B read-only adapter against the accepted A contract; do not activate B runtime early.
+
+**Authority boundary:** this checkpoint records read-only observations and integration contracts only. It changes no Factory state, task issue, Runner policy, workflow permission, secrets, production database, or deployment configuration.

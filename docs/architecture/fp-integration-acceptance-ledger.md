@@ -175,3 +175,41 @@ PR #295 and #299 both touch this ledger. Their branches are distinct and their t
 5. The self-hosted Windows Runner queue is serialized. Pending or unallocated jobs are unknown, not passing, and do not justify changing concurrency or dispatching ad hoc runs.
 
 **Authority boundary:** this status refresh is documentation-only. It does not authorize merge, deployment, Factory-state mutation, lease/retry/cooldown/quarantine changes, workflow or Runner-policy changes, secrets/permissions changes, A operational acceptance, or B Runtime activation.
+
+## 11. Live mainline checkpoint after PR #293 merge (2026-11-22)
+
+**Verified main SHA:** `aa63b74f9d23d2316ec7b59116632d686afb8fe1` (merge commit for PR #293). This checkpoint supersedes earlier SHA-specific candidate status above; historical sections are retained as historical evidence only.
+
+### Verified integration state
+
+- PR #299 merged: prior F–P acceptance-ledger reconciliation; this PR #301 checkpoint supersedes its older SHA-specific status snapshot.
+- PR #294 merged: authoritative mainline/handoff correction; this checkpoint uses the subsequently verified main SHA below.
+- PR #300 merged: read-only durable-state capacity telemetry (500 processed-event limit and 60,000-character state-Issue body ceiling), with warning/critical/blocked classification. Merge commit: `7fedccfe940db5bdd1c117dc6563e87cfbd284da`.
+- PR #298 merged: canonical UTC security-evidence timestamp validation.
+- PR #297 merged: governance authentication-provider failures remain fail-closed.
+- PR #296 merged: privacy-safe observability event metadata.
+- PR #293 merged: Preflight `validation-tests` and `prepare-task` use Node.js `22.13.0`, matching the CI quality runtime. Main merge commit: `aa63b74f9d23d2316ec7b59116632d686afb8fe1`.
+
+### Exact-main validation observed
+
+- Main push CI run `44972991698` is **pending**; the latest job inspection returned no allocated jobs. No quality, type, lint, build, Ollama, or database/RLS pass is inferred.
+- Main push Preflight run `44972991644` is **pending**. The Windows self-hosted project-validation job `137056615492` is pending; the read-only task-plan validation job was skipped. No Preflight pass is inferred.
+- The combined commit status for `aa63b74f9d23d2316ec7b59116632d686afb8fe1` reports Vercel failure with provider `build-rate-limit`. No READY Preview or same-SHA Smoke evidence is established.
+- These statuses are exact to `aa63b74f9d23d2316ec7b59116632d686afb8fe1`; results from earlier PR heads or merge parents do not transfer.
+
+### Outstanding boundaries
+
+- PR #295 is an older documentation candidate based on `23fb747ae4041bc28783a1b9039660ec952c7e0d`; its base is stale and GitHub currently reports it non-mergeable. Do not merge or wholesale transplant it. This checkpoint is prepared directly from the verified current mainline instead.
+- Issue #136 remains open and explicitly read-only. Its independent adversarial audit is not replaced by implementation-author inspection, merged code, or CI status. Do not modify the Issue, Factory state, leases, Runner settings, secrets, permissions, or production data as part of that audit.
+- A remains integrated but not operationally accepted. B Runtime remains inactive. L remains deferred and disabled.
+- F/G/H/P and the remaining F–P workstreams are implementation-present to varying degrees; none is promoted to accepted solely by these merges. Acceptance still requires complete current-SHA evidence, independent review where required, and the documented authority checks.
+
+### Next execution order
+
+1. Let the current-main CI and Preflight jobs complete; inspect their exact run IDs, attempts, job conclusions, and logs.
+2. Reconcile any actual test failures on a fresh branch from the then-current main SHA; do not infer a Runner outage from pending jobs.
+3. Keep the 500-event idempotency ledger fail-closed. Do not evict processed-event keys or introduce unreviewed compaction.
+4. Complete the independent read-only Factory audit against the current integrated tree through its authorized reviewer; preserve the Issue's no-write boundary.
+5. Refresh this ledger only from observed evidence. Keep A–E protected, B inactive, and L deferred.
+
+**Authority boundary:** this is a K documentation checkpoint only. It changes no runtime, database, migration, Factory state, lease, retry/cooldown/quarantine, Runner policy, secret, permission, or deployment behavior.
