@@ -173,8 +173,17 @@ function isPositiveInteger(value: number): boolean {
   return Number.isSafeInteger(value) && value > 0;
 }
 
-function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRequestNumber: number): void {
-  if (!isSafeRecord(ci, ["repository", "pullRequestNumber", "headSha", "event", "baseRef", "workflowPath", "runId", "runAttempt", "runUrl", "jobRunAttempt", "jobKey", "jobConclusion", "jobUrl"], ["repository", "pullRequestNumber", "headSha", "event", "baseRef", "workflowPath", "runId", "runAttempt", "runUrl", "jobRunAttempt", "jobKey", "jobConclusion", "jobUrl"])) {
+function validateCIEvidence(
+  value: unknown,
+  repository: string,
+  pullRequestNumber: number,
+): FPSecurityCIEvidence {
+  const ci = snapshotSafeRecord(
+    value,
+    ["repository", "pullRequestNumber", "headSha", "event", "baseRef", "workflowPath", "runId", "runAttempt", "runUrl", "jobRunAttempt", "jobKey", "jobConclusion", "jobUrl"],
+    ["repository", "pullRequestNumber", "headSha", "event", "baseRef", "workflowPath", "runId", "runAttempt", "runUrl", "jobRunAttempt", "jobKey", "jobConclusion", "jobUrl"],
+  ) as unknown as FPSecurityCIEvidence | null;
+  if (!ci) {
     throw new TypeError("Invalid F evidence CI record; expected plain own-data fields.");
   }
   if (
@@ -187,6 +196,7 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
     typeof ci.jobKey !== "string" ||
     typeof ci.jobConclusion !== "string" ||
     typeof ci.jobUrl !== "string" ||
+    typeof ci.pullRequestNumber !== "number" ||
     ci.repository !== repository ||
     ci.pullRequestNumber !== pullRequestNumber ||
     !SHA_PATTERN.test(ci.headSha) ||
@@ -210,9 +220,10 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
   }
   const expectedJobPrefix = `${expectedRunUrl}/job/`;
   const jobId = ci.jobUrl.slice(expectedJobPrefix.length);
-  if (!ci.jobUrl.startsWith(expectedJobPrefix) || !/^[1-9]\d*$/.test(jobId)) {
+  if (!ci.jobUrl.startsWith(expectedJobPrefix) || !/^[1-9]\\d*$/.test(jobId)) {
     throw new TypeError("F CI job URL does not belong to the evidence run.");
   }
+  return ci;
 }
 
 /**
@@ -223,17 +234,23 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
 export function assessFPSecurityEvidence(
   bundle: FPSecurityEvidenceBundle,
 ): FPSecurityAssessment {
+  const candidate = snapshotSafeRecord(
+    bundle,
+    ["candidateRepository", "pullRequestNumber", "candidateSha", "evidence"],
+    ["candidateRepository", "pullRequestNumber", "candidateSha", "evidence"],
+  );
   if (
-    !isSafeRecord(bundle, ["candidateRepository", "pullRequestNumber", "candidateSha", "evidence"], ["candidateRepository", "pullRequestNumber", "candidateSha", "evidence"]) ||
-    typeof bundle.candidateRepository !== "string" ||
-    typeof bundle.candidateSha !== "string" ||
-    !REPOSITORY_PATTERN.test(bundle.candidateRepository) ||
-    !isPositiveInteger(bundle.pullRequestNumber) ||
-    !SHA_PATTERN.test(bundle.candidateSha)
+    !candidate ||
+    typeof candidate.candidateRepository !== "string" ||
+    typeof candidate.candidateSha !== "string" ||
+    typeof candidate.pullRequestNumber !== "number" ||
+    !REPOSITORY_PATTERN.test(candidate.candidateRepository) ||
+    !isPositiveInteger(candidate.pullRequestNumber) ||
+    !SHA_PATTERN.test(candidate.candidateSha)
   ) {
     throw new TypeError("A candidate repository, PR number, and 40-character SHA are required.");
   }
-  const evidenceItems = snapshotSafeArray(bundle.evidence, F_MAX_EVIDENCE_RECORDS);
+  const evidenceItems = snapshotSafeArray(candidate.evidence, F_MAX_EVIDENCE_RECORDS);
   if (evidenceItems === null) {
     throw new TypeError("Security evidence must be a bounded dense plain array with own data slots.");
   }
@@ -241,10 +258,14 @@ export function assessFPSecurityEvidence(
   const byControl = new Map<FPSecurityControlId, FPSecurityEvidence>();
   let runIdentity: string | undefined;
   for (const rawItem of evidenceItems) {
-    if (!isSafeRecord(rawItem, ["controlId", "testedSha", "status", "evidenceRef", "executedAt", "ci"], ["controlId", "testedSha", "status", "evidenceRef", "executedAt", "ci"])) {
+    const item = snapshotSafeRecord(
+      rawItem,
+      ["controlId", "testedSha", "status", "evidenceRef", "executedAt", "ci"],
+      ["controlId", "testedSha", "status", "evidenceRef", "executedAt", "ci"],
+    ) as unknown as FPSecurityEvidence | null;
+    if (!item) {
       throw new TypeError("Invalid F security evidence record; expected plain own-data fields.");
     }
-    const item = rawItem as unknown as FPSecurityEvidence;
     const expectedControl = FP_SECURITY_CONTROLS.find((control) => control.id === item.controlId);
     if (
       !expectedControl ||
@@ -262,34 +283,35 @@ export function assessFPSecurityEvidence(
     ) {
       throw new TypeError("Invalid or duplicate F security evidence record.");
     }
-    validateCIEvidence(item.ci, bundle.candidateRepository, bundle.pullRequestNumber);
-    if (item.ci.jobKey !== expectedControl.requiredJob) {
+    const ci = validateCIEvidence(item.ci, candidate.candidateRepository, candidate.pullRequestNumber);
+    if (ci.jobKey !== expectedControl.requiredJob) {
       throw new TypeError("F security control is not bound to its required CI job.");
     }
+    const normalizedItem: FPSecurityEvidence = { ...item, ci };
     const identity = [
-      item.ci.repository,
-      item.ci.pullRequestNumber,
-      item.ci.headSha.toLowerCase(),
-      item.ci.event,
-      item.ci.baseRef,
-      item.ci.workflowPath,
-      item.ci.runId,
-      item.ci.runAttempt,
-      item.ci.runUrl,
+      ci.repository,
+      ci.pullRequestNumber,
+      ci.headSha.toLowerCase(),
+      ci.event,
+      ci.baseRef,
+      ci.workflowPath,
+      ci.runId,
+      ci.runAttempt,
+      ci.runUrl,
     ].join("|");
     if (runIdentity !== undefined && runIdentity !== identity) {
       throw new TypeError("F security controls must reference one exact CI run and attempt.");
     }
     runIdentity = identity;
-    byControl.set(item.controlId, item);
+    byControl.set(item.controlId, normalizedItem);
   }
 
   const controls: FPSecurityControlResult[] = FP_SECURITY_CONTROLS.map((control) => {
     const item = byControl.get(control.id);
     if (!item) return { controlId: control.id, status: "missing" };
     if (
-      item.testedSha.toLowerCase() !== bundle.candidateSha.toLowerCase() ||
-      item.ci.headSha.toLowerCase() !== bundle.candidateSha.toLowerCase()
+      item.testedSha.toLowerCase() !== (candidate.candidateSha as string).toLowerCase() ||
+      item.ci.headSha.toLowerCase() !== (candidate.candidateSha as string).toLowerCase()
     ) {
       return { controlId: control.id, status: "stale", testedSha: item.testedSha };
     }
@@ -329,9 +351,9 @@ export function assessFPSecurityEvidence(
 
   return Object.freeze({
     schemaVersion: "1",
-    candidateRepository: bundle.candidateRepository,
-    pullRequestNumber: bundle.pullRequestNumber,
-    candidateSha: bundle.candidateSha,
+    candidateRepository: candidate.candidateRepository as string,
+    pullRequestNumber: candidate.pullRequestNumber as number,
+    candidateSha: candidate.candidateSha as string,
     status,
     controls: Object.freeze(controls),
     passed,
