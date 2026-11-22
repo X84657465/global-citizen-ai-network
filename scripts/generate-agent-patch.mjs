@@ -233,8 +233,11 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
     fail("The total Ollama patch-generation time budget expired before batch " + (batchIndex + 1) + ".");
   }
 
+  // Enforce each required output in its own batch, then enforce the full contract below.
+  const scopedTask = scopePatchTaskToBatch(task, batchPaths);
   const planningInput = {
     ...basePlanningInput,
+    required_patch_paths: scopedTask.required_patch_paths,
     source_files: batchSourceFiles,
     approved_patch_paths: batchPaths,
     implementation_plan: implementationPlan,
@@ -244,9 +247,6 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
       approved_paths: batchPaths,
     },
   };
-  // Enforce each required output in its own batch, then enforce the full contract below.
-  const scopedTask = scopePatchTaskToBatch(task, batchPaths);
-
   console.log("Starting patch batch " + (batchIndex + 1) + "/" + patchBatches.length +
     ": files=" + batchPaths.length +
     ", source_bytes=" + batchSourceBytes +
