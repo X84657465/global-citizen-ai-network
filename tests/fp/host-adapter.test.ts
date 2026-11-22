@@ -261,7 +261,7 @@ test("records outcome correlation from the trusted snapshot, not a mutated calle
   const host = new FPHostAdapter(recorder);
   const callerContext = context();
   host.register("H", "health-snapshot", () => {
-    callerContext.correlationId = "tampered-correlation";
+    (callerContext as unknown as { correlationId: string }).correlationId = "tampered-correlation";
     return "healthy";
   });
 
@@ -270,6 +270,6 @@ test("records outcome correlation from the trusted snapshot, not a mutated calle
     callerContext,
   );
 
-  assert.equal(callerContext.correlationId, "tampered-correlation");
+  assert.equal((callerContext as unknown as { correlationId: string }).correlationId, "tampered-correlation");
   assert.equal(recorder.list()[0].correlationId, "request-123");
 });

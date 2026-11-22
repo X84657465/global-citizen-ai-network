@@ -8,7 +8,7 @@ const psql = process.env.PSQL_BIN || "psql";
 const databaseContainer = process.env.SUPABASE_DB_CONTAINER;
 const docker = process.env.DOCKER_BIN || "docker";
 
-function sql(query, { expectFailure = false, expectSqlState } = {}) {
+function sql(query, { expectFailure = false, expectSqlState, expectMessage } = {}) {
   if (!databaseUrl) throw new Error("SUPABASE_DB_URL is required. Use a disposable local Supabase database; never point this test at production.");
   const command = databaseContainer ? docker : psql;
   const args = databaseContainer ? ["exec", "-e", "PGAPPNAME=gcan-two-member-rls-test", databaseContainer, "psql", "-U", "postgres", "-d", "postgres"] : [databaseUrl];
@@ -34,6 +34,12 @@ function sql(query, { expectFailure = false, expectSqlState } = {}) {
         failureOutput,
         new RegExp("ERROR:\\s+" + expectSqlState + ":"),
         `Expected PostgreSQL SQLSTATE ${expectSqlState}; received a different failure: ${diagnostic}`,
+      );
+    }
+    if (expectMessage) {
+      assert.ok(
+        failureOutput.includes(expectMessage),
+        `Expected database rejection message "${expectMessage}"; received a different failure: ${diagnostic}`,
       );
     }
     return failureOutput;
@@ -82,6 +88,10 @@ function fixture() {
     values
       ('${submissionA}', '${task}', '${a}', 'Valid contribution fixture from member A.', 'submitted'),
       ('${submissionB}', '${task}', '${b}', 'Valid contribution fixture from member B.', 'rejected');
+    -- The BEFORE INSERT trigger normalizes every new submission to submitted.
+    -- Move B's fixture to rejected using the trusted test connection so the
+    -- appeal and cross-member resubmission checks exercise their intended guards.
+    update public.task_submissions set status = 'rejected' where id = '${submissionB}';
     insert into public.task_reviews (submission_id, reviewer_id, decision, rationale)
     values ('${submissionB}', '${b}', 'reject', 'Private review rationale belonging to member B.');
     `;
@@ -173,16 +183,60 @@ test("member cannot read another member's submission or review rationale", () =>
   assert.match(output, /0,0$/, "member A must not see member B's submission or review rationale");
 });
 
-test("member cannot appeal another member's rejected submission", () => {
+test("member cannot appeal or probe another member's rejected submission", () => {
   const f = fixture();
-  sql(`
+  const missingSubmission = randomUUID();
+  const foreignSubmissionError = sql(`
     ${f.setup}
     ${asMember(f.a, `
       insert into public.task_appeals (submission_id, appellant_id, reason)
       values ('${f.submissionB}', '${f.a}', 'Attempt to appeal another member submission.');
     `)}
     rollback;
-  `, { expectFailure: true, expectSqlState: "42501" });
+  `, {
+    expectFailure: true,
+    expectSqlState: "42501",
+    expectMessage: "appeal submission is unavailable",
+  });
+  const forgedAppellantError = sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.task_appeals (submission_id, appellant_id, reason)
+      values ('${f.submissionB}', '${f.b}', 'Attempt to spoof the appellant identity.');
+    `)}
+    rollback;
+  `, {
+    expectFailure: true,
+    expectSqlState: "42501",
+    expectMessage: "appeal submission is unavailable",
+  });
+  const missingSubmissionError = sql(`
+    ${f.setup}
+    ${asMember(f.a, `
+      insert into public.task_appeals (submission_id, appellant_id, reason)
+      values ('${missingSubmission}', '${f.a}', 'Attempt to probe a missing submission.');
+    `)}
+    rollback;
+  `, {
+    expectFailure: true,
+    expectSqlState: "42501",
+    expectMessage: "appeal submission is unavailable",
+  });
+  const denialIdentity = (output) => {
+    const match = output.match(/ERROR:\s+([A-Z0-9]{5}):\s*([^\r\n]+)/);
+    assert.ok(match, "expected a structured PostgreSQL authorization error");
+    return match[1] + ":" + match[2];
+  };
+  assert.equal(
+    denialIdentity(foreignSubmissionError),
+    denialIdentity(missingSubmissionError),
+    "foreign-owned and nonexistent submission IDs must not be distinguishable by their appeal error",
+  );
+  assert.equal(
+    denialIdentity(forgedAppellantError),
+    denialIdentity(missingSubmissionError),
+    "a caller must not spoof the appellant ID to probe a foreign submission's lifecycle",
+  );
 });
 
 test("member cannot submit contribution work on behalf of another member", () => {

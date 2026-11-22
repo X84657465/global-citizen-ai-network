@@ -37,18 +37,22 @@ test("retains only the configured bounded number of events", () => {
   assert.equal(recorder.snapshot().retainedEvents, 2);
 });
 
-test("rejects invalid event metadata and invalid capacities", () => {
+test("rejects invalid event metadata, workstream, outcome and capacities", () => {
   assert.throws(() => new FPObservabilityRecorder(0), RangeError);
   const recorder = new FPObservabilityRecorder();
   assert.throws(() => recorder.record(event({ durationMs: -1 })), TypeError);
   assert.throws(() => recorder.record(event({ correlationId: "bad\\nvalue" })), TypeError);
   assert.throws(() => recorder.record(event({ occurredAt: "not-a-date" })), TypeError);
+  assert.throws(() => recorder.record(event({ workstream: "__proto__" })), TypeError);
+  assert.throws(() => recorder.record(event({ workstream: "Q" })), TypeError);
+  assert.throws(() => recorder.record(event({ outcome: "unexpected" })), TypeError);
 });
 
 test("does not expose mutable internal event storage", () => {
   const recorder = new FPObservabilityRecorder();
   recorder.record(event());
-  const returned = recorder.list() as Array<{ capability: string }>;
+  const returned = recorder.list() as unknown as Array<{ capability: string }>;
+  assert.notEqual(returned[0], recorder.list()[0]);
   returned[0].capability = "tampered";
   assert.equal(recorder.list()[0].capability, "health-snapshot");
 });

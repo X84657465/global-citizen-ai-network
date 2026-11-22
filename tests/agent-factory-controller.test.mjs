@@ -732,6 +732,43 @@ test("candidate failure callback recovers after a transient durable-state write 
 });
 
 
+test("candidate-start safely ignores a same-SHA rerun during retry backoff", async () => {
+  let state = awaitingCandidate();
+  const firstEvidence = {
+    pull_request_number: 88,
+    head_sha: "b".repeat(40),
+    head_ref: "ai-task/issue-42-abcdef123456",
+    ci_run_id: "555099",
+    ci_run_attempt: 1,
+  };
+  state = recordCandidateStarted(state, 42, "candidate-start-original", firstEvidence, 2000).state;
+  state = recordCandidateFailure(
+    state, 42, "candidate-failure-original",
+    { ...firstEvidence, ci_conclusion: "failure" }, "lint failed", 3000,
+  ).state;
+  const store = fakeStore(state);
+  const controller = createAgentFactoryController({
+    store, repository: "owner/repo", now: () => 4000,
+    api: currentCandidatePullApi(),
+  });
+  const result = await controller.run({
+    AGENT_FACTORY_MODE: "candidate-start",
+    ISSUE_NUMBER: "42",
+    PULL_REQUEST_NUMBER: "88",
+    HEAD_SHA: "b".repeat(40),
+    HEAD_REF: "ai-task/issue-42-abcdef123456",
+    CI_RUN_ID: "555099",
+    CI_RUN_ATTEMPT: "2",
+  });
+  assert.equal(result.outputs.ignored, true);
+  assert.equal(result.outputs.candidate_status, "retry_backoff");
+  assert.equal(result.state, state);
+  assert.equal(store.writes, 0);
+  assert.equal(store.state.system.consecutive_failures, 0);
+  assert.equal(store.state.tasks["42"].status, "candidate_rejected");
+  assert.equal(store.state.tasks["42"].ci_run_attempt, 1);
+});
+
 test("candidate-start binds one PR head SHA and exact CI run attempt idempotently", async () => {
   const store = fakeStore(awaitingCandidate());
   const controller = createAgentFactoryController({
@@ -778,6 +815,7 @@ test("candidate-start binds one PR head SHA and exact CI run attempt idempotentl
 
 test("candidate-start rejects a PR head that moved after metadata resolution without persisting stale evidence", async () => {
   const store = fakeStore(awaitingCandidate());
+  const initialStateVersion = store.state.state_version;
   const requests = [];
   const controller = createAgentFactoryController({
     store,
@@ -810,10 +848,10 @@ test("candidate-start rejects a PR head that moved after metadata resolution wit
     HEAD_REF: "ai-task/issue-42-fedcba654321",
     CI_RUN_ID: "555010",
     CI_RUN_ATTEMPT: "1",
-  }), /Candidate start rejected: PR must be the current open same-repository AI Task PR/);
+  }), /Candidate start rejected: PR must be the current open same-repository AI Task PR at the exact supplied head SHA and branch/);
 
   assert.deepEqual(requests, ["/repos/owner/repo/pulls/88"]);
-  assert.equal(store.state.state_version, 0);
+  assert.equal(store.state.state_version, initialStateVersion);
   assert.equal(store.state.tasks["42"].status, "awaiting_ci");
   assert.equal(store.state.tasks["42"].head_sha, "b".repeat(40));
 });
@@ -1106,10 +1144,40 @@ test("V2 plan mode waits while an AI Task PR is open", async () => {
 test("check mode excludes quarantined tasks from the pending planner count", async () => {
   let state = awaitingCandidate();
   for (let attempt = 1; attempt <= 3; attempt += 1) {
-    const attemptNow = attempt * 100_000;
+    const attemptNow = attempt * 300_000;
+    const headSha = String.fromCharCode("b".charCodeAt(0) + attempt - 1).repeat(40);
+    if (attempt > 1) {
+      const leaseId = "lease-quarantine-" + attempt;
+      state = reserveTask(state, {
+        issue_number: 42,
+        lease_id: leaseId,
+        lease_owner: "runner",
+        workflow_run_id: String(123456 + attempt),
+        run_attempt: 1,
+        base_sha: "a".repeat(40),
+      }, attemptNow);
+      for (const [next, offset] of [
+        ["preparing", 10],
+        ["planning", 20],
+        ["patching", 30],
+        ["sandbox_testing", 40],
+        ["publishing", 50],
+        ["draft_pr_created", 60],
+        ["awaiting_ci", 70],
+      ]) {
+        state = transitionTask(
+          state,
+          42,
+          leaseId,
+          next,
+          next === "draft_pr_created" ? { head_sha: headSha, pull_request_number: 88 } : {},
+          attemptNow + offset,
+        );
+      }
+    }
     const evidence = {
       pull_request_number: 88,
-      head_sha: "b".repeat(40),
+      head_sha: headSha,
       head_ref: "ai-task/issue-42-abcdef123456",
       ci_run_id: "quarantine-" + attempt,
       ci_run_attempt: 1,
@@ -1666,7 +1734,7 @@ test("system-health success rejects a successful CI run when the PR has advanced
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "169",
     SYSTEM_HEALTH_HEAD_SHA: testedSha,
-  }), /current same-repository PR head no longer matches/);
+  }), /current open same-repository PR head no longer matches/);
 
   assert.equal(store.state.state_version, initial.state_version);
   assert.equal(store.state.system.consecutive_failures, 2);

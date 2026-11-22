@@ -338,18 +338,34 @@ test("rejects duplicate or missing event keys", () => {
   assert.equal(second.duplicate, true);
   assert.equal(second.state.state_version, first.state.state_version);
 });
-test("task retry enters backoff and cannot be reserved until requeued", () => {
+test("task retry cannot start candidate CI before requeue and a new worker publishing lifecycle", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
   state = failTask(state, 42, event("retry"), "PATCH_INVALID", "invalid manifest", 2000).state;
   assert.equal(state.tasks["42"].status, "retry_wait");
+  const evidence = {
+    head_sha: "d".repeat(40), pull_request_number: 77,
+    ci_conclusion: "success", ci_run_id: "ci-retry", ci_run_attempt: 1,
+  };
+  assert.throws(() => startCandidate(state, 42, evidence, 3000),
+    /published task awaiting CI after a completed worker lease/);
   assert.throws(() => reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 3000), /not currently queued/);
   assert.throws(() => requeueTask(state, 42, 60_000), /backoff has not elapsed/);
   state = requeueTask(state, 42, 62_000);
   assert.equal(state.tasks["42"].status, "queued");
+  assert.throws(() => startCandidate(state, 42, evidence, 62_500),
+    /published task awaiting CI after a completed worker lease/);
   state = reserveTask(state, metadata({ lease_id: "lease-retry-000042", workflow_run_id: "run-123457" }), 63_000);
   assert.equal(state.active_task.attempt, 2);
+  state = move(state, 42, "preparing", {}, 63_100);
+  state = move(state, 42, "planning", {}, 63_200);
+  state = move(state, 42, "patching", {}, 63_300);
+  state = move(state, 42, "sandbox_testing", {}, 63_400);
+  state = move(state, 42, "publishing", {}, 63_500);
+  state = move(state, 42, "draft_pr_created", { head_sha: evidence.head_sha, pull_request_number: 77 }, 63_600);
+  state = move(state, 42, "awaiting_ci", {}, 63_700);
+  state = startCandidate(state, 42, evidence, 63_800);
+  assert.equal(state.tasks["42"].ci_run_id, "ci-retry");
 });
-
 test("task success cannot clear a quarantine without owning the active lease", () => {
   let state = createInitialFactoryState(1000);
   state = reserveTask(state, metadata(), 1500);
@@ -417,6 +433,69 @@ test("candidate CI failure is recorded separately from worker task retries", () 
   assert.equal(result.state.active_task, null);
 });
 
+test("candidate CI retries require backoff, a new worker lease, and the publishing lifecycle", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "f".repeat(40), pull_request_number: 78,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+  const firstEvidence = {
+    head_sha: "f".repeat(40), pull_request_number: 78,
+    ci_conclusion: "failure", ci_run_id: "ci-789", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, firstEvidence, 1750);
+  state = recordCandidateFailure(
+    state, 42, event("same-sha-retry-backoff"), firstEvidence,
+    "lint failed", 1800,
+  ).state;
+
+  const sameShaRerun = startCandidate(state, 42, {
+    ...firstEvidence, ci_run_id: "ci-789-rerun", ci_run_attempt: 2,
+  }, 2000);
+  assert.equal(sameShaRerun, state);
+  assert.throws(() => startCandidate(state, 42, {
+    ...firstEvidence, head_sha: "e".repeat(40), ci_run_id: "ci-790",
+  }, 2001), /published task awaiting CI after a completed worker lease/);
+  assert.equal(state.tasks["42"].status, "candidate_rejected");
+  assert.equal(state.tasks["42"].ci_run_id, "ci-789");
+  assert.equal(state.tasks["42"].candidate_failure_history.length, 1);
+
+  assert.throws(() => requeueTask(state, 42, 61_799), /backoff has not elapsed/);
+  state = requeueTask(state, 42, 61_800);
+  assert.equal(state.tasks["42"].status, "queued");
+  assert.equal(state.tasks["42"].candidate_status, "retry_queued");
+  assert.throws(() => startCandidate(state, 42, {
+    ...firstEvidence, head_sha: "e".repeat(40), ci_run_id: "ci-790",
+  }, 61_900), /published task awaiting CI after a completed worker lease/);
+
+  state = reserveTask(state, metadata({
+    lease_id: "lease-attempt-2", workflow_run_id: "run-123457", run_attempt: 2,
+  }), 62_000);
+  assert.equal(state.tasks["42"].candidate_status, undefined);
+  assert.equal(state.tasks["42"].candidate_failures, 1);
+  state = move(state, 42, "preparing", {}, 62_100);
+  state = move(state, 42, "planning", {}, 62_200);
+  state = move(state, 42, "patching", {}, 62_300);
+  state = move(state, 42, "sandbox_testing", {}, 62_400);
+  state = move(state, 42, "publishing", {}, 62_500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "e".repeat(40), pull_request_number: 78,
+  }, 62_600);
+  state = move(state, 42, "awaiting_ci", {}, 62_700);
+  const revised = startCandidate(state, 42, {
+    ...firstEvidence, head_sha: "e".repeat(40), ci_run_id: "ci-790",
+  }, 62_800);
+  assert.equal(revised.tasks["42"].status, "awaiting_ci");
+  assert.equal(revised.tasks["42"].head_sha, "e".repeat(40));
+  assert.equal(revised.tasks["42"].candidate_failure_history.length, 1);
+  assert.equal(revised.tasks["42"].candidate_failure_history[0].ci_run_id, "ci-789");
+});
+
 test("explicitly requeues a candidate CI rejection for a new worker attempt", () => {
   let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
   state = move(state, 42, "preparing", {}, 1100);
@@ -447,6 +526,8 @@ test("explicitly requeues a candidate CI rejection for a new worker attempt", ()
   state = reserveTask(state, metadata({
     lease_id: "lease-attempt-2", workflow_run_id: "run-123457", run_attempt: 2,
   }), 62_000);
+  assert.equal(state.tasks["42"].candidate_status, undefined);
+  assert.equal(state.tasks["42"].candidate_failures, 1);
   assert.equal(state.active_task.issue_number, 42);
   assert.equal(state.active_task.attempt, 2);
 });
@@ -569,6 +650,46 @@ test("candidate failure also requires exact CI run ID and positive run attempt",
 });
 
 
+test("candidate failure history stays bounded while retaining the newest evidence", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "c".repeat(40), pull_request_number: 93,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+
+  state.tasks["42"].candidate_failure_history = Array.from({ length: 50 }, (_, index) => ({
+    head_sha: index.toString(16).padStart(40, "0"),
+    pull_request_number: 1,
+    ci_run_id: "historical-run-" + index,
+    ci_run_attempt: 1,
+    summary: "historical failure " + index,
+    failed_at: new Date(1000 + index).toISOString(),
+  }));
+  assert.equal(validateFactoryState(state), true);
+
+  const evidence = {
+    head_sha: "c".repeat(40), pull_request_number: 93,
+    ci_conclusion: "failure", ci_run_id: "latest-run-51", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, evidence, 1750);
+  const result = recordCandidateFailure(
+    state, 42, event("bounded-history-failure"), evidence,
+    "latest candidate failure", 1800,
+  );
+
+  const history = result.state.tasks["42"].candidate_failure_history;
+  assert.equal(history.length, 50);
+  assert.equal(history[0].ci_run_id, "historical-run-1");
+  assert.equal(history.at(-1).ci_run_id, "latest-run-51");
+  assert.equal(validateFactoryState(result.state), true);
+});
+
+
 test("quarantines a task after three distinct candidate CI rejections", () => {
   let state = createInitialFactoryState(1000);
   for (let attempt = 1; attempt <= 3; attempt += 1) {
@@ -595,12 +716,21 @@ test("quarantines a task after three distinct candidate CI rejections", () => {
       ci_conclusion: "failure", ci_run_id: String(9000 + attempt), ci_run_attempt: 1,
     };
     state = startCandidate(state, 42, evidence, start + 750);
+    assert.equal(state.tasks["42"].candidate_failure_history?.length ?? 0, attempt - 1);
+    if (attempt > 1) {
+      const prior = state.tasks["42"].candidate_failure_history[attempt - 2];
+      assert.equal(prior.ci_run_id, String(9000 + attempt - 1));
+      assert.equal(prior.summary, "candidate validation failed");
+    }
     state = recordCandidateFailure(
       state, 42, event("candidate-rejection-" + attempt), evidence,
       "candidate validation failed", start + 800,
     ).state;
     assert.equal(state.tasks["42"].candidate_failures, attempt);
     assert.equal(state.tasks["42"].failures, 0);
+    assert.equal(state.tasks["42"].candidate_failure_history.length, attempt);
+    assert.equal(state.tasks["42"].candidate_failure_history[attempt - 1].head_sha, headSha);
+    assert.equal(state.tasks["42"].candidate_failure_history[attempt - 1].ci_run_id, String(9000 + attempt));
 
     if (attempt < 3) {
       assert.equal(state.tasks["42"].status, "candidate_rejected");
@@ -612,6 +742,69 @@ test("quarantines a task after three distinct candidate CI rejections", () => {
       assert.throws(() => requeueTask(state, 42, start + 900), /not eligible/);
     }
   }
+});
+
+
+test("snapshots legacy candidate failure evidence before a retry overwrites the active CI identity", () => {
+  let state = reserveTask(createInitialFactoryState(1000), metadata(), 1000);
+  state = move(state, 42, "preparing", {}, 1100);
+  state = move(state, 42, "planning", {}, 1200);
+  state = move(state, 42, "patching", {}, 1300);
+  state = move(state, 42, "sandbox_testing", {}, 1400);
+  state = move(state, 42, "publishing", {}, 1500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "a".repeat(40), pull_request_number: 91,
+  }, 1600);
+  state = move(state, 42, "awaiting_ci", {}, 1700);
+
+  const firstEvidence = {
+    head_sha: "a".repeat(40), pull_request_number: 91,
+    ci_conclusion: "failure", ci_run_id: "legacy-run-1", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, firstEvidence, 1750);
+  state = recordCandidateFailure(
+    state, 42, event("legacy-candidate-failure"), firstEvidence,
+    "legacy lint failure", 1800,
+  ).state;
+
+  // Simulate a persisted V2 state written before candidate_failure_history
+  // existed. Its last failure is still represented by the legacy scalar fields.
+  delete state.tasks["42"].candidate_failure_history;
+  state = requeueTask(state, 42, 61_800);
+  state = reserveTask(state, metadata({
+    lease_id: "lease-legacy-retry", workflow_run_id: "run-legacy-retry", run_attempt: 2,
+  }), 62_000);
+  state = move(state, 42, "preparing", {}, 62_100);
+  state = move(state, 42, "planning", {}, 62_200);
+  state = move(state, 42, "patching", {}, 62_300);
+  state = move(state, 42, "sandbox_testing", {}, 62_400);
+  state = move(state, 42, "publishing", {}, 62_500);
+  state = move(state, 42, "draft_pr_created", {
+    head_sha: "b".repeat(40), pull_request_number: 91,
+  }, 62_600);
+  state = move(state, 42, "awaiting_ci", {}, 62_700);
+
+  const secondEvidence = {
+    head_sha: "b".repeat(40), pull_request_number: 91,
+    ci_conclusion: "success", ci_run_id: "new-run-2", ci_run_attempt: 1,
+  };
+  state = startCandidate(state, 42, secondEvidence, 62_800);
+
+  assert.equal(state.tasks["42"].candidate_error, null);
+  assert.equal(state.tasks["42"].ci_run_id, "new-run-2");
+  assert.equal(state.tasks["42"].candidate_failure_history.length, 1);
+  assert.deepEqual(state.tasks["42"].candidate_failure_history[0], {
+    head_sha: "a".repeat(40),
+    pull_request_number: 91,
+    ci_run_id: "legacy-run-1",
+    ci_run_attempt: 1,
+    summary: "legacy lint failure",
+    failed_at: new Date(1800).toISOString(),
+  });
+  assert.equal(validateFactoryState(state), true);
+  const invalidHistory = structuredClone(state);
+  invalidHistory.tasks["42"].candidate_failure_history[0].ci_run_id = "";
+  assert.throws(() => validateFactoryState(invalidHistory), /Task state record is invalid/);
 });
 
 

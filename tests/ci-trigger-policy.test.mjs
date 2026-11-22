@@ -174,6 +174,48 @@ test("full dependency audit is a blocking CI security gate", () => {
   assert.equal(section.includes("continue-on-error: true"), false);
 });
 
+test("same-SHA candidate reruns are ignored without candidate success or system-breaker mutation", () => {
+  const build = workflow.slice(findJobSection(workflow, "build").start, findJobSection(workflow, "build").end);
+  const success = workflow.slice(findJobSection(workflow, "circuit-breaker-success").start);
+  assert.ok(build.includes("candidate_start_ignored: ${{ steps.register-candidate.outputs.ignored || 'false' }}"));
+  assert.ok(build.includes("id: register-candidate"));
+  assert.ok(success.includes("needs.build.outputs.candidate_start_ignored != 'true'"));
+});
+
+test("task-scoped CI failures register exact run evidence before candidate rejection, while ignored retries stay no-op", () => {
+  const { start, end } = findJobSection(workflow, "circuit-breaker");
+  const failure = workflow.slice(start, end);
+  const register = failure.indexOf("id: register-failed-candidate");
+  const reject = failure.indexOf("id: record-candidate-result");
+  assert.ok(register >= 0 && reject > register,
+    "failure callbacks must establish the exact candidate run before persisting its outcome");
+  const registration = failure.slice(register, reject);
+  assert.ok(registration.includes("AGENT_FACTORY_MODE: candidate-start"));
+  assert.ok(registration.includes("CI_RUN_ID: ${{ github.run_id }}"));
+  assert.ok(registration.includes("CI_RUN_ATTEMPT: ${{ github.run_attempt }}"));
+  assert.ok(registration.includes("HEAD_SHA: ${{ steps.revalidate.outputs.head_sha }}"));
+  assert.ok(failure.slice(reject).startsWith("id: record-candidate-result"));
+  assert.ok(failure.slice(reject, failure.indexOf("run: node scripts/agent-factory-v2-controller.mjs", reject))
+    .includes("steps.register-failed-candidate.outputs.ignored != 'true'"),
+    "same-SHA rejected retries must not be recorded as a new candidate failure");
+});
+
+test("candidate callback failures cannot suppress system-breaker persistence", () => {
+  const { start, end } = findJobSection(workflow, "circuit-breaker");
+  const failure = workflow.slice(start, end);
+  const register = failure.indexOf("id: register-failed-candidate");
+  const candidateFailure = failure.indexOf("id: record-candidate-result");
+  const systemFailure = failure.indexOf("- name: Record system CI failure");
+  assert.ok(register >= 0 && candidateFailure > register && systemFailure > candidateFailure);
+  assert.ok(failure.slice(register, candidateFailure).includes("env.CI_FAILURE_SCOPE == 'task'"),
+    "candidate-start must not bind system-scoped infrastructure failures to a task CI run");
+  const systemStep = failure.slice(systemFailure);
+  assert.ok(systemStep.startsWith("- name: Record system CI failure\n        if: >-\n          always() &&"),
+    "system failure persistence must run even when an earlier callback step fails");
+  assert.ok(systemStep.includes("steps.register-failed-candidate.outcome == 'failure'"));
+  assert.ok(systemStep.includes("steps.record-candidate-result.outcome == 'failure'"));
+});
+
 test("CI never auto-approves or merges AI task pull requests; human approval is required", () => {
   assert.equal(workflow.includes("  auto-merge-ai-task:"), false);
   assert.equal(workflow.includes("markPullRequestReadyForReview"), false);
@@ -430,12 +472,14 @@ test("Agent Factory runbook separates default-branch polling from manual V2 disp
   assert.ok(preflight.includes("github.event_name == 'workflow_dispatch' &&\n       github.actor == github.repository_owner"));
   assert.ok(preflight.includes("ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}"));
   assert.ok(runbook.includes("GitHub evaluates scheduled workflows and issue events from the repository's default branch only."));
-  assert.ok(runbook.includes("Run workflow"));
-  assert.ok(runbook.includes("`feat/agent-factory-v2`"));
-  assert.ok(runbook.includes("`138`"));
-  assert.ok(runbook.includes("Issue #100 remains on its existing V1 payload."));
-  assert.ok(runbook.includes("same Issue #100"));
-  assert.ok(runbook.includes("schema version 2"));
+  assert.ok(runbook.includes("The old instruction to select `feat/agent-factory-v2` for normal operation is historical and must not be followed as the default operating path."));
+  assert.ok(runbook.includes("For normal operation, use `main`."));
+  assert.ok(runbook.includes("Enter the explicitly approved task Issue number."));
+  assert.ok(runbook.includes("The durable state Issue is machine-managed."));
+  assert.ok(runbook.includes("This runbook does not authorize merges, production deployments, production migrations, secret changes, or live paid AI activation."));
+  assert.ok(runbook.includes("Pull-request CI can validate code without proving that the default-branch scheduler or state writer is operational."));
+  assert.equal(runbook.includes("Issue #100 remains on its existing V1 payload."), false);
+  assert.equal(runbook.includes("schema version 2"), false);
 });
 
 test("CI candidate execution is fenced to the exact event head SHA", () => {

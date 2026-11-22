@@ -22,6 +22,10 @@ const review = (overrides: Record<string, unknown> = {}) => ({
   submitted_at: "2026-11-22T12:00:00Z", user: { login: "reviewer-one" },
   ...overrides,
 });
+function responseMap(entries: ReadonlyArray<readonly [string, unknown]>): Map<string, unknown> {
+  return new Map(entries);
+}
+
 function makeInput(responses: Map<string, unknown>, overrides: Partial<FPGovernanceReviewCollectionInput> = {}): FPGovernanceReviewCollectionInput {
   const api: FPGovernanceGitHubApi = {
     async request(path) {
@@ -67,7 +71,7 @@ test("rejects path traversal and malformed repository names before any GitHub AP
 
 test("collects exact-head submitted reviews and host-verifies reviewer permissions", async () => {
   let checks = 0;
-  const result = await collectFPGovernanceReviewEvidence(makeInput(new Map([
+  const result = await collectFPGovernanceReviewEvidence(makeInput(responseMap([
     [prPath, pull()], [reviewsPath(), [review()]],
   ]), {
     verifyReviewerPermission: async (login) => {
@@ -113,7 +117,7 @@ test("collects complete paginated review history", async () => {
     id: index + 1, user: { login: `reviewer-${index + 1}` },
   }));
   const second = [review({ id: 101, user: { login: "reviewer-101" } })];
-  const result = await collectFPGovernanceReviewEvidence(makeInput(new Map([
+  const result = await collectFPGovernanceReviewEvidence(makeInput(responseMap([
     [prPath, pull()], [reviewsPath(1), first], [reviewsPath(2), second],
   ])));
   assert.equal(result.length, 101);
@@ -137,7 +141,7 @@ test("refuses review history that exceeds the safe pagination bound", async () =
 
 test("retains stale reviews without checking their reviewer permissions", async () => {
   let checks = 0;
-  const result = await collectFPGovernanceReviewEvidence(makeInput(new Map([
+  const result = await collectFPGovernanceReviewEvidence(makeInput(responseMap([
     [prPath, pull()], [reviewsPath(), [review({ commit_id: oldSha })]],
   ]), {
     verifyReviewerPermission: async () => {
@@ -152,7 +156,7 @@ test("retains stale reviews without checking their reviewer permissions", async 
 });
 
 test("keeps insufficient permission and permission lookup errors unverified", async () => {
-  const result = await collectFPGovernanceReviewEvidence(makeInput(new Map([
+  const result = await collectFPGovernanceReviewEvidence(makeInput(responseMap([
     [prPath, pull()],
     [reviewsPath(), [
       review({ id: 100, user: { login: "reviewer-one" } }),
@@ -171,7 +175,7 @@ test("keeps insufficient permission and permission lookup errors unverified", as
 
 test("caches permission checks and ignores pending or dismissed reviews", async () => {
   let checks = 0;
-  const result = await collectFPGovernanceReviewEvidence(makeInput(new Map([
+  const result = await collectFPGovernanceReviewEvidence(makeInput(responseMap([
     [prPath, pull()],
     [reviewsPath(), [
       review({ id: 100 }),
@@ -197,12 +201,17 @@ test("rejects malformed IDs, unsupported states, reviewer identities, timestamps
     review({ submitted_at: "not-a-date" }),
   ]) {
     await assert.rejects(
-      collectFPGovernanceReviewEvidence(makeInput(new Map([[prPath, pull()], [reviewsPath(), [item]]])),
+      collectFPGovernanceReviewEvidence(
+        makeInput(responseMap([
+          [prPath, pull()],
+          [reviewsPath(), [item]],
+        ])),
+      ),
       (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INVALID_REVIEW_DATA",
     );
   }
   await assert.rejects(
-    collectFPGovernanceReviewEvidence(makeInput(new Map([[prPath, pull()], [reviewsPath(), [review()]]]), {
+    collectFPGovernanceReviewEvidence(makeInput(responseMap([[prPath, pull()], [reviewsPath(), [review()]]]), {
       verifyReviewerPermission: async () => ({ permission: "push", evidenceRef: "../unsafe" }),
     })),
     (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INVALID_REVIEW_DATA",
@@ -210,16 +219,18 @@ test("rejects malformed IDs, unsupported states, reviewer identities, timestamps
 });
 
 test("rejects duplicate review IDs and non-array review responses", async () => {
+  const duplicateResponses = new Map<string, unknown>();
+  duplicateResponses.set(prPath, pull());
+  duplicateResponses.set(reviewsPath(), [review(), review({ user: { login: "reviewer-two" } })]);
   await assert.rejects(
-    collectFPGovernanceReviewEvidence(makeInput(new Map([
-      [prPath, pull()], [reviewsPath(), [review(), review({ user: { login: "reviewer-two" } })]],
-    ]))),
+    collectFPGovernanceReviewEvidence(makeInput(duplicateResponses)),
     (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INVALID_REVIEW_DATA",
   );
+  const malformedResponses = new Map<string, unknown>();
+  malformedResponses.set(prPath, pull());
+  malformedResponses.set(reviewsPath(), { reviews: [review()] });
   await assert.rejects(
-    collectFPGovernanceReviewEvidence(makeInput(new Map([
-      [prPath, pull()], [reviewsPath(), { reviews: [review()] }],
-    ]))),
+    collectFPGovernanceReviewEvidence(makeInput(malformedResponses)),
     (error: unknown) => error instanceof FPGovernanceReviewCollectionError && error.code === "INCOMPLETE_REVIEW_HISTORY",
   );
 });

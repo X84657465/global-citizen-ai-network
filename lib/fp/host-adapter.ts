@@ -47,17 +47,17 @@ export type FPHostErrorCode =
   | "EXECUTION_DISABLED";
 
 export class FPHostError extends Error {
-  constructor(
-    readonly code: FPHostErrorCode,
-    message: string,
-  ) {
+  readonly code: FPHostErrorCode;
+
+  constructor(code: FPHostErrorCode, message: string) {
     super(message);
     this.name = "FPHostError";
+    this.code = code;
   }
 }
 
 function assertSafeReference(value: string | undefined, label: string): void {
-  if (typeof value !== "string" || value.length === 0 || value.length > 256 || /[\r\n\0]/.test(value)) {
+  if (typeof value !== "string" || value.length === 0 || value.length > 256 || /[\r\n\0\\]/.test(value)) {
     throw new FPHostError("INVALID_CONTEXT", `Invalid host ${label}.`);
   }
 }
@@ -77,8 +77,11 @@ function assertCorrelationId(value: string): void {
  */
 export class FPHostAdapter {
   private readonly handlers = new Map<string, FPCapabilityHandler>();
+  private readonly observability?: FPObservabilitySink;
 
-  constructor(private readonly observability?: FPObservabilitySink) {}
+  constructor(observability?: FPObservabilitySink) {
+    this.observability = observability;
+  }
 
   private recordOutcome(
     request: FPCapabilityRequest,
@@ -227,7 +230,7 @@ export class FPHostAdapter {
     });
     auditContext = handlerContext;
 
-    const output = await handler(invocation.input, handlerContext);
+    const output = await handler(invocation.input, handlerContext) as TOutput;
     const envelope: FPCapabilityEnvelope<TOutput> = Object.freeze({
       contractVersion: "1",
       workstream: invocation.workstream,
