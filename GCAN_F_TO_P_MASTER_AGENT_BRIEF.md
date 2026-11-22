@@ -1,5 +1,8 @@
 # GCAN F–P Master Agent Brief
 
+> **Factory 最高核心原則：** F–P 的工作必須支援而不得取代 Agent Factory。Factory 的最終使命、A0–A6 自主開發成熟度與安全邊界，依 [Agent Factory 自主開發最高核心章程](docs/AGENT_FACTORY_AUTONOMY_CHARTER.md)。本 brief 中「不得修改 A–E／Factory」仍是 F–P 工作線的責任邊界，不限制 Factory owner 依章程推進 A 線自主能力。
+
+
 ## Mission
 
 Continue engineering F–P as capabilities hosted by the existing GCAN platform. Preserve A–E and Agent Factory V2. The Factory is the highest-priority execution core; F–P must not interrupt it, replace it, or gain its publication authority.
