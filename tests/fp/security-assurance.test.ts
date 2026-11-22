@@ -132,6 +132,20 @@ test("rejects a CI run from another PR, repository, workflow, base, or event", (
   }
 });
 
+test("rejects impossible or non-canonical evidence timestamps", () => {
+  for (const executedAt of [
+    "2026-02-30T12:00:00.000Z",
+    "2026-11-21T12:00:00Z",
+    "2026-11-21T12:00:00.00Z",
+    "2026-11-21T12:00:00+08:00",
+    "not-a-date",
+  ]) {
+    assert.throws(() => assessFPSecurityEvidence(bundle({
+      evidence: [evidence("member-isolation", { executedAt })],
+    })), TypeError, executedAt);
+  }
+});
+
 test("rejects controls assigned to the wrong job and evidence mixed across CI runs", () => {
   assert.throws(() => assessFPSecurityEvidence(bundle({
     evidence: FP_SECURITY_CONTROLS.map((control) =>
