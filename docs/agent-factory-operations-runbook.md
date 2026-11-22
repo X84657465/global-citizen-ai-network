@@ -141,18 +141,15 @@ PR #331 adds exact permission-set assertions and an allowlist of the trusted `pr
 
 ## Latest verified evidence (2026-11-22)
 
-- Main HEAD: `40e0e6902ccd35e6daa77f2f7a339ba00f92fab3`.
-- Main release metadata: root `0.3.121`; Agent Factory V2 `2.0.84`.
-- Main Agent Factory System Health Recovery run [#44929708981](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929708981) completed as `skipped`. Its event was a push to `main`, not a successful AI-task PR CI completion; this is an ineligible recovery event, not a passing recovery test.
-- Main CI run [#44929700133](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44929700133) is pending at `Windows self-hosted project validation`. A complete mainline Windows quality/build, isolated Supabase/PostgreSQL/RLS and Ollama result is not yet verified.
-- Merged PRs on current main: [#238](https://github.com/X84657465/global-citizen-ai-network/pull/238) (K handoff/runbook), [#239](https://github.com/X84657465/global-citizen-ai-network/pull/239) (A exact candidate/recovery evidence), [#240](https://github.com/X84657465/global-citizen-ai-network/pull/240) (A recovery queue scope), and [#241](https://github.com/X84657465/global-citizen-ai-network/pull/241) (account CSS-module build repair), and [#242](https://github.com/X84657465/global-citizen-ai-network/pull/242) (H correlation contract).
-- Exact-head check lookups for #239, #240, #241 and #242 each returned only the `Resolve exact candidate PR metadata` job in `pending` state. No independent PR reviews were returned for these merges. Record them as merged but not accepted until complete exact-main evidence and the required review/release gates exist.
-- [PR #242](https://github.com/X84657465/global-citizen-ai-network/pull/242) is the only open PR found. Its exact head is `a90cd0c979da561f1d5e0ca9548e7c7607755b73`; resolver run [#44928924642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44928924642) is pending, no review is recorded, and GitHub currently reports `merged=true`. No independent review was returned and the exact-head resolver check remained pending; treat H as merged but not accepted. H correlation is not an A-line blocker.
-- The old A branches/PRs #231 and #235 are closed without merge and superseded by #239 and #240. Do not reopen or merge their stale histories.
-- Main combined status reports a Vercel `build-rate-limit` failure. This is an external Preview/deployment-provider quota issue, not GitHub CI evidence. No Preview or Production deployment is claimed.
-- Current main workflow and test source confirm that recovery queue concurrency is job-scoped and restricted to successful same-repository AI-task PR events.
-- Main's candidate-start and candidate-outcome controller paths perform live PR verification at the durable write boundary; system health recovery verifies run ID, attempt, workflow/event, PR and exact SHA and requires the five exact required jobs before resetting the breaker.
-- No Production database mutation, secret change, permission change, or Production deployment was performed as part of this verification.
+- Authoritative `main` HEAD: `c4f46dbcc78b40cb3a4f31a6d3513f6e922aca79`.
+- Main release metadata at that SHA: root `0.3.125`; Agent Factory V2 `2.0.84`.
+- PR #331 is the active narrow A-line CI-policy test repair. Its current head is `5a2ea25036c859340534b7b4fd7adae6b454238f`, based directly on the current main SHA above; the branch is three commits ahead and zero behind, with only `tests/ci-trigger-policy.test.mjs` changed.
+- Exact-head Actions run [#45007169638](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45007169638) for PR #331's current head was in progress at the latest check. Its resolver job had started; no current-head quality, Ollama, database/RLS or final acceptance result is claimed yet.
+- Previous PR #331 head `c19aec7195421dd74e2e244561e80b7495d8a07f` completed run [#45005379860](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45005379860): exact metadata resolution, Windows quality gates, Ollama/local execution, and Supabase/PostgreSQL/RLS jobs succeeded. Three conditional diagnostics/state-persistence jobs were skipped. This evidence does **not** transfer to the newer head `5a2ea25036c859340534b7b4fd7adae6b454238f`.
+- PR #331 has no submitted formal reviews. The prior Codex review attempt on `c19aec7` failed because the connected review usage limit was reached; this is not approval. Obtain a fresh independent maintainer review against the current exact head before merge.
+- Vercel reported a build-rate-limit failure for the earlier PR #331 head. A new Preview deployment for the current head was subsequently reported as building, with its status still pending at the latest check. Neither state is a passing Preview smoke test.
+- PR #259 remains open but is stale/diverged: candidate head `3330cd04a77358cf0ff780940d09f938cab1dc3a` compares against current main as 111 commits ahead and 461 behind, with `mergeable=false`. Do not merge it or transplant its broad diff. Any needed change must be selectively reimplemented on a fresh current-main branch and revalidated.
+- No Production database mutation, secret change, permission change, Factory durable-state edit, lease/cooldown/quarantine operation, or Production deployment was performed in this verification.
 
 ## Historical evidence (2026-11-19 and earlier)
 
