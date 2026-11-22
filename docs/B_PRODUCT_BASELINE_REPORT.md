@@ -189,3 +189,20 @@ This report is a documentation snapshot, not a formal security audit, GPT3 accep
 
 ### Automation evidence boundary
 - The GCAN daily audit automation is enabled for 08:00 Asia/Taipei, but its record still has `last_run_time=null` and no latest run result. Scheduling is configured; completed background execution is not yet evidenced.
+
+
+## 13. Exact-head CI and independent review refresh — 2026-11-23
+
+### PR #432 — combined integration candidate
+- Exact head remains `49d541eaed8be94e9fd442155f0b6a10d0390428`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- GitHub Actions run [45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302) is now present for this exact head. Metadata resolver job completed SUCCESS. Windows Runner quality-gates job is PENDING at the latest inspection; unit tests, typecheck, lint, audit/build and downstream integration are not yet evidenced as completed. Overall candidate remains PENDING / NOT ACCEPTED.
+- GPT3 submitted a COMMENTED static integration review on this exact SHA: no blocking defect found in the three-file diff; this is not an APPROVED review and explicitly requires exact-head CI plus downstream checks. No unresolved inline review threads were returned.
+- Combined commit status still includes the Vercel provider `api-deployments-free-per-day` failure. This is an external deployment quota, not a GitHub Actions test result.
+
+### PR #430 — this baseline report
+- After the previous report update, exact head `f50cdf9f8be5a6ce0f8a50a51ecfd18cbbee5b61` received GitHub Actions run [45063598690](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063598690). At inspection the run is PENDING and its jobs endpoint returned no jobs. Do not reuse the prior head's CI result or the earlier GPT3 comment as validation of this newer head.
+- Current compare to main: 5 commits ahead / 0 behind; only `docs/B_PRODUCT_BASELINE_REPORT.md` is changed. PR remains Draft. This new evidence addendum itself will create a new head and require a fresh exact-head CI run and, if required, review.
+
+### Separate Factory ownership blocker — Issue #117 / PRs #422 and #425
+- PR #422 and PR #425 remain simultaneous candidates against Issue #117 and overlap protected Factory workflow/test paths. GPT3's latest comments identify unresolved canonical DRI/implementation selection; PR #425 also had a confirmed 746-pass / 1-fail unit run on its then-current exact head, with typecheck/lint/build and downstream integration skipped.
+- This is Factory-owned work. GPT4 does not edit either candidate or select the Factory DRI; GPT1 must coordinate one canonical owner/candidate, with GPT3 independently reviewing the resulting exact SHA.
