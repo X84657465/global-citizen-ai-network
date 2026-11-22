@@ -1,6 +1,6 @@
 import { appendFileSync } from "node:fs";
 import { createAgentFactoryController } from "../lib/agent-factory-controller.mjs";
-import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
+import { createFactoryStateStore, inspectFactoryStateCapacity } from "../lib/agent-factory-state-store.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 
 const repository = process.env.GITHUB_REPOSITORY ?? "";
@@ -49,6 +49,14 @@ async function main() {
     writeEnv("AGENT_FACTORY_LEASE_ID", result.outputs.lease_id);
   }
   console.log("Agent Factory V2 controller mode: " + result.mode);
+  const capacity = inspectFactoryStateCapacity(result.state);
+  if (capacity.status !== "healthy") {
+    console.warn(
+      "Agent Factory state capacity " + capacity.status +
+      ": processed_events=" + capacity.processed_events.count + "/" + capacity.processed_events.limit +
+      ", issue_body_chars=" + capacity.issue_body.characters + "/" + capacity.issue_body.limit,
+    );
+  }
   console.log("State version: " + result.state.state_version);
   console.log("Active task: " + (result.state.active_task?.issue_number ?? "none"));
   if (result.outputs?.cooldown_active) {
