@@ -101,6 +101,12 @@ function snapshotSafeRecord(
  * Rejects custom iterators, subclasses, sparse slots, accessors and extra keys
  * so iteration cannot diverge from the validated length or execute getters.
  */
+function isCanonicalArrayIndexKey(key: string): boolean {
+  if (!/^(0|[1-9]\d*)$/.test(key)) return false;
+  const index = Number(key);
+  return Number.isInteger(index) && index >= 0 && index < 0xFFFFFFFF;
+}
+
 function snapshotSafeEventArray(value: unknown, maximumLength: number = MAX_EVENTS): unknown[] | null {
   try {
     if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return null;
@@ -112,7 +118,7 @@ function snapshotSafeEventArray(value: unknown, maximumLength: number = MAX_EVEN
     const keys = Reflect.ownKeys(value);
     if (keys.length !== length + 1 ||
         keys.some((key) => typeof key !== "string" ||
-          (key !== "length" && !/^(0|[1-9]\d*)$/.test(key)))) return null;
+          (key !== "length" && !isCanonicalArrayIndexKey(key)))) return null;
 
     const snapshot: unknown[] = [];
     for (let index = 0; index < length; index += 1) {
