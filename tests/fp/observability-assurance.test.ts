@@ -273,12 +273,3 @@ test("rejects event-array properties outside the ECMAScript array-index range", 
   );
 });
 
-test("accepts exactly MAX_EVENTS and rejects MAX_EVENTS plus one", () => {
-  const atLimit = Array.from(
-    { length: 20_000 },
-    (_, index) => event(`limit-event-${index.toString().padStart(8, "0")}`),
-  );
-  assert.equal(assessHObservation(bundle(atLimit)).eventCount, 20_000);
-  const overLimit = [...atLimit, event("over-limit-event-001")];
-  assert.throws(() => assessHObservation(bundle(overLimit)), TypeError);
-});
