@@ -52,6 +52,31 @@ test("rejects invalid event metadata, workstream, outcome and capacities", () =>
   assert.throws(() => recorder.record(event({ outcome: "unexpected" })), TypeError);
 });
 
+test("drops runtime-only fields that are outside the observability allowlist", () => {
+  const recorder = new FPObservabilityRecorder();
+  recorder.record(event({
+    actorId: "unapproved-actor-field",
+    requestBody: { message: "unapproved-request-field" },
+    credential: "unapproved-credential-field",
+    arbitraryMetadata: "unapproved-metadata-field",
+  }));
+
+  const retained = recorder.list()[0] as unknown as Record<string, unknown>;
+  assert.deepEqual(Object.keys(retained).sort(), [
+    "capability",
+    "correlationId",
+    "durationMs",
+    "eventType",
+    "occurredAt",
+    "outcome",
+    "schemaVersion",
+    "workstream",
+  ]);
+  assert.equal(JSON.stringify(retained).includes("unapproved-actor-field"), false);
+  assert.equal(JSON.stringify(retained).includes("unapproved-request-field"), false);
+  assert.equal(JSON.stringify(retained).includes("unapproved-credential-field"), false);
+});
+
 test("does not expose mutable internal event storage", () => {
   const recorder = new FPObservabilityRecorder();
   recorder.record(event());
