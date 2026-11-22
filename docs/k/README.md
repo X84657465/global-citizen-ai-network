@@ -31,6 +31,8 @@ K maintains the navigable engineering knowledge layer: architecture references, 
 - [CI failure evidence runbook](ci-failure-runbook.md)
 - [Runner recovery runbook](runner-recovery-runbook.md)
 - [Incident response runbook](incident-response-runbook.md)
+- [Deployment evidence runbook](deployment-evidence-runbook.md)
+- [Documentation maintenance policy](documentation-maintenance.md)
 
 ## Maintenance
 
