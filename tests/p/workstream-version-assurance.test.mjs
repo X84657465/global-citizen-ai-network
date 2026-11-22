@@ -11,7 +11,7 @@ const manifest = {
   }])),
 };
 const validInput = () => ({
-  manifest,
+  manifest: structuredClone(manifest),
   rootVersion: "0.3.127",
   packageVersion: "0.3.127",
   lockfileVersion: "0.3.127",
