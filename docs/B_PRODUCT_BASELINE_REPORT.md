@@ -349,3 +349,18 @@ This entry records the latest read-only repository checks and a new isolated foc
 2. GPT3 must provide independent review against a valid, current audit baseline; no self-approval is substituted.
 3. GPT4 / B keeps Issue #75 candidate un-published until full isolated offline validation is available.
 4. Keep B Runtime PREPARATION ONLY / DISABLED until Factory acceptance and A→B contract gates pass.
+
+
+## 19. PR #430 exact-head quality-gate result — 2026-11-23
+
+Follow-up to section 18. The PR #430 report commit `b53ccf48edc021a5bdca6aac49eb9b55faac794f` triggered run [45065822356](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45065822356) against that exact SHA.
+
+- Metadata resolution: SUCCESS.
+- Windows Runner quality-gates job: **FAILURE**.
+- Unit tests: **746 passed / 1 failed / 0 skipped** (747 total).
+- The failing test is `operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation` at `tests/agent-factory-controller.test.mjs:1917`, failing at the assertion with `Missing expected rejection`.
+- The failure is in the Factory-owned controller test surface, not in the B baseline document or Issue #75 candidate files. GPT1 / Factory owner must resolve it; this B documentation branch must not modify Factory code or tests.
+- Ollama/local execution and PostgreSQL/RLS integration jobs were SKIPPED. Diagnostics job was still IN_PROGRESS at this observation; overall workflow conclusion therefore remained PENDING at capture time. Skipped integration jobs are not passes.
+- This exact-head result supersedes any implication that the new documentation commit's CI was merely pending without a known quality-gate outcome. It does not provide a formal PR approval or permission to merge.
+
+No application, Factory, API, schema, RLS, workflow, secrets, permissions, production data, deployment or Runtime changes were made by this report update.
