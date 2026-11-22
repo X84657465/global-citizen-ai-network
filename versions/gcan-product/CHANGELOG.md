@@ -1,3 +1,14 @@
+## 0.1.24 — 2026-11-23
+
+### Corrected — Factory lease handoff dependency status
+- Correct the B baseline's stale statement that Issue #354 remains open.
+- Record that the bounded cross-job lease-ID handoff was completed by merged PR #362 and exact-head run 45029877567.
+- Keep the separate Factory-wide acceptance gates (including Issue #136, natural scheduler/lease progression and operational soak) open; do not infer Factory acceptance from the bounded fix.
+
+### Verification
+- Documentation-only correction; no application/runtime, workflow, database/RLS, lease state, paid provider, merge or deployment changes.
+- Candidate metadata increment only. Exact-head CI and formal independent review remain required.
+
 ## 0.1.23 — 2026-11-23
 
 ### Added — Trace Workspace to AI Service Center source flow
