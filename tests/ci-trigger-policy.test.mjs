@@ -91,6 +91,13 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   const validationSection = jobsSource.slice(validationStart, prepareStart);
   const prepareSection = jobsSource.slice(prepareStart, prepareNext < 0 ? jobsSource.length : prepareNext);
   assert.ok(validationSection.includes("if: github.event_name == 'push' && github.actor == github.repository_owner"));
+  const pinnedNodeSetup = [
+    '      - name: Set up Node.js\\n        uses: actions/setup-node@v5\\n        with:\\n          node-version: "22.13.0"',
+  ];
+  for (const [name, section] of [["validation-tests", validationSection], ["prepare-task", prepareSection]]) {
+    assert.ok(pinnedNodeSetup.some((setup) => section.includes(setup)),
+      name + " must pin Node.js to the same supported 22.13.0 runtime as CI");
+  }
   assert.equal(prepareSection.includes("github.event_name == 'push'"), false,
     "A-line push validation must never activate live task reservation or PR publication");
 
