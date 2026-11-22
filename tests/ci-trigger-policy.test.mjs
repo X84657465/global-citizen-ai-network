@@ -659,3 +659,14 @@ test("hosted resolver persists redacted failure metadata even when the resolver 
   assert.ok(section.includes("if-no-files-found: ignore"));
   assert.ok(section.includes("retention-days: 90"));
 });
+
+
+test("CI carries provider rate-limit cooldown from the candidate controller to the cross-job breaker", () => {
+  const buildJob = findJobSection(workflow, "build");
+  const buildSection = workflow.slice(buildJob.start, buildJob.end);
+  assert.ok(buildSection.includes("api_cooldown_until: ${{ steps.register-candidate.outputs.api_cooldown_until }}"));
+
+  const breakerJob = findJobSection(workflow, "circuit-breaker");
+  const breakerSection = workflow.slice(breakerJob.start, breakerJob.end);
+  assert.ok(breakerSection.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.build.outputs.api_cooldown_until }}"));
+});
