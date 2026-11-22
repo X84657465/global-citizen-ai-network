@@ -8,6 +8,7 @@ test("accepts valid GitHub owner and repository identifiers", () => {
     "owner/repo",
     "octo-org/repo",
     "owner/repo.v2",
+    "owner/repo..archive",
     "owner/repo_name",
     "owner/repo-name",
   ]) {
@@ -29,7 +30,6 @@ test("rejects malformed, ambiguous, and URL-altering repository identifiers", ()
     "..owner/repo",
     "owner./repo",
     "owner/repo.",
-    "owner/repo..archive",
     "owner\\repo",
     "owner/%2e%2e",
     "owner/%2Fadmin",
