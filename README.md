@@ -48,7 +48,8 @@
 | GPT1 | A–E；Agent Factory V2 與 Factory→B 主線協調 | 不覆蓋 GPT2 的 F–P 成果 |
 | GPT2 | F–P 專業能力平行建設 | 不任意接管 A–E 核心與 Factory 私有狀態 |
 | GPT3 | 跨 A–P 獨立架構審查、整合與 QA | 不取代功能 owner；獨立驗收不可由開發者自評取代 |
-| GPT4 | B — GCAN Product 產品負責角色 | 負責產品方向、需求、產品契約與 B 主線交付；A→B 仍須經 GPT1／GPT3 閘門 |\n| GPT5 | Global Intelligence & Operations | 全域最新情報、技術研究、來源查核、資安／版本預警、工程營運與知識庫支援；不接管 A–P owner |
+| GPT4 | B — GCAN Product 產品負責角色 | 負責產品方向、需求、產品契約與 B 主線交付；A→B 仍須經 GPT1／GPT3 閘門 |
+| GPT5 | Global Intelligence & Operations | 全域最新情報、技術研究、來源查核、資安／版本預警、工程營運與知識庫支援；不接管 A–P owner |
 
 神經智慧體模式是 GPT1–GPT5 共用的工程工作閉環；GPT5 是正式情報與營運支援角色，但不新增 A–P 工作線 owner。D｜Deep Neural 仍保有原本的記憶、推理、知識整合與評估責任，不因本模式而被接管。
 
