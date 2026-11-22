@@ -312,10 +312,14 @@ test("candidate container startup failures remain system-scoped while confirmed 
   assert.match(classifierStep, /APPLY_SCRATCH_OUTCOME -eq "failure"/);
   assert.doesNotMatch(classifierStep, /CANDIDATE_TESTS_OUTCOME/);
 
-  const classify = ({ containerStarted, commandStarted, exitEvidence, exitCode }) =>
-    containerStarted && commandStarted && exitEvidence && exitCode !== 0 ? "task" : "system";
+  const classify = ({ containerStarted, commandStarted, exitEvidence, exitCode }) => {
+    if (!containerStarted || !commandStarted || !exitEvidence || !Number.isInteger(exitCode)) return "system";
+    return exitCode === 0 ? "success" : "task";
+  };
   assert.equal(classify({ containerStarted: false, commandStarted: false, exitEvidence: false, exitCode: null }), "system");
   assert.equal(classify({ containerStarted: true, commandStarted: false, exitEvidence: false, exitCode: null }), "system");
   assert.equal(classify({ containerStarted: true, commandStarted: true, exitEvidence: true, exitCode: 1 }), "task");
   assert.equal(classify({ containerStarted: true, commandStarted: true, exitEvidence: true, exitCode: 0 }), "success");
+  assert.equal(classify({ containerStarted: true, commandStarted: true, exitEvidence: false, exitCode: 0 }), "system");
+  assert.equal(classify({ containerStarted: true, commandStarted: true, exitEvidence: true, exitCode: null }), "system");
 });
