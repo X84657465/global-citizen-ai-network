@@ -84,6 +84,38 @@ function isSafeRecord(value: object, allowed: readonly string[], required: reado
   });
 }
 
+/**
+ * Copies a dense, plain event array using own data descriptors only.
+ * Rejects custom iterators, subclasses, sparse slots, accessors and extra keys
+ * so iteration cannot diverge from the validated length or execute getters.
+ */
+function snapshotSafeEventArray(value: unknown): unknown[] | null {
+  try {
+    if (
+      !Array.isArray(value) ||
+      Object.getPrototypeOf(value) !== Array.prototype ||
+      value.length > MAX_EVENTS
+    ) {
+      return null;
+    }
+
+    const keys = Reflect.ownKeys(value);
+    if (keys.length !== value.length + 1) return null;
+
+    const snapshot: unknown[] = [];
+    for (let index = 0; index < value.length; index += 1) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+      if (descriptor === undefined || !descriptor.enumerable || !("value" in descriptor)) {
+        return null;
+      }
+      snapshot[index] = descriptor.value;
+    }
+    return snapshot;
+  } catch {
+    return null;
+  }
+}
+
 function percentile(sorted: readonly number[], p: number): number | null {
   if (sorted.length === 0) return null;
   return sorted[Math.max(0, Math.ceil(sorted.length * p) - 1)];
@@ -105,10 +137,13 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
     !Number.isFinite(bundle.quotaWarningPercent) ||
     bundle.quotaWarningPercent <= 0 ||
     bundle.quotaWarningPercent >= 100 ||
-    !Array.isArray(bundle.events) ||
-    bundle.events.length > MAX_EVENTS
   ) {
-    throw new TypeError("Invalid H observation window, quota policy, or event collection.");
+    throw new TypeError("Invalid H observation window or quota policy.");
+  }
+
+  const events = snapshotSafeEventArray(bundle.events);
+  if (events === null) {
+    throw new TypeError("Invalid H event collection; expected a bounded dense plain array.");
   }
 
   const ids = new Set<string>();
@@ -120,7 +155,7 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
   let costMicros = 0;
   let currency: HObservationAssessment["currency"] = null;
 
-  for (const event of bundle.events) {
+  for (let eventIndex = 0; eventIndex < events.length; eventIndex += 1) {\n    const event = events[eventIndex] as HTelemetryEvent;
     if (
       !event ||
       !isSafeRecord(event, ["eventId", "occurredAt", "kind", "outcome", "durationMs", "costMicros", "currency"], ["eventId", "occurredAt", "kind", "outcome"]) ||
@@ -180,7 +215,7 @@ export function assessHObservation(bundle: HObservationBundle): HObservationAsse
     schemaVersion: "1",
     windowStart: bundle.windowStart,
     windowEnd: bundle.windowEnd,
-    eventCount: bundle.events.length,
+    eventCount: events.length,
     counts: Object.freeze(counts),
     outcomes: Object.freeze(outcomes),
     durationSampleCount: sorted.length,
