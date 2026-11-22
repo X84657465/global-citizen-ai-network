@@ -13,7 +13,7 @@ GCAN B has a meaningful source-code foundation: account/authentication pages and
 
 This is **not evidence that B is production-ready or accepted**. The architecture documentation explicitly says the repository is an early MVP and not production-ready. Authentication documentation says real-user end-to-end authentication has not been tested. AI controls default to disabled with zero budgets and no provider configured by default. No current-main Actions run was returned for the inspected SHA; the combined status query returned only a Vercel `build-rate-limit` failure. No test suite was executed during this inspection.
 
-**B Runtime disposition: BLOCKED / PREPARATION ONLY.** The A→B read adapter remains a proposal, not an implemented or accepted interface. A Factory acceptance gates remain open, including the independent read-only audit requested in Issue #136 and the P0 lease propagation issue #354. GPT 4 must continue B baseline, product planning, contract preparation and dependency analysis; it must not activate B Runtime, paid AI traffic, production migrations or deployment.
+**B Runtime disposition: BLOCKED / PREPARATION ONLY.** The A→B read adapter remains a proposal, not an implemented or accepted interface. Factory-wide acceptance remains open, including the independent read-only audit requested in Issue #136 and the natural scheduler/lease progression plus operational-soak evidence. Issue #354's bounded cross-job lease-ID handoff defect is CLOSED by PR #362; that fix does not establish full Factory acceptance. GPT 4 must continue B baseline, product planning, contract preparation and dependency analysis; it must not activate B Runtime, paid AI traffic, production migrations or deployment.
 
 ## 2. Repository and Git snapshot
 
@@ -120,7 +120,7 @@ Before implementation, the contract still needs closure for:
 
 Current A acceptance dependencies verified from live GitHub issue reads:
 - [Issue #136 — independent adversarial audit](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains **OPEN**. It requires a read-only independent audit and report against a freshly confirmed main SHA. No B work may substitute self-review for this gate.
-- [Issue #354 — propagate reserved worker lease](https://github.com/X84657465/global-citizen-ai-network/issues/354) remains **OPEN**, priority P0, and currently carries the `factory-control-plane-approved` label. It concerns the A-owned preflight workflow's cross-job lease handoff. GPT 4 must not modify this Factory control-plane workflow; GPT 1 owns A-side implementation, with GPT 3 independent review.
+- [Issue #354 — propagate reserved worker lease](https://github.com/X84657465/global-citizen-ai-network/issues/354) is **CLOSED** as completed by [PR #362](https://github.com/X84657465/global-citizen-ai-network/pull/362), merged at `388b25f354ea887727f7cfe54dd7081d4f8eb6a2`. The bounded lease-ID handoff fix passed exact-head run `45029877567` (attempt 1). This resolves that specific cross-job handoff defect only; it does not close the separate Factory-wide acceptance gates, including Issue #136, natural scheduler/lease progression and operational soak. GPT 4 must not modify the A-owned Factory control-plane workflow.
 - The current-main A acceptance state is not PASS. B Runtime remains **BLOCKED / PREPARATION ONLY** until the A charter's full acceptance gates and human approval are satisfied.
 
 ## 7. Cross-GPT documentation conflict and coordination
