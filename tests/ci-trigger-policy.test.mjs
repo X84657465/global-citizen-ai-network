@@ -778,7 +778,7 @@ test("preflight forwards only the publisher's validated API cooldown output to t
   const publisher = preflight.slice(publisherJob.start, publisherJob.end);
   assert.ok(publisher.includes("api_cooldown_until: ${{ steps.publish.outputs.api_cooldown_until }}"),
     "publisher job must expose only the sanitized cooldown output");
-  assert.ok(publisher.includes("- name: Create a draft PR after isolated tests pass\\n        id: publish\\n"),
+  assert.ok(publisher.includes("- name: Create a draft PR after isolated tests pass\n        id: publish\n"),
     "the publisher invocation must have a stable output-producing step id");
 
   const recordJob = findJobSection(preflight, "record-publication");
