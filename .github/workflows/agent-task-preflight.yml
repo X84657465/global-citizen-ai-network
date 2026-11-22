@@ -804,10 +804,45 @@ jobs:
               client_payload: { source_issue: Number('${{ needs.prepare-task.outputs.created_issue_number }}'), outcome: 'planner_created' }
             });
 
-  publish-task:
-    name: Publish the validated candidate with isolated write permissions
+  begin-publication:
+    name: Record publishing state before granting publisher write access
     needs: [prepare-task]
     if: needs.prepare-task.result == 'success' && needs.prepare-task.outputs.candidate_ready == 'true' && needs.prepare-task.outputs.issue_number != ''
+    permissions:
+      contents: read
+      issues: write
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact workflow SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+
+      - name: Transition task to publishing before PR creation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: transition
+          ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
+          NEXT_TASK_STATE: publishing
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: node scripts/agent-factory-v2-controller.mjs
+
+  publish-task:
+    name: Publish the validated candidate with isolated write permissions
+    needs: [prepare-task, begin-publication]
+    if: needs.prepare-task.result == 'success' && needs.begin-publication.result == 'success' && needs.prepare-task.outputs.candidate_ready == 'true' && needs.prepare-task.outputs.issue_number != ''
     permissions:
       actions: read
       contents: write
@@ -866,7 +901,7 @@ jobs:
 
   record-publication:
     name: Record publication state with issue-only write permissions
-    needs: [prepare-task, publish-task]
+    needs: [prepare-task, begin-publication, publish-task]
     if: >-
       always() &&
       needs.prepare-task.result == 'success' &&
@@ -901,17 +936,6 @@ jobs:
         with:
           name: ai-agent-publication-result-${{ github.run_id }}
           path: artifacts
-
-      - name: Transition task to publishing
-        if: needs.publish-task.result == 'success'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: transition
-          ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
-          NEXT_TASK_STATE: publishing
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-v2-controller.mjs
 
       - name: Record candidate PR state and release worker lease
         id: record-publication
@@ -974,7 +998,7 @@ jobs:
         run: node scripts/agent-factory-v2-controller.mjs
 
       - name: Record publication failure and preserve the task lease state
-        if: failure() || needs.publish-task.result != 'success'
+        if: failure() || needs.begin-publication.result != 'success' || needs.publish-task.result != 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
