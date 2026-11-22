@@ -61,6 +61,20 @@ test("reports encoded Issue body utilization without exposing state payload cont
   assert.equal(JSON.stringify(capacity).includes("x".repeat(100)), false);
 });
 
+test("classifies near-limit and oversized encoded Issue bodies", () => {
+  const criticalState = createInitialFactoryState(1000);
+  criticalState.system.last_error = "x".repeat(43_000);
+  const critical = inspectFactoryStateCapacity(criticalState);
+  assert.equal(critical.status, "critical");
+  assert.ok(critical.issue_body.utilization >= 0.95);
+
+  const blockedState = createInitialFactoryState(1000);
+  blockedState.system.last_error = "x".repeat(46_000);
+  const blocked = inspectFactoryStateCapacity(blockedState);
+  assert.equal(blocked.status, "blocked");
+  assert.ok(blocked.issue_body.characters > MAX_STATE_ISSUE_BODY_CHARS);
+});
+
 test("initializes a versioned state when no state Issue exists", async () => {
   const fake = fakeApi();
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
