@@ -265,3 +265,40 @@ This section supersedes earlier live-checkpoint statements in this handoff where
 2. Preserve the single self-hosted Runner concurrency policy; do not cancel queued work or weaken gates to gain throughput.
 3. Fix only reproduced failures. Do not alter machine-managed Factory state, production data, secrets, permissions or deployment configuration.
 4. After A acceptance, refresh B #275 against the resulting main and validate the read-only projection contract before any B runtime work.
+
+
+---
+
+## Superseding post-merge acceptance checkpoint — 2026-11-22
+
+This checkpoint is authoritative for the state observed after PR #283 merged. Older PR/CI snapshots above are historical and must not be reused as current release evidence.
+
+### Mainline state
+- Current main HEAD observed: `23fb747ae4041bc28783a1b9039660ec952c7e0d` (merge commit for PR #283).
+- PR #275 was merged into main at `27dba5e6f32d74e803f1ac814cd964d0af88364f`; its change is documentation-only and bounds the B DTO status comment.
+- PR #283 A/G candidate HEAD `abe983db3f2f6e657fbc39c2777fdb28e0bd2573` was merged into main by merge commit `23fb747ae4041bc28783a1b9039660ec952c7e0d`.
+- Exact-head Actions run #3369 on PR HEAD `abe983...` completed successfully: resolver, Windows quality gates (tests/type/lint/audits/build), Ollama/local execution, and isolated Supabase migrations/PostgreSQL/pgTAP/two-member application RLS all passed.
+- **Post-merge validation gap:** no Actions run for merge commit `23fb747...` is verified in the available connector evidence. The exact-head PR pass is not silently relabelled as a merge-commit pass.
+- Combined status on merge commit reports Vercel `build-rate-limit`; no READY Preview or same-SHA Smoke evidence is established.
+
+### A acceptance — merged, not accepted
+- PR #283 had no formal review submissions and no inline review threads at the last verification before/around merge.
+- Issue #136 still has no independent reviewer report. The audit target must now be the merged main commit `23fb747ae4041bc28783a1b9039660ec952c7e0d`, with the PR head `abe983db3f2f6e657fbc39c2777fdb28e0bd2573` retained as its source diff reference.
+- Machine-managed Issue #100 remains read-only. Latest verified durable snapshot remains state version 144, no active task, 11 queued, 7 quarantined, and system consecutive failures 7; cooldown expired at `2026-11-21T21:51:20.864Z`.
+- Latest verified scheduled preflight evidence remains run #314 / `44953122918`, before cooldown expiry; no post-cooldown task selection, lease reservation, or worker progression is established. The absence of evidence is not proof of a scheduler code defect.
+- A real 24-hour Runner soak, lease fencing/recovery, duplicate-event idempotency and serialized Runner operation remain operational acceptance gates.
+
+### B preparation
+- PR #290's expanded read-only adapter contract was merged into the old A feature branch after PR #283 had already merged; its merge commit is not part of current main.
+- This branch selectively carries that documentation contract onto current main. It adds only the bounded public CI state and failure-category vocabulary, fail-closed mapping rules, and exact PR/SHA/run-ID/attempt evidence requirements.
+- B Runtime, product API/database access to Factory state, billing, privileged execution and Factory permissions remain inactive.
+- Revalidate the contract against the accepted A public projection before implementing any B Runtime.
+
+### Execution order
+1. Validate the merged main tree on an exact merge-commit CI run; do not infer this from PR-head CI.
+2. Complete the independent read-only audit of exact merge SHA `23fb747...`.
+3. Obtain same-SHA Vercel Preview/Smoke when the provider quota permits.
+4. Establish post-cooldown scheduled queue selection, lease/worker progression and a real 24-hour Runner soak without manual dispatch or state mutation.
+5. Only after A acceptance, implement the A-owned sanitized projection and B-owned workspace authorization behind a reviewed, versioned read-only contract.
+
+**Safety:** do not modify machine-managed Issue #100, reset retry/quarantine/cooldown, force-dispatch tasks, change workflow/Runner policy, alter secrets/permissions, deploy Production, or activate B Runtime to manufacture acceptance evidence.
