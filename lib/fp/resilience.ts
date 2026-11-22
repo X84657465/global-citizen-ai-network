@@ -174,17 +174,34 @@ function snapshotEvidence(value: unknown): FPResilienceEvidence {
   }
 }
 
-function validatePolicyDecision(value: unknown): asserts value is FPResiliencePolicyDecision {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new TypeError("Trusted resilience policy decision is required.");
-  }
-  const decision = value as Record<string, unknown>;
-  if (
-    Object.keys(decision).sort().join(",") !== "decision,policyVersion" ||
-    !["allow-advisory", "deny"].includes(String(decision.decision)) ||
-    typeof decision.policyVersion !== "string" ||
-    !POLICY_VERSION.test(decision.policyVersion)
-  ) {
+function snapshotPolicyDecision(value: unknown): FPResiliencePolicyDecision {
+  try {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new TypeError("Trusted resilience policy decision is required.");
+    }
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) {
+      throw new TypeError("Trusted resilience policy decision must be a plain data object.");
+    }
+    const keys = Reflect.ownKeys(value);
+    if (keys.length !== 2 || keys[0] !== "decision" || keys[1] !== "policyVersion") {
+      throw new TypeError("Trusted resilience policy decision contains unsupported fields.");
+    }
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    const decision = descriptors.decision;
+    const policyVersion = descriptors.policyVersion;
+    if (!decision?.enumerable || !("value" in decision) || !policyVersion?.enumerable ||
+        !("value" in policyVersion) ||
+        !["allow-advisory", "deny"].includes(String(decision.value)) ||
+        typeof policyVersion.value !== "string" || !POLICY_VERSION.test(policyVersion.value)) {
+      throw new TypeError("Trusted resilience policy decision is invalid.");
+    }
+    return Object.freeze({
+      decision: decision.value as FPResiliencePolicyDecision["decision"],
+      policyVersion: policyVersion.value,
+    });
+  } catch {
+    // Policy-provider errors are not part of the public diagnostic response.
     throw new TypeError("Trusted resilience policy decision is invalid.");
   }
 }
@@ -196,14 +213,14 @@ export function createFPResilienceProposal(
   now: Date = new Date(),
 ): FPResilienceProposal | null {
   const safeEvidence = snapshotEvidence(evidence);
-  validatePolicyDecision(policyDecision);
+  const safePolicyDecision = snapshotPolicyDecision(policyDecision);
   if (!context || typeof context.correlationId !== "string" || !SAFE_REF.test(context.correlationId)) {
     throw new TypeError("A valid host correlation ID is required.");
   }
   if (!(now instanceof Date) || Number.isNaN(now.getTime())) {
     throw new TypeError("A valid proposal timestamp is required.");
   }
-  if (policyDecision.decision !== "allow-advisory") return null;
+  if (safePolicyDecision.decision !== "allow-advisory") return null;
 
   const advice = ADVICE[safeEvidence.failureCode];
   return Object.freeze({
@@ -215,7 +232,7 @@ export function createFPResilienceProposal(
     classification: safeEvidence.failureCode,
     ...advice,
     suggestedChecks: Object.freeze([...advice.suggestedChecks]),
-    policyVersion: policyDecision.policyVersion,
+    policyVersion: safePolicyDecision.policyVersion,
     manualApprovalRequired: true,
     executionPerformed: false,
     generatedAt: now.toISOString(),
