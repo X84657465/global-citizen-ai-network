@@ -733,9 +733,8 @@ jobs:
           New-Item -ItemType Directory -Path $statusDir -Force | Out-Null
           $statusFile = Join-Path $statusDir "exit-code"
           Remove-Item -LiteralPath $statusFile -Force -ErrorAction SilentlyContinue
-          $statusMount = "type=bind,source=$statusDir,target=/candidate-status"
           $containerName = "agent-candidate-tests-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT"
-          $null = & docker create --name $containerName --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --mount $statusMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc "sleep 3600"
+          $null = & docker create --name $containerName --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 3g --cpus 2 --user 1000:1000 --tmpfs /tmp:rw,noexec,nosuid,size=512m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace --env HOME=/tmp/test-home $imageDigest sh -lc "sleep 3600"
           if ($LASTEXITCODE -ne 0) { throw "Unable to create the restricted candidate test container; recording a system-scoped infrastructure failure." }
           [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_CANDIDATE_CONTAINER_NAME=$containerName" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           $null = & docker start $containerName
@@ -753,12 +752,14 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($containerName)) { throw "Candidate test container identity is unavailable; recording a system-scoped infrastructure failure." }
           $statusFile = Join-Path (Join-Path $env:RUNNER_TEMP "agent-candidate-test-status") "exit-code"
           $testLog = Join-Path $env:RUNNER_TEMP "agent-preflight-offline-test.log"
-          $testCommand = 'set +e; npm run test:unit && npx --no-install tsc --noEmit && npm run lint; result=$?; printf "%s\n" "$result" > /candidate-status/exit-code; exit 0'
+          $testCommand = 'set +e; npm run test:unit && npx --no-install tsc --noEmit && npm run lint; result=$?; printf "%s\n" "$result" > /tmp/agent-candidate-test-exit-code; exit 0'
           $testOutput = & docker exec $containerName sh -lc $testCommand 2>&1
           $dockerExecExitCode = $LASTEXITCODE
           $testOutput | ForEach-Object { Write-Host "$_" }
           $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
           if ($dockerExecExitCode -ne 0) { throw "Unable to execute candidate commands in the already-running container; no task-failure marker was written, so this remains system-scoped." }
+          $null = & docker cp "$containerName`:/tmp/agent-candidate-test-exit-code" $statusFile
+          if ($LASTEXITCODE -ne 0) { throw "Unable to retrieve candidate command exit evidence; no task-failure marker was written, so this remains system-scoped." }
           if (-not (Test-Path -LiteralPath $statusFile -PathType Leaf)) { throw "Candidate command exit evidence is missing; no task-failure marker was written, so this remains system-scoped." }
           $candidateExitCodeText = (Get-Content -LiteralPath $statusFile -Raw).Trim()
           if ($candidateExitCodeText -notmatch '^\d+      - name: Preserve candidate offline test diagnostics
