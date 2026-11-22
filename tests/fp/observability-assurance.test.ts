@@ -105,6 +105,21 @@ test("rejects malformed timestamps, unsafe quota settings and excessive event ba
 });
 
 
+test("rejects undeclared event payloads and bundle metadata", () => {
+  const eventWithSensitivePayload = {
+    ...event("extra-payload-01"),
+    memberId: "member-123",
+    prompt: "private prompt",
+  } as HTelemetryEvent;
+  assert.throws(() => assessHObservation(bundle([eventWithSensitivePayload])), /Invalid, duplicate, or out-of-window/);
+
+  const bundleWithExtraMetadata = {
+    ...bundle([]),
+    tracePayload: "must not enter the evaluator",
+  } as HObservationBundle;
+  assert.throws(() => assessHObservation(bundleWithExtraMetadata), /Invalid H observation window/);
+});
+
 test("uses a half-open UTC window and rejects malformed event identity or taxonomy", () => {
   const atStart = assessHObservation(bundle([
     event("boundary-0001", { occurredAt: start }),
