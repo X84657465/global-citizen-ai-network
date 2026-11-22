@@ -1,0 +1,54 @@
+export type AppealStatusDetails = {
+  status?: string | null;
+  reason?: string | null;
+  resolution?: string | null;
+};
+
+const submissionStatusLabels: Record<string, string> = {
+  submitted: "已提交",
+  pending_review: "審核中",
+  under_review: "審核中",
+  accepted: "已通過",
+  rejected: "未通過",
+  appealed: "申訴中",
+};
+
+const appealStatusLabels: Record<string, string> = {
+  submitted: "申訴已送出",
+  under_review: "申訴審核中",
+  resolved: "申訴已結案",
+  dismissed: "申訴未成立",
+};
+
+function normalizeStatus(status: string | null | undefined): string {
+  return typeof status === "string" ? status.trim().toLowerCase() : "";
+}
+
+function unknownStatusLabel(status: string): string {
+  if (!status) return "狀態待確認";
+  const safeStatus = status.replace(/[\u0000-\u001f\u007f]/g, "").slice(0, 80);
+  return safeStatus ? `狀態待確認（${safeStatus}）` : "狀態待確認";
+}
+
+export function getSubmissionStatusLabel(status: string | null | undefined): string {
+  const normalized = normalizeStatus(status);
+  return submissionStatusLabels[normalized] ?? unknownStatusLabel(normalized);
+}
+
+export function getAppealStatusLabel(status: string | null | undefined): string {
+  const normalized = normalizeStatus(status);
+  return appealStatusLabels[normalized] ?? unknownStatusLabel(normalized);
+}
+
+export function getAppealDetails(
+  appeal: Pick<AppealStatusDetails, "reason" | "resolution"> | null | undefined,
+): { reason?: string; resolution?: string } | null {
+  if (!appeal) return null;
+  const reason = typeof appeal.reason === "string" ? appeal.reason.trim() : "";
+  const resolution = typeof appeal.resolution === "string" ? appeal.resolution.trim() : "";
+  if (!reason && !resolution) return null;
+  return {
+    ...(reason ? { reason } : {}),
+    ...(resolution ? { resolution } : {}),
+  };
+}
