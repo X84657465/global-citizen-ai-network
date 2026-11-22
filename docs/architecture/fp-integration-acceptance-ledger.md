@@ -182,6 +182,8 @@ PR #295 and #299 both touch this ledger. Their branches are distinct and their t
 
 ### Verified integration state
 
+- PR #299 merged: prior F–P acceptance-ledger reconciliation; this PR #301 checkpoint supersedes its older SHA-specific status snapshot.
+- PR #294 merged: authoritative mainline/handoff correction; this checkpoint uses the subsequently verified main SHA below.
 - PR #300 merged: read-only durable-state capacity telemetry (500 processed-event limit and 60,000-character state-Issue body ceiling), with warning/critical/blocked classification. Merge commit: `7fedccfe940db5bdd1c117dc6563e87cfbd284da`.
 - PR #298 merged: canonical UTC security-evidence timestamp validation.
 - PR #297 merged: governance authentication-provider failures remain fail-closed.
