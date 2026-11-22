@@ -728,7 +728,39 @@ jobs:
         run: |
           $manifest = Get-Content "artifacts/agent-scratch.json" -Raw | ConvertFrom-Json
           if ($manifest.schema_version -ne 2 -or
-              [string]$manifest.base_commit -notmatch '^[0-9a-f]{40}
+              [string]$manifest.base_commit -notmatch '^[0-9a-f]{40}$' -or
+              $manifest.repository_files_modified -ne $false -or
+              $manifest.generated_code_executed -ne $false -or
+              @($manifest.patched_files).Count -lt 1) {
+            throw "Scratch evidence is invalid; refusing to publish an unverified manifest."
+          }
+          $publicationManifest = [ordered]@{
+            schema_version = [int]$manifest.schema_version
+            base_commit = [string]$manifest.base_commit
+            patched_files = @($manifest.patched_files)
+            repository_files_modified = [bool]$manifest.repository_files_modified
+            generated_code_executed = [bool]$manifest.generated_code_executed
+          }
+          $json = $publicationManifest | ConvertTo-Json -Depth 10
+          [System.IO.File]::WriteAllText(
+            "artifacts/agent-scratch-publication.json",
+            $json + "`n",
+            [System.Text.UTF8Encoding]::new($false)
+          )
+
+      - name: Upload exact validated publication bundle
+        if: success() && steps.candidate-tests.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-publication-${{ github.run_id }}
+          path: |
+            artifacts/agent-task.json
+            artifacts/agent-plan.json
+            artifacts/agent-patch.json
+            artifacts/agent-scratch-publication.json
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Classify known task-scoped failures before updating factory state
         if: failure()
         env:
@@ -999,286 +1031,6 @@ jobs:
 
       - name: Record publication failure and preserve the task lease state
         if: failure() || needs.begin-publication.result != 'success' || needs.publish-task.result != 'success'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: failure
-          FAILED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
-          FAILURE_STAGE: publish
-          FAILURE_SUMMARY: 'Isolated publisher/state recording failed for task issue #${{ needs.prepare-task.outputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-v2-controller.mjs
- -or
-              $manifest.repository_files_modified -ne $false -or
-              $manifest.generated_code_executed -ne $false -or
-              @($manifest.patched_files).Count -lt 1) {
-            throw "Scratch evidence is invalid; refusing to publish an unverified manifest."
-          }
-          $publicationManifest = [ordered]@{
-            schema_version = [int]$manifest.schema_version
-            base_commit = [string]$manifest.base_commit
-            patched_files = @($manifest.patched_files)
-            repository_files_modified = [bool]$manifest.repository_files_modified
-            generated_code_executed = [bool]$manifest.generated_code_executed
-          }
-          $json = $publicationManifest | ConvertTo-Json -Depth 10
-          [System.IO.File]::WriteAllText(
-            "artifacts/agent-scratch-publication.json",
-            $json + "`n",
-            [System.Text.UTF8Encoding]::new($false)
-          )
-
-      - name: Upload exact validated publication bundle
-        if: success() && steps.candidate-tests.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-agent-publication-${{ github.run_id }}
-          path: |
-            artifacts/agent-task.json
-            artifacts/agent-plan.json
-            artifacts/agent-patch.json
-            artifacts/agent-scratch-publication.json
-          if-no-files-found: error
-          retention-days: 1
-
-      - name: Classify known task-scoped failures before updating factory state
-        if: failure()
-        env:
-          APPLY_SCRATCH_OUTCOME: ${{ steps.apply-scratch.outcome }}
-          CANDIDATE_TESTS_OUTCOME: ${{ steps.candidate-tests.outcome }}
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: |
-          if ($env:AGENT_FACTORY_FAILURE_SCOPE -eq "task" -or $env:APPLY_SCRATCH_OUTCOME -eq "failure" -or $env:CANDIDATE_TESTS_OUTCOME -eq "failure") {
-            [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Preserved or confirmed task-scoped validation failure."
-          } else {
-            Write-Host "No task-scoped failure was identified; defaulting to system-scoped."
-          }
-
-      - name: Record failed task and activate cooldown after three consecutive failures
-        if: failure()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: failure
-          FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
-          FAILURE_STAGE: preflight
-          FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number || inputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-v2-controller.mjs
-
-      - name: Clean disposable scratch workspace
-        if: always()
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: |
-          $manifestPath = "artifacts/agent-scratch.json"
-          if (Test-Path $manifestPath) {
-            try {
-              $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
-              $scratch = [string]$manifest.scratch_dir
-              if ($scratch -and (Test-Path $scratch -PathType Container)) {
-                Remove-Item -LiteralPath $scratch -Recurse -Force
-              }
-            } finally {
-              Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
-            }
-          }
-
-      - name: Upload validated task, plan, and patch proposal
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-agent-task-${{ github.event.issue.number || inputs.issue_number }}
-          path: |
-            artifacts/agent-task.json
-            artifacts/agent-plan.json
-            artifacts/agent-patch.json
-          if-no-files-found: warn
-          retention-days: 3
-
-  dispatch-roadmap-task:
-    name: Dispatch a newly planned roadmap task
-    needs: [prepare-task]
-    if: needs.prepare-task.outputs.created_issue_number != ''
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Dispatch the newly planned roadmap task
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.repos.createDispatchEvent({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              event_type: 'ai-task-next',
-              client_payload: { source_issue: Number('${{ needs.prepare-task.outputs.created_issue_number }}'), outcome: 'planner_created' }
-            });
-
-  publish-task:
-    name: Publish the validated candidate with isolated write permissions
-    needs: [prepare-task]
-    if: needs.prepare-task.result == 'success' && needs.prepare-task.outputs.candidate_ready == 'true' && needs.prepare-task.outputs.issue_number != ''
-    permissions:
-      actions: read
-      contents: write
-      issues: none
-      pull-requests: write
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
-    runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 20
-    steps:
-      - name: Checkout exact workflow SHA
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "22.13.0"
-
-      - name: Download exact validated publication bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: ai-agent-publication-${{ github.run_id }}
-          path: artifacts
-
-      - name: Create a draft PR after isolated tests pass
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
-          CANDIDATE_TESTS_PASSED: "true"
-          PUBLISH_SKIP_ISSUE_COMMENT: "true"
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/publish-agent-patch.mjs
-
-      - name: Upload publication result for the state writer
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-agent-publication-result-${{ github.run_id }}
-          path: artifacts/agent-publish.json
-          if-no-files-found: error
-          retention-days: 1
-
-  record-publication:
-    name: Record publication state with issue-only write permissions
-    needs: [prepare-task, publish-task]
-    if: >-
-      always() &&
-      needs.prepare-task.result == 'success' &&
-      needs.prepare-task.outputs.candidate_ready == 'true' &&
-      needs.prepare-task.outputs.issue_number != ''
-    permissions:
-      actions: read
-      contents: read
-      issues: write
-      pull-requests: read
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
-    runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 15
-    steps:
-      - name: Checkout exact workflow SHA
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "22.13.0"
-
-      - name: Download publication result
-        if: needs.publish-task.result == 'success'
-        uses: actions/download-artifact@v4
-        with:
-          name: ai-agent-publication-result-${{ github.run_id }}
-          path: artifacts
-
-      - name: Transition task to publishing
-        if: needs.publish-task.result == 'success'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: transition
-          ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
-          NEXT_TASK_STATE: publishing
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-v2-controller.mjs
-
-      - name: Record candidate PR state and release worker lease
-        id: record-publication
-        if: needs.publish-task.result == 'success'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: transition
-          ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: |
-          $publish = Get-Content "artifacts/agent-publish.json" -Raw | ConvertFrom-Json
-          if ($publish.different_candidate_branch -eq $true) {
-            $env:NEXT_TASK_STATE = "superseded"
-            node scripts/agent-factory-v2-controller.mjs
-            if ($LASTEXITCODE -ne 0) { throw "Unable to release superseded task lease." }
-          } else {
-            if ([string]$publish.commit_sha -notmatch '^[0-9a-f]{40}$' -or
-                [int]$publish.pull_request_number -lt 1) {
-              throw "Publisher did not return exact candidate commit and PR evidence."
-            }
-            $pullUrl = [string]$publish.pull_request_url
-            if ($pullUrl -notmatch '^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+$') {
-              throw "Publisher returned an invalid pull-request URL."
-            }
-            $env:HEAD_SHA = [string]$publish.commit_sha
-            $env:PULL_REQUEST_NUMBER = [string]$publish.pull_request_number
-            $env:NEXT_TASK_STATE = "draft_pr_created"
-            node scripts/agent-factory-v2-controller.mjs
-            if ($LASTEXITCODE -ne 0) { throw "Unable to record the exact draft PR candidate." }
-            $env:NEXT_TASK_STATE = "awaiting_ci"
-            node scripts/agent-factory-v2-controller.mjs
-            if ($LASTEXITCODE -ne 0) { throw "Unable to release the worker lease for candidate CI." }
-            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "pull_request_url=$pullUrl`n", [System.Text.UTF8Encoding]::new($false))
-          }
-
-      - name: Comment on the source task with the draft PR link
-        if: success() && steps.record-publication.outputs.pull_request_url != ''
-        continue-on-error: true
-        uses: actions/github-script@v7
-        env:
-          ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
-          PULL_REQUEST_URL: ${{ steps.record-publication.outputs.pull_request_url }}
-        with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: Number(process.env.ISSUE_NUMBER),
-              body: 'The automated candidate passed isolated tests and a draft pull request is awaiting repository CI and human review: ' + process.env.PULL_REQUEST_URL + '\n\nNo merge, source-issue closure, or production deployment was performed. A human must review and explicitly merge the pull request.'
-            });
-
-      - name: Reset circuit breaker after successful task publication
-        if: success() && needs.publish-task.result == 'success'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: success
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-v2-controller.mjs
-
-      - name: Record publication failure and preserve the task lease state
-        if: failure() || needs.publish-task.result != 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
