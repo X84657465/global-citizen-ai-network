@@ -54,6 +54,7 @@ export interface FPSecurityCIEvidence {
   readonly runId: number;
   readonly runAttempt: number;
   readonly runUrl: string;
+  readonly jobRunAttempt: number;
   readonly jobKey: FPSecurityCIJobKey;
   readonly jobConclusion: FPSecurityCIConclusion;
   readonly jobUrl: string;
@@ -130,6 +131,8 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
     ci.workflowPath !== ".github/workflows/ci.yml" ||
     !isPositiveInteger(ci.runId) ||
     !isPositiveInteger(ci.runAttempt) ||
+    !isPositiveInteger(ci.jobRunAttempt) ||
+    ci.jobRunAttempt !== ci.runAttempt ||
     !["quality", "database"].includes(ci.jobKey) ||
     !CI_CONCLUSIONS.includes(ci.jobConclusion)
   ) {
@@ -138,12 +141,12 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
 
   const expectedRunUrl = `https://github.com/${repository}/actions/runs/${ci.runId}`;
   const expectedAttemptUrl = `${expectedRunUrl}/attempts/${ci.runAttempt}`;
-  if (ci.runUrl !== expectedRunUrl && ci.runUrl !== expectedAttemptUrl) {
-    throw new TypeError("F CI run URL does not match its repository, run ID, and attempt.");
+  if (ci.runUrl !== expectedAttemptUrl) {
+    throw new TypeError("F CI run URL must identify the exact repository, run ID, and attempt.");
   }
   const expectedJobPrefix = `${expectedRunUrl}/job/`;
   const jobId = ci.jobUrl.slice(expectedJobPrefix.length);
-  if (!ci.jobUrl.startsWith(expectedJobPrefix) || !/^\d+$/.test(jobId)) {
+  if (!ci.jobUrl.startsWith(expectedJobPrefix) || !/^[1-9]\d*$/.test(jobId)) {
     throw new TypeError("F CI job URL does not belong to the evidence run.");
   }
 }
