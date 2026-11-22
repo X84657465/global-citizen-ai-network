@@ -37,7 +37,28 @@ async function main() {
     issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
   });
   const controller = createAgentFactoryController({ store, api, repository });
-  const result = await controller.run(process.env);
+  let result;
+  try {
+    result = await controller.run(process.env);
+  } catch (error) {
+    // A capacity guard can reject a write before run() returns a result.
+    // On failure only, re-read the durable state and emit count-only telemetry
+    // so a full ledger/body does not fail silently before the normal report.
+    try {
+      const current = await store.read();
+      const capacity = inspectFactoryStateCapacity(current.state);
+      if (capacity.status !== "healthy") {
+        console.warn(
+          "Agent Factory state capacity " + capacity.status +
+          ": processed_events=" + capacity.processed_events.count + "/" + capacity.processed_events.limit +
+          ", issue_body_chars=" + capacity.issue_body.characters + "/" + capacity.issue_body.limit,
+        );
+      }
+    } catch {
+      // Preserve the original controller failure; telemetry must never mask it.
+    }
+    throw error;
+  }
 
   for (const [key, value] of Object.entries(result.outputs ?? {})) writeOutput(key, value);
   const stateIssueNumber = store.getStateIssueNumber();
