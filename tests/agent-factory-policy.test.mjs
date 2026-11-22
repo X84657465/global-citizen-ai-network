@@ -281,3 +281,39 @@ test("durable cooldown preserves x-ratelimit-reset from a classified secondary r
     return true;
   });
 });
+
+test("candidate container startup failures remain system-scoped while confirmed candidate command failures are task-scoped", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("      - name: Start restricted candidate test container");
+  const tests = workflow.indexOf("      - name: Test patched candidate offline inside restricted container", start);
+  const cleanup = workflow.indexOf("      - name: Remove restricted candidate test container", tests);
+  const classifier = workflow.indexOf("      - name: Classify known task-scoped failures before updating factory state", cleanup);
+  assert.ok(start >= 0 && tests > start && cleanup > tests && classifier > cleanup);
+
+  const startupStep = workflow.slice(start, tests);
+  const candidateStep = workflow.slice(tests, cleanup);
+  const classifierStep = workflow.slice(classifier, workflow.indexOf("\n      - name:", classifier + 1));
+
+  assert.match(startupStep, /docker create/);
+  assert.match(startupStep, /docker start/);
+  assert.match(startupStep, /docker inspect --format '\{\{\.State\.Running\}\}'/);
+  assert.match(startupStep, /--network none --read-only --cap-drop ALL --security-opt no-new-privileges/);
+  assert.doesNotMatch(startupStep, /AGENT_FACTORY_FAILURE_SCOPE=task/);
+
+  assert.match(candidateStep, /docker exec/);
+  assert.match(candidateStep, /candidateExitCode -ne 0/);
+  assert.match(candidateStep, /AGENT_FACTORY_FAILURE_SCOPE=task/);
+  assert.ok(candidateStep.indexOf("Test-Path -LiteralPath $statusFile") < candidateStep.indexOf("AGENT_FACTORY_FAILURE_SCOPE=task"));
+  assert.ok(candidateStep.indexOf("$candidateExitCode -ne 0") < candidateStep.indexOf("AGENT_FACTORY_FAILURE_SCOPE=task"));
+
+  assert.match(classifierStep, /AGENT_FACTORY_FAILURE_SCOPE -eq "task"/);
+  assert.match(classifierStep, /APPLY_SCRATCH_OUTCOME -eq "failure"/);
+  assert.doesNotMatch(classifierStep, /CANDIDATE_TESTS_OUTCOME/);
+
+  const classify = ({ containerStarted, commandStarted, exitEvidence, exitCode }) =>
+    containerStarted && commandStarted && exitEvidence && exitCode !== 0 ? "task" : "system";
+  assert.equal(classify({ containerStarted: false, commandStarted: false, exitEvidence: false, exitCode: null }), "system");
+  assert.equal(classify({ containerStarted: true, commandStarted: false, exitEvidence: false, exitCode: null }), "system");
+  assert.equal(classify({ containerStarted: true, commandStarted: true, exitEvidence: true, exitCode: 1 }), "task");
+  assert.equal(classify({ containerStarted: true, commandStarted: true, exitEvidence: true, exitCode: 0 }), "success");
+});
