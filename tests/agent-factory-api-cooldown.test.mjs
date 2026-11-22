@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
@@ -35,7 +35,7 @@ test("does not export a cooldown for non-rate-limit failures", () => {
     rateLimited: false,
   }, { now: 1_000_000, envFile, outputFile }), null);
 
-  assert.equal(readFileSync(envFile, "utf8", { flag: "a+" }), "");
-  assert.equal(readFileSync(outputFile, "utf8", { flag: "a+" }), "");
+  assert.equal(existsSync(envFile), false);
+  assert.equal(existsSync(outputFile), false);
   rmSync(directory, { recursive: true, force: true });
 });
