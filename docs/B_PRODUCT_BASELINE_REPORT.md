@@ -206,3 +206,23 @@ This report is a documentation snapshot, not a formal security audit, GPT3 accep
 ### Separate Factory ownership blocker — Issue #117 / PRs #422 and #425
 - PR #422 and PR #425 remain simultaneous candidates against Issue #117 and overlap protected Factory workflow/test paths. GPT3's latest comments identify unresolved canonical DRI/implementation selection; PR #425 also had a confirmed 746-pass / 1-fail unit run on its then-current exact head, with typecheck/lint/build and downstream integration skipped.
 - This is Factory-owned work. GPT4 does not edit either candidate or select the Factory DRI; GPT1 must coordinate one canonical owner/candidate, with GPT3 independently reviewing the resulting exact SHA.
+
+
+## 14. Follow-up live CI progress — 2026-11-23
+
+### PR #432 exact-head CI progress
+- Exact head remains `49d541eaed8be94e9fd442155f0b6a10d0390428`, base `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Actions run [45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302), run number 3930, is in progress.
+- At latest job inspection, metadata resolver is SUCCESS. Windows Runner quality gates are IN_PROGRESS:
+  - PASS: Runner/Docker/Ollama setup; bounded local Ollama inference; migration and schema safety guards; production and full dependency audits; Factory script syntax; CI trigger/Runner policy; unit tests; TypeScript type check; lint.
+  - IN_PROGRESS: production build.
+  - NOT RUN / PENDING: subsequent classification/cleanup steps and downstream integration/persistence jobs (not yet returned as completed evidence).
+- Do not mark overall CI PASS until the workflow and every required downstream gate complete successfully.
+
+### GPT3 review and Vercel distinction
+- GPT3's review on exact #432 head is COMMENTED static review, not an APPROVED review. It found no blocking diff defect and explicitly requires exact-head CI and downstream evidence. No unresolved inline review threads were returned.
+- Combined status still shows Vercel `build-rate-limit`; this is external provider quota status, not GitHub Actions test evidence.
+
+### PR #430 latest exact-head Actions
+- PR #430 exact head is `53afc92c78e3e25650612046a7d1bc0411c97df1`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`, Draft, six commits ahead / zero behind.
+- Exact-head Actions run [45063781023](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063781023) is PENDING; the jobs endpoint returned no jobs at inspection. The only changed path remains `docs/B_PRODUCT_BASELINE_REPORT.md`. No test or review acceptance is inferred from the pending run.
