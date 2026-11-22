@@ -382,3 +382,42 @@ Factory 是共用生產核心，不是產品 owner，也不是所有領域的最
 A→B 必須使用版本化、文件化、可測試的契約；B 不得直接操作 Factory 私有 Lease、Runner、Sandbox、Secrets 或內部狀態。Factory 不得未經 B owner 同意改變產品行為。Factory 尚未通過真實任務與獨立驗收前，不得宣稱已成熟或已向 B 開放完整自主 Runtime。
 
 Factory-first 是當前資源優先順序，不是永久忽略產品。當 Factory 通過端到端、QA、資安、恢復與容量驗收後，應逐步讓 Factory 維運與 B 產品交付並行。詳細責任、衝突處理及強制執行規範以 Master Charter §18 為準。
+
+## 15. F6–F12 自主生產能力建設與驗收
+
+F6–F12 是 F0–F5 基礎之上的後續建設路線，必須以真實任務與精確 SHA 證據驗收，不代表現況已具備這些能力。
+
+| Stage | Scope | Definition of Done |
+|---|---|---|
+| F6 Developer Engine | IDE 無關的專案上下文理解、allowlist 多檔案讀寫、受控終端／Git、diff 產生 | 真實低風險 Issue 在隔離環境完成一個多檔案任務，附工具紀錄、diff、路徑政策測試、精確 SHA、Draft PR |
+| F7 Debug & Repair | 失敗分類、根因分析、有限修復與重測 | 可重現失敗→修復→通過；故意植入缺陷、回歸及重試／時間／成本上限測試 |
+| F8 Orchestrator | Worker／模型／工具路由、依賴、資源及安全併發 | 路由基準、決策紀錄、衝突／鎖定／取消／公平性測試；單任務穩定後才擴大併發 |
+| F9 Independent QA | 實作者與 Reviewer 分離、同 SHA 測試、Fail-Closed | 獨立審查紀錄、故意植入缺陷攔截、缺少／過期／SHA 不符 CI 阻擋證據 |
+| F10 Project Intelligence | 版本化專案記憶、ADR、缺陷與修復知識 | 來源／SHA／可信度／owner／保留與刪除政策、過期記憶與跨任務隔離測試 |
+| F11 Self-Improvement & Recovery | 指標診斷、受控改善 PR、故障恢復 | 前後 baseline、獨立審查、可回滾改進；Runner／Worker／lease／狀態讀回故障演練 |
+| F12 Production-Grade | 端到端、資安、容量、成本、可觀測性與營運驗收 | 多輪真實任務 soak test、SLO、威脅模型、事故演練、恢復／回滾及獨立接受證據 |
+
+### 15.1 執行依賴
+
+1. 保護 F0–F5 控制面與安全邊界，先盤點再開發。
+2. F6 先完成單任務隔離開發閉環。
+3. F9 最低必要獨立 QA／同 SHA 品質閘門，必須在擴大自主寫入、修復與併發前落實。
+4. F7 建立有限次失敗診斷與修復。
+5. F8 在單任務穩定及衝突控制通過後才擴大調度與併發。
+6. F10 在資料治理、隱私與生命週期政策確立後建設。
+7. F11 只能透過受限 PR、自動測試與獨立審查改善 Factory。
+8. F12 綜合驗收，不得以單次 smoke test 或文件完成替代。
+
+### 15.2 跨階段不可妥協要求
+
+- 模型不持有 GitHub 寫入憑證、Runner 主機秘密或生產憑證。
+- 任務沿用原始 allowlist；命令、網路、資源、時間、輸出與成本有界。
+- 不得刪除失敗測試、降低驗收標準、隱藏失敗或無限重試。
+- 每個任務單一 DRI；工作區隔離、lease／fencing 與衝突檢測不可繞過。
+- Developer 不得自我批准；Reviewer 不可用即 Fail-Closed。
+- 專案記憶須有來源、版本、權限、保留與刪除政策，不可凌駕最新 Repository 證據。
+- Factory 自我改善不得自行合併、部署、擴權或修改品質門檻。
+- 每項能力標記 IMPLEMENTED／TESTED／ACCEPTED／PARTIAL／BLOCKED／NOT RUN，附精確 SHA 與證據。
+- 新增 Worker、模型、Runner、服務前，必須證明缺口、效益、成本與維護負擔；優先 REUSE／EXTEND／REPAIR。
+
+本路線圖由 Master Charter §19 定義；本文件負責 Factory 工程執行與驗收。所有階段均需 Issue／PR、單一 DRI、DoD、測試、風險、回滾與獨立審查。此章不授予任何新權限，也不代表 F6–F12 已實作。
