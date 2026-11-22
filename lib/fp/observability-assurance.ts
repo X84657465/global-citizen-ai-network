@@ -71,17 +71,21 @@ function nonNegativeSafeInteger(value: number): boolean {
 }
 
 function isSafeRecord(value: object, allowed: readonly string[], required: readonly string[]): boolean {
-  const prototype = Object.getPrototypeOf(value);
-  if (prototype !== Object.prototype && prototype !== null) return false;
+  try {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return false;
 
-  const keys = Reflect.ownKeys(value);
-  if (keys.some((key) => typeof key !== "string" || !allowed.includes(key))) return false;
-  if (required.some((key) => !Object.prototype.hasOwnProperty.call(value, key))) return false;
+    const keys = Reflect.ownKeys(value);
+    if (keys.some((key) => typeof key !== "string" || !allowed.includes(key))) return false;
+    if (required.some((key) => !Object.prototype.hasOwnProperty.call(value, key))) return false;
 
-  return keys.every((key) => {
-    const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    return descriptor !== undefined && descriptor.enumerable && "value" in descriptor;
-  });
+    return keys.every((key) => {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      return descriptor !== undefined && descriptor.enumerable && "value" in descriptor;
+    });
+  } catch {
+    return false;
+  }
 }
 
 /**
