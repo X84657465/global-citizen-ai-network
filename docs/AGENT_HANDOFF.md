@@ -497,3 +497,28 @@ This checkpoint supersedes earlier live-status statements in this document where
 - This closes a narrow evidence gap for the proposed B projection: the controller reads `AGENT_FACTORY_ERROR_CODE`, otherwise defaults workflow failures to `WORKFLOW_FAILURE`. Without the explicit code, stale candidate drift would be indistinguishable from generic workflow failure in durable state.
 - Proposed public mapping (subject to independent contract review): `STALE_BASE` → `validation`; `WORKER_LEASE_EXPIRED` → `infrastructure`; generic `WORKFLOW_FAILURE`, `TASK_FAILURE`, and `SYSTEM_FAILURE` → `unknown`. Candidate CI failure currently has no distinct persisted error code and therefore remains `unknown` until A supplies a structured, exact-attempt code.
 - Never derive public categories from free-form `last_error` summaries. Unknown codes map to `unknown`; raw summaries, internal codes, and scope details are not exposed to B.
+
+
+## Live continuation checkpoint — 2026-11-22 10:36 Taiwan
+
+**Verified main HEAD:** `061ccf621c228bae93b91cd8c53723c3fe08310a` (PR #301 merge). Release remains `0.3.125`; this checkpoint does not change release readiness.
+
+### A — Factory-first execution evidence
+- Machine-managed Issue #100 was read-only at state version 152 (updated `2026-11-22T02:04:40.421Z`): no active task; system consecutive failures 9; recorded cooldown ended `2026-11-22T02:19:40.421Z`; task #17 is queued. Historical lease/run fields in the task record are not evidence of an active lease. Do not edit the Issue, reset counters/cooldowns/leases/quarantine, or dispatch duplicate work.
+- Scheduled run #44972336349 / Windows job #137054627179 completed its disposable scratch validation. Logs show 602/602 unit tests, TypeScript and ESLint completed successfully; this is candidate offline validation, not a full audit/dependency-audit result.
+- The same task then failed closed at publication because the default branch advanced after candidate tests. No PR was published. This confirms the narrow stale-base classification defect addressed by PR #303; it does not establish a token-permission failure. PR #303's exact-head CI run #44976773308 is pending with no allocated jobs.
+- Current-main Preflight #44972991644 completed successfully against the prior main SHA `aa63b74f9d23d2316ec7b59116632d686afb8fe1`. Its Windows synthetic validation, Ollama plan/patch smoke, disposable-container checks, offline tests, typecheck and lint passed; the task-transition step and read-only planning job were skipped. This is not proof of real queue/lease/worker progression and does not validate the newer main SHA `061ccf...`.
+- Main CI #44972991698 for `aa63b74...` is cancelled. Do not count it as passing. No exact-main CI pass is established for `061ccf...`.
+
+### Current candidate gates
+- PR #302 documentation HEAD `2d93e14fd46e7eeaa788ff2f0095df702d95636b`, run #44976783109: pending, no allocated jobs.
+- PR #303 stale-base scope/error-code HEAD `9b1097484e868d8c78b752c1372f6c6964a36ed3`, run #44976773308: pending, no allocated jobs.
+- PR #305 task-declared patch contract HEAD `2a2d35114c88ba0cce6d8478a72d908a8b277985`, run #44976078839: pending, no allocated jobs.
+- All three remain Draft/open. PR #303 and #305 have no formal review submissions. Keep all unmerged until exact-head CI, required independent review and applicable Preview evidence are available.
+
+### B preparation and independent audit
+- Keep B Runtime inactive. Continue only the versioned, read-only A→B contract preparation; no Factory state, lease, Runner/Sandbox or raw Issue/log access from B.
+- Issue #136 remains a read-only independent adversarial audit request; no independent audit report/sign-off is present in the latest inspected comment history. Do not mutate that issue or treat implementation-author inspection as independent approval.
+- A remains integrated but not operationally accepted. Outstanding gates include exact-current-main CI, natural post-cooldown queue/lease/worker progression, serialized 24-hour Runner soak, same-SHA READY Preview/Smoke and independent audit.
+
+**Authority boundary:** this checkpoint records observed evidence only. It changes no runtime, machine-managed Factory state, task issue, lease, retry/cooldown/quarantine, Runner/workflow policy, secret, permission, production database, deployment or B Runtime behavior.
