@@ -1,3 +1,8 @@
+## 0.3.132 — 2026-11-22
+
+- H: reject undeclared event and bundle fields at the observability evaluator boundary to prevent arbitrary payload metadata from entering the privacy-minimized contract.
+- Add regression coverage for member identifiers, prompts and unexpected bundle metadata; H remains planned pending trusted collection and operational acceptance.
+
 ## 0.3.131 — 2026-11-22
 
 - H: add deterministic, privacy-minimized queue/runner/task/cost observability evaluation.
