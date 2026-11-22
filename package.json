@@ -1,13 +1,13 @@
 {
   "name": "global-citizen-ai-network",
-  "version": "0.3.126",
+  "version": "0.3.127",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:unit": "node scripts/run-unit-tests.mjs"
+    "test:unit": "node scripts/validate-workstream-versions.mjs && node scripts/run-unit-tests.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
