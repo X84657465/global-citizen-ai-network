@@ -77,7 +77,7 @@
 
 ### GPT 4：B — GCAN Product 產品負責人
 
-GPT4 是 GCAN B 產品主線的正式負責人，依 PR #376 所建立的 `GCAN_B_LINE_LEAD_CHARTER.md` 與 `GCAN_PRODUCT_NORTH_STAR.md` 執行。GPT4 對 B 產品方向、需求、產品契約、使用者體驗、產品交付、品質、營運與演進負責；A→B 仍須遵守 GPT1 的 Factory 交接及 GPT3 的獨立驗收。
+GPT4 是 GCAN B 產品主線的正式負責人，依 `docs/GCAN_B_LINE_LEAD_CHARTER.md` 與 `docs/GCAN_PRODUCT_NORTH_STAR.md` 執行。GPT4 對 B 產品方向、需求、產品契約、使用者體驗、產品交付、品質、營運與演進負責；A→B 仍須遵守 GPT1 的 Factory 交接及 GPT3 的獨立驗收。Factory 最高使命與 A0–A6 成熟度依 `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md`。
 
 主要工作要求：
 - 先閱讀 B 線負責人章程、產品北極星、協調文件及 B 主線最新狀態。

@@ -70,7 +70,7 @@
 
 **成熟度分級：** L0 對話協助 → L1 證據感知 → L2 自主規劃 → L3 授權執行 → L4 持久閉環 → L5 受治理的持續運作。每一級都必須以實際程式、部署、測試及稽核證據驗收。
 
-完整規範：[GCAN 神經智慧體協作模式](GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md) · [GPT 協作與專案協調規範](PROJECT_COORDINATION.md) · [A–P 工程治理](docs/engineering-governance.md)。
+完整規範：[Agent Factory 自主開發最高核心章程](docs/AGENT_FACTORY_AUTONOMY_CHARTER.md) · [GCAN B 主線負責人章程](docs/GCAN_B_LINE_LEAD_CHARTER.md) · [GCAN Product North Star](docs/GCAN_PRODUCT_NORTH_STAR.md) · [GCAN 神經智慧體協作模式](GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md) · [GPT 協作與專案協調規範](PROJECT_COORDINATION.md) · [A–P 工程治理](docs/engineering-governance.md)。
 
 ---
 
