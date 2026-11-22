@@ -1,3 +1,10 @@
+## 0.3.128 — 2026-11-22
+
+- H: add deterministic, privacy-minimized queue/runner/task/cost observability evaluation.
+- Validate UTC event windows, deduplicate opaque IDs, bound event batches and durations, and aggregate integer micro-unit costs and duration percentiles.
+- Enforce explicit cost-event provenance, reject mixed currencies and report event completeness as not verifiable without trusted collector coverage.
+- Quota warning/exceeded states remain advisory; no billing, telemetry collection, quota enforcement or runner mutation is enabled.
+
 ## 0.3.126 — 2026-11-22
 
 - P: add an executable A–P numeric version governance contract.
