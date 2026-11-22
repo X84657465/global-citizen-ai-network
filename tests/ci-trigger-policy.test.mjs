@@ -700,3 +700,51 @@ test("CI carries provider rate-limit cooldown from the candidate controller to t
   const breakerSection = workflow.slice(breakerJob.start, breakerJob.end);
   assert.ok(breakerSection.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.build.outputs.api_cooldown_until }}"));
 });
+
+
+test("Agent Factory isolates candidate generation, PR publication, state writes, and dispatch permissions", () => {
+  const jobsSource = preflight.slice(preflight.indexOf("\\njobs:") + "\\njobs:".length);
+  const prepare = findJobSection(jobsSource, "prepare-task");
+  const prepareSection = jobsSource.slice(prepare.start, prepare.end);
+  const publish = findJobSection(jobsSource, "publish-task");
+  const publishSection = jobsSource.slice(publish.start, publish.end);
+  const record = findJobSection(jobsSource, "record-publication");
+  const recordSection = jobsSource.slice(record.start, record.end);
+  const dispatch = findJobSection(jobsSource, "dispatch-roadmap-task");
+  const dispatchSection = jobsSource.slice(dispatch.start, dispatch.end);
+
+  assert.ok(prepareSection.includes("contents: read"));
+  assert.ok(prepareSection.includes("issues: write"));
+  assert.ok(prepareSection.includes("pull-requests: read"));
+  assert.equal(prepareSection.includes("contents: write"), false);
+  assert.equal(prepareSection.includes("pull-requests: write"), false);
+  assert.equal(prepareSection.includes("Create a draft PR after isolated tests pass"), false);
+  assert.ok(prepareSection.includes("artifacts/agent-scratch.json"), "publication evidence must include the exact scratch manifest");
+
+  assert.ok(publishSection.includes("needs: [prepare-task]"));
+  assert.ok(publishSection.includes("contents: write"));
+  assert.ok(publishSection.includes("pull-requests: write"));
+  assert.ok(publishSection.includes("issues: none"), "publisher must not receive issue-write permission");
+  assert.ok(publishSection.includes("PUBLISH_SKIP_ISSUE_COMMENT: \"true\""));
+  assert.ok(publishSection.includes("ai-agent-publication-result-${{ github.run_id }}"));
+  assert.ok(publishSection.includes("ref: ${{ github.sha }}"), "publisher must validate against the exact workflow SHA");
+
+  assert.ok(recordSection.includes("needs: [prepare-task, publish-task]"));
+  assert.ok(recordSection.includes("issues: write"));
+  assert.ok(recordSection.includes("contents: read"));
+  assert.equal(recordSection.includes("contents: write"), false);
+  assert.equal(recordSection.includes("pull-requests: write"), false);
+  assert.ok(recordSection.includes("AGENT_FACTORY_MODE: transition"));
+
+  assert.ok(dispatchSection.includes("contents: write"));
+  assert.equal(dispatchSection.includes("issues: write"), false);
+  assert.equal(dispatchSection.includes("pull-requests: write"), false);
+
+  const planStepStart = prepareSection.indexOf("      - name: Generate and validate a read-only plan with local Ollama");
+  const planStepEnd = prepareSection.indexOf("      - name: Transition task to patching", planStepStart);
+  assert.ok(planStepStart >= 0 && planStepEnd > planStepStart);
+  assert.equal(prepareSection.slice(planStepStart, planStepEnd).includes("GITHUB_TOKEN"), false,
+    "local model planning and patch generation must not receive the GitHub token");
+  assert.ok(publisher.includes('process.env.PUBLISH_SKIP_ISSUE_COMMENT !== "true"'),
+    "publisher must support operation without issue-write permission");
+});
