@@ -1,5 +1,10 @@
 # G — Changelog
 
+## 0.1.3 — 2026-11-23
+
+- Reject canonical array-index properties outside the declared array length in exact-head CI evidence snapshots.
+- Add a zero-length hidden-index regression; preserve fail-closed, advisory-only release assessment.
+
 ## 0.1.2 — 2026-11-22
 
 - Add the G release/QA integration operating guide.

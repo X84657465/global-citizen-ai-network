@@ -240,3 +240,20 @@ test("rejects job-array properties outside the ECMAScript array-index range", ()
     /bounded dense plain array/,
   );
 });
+
+
+test("rejects canonical job-array indices outside the declared array length", () => {
+  const emptyWithHiddenIndex = [] as GJobEvidence[];
+  Object.defineProperty(emptyWithHiddenIndex, "1", {
+    configurable: true,
+    enumerable: true,
+    value: job("quality"),
+  });
+  assert.equal(emptyWithHiddenIndex.length, 0);
+  assert.throws(
+    () => assessGExactHeadEvidence(bundle({
+      run: { ...bundle().run, jobs: emptyWithHiddenIndex },
+    })),
+    /bounded dense plain array/,
+  );
+});

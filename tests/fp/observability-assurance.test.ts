@@ -273,3 +273,18 @@ test("rejects event-array properties outside the ECMAScript array-index range", 
   );
 });
 
+
+
+test("rejects canonical event-array indices outside the declared array length", () => {
+  const emptyWithHiddenIndex = [] as HTelemetryEvent[];
+  Object.defineProperty(emptyWithHiddenIndex, "1", {
+    configurable: true,
+    enumerable: true,
+    value: event("hidden-index-0001"),
+  });
+  assert.equal(emptyWithHiddenIndex.length, 0);
+  assert.throws(
+    () => assessHObservation(bundle(emptyWithHiddenIndex)),
+    /bounded dense plain array/,
+  );
+});
