@@ -11,6 +11,7 @@ const sha = "a".repeat(40);
 const repo = "X84657465/global-citizen-ai-network";
 const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence => ({
   jobId,
+  runAttempt: 1,
   status: "completed",
   conclusion: "success",
   jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456",
@@ -45,6 +46,15 @@ test("requires all four mainline CI jobs to pass for the exact candidate SHA", (
   assert.equal(result.acceptanceGranted, false);
   assert.equal(result.mergeAuthorized, false);
   assert.equal(result.deploymentAuthorized, false);
+});
+
+test("rejects a required job record from a different workflow run attempt", () => {
+  const mixedAttemptJobs = G_REQUIRED_CI_JOBS.map((id) =>
+    job(id, id === "quality" ? { runAttempt: 2 } : {}),
+  );
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: mixedAttemptJobs },
+  })), /exact workflow run attempt/);
 });
 
 test("does not accept a green summary when database or build job is missing", () => {
