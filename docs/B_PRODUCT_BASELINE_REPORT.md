@@ -84,11 +84,11 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 
 ### B charter / North Star availability
 
-- `docs/GCAN_B_LINE_LEAD_CHARTER.md` and `docs/GCAN_PRODUCT_NORTH_STAR.md` are now present on main (verified after the latest main update). PR #376 remains an old, diverged candidate; do not merge it wholesale or treat its historical review/CI as current evidence.
-- [PR #376](https://github.com/X84657465/global-citizen-ai-network/pull/376) remains open and non-mergeable, based on old main SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1`, with head `d10e6dd6d428d9ce35dbd14778e01c628f909742`. Its branch is stale/diverged; retain only as source material for selective owner-reviewed reconciliation.
-- Its exact-head review thread still contains an unresolved P2 release-metadata/changelog finding. Reviews observed are COMMENTED, not formal APPROVED.
-- CI run [45047970308](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45047970308) completed successfully for earlier SHA `24212ce8f6fb1f95b93996d4f2593751465e5ae8`, not current PR head `d10e6dd6d428d9ce35dbd14778e01c628f909742`. It is not exact-head CI evidence for the current PR head.
-- The A→B read-adapter proposal has open design questions recorded in PR #376 review discussion: service-to-service authentication/audience/scope and rotation/revocation; reference lifecycle and anti-enumeration; projection freshness/cache semantics; and closed, versioned failure-code mapping. These are design follow-ups, not proof of a deployed vulnerability or an implemented adapter.
+- Both `docs/GCAN_B_LINE_LEAD_CHARTER.md` and `docs/GCAN_PRODUCT_NORTH_STAR.md` are present on current `main` and were freshly read there for this baseline. Their current blob SHAs are `998ab95d69ddfed91095c1e095cca69f874a97dd` and `4c4d6e35c105e429559fa616c84e67756ba800d8`, respectively.
+- The current-main B charter explicitly assigns GPT4 B Product ownership while retaining Factory-first and PREPARATION ONLY restrictions. These are current governance sources, not pending PR #376 dependencies.
+- [PR #376](https://github.com/X84657465/global-citizen-ai-network/pull/376) remains an open candidate in the current PR listing, with base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` and head SHA `d10e6dd6d428d9ce35dbd14778e01c628f909742`. The current compare against main reports ${cmp.result?.ahead_by} commits ahead / ${cmp.result?.behind_by} behind (${cmp.result?.status}); do not merge or retarget this broad stale candidate merely to obtain files that are already on main.
+- The latest PR #376 review records and inline threads must be assessed independently; a COMMENTED review is not formal approval. Any historical CI run for a different head SHA is not exact-head evidence.
+- The A→B read-adapter proposal still requires explicit service-to-service authentication/audience/scope and rotation/revocation, reference lifecycle and anti-enumeration, projection freshness/cache semantics, and closed versioned failure-code mapping. These are design follow-ups, not proof of a deployed vulnerability or an implemented adapter.
 
 **B Runtime disposition: BLOCKED / PREPARATION ONLY.** Do not activate runtime, paid AI traffic, production migrations, public signup, payout, or distributed compute from this baseline.
 
