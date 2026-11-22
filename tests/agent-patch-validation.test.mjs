@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { getPatchManifestFiles, PatchValidationError, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { getPatchManifestFiles, PatchValidationError, scopePatchTaskToBatch, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 const task = {
   schema_version: 1,
@@ -224,4 +224,36 @@ test("requires every task-declared output and rejects literal prohibited content
   );
   assert.equal(accepted.safety.required_patch_paths_enforced, true);
   assert.equal(accepted.safety.forbidden_content_enforced, true);
+});
+
+
+test("scopes required outputs to each single-file generation batch and preserves final aggregate enforcement", () => {
+  const contractTask = {
+    schema_version: 1,
+    allowed_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+    required_patch_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+    forbidden_content: ["do not downgrade"],
+  };
+  const firstBatch = scopePatchTaskToBatch(contractTask, ["docs/security/remediation.md"]);
+  const secondBatch = scopePatchTaskToBatch(contractTask, ["tests/security/remediation.test.mjs"]);
+  assert.deepEqual(firstBatch.required_patch_paths, ["docs/security/remediation.md"]);
+  assert.deepEqual(secondBatch.required_patch_paths, ["tests/security/remediation.test.mjs"]);
+  assert.deepEqual(firstBatch.allowed_paths, ["docs/security/remediation.md"]);
+  assert.deepEqual(firstBatch.forbidden_content, contractTask.forbidden_content);
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([file("docs/security/remediation.md", "add", "A safe remediation plan.")]),
+      contractTask,
+      existing,
+    ),
+    /missing a required output path/,
+  );
+  assert.doesNotThrow(() => validatePatchManifest(
+    manifest([
+      file("docs/security/remediation.md", "add", "A safe remediation plan."),
+      file("tests/security/remediation.test.mjs", "add", "import test from 'node:test';"),
+    ]),
+    contractTask,
+    existing,
+  ));
 });
