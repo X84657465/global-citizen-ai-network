@@ -21,6 +21,10 @@ const validInput = () => ({
   workstreams: "**Planning baseline:** repository release 0.3.134",
   changelog: "## 0.3.134 — 2026-11-22\n\n- P governance validator.",
   pChangelog: "## P 0.1.3 — 2026-11-22\n\n- Enforce version contract.",
+  trackChangelogs: Object.fromEntries(WORKSTREAM_IDS.slice(5).map((id) => [
+    id,
+    `## ${id} ${id === "H" ? "0.1.4" : id === "J" ? "0.1.1" : id === "K" ? "0.1.1" : id === "M" ? "0.1.1" : id === "P" ? "0.1.3" : "0.1.0"} — 2026-11-22\\n`,
+  ])),
 });
 
 test("accepts a complete independently versioned A–P registry with synchronized repository metadata", () => {
@@ -81,4 +85,17 @@ test("rejects malformed registry and non-object manifest inputs", () => {
   const input = validInput();
   input.manifest.tracks.P.name = "";
   assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("Track P")));
+});
+
+
+test("requires an independently versioned F–P changelog entry for every track, including deferred L", () => {
+  const input = validInput();
+  for (const id of WORKSTREAM_IDS.slice(5)) {
+    const incomplete = structuredClone(input);
+    delete incomplete.trackChangelogs[id];
+    assert.ok(validateWorkstreamVersionContract(incomplete).errors.some((error) => error.includes(`Track ${id} changelog`)), id);
+    const stale = structuredClone(input);
+    stale.trackChangelogs[id] = "## 0.0.9 — 2026-11-22\\n";
+    assert.ok(validateWorkstreamVersionContract(stale).errors.some((error) => error.includes(`Track ${id} changelog`)), id);
+  }
 });
