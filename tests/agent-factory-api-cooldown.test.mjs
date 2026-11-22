@@ -53,6 +53,6 @@ test("uses the secondary-rate-limit reset header when Retry-After is invalid", (
   }, { now, outputFile });
 
   assert.equal(deadline, new Date(now + 2_000).toISOString());
-  assert.equal(readFileSync(outputFile, "utf8"), "api_cooldown_until=" + deadline + "\\n");
+  assert.equal(readFileSync(outputFile, "utf8"), "api_cooldown_until=" + deadline + "\n");
   rmSync(directory, { recursive: true, force: true });
 });
