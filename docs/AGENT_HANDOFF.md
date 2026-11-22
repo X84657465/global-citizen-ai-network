@@ -41,6 +41,34 @@ CI success permits review; it does not itself authorize merge, deployment, secre
 
 F–P manifest registration or a “ready” label is not implementation acceptance or operational readiness.
 
+## 2A. Authoritative live snapshot — supersedes older checkpoints below (2026-11-22)
+
+This section is the current source of truth for repository state. Older checkpoint sections later in this document are retained as historical records only; do not act on their old SHAs, PR states, run IDs, counts, or dispositions unless independently re-verified.
+
+### Mainline
+- **Verified `main` HEAD:** `23fb747ae4041bc28783a1b9039660ec952c7e0d` (merge commit for PR #283). A previous audit note incorrectly treated PR #272's merge commit `fc1933e...` as current main; that was not the current default-branch tip.
+- `VERSION` and `package.json` on main both report `0.3.125`.
+- PR #283 source HEAD `abe983db3f2f6e657fbc39c2777fdb28e0bd2573` passed its exact-head Actions run #3369 for the resolver, Windows quality gates, Ollama/local execution, and Supabase/PostgreSQL/pgTAP/two-member RLS. These are PR-head results, not merge-commit CI.
+- No workflow runs were returned for merge commit `23fb747...`; combined status reports Vercel failure due provider build-rate-limit. No same-SHA READY Preview/Smoke evidence is established. A is integrated but **not formally accepted**.
+- PR #272 is included in main's history. Its source-head run #3258 completed with only the exact candidate resolver succeeding; quality, database/RLS and Ollama jobs were skipped. Do not interpret its overall run conclusion as full test acceptance.
+
+### Active candidate PRs
+- **PR #292** — `fix(factory): ground AI patch claims in supplied evidence`; open Draft; head `2ed61e76b2045832d769dfd893b02ee6753de70c`; base `main` at `23fb747...`. Exact-head Actions run #3374 (`44967914868`) is pending; only the resolver job has been observed pending. No formal reviews or inline threads. Vercel reports build-rate-limit. Keep Draft until exact-head CI, review and applicable Preview evidence are complete.
+- **PR #291** — docs-only B adapter/handoff; open Draft; head `c449f3dc5aff92ceb172d1cf9198db4192193c18`; base SHA `23fb747...`. Its latest exact-head Actions run #3373 (`44967609009`) is pending; no formal review/inline threads. It must remain Draft pending CI, review and consistency reconciliation.
+- **PR #259** — old consolidated A/F–P candidate; its base SHA is `a1c1b58...`, not current main; GitHub reports mergeable=false. Do not merge or use its CI as current-main evidence. Rebuild selectively only after examining unique changes and dependencies.
+
+### Factory operational state
+- Issue #100 remains machine-managed and strictly read-only. Its latest inspected snapshot reports state version 144, system consecutive failures 7, cooldown deadline `2026-11-21T21:51:20.864Z`. This establishes the recorded deadline has elapsed, not that the scheduler resumed or any task progressed.
+- No verified post-cooldown task selection, lease reservation, worker progression, 24-hour soak, lease fencing/recovery, duplicate-event idempotency or serialized Runner-operation evidence is established.
+- Do not edit Issue #100, reset retry/quarantine/cooldown, force-dispatch, alter Runner/workflow policy, secrets, permissions or production deployment.
+
+### Next execution order
+1. Continue A Factory V2 code review and test work against current main; first inspect PR #292's grounded-claims patch and its exact-head CI. Do not merge on pending resolver evidence.
+2. Establish independent adversarial review and merge-SHA CI/Preview/Smoke evidence for the integrated A baseline.
+3. Verify scheduled preflight and lease/worker progression through naturally occurring, authorized runs; do not manufacture activity by mutating machine state.
+4. Reconcile PR #291 against current main, then review the bounded B read contract. Keep B Runtime and L Federation inactive until A acceptance.
+5. Only then selectively port dependent F–P work with detailed plans and exact final-SHA validation.
+
 ## 3. Live mainline and active acceptance blockers
 
 ### Main
