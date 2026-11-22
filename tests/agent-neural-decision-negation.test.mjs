@@ -179,7 +179,7 @@ test("passive deployment and migration evidence reviews remain non-mutating", ()
     "Inspect the production migration plan",
     "Audit credential rotation history",
     "Verify production deployment status",
-    "Read the billing change audit report",
+    "Read the billing configuration audit report",
   ]) {
     const result = evaluateAgentDecision(withImplementerText(title), task);
     assert.equal(result.signals.no_high_risk_scope, true, title);
