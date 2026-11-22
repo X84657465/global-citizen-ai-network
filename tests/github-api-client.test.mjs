@@ -184,3 +184,26 @@ test("surfaces long HTTP-date Retry-After waits instead of sleeping inside the w
   assert.equal(calls, 1);
   assert.deepEqual(delays, []);
 });
+
+test("falls back to the rate-limit reset when Retry-After is an invalid date", async () => {
+  const delays = [];
+  let calls = 0;
+  const client = createGitHubApiClient({
+    now: () => 1_000_000,
+    fetchImpl: async () => {
+      calls += 1;
+      return calls === 1
+        ? response(403, { message: "You have exceeded a secondary rate limit." }, {
+            "retry-after": "not-a-valid-http-date",
+            "x-ratelimit-remaining": "0",
+            "x-ratelimit-reset": "1002",
+          })
+        : response(200, { ok: true });
+    },
+    sleep: async (ms) => delays.push(ms),
+  });
+
+  assert.deepEqual(await client.request("/repos/example/repo/issues"), { ok: true });
+  assert.equal(calls, 2);
+  assert.deepEqual(delays, [2000]);
+});
