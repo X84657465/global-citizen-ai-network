@@ -20,11 +20,11 @@
 
 ## 2. 角色與工作線分配
 
-### GPT 1：A–E 主線開發與協調
+### GPT 1：A–E 主線開發與協調（B 產品由 GPT 4 負責）
 
 主要責任：
 - A：Agent Factory V2（最高優先級）。
-- B：GCAN Product（Factory 銜接準備與 B 主線）。
+- B：僅負責 Factory-side A→B 介面契約、唯讀交接與銜接準備；B 產品方向、需求、產品架構、UX、產品開發與交付由 GPT 4 負責。
 - C：Predictive Coding。
 - D：Deep Neural。
 - E：Deep Research。
