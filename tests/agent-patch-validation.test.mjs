@@ -186,3 +186,42 @@ test("patch generation prompt follows the repository test and UI integration con
     assert.ok(generator.includes(requiredRule), "Missing patch-generation policy: " + requiredRule);
   }
 });
+
+
+test("requires every task-declared output and rejects literal prohibited content", () => {
+  const contractTask = {
+    schema_version: 1,
+    allowed_paths: ["docs/security/remediation.md", "tests/security/remediation.test.mjs"],
+    required_patch_paths: ["tests/security/remediation.test.mjs"],
+    forbidden_content: ["Recommended Next.js version: 13.5.6", "Run command: npm audit fix --force"],
+  };
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([file("docs/security/remediation.md", "add", "A reproducible plan.")]),
+      contractTask,
+      existing,
+    ),
+    /missing a required output path/,
+  );
+  assert.throws(
+    () => validatePatchManifest(
+      manifest([
+        file("docs/security/remediation.md", "add", "Recommended Next.js version: 13.5.6"),
+        file("tests/security/remediation.test.mjs", "add", "import test from 'node:test';"),
+      ]),
+      contractTask,
+      existing,
+    ),
+    /task-prohibited text/,
+  );
+  const accepted = validatePatchManifest(
+    manifest([
+      file("docs/security/remediation.md", "add", "Preserve the current supported major versions."),
+      file("tests/security/remediation.test.mjs", "add", "import test from 'node:test';"),
+    ]),
+    contractTask,
+    existing,
+  );
+  assert.equal(accepted.safety.required_patch_paths_enforced, true);
+  assert.equal(accepted.safety.forbidden_content_enforced, true);
+});
