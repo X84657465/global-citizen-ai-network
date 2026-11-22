@@ -619,3 +619,69 @@ http://localhost:3000
   <br />
   <sub>Global Citizen AI Network — A long-term project for shared intelligence and transparent collaboration.</sub>
 </p>
+
+
+
+## 🧭 Factory 最新七項橫向治理能力｜完整執行規格
+
+以下七項能力已正式納入既有 F6–F12 的強制 Definition of Done，並與前述六項橫向能力（全域專案理解、任務拆解與調度、多層獨立驗證、有界除錯修復、自我評估與受控進化、安全治理與資源控制）共同執行。**不另建 F13–F19、不增加重複 GPT 席位或重複基礎設施。**先盤點現有實作，依 REUSE → EXTEND／REPAIR → 有 ADR 證據才 REPLACE。
+
+```mermaid
+flowchart TD
+  R["P0 需求追溯<br/>Requirement → Spec → Issue → PR → Test → Acceptance"]
+  A["P0 架構治理<br/>Module/API/Data/Dependency/Owner Map"]
+  T["P1 測試環境與資料<br/>Reproducible · Isolated · Restorable"]
+  S["P1 供應鏈安全<br/>SBOM · Vulnerability · License · Vendor Risk"]
+  H["P1 人類決策與自治治理<br/>A0 Observe → A3 Draft PR · A4 Approval Required"]
+  P["P2 效能與成本<br/>Baseline → Measure → Optimize → Regression"]
+  D["P2 發布與災難復原<br/>Release → Observe → Restore/Rollback"]
+  F["Factory F6–F12"]
+  R --> F
+  A --> F
+  T --> F
+  S --> F
+  H --> F
+  P --> F
+  D --> F
+  F --> Q["GPT3 獨立驗收<br/>Exact SHA · CI Run/Attempt · Fail-Closed"]
+```
+
+| 優先級／能力 | 必須交付的內容 | 驗收條件 |
+|---|---|---|
+| **P0 需求追溯與交付完整性** | 每筆需求有 ID、來源、owner、優先級、依賴、驗收條件；建立需求→規格→Issue→PR/Commit→測試/CI→Review→接收線驗收雙向鏈；需求變更執行模組、API、schema、文件、測試、部署及跨線影響分析 | 可抽樣從需求追到實作、測試與驗收，也可由程式／測試反查需求；無測試或接收證據不得 ACCEPTED |
+| **P0 架構治理與技術債** | 模組、服務、API、資料、事件、外部依賴、部署與 owner 地圖；偵測循環依賴、重複實作、孤兒模組、過期介面、耦合與高風險技術債；每項技術債有嚴重度、成本、owner、期限與處置 | 架構地圖符合當前 repo；高風險債務有決策與 owner；重構有相容性、行為前後比較、回歸與回滾證據 |
+| **P1 測試環境與資料可靠性** | dev/test/preview/prod 隔離；runtime、依賴、schema、設定版本化；合成／去識別測試資料可初始化、隔離、清理、重建；失敗重播、故障注入、備份還原演練 | 他人可重建環境並重現結果；測試不污染正式資料；環境故障與產品缺陷可區分 |
+| **P1 供應鏈與第三方依賴安全** | 追蹤套件／傳遞依賴來源、版本、授權、漏洞、維護狀態；條件允許產生 SBOM，掃描綁定候選 SHA；第三方 API、模型、CI Action、容器與部署服務記錄權限、資料流、成本、健康、替代與降級策略 | 高風險依賴阻擋或隔離發布；例外有風險接受者、期限、補償控制及稽核記錄 |
+| **P1 人類決策與自主權治理** | A0 觀察建議；A1 讀取規劃；A2 隔離修改測試；A3 建立候選 PR；A4 合併、部署、付費、權限／Secrets、正式資料與不可逆操作必須明確核准 | 不得自行升級自治等級；未知、證據衝突或決策 owner 不明標 UNKNOWN／BLOCKED，列出選項與待決者 |
+| **P2 效能、資源與成本** | API、DB、前端、Worker、模型 token、快取、重試與閒置資源基準；最佳化附同條件量測、收益、品質風險、回歸與回滾 | 改善可重現且無品質／安全退化；未核准不得開付費 API、採購模型或擴增 Runner |
+| **P2 發布、災難復原與營運韌性** | 版本與變更摘要、相容性、遷移、部署前檢查、發布後健康監控、事故處置、回滾；備份與 RPO／RTO 及實際還原演練 | 候選版本有發布／回滾計畫；復原經實際演練；正式部署、DNS／權限切換及不可逆操作須明確授權 |
+
+### 七項能力映射到 F6–F12
+
+- **F6 Developer Engine：** 專案理解、需求追溯、架構地圖、變更影響分析、任務拆解與隔離單任務修改。
+- **F7 Debug & Repair：** 可重現環境、測試資料治理、根因分析、有界修復、依賴風險與回歸。
+- **F8 Orchestrator：** DAG、唯一 DRI、Worker 路由、環境／成本配額、鎖定、取消、有限重試與安全並行。
+- **F9 Independent QA：** 需求覆蓋、多層測試、供應鏈掃描、精確 SHA、獨立審查及 Fail-Closed。
+- **F10 Project Intelligence：** 版本化需求、ADR、架構、技術債、SBOM、環境、決策與證據記憶，具來源、可信度、過期與刪除治理。
+- **F11 Self-Improvement & Recovery：** 效能／成本基準、受控改善 PR、發布健康、復原演練、獨立審查及回滾。
+- **F12 Production-Grade Factory：** 需求到交付追溯、架構健康、供應鏈安全、容量成本、發布／災難復原與自治治理完整驗收。
+
+### GPT1–GPT5 明確協作命令
+
+- **GPT1／A–E：** Factory 建設與整合主責；盤點現有能力、拆解任務、安排唯一 DRI、建置與測試、產出精確 SHA 和候選 PR。不得自我核准。
+- **GPT2／F–P：** 提供各領域規格、邊界案例、資料／安全限制、測試樣本及領域驗收；優先使用 Factory 已驗收能力，不複製通用功能。
+- **GPT3：** 獨立架構、整合、安全與 QA；檢查精確 SHA、CI Run／Attempt、需求追溯、回歸及回滾。證據缺漏、SHA 不符、CI 未完成或 reviewer 不獨立即 Fail-Closed。
+- **GPT4／B：** 決定產品方向、需求、UX、產品契約與產品驗收；遵守版本化 A→B 契約，不直接存取 Factory 私有 Runner／Lease／Sandbox／Secrets。
+- **GPT5：** 提供可追溯技術研究、漏洞／供應鏈情報、基準、風險及替代方案；程式變更須有明確 Issue、範圍及 DRI 指派，不取代模組 owner 或 GPT3。
+- **專案負責人：** 保留預算、正式發布、合併政策、權限／Secrets、不可逆資料操作與對外承諾的核准權。
+
+### 強制執行順序與證據規則
+
+1. 先盤點 main、PR、CI、Issues、Factory 程式、權限、成本及能力證據；REUSE 優先，禁止無證據重寫。
+2. P0 先建立需求追溯與架構／技術債基線。
+3. P1 建立測試環境／資料可靠性、供應鏈掃描及自治等級控制，作為增加自動寫入和並行的前置條件。
+4. P2 有量測基準後才優化成本效能；有明確授權及實際還原證據後才進行發布／DR。
+5. 優先打通真實單任務 Issue→Plan→Worker→Isolated Edit→Build/Test→Draft PR→GPT3 Independent Review，再擴大並行。
+6. 每項能力狀態 PLANNED → IMPLEMENTED → TESTED → VERIFIED → ACCEPTED，並綁定 owner、版本、精確 SHA、測試命令／結果、CI Run／Attempt、獨立 reviewer、限制、風險與回滾。缺證據標 NOT RUN／UNKNOWN；受阻標 BLOCKED。
+
+**共同原則：Factory-first、證據優先、保留已驗證成果、專業線提供領域能力、GPT3 獨立驗收。文件、概念圖、模擬測試或不同 SHA 的 CI 不代表 runtime 已完成。任何 GPT 均不得自我核准、刪測試、無限重試、擴權、暴露 Secrets、未核准付費、合併、部署或操作不可逆資料。**
