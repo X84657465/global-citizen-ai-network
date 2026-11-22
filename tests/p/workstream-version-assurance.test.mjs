@@ -23,7 +23,7 @@ const validInput = () => ({
   pChangelog: "## P 0.1.3 — 2026-11-22\n\n- Enforce version contract.",
   trackChangelogs: Object.fromEntries(WORKSTREAM_IDS.slice(5).map((id) => [
     id,
-    `## ${manifest.tracks[id].version} — 2026-11-22\\n`,
+    `## ${manifest.tracks[id].version} — 2026-11-22\n`,
   ])),});
 
 test("accepts a complete independently versioned A–P registry with synchronized repository metadata", () => {
