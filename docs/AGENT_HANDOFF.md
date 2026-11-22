@@ -5,7 +5,7 @@
 **Last verified:** 2026-11-22 (Taiwan time)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Main HEAD:** `fc1933e669dd2d49300e45fa5d69bf63e906141f`  
+**Main HEAD:** `23fb747ae4041bc28783a1b9039660ec952c7e0d`  
 **Authoritative release:** `VERSION` and `package.json` on main both report `0.3.125`. README release label requires separate verification before use.  
 **A / B declared versions:** Agent Factory V2 `2.0.84`; GCAN Product `0.1.19` (README declaration; not a release-readiness claim).
 
@@ -40,6 +40,42 @@ CI success permits review; it does not itself authorize merge, deployment, secre
 | P | Governance / Ethics / Trust | Ownership, approval and trust boundaries; policy enforcement requires separate validation |
 
 F–P manifest registration or a “ready” label is not implementation acceptance or operational readiness.
+
+## 2A. Authoritative live snapshot — supersedes older checkpoints below (2026-11-22)
+
+This section is the current source of truth for repository state. Older checkpoint sections later in this document are retained as historical records only; do not act on their old SHAs, PR states, run IDs, counts, or dispositions unless independently re-verified.
+
+### Mainline
+- **Verified `main` HEAD:** `23fb747ae4041bc28783a1b9039660ec952c7e0d` (merge commit for PR #283). A previous audit note incorrectly treated PR #272's merge commit `fc1933e...` as current main; that was not the current default-branch tip.
+- `VERSION` and `package.json` on main both report `0.3.125`.
+- PR #283 source HEAD `abe983db3f2f6e657fbc39c2777fdb28e0bd2573` passed its exact-head Actions run #3369 for the resolver, Windows quality gates, Ollama/local execution, and Supabase/PostgreSQL/pgTAP/two-member RLS. These are PR-head results, not merge-commit CI.
+- No workflow runs were returned for merge commit `23fb747...`; combined status reports Vercel failure due provider build-rate-limit. No same-SHA READY Preview/Smoke evidence is established. A is integrated but **not formally accepted**.
+- PR #272 is included in main's history. Its source-head run #3258 completed with only the exact candidate resolver succeeding; quality, database/RLS and Ollama jobs were skipped. Do not interpret its overall run conclusion as full test acceptance.
+
+### Active candidate PRs — refreshed 2026-11-22
+- **PR #292** — A patch evidence-grounding prompt guard; head `2ed61e76b2045832d769dfd893b02ee6753de70c`, base `23fb747...`, Draft/open. Exact-head run `44967914868` completed successfully: resolver, Windows quality gates, Ollama/local execution, and Supabase/PostgreSQL/RLS integration all passed. No formal reviews or inline threads; CI is accepted, but the PR is not merge-approved until independent review and exact-head policy checks are complete.
+- **PR #293** — A Preflight Node runtime pin to `22.13.0`; head `2278bb471392c1b92e43971191c2c103017e9cf3`, base `23fb747...`, Draft/open. Exact-head run `44968035839`: resolver and Windows quality gates succeeded; Supabase/PostgreSQL/RLS and Ollama/local execution remain pending. No formal reviews.
+- **PR #294** — K authoritative handoff; latest head `0686ac520b611bfc5d3a5898b3f31decd0afbb18`, base `23fb747...`, Draft/open. Exact-head run `44969867125` has no allocated jobs. This round corrected four stale main SHA references; no CI pass is claimed.
+- **PR #295** — K F–P acceptance ledger; latest head `8733ae9c1ad7106ed1f2bea187af46f298ebac53`, base `23fb747...`, Draft/open. Exact-head run `44969840874` has no allocated jobs. The baseline now matches main; no CI pass is claimed.
+- **PR #296** — H privacy-safe observability metadata; head `e4c3cb3fa68f12400fb3da00d40fc087768d55ca`, base `23fb747...`, Draft/open. Exact-head run `44969692123` has no allocated jobs. UTC timestamps use canonical ISO round-trip validation; regression coverage rejects calendar rollover and non-UTC values. No formal reviews.
+- **PR #297** — P governance authentication fail-closed; head `858d1ae886a95b9fec41076287d4c4466d2a46cb`, base `23fb747...`, Draft/open. Exact-head run `44969394408` has no allocated jobs. Authentication-provider exceptions return 503; regression test verifies no profile/GitHub access. No formal reviews.
+- **PR #298** — F canonical UTC security-evidence timestamps; head `e35ad0bb955f2a04c6375e4989f2fbbea7ba3086`, base `23fb747...`, Draft/open. Exact-head run `44969187760` has only the resolver job pending. No formal reviews.
+- **PR #291** — docs-only B adapter/handoff; head `c449f3dc5aff92ceb172d1cf9198db4192193c18`, base `23fb747...`, Draft/open. Exact-head run `44967609009` is pending; no formal review/inline threads. B Runtime remains inactive.
+- **PR #259** — old consolidated A/F–P candidate; its base SHA is `a1c1b58...`, not current main; GitHub reports mergeable=false. Do not merge or use its CI as current-main evidence. Rebuild selectively only after examining unique changes and dependencies.
+
+No PR above is currently eligible for merge: candidates remain Draft, required integration CI is pending or has no allocated jobs, and formal independent review is absent. Do not interpret missing job records as success or as proof the Runner is offline.
+
+### Factory operational state
+- Issue #100 remains machine-managed and strictly read-only. Its latest inspected snapshot reports state version 144, system consecutive failures 7, cooldown deadline `2026-11-21T21:51:20.864Z`. This establishes the recorded deadline has elapsed, not that the scheduler resumed or any task progressed.
+- No verified post-cooldown task selection, lease reservation, worker progression, 24-hour soak, lease fencing/recovery, duplicate-event idempotency or serialized Runner-operation evidence is established.
+- Do not edit Issue #100, reset retry/quarantine/cooldown, force-dispatch, alter Runner/workflow policy, secrets, permissions or production deployment.
+
+### Next execution order
+1. Continue A Factory V2 code review and test work against current main; first inspect PR #292's grounded-claims patch and its exact-head CI. Do not merge on pending resolver evidence.
+2. Establish independent adversarial review and merge-SHA CI/Preview/Smoke evidence for the integrated A baseline.
+3. Verify scheduled preflight and lease/worker progression through naturally occurring, authorized runs; do not manufacture activity by mutating machine state.
+4. Reconcile PR #291 against current main, then review the bounded B read contract. Keep B Runtime and L Federation inactive until A acceptance.
+5. Only then selectively port dependent F–P work with detailed plans and exact final-SHA validation.
 
 ## 3. Live mainline and active acceptance blockers
 
@@ -218,8 +254,8 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 ## Live checkpoint — 2026-11-22 (verified GitHub state)
 
 ### Main / Factory-first
-- Current `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`; release baseline `0.3.125`.
-- Integrated A/G acceptance PR #279 is the sole active code candidate, Draft/open at exact HEAD `edf0b86c15d599c772f51f31dc4030874ea27d9b`, based on current main `fc1933e669dd2d49300e45fa5d69bf63e906141f`. It combines A Factory lifecycle/repository-validation changes with only the required G/FP test and integration repairs. Exact-head CI #3287 (`44954636255`) is pending; no test result is inferred yet.
+- Current `main`: `23fb747ae4041bc28783a1b9039660ec952c7e0d`; release baseline `0.3.125`.
+- Integrated A/G acceptance PR #279 is the sole active code candidate, Draft/open at exact HEAD `edf0b86c15d599c772f51f31dc4030874ea27d9b`, based on current main `23fb747ae4041bc28783a1b9039660ec952c7e0d`. It combines A Factory lifecycle/repository-validation changes with only the required G/FP test and integration repairs. Exact-head CI #3287 (`44954636255`) is pending; no test result is inferred yet.
 - The earlier A-only #273, G-only #278 and test-repair #277 candidates are closed unmerged as superseded by #279. Their historical failures remain diagnostic evidence only; none is acceptance evidence for #279.
 - #279 must pass full unit tests, typecheck, lint, audits, production build, PostgreSQL/RLS and Ollama integration on its exact SHA. Exact-SHA Vercel Preview and independent Issue #136 review remain separate required gates.
 - Exact-SHA Vercel status for the current candidates remains build-rate-limited; no READY Preview or same-SHA smoke evidence is available.
@@ -246,7 +282,7 @@ Create a separate, versioned, read-only adapter boundary for B. Its schema shoul
 This section supersedes earlier live-checkpoint statements in this handoff where candidate SHAs or CI run IDs differ. Older entries remain historical records, not current acceptance evidence.
 
 ### A / Agent Factory V2 — priority 0
-- Current integrated `main`: `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
+- Current integrated `main`: `23fb747ae4041bc28783a1b9039660ec952c7e0d`.
 - Sole active A/G integration candidate: PR #279, Draft/open, based on that main.
 - Current exact PR HEAD: `99f67c6a1f6a4cbff3522de14bb1508f8d4c52a4`.
 - The focused latest change corrects `tests/account-summary.test.ts` to inspect the actual CSS Module and assert both keyboard-focus selectors; no runtime behavior changed.
