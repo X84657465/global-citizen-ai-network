@@ -55,7 +55,7 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
-  const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success"];
+  const jobs = ["resolve-candidate", "quality", "build", "database", "circuit-breaker", "circuit-breaker-success", "ci-diagnostics"];
   for (const job of jobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
@@ -74,16 +74,17 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
   assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 });
 
-test("read-only PR metadata resolution runs on hosted Linux without reserving Windows capacity", () => {
+test("read-only PR metadata resolution uses the available shared Windows Runner", () => {
   const { start, end } = findJobSection(workflow, "resolve-candidate");
   const resolverJob = workflow.slice(start, end);
-  assert.ok(resolverJob.includes("runs-on: ubuntu-24.04"));
-  assert.ok(resolverJob.includes("shell: bash"));
+  assert.ok(resolverJob.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.ok(resolverJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(resolverJob.includes("queue: max"));
+  assert.ok(resolverJob.includes("cancel-in-progress: false"));
+  assert.equal(resolverJob.includes("shell: bash"), false);
   assert.ok(resolverJob.includes("contents: read"));
   assert.ok(resolverJob.includes("issues: read"));
   assert.ok(resolverJob.includes("pull-requests: read"));
-  assert.equal(resolverJob.includes("global-citizen-ai-network-self-hosted-runner"), false);
-  assert.equal(resolverJob.includes("queue: max"), false);
 });
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
@@ -513,13 +514,13 @@ test("CI candidate execution is fenced to the exact event head SHA", () => {
   assert.ok(resolver.includes("pull.head?.sha === expectedSha"));
   assert.ok(workflow.includes("github.event.client_payload.head_sha || github.event.pull_request.head.sha"));
 });
-test("CI diagnostics run on hosted Linux with read-only access and redacted evidence", () => {
+test("CI diagnostics use the available shared Windows Runner with read-only access", () => {
   const x = findJobSection(workflow, "ci-diagnostics");
   const s = workflow.slice(x.start, x.end);
-  assert.ok(s.includes("runs-on: ubuntu-24.04"));
-  assert.ok(s.includes("shell: pwsh"));
-  assert.equal(s.includes("global-citizen-ai-network-self-hosted-runner"), false);
-  assert.equal(s.includes("queue: max"), false);
+  assert.ok(s.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.ok(s.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(s.includes("queue: max"));
+  assert.ok(s.includes("cancel-in-progress: false"));
   assert.ok(s.includes("actions: read"));
   assert.ok(s.includes("contents: read"));
   assert.ok(s.includes("Invoke-RestMethod"));
