@@ -222,3 +222,103 @@ test("rejects unsupported policy versions and non-F–P workstreams", () => {
       : item),
   })), TypeError);
 });
+
+
+test("snapshots governance dossier and nested review evidence without invoking Proxy get traps", () => {
+  let getTrapCalls = 0;
+  const wrap = <T extends object>(value: T): T => new Proxy(value, {
+    get(target, property, receiver) {
+      getTrapCalls += 1;
+      return Reflect.get(target, property, receiver);
+    },
+  });
+  const base = dossier({ reviews: [review()] });
+  const nested = {
+    ...base,
+    workstreams: base.workstreams.map((record) => wrap({
+      ...record,
+      evidence: record.evidence.map((item) => wrap({ ...item })),
+    })),
+    reviews: base.reviews!.map((item) => wrap({ ...item })),
+  };
+  const hostile = wrap(nested);
+  const result = assessFPGovernanceDossier(hostile);
+  assert.equal(result.status, "ready-for-human-review");
+  assert.equal(result.reviewStatus, "reviewed-approved");
+  assert.equal(getTrapCalls, 0);
+});
+
+test("rejects accessor-backed dossier, workstream, evidence, and review records without invoking getters", () => {
+  let getterCalls = 0;
+  const withGetter = <T extends object>(value: T, key: keyof T): T => {
+    const copy = { ...value };
+    Object.defineProperty(copy, key, {
+      enumerable: true,
+      configurable: true,
+      get() {
+        getterCalls += 1;
+        return Reflect.get(value, key);
+      },
+    });
+    return copy;
+  };
+
+  assert.throws(() => assessFPGovernanceDossier(withGetter(dossier(), "candidateSha")), TypeError);
+
+  const base = dossier();
+  const badWorkstreams = [...base.workstreams];
+  badWorkstreams[0] = withGetter(badWorkstreams[0], "ownerRef");
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: badWorkstreams })), TypeError);
+
+  const badEvidenceWorkstreams = [...base.workstreams];
+  badEvidenceWorkstreams[0] = {
+    ...badEvidenceWorkstreams[0],
+    evidence: [withGetter(badEvidenceWorkstreams[0].evidence[0], "testedSha")],
+  };
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: badEvidenceWorkstreams })), TypeError);
+
+  assert.throws(() => assessFPGovernanceDossier(dossier({
+    reviews: [withGetter(review(), "decision")],
+  })), TypeError);
+  assert.equal(getterCalls, 0);
+});
+
+test("rejects sparse, accessor-backed, subclassed, and custom-iterator governance arrays", () => {
+  const base = dossier();
+  const sparse = new Array(base.workstreams.length);
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: sparse })), TypeError);
+
+  const accessorArray = [...base.workstreams];
+  Object.defineProperty(accessorArray, "0", {
+    enumerable: true,
+    configurable: true,
+    get: () => base.workstreams[0],
+  });
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: accessorArray })), TypeError);
+
+  const customIterator = [...base.workstreams] as typeof base.workstreams & {
+    [Symbol.iterator]?: () => Iterator<(typeof base.workstreams)[number]>;
+  };
+  Object.defineProperty(customIterator, Symbol.iterator, {
+    value: function* () { yield base.workstreams[0]; },
+  });
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: customIterator })), TypeError);
+
+  class WorkstreamArray extends Array<(typeof base.workstreams)[number]> {}
+  const subclassed = new WorkstreamArray(...base.workstreams);
+  assert.throws(() => assessFPGovernanceDossier(dossier({ workstreams: subclassed })), TypeError);
+});
+
+test("rejects unknown own fields and oversized governance collections", () => {
+  const extra = { ...dossier(), trusted: true };
+  assert.throws(() => assessFPGovernanceDossier(extra), TypeError);
+  assert.throws(() => assessFPGovernanceDossier(dossier({
+    workstreams: [...dossier().workstreams, ...dossier().workstreams],
+  })), TypeError);
+  assert.throws(() => assessFPGovernanceDossier(dossier({
+    reviews: Array.from({ length: 101 }, (_, index) => review({
+      reviewRef: `pull/42/review/${index + 1}`,
+      reviewerRef: `reviewer:${index + 1}`,
+    })),
+  })), TypeError);
+});
