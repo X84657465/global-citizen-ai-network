@@ -90,11 +90,11 @@ export default function WorkspaceClient() {
     Promise.all([
       fetch("/api/conversations", { cache: "no-store" }),
       fetch("/api/ai/pending", { cache: "no-store" }),
-      fetch("/api/projects", { cache: "no-store" }),
+      fetch("/api/projects", { cache: "no-store" }).catch(() => null),
     ])
       .then(async ([conversationResponse, pendingResponse, projectResponse]) => {
         const data = await conversationResponse.json() as { conversations?: Conversation[] } & ApiError;
-        const projectData = projectResponse.ok
+        const projectData = projectResponse?.ok
           ? await projectResponse.json() as { projects?: unknown }
           : null;
         const pendingData = await pendingResponse.json() as {
@@ -106,7 +106,7 @@ export default function WorkspaceClient() {
         if (!cancelled) {
           setConversations(filterWorkspaceConversations(data.conversations));
           setProjects(filterWorkspaceProjects(projectData?.projects));
-          setProjectsUnavailable(!projectResponse.ok);
+          setProjectsUnavailable(!projectResponse?.ok);
           const recovered = pendingData.pending;
           if (pendingResponse.ok && recovered?.conversationId && recovered.idempotencyKey) {
             storePendingKey(recovered.conversationId, recovered.idempotencyKey);
