@@ -2,6 +2,7 @@ import { appendFileSync } from "node:fs";
 import { createAgentFactoryController } from "../lib/agent-factory-controller.mjs";
 import { createFactoryStateStore, inspectFactoryStateCapacity } from "../lib/agent-factory-state-store.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
+import { apiCooldownUntil } from "../lib/agent-factory-policy.mjs";
 
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
@@ -41,6 +42,17 @@ async function main() {
   try {
     result = await controller.run(process.env);
   } catch (error) {
+    // Preserve GitHub's bounded rate-limit deadline for the later failure callback.
+    // GITHUB_ENV is scoped to subsequent steps in this job; no raw headers or tokens are exported.
+    if (error?.rateLimited === true) {
+      try {
+        const cooldownUntil = apiCooldownUntil(error, Date.now());
+        writeEnv("AGENT_FACTORY_API_COOLDOWN_UNTIL", cooldownUntil);
+        writeOutput("api_cooldown_until", cooldownUntil);
+      } catch {
+        // Keep the original failure; the normal breaker cooldown remains the fallback.
+      }
+    }
     // A capacity guard can reject a write before run() returns a result.
     // On failure only, re-read the durable state and emit count-only telemetry
     // so a full ledger/body does not fail silently before the normal report.

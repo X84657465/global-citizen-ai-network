@@ -149,6 +149,7 @@ jobs:
         id: full-audit
         run: npm audit --audit-level=high
       - name: Validate Agent Factory script syntax
+        id: script-syntax
         run: |
           node --check scripts/generate-agent-patch.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node --check scripts/agent-factory-v2-controller.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -158,6 +159,7 @@ jobs:
           node --check lib/agent-factory-state-store.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node --check lib/agent-factory-policy.mjs; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify CI trigger and Runner policy
+        id: ci-trigger-policy
         run: node --test tests/ci-trigger-policy.test.mjs
       - name: Unit tests
         id: unit-tests
@@ -179,12 +181,14 @@ jobs:
           SCHEMA_GUARD: ${{ steps.schema-guard.outcome }}
           PRODUCTION_AUDIT: ${{ steps.production-audit.outcome }}
           FULL_AUDIT: ${{ steps.full-audit.outcome }}
+          SCRIPT_SYNTAX: ${{ steps.script-syntax.outcome }}
+          CI_TRIGGER_POLICY: ${{ steps.ci-trigger-policy.outcome }}
           UNIT_TESTS: ${{ steps.unit-tests.outcome }}
           TYPE_CHECK: ${{ steps.type-check.outcome }}
           LINT: ${{ steps.lint.outcome }}
           PRODUCTION_BUILD: ${{ steps.production-build.outcome }}
         run: |
-          $taskOutcomes = @($env:MIGRATION_GUARD, $env:SCHEMA_GUARD, $env:PRODUCTION_AUDIT, $env:FULL_AUDIT, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
+          $taskOutcomes = @($env:MIGRATION_GUARD, $env:SCHEMA_GUARD, $env:PRODUCTION_AUDIT, $env:FULL_AUDIT, $env:SCRIPT_SYNTAX, $env:CI_TRIGGER_POLICY, $env:UNIT_TESTS, $env:TYPE_CHECK, $env:LINT, $env:PRODUCTION_BUILD)
           if ($taskOutcomes -contains "failure") {
             [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=task" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           } else {
@@ -207,6 +211,7 @@ jobs:
     outputs:
       failure_scope: ${{ steps.classify-failure.outputs.scope }}
       candidate_start_ignored: ${{ steps.register-candidate.outputs.ignored || 'false' }}
+      api_cooldown_until: ${{ steps.register-candidate.outputs.api_cooldown_until }}
     if: >-
       needs.resolve-candidate.result == 'success' &&
       needs.quality.result == 'success' &&
@@ -503,6 +508,7 @@ jobs:
       pull-requests: read
     env:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+      AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.build.outputs.api_cooldown_until }}
       CI_FAILURE_SCOPE: ${{ (needs.quality.result != 'failure' || needs.quality.outputs.failure_scope == 'task') && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.quality.outputs.failure_scope == 'task' || needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
     steps:
       - name: Checkout exact tested revision
