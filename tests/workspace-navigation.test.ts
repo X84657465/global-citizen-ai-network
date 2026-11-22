@@ -30,6 +30,12 @@ test("project loading failure is not mislabeled as an empty account", () => {
   assert.match(workspaceSource, /目前無法載入專案清單/);
 });
 
+test("project network failure is isolated from conversation and pending-request loading", () => {
+  assert.match(workspaceSource, /fetch\("\/api\/projects", \{ cache: "no-store" \}\)\.catch\(\(\) => null\)/);
+  assert.match(workspaceSource, /projectResponse\?\.ok/);
+  assert.match(workspaceSource, /setProjectsUnavailable\(!projectResponse\?\.ok\)/);
+});
+
 test("project navigation uses validated, non-archived project records", () => {
   assert.match(workspaceSource, /filterWorkspaceProjects\(projectData\?\.projects\)/);
   assert.match(workspaceSource, /projects\.map\(project => <Link/);
