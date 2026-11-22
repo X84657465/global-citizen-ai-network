@@ -248,3 +248,43 @@ This report is a documentation snapshot, not a formal security audit, GPT3 accep
 - #136 remains open; its immutable audit baseline must not be silently retargeted.
 - #176 and #188 remain open control-plane/recovery follow-ups; implementation requires the appropriate owner and explicit authorization.
 - These issue states are ownership/status observations, not permission for this B Product workstream to modify Factory control-plane code.
+
+
+## 16. Live Operations refresh — 2026-11-23
+
+This continuation supersedes earlier status statements above where newer exact-SHA evidence is now available. Historical snapshots remain audit history; do not reuse their run states for a newer SHA.
+
+### Current main CI — exact evidence
+
+- Main HEAD remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Main Actions run [45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077), attempt 1, is **FAILURE** for this exact SHA.
+- Windows Runner quality-gates job [137325427532](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077/job/137325427532) failed during the unit stage: **746 passed / 1 failed / 747 total**.
+- The failing test is `operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation` at `tests/agent-factory-controller.test.mjs:1930`; assertion error: `Missing expected rejection.`
+- TypeScript, lint and production build were skipped after the unit failure. The Windows Supabase/PostgreSQL/RLS and Ollama/local-execution integration jobs were also skipped. These are not PASS.
+- The failure is consistent with the legacy-secret negative-test fixture defect corrected in source PR #429 and integrated with the B contribution task typing fix in PR #432. PR #432's candidate CI does not retroactively change the result recorded for main.
+- Main combined status separately reports Vercel `build-rate-limit` / “Deployment rate limited — retry in 24 hours.” This is a deployment-provider quota failure, not the GitHub Actions test result.
+
+### Combined candidate PR #432 — exact-head CI completed
+
+- [PR #432](https://github.com/X84657465/global-citizen-ai-network/pull/432) remains OPEN / DRAFT, based on main `10fabef703ee3865d208196f46ee71ddd1b7e149`, exact head `49d541eaed8be94e9fd442155f0b6a10d0390428`.
+- Exact-head Actions run [45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302), attempt 1, completed with overall **SUCCESS**.
+- Required jobs completed successfully: Windows Runner quality gates, Windows Ollama/local execution integration, and Windows Supabase migrations/PostgreSQL/RLS integration; the exact candidate metadata resolver also succeeded.
+- Conditional diagnostics and breaker-persistence jobs were SKIPPED; they are not counted as successful test jobs.
+- Two static review records are COMMENTED, not formal APPROVED reviews. No inline review threads were returned. The PR remains Draft / NOT ACCEPTED; do not merge or deploy until the required independent review and repository gates are satisfied.
+
+### GPT4 / B Product — Issue #75 candidate verification
+
+- Issue [#75](https://github.com/X84657465/global-citizen-ai-network/issues/75) remains OPEN. Candidate branch: `gpt4/issue-75-submission-status-main-10fab`, head `32d2beb1581e0770c7e85fbf0c83c746801ae1b3`; compare with current main: **4 commits ahead / 0 behind**.
+- Scope is exactly the four Issue #75 allowlisted paths: member contributions client, submission-status component, pure status helper, and focused Node test.
+- Re-fetched helper blob `e1494694b8c7243b6e93b1d75ae6e0538c7ce107` and test blob `24a5ee5c6fa50146247da4bbce85cab01a03ce56`; local Git blob hashes matched both fetched values.
+- Re-ran `node --experimental-strip-types --experimental-transform-types --test tests/contribution-submission-status.test.ts` with Node v22.16.0 against those exact contents: **5 passed / 0 failed / 0 skipped**.
+- Full repository `npm run test:unit`, `npm run lint`, `npx tsc --noEmit`, and `npm run build` remain **NOT RUN** against the complete candidate repository. Issue #75 explicitly requires the complete isolated offline suite before PR publication; therefore no PR was published and publication remains **BLOCKED**.
+- No API, schema, migration, RLS, reward, payout, paid-service, production, or Runtime changes were made.
+
+### B Runtime and next actions
+
+- B Runtime remains **PREPARATION ONLY / BLOCKED** until Factory independent acceptance and the A→B contract gates pass.
+- GPT1 / Factory owner: continue the P0 fixture/circuit-breaker and independent audit work within A ownership; do not treat this B report as A approval.
+- GPT3: independently review the exact final candidate SHA where required; static COMMENTED records are not approval.
+- GPT4 / B: keep Issue #75 candidate branch-only until the full offline suite is run in a complete isolated repository workspace; track PR #430's new exact-head CI after this documentation refresh.
+- No merge, deployment, Runtime activation, production database operation, permission/secret change, or branch-protection change is authorized by this snapshot.
