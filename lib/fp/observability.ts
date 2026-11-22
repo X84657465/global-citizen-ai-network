@@ -31,8 +31,52 @@ export interface FPObservabilitySink {
   record(event: FPOperationEvent): void;
 }
 
-const UTC_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const UTC_TIMESTAMP = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/;
 const SAFE_ERROR_CODE = /^[A-Z][A-Z0-9_:-]{0,63}$/;
+const EVENT_KEYS = [
+  "schemaVersion",
+  "eventType",
+  "workstream",
+  "capability",
+  "correlationId",
+  "outcome",
+  "occurredAt",
+  "durationMs",
+  "errorCode",
+] as const;
+const REQUIRED_EVENT_KEYS = EVENT_KEYS.filter((key) => key !== "errorCode");
+
+/**
+ * Copies a caller-supplied event without invoking getters or proxy get traps.
+ * The returned null-prototype record contains only own enumerable data
+ * properties from the event allowlist. Any reflection failure is rejected.
+ */
+function snapshotOperationEvent(value: unknown): Record<string, unknown> | null {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
+
+  try {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return null;
+
+    const keys = Reflect.ownKeys(value);
+    if (keys.some((key) => typeof key !== "string" || !EVENT_KEYS.includes(key as typeof EVENT_KEYS[number]))) {
+      return null;
+    }
+
+    const keySet = new Set(keys as string[]);
+    if (REQUIRED_EVENT_KEYS.some((key) => !keySet.has(key))) return null;
+
+    const snapshot = Object.create(null) as Record<string, unknown>;
+    for (const key of keys as string[]) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) return null;
+      snapshot[key] = descriptor.value;
+    }
+    return snapshot;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Bounded, process-local H recorder. It intentionally retains only operational
@@ -51,42 +95,45 @@ export class FPObservabilityRecorder implements FPObservabilitySink {
   }
 
   record(event: FPOperationEvent): void {
-    const validTimestamp = typeof event?.occurredAt === "string" &&
-      UTC_TIMESTAMP.test(event.occurredAt) &&
-      !Number.isNaN(Date.parse(event.occurredAt)) &&
-      new Date(event.occurredAt).toISOString() === event.occurredAt;
-    const validErrorCode = event?.errorCode === undefined ||
-      (typeof event.errorCode === "string" && SAFE_ERROR_CODE.test(event.errorCode));
+    const input = snapshotOperationEvent(event);
+    const validTimestamp = typeof input?.occurredAt === "string" &&
+      UTC_TIMESTAMP.test(input.occurredAt) &&
+      !Number.isNaN(Date.parse(input.occurredAt)) &&
+      new Date(input.occurredAt).toISOString() === input.occurredAt;
+    const validErrorCode = input?.errorCode === undefined ||
+      (typeof input.errorCode === "string" && SAFE_ERROR_CODE.test(input.errorCode));
 
     if (
-      !event ||
-      event.schemaVersion !== "1" ||
-      event.eventType !== "fp.capability.outcome" ||
-      !isFPWorkstream(event.workstream) ||
-      !["succeeded", "denied", "rejected", "failed"].includes(event.outcome) ||
-      !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(event.correlationId) ||
-      !/^[a-z][a-z0-9-]{1,63}$/.test(event.capability) ||
-      !Number.isFinite(event.durationMs) ||
-      event.durationMs < 0 ||
+      !input ||
+      input.schemaVersion !== "1" ||
+      input.eventType !== "fp.capability.outcome" ||
+      !isFPWorkstream(input.workstream) ||
+      !["succeeded", "denied", "rejected", "failed"].includes(String(input.outcome)) ||
+      typeof input.correlationId !== "string" ||
+      !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(input.correlationId) ||
+      typeof input.capability !== "string" ||
+      !/^[a-z][a-z0-9-]{1,63}$/.test(input.capability) ||
+      typeof input.durationMs !== "number" ||
+      !Number.isFinite(input.durationMs) ||
+      input.durationMs < 0 ||
       !validTimestamp ||
       !validErrorCode
     ) {
       throw new TypeError("Invalid F–P observability event.");
     }
 
-    // Rebuild from the explicit metadata allowlist. TypeScript interfaces do
-    // not strip runtime properties, so spreading the caller's object could
-    // retain request bodies, actor identifiers, credentials, or other secrets.
+    // Rebuild only from the validated immutable snapshot. Never read from the
+    // caller-controlled object again after reflection and descriptor checks.
     const safeEvent: FPOperationEvent = {
       schemaVersion: "1",
       eventType: "fp.capability.outcome",
-      workstream: event.workstream,
-      capability: event.capability,
-      correlationId: event.correlationId,
-      outcome: event.outcome,
-      occurredAt: event.occurredAt,
-      durationMs: event.durationMs,
-      ...(event.errorCode === undefined ? {} : { errorCode: event.errorCode }),
+      workstream: input.workstream as WorkstreamId,
+      capability: input.capability,
+      correlationId: input.correlationId,
+      outcome: input.outcome as FPOperationOutcome,
+      occurredAt: input.occurredAt as string,
+      durationMs: input.durationMs as number,
+      ...(input.errorCode === undefined ? {} : { errorCode: input.errorCode as string }),
     };
     this.events.push(Object.freeze(safeEvent));
     if (this.events.length > this.capacity) this.events.shift();
