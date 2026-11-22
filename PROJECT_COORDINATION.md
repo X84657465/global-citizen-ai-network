@@ -479,3 +479,18 @@ GPT 2 不得擅改專案方向、修改 A–E 核心架構、與 GPT 1 重複開
 - STALE：已過期、base／head 改變或尚未重新查證的歷史證據。
 
 不得將 PLANNED、IMPLEMENTED、VERIFIED、ACCEPTED 與驗收狀態混用；未執行測試一律 NOT RUN，不得標記 PASS。
+
+
+### 12.8 最新候選驗證更新（2026-11-23；優先於 12.6 歷史快照）
+
+| PR／線別 | 最新候選 SHA | CI／狀態 | 判定 |
+|---|---|---|---|
+| #376 四 GPT／GPT4 文件 | 6cae34bbe195352d34e4122d04b71adf7c6a6d98 | Actions run 45044869836 完成 SUCCESS：metadata、quality gates、PostgreSQL/RLS、Ollama/local execution 均成功；GitHub Review 僅 COMMENTED，無 formal APPROVE | 文件／CI PASS（限定範圍）；正式接受 BLOCKED |
+| #382 GPT2 四 GPT 整合文件 | e19725f70ae1d77632d2aa68ec079bcac54020a3 | 尚無 Actions workflow run；Vercel 回報 build-rate-limit；Draft，無 review | BLOCKED／NOT RUN；不得宣稱驗收 |
+| #373 P | 9d04b0fae6f0126193426cff889b3e9c2fafe7f9 | Actions run 45041251133 SUCCESS，含 722 tests、typecheck、lint、audits、build、PostgreSQL/RLS、Ollama/local execution；GPT3技術審查 COMMENTED，GitHub 無 formal APPROVE（連線身分為 PR 作者，無法自我核准） | CI PASS；正式接受 BLOCKED（獨立核准） |
+| #377 F | 6ec7fe71dec58faf79d02fdb020f313798b28a44 | 原 SHA 72db44b 的 run 45045041806 FAIL：單元測試 1 fail／722，錯誤為原生空陣列定義 index 1 後 length 自動變 2，測試錯誤期待 0。已改成 Proxy 反射 fixture；新 run 45047451228 PENDING | 舊證據 STALE；新 exact-head CI PENDING |
+| #379 G/H | 8cbc92460983bf88830d446cbb0fd87f6d7b28db | 原 SHA 485d76f 的 run 45046182229 FAIL：單元測試 2 fail／723，原因相同（原生陣列 length 自動變更）。已在 G、H 兩測試改成 Proxy 反射 fixture；新 run 45047457547 PENDING | 舊證據 STALE；新 exact-head CI PENDING |
+
+**F/G/H 回歸修正說明：** ECMAScript 原生陣列對 canonical index property 會自動調整 length，因此原先以 Object.defineProperty 在空陣列上建立 index「1」並期望 length 仍為 0 的測試本身不成立。現改用可報告額外 configurable own key 的 Proxy，保留 target 陣列真實 length descriptor 為 0，以測試 snapshot guard 對 hostile reflection 的拒絕行為。修正僅涉及 F/G/H 測試檔，未改變 A–E、Runner、workflow、資料庫或權限。
+
+以上狀態依本次查得的精確 PR head／Actions run 更新；新 commit 或 main 前進後必須重新查核。Vercel build-rate-limit 是部署供應商限制，不等於程式測試失敗或通過。
