@@ -158,3 +158,32 @@ Limitations:
 - Any SHA-bound evidence becomes STALE when its source SHA or relevant environment changes.
 
 **Overall B baseline status: UNKNOWN for end-to-end acceptance; BLOCKED for runtime activation.** This report records a source-inspection baseline only.
+
+## 10. Live status correction — 2026-11-23 (supersedes stale issue references above)
+
+This addendum preserves the original source-inspection snapshot and corrects issue/PR status using fresh GitHub records. It does not claim new runtime acceptance.
+
+### A Factory dependency status
+
+- Issue #354, `[P0 Factory] Propagate the reserved worker lease across publication jobs`, is **CLOSED**.
+- The bounded lease handoff was integrated by PR #362 (merge commit `388b25f354ea887727f7cfe54dd7081d4f8eb6a2`).
+- PR #362 exact candidate head `fe2b16e66e47cfddfd135387a954600655903ade`, Actions run `45029877567`, attempt 1: the metadata resolver, Windows quality gates, Ollama/local execution integration, and Supabase/PostgreSQL/RLS integration all reported SUCCESS.
+- Current-main static inspection at `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` confirms the reserved lease output is propagated to both publication state-writer jobs and remains excluded from the isolated publisher.
+- The issue's own completion note explicitly limits this result to the cross-job lease-ID handoff defect. It does **not** establish complete Factory acceptance or live publication-flow/operational-soak acceptance.
+- Therefore, remove Issue #354 from the list of currently open A acceptance dependencies. Keep all other A acceptance gates, including Issue #136, separate and open until their own evidence is accepted.
+
+### Coordination PR status
+
+- PR #383 is **CLOSED**; it is no longer an open competing PR. This status alone does not establish that its changes were merged.
+- PR #376 remains the candidate carrying the four-GPT coordination update and B Product charter. The default-branch `PROJECT_COORDINATION.md` fetched for this update still contains the legacy three-GPT text, so the four-GPT governance is not yet on main.
+- PR #376's latest known exact-head Actions run `45047970308` was **IN_PROGRESS** at the time of this refresh. The prior run `45044869836` is not evidence for a later head. Re-query the actual PR head and exact-SHA CI before any acceptance decision.
+
+### Current B disposition
+
+- B remains **PREPARATION ONLY / BLOCKED** for Runtime activation.
+- A→B Read Adapter remains proposal-only; authentication, reference lifecycle/anti-enumeration, freshness/cache semantics and closed failure-code mapping still require design closure before implementation.
+- No B Runtime, paid AI traffic, production migration, merge or deployment is authorized by this report update.
+
+### Evidence boundary
+
+This addendum is a GitHub metadata and source-status correction only. No local tests, browser/device acceptance, live database query, production operation or deployment was performed. The original baseline snapshot and its limitations remain intact; revalidate all SHA-bound evidence whenever main or the candidate branch advances.
