@@ -284,3 +284,33 @@ This section supersedes the older PR and CI status snapshots above. Historical r
 - B Runtime remains inactive. Rebuild B only from a later accepted A main SHA and carry forward only the reviewed, sanitized, versioned A→B read contract.
 
 **Disposition:** no candidate currently meets complete exact-head CI, independent review and applicable release-evidence gates. Keep all three PRs Draft/unmerged.
+
+## Live checkpoint refresh — 2026-11-22 (PR #283 exact-head acceptance)
+
+This section supersedes all earlier live PR/CI snapshots above. Historical results remain valid only for their recorded SHA.
+
+### Main and A candidate
+
+- Verified main HEAD remains `fc1933e669dd2d49300e45fa5d69bf63e906141f`.
+- PR #283 remains open, Draft and unmerged; base is main at the SHA above; current candidate HEAD is `ea6a320ec7f7156b6f7465b829b29dd7243553ea`.
+- Exact-head Actions run #3362 / `44963023866` completed successfully. The metadata resolver, Windows quality gates (unit tests, typecheck, lint, dependency audits, Factory syntax/policy and production build), isolated Supabase migrations/PostgreSQL/pgTAP/two-member RLS, and Windows Ollama/local execution all completed successfully for this exact SHA.
+- The successful run is SHA-scoped; any later source change requires new exact-head CI. No formal review submission or inline review thread is recorded on #283.
+- Issue #136 remains open and its strictly read-only independent adversarial audit of this exact candidate has not been delivered. Owner-side inspection and green CI are not independent approval.
+- Same-SHA Vercel Preview/Smoke remains absent. The documented provider failure is the free-tier daily deployment quota; no older-SHA Preview may be substituted.
+- Operational acceptance remains incomplete: the available scheduler evidence does not prove post-cooldown task selection/lease progression or a real 24-hour Runner soak. Keep machine-managed Issue #100, leases, retries, cooldowns, quarantine, secrets, permissions and Runner settings untouched.
+
+### B read-only adapter preparation
+
+- PR #290 is a one-file documentation-only B contract proposal, stacked on PR #283 HEAD `ea6a320ec7f7156b6f7465b829b29dd7243553ea`; its own HEAD is `b894b659a33336be3bc5fe7e6e19bc58b7b711f4`.
+- The contract keeps public status as an A-owned bounded projection, fails closed for unknown/stale/cancelled/skipped/unverifiable CI, and requires server-side exact PR/SHA/run-ID/attempt verification before exposing terminal evidence.
+- PR #290 remains Draft/unmerged and must not be merged before A is independently accepted and integrated. B Runtime/API/database access and Factory permissions remain inactive. Revalidate the B contract against the resulting main SHA after A acceptance.
+
+### Current disposition and execution order
+
+1. Preserve PR #283 as the single A integration candidate; do not merge while independent review, same-SHA Preview/Smoke and operational acceptance are missing.
+2. Keep Issue #136 read-only and obtain the independent reviewer’s report against exact HEAD `ea6a320ec7f7156b6f7465b829b29dd7243553ea`; triage concrete findings before acceptance.
+3. Obtain same-SHA Preview/Smoke only when the provider quota permits; do not bypass billing, deploy Production or reuse stale Preview evidence.
+4. Verify normal scheduled post-cooldown progression and complete a real 24-hour Runner soak without manually dispatching tasks or mutating Factory state.
+5. Only after all A gates pass, integrate A through the required review process, then rebuild/revalidate B from accepted main.
+
+**Safety:** no production deployment, production database/data mutation, secret/permission change, workflow/Runner policy change, manual Factory-state mutation, lease/retry/quarantine/cooldown reset, or B Runtime activation is authorized by this checkpoint.
