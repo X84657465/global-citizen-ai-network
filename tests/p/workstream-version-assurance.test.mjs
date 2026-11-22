@@ -3,23 +3,24 @@ import test from "node:test";
 import { validateWorkstreamVersionContract, WORKSTREAM_IDS } from "../../lib/p/workstream-version-assurance.mjs";
 
 const manifest = {
-  overall: "0.3.127",
+  overall: "0.3.134",
   tracks: Object.fromEntries(WORKSTREAM_IDS.map((id) => [id, {
     name: `Workstream ${id}`,
-    version: id === "P" ? "0.1.1" : "0.1.0",
+    version: id === "P" ? "0.1.3" : "0.1.0",
     status: "planned",
   }])),
 };
 const validInput = () => ({
   manifest: structuredClone(manifest),
-  rootVersion: "0.3.127",
-  packageVersion: "0.3.127",
-  lockfileVersion: "0.3.127",
-  lockfileRootVersion: "0.3.127",
-  readme: "**Release:** `0.3.127` · A 線 Agent Factory V2 `2.0.84` ·",
-  governance: "**Repository release baseline: 0.3.127**",
-  changelog: "## 0.3.127 — 2026-11-22\n\n- P governance validator.",
-  pChangelog: "## P 0.1.1 — 2026-11-22\n\n- Enforce version contract.",
+  rootVersion: "0.3.134",
+  packageVersion: "0.3.134",
+  lockfileVersion: "0.3.134",
+  lockfileRootVersion: "0.3.134",
+  readme: "**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` ·",
+  governance: "**Repository release baseline: 0.3.134**",
+  workstreams: "**Planning baseline:** repository release 0.3.134",
+  changelog: "## 0.3.134 — 2026-11-22\n\n- P governance validator.",
+  pChangelog: "## P 0.1.3 — 2026-11-22\n\n- Enforce version contract.",
 });
 
 test("accepts a complete independently versioned A–P registry with synchronized repository metadata", () => {
@@ -65,6 +66,13 @@ test("requires root changelog and P changelog to record their current versions",
   const errors = validateWorkstreamVersionContract(input).errors;
   assert.ok(errors.some((error) => error.includes("CHANGELOG.md")));
   assert.ok(errors.some((error) => error.includes("P workstream changelog")));
+});
+
+
+test("rejects drift in the engineering workstream planning baseline", () => {
+  const input = validInput();
+  input.workstreams = "**Planning baseline:** repository release 0.3.133";
+  assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("workstream planning baseline")));
 });
 
 test("rejects malformed registry and non-object manifest inputs", () => {

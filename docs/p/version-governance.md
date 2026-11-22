@@ -17,7 +17,7 @@ P is a separately versioned cross-cutting governance workstream. It does not rep
 - the exact A–P registry (no missing, duplicate-by-key, or extra track identifiers);
 - a numeric version owned by every track;
 - synchronized overall release values in root, package and both package-lock metadata copies;
-- README release and engineering-governance baseline matching the overall version;
+- README release, engineering-governance baseline and engineering-workstream planning baseline matching the overall version;
 - an overall changelog entry matching the release version;
 - a P-specific changelog entry matching the P track version.
 
