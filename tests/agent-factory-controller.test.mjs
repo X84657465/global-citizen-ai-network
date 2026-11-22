@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -32,6 +33,7 @@ function fakeStore(initialState, options = {}) {
         task_state: nextState.active_task?.state ?? null,
       });
       state = nextState;
+      if (options.writeThenThrowAt === writes) throw new Error("injected ambiguous state write failure");
       return { state };
     },
     get state() { return state; },
@@ -135,6 +137,55 @@ function awaitingCandidate(now = 1000) {
   state = transitionTask(state, 42, leaseId, "awaiting_ci", {}, now + 700);
   return state;
 }
+
+function quarantinedTaskState(now = 1000) {
+  const state = createInitialFactoryState(now);
+  state.tasks["42"] = {
+    status: "quarantined",
+    attempts: 4,
+    failures: 3,
+    candidate_failures: 3,
+    quarantined: true,
+    next_attempt_at: null,
+    last_error: { code: "TASK_FAILURE", summary: "Repeated candidate failure", at: new Date(now - 100).toISOString() },
+    last_success_at: null,
+    candidate_status: "failure",
+    candidate_error: "Candidate checks failed",
+    candidate_failed_at: new Date(now - 100).toISOString(),
+    head_sha: "b".repeat(40),
+    pull_request_number: 88,
+    ci_run_id: "ci-run-123456",
+    ci_run_attempt: 1,
+    candidate_failure_history: [{
+      head_sha: "b".repeat(40),
+      pull_request_number: 88,
+      ci_run_id: "ci-run-123456",
+      ci_run_attempt: 1,
+      summary: "Candidate checks failed",
+      failed_at: new Date(now - 100).toISOString(),
+    }],
+  };
+  return state;
+}
+
+function operatorRecoveryEnv(overrides = {}) {
+  return {
+    AGENT_FACTORY_MODE: "operator-recovery",
+    GITHUB_EVENT_NAME: "workflow_dispatch",
+    GITHUB_REF: "refs/heads/main",
+    GITHUB_REPOSITORY: "owner/repo",
+    GITHUB_ACTOR: "owner",
+    FACTORY_OPERATOR_RECOVERY_GUARD: "configured-secret-marker",
+    ISSUE_NUMBER: "42",
+    EXPECTED_STATE_VERSION: "0",
+    EXPECTED_TASK_STATUS: "quarantined",
+    RECOVERY_REASON: "Reviewed remediation fixes the repeated candidate failure.",
+    EVIDENCE_REFERENCE: "https://github.com/owner/repo/commit/" + "d".repeat(40),
+    OPERATOR_RECOVERY_CONFIRMATION: "RECOVER_QUARANTINED_TASK",
+    ...overrides,
+  };
+}
+
 
 const SYSTEM_HEALTH_JOB_NAMES = [
   "Resolve exact candidate PR metadata",
@@ -1858,3 +1909,78 @@ test("system-health success fails closed for missing or mismatched health eviden
   assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
 });
 
+test("operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation", async () => {
+  const invalid = [
+    { GITHUB_EVENT_NAME: "issues" },
+    { GITHUB_REF: "refs/heads/feature" },
+    { GITHUB_ACTOR: "contributor" },
+    { FACTORY_OPERATOR_RECOVERY_GUARD: "" },
+    { OPERATOR_RECOVERY_CONFIRMATION: "yes" },
+  ];
+  for (const overrides of invalid) {
+    const store = fakeStore(quarantinedTaskState());
+    const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+    await assert.rejects(controller.run(operatorRecoveryEnv(overrides)), /restricted|must execute|secret is required|confirmation/);
+    assert.equal(store.state.state_version, 0);
+    assert.equal(store.writes, 0);
+  }
+});
+
+test("operator recovery changes only the named quarantined task and preserves the global breaker", async () => {
+  const initial = quarantinedTaskState();
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(90_000).toISOString();
+  initial.system.last_error_code = "RUNNER_FAILURE";
+  initial.system.last_error = "Unrelated infrastructure failure";
+  const beforeSystem = structuredClone(initial.system);
+  const beforeTask = structuredClone(initial.tasks["42"]);
+  const store = fakeStore(initial);
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+
+  const result = await controller.run(operatorRecoveryEnv());
+  assert.equal(result.outputs.recovered, true);
+  assert.equal(result.outputs.duplicate, false);
+  assert.equal(result.outputs.task_state, "retry_wait");
+  assert.equal(result.outputs.retry_at, new Date(62_000).toISOString());
+  assert.equal(result.state.tasks["42"].attempts, beforeTask.attempts);
+  assert.equal(result.state.tasks["42"].failures, beforeTask.failures);
+  assert.deepEqual(result.state.tasks["42"].last_error, beforeTask.last_error);
+  assert.deepEqual(result.state.system, beforeSystem);
+  assert.equal(result.state.active_task, null);
+  assert.equal(store.writes, 1);
+});
+
+test("operator recovery duplicate replay is a no-op even when the original expected version is now stale", async () => {
+  const store = fakeStore(quarantinedTaskState());
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const first = await controller.run(operatorRecoveryEnv());
+  const duplicate = await controller.run(operatorRecoveryEnv());
+  assert.equal(first.outputs.recovered, true);
+  assert.equal(duplicate.outputs.duplicate, true);
+  assert.equal(duplicate.outputs.recovered, false);
+  assert.equal(duplicate.state.state_version, first.state.state_version);
+  assert.equal(store.writes, 1);
+});
+
+test("operator recovery reconciles an ambiguous write only after exact durable read-back", async () => {
+  const store = fakeStore(quarantinedTaskState(), { writeThenThrowAt: 1 });
+  const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+  const result = await controller.run(operatorRecoveryEnv());
+  assert.equal(result.outputs.recovered, true);
+  assert.equal(result.state.state_version, 1);
+  assert.equal(store.writes, 1);
+});
+
+test("operator recovery rejects stale versions and invalid task identity without mutation", async () => {
+  for (const overrides of [
+    { EXPECTED_STATE_VERSION: "1" },
+    { ISSUE_NUMBER: "43" },
+    { EXPECTED_TASK_STATUS: "retry_wait" },
+  ]) {
+    const store = fakeStore(quarantinedTaskState());
+    const controller = createAgentFactoryController({ store, repository: "owner/repo", now: () => 2000 });
+    await assert.rejects(controller.run(operatorRecoveryEnv(overrides)));
+    assert.equal(store.state.state_version, 0);
+    assert.equal(store.writes, 0);
+  }
+});
