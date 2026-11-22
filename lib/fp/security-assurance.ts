@@ -54,6 +54,7 @@ export interface FPSecurityCIEvidence {
   readonly runId: number;
   readonly runAttempt: number;
   readonly runUrl: string;
+  readonly jobRunAttempt: number;
   readonly jobKey: FPSecurityCIJobKey;
   readonly jobConclusion: FPSecurityCIConclusion;
   readonly jobUrl: string;
@@ -130,6 +131,8 @@ function validateCIEvidence(ci: FPSecurityCIEvidence, repository: string, pullRe
     ci.workflowPath !== ".github/workflows/ci.yml" ||
     !isPositiveInteger(ci.runId) ||
     !isPositiveInteger(ci.runAttempt) ||
+    !isPositiveInteger(ci.jobRunAttempt) ||
+    ci.jobRunAttempt !== ci.runAttempt ||
     !["quality", "database"].includes(ci.jobKey) ||
     !CI_CONCLUSIONS.includes(ci.jobConclusion)
   ) {
