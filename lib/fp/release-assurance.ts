@@ -72,7 +72,7 @@ export interface GAcceptanceAssessment {
 
 const SHA_PATTERN = /^[a-f0-9]{40}$/i;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-const GITHUB_RUN_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+(?:\/attempts\/\d+)?$/;
+const GITHUB_RUN_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+\/attempts\/\d+$/;
 const GITHUB_JOB_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+\/job\/\d+$/;
 
 function validPositiveInteger(value: number): boolean {
@@ -118,8 +118,8 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
 
   const expectedRunUrl = `https://github.com/${run.repository}/actions/runs/${run.runId}`;
   const expectedRunAttemptUrl = `${expectedRunUrl}/attempts/${run.runAttempt}`;
-  if (run.runUrl !== expectedRunUrl && run.runUrl !== expectedRunAttemptUrl) {
-    throw new TypeError("G run URL does not match its repository, run ID, and attempt.");
+  if (run.runUrl !== expectedRunAttemptUrl) {
+    throw new TypeError("G run URL must identify the exact repository, run ID, and attempt.");
   }
 
   const expectedJobPrefix = `${expectedRunUrl}/job/`;
