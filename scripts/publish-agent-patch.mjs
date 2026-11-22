@@ -341,12 +341,14 @@ try {
   }
 
 
-  try {
-    await api("/repos/" + repository + "/issues/" + issueNumber + "/comments", "POST", {
-      body: "The automated candidate passed isolated tests and a draft pull request is awaiting repository CI and human review: " + pull.html_url + "\n\nNo merge, source-issue closure, or production deployment was performed. A human must review and explicitly merge the pull request.",
-    });
-  } catch (error) {
-    console.warn("Draft PR was created, but the source issue comment could not be posted: " + error.message);
+  if (process.env.PUBLISH_SKIP_ISSUE_COMMENT !== "true") {
+    try {
+      await api("/repos/" + repository + "/issues/" + issueNumber + "/comments", "POST", {
+        body: "The automated candidate passed isolated tests and a draft pull request is awaiting repository CI and human review: " + pull.html_url + "\n\nNo merge, source-issue closure, or production deployment was performed. A human must review and explicitly merge the pull request.",
+      });
+    } catch (error) {
+      console.warn("Draft PR was created, but the source issue comment could not be posted: " + error.message);
+    }
   }
 
   saveResult({

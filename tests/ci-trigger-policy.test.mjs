@@ -700,3 +700,74 @@ test("CI carries provider rate-limit cooldown from the candidate controller to t
   const breakerSection = workflow.slice(breakerJob.start, breakerJob.end);
   assert.ok(breakerSection.includes("AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.build.outputs.api_cooldown_until }}"));
 });
+
+
+test("Agent Factory isolates candidate generation, PR publication, state writes, and dispatch permissions", () => {
+  const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\njobs:".length);
+  const jobNames = [...jobsSource.matchAll(/^  ([A-Za-z0-9_-]+):\s*$/gm)].map((match) => match[1]);
+  assert.equal(new Set(jobNames).size, jobNames.length, "workflow job identifiers must be unique");
+  const prepare = findJobSection(jobsSource, "prepare-task");
+  const prepareSection = jobsSource.slice(prepare.start, prepare.end);
+  const publish = findJobSection(jobsSource, "publish-task");
+  const publishSection = jobsSource.slice(publish.start, publish.end);
+  const record = findJobSection(jobsSource, "record-publication");
+  const recordSection = jobsSource.slice(record.start, record.end);
+  const dispatch = findJobSection(jobsSource, "dispatch-roadmap-task");
+  const dispatchSection = jobsSource.slice(dispatch.start, dispatch.end);
+
+  assert.ok(prepareSection.includes("contents: read"));
+  assert.ok(prepareSection.includes("issues: write"));
+  assert.ok(prepareSection.includes("pull-requests: read"));
+  assert.equal(prepareSection.includes("contents: write"), false);
+  assert.equal(prepareSection.includes("pull-requests: write"), false);
+  assert.equal(prepareSection.includes("Create a draft PR after isolated tests pass"), false);
+  assert.ok(prepareSection.includes("artifacts/agent-scratch-publication.json"), "publication evidence must include the sanitized scratch manifest");
+  assert.equal(prepareSection.slice(prepareSection.indexOf("      - name: Upload exact validated publication bundle"), prepareSection.indexOf("      - name: Classify known task-scoped failures")).includes("artifacts/agent-scratch.json"), false,
+    "the machine-local scratch directory path must never be uploaded");
+
+  const begin = findJobSection(jobsSource, "begin-publication");
+  const beginSection = jobsSource.slice(begin.start, begin.end);
+  assert.ok(beginSection.includes("NEXT_TASK_STATE: publishing"));
+  assert.ok(beginSection.includes("issues: write"));
+  assert.ok(beginSection.includes("contents: read"));
+  assert.ok(publishSection.includes("needs: [prepare-task, begin-publication]"));
+  assert.ok(publishSection.includes("needs.begin-publication.result == 'success'"));
+  assert.ok(recordSection.includes("needs: [prepare-task, begin-publication, publish-task]"));
+  assert.equal(recordSection.includes("NEXT_TASK_STATE: publishing"), false,
+    "the durable publishing transition must complete before the publisher job starts");
+  assert.ok(publishSection.includes("contents: write"));
+  assert.ok(publishSection.includes("pull-requests: write"));
+  assert.ok(publishSection.includes("issues: none"), "publisher must not receive issue-write permission");
+  assert.ok(publishSection.includes("PUBLISH_SKIP_ISSUE_COMMENT: \"true\""));
+  assert.ok(publishSection.includes("ai-agent-publication-result-${{ github.run_id }}"));
+  assert.ok(publishSection.includes("ref: ${{ github.sha }}"), "publisher must validate against the exact workflow SHA");
+
+  assert.ok(recordSection.includes("needs: [prepare-task, begin-publication, publish-task]"));
+  assert.ok(recordSection.includes("issues: write"));
+  assert.ok(recordSection.includes("contents: read"));
+  assert.equal(recordSection.includes("contents: write"), false);
+  assert.equal(recordSection.includes("pull-requests: write"), false);
+  assert.ok(recordSection.includes("AGENT_FACTORY_MODE: transition"));
+  assert.ok(recordSection.includes("$expectedPullUrl = \"https://github.com/$env:GITHUB_REPOSITORY/pull/$pullNumber\""),
+    "the issue-state writer must bind the PR URL to the exact target repository and PR number");
+  assert.ok(recordSection.includes("always()"), "the post-publish state writer must run to record publisher failures");
+  assert.ok(recordSection.includes("needs.begin-publication.result != 'success'"));
+  assert.ok(recordSection.includes("needs.publish-task.result != 'success'"));
+
+  assert.ok(dispatchSection.includes("contents: write"));
+  assert.equal(dispatchSection.includes("issues: write"), false);
+  assert.equal(dispatchSection.includes("pull-requests: write"), false);
+
+  const planStepStart = prepareSection.indexOf("      - name: Generate and validate a read-only plan with local Ollama");
+  const planStepEnd = prepareSection.indexOf("      - name: Transition task to patching", planStepStart);
+  assert.ok(planStepStart >= 0 && planStepEnd > planStepStart);
+  assert.equal(prepareSection.slice(planStepStart, planStepEnd).includes("GITHUB_TOKEN"), false,
+    "local model planning must not receive the GitHub token");
+  const patchStepStart = prepareSection.indexOf("      - name: Generate and validate a bounded patch proposal");
+  const patchStepEnd = prepareSection.indexOf("      - name: Apply validated patch to a disposable scratch workspace", patchStepStart);
+  assert.ok(patchStepStart >= 0 && patchStepEnd > patchStepStart);
+  assert.equal(prepareSection.slice(patchStepStart, patchStepEnd).includes("GITHUB_TOKEN"), false,
+    "local model patch generation must not receive the GitHub token");
+  assert.ok(publisher.includes('process.env.PUBLISH_SKIP_ISSUE_COMMENT !== "true"'),
+    "publisher must support operation without issue-write permission");
+});
