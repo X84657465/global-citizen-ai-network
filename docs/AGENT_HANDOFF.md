@@ -1,3 +1,35 @@
+## Superseding verified continuation snapshot — 2026-11-22 (main 1330cec4)
+
+This snapshot is the current operational reference and supersedes earlier live-state sections below wherever they conflict. Older sections remain historical evidence; do not treat their SHAs, run IDs, PR states, or blocker descriptions as current.
+
+### Mainline and declared versions
+- Verified main HEAD: `1330cec486e5d4c264800935b878cd8016965e93` (merge of PR #356).
+- Root `VERSION`, `package.json`, and `versions/manifest.json` overall: `0.3.134`.
+- A / Agent Factory V2: `2.0.84`; B / GCAN Product: `0.1.20`. Version declarations are not acceptance claims.
+
+### A Factory status and blockers
+- A remains the first priority and is **not independently accepted**. Issue #136 is the current read-only independent adversarial audit task, targeting exactly `1330cec486e5d4c264800935b878cd8016965e93`; the required independent report/sign-off is not present in the inspected record.
+- Main `.github/workflows/agent-task-preflight.yml` still has the cross-job lease propagation defect recorded in Issue #354: the reserve step does not expose its lease ID as a job output, and the `begin-publication` / `record-publication` state transitions do not receive `AGENT_FACTORY_LEASE_ID`.
+- Keep controller-side lease fencing intact. Workflow remediation remains blocked until the repository owner applies the existing `factory-control-plane-approved` authorization label to the scoped implementation task. Do not fabricate or infer a lease, edit machine-managed Issue #100, or dispatch/retry affected tasks.
+- PR #259 remains open, stale and non-mergeable: head `3330cd04a77358cf0ff780940d09f938cab1dc3a`, base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; comparison against current main reports diverged (111 ahead / 637 behind). Its old exact-head CI success is not evidence for current main. Do not merge, force-retarget, or transplant its broad diff.
+- PR #259 has one formal review with state COMMENTED, not APPROVED; the finding notes P governance route tests rely on source-text assertions rather than invoking the handler and asserting response status/body/security headers.
+- Current main combined status reports Vercel `build-rate-limit`. This is an external deployment-provider restriction; no READY Preview/Smoke acceptance is established. The commit workflow-run query returned no PR-triggered runs for this SHA; that is not proof of scheduled Runner health or CI success.
+
+### B handoff boundary
+- B / GCAN Product remains preparation-only. Keep Runtime inactive until A's exact-head quality, isolation, database/RLS, Ollama, operational progression/soak and independent-review gates are satisfied.
+- B may consume only a versioned, sanitized, read-only A projection after A acceptance. It must not receive Factory state/Issue access, lease IDs, Runner/Sandbox controls, raw logs, patches, secrets or privileged execution authority.
+- Continue only documentation/contract alignment needed for the eventual A→B boundary; do not activate B Runtime or expand unrelated workstreams.
+
+### Next execution order
+1. Obtain the independent read-only A audit against exact main SHA `1330cec486e5d4c264800935b878cd8016965e93`; stop and refresh the target if main advances before review begins.
+2. Resolve the #354 control-plane authorization gate; only then implement the exact lease-output handoff plus fail-closed workflow tests and fresh exact-head CI.
+3. Keep PR #259 historical; selectively port only individually justified changes after review, never the broad stale diff.
+4. Keep B Runtime inactive; prepare the sanitized A→B read contract only.
+
+**Safety boundary:** no machine-managed Factory state, Issue #100, task/lease/retry/cooldown/quarantine, Runner configuration, workflow permissions, secrets, production data, deployment, or B Runtime was changed by this snapshot.
+
+---
+
 # Agent Handoff — GCAN / Agent Factory V2
 
 > Single source of truth for the next development session. Refresh after each round. Record verified GitHub state only. A merged PR, a successful resolver, or a skipped job is not acceptance.
