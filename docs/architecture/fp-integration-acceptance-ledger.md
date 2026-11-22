@@ -119,3 +119,34 @@ This section supersedes historical branch/PR status statements above where they 
 6. Update this ledger only from observed current-SHA evidence. Keep I/J/M/N/O/K bounded; keep L deferred.
 
 **Authority boundary:** this checkpoint is documentation-only. It changes no runtime, database, migration, secret, permission, workflow policy, Factory state, Runner state or deployment behavior.
+
+## 10. Candidate evidence refresh (2026-11-22; main `23fb747ae4041bc28783a1b9039660ec952c7e0d`)
+
+This section supersedes earlier PR/run status statements above where they conflict. It does not grant acceptance.
+
+| Candidate | Exact HEAD | Latest exact-head evidence | Current disposition |
+|---|---|---|---|
+| A / PR #292 — evidence-grounded patch prompt | `2ed61e76b2045832d769dfd893b02ee6753de70c` | Resolver and Windows quality gates passed; Ollama/local execution and Supabase/PostgreSQL/RLS jobs pending (run `44967914868`) | Draft; no formal review; not accepted |
+| A / PR #293 — Node 22.13.0 Preflight pin | `2278bb471392c1b92e43971191c2c103017e9cf3` | Resolver and Windows quality gates passed; Ollama/local execution and Supabase/PostgreSQL/RLS jobs pending (run `44968035839`) | Draft; no formal review; not accepted |
+| H / PR #296 — privacy-safe event metadata | `e4c3cb3fa68f12400fb3da00d40fc087768d55ca` | Exact-head run `44969692123` has no allocated jobs | Draft; no formal review; not accepted |
+| P / PR #297 — fail-closed authentication provider | `858d1ae886a95b9fec41076287d4c4466d2a46cb` | Exact-head run `44969394408` has no allocated jobs | Draft; no formal review; not accepted |
+| F / PR #298 — canonical UTC evidence timestamps | `e35ad0bb955f2a04c6375e4989f2fbbea7ba3086` | Resolver pending; no substantive job evidence yet (run `44969187760`) | Draft; no formal review; not accepted |
+| K / PR #294 — authoritative handoff | `765d0ee023b2343ffe6b37042a6d3cbedf3a9f01` | Exact-head run has no allocated jobs | Draft; documentation-only; not accepted |
+| K / PR #295 — F–P ledger baseline | `8733ae9c1ad7106ed1f2bea187af46f298ebac53` | Exact-head run `44969840874` has no allocated jobs | Draft; documentation-only; not accepted |
+
+### Verified code-review notes
+
+- **H:** event timestamps require the canonical millisecond UTC form and an ISO round-trip equality check. Tests reject malformed values, calendar rollover (for example, 2026-02-30), and non-UTC offsets. This is source/test inspection, not CI acceptance.
+- **P:** the route catches authentication-provider exceptions and returns 503 before profile or GitHub access; the regression test asserts this fail-closed behavior. This is source/test inspection, not CI acceptance.
+- **F:** canonical UTC evidence timestamp validation and invalid-calendar-date regression coverage are present in the candidate branch. Exact-head CI remains pending.
+- **A:** #292 and #293 have passed only the resolver and Windows quality-gate jobs. Their required integration jobs remain pending; do not transfer evidence between SHAs or runs.
+
+### Cross-cutting acceptance blockers
+
+1. All candidates remain Draft and have no formal review submissions in the latest check.
+2. A's integrated main baseline still lacks an independent adversarial review report for the current merged tree. Issue #136 remains open and its review task is strictly read-only.
+3. Same-SHA Vercel Preview/Smoke is not established; the provider has reported deployment rate limiting.
+4. Post-cooldown scheduled task selection, durable lease/worker progression and a real 24-hour Runner soak remain unverified.
+5. Missing or unallocated Actions jobs are pending/unknown, never a pass and never proof that the self-hosted Runner is offline.
+
+No merge, deployment, production-data, secret, permission, durable Factory-state, lease, cooldown, quarantine, or Runner-policy changes are authorized by this ledger.
