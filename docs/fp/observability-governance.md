@@ -34,4 +34,4 @@ H defines a privacy-minimized, deterministic reporting contract for queue, runne
 
 ## Current maturity
 
-The pure aggregation and validation contract is an implementation candidate. Live event collection, alert delivery, invoice reconciliation, retention controls, and operational SLOs remain unverified.
+The pure aggregation and validation contract has implementation code and regression coverage, but H remains `planned` in the authoritative workstream manifest. Live event collection, alert delivery, invoice reconciliation, retention controls, and operational SLOs remain unverified; no implementation or test result alone constitutes acceptance.
