@@ -242,17 +242,17 @@ test("rejects job-array properties outside the ECMAScript array-index range", ()
 });
 
 
-test("rejects canonical job-array indices outside the declared array length", () => {
-  const emptyWithHiddenIndex = [] as GJobEvidence[];
-  Object.defineProperty(emptyWithHiddenIndex, "1", {
-    configurable: true,
-    enumerable: true,
-    value: job("quality"),
+test("rejects Proxy-reported canonical job-array indices outside the declared length", () => {
+  const emptyWithReportedIndex = new Proxy([] as GJobEvidence[], {
+    ownKeys: () => ["1", "length"],
+    getOwnPropertyDescriptor: (target, key) => key === "1"
+      ? { configurable: true, enumerable: true, writable: true, value: job("quality") }
+      : Reflect.getOwnPropertyDescriptor(target, key),
   });
-  assert.equal(emptyWithHiddenIndex.length, 0);
+  assert.equal(Object.getOwnPropertyDescriptor(emptyWithReportedIndex, "length")?.value, 0);
   assert.throws(
     () => assessGExactHeadEvidence(bundle({
-      run: { ...bundle().run, jobs: emptyWithHiddenIndex },
+      run: { ...bundle().run, jobs: emptyWithReportedIndex },
     })),
     /bounded dense plain array/,
   );
