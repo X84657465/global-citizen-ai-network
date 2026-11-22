@@ -1,3 +1,28 @@
+## 0.3.133 — 2026-11-22
+
+- H: accept only plain data records with required own data properties; reject inherited values, accessors and exotic prototypes at the untrusted telemetry boundary.
+- Add regression tests for inherited event fields and getter-backed event/bundle fields.
+
+
+- H: reject undeclared event and bundle fields at the observability evaluator boundary to prevent arbitrary payload metadata from entering the privacy-minimized contract.
+- Add regression coverage for member identifiers, prompts and unexpected bundle metadata; H remains planned pending trusted collection and operational acceptance.
+
+## 0.3.131 — 2026-11-22
+
+- H: add deterministic, privacy-minimized queue/runner/task/cost observability evaluation.
+- Validate canonical UTC windows, opaque event IDs, bounded event batches and durations, and integer micro-unit cost aggregation.
+- Reject duplicate/out-of-window events, mixed currencies, malformed cost provenance and unsafe aggregate precision.
+- Quota warning/exceeded states remain advisory; no billing, telemetry collection, quota enforcement or runner mutation is enabled.
+- Keep H planned until trusted collector coverage, retention, alerting, SLO and independent acceptance evidence are available.
+
+## 0.3.130 — 2026-11-22
+
+- F: require security evidence to bind to the exact GitHub Actions run attempt and matching job attempt metadata.
+- G: require release evidence URLs to identify the exact Actions run attempt; reject base run URLs and mismatched attempts.
+- Add regression coverage for exact-attempt identity and preserve F/G as planned until full acceptance evidence is available.
+- Correct the A–P version-status regression test to preserve P's already accepted implementation-candidate status.
+- Exact-head CI and independent review remain required; no release or merge authorization is implied.
+
 ## 0.3.129 — 2026-11-22
 
 - P: extend the A–P version contract to verify both package-lock root copies, README release version and engineering-governance baseline.
