@@ -474,7 +474,9 @@ test("Agent Factory runbook separates default-branch polling from manual V2 disp
   assert.ok(runbook.includes("GitHub evaluates scheduled workflows and issue events from the repository's default branch only."));
   assert.ok(runbook.includes("The old instruction to select `feat/agent-factory-v2` for normal operation is historical and must not be followed as the default operating path."));
   assert.ok(runbook.includes("For normal operation, use `main`."));
+  assert.ok(runbook.includes("Enter the explicitly approved task Issue number."));
   assert.ok(runbook.includes("The durable state Issue is machine-managed."));
+  assert.ok(runbook.includes("This runbook does not authorize merges, production deployments, production migrations, secret changes, or live paid AI activation."));
   assert.ok(runbook.includes("Pull-request CI can validate code without proving that the default-branch scheduler or state writer is operational."));
   assert.equal(runbook.includes("Issue #100 remains on its existing V1 payload."), false);
   assert.equal(runbook.includes("schema version 2"), false);
