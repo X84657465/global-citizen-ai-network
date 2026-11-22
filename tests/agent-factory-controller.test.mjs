@@ -1794,7 +1794,7 @@ test("system-health success rejects a closed PR even when its old CI run was suc
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "172",
     SYSTEM_HEALTH_HEAD_SHA: sha,
-  }), /current open same-repository PR head no longer matches/);
+  }), /current open same-repository non-task PR head and branch no longer match/);
 
   assert.equal(store.state.state_version, initial.state_version);
   assert.equal(store.state.system.consecutive_failures, 2);
@@ -1853,7 +1853,7 @@ test("system-health success rejects a successful CI run when the PR has advanced
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "169",
     SYSTEM_HEALTH_HEAD_SHA: testedSha,
-  }), /current open same-repository PR head no longer matches/);
+  }), /current open same-repository non-task PR head and branch no longer match/);
 
   assert.equal(store.state.state_version, initial.state_version);
   assert.equal(store.state.system.consecutive_failures, 2);
