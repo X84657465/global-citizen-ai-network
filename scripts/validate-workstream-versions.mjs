@@ -10,6 +10,9 @@ const result = validateWorkstreamVersionContract({
   rootVersion: readFileSync("VERSION", "utf8").trim(),
   packageVersion: packageJson.version,
   lockfileVersion: lockfile.version,
+  lockfileRootVersion: lockfile.packages?.[""]?.version,
+  readme: readFileSync("README.md", "utf8"),
+  governance: readFileSync("docs/engineering-governance.md", "utf8"),
   changelog: readFileSync("CHANGELOG.md", "utf8"),
   pChangelog: readFileSync("docs/p/CHANGELOG.md", "utf8"),
 });
