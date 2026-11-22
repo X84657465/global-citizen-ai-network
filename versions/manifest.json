@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "overall": "0.3.126",
+  "overall": "0.3.127",
   "tracks": {
     "A": {
       "name": "Agent Factory V2",
@@ -31,14 +31,14 @@
     },
     "F": {
       "name": "Cyber Security & Defense",
-      "version": "0.1.0",
-      "status": "planned",
+      "version": "0.1.1",
+      "status": "implementation-candidate",
       "responsibility": "Cross-track threat modeling, minimum security controls, adversarial validation, vulnerability response and incident readiness."
     },
     "G": {
       "name": "Release, QA & Integration",
-      "version": "0.1.0",
-      "status": "planned",
+      "version": "0.1.1",
+      "status": "implementation-candidate",
       "responsibility": "Integration sequencing, compatibility matrices, regression suites, release gates and exact-SHA evidence."
     },
     "H": {
