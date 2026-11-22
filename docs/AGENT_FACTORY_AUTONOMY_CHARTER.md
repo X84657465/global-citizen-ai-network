@@ -421,3 +421,44 @@ F6–F12 是 F0–F5 基礎之上的後續建設路線，必須以真實任務�
 - 新增 Worker、模型、Runner、服務前，必須證明缺口、效益、成本與維護負擔；優先 REUSE／EXTEND／REPAIR。
 
 本路線圖由 Master Charter §19 定義；本文件負責 Factory 工程執行與驗收。所有階段均需 Issue／PR、單一 DRI、DoD、測試、風險、回滾與獨立審查。此章不授予任何新權限，也不代表 F6–F12 已實作。
+
+
+## 16. 六項橫向自主能力與全體工作線協同要求
+
+本節補強既有 F6–F12，不建立另一套階段編號或重複服務。Factory 必須逐步具備以下可實測能力：
+
+1. **Project Intelligence：** 建立 Repository／模組／依賴／API／資料／測試／部署地圖，支援變更影響分析、owner 路由及測試選擇；所有結論連結精確版本與來源，未知即標 UNKNOWN。
+2. **Planning & Orchestration：** 把需求拆成依賴 DAG，指定唯一 DRI、Worker、allowlist、資源預算、DoD、停止條件；具備 lease/fencing、鎖、取消、有限重試、衝突處理及公平調度。先穩定單任務再擴展並行。
+3. **Independent Verification：** 依風險執行靜態分析、單元／整合／E2E／回歸／安全／效能／相容性測試；精確 SHA 與 CI run/attempt 綁定；Developer 不得批准自身成果；證據不足 Fail-Closed。
+4. **Bounded Debug & Repair：** 可重現失敗、分類、根因分析、最小修復、回歸驗證與結果比較；設置重試、時間、成本及修改範圍上限，禁止刪除測試、掩蓋錯誤或無限重試。
+5. **Evaluation & Evolution：** 追蹤成功率、修復率、缺陷逃逸、回歸、人工介入、延遲、成本、利用率與恢復時間；改善需基線、對照、獨立審查、分階段發布及回滾。
+6. **Security & Resource Governance：** 隔離工作區、最小權限、命令／路徑／網路 allowlist、短期憑證、秘密遮罩、審計、配額、取消與復原；禁止自我升權、未核准支出及不必要的 production secrets。
+
+### 16.1 能力證據狀態
+
+所有 Worker、Engine、Tool、Runtime、Orchestration、QA、Memory、Recovery 均登錄於同一能力目錄，使用 `PLANNED → IMPLEMENTED → TESTED → VERIFIED → ACCEPTED`；另可標記 PARTIAL、BLOCKED、STALE、DEPRECATED、UNKNOWN。每次狀態變更必須有 owner、版本、精確 SHA、可重現測試、CI run/attempt、獨立審查、限制及回滾。文件、名稱、模擬流程或舊 SHA 不得作為當前驗收證據。
+
+### 16.2 F6–F12 階段對應
+
+- F6：Project Intelligence、單任務隔離開發、影響分析與可追溯 diff。
+- F7：有界根因分析、修復、回歸及安全停止。
+- F8：任務 DAG、能力路由、資源調度、鎖定與受控並行。
+- F9：獨立多層 QA、故障注入、精確 SHA、Fail-Closed。
+- F10：專案知識來源、版本、可信度、過期及刪除治理。
+- F11：基線量測、受控改善 PR、獨立審查、恢復與回滾。
+- F12：長時間端到端驗收、安全威脅模型、容量／成本、事故演練及營運放行。
+
+階段依賴、停止條件及原有 DoD 仍以 §15 為準；不得為了滿足本節而跳過 F0–F5 或放寬安全政策。
+
+### 16.3 全體工作線配合規則
+
+- GPT1／A–E 是 Factory 能力建設與整合主責。
+- GPT2／F–P 各 owner 提供專業需求、規格、邊界案例、測試及領域驗收；Factory 已有通用能力時必須重用。
+- GPT3 保持獨立架構、整合、安全及 QA 驗收，不參與自我批准。
+- GPT4／B 提供產品需求、UX、產品契約及產品驗收，不取得 Factory 私有執行權。
+- GPT5 提供經查證的技術情報、資安／供應鏈風險及量測分析；執行程式任務須有明確指派與範圍。
+- 任務以 GitHub Issue／PR／Review／CI／handoff 協作；每項任務唯一 DRI，跨線需記錄依賴與交付，不假設存在未部署的私訊機制。
+
+### 16.4 立即執行與停止條件
+
+優先盤點真實現況與可重用能力，建立能力證據目錄；接著打通一條安全、真實、單任務端到端 Issue→Plan→Worker→Isolated Edit→Test→Draft PR→Independent Review。只有這條路徑穩定且 GPT3 驗收後，才擴大自動修復及並行。所有變更必須提供精確 SHA、實際測試／CI、風險與回滾；沒有證據標 NOT RUN／UNKNOWN／BLOCKED。禁止自行合併、部署、升權、修改驗收門檻、建立未核准費用或操作不可逆資料。
