@@ -29,7 +29,7 @@ function writeResolverDiagnostic(error) {
     retryAfterMs: Number.isFinite(error?.retryAfterMs) ? error.retryAfterMs : null,
   };
   try {
-    writeFileSync(resolverDiagnosticsOutput, JSON.stringify(evidence, null, 2) + "\\n", "utf8");
+    writeFileSync(resolverDiagnosticsOutput, JSON.stringify(evidence, null, 2) + "\n", "utf8");
   } catch {
     console.error("Resolver redacted diagnostic artifact could not be written.");
   }
@@ -42,10 +42,13 @@ function writeOutput(key, value) {
   appendFileSync(output, key + "=" + safeValue + "\n", "utf8");
 }
 
-async function main() {\n  resolverStage = "validate_environment";\n  if (!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
+async function main() {
+  resolverStage = "validate_environment";
+  if (!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
     throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
   }
-  resolverStage = "parse_event_metadata";\n  const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);
+  resolverStage = "parse_event_metadata";
+  const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);
   const api = createGitHubApiClient({
     baseUrl: apiBase,
     token,
