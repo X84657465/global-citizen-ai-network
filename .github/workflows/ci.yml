@@ -65,7 +65,16 @@ jobs:
           PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || '' }}
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || '' }}
           EXPECTED_HEAD_REF: ${{ github.event.pull_request.head.ref || github.event.client_payload.head_ref || '' }}
+          RESOLVER_DIAGNOSTICS_OUTPUT: ${{ runner.temp }}/resolver-diagnostics.json
         run: node scripts/resolve-agent-task-pr.mjs
+      - name: Upload redacted resolver failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resolver-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/resolver-diagnostics.json
+          if-no-files-found: ignore
+          retention-days: 90
 
   quality:
     concurrency:

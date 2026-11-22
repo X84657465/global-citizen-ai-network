@@ -1,4 +1,4 @@
-import { appendFileSync } from "node:fs";
+import { appendFileSync, writeFileSync } from "node:fs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
 import {
@@ -9,6 +9,31 @@ import {
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
 const apiBase = (process.env.GITHUB_API_URL || "https://api.github.com").replace(/\/+$/, "");
+const resolverDiagnosticsOutput = process.env.RESOLVER_DIAGNOSTICS_OUTPUT ?? "";
+let resolverStage = "startup";
+
+function writeResolverDiagnostic(error) {
+  if (!resolverDiagnosticsOutput) return;
+  const safePath = typeof error?.path === "string" &&
+    /^\/repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/(pulls|issues)\/\d+$/.test(error.path)
+    ? error.path
+    : "";
+  const evidence = {
+    schemaVersion: 1,
+    stage: resolverStage,
+    errorName: typeof error?.name === "string" ? error.name.slice(0, 80) : "Error",
+    httpStatus: Number.isInteger(error?.status) ? error.status : null,
+    method: typeof error?.method === "string" ? error.method.slice(0, 12) : "",
+    path: safePath,
+    rateLimited: error?.rateLimited === true,
+    retryAfterMs: Number.isFinite(error?.retryAfterMs) ? error.retryAfterMs : null,
+  };
+  try {
+    writeFileSync(resolverDiagnosticsOutput, JSON.stringify(evidence, null, 2) + "\n", "utf8");
+  } catch {
+    console.error("Resolver redacted diagnostic artifact could not be written.");
+  }
+}
 
 function writeOutput(key, value) {
   const output = process.env.GITHUB_OUTPUT;
@@ -18,9 +43,11 @@ function writeOutput(key, value) {
 }
 
 async function main() {
+  resolverStage = "validate_environment";
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
     throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
   }
+  resolverStage = "parse_event_metadata";
   const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);
   const api = createGitHubApiClient({
     baseUrl: apiBase,
@@ -42,8 +69,12 @@ async function main() {
   }
 
   let pull;
+  resolverStage = "fetch_pull_request";
+  console.log("Resolver stage: requesting PR metadata; repository=" + repository + ", pull_request=" + pullRequestNumber + ".");
   try {
     pull = await api.request("/repos/" + repository + "/pulls/" + pullRequestNumber);
+    console.log("Resolver stage: PR metadata received; state=" + String(pull.state ?? "unknown") +
+      ", head_sha=" + String(pull.head?.sha ?? "unknown") + ".");
   } catch (error) {
     if (error?.status === 404) {
       writeOutput("is_current_head", "false");
@@ -55,6 +86,11 @@ async function main() {
       console.log("Pull request no longer exists; stale event will be ignored.");
       return;
     }
+    console.error("Resolver PR metadata request failed: status=" + String(error?.status ?? "unknown") +
+      ", method=" + String(error?.method ?? "GET") +
+      ", path=" + String(error?.path ?? "unknown") +
+      ", rate_limited=" + String(error?.rateLimited === true) +
+      ", retry_after_ms=" + String(error?.retryAfterMs ?? "unknown") + ".");
     throw error;
   }
 
@@ -80,6 +116,7 @@ async function main() {
   if (issueNumber && sameRepository && trustedPullAuthor &&
       isAgentTaskBranchForIssue(pull.head?.ref, issueNumber)) {
     try {
+      console.log("Resolver stage: verifying authorized task issue #" + issueNumber + ".");
       const issue = await api.request("/repos/" + repository + "/issues/" + issueNumber);
       authorizedTaskIssue = issue?.state === "open" &&
         String(issue?.user?.login ?? "").toLowerCase() === owner &&
@@ -96,13 +133,16 @@ async function main() {
   // Defer the Issue scan until an authorized AI-task PR actually needs it.
   let stateIssueNumber = "";
   if (isTaskPr) {
+    resolverStage = "read_factory_state";
     const stateStore = createFactoryStateStore(api, {
       repository,
       issueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
     });
+    console.log("Resolver stage: reading durable Factory state for authorized task PR #" + pullRequestNumber + ".");
     const stateRecord = await stateStore.read();
     stateIssueNumber = stateRecord.issue?.number ?? "";
   }
+  resolverStage = "write_outputs";
   writeOutput("state_issue_number", stateIssueNumber);
 
   writeOutput("is_current_head", currentHead ? "true" : "false");
@@ -123,6 +163,12 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("Candidate PR metadata resolution failed: " + (error instanceof Error ? error.message : String(error)));
+  writeResolverDiagnostic(error);
+  console.error("Candidate PR metadata resolution failed: stage=" + resolverStage +
+    ", name=" + String(error?.name ?? "Error") +
+    ", status=" + String(error?.status ?? "unknown") +
+    ", method=" + String(error?.method ?? "unknown") +
+    ", path=" + String(error?.path ?? "unknown") +
+    ", rate_limited=" + String(error?.rateLimited === true) + ".");
   process.exitCode = 1;
 });
