@@ -67,5 +67,5 @@ jobs:
           RECOVERY_REASON: ${{ inputs.recovery_reason }}
           EVIDENCE_REFERENCE: ${{ inputs.evidence_reference }}
           OPERATOR_RECOVERY_CONFIRMATION: ${{ inputs.confirmation }}
-          FACTORY_OPERATOR_RECOVERY_GUARD: ${{ secrets.FACTORY_OPERATOR_RECOVERY_GUARD }}
+          FACTORY_OPERATOR_RECOVERY_ENV_GUARD: ${{ secrets.FACTORY_OPERATOR_RECOVERY_ENV_GUARD }}
         run: node scripts/agent-factory-v2-controller.mjs
