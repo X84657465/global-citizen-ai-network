@@ -240,6 +240,30 @@ test("snapshots provider evidence without invoking getters or retaining caller m
   );
 });
 
+test("snapshots trusted policy decisions without invoking accessors", () => {
+  let getterCalls = 0;
+  const policy = {
+    get decision() { getterCalls += 1; return "allow-advisory"; },
+    policyVersion: "policy-v3",
+  };
+  assert.throws(() => createFPResilienceProposal(
+    evidence(),
+    policy as FPResiliencePolicyDecision,
+    { correlationId: "corr-123" },
+  ), TypeError);
+  assert.equal(getterCalls, 0);
+
+  const hostile = new Proxy(allow, {
+    ownKeys() { throw new Error("private-policy-detail"); },
+  });
+  assert.throws(
+    () => createFPResilienceProposal(evidence(), hostile, { correlationId: "corr-123" }),
+    (error: unknown) => error instanceof TypeError &&
+      error.message === "Trusted resilience policy decision is invalid." &&
+      !error.message.includes("private-policy-detail"),
+  );
+});
+
 test("rejects evidence objects with symbol keys and non-plain prototypes", () => {
   const withSymbol = evidence() as unknown as Record<PropertyKey, unknown>;
   withSymbol[Symbol("hidden")] = "unsupported";
