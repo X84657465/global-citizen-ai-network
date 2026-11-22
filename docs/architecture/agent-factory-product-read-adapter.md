@@ -219,6 +219,7 @@ This section supersedes the older source-SHA snapshots above where they conflict
 - Current A-line CI-policy candidate PR #331 is at head `d2fb71191826555346bddda96bcd85fd5b633e45`. Its exact-head Actions run [#45007242541](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45007242541) was pending with no jobs allocated at this checkpoint; no pass is claimed for the current head.
 - The previous #331 head `c19aec7195421dd74e2e244561e80b7495d8a07f` had four substantive CI jobs pass, but that result does not transfer to the current head. No formal PR review has been submitted.
 - Issue #136's requested independent read-only adversarial review remains an outstanding A governance gate. A source-level inspection by the current assistant is not an independent reviewer sign-off.
+- A further A reliability gate remains open: the publisher captures provider rate-limit cooldown metadata in its own process, but the current `publish-task` → `record-publication` workflow boundary does not expose that deadline as a job output to the durable failure callback. This is documented as M-01 in the operations runbook. Do not mark A acceptance complete or activate B on the assumption that publisher cooldown propagation is solved; require the cross-job output mapping and fault-injection/policy regression evidence first.
 
 ### Required next implementation boundary
 
