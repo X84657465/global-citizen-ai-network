@@ -704,6 +704,8 @@ test("CI carries provider rate-limit cooldown from the candidate controller to t
 
 test("Agent Factory isolates candidate generation, PR publication, state writes, and dispatch permissions", () => {
   const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\njobs:".length);
+  const jobNames = [...jobsSource.matchAll(/^  ([A-Za-z0-9_-]+):\\s*$/gm)].map((match) => match[1]);
+  assert.equal(new Set(jobNames).size, jobNames.length, "workflow job identifiers must be unique");
   const prepare = findJobSection(jobsSource, "prepare-task");
   const prepareSection = jobsSource.slice(prepare.start, prepare.end);
   const publish = findJobSection(jobsSource, "publish-task");
@@ -746,6 +748,9 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
   assert.equal(recordSection.includes("contents: write"), false);
   assert.equal(recordSection.includes("pull-requests: write"), false);
   assert.ok(recordSection.includes("AGENT_FACTORY_MODE: transition"));
+  assert.ok(recordSection.includes("always()"), "the post-publish state writer must run to record publisher failures");
+  assert.ok(recordSection.includes("needs.begin-publication.result != 'success'"));
+  assert.ok(recordSection.includes("needs.publish-task.result != 'success'"));
 
   assert.ok(dispatchSection.includes("contents: write"));
   assert.equal(dispatchSection.includes("issues: write"), false);
