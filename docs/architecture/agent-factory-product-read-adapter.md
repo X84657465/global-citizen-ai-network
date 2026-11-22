@@ -132,3 +132,19 @@ The adapter MUST NOT return raw Factory Issue bodies, worker prompts, patches, r
 - [ ] Exact-head CI and Preview acceptance completed.
 
 Until all gates pass, this document is a design handoff only. No B runtime route, database table, connector, billing, public registration or Factory access is activated.
+
+
+## 8. Source implementation cross-check — 2026-11-22 (read-only)
+
+The proposal was compared against current main `061ccf621c228bae93b91cd8c53723c3fe08310a`:
+
+- `lib/agent-factory-state-machine.mjs` declares the full private `TASK_STATES` set: `queued`, `reserved`, `preparing`, `planning`, `patching`, `sandbox_testing`, `publishing`, `draft_pr_created`, `awaiting_ci`, `completed`, `retry_wait`, `candidate_rejected`, `quarantined`, and `superseded`. The v1 mapping table above covers every current value; unknown future values must still fail closed.
+- A's durable task record contains structured `head_sha`, `pull_request_number`, `ci_run_id`, and `ci_run_attempt` fields. The state machine validates their formats and requires all four to match when recording terminal candidate evidence. The controller also re-fetches the PR and workflow/job evidence against the exact SHA and run attempt.
+- Internal `candidate_status` values are not public values. The proposal maps them to the bounded product vocabulary and must not serialize the internal strings.
+- This is source-data and validation evidence only. No dedicated A-owned product projection endpoint or B runtime adapter was found/accepted in this cross-check.
+
+### Remaining pre-implementation contract item
+
+The DTO includes `failureCategory`, but a reviewed allowlist mapping from A error codes to the public categories is not yet implemented. Before B consumes it, define that mapping from concrete A error codes, default unknown/unrecognized codes to `unknown`, and never expose raw exception text, internal transition reasons, or arbitrary error objects.
+
+B still owns authentication, workspace membership, tenant mapping, and RLS/IDOR enforcement. A's internal issue/lease/Runner state is not a product API. Do not implement or activate the adapter until A passes its acceptance gates.
