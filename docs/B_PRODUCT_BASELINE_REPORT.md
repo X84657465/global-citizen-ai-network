@@ -1,9 +1,9 @@
 # GCAN B Product Baseline Report
 
-**Snapshot date:** 2026-11-23 (Asia/Taipei)  
+**Snapshot date:** 2026-11-23 (Asia/Taipei; refreshed after PR #410, #411 and #413 merges)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Baseline main SHA:** `dce81ed801c41bca9bc364e3d0f248244d88f88f`  
+**Baseline main SHA:** `25d5ed519eb923d3001df6d43aec1670a0d4851a`  
 **Overall release:** `0.3.137`  
 **B / GCAN Product:** `0.1.20`  
 **Status:** BASELINE DOCUMENTED — NOT PRODUCT ACCEPTANCE
@@ -12,10 +12,12 @@
 
 ## 1. Executive summary
 
-- `main` is `dce81ed801c41bca9bc364e3d0f248244d88f88f`; `VERSION` and `versions/manifest.json` agree on overall `0.3.137`, with B at `0.1.20`.
+> **Live-state refresh:** This report was merged through PR #411, then refreshed against main `25d5ed519eb923d3001df6d43aec1670a0d4851a`. PR #410, #411 and #413 are merged. The latest exact-main Actions run is #45055645581 and is PENDING. The Vercel status is a separate build-rate-limit failure, not a GitHub test result. Issue #136's immutable review target has not been reauthorized for this new main SHA; Factory-wide independent acceptance remains BLOCKED.
+
+- `main` is `25d5ed519eb923d3001df6d43aec1670a0d4851a`; `VERSION` and `versions/manifest.json` agree on overall `0.3.137`, with B at `0.1.20`. PR #410 (operations-intelligence documentation), PR #411 (B baseline) and PR #413 (GPT1/GPT4 ownership clarification) are merged into main.
 - B has source-level foundations for member accounts, projects, conversations, AI workspace, contribution tasks/submissions, member contribution summaries/appeals, admin review, and AI cost/reconciliation views.
 - The repository architecture describes an early MVP, not a production-ready service. Live provider billing, payouts, and distributed compute are not enabled by default. AI calls remain gated by server-side provider configuration and budget controls.
-- B Runtime remains **PREPARATION ONLY / BLOCKED** because the Factory-wide independent audit/acceptance gate is not complete. Issue #136 is open against this exact main SHA. The main CI run below is pending, not passed.
+- B Runtime remains **PREPARATION ONLY / BLOCKED** because the Factory-wide independent audit/acceptance gate is not complete. Issue #136 remains open but still targets the prior main SHA `dce81ed801c41bca9bc364e3d0f248244d88f8f`; its immutable audit baseline is stale after main advanced to `25d5ed519eb923d3001df6d43aec1670a0d4851a`. Do not silently retarget it; obtain owner authorization for a new exact-main audit target. The main CI run below is pending, not passed.
 - No B application code, database schema, RLS, workflow, Runner, secret, permission, production data, or deployment changes are made by this report.
 
 ## 2. Exact mainline and CI evidence
@@ -23,10 +25,10 @@
 | Item | Observed value | Disposition |
 |---|---|---|
 | Default branch | `main` | VERIFIED |
-| Main HEAD | `dce81ed801c41bca9bc364e3d0f248244d88f88f` | VERIFIED |
+| Main HEAD | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | VERIFIED |
 | Overall version | `0.3.137` | VERIFIED |
 | B version | `0.1.20` | VERIFIED |
-| Main CI run | [45054514027](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45054514027), attempt 1, exact main SHA | PENDING; 0 jobs returned at inspection |
+| Main CI run | [45055645581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45055645581), attempt 1, exact main SHA | PENDING; 0 jobs returned at inspection |
 | Main combined status | Vercel `build-rate-limit` failure status | BLOCKED for Preview evidence; not a code-test conclusion |
 | Main PR-triggered workflow query | No PR-triggered runs returned for this SHA | NOT evidence of scheduler health or CI pass |
 
@@ -77,15 +79,15 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 
 ### Factory acceptance
 
-- [Issue #136](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains OPEN and requests an independent, read-only adversarial audit against exact main SHA `dce81ed801c41bca9bc364e3d0f248244d88f88f`.
-- The same issue records main CI run [45054514027](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45054514027) as PENDING. The run currently has no jobs; no CI pass is claimed.
+- [Issue #136](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains OPEN, but its immutable audit target is now stale: it still names the prior baseline `dce81ed801c41bca9bc364e3d0f248244d88f88f`, while current main is `25d5ed519eb923d3001df6d43aec1670a0d4851a`. Its stop condition requires a fresh owner-authorized audit baseline; do not silently switch the target.
+- Current main CI run [45055645581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45055645581) is PENDING; no CI pass is claimed.
 - [Issue #354](https://github.com/X84657465/global-citizen-ai-network/issues/354) is CLOSED. Do not carry its former lease-handoff defect forward as an open blocker without fresh evidence.
 - [PR #259](https://github.com/X84657465/global-citizen-ai-network/pull/259) is an old, divergent, non-mergeable broad candidate. Its historical CI is not evidence for current main; do not merge, force-retarget, or transplant the full diff.
 
 ### B charter / North Star availability
 
-- `docs/GCAN_B_LINE_LEAD_CHARTER.md` and `docs/GCAN_PRODUCT_NORTH_STAR.md` were read from PR #376's branch, not from current main. They are not yet part of current main.
-- [PR #376](https://github.com/X84657465/global-citizen-ai-network/pull/376) is open, non-mergeable, based on old main SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1`, with head `d10e6dd6d428d9ce35dbd14778e01c628f909742`. Current comparison against main `dce81ed801c41bca9bc364e3d0f248244d88f88f` reports 50 commits ahead / 78 behind (diverged).
+- `docs/GCAN_B_LINE_LEAD_CHARTER.md` and `docs/GCAN_PRODUCT_NORTH_STAR.md` are present on main. PR #376 remains an old, diverged candidate; do not merge it wholesale or treat its historical review/CI as current evidence.
+- [PR #376](https://github.com/X84657465/global-citizen-ai-network/pull/376) remains open and non-mergeable, based on old main SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1`, with head `d10e6dd6d428d9ce35dbd14778e01c628f909742`. Its branch is stale/diverged; retain only as source material for selective owner-reviewed reconciliation.
 - Its exact-head review thread still contains an unresolved P2 release-metadata/changelog finding. Reviews observed are COMMENTED, not formal APPROVED.
 - CI run [45047970308](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45047970308) completed successfully for earlier SHA `24212ce8f6fb1f95b93996d4f2593751465e5ae8`, not current PR head `d10e6dd6d428d9ce35dbd14778e01c628f909742`. It is not exact-head CI evidence for the current PR head.
 - The A→B read-adapter proposal has open design questions recorded in PR #376 review discussion: service-to-service authentication/audience/scope and rotation/revocation; reference lifecycle and anti-enumeration; projection freshness/cache semantics; and closed, versioned failure-code mapping. These are design follow-ups, not proof of a deployed vulnerability or an implemented adapter.
@@ -99,7 +101,7 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 | Repository / main SHA / versions | PASS (metadata only) | Live Git ref and files at exact main SHA |
 | B source inventory | DOCUMENTED | Tree and selected source files inspected |
 | Focused B test files | PRESENT; NOT RUN in this report | No local test command executed by this report |
-| Main exact-SHA CI | PENDING | Run 45054514027; 0 jobs at inspection |
+| Main exact-SHA CI | PENDING | Run 45055645581; 0 jobs at inspection |
 | A independent audit | BLOCKED / PENDING | Issue #136 remains open |
 | B end-to-end auth / live provider / operational readiness | NOT VERIFIED | Issues #84 and #86 remain open; architecture lists pre-launch gaps |
 | PR #376 exact-head CI / formal review | NOT PASS | Run observed is for an older SHA; formal approval not observed |
