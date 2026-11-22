@@ -143,3 +143,32 @@ test("coordinated actions within one prohibition remain negated", () => {
   assert.equal(result.evidence.high_risk_scope_detected, false);
   assert.equal(result.decision, "approve_for_sandbox_validation");
 });
+
+test("non-mutating production and dependency audit verification does not trigger positive risk", () => {
+  for (const title of [
+    "Verify production and full dependency audit outcomes",
+    "Review billing configuration and credential inventory",
+    "Inspect production readiness and confirm audit evidence",
+    "Audit production controls and report the findings",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
+
+test("actionable high-impact operations remain rejected after narrowing prose cues", () => {
+  for (const title of [
+    "Deploy to production",
+    "Change billing policy",
+    "Rotate credentials",
+    "Production migration",
+    "Publish the production release",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
