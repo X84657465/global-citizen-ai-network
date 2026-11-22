@@ -593,3 +593,63 @@ This checkpoint supersedes the earlier statement that PR #306 run 44977771018 wa
 5. Obtain independent formal review and the separate read-only Issue #136 audit. No implementation-owner note substitutes for it.
 
 **Authority boundary:** evidence/documentation only. No Factory state, task, lease, retry/cooldown/quarantine, Runner settings, workflow permissions, secrets, production data, deployment or B Runtime state was changed.
+
+
+---
+
+## Live continuation checkpoint — 2026-11-22 (verified against current GitHub state)
+
+This checkpoint supersedes earlier live-status snapshots above. It is an evidence refresh, not a runtime acceptance or release authorization.
+
+### Mainline and merged changes
+- Verified `main` HEAD: `0d3c90e6dff36a458ceb38b51a3b80611b1988a2`.
+- Main HEAD is the merge commit for PR #309, which classifies CI syntax and policy regressions as task failures.
+- Recent integrated PRs include #311 (Factory provider rate-limit cooldown), #316 (Factory rate-limit and repository-safety hardening), and #309. Their merged state does not by itself establish current-main operational acceptance.
+
+### Current-main CI and Preflight
+- Main CI run [#3518](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44986529515) targets exact SHA `0d3c90e6dff36a458ceb38b51a3b80611b1988a2` and remains **pending**. The latest Jobs query returned no allocated jobs. No tests, typecheck, lint, build, PostgreSQL/RLS or Ollama pass is inferred.
+- Preflight run [#324](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44986477890) is still **in progress**, but targets older SHA `5fd3ff873bb9f541c46f0cc7654420c12c67e488` (the PR #316 merge-era main), not current main `0d3c90e6dff36a458ceb38b51a3b80611b1988a2`.
+- Its Windows self-hosted validation job has passed toolchain verification, local Ollama plan/patch smoke tests, disposable-container isolation, and applying the validated patch to a disposable scratch workspace. The active step at the latest refresh is **Install candidate dependencies inside restricted container**. Offline candidate tests, publisher dry-run, full unit tests, TypeScript and ESLint remain pending. The task-transition and read-only planning steps were skipped; skipped is not a pass.
+- Do not use Preflight #324 as exact-current-main validation. Do not bypass the serialized self-hosted Runner queue, cancel the active run, or dispatch duplicate work to manufacture a green result.
+
+### Open candidates and independent audit
+- PR #259 is the only open PR found in the latest open-PR query. It remains Draft/open, based on old base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, head `3330cd04a77358cf0ff780940d09f938cab1dc3a`, and GitHub reports `mergeable=false`. Its 111-commit / 41-file scope is stale and must not be merged wholesale or force-retargeted.
+- Issue #136 remains open. Its scope is an independent, read-only adversarial review. No independent final audit report or approval was found in the latest inspected history. Internal source inspection and CI are not substitutes.
+- Machine-managed Factory Issue #100 remains outside manual-write scope. Do not edit its encoded state, counters, leases, cooldowns, retries or quarantine records; allow the Factory controller to own those transitions.
+
+### B-line preparation
+- `docs/architecture/agent-factory-product-read-adapter.md` remains a **proposed, unimplemented, unaccepted** contract. It defines a versioned, read-only product projection and requires exact candidate SHA / PR / CI run / run-attempt verification.
+- Keep B Runtime inactive. Continue only contract/schema and compatibility preparation. B must not read or mutate Factory Issue state, leases, Runner/Sandbox internals, raw logs, patches, secrets or privileged execution controls.
+- The A acceptance gates remain incomplete: exact-current-main CI, natural queue/lease/worker progression, required local/database integration evidence, same-SHA Preview/Smoke where applicable, and independent Issue #136 review.
+
+### Next actions
+1. Let the existing serialized Runner job finish or reach its configured timeout; inspect its actual result and preserved diagnostics.
+2. Obtain current-main CI jobs for exact SHA `0d3c90e6dff36a458ceb38b51a3b80611b1988a2`; do not infer success from a pending run with no jobs.
+3. If the active preflight finishes, record its tested SHA and all step conclusions separately from current-main evidence.
+4. Repair only reproducible Factory defects, with isolated regression tests and exact-head validation.
+5. Keep B at the read-only adapter contract until A's acceptance gates are met.
+
+**Authority boundary:** this checkpoint changes documentation only. It does not change Factory runtime, machine-managed Issue state, task state, leases, retries, cooldowns, quarantine, Runner/workflow policy, secrets, permissions, production data, deployments or B Runtime behavior.
+
+
+---
+
+## Live continuation checkpoint — 2026-11-22 (subsequent Actions refresh)
+
+This section supersedes the earlier in-progress descriptions of Preflight #324 and PR #311 in the preceding checkpoint. It records observed job state only; it does not authorize runtime activation or release.
+
+### Verified progress
+- Preflight run [#324](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44986477890) is now **completed**. Its Windows self-hosted validation job concluded **success** on SHA `5fd3ff873bb9f541c46f0cc7654420c12c67e488`, which is older than current main `0d3c90e6dff36a458ceb38b51a3b80611b1988a2`. Toolchain/isolation, local Ollama plan/patch smoke tests, scratch patch application, offline candidate tests, publisher dry-run, locked dependency installation, full unit tests, TypeScript, ESLint and cleanup passed. The read-only task-plan job was **skipped**. This is not exact-current-main acceptance.
+- PR #311 is merged at exact candidate SHA `c1444cb74b0c5db2b546cdc37f578a44d4b95260`. Its exact-head run [#44985592683](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44985592683) now shows the Windows quality-gates job **success** and the PostgreSQL/migrations/RLS integration job **success**, including isolated Supabase migration application, pgTAP, and two-member application RLS tests.
+- The same PR #311 exact-head run still has **Windows Ollama and local execution integration in progress**. The latest observed active step is **Verify bounded local Ollama inference**. Do not declare the full candidate acceptance complete until this job reaches a terminal result.
+- Current main remains `0d3c90e6dff36a458ceb38b51a3b80611b1988a2`. Main push CI [#44986529515](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44986529515) remains pending at the exact main SHA; its only allocated job is the exact candidate metadata resolver, still pending with no steps exposed. No current-main test/type/lint/build/database/Ollama pass is established.
+- PR #317 remains Draft/open. Its exact-head run [#44988396529](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44988396529) has only a pending metadata resolver and no completed validation or formal review. Keep it unmerged.
+
+### Acceptance and authority boundaries
+- Treat the merged PR #311 code and its partial post-merge integration evidence separately: quality and PostgreSQL/RLS have passed; Ollama/local execution remains pending.
+- Do not rerun, dispatch, cancel or bypass the serialized Windows self-hosted Runner queue to manufacture green evidence.
+- Issue #136 remains a separate read-only independent adversarial audit; implementation-owner notes and CI do not substitute for its report.
+- Issue #202's five-minute scheduled delivery still requires owner/admin inspection of repository Actions settings and policy. A completed push-triggered Preflight run does not prove cron delivery.
+- Keep machine-managed Issue #100 untouched and B Runtime inactive. Continue only the proposed versioned read-only A→B adapter preparation until A acceptance gates are complete.
+
+**Authority boundary:** this checkpoint updates evidence documentation only. It does not alter Factory runtime/state, tasks, leases, retries, cooldowns, quarantine, Runner or workflow policy, secrets, permissions, production data, deployments, or B Runtime behavior.
