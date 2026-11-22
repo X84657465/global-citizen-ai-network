@@ -782,9 +782,9 @@ test("preflight transports only the validated publisher cooldown through an arti
     "the handoff file must exist before the publisher can fail");
   assert.ok(publisher.includes("if: always()\n        uses: actions/upload-artifact@v4"),
     "the sanitized handoff artifact must upload even when the publisher step fails");
-  assert.ok(publisher.includes("name: ai-agent-api-cooldown-\${{ github.run_id }}"),
+  assert.ok(publisher.includes("name: ai-agent-api-cooldown-${{ github.run_id }}"),
     "the handoff artifact must be scoped to this workflow run");
-  assert.ok(!publisher.includes("api_cooldown_until: \${{ steps.publish.outputs.api_cooldown_until }}"),
+  assert.ok(!publisher.includes("api_cooldown_until: ${{ steps.publish.outputs.api_cooldown_until }}"),
     "the workflow must not rely on outputs from a failed publisher job");
 
   const recordJob = findJobSection(preflight, "record-publication");
