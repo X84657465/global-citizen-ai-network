@@ -364,16 +364,16 @@ test("fails closed when reflective Proxy traps throw across F evidence boundarie
 });
 
 
-test("rejects canonical array-index properties outside the declared evidence-array length", () => {
-  const emptyWithHiddenIndex = [] as FPSecurityEvidence[];
-  Object.defineProperty(emptyWithHiddenIndex, "1", {
-    configurable: true,
-    enumerable: true,
-    value: evidence("member-isolation"),
+test("rejects Proxy-reported canonical evidence-array indices outside the declared length", () => {
+  const emptyWithReportedIndex = new Proxy([] as FPSecurityEvidence[], {
+    ownKeys: () => ["1", "length"],
+    getOwnPropertyDescriptor: (target, key) => key === "1"
+      ? { configurable: true, enumerable: true, writable: true, value: evidence("member-isolation") }
+      : Reflect.getOwnPropertyDescriptor(target, key),
   });
-  assert.equal(emptyWithHiddenIndex.length, 0);
+  assert.equal(Object.getOwnPropertyDescriptor(emptyWithReportedIndex, "length")?.value, 0);
   assert.throws(
-    () => assessFPSecurityEvidence(bundle({ evidence: emptyWithHiddenIndex })),
+    () => assessFPSecurityEvidence(bundle({ evidence: emptyWithReportedIndex })),
     /bounded dense plain array/,
   );
 });
