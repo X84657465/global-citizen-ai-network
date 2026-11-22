@@ -822,6 +822,12 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
 
   const begin = findJobSection(jobsSource, "begin-publication");
   const beginSection = jobsSource.slice(begin.start, begin.end);
+  assert.ok(prepareSection.includes("lease_id: ${{ steps.reserve-task.outputs.lease_id }}"),
+    "the prepare job must export only the exact lease returned by the trusted reserve step");
+  assert.ok(beginSection.includes("needs.prepare-task.outputs.lease_id != ''"),
+    "publication must fail closed when the lease output is missing");
+  assert.ok(beginSection.includes("AGENT_FACTORY_LEASE_ID: ${{ needs.prepare-task.outputs.lease_id }}"),
+    "the publishing transition must receive the exact reserved lease through the job output");
   assert.ok(beginSection.includes("NEXT_TASK_STATE: publishing"));
   assert.ok(beginSection.includes("issues: write"));
   assert.ok(beginSection.includes("contents: read"));
@@ -836,12 +842,16 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
   assert.ok(publishSection.includes("PUBLISH_SKIP_ISSUE_COMMENT: \"true\""));
   assert.ok(publishSection.includes("ai-agent-publication-result-${{ github.run_id }}"));
   assert.ok(publishSection.includes("ref: ${{ github.sha }}"), "publisher must validate against the exact workflow SHA");
+  assert.equal(publishSection.includes("AGENT_FACTORY_LEASE_ID"), false,
+    "the isolated publisher must never receive the privileged Factory worker lease");
 
   assert.ok(recordSection.includes("needs: [prepare-task, begin-publication, publish-task]"));
   assert.ok(recordSection.includes("issues: write"));
   assert.ok(recordSection.includes("contents: read"));
   assert.equal(recordSection.includes("contents: write"), false);
   assert.equal(recordSection.includes("pull-requests: write"), false);
+  assert.ok(recordSection.includes("AGENT_FACTORY_LEASE_ID: ${{ needs.prepare-task.outputs.lease_id }}"),
+    "the post-publication state writer must receive the same exact reserved lease");
   assert.ok(recordSection.includes("AGENT_FACTORY_MODE: transition"));
   assert.ok(recordSection.includes("$expectedPullUrl = \"https://github.com/$env:GITHUB_REPOSITORY/pull/$pullNumber\""),
     "the issue-state writer must bind the PR URL to the exact target repository and PR number");
