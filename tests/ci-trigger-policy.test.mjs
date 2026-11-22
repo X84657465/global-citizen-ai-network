@@ -703,7 +703,7 @@ test("CI carries provider rate-limit cooldown from the candidate controller to t
 
 
 test("Agent Factory isolates candidate generation, PR publication, state writes, and dispatch permissions", () => {
-  const jobsSource = preflight.slice(preflight.indexOf("\\njobs:") + "\\njobs:".length);
+  const jobsSource = preflight.slice(preflight.indexOf("\njobs:") + "\\njobs:".length);
   const prepare = findJobSection(jobsSource, "prepare-task");
   const prepareSection = jobsSource.slice(prepare.start, prepare.end);
   const publish = findJobSection(jobsSource, "publish-task");
