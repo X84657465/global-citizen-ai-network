@@ -957,7 +957,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ai-agent-api-cooldown-${{ github.run_id }}
+          name: ai-agent-api-cooldown-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/agent-api-cooldown.txt
           if-no-files-found: error
           retention-days: 1
@@ -1007,7 +1007,7 @@ jobs:
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          name: ai-agent-api-cooldown-${{ github.run_id }}
+          name: ai-agent-api-cooldown-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/cooldown
 
       - name: Restore validated publisher cooldown for durable failure callback
