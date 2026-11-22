@@ -137,7 +137,7 @@ function snapshotSafeRecord(value: unknown, allowed: readonly string[], required
 }
 
 function isCanonicalArrayIndexKey(key: string): boolean {
-  if (!/^(0|[1-9]\\d*)$/.test(key)) return false;
+  if (!/^(0|[1-9]\d*)$/.test(key)) return false;
   const index = Number(key);
   return Number.isInteger(index) && index >= 0 && index < 0xFFFFFFFF;
 }
