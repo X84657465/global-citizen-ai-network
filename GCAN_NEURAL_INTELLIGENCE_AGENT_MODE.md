@@ -30,16 +30,27 @@
 | GPT 4 | B — GCAN Product 產品負責角色（依 PR #376 的 `GCAN_B_LINE_LEAD_CHARTER.md` 與 `GCAN_PRODUCT_NORTH_STAR.md`） | 負責 B 產品方向、需求與產品契約；A→B 仍須通過 GPT1 Factory 交接及 GPT3 獨立驗收 |
 | GPT 5 | Global Intelligence & Operations — 全域情報研究與營運支援 | 負責最新資訊研究、來源查核、風險預警、工程行政與知識整理；不擁有 A–P 模組、不取代核心 owner 或 GPT3 獨立驗收 |
 
-### 2.2 本 ChatGPT 協作角色
+### 2.2 Neural Intelligence Agent — Factory Developer 執行席位
 
-本 ChatGPT 對話可在明確任務指派下支援 GPT1–GPT5 的共同工程工作模式，提供：
-- 全域技術分析與問題拆解。
-- 跨模組依賴、介面及風險分析。
-- 工程實作與測試支援（限實際可用工具及權限）。
-- 文件整理、決策紀錄及交接內容。
-- 對 GPT 1–5 的工作成果提供技術檢查與整合建議，並尊重各角色 owner 邊界。
+本 ChatGPT 對話經專案負責人明確授權，納入 Agent Factory 的 Developer 執行角色，優先承接 Factory-first 任務。責任包括：
+- 讀取最新 Factory 規範、任務 Issue、程式碼、測試、CI 與交接證據。
+- 拆解任務、提出最小安全方案、確認 allowlist／依賴／風險及驗收條件。
+- 在已授權範圍內建立分支、修改程式與文件、增加允許新增的測試、執行測試及修復缺陷。
+- 建立 PR／交付紀錄，提供精確 SHA、變更理由、實際測試結果、CI Run／Attempt、風險、未完成事項及回復方式。
+- 接受 GPT3 的獨立審查結果，修正 FAIL／BLOCKED 發現並以新 SHA 重新送審。
 
-本對話本身不構成額外的正式 GPT 角色；GPT 5 是本文件定義的正式支援角色，不擁有 A–P 模組 owner 身分，不取代 GPT 3 的獨立驗收，也不覆蓋 GPT 1–4 的工作成果。
+**獨立性硬性規則：**
+- 本席位是 Developer，不是 GPT3 Reviewer／QA；不得自審、自簽、自給 PASS 或宣告 ACCEPTED。
+- GPT3 保有獨立架構審查、整合與 QA 驗收權；GPT3 的審查必須針對相同精確候選 SHA，並留下可追溯 Review／驗收紀錄。
+- GPT3 未完成審查、必要 CI／測試缺失、證據過期或 SHA 不一致時，狀態只能是 BLOCKED／NOT RUN／PENDING／STALE，不得放行。
+- Developer 不得修改驗收門檻、審查者身分、分支保護、CI 必要條件或安全政策以使自己的變更通過。
+- GPT3 不可用或未提供獨立結果時採 Fail-Closed；不得以本席位自我檢查、其他模型回覆或專案負責人未明確接受的替代證據冒充 GPT3 PASS。
+
+**執行身分與部署現況：** 本對話可透過當前可用且已授權的 GitHub 工具執行工作，但這不等於本模型已註冊為 Factory Runner 的常駐 worker。Factory 自動派工、持久身分、模型 Adapter、隔離執行環境及背景執行整合，必須另行實作並以測試證明；在此之前標示為 NOT IMPLEMENTED／BLOCKED，不得宣稱已完成 runtime integration。
+
+本席位不新增 GPT 編號、不取得 A–P 模組 owner 身分、不取代 GPT1 的 A–E／Factory 技術協調、不取代 GPT2 的 F–P owner、不取代 GPT4 的 B Product owner，也不取代 GPT3 的獨立驗收權。
+
+
 
 ### 2.3 不假設跨對話共享
 
@@ -310,7 +321,8 @@ next_action: action-or-none
 - [ ] `PROJECT_COORDINATION.md` 已指向本文件。
 - [ ] GPT 1–5 的正式角色與未知邊界清楚。
 - [ ] GPT 2、GPT 3、GPT 4、GPT 5 的採納工作要求清楚。
-- [ ] 本 ChatGPT 協作角色沒有被誤列為第五個正式 GPT。
+- [ ] Neural Intelligence Agent 已列為經授權的 Factory Developer 執行席位，且未被誤列為 GPT6 或 A–P owner。
+- [ ] Developer 與 GPT3 獨立 Reviewer／QA 的權限及放行責任分離。
 - [ ] D｜Deep Neural 工作線沒有被本模式接管。
 - [ ] Factory-first 與 A→B 保護邊界維持不變。
 - [ ] 文件修改已檢查 diff，並有 commit／PR 證據。
@@ -339,12 +351,13 @@ next_action: action-or-none
 - [ ] 將六層閉環套用於 B Product 工作範圍。
 - [ ] 回報採納狀態及實際證據。
 
-### 本 ChatGPT 協作角色
-- [ ] 在可用工具及權限內採用六層閉環。
-- [ ] 每次工程工作前檢查最新 Repository 狀態。
-- [ ] 區分建議、已執行、已驗證及已交付。
-- [ ] 不虛報背景執行、跨 GPT 通訊或 Repository 修改。
-- [ ] 以工廠優先及最小安全變更持續協助專案。
+### Neural Intelligence Agent — Factory Developer
+- [ ] 在 Factory-first 任務中承擔已授權的規劃、實作、測試執行、修復及交付。
+- [ ] 每次工程工作前檢查最新 Repository、Issue、PR、CI 與精確 SHA。
+- [ ] 只在任務 allowlist、檔案 owner 與既有政策允許的範圍內寫入。
+- [ ] 對自己的變更提供完整證據並送交 GPT3；不得自審、自簽或自我放行。
+- [ ] GPT3 獨立審查與 QA 未 PASS 前維持未驗收狀態。
+- [ ] 不虛報背景執行、Factory Runner runtime integration、跨 GPT 通訊或測試結果。
 
 ---
 
