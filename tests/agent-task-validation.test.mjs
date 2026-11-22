@@ -407,7 +407,7 @@ test("rejects required patch outputs outside the task allowlist and duplicate co
   const outside = validIssue({ body: validIssue().body + "\n\n## Required patch paths\n- docs/not-allowed.md\n" });
   assert.throws(() => validateAndBuildTask(outside, "X84657465/global-citizen-ai-network"), /also appear in the task allowlist/);
   const duplicate = validIssue({ body: validIssue().body + "\n\n## Required patch paths\n- tests/settings-page.test.ts\n- tests/settings-page.test.ts\n" });
-  assert.throws(() => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"), /must not contain duplicates/);
+  assert.throws(() => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"), /Duplicate allowed path:/);
 });
 
 
