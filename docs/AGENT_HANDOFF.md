@@ -1105,3 +1105,41 @@ This snapshot supersedes earlier live-state summaries above. Historical entries 
 5. Keep Issue #352 recovery, Issue #100 machine-managed state, Runner/secrets/permissions, production database/RLS, deployments, and B Runtime activation blocked unless their separate explicit gates are satisfied.
 
 **Disposition at this snapshot:** Factory P0 #117 = BLOCKED / NOT ACCEPTED; operator recovery #352 = BLOCKED / NOT OPERATIONAL; B Product type fix #428 = PENDING; main exact-SHA GitHub Actions CI = NOT CONFIRMED. No merge, deployment, task dispatch, lease mutation, quarantine clear, breaker reset, Runner/secret/permission change, or production data operation was performed.
+
+
+---
+
+## Superseding continuation checkpoint — 2026-11-23 (latest exact-head inspection)
+
+This checkpoint supersedes the live-status statements in earlier snapshots where they conflict. Historical evidence remains traceability only. Re-fetch all refs and checks before any subsequent action.
+
+### Main and open PR inventory
+- Main HEAD remains `10fabef703ee3865d208196f46ee71ddd1b7e149` at this inspection.
+- 14 open PRs were returned. No candidate is accepted or mergeable by policy merely because GitHub reports a branch as mergeable.
+- Main's recent workflow inventory contains Factory System Health Recovery run `45062948018` in `queued` state and run `45062908646` as `skipped`. Neither is evidence that the complete mainline quality matrix passed. Do not infer PASS from missing or skipped checks.
+- The existing enabled daily automation is `6b000cb5c28c8191956a3575bd40d35f` (GCAN 工廠每日巡檢), scheduled daily at 19:00 Asia/Taipei. Reuse it; do not create another schedule.
+
+### Issue #117 — canonical Factory failure-scope candidate
+- Issue #117 remains OPEN and explicitly excludes merging a PR or deploying any environment.
+- It allows changes only in the five listed Factory policy/controller/preparation/workflow/test paths. Its acceptance requires deterministic scope isolation tests and complete unit/type/lint CI.
+- The label `factory-control-plane-approved` does not resolve the documented competing DRI/candidate decision between PR #422 and #425. No further overlapping workflow/policy edits or merge are authorized until the responsible owner records the canonical candidate.
+- PR #425 head `4680526983ac1ab4b1d5c4d0e35397e9c806cd3e`, exact run `45062346671`: FAILURE. Windows quality job `137331428166` reports 749 passed / 1 failed; test 71, operator recovery negative fixture, fails with `Missing expected rejection.`. Type/lint/build and full integration were not established. The raw Docker exit-code validation and start/inspect evidence-consistency checks remain mandatory fail-closed review items.
+
+### Operator recovery — Issue #352 and duplicate fixture correction
+- Issue #352 remains OPEN. Do not dispatch recovery, mutate Issue #100, clear quarantine, create a lease, reset the breaker, or treat operator recovery as operational.
+- PR #426 head `5380fc9142873888d6cc54e70979720bc41696f3` previously passed 749 unit tests but failed TypeScript in unchanged `app/contribute/contribution-client.tsx`; lint/build did not complete.
+- PR #429 head `6f2403ae26467fa025546351bd45a8519f2bcd43` passed 747 unit tests / 0 failures but failed the same TypeScript contract; lint/build did not complete.
+- PR #426 and #429 contain the same operator-recovery negative fixture correction. Do not duplicate it as two independent integrations. Preserve Environment-only authorization and legacy-secret rejection.
+
+### B Product type contract and handoff
+- PR #428 head `1bd38fff2a330ed97d5ab298323b0512e6e348ab`, exact run `45062174946`: FAILURE at unit tests due to the shared operator-recovery negative fixture. Its allowed scope is the contribution task filter helper/tests; do not fold Factory fixture changes into it. GPT4 remains owner of B Product type-contract acceptance.
+- PR #430 has moved to head `a56e5b96380b9ed1af81112989227a35a1e60efa`; exact run `45062969101` is PENDING with no jobs returned at inspection. It remains Draft and is not accepted.
+- PR #431 head `8fefd49adaa9763aa3f5b49f5ab1e79a69ed4cec`; exact run `45062871940` remains PENDING at metadata resolution. This file update is documentation-only; it does not establish CI or independent review acceptance.
+- Issue #136 is READ-ONLY and its immutable target remains `dce81ed801c41bca9bc364e3d0f248244d88f88f`, while current main is `10fabef703ee3865d208196f46ee71ddd1b7e149`. Per the Issue, stop and request owner reauthorization; do not silently retarget or claim the audit complete.
+
+### Disposition and next actions
+- Factory P0 #117: BLOCKED — resolve canonical DRI/candidate before further overlapping edits.
+- Operator recovery #352: BLOCKED / NOT OPERATIONAL — resolve shared fixture/type integration under correct ownership and preserve all guards.
+- B Product: GPT4-owned; PR #428 remains blocked by Factory fixture CI; PR #430 is pending exact-head CI.
+- A→B handoff: maintain versioned, sanitized, read-only boundary; no B Runtime activation.
+- No merge, deployment, main modification, task dispatch, durable-state mutation, lease/quarantine/breaker operation, Runner/secret/permission change, or production DB/RLS action was performed.
