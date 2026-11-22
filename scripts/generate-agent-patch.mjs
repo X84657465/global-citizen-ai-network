@@ -9,7 +9,7 @@ import {
 import { execFileSync } from "node:child_process";
 import { resolve, sep } from "node:path";
 import { resolveSafeExistingParent } from "../lib/agent-path-safety.mjs";
-import { getPatchManifestFiles, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { getPatchManifestFiles, scopePatchTaskToBatch, validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { collectOllamaGenerateStreamWithRetry } from "../lib/ollama-generate-stream.mjs";
 import { calculateNewFilePatchOutputTokenBudget, calculatePatchOutputTokenBudget, getMinimumPlannedOutputBytesForPath, selectPatchBatchSourceFiles, splitPatchPathsIntoBatches } from "../lib/ollama-patch-batches.mjs";
 import { markAgentFactoryTaskFailure } from "../lib/agent-failure-scope.mjs";
@@ -244,7 +244,7 @@ for (let batchIndex = 0; batchIndex < patchBatches.length; batchIndex += 1) {
       approved_paths: batchPaths,
     },
   };
-  const scopedTask = { ...task, allowed_paths: batchPaths };
+  // Enforce each required output in its own batch, then enforce the full contract below.\n  const scopedTask = scopePatchTaskToBatch(task, batchPaths);
 
   console.log("Starting patch batch " + (batchIndex + 1) + "/" + patchBatches.length +
     ": files=" + batchPaths.length +
