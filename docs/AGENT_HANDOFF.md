@@ -1,3 +1,59 @@
+## Superseding verified continuation snapshot — 2026-11-23 (main 25d5ed51; refreshed)
+
+This is the current operational snapshot. Everything below the next horizontal rule is historical evidence and must not override this section. Re-fetch exact SHAs and run IDs before any subsequent action.
+
+### Mainline and authority
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Current main HEAD: `25d5ed519eb923d3001df6d43aec1670a0d4851a`.
+- `PROJECT_COORDINATION.md` blob: `3d0b977feed819ad19bb204f598a3c8d704b4722`.
+- Root release `0.3.137`; A `2.0.84`; B `0.1.20`. Version declarations are not acceptance evidence.
+- GPT1 owns A–E and Factory-side A→B interface / read-only handoff; GPT4 owns B Product direction and delivery; GPT2 owns F–P; GPT3 retains independent architecture review / QA; GPT5 provides intelligence and operations support without A–P ownership.
+- Current-main B charter, Product North Star and Factory autonomy charter are present. B Runtime remains PREPARATION ONLY / BLOCKED pending A acceptance and A→B gates.
+
+### Main CI and deployment
+- Main exact-SHA run previously recorded as [#45055645581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45055645581) is PENDING; the jobs endpoint returned no jobs. A fresh workflow-run query returned no run records for the current main SHA. Treat main CI as PENDING / NOT VERIFIED, not PASS.
+- Main combined status reports Vercel `build-rate-limit` / `api-deployments-free-per-day`. This is a provider deployment quota failure, separate from GitHub Actions test evidence.
+- Do not dispatch, cancel or retry workflows to force a green result; respect the single Windows self-hosted Runner queue and existing concurrency policy.
+
+### Current open PRs — exact heads
+- PR #414 — B baseline documentation: head `ebbe878eb8e15df50457c17f086b1c2d58dedbb3`, base main `25d5ed519eb923d3001df6d43aec1670a0d4851a`; open, non-Draft, mergeable. Exact-head run #45055859790 is PENDING with no job records; review records are COMMENTED only. GPT4-owned B document; do not self-review or merge.
+- PR #415 — operations handoff: open, Draft, mergeable, one documentation file. Read its current exact head from live PR metadata; this handoff deliberately avoids embedding its own SHA. The earlier heads and their Actions results are stale. The live PR head's exact-SHA Actions state must be read from GitHub; current evidence is PENDING, with no PASS established. Review records are COMMENTED only. GPT5 operations document; keep Draft pending exact-head CI and independent review.
+- PR #416 — B contribution task filters: head `3444d476bdf094e3431333ddaf473877eda45b1d`, base main `25d5ed519eb923d3001df6d43aec1670a0d4851a`; open, non-Draft, mergeable, 3 files. Exact-head run #45056321624 has only the metadata resolver PENDING; no formal review. GPT4-owned B code; do not modify, self-review or merge.
+- PR #417 — Neural Intelligence Agent developer-seat governance: head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`, base main `25d5ed519eb923d3001df6d43aec1670a0d4851a`; open, Draft, mergeable, 4 governance/charter files. Exact-head run #45056447505 has only the metadata resolver PENDING; no formal review. Requires GPT3 independent review; this ChatGPT execution seat must not self-approve or claim its own role registration is accepted.
+- PR #373 — P latest-entry validator: head `cb90b213d76f1e353c3bae39c9800cecf8a07274`; diverged 36 ahead / 86 behind main; `mergeable=false`. Exact-head run #45052753388 has resolver SUCCESS but Windows quality job PENDING. Review records are COMMENTED only. Do not merge or use older candidate evidence.
+- PR #376 — Factory/B charter docs: head `d10e6dd6d428d9ce35dbd14778e01c628f909742`; diverged 50 ahead / 86 behind main; `mergeable=false`; no exact-head Actions run returned; reviews COMMENTED only. GPT4/GPT1 owner reconciliation required; do not merge wholesale.
+- PR #259 — broad A/F–P integration: head `3330cd04a77358cf0ff780940d09f938cab1dc3a`; diverged 111 ahead / 824 behind main; `mergeable=false`. Its historical exact-head run #44949425719 completed success, but that stale SHA does not validate current main; reviews COMMENTED only. No wholesale transplant.
+- PR #410–#413 are merged. Their merged state and historical CI/reviews do not replace current-main exact-SHA verification.
+
+### F–P delivery and blockers
+- **H / Issue #364:** recorder hardening is now present on main (`lib/fp/observability.ts` and `tests/fp/observability.test.ts`). PR #365 merged; exact-head run #45031581905 completed successfully for metadata resolution, Windows quality, PostgreSQL/RLS and Ollama/local execution. PR #379 also merged the G/H array-index boundary hardening; exact-head run #45047457547 completed all four substantive jobs successfully. However formal review lists were COMMENTED, not APPROVED; keep independent acceptance distinct from merged code and passing CI. Issue #364 remains open until its owner/QA acceptance record is resolved.
+- **P / Issue #166:** latest-entry/date/README validator work remains in PR #373, but its branch is stale and its current exact-head Windows quality job is pending. Do not duplicate or transplant until owner reconciliation and exact-head CI/review are complete.
+- **G / Issue #375:** duplicate `jobUrl` validation remains blocked because open PR #259 contains overlapping G source/test paths and is heavily divergent. Do not edit overlapping files or open a competing PR until the #259 owner resolves the candidate.
+- **F / Issue #144:** mainline Supabase startup redaction code and exact-run log evidence are documented as present. Remaining legacy F/G branch copies are not mass-rewritten without a live integration path; preserve branch ownership and avoid broad workflow sweeps.
+- **CI efficiency / Issue #121:** current main workflow blob `cad877cea75dc2487b2e2b9bef9c7e872a28c68f` triggers `push` only on `main`, plus `pull_request` for `main` and five named target branches, and `repository_dispatch: ai-task-ci`; it no longer has a `push` trigger for `codex/**`. The issue's original duplicate push+PR scenario is therefore not reproduced by the current workflow definition. Branch-protection/required-check configuration could not be read (GitHub API 403), so do not change triggers or claim required-check safety; owner/GPT3 should reconcile whether #121 can be closed based on current policy evidence.
+
+### Factory-first and A→B blockers
+- **Issue #136:** immutable audit target remains `dce81ed801c41bca9bc364e3d0f248244d88f88f`, now stale relative to main. Do not silently retarget or claim the independent A-wide audit; a fresh owner-authorized exact-main baseline is required.
+- **Issue #352:** operator recovery code is present, but actual GitHub Environment reviewers, main-only restriction and Environment-only secret scope remain UNKNOWN. Recovery remains BLOCKED.
+- **Issue #100:** machine-managed Factory state; read-only only. No manual edits, breaker reset, quarantine clearing, lease creation or task dispatch/retry.
+- **B Runtime:** PREPARATION ONLY / BLOCKED until A's independent acceptance, current-main CI and sanitized read-only A→B contract gates are satisfied.
+
+### Daily monitoring
+- Existing automation: `6b0324f672e48191825dff3fbb8fb766` — **每日檢查開發與交付**; enabled; daily, Asia/Taipei; next run `2026-11-24T01:23:02+08:00`.
+- This automation checks main, exact-SHA CI, every open PR, formal reviews, dependencies, F–P blockers and safe authorized delivery. Do not create a duplicate scheduler.
+- Last persisted automation run/result is UNKNOWN / null. An on-demand check was triggered in the current conversation; it must not be represented as a persisted scheduled-run record.
+
+### Next execution order
+1. Keep Factory-first; request fresh owner authorization for Issue #136's new exact-main audit target and resolve main CI pending / Runner allocation.
+2. Keep #414/#415 unmerged until exact-head required Actions and independent formal review are recorded; #415 remains Draft.
+3. Resolve #373 stale base and exact-head pending quality job before any P integration.
+4. Resolve #259 overlap/owner disposition before G Issue #375 implementation.
+5. Record H #364 code/CI delivery separately from formal independent acceptance; do not claim accepted solely because merged.
+6. Do not activate B Runtime or perform production/Runner/secret/permission/database/RLS operations without the required authorization.
+
+**Safety boundary:** this snapshot is documentation-only. It does not authorize task dispatch/retry, Issue #100 mutation, Runner/configuration/permission/secret changes, production database/RLS operations, deployment, paid upgrades, or B Runtime activation.
+---
+
 ## Superseding verified continuation snapshot — 2026-11-23 (main dce81ed8)
 
 This snapshot supersedes the older live-state snapshot at the top of this file. Historical sections below are retained for traceability; do not reuse their SHAs, run IDs, PR states, or blocker status as current.
