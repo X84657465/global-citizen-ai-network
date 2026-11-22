@@ -103,3 +103,30 @@ test("rejects malformed timestamps, unsafe quota settings and excessive event ba
   assert.throws(() => assessHObservation(bundle([], { quotaLimitMicros: 0 })), TypeError);
   assert.throws(() => assessHObservation(bundle(Array.from({ length: 20_001 }, (_, i) => event(`event-${i.toString().padStart(6, "0")}`)))), TypeError);
 });
+
+
+test("uses a half-open UTC window and rejects malformed event identity or taxonomy", () => {
+  const atStart = assessHObservation(bundle([
+    event("boundary-0001", { occurredAt: start }),
+  ]));
+  assert.equal(atStart.eventCount, 1);
+  assert.throws(() => assessHObservation(bundle([
+    event("short"),
+  ])), /Invalid, duplicate, or out-of-window/);
+  assert.throws(() => assessHObservation(bundle([
+    event("invalid-kind", { kind: "member" as HTelemetryEvent["kind"] }),
+  ])), /Invalid, duplicate, or out-of-window/);
+  assert.throws(() => assessHObservation(bundle([
+    event("invalid-outcome", { outcome: "unknown" as HTelemetryEvent["outcome"] }),
+  ])), /Invalid, duplicate, or out-of-window/);
+});
+
+test("rejects aggregate cost overflow and duration values beyond the documented bound", () => {
+  assert.throws(() => assessHObservation(bundle([
+    event("cost-max-001", { kind: "cost", costMicros: Number.MAX_SAFE_INTEGER, currency: "USD" }),
+    event("cost-over-001", { kind: "cost", costMicros: 1, currency: "USD" }),
+  ])), /aggregate cost exceeds safe integer precision/);
+  assert.throws(() => assessHObservation(bundle([
+    event("duration-over", { durationMs: 7 * 24 * 60 * 60 * 1000 + 1 }),
+  ])), /duration/);
+});
