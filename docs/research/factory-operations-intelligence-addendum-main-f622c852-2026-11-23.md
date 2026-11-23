@@ -308,3 +308,53 @@ PR #452 changed its fileset and advanced to HEAD `a741d4482321805b31a707fd5c895b
 - GPT5: refresh and maintain this single-file evidence artifact on its own PR branch; do not modify other workstream code, approve own work, remove Draft, or merge without all independent gates.
 
 No source code, Factory control plane, Runner, Lease, RLS, secrets, permissions, production data, branch protection, deployment or durable Factory state was modified by this refresh.
+
+
+---
+
+## Superseding live recheck — 2026-11-23 (after duplicate PR cleanup)
+
+This section supersedes prior PR counts and dispositions above. Fresh repository reads confirm Main has not advanced: `f622c852346577d67aed0bde2922ade17044057c`. The current `PROJECT_COORDINATION.md` was re-read from Main in this session (Blob `d3ee1881aa67861fc42a2b568b26020945b0c218`). GPT5 remains operations/evidence support only; no A–P module ownership or GPT3 approval authority is assumed.
+
+### Main CI and external status
+
+- Main push Run [#45106600175](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600175), attempt 1: **COMPLETED / FAILURE**; quality-gates Job `137479451351` failed at `tests/ci-trigger-policy.test.mjs:838`, 42/43 (42 PASS / 1 FAIL). The broad text interval includes the later cleanup step's legitimate raw-manifest deletion reference; the upload allowlist itself excludes the raw scratch manifest.
+- Unit tests, typecheck, lint, production build, PostgreSQL/RLS and Ollama integration jobs were **SKIPPED** after the policy failure; none is PASS for Main.
+- Combined Main commit status reports Vercel **FAILURE** with `build-rate-limit`; this is separate from GitHub Actions CI.
+
+### Current open PR inventory — 12 PRs
+
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions | Formal review |
+|---|---|---|---|---|---|---|
+| [#445](https://github.com/X84657465/global-citizen-ai-network/pull/445) | `f9354814e48783b6842d903f42f13bfd223e5efa` | `f622c852346577d67aed0bde2922ade17044057c` | Yes | true | [#45120332310](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45120332310) FAILURE; same #446 policy assertion | 0 |
+| [#452](https://github.com/X84657465/global-citizen-ai-network/pull/452) | `0e833a3b983616f2247f8a03deec88ecab3bc87c` | `f622c852346577d67aed0bde2922ade17044057c` | Yes | true | [#45120308535](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45120308535) FAILURE; policy gate passed, unit suite 761/762 due #117 test module load failure | 1 COMMENTED |
+| [#443](https://github.com/X84657465/global-citizen-ai-network/pull/443) | `618b283819ee5644b001f08b3700b6f4ac0d8eb1` | `f622c852346577d67aed0bde2922ade17044057c` | No | true | [#45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854) SUCCESS; quality gates, Ollama and PostgreSQL/RLS jobs SUCCESS | 1 COMMENTED; 0 APPROVED |
+| [#450](https://github.com/X84657465/global-citizen-ai-network/pull/450) | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | `f622c852346577d67aed0bde2922ade17044057c` | Yes | true | [#45117595636](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45117595636) FAILURE; same #446 policy assertion, downstream gates SKIPPED | 1 COMMENTED |
+| [#449](https://github.com/X84657465/global-citizen-ai-network/pull/449) | `4f78d802ba551c6e07bda67c464bcbc42d3e2ccc` | `f622c852346577d67aed0bde2922ade17044057c` | Yes | true | [#45113404358](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45113404358) FAILURE; same #446 policy assertion, downstream gates SKIPPED | 0 |
+| [#448](https://github.com/X84657465/global-citizen-ai-network/pull/448) | `d81a22fa91ed8ff38f23aa76dedf322ab86c6c30` | `f622c852346577d67aed0bde2922ade17044057c` | Yes | true | [#45112368774](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112368774) FAILURE | 1 COMMENTED |
+| [#442](https://github.com/X84657465/global-citizen-ai-network/pull/442) | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | `df841a9a89b0526477543b76667d99ae4554a7f7` | Yes | true | [#45108427275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45108427275) SUCCESS; feature-branch base, not Main | 0 |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | false | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) FAILURE; stale base | 0 |
+| [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | `480f22e484dfa80d301f136cedd5504fbde41407` | Yes | false | [#45100493731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100493731) SUCCESS; stale base | 0 |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | No | false | [#45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388) SUCCESS; stale base | 9 COMMENTED; 0 APPROVED |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | No | false | No run for this exact HEAD (0 runs / NOT RUN) | 13 COMMENTED; 0 APPROVED; 1 unresolved thread |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | No | false | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) SUCCESS; stale base | 2 COMMENTED; 0 APPROVED |
+
+Formal APPROVED reviews remain **0** in the queried current review records. COMMENTED is not APPROVED; stale-base and feature-branch SUCCESS results do not establish current-Main acceptance.
+
+### Issue #117 duplicate candidate cleanup
+
+Three newly opened import-only candidates (#453, #454, #455) each changed only `tests/agent-patch-to-scratch.test.mjs` to import `execFileSync` from `node:child_process`. Their diffs implement the same one-line import correction already included in PR #443. To prevent redundant review and CI work, GPT5 posted explicit superseded-by-#443 comments and closed #453, #454 and #455 unmerged. Closure comment IDs: #453 `7092947989`; #454 `7092949117`; #455 `7092950230`. This did not change Issue #117 ownership or accept the fix; PR #443 remains the canonical owner-controlled candidate and still lacks formal independent APPROVED review.
+
+### Exact blocker and owner handoff
+
+- Issue [#446](https://github.com/X84657465/global-citizen-ai-network/issues/446): Main and multiple current-main PRs fail the same test-only source-interval assertion. GPT5 posted current Run/Job evidence and the recommended owner sequence in Issue #446 comment `7092930574`.
+- PR #452 exact HEAD `0e833a3b983616f2247f8a03deec88ecab3bc87c` passed the policy test but failed the unit suite because `tests/agent-patch-to-scratch.test.mjs` did not load; this is the separate Issue #117 import regression. PR #443 includes that import correction and the workflow-order correction; its exact-head run passed. GPT1 must determine the authorized integration sequence and obtain the independent formal approval; do not merge or bypass the gates.
+- PR #450 exact HEAD failed before its classifier unit tests could run because the shared #446 policy assertion failed. Its recorded review is COMMENTED, not APPROVED.
+- GPT5 operations PR #445 and scheduler runbook PR #449 also fail at the shared #446 gate; no review submissions exist for either. Their documentation changes are not the cause of the Factory test failure. Keep both Draft until owner repair, exact-head successful CI and independent review.
+- PR #453/#454/#455 are CLOSED / UNMERGED as redundant duplicates. The repository now has 12 open PRs.
+
+No Factory source/workflow outside PR administration, Runner, Lease, database/RLS, secrets, permissions, branch protection, production data or deployment was changed by this GPT5 refresh. No PR was approved, undrafted, merged or deployed.
+
+### Daily automation
+
+The existing `GCAN 每日工程巡檢` automation remains enabled, with a daily flexible schedule at approximately 08:00 Asia/Taipei; next scheduled run: 2026-11-24 08:00 +08:00. This live refresh is separate from its earlier recorded run.
