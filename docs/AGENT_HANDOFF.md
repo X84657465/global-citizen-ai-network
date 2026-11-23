@@ -3244,3 +3244,20 @@ This latest delta supersedes prior PR counts and state claims above. It is a dir
 ### Automation
 - `GCAN Daily Dev Check` and `GCAN 每日章程檢閱` remain enabled, with next flexible run around 08:00 Asia/Taipei on 2026-11-24.
 - Daily Dev Check last recorded run remains 2026-11-23; charter review has no recorded run. This is a manual live recheck, not a scheduled delivery.
+
+
+## GPT5 live recheck — 2026-11-24 (latest run)
+
+This checkpoint supersedes earlier run IDs/status snapshots in this handoff where they differ. Queried live at 2026-11-24 (Asia/Taipei).
+
+- Current `refs/heads/main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Main push run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163): completed **FAILURE**. Resolver and diagnostics jobs failed; failure persistence succeeded only in recording system failure. Windows quality, PostgreSQL/RLS, Ollama, and success persistence jobs were **SKIPPED**.
+- Combined external statuses: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline 86 **ERROR**.
+- Recovery runs on this SHA, including [#45236675185](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45236675185), completed **SKIPPED**. Repeated skipped recovery runs are not a recovery pass.
+- All 13 currently open PRs were re-enumerated from GitHub. Exact-head Actions terminal results remain: #502 FAILURE (#45234565750), #501 FAILURE (#45236643970), #500 FAILURE (#45233415974), #498 FAILURE (#45230211754), #497 FAILURE (#45229281768), #496 FAILURE attempt 2 (#45228376095), #495 FAILURE attempt 2 (#45225428794), #493 FAILURE (#45234857234), #478 SUCCESS on stale base (#45191718421), #476 no exact-head Actions run, #417 FAILURE (#45056447505), #376 no exact-head Actions run, and #259 SUCCESS on stale base (#44949425719).
+- All 13 remain OPEN / unmerged. No PR was promoted from Draft, accepted, or merged. Historical success on stale base and missing exact-head runs are not current acceptance.
+- Resolver/diagnostics logs remain unavailable from prior evidence (404 `BlobNotFound`); root cause is **UNKNOWN**. Do not infer cause or blindly retry.
+- GPT5 performed a documentation-only update in its own handoff branch. No Factory/Product source, workflow, secrets, permissions, branch protection, database/RLS, production state, or deployment configuration was changed. Local tests were not run.
+- Existing daily automations `GCAN Daily Dev Check` and `GCAN 每日章程檢閱` are enabled for 08:00 Asia/Taipei. This live check is not represented as a successful scheduled execution.
+
+**Current disposition: MAIN FAILURE; 13 OPEN PRs; no independently approved or safely mergeable PR.**
