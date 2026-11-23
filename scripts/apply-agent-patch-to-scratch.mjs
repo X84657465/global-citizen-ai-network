@@ -49,17 +49,25 @@ const fail = (message, { taskScoped = false } = {}) => {
   process.exit(1);
 };
 
-const readJson = (path, label) => {
+const readJson = (path, label, { invalidJsonTaskScoped = false } = {}) => {
+  let raw;
   try {
-    return JSON.parse(readFileSync(path, "utf8"));
+    raw = readFileSync(path, "utf8");
   } catch {
-    fail(label + " is missing or invalid JSON.");
+    fail(label + " is missing or unreadable.");
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    fail(label + " contains invalid JSON.", {
+      taskScoped: invalidJsonTaskScoped && error instanceof SyntaxError,
+    });
   }
 };
 
 task = readJson("artifacts/agent-task.json", "Validated task bundle");
-const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan");
-const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal");
+const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan", { invalidJsonTaskScoped: true });
+const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal", { invalidJsonTaskScoped: true });
 
 if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false ||
     (task.issue && task.safety?.issue_content_is_untrusted_data !== true)) {
@@ -187,8 +195,8 @@ for (const file of validatedPatch.files) {
   }
   mkdirSync(dirname(destinationPath), { recursive: true });
   const exists = existsSync(destinationPath);
-  if (file.operation === "add" && exists) fail("An add patch unexpectedly targets an existing scratch file.");
-  if (file.operation === "modify" && !exists) fail("A modify patch target is missing from the scratch copy.");
+  if (file.operation === "add" && exists) fail("An add patch unexpectedly targets an existing scratch file.", { taskScoped: true });
+  if (file.operation === "modify" && !exists) fail("A modify patch target is missing from the scratch copy.", { taskScoped: true });
   writeFileSync(destinationPath, file.content, "utf8");
 }
 
