@@ -226,3 +226,33 @@ test("invoice preview payload rejects malformed FX evidence", () => {
     assert.throws(() => parseProviderInvoicePreviewPayload({ csv: invoiceCsv, fxConversion }), /匯率資訊/);
   }
 });
+
+
+test("invoice source references are deduplicated within provider namespaces", () => {
+  const sharedReferenceCsv = [
+    "provider,model,billing_period_start,billing_period_end,source_reference,currency,amount",
+    "openai,gpt-test,2026-11-01,2026-11-30,shared-request-id,USD,1.25",
+    "anthropic,claude-test,2026-11-01,2026-11-30,shared-request-id,USD,2.50",
+  ].join("\\n");
+  const parsed = parseProviderInvoiceCsv(sharedReferenceCsv);
+  const requests = [
+    {
+      id: "openai-request", provider: "openai", model: "gpt-test",
+      provider_request_id: "shared-request-id", created_at: "2026-11-10T12:00:00.000Z",
+      provider_billed_cost: "1.25", provider_billed_currency: "USD",
+    },
+    {
+      id: "anthropic-request", provider: "anthropic", model: "claude-test",
+      provider_request_id: "shared-request-id", created_at: "2026-11-11T12:00:00.000Z",
+      provider_billed_cost: "2.50", provider_billed_currency: "USD",
+    },
+  ];
+
+  const preview = previewProviderInvoiceReconciliation(parsed, requests);
+  assert.deepEqual(preview.rows.map((row) => row.disposition), [
+    "matched_actual", "matched_actual",
+  ]);
+  assert.deepEqual(preview.rows.map((row) => row.match?.requestId), [
+    "openai-request", "anthropic-request",
+  ]);
+});
