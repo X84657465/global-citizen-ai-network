@@ -22,7 +22,7 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
   } else {
     // The network-isolated Node container intentionally has no Git package.
     // Provide only the two read-only Git responses this script consumes.
-    const gitShim = `#!/usr/bin/env node
+    const gitShim = String.raw`#!/usr/bin/env node
 const args = process.argv.slice(2);
 if (args[0] === "ls-files" && args[1] === "-z") {
   process.stdout.write("README.md\0");
