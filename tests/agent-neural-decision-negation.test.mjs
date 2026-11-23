@@ -386,3 +386,29 @@ test("negated prohibitions retain positive-risk meaning across coordinated targe
   assert.equal(observational.evidence.high_risk_scope_detected, false, observationalTitle);
   assert.equal(observational.decision, "approve_for_sandbox_validation", observationalTitle);
 });
+
+
+test("discourse no punctuation variants do not hide an actionable production command", () => {
+  for (const title of [
+    "No: deploy to production",
+    "No — deploy to production",
+    "No – deploy to production",
+    "No - deploy to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+
+  for (const title of [
+    "No: do not deploy to production",
+    "No — do not deploy to production",
+    "No – never deploy to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
