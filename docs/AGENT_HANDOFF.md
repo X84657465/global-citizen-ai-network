@@ -1341,3 +1341,24 @@ All review submissions inspected for these PRs were COMMENTED or absent; no form
 6. Keep B Runtime blocked; no merge, deployment, task dispatch, lease/quarantine/breaker mutation, Runner/secret/permission change, or production DB/RLS operation.
 
 **Disposition:** main CI = FAIL (746/747; type/lint/build NOT RUN); #432 and #422 exact-head scoped CI = PASS but acceptance BLOCKED; #433 currently has a failed quality job and diagnostics in progress; #428/#429/#426/#425/#431/#417/#420/#430/#427 exact-head CI = FAIL; #373/#424 are successful only on stale-base candidates; #376 has no exact-head run; #259's success is historical/stale. No PR is independently accepted or approved. No merge, deployment, main modification, Factory runtime operation, task dispatch, or production data operation was performed.
+
+
+---
+
+## GPT5 live delta — 2026-11-23 (latest PR head recheck)
+
+This short delta supersedes the matching PR rows in the earlier 2026-11-23 checkpoint above. Main has not advanced: `10fabef703ee3865d208196f46ee71ddd1b7e149`. Current-main coordination blob remains `849e4f43c87d7686f80ed2e6af9337e797403027`; current Master Charter confirms GPT5 execution requires a uniquely assigned task owner and explicit file allowlist.
+
+| PR | Current exact head | Latest exact-head Actions | Review / disposition |
+|---|---|---|---|
+| #431 (this handoff) | `1130cebe222a0194a3fc779b665ea0eac2c124f3` | [#45094201349](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45094201349) FAIL; unit tests 746 pass / 1 fail at the shared operator-recovery negative fixture (`tests/agent-factory-controller.test.mjs:1917`); typecheck/lint/build and downstream integrations were not run | Draft; 3 COMMENTED reviews, no APPROVED review |
+| #432 | `49d541eaed8be94e9fd442155f0b6a10d0390428` | [#45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302) SUCCESS on exact head | Draft; 3 COMMENTED reviews; no formal approval; Factory/GPT4 owner disposition still pending |
+| #433 | `1ff91a6e19dbc844f9690c24994298bae88eeb59` | [#45093624984](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45093624984) FAIL; unit tests 751 pass / 1 fail at the same shared operator-recovery fixture (`tests/agent-factory-controller.test.mjs:1917)); downstream integrations skipped | Draft; no formal review found |
+| #429 | `6f2403ae26467fa025546351bd45a8519f2bcd43` | [#45062245405](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062245405) FAIL | Draft; 3 COMMENTED reviews |
+| #428 | `1bd38fff2a330ed97d5ab298323b0512e6e348ab` | [#45062174946](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062174946) FAIL | Draft; 3 COMMENTED reviews |
+
+PR #433's latest head differs from its earlier documented head; do not reuse the earlier #45079849505 result or the previous SHA. Its latest run independently reproduces the mainline fixture failure, not a demonstrated regression in Issue #116's allowlisted scheduler-path change. PR #431 is documentation-only and the current failure is outside its sole changed path. Vercel continues to report a separate `build-rate-limit` status; do not conflate it with GitHub Actions.
+
+Issue #204 remains OPEN and unassigned. Its two-file allowlist and acceptance criteria are clear, but no unique task owner has been assigned. GPT5 must not self-assign or write the classifier files until the project owner explicitly designates the task owner. Issue #203 is likewise unassigned and must not be used as an implicit substitute.
+
+**Updated disposition:** main remains CI FAIL (746/747); #432 exact-head CI PASS but not accepted; #431 and #433 exact-head CI FAIL on the shared operator-recovery fixture; #429/#428 exact-head CI remain FAIL. No merge, deployment, Factory runtime operation, Issue #100 mutation, or production data operation was performed.
