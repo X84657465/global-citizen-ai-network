@@ -142,7 +142,15 @@ test("invoice reconciliation requires exact provider reference, provider, model,
 
 test("invoice TWD normalization requires an explicit valid rate and timestamp", () => {
   const parsed = parseProviderInvoiceCsv(invoiceCsv);
-  const request = [];
+  const request: Array<{
+    id: string;
+    provider: string;
+    model: string;
+    provider_request_id: string;
+    created_at: string;
+    provider_billed_cost?: number | string | null;
+    provider_billed_currency?: string | null;
+  }> = [];
   assert.equal(previewProviderInvoiceReconciliation(parsed, request).rows[0].normalizedTwd, null);
   const normalized = previewProviderInvoiceReconciliation(parsed, request, {
     fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "2026-11-23T00:00:00.000Z",
