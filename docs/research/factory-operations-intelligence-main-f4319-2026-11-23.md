@@ -183,3 +183,38 @@ Current main remains `f4319ec65d33bf30804b2d447e7692207fd82f0c`. Unlike the earl
 - Exact-head run [#45139946276](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45139946276), attempt 1: metadata resolver SUCCESS; Windows Runner quality gates SUCCESS; Ollama/local integration PENDING; Supabase/PostgreSQL/RLS integration PENDING.
 - This is **2 SUCCESS + 2 PENDING**, not a terminal pass. PR remains Draft, mergeable=true, with zero formal reviews and zero unresolved review threads. Do not mark ready or merge before both pending jobs reach terminal success and GPT3 provides an independent formal approval.
 - This report refresh is documentation-only within GPT5 operations scope. No Factory/A–P source, tests, workflows, Runner, permissions, secrets, database/RLS, production state or deployment changes are authorized or performed.
+
+
+---
+
+## Full open-PR exact-head recheck — 2026-11-23 16:49 Asia/Taipei
+
+The current open-PR search returned 13 PRs. Metadata, exact head SHAs, exact-head Actions run records, job terminal states, and formal review submissions were rechecked. No PR has an independent formal `APPROVED` review; `COMMENTED` submissions do not satisfy that gate.
+
+| PR | Exact head SHA | Exact-head Actions / jobs | Draft / mergeable | Review disposition |
+|---|---|---|---|---|
+| #466 | `50ef885fc4a7458a58424f9d25bdd4c8fe2b3bc7` | **NO RUN returned** for this current head | Draft / true | 0 reviews |
+| #448 | `ec18573aca2562dee8a9e70408acd2c1eca9a0f4` | #45139492461 IN_PROGRESS: metadata SUCCESS, quality gates SUCCESS, Ollama SUCCESS, Supabase/RLS IN_PROGRESS | Draft / true | COMMENTED only on superseded head `d81a22fa...` |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | #45137959652 COMPLETED / SUCCESS: metadata, quality gates, Ollama, Supabase/RLS all SUCCESS; conditional persistence/diagnostics SKIPPED | Draft / true | COMMENTED on current head; independent APPROVED=0 |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | #45137849234 COMPLETED / FAILURE: quality gates FAILURE; diagnostics SUCCESS; integration and conditional persistence SKIPPED | Ready / true; base stale at `f622c852...` | COMMENTED only on superseded head `bf64ecdd...` |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | #45100493731 COMPLETED / SUCCESS: metadata, quality gates, Ollama, Supabase/RLS all SUCCESS; conditional jobs SKIPPED | Draft / false; base `480f22e...` stale | 0 reviews |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | #45132200910 COMPLETED / FAILURE: Supabase/RLS SUCCESS; build/unit/type/lint/production job FAILURE; persistence SKIPPED | Draft / true; F security branch | 0 reviews |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | #45108427275 COMPLETED / SUCCESS: build/unit/type/lint/production and Supabase/RLS SUCCESS; conditional persistence SKIPPED | Draft / true; integration branch | 0 reviews |
+| #445 | `ecb4d5068a63b68e9917c348568a96bfb7fdf9b8` | #45130468033 COMPLETED / FAILURE: quality gates FAILURE; diagnostics SUCCESS; integrations/persistence SKIPPED | Draft / true; base `f622c852...` stale | 0 reviews |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | #45117595636 COMPLETED / FAILURE: quality gates FAILURE; diagnostics SUCCESS; integrations/persistence SKIPPED | Draft / true; base `f622c852...` stale | COMMENTED by author on current head; no approval |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | #45056447505 COMPLETED / FAILURE: quality gates FAILURE; diagnostics SUCCESS; integrations/persistence SKIPPED | Ready / false; base `25d5ed51...` stale | 0 reviews |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | #45052753388 COMPLETED / SUCCESS: quality, Ollama and Supabase/RLS SUCCESS; conditional jobs SKIPPED | Ready / false; base `93e7ac35...` stale | COMMENTED only; submissions are on older heads |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | **NO RUN returned** for exact head | Ready / false; base `93e7ac35...` stale | COMMENTED only; no approval |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | #44949425719 COMPLETED / SUCCESS: quality, Supabase/RLS and Ollama SUCCESS; conditional jobs SKIPPED | Ready / false; base `a1c1b58e...` stale | COMMENTED by author on current head; no approval |
+
+### Owner routing and decisions
+
+- **#464 / Issue #446 — GPT1 Factory owner:** exact-head CI has now completed SUCCESS across all four substantive jobs. The only returned review is COMMENTED by the author, not an independent APPROVED. Keep Draft; GPT3 formal approval on this exact SHA remains required. GPT5 posted this updated evidence to Issue #446.
+- **#465 — GPT1 Factory owner:** the current-main restricted offline suite has 13 fixture setup failures from the missing Git executable. GPT5 posted the 763/776 count and artifact evidence to Issue #465; no A-owned workflow, Runner or test files were changed.
+- **#448 — GPT2 owner:** exact-head run remains IN_PROGRESS because Supabase/RLS is still IN_PROGRESS. The only review is on a superseded head.
+- **#457 — GPT1 Factory docs owner:** quality gates definitively FAILED; diagnostics succeeded; remaining integrations were SKIPPED. Its base is stale and existing comments target an older head.
+- **#462 / #442 — GPT2/F owner:** #462 fails in the build/unit/type/lint/production job; #442 has successful substantive checks but remains Draft, has no review, and targets an integration branch.
+- **#438 / #445 / #466 — GPT5 operations documents:** #438 is successful but stale-base and merge-conflicted; #445 failed its quality gate; #466's current head has no Actions run returned. None is ready for acceptance or merge.
+- **#450 / #417 / #373 / #376 / #259:** remain blocked by failed or missing exact-head checks, stale bases, merge conflicts and/or absent independent approvals as shown above.
+
+No Draft was removed and no PR was merged: no candidate satisfies every required exact-head CI, ownership, independent-review and conflict gate. No self-review is counted as independent approval.
