@@ -455,3 +455,62 @@ Evidence links:
 - Issue #117: https://github.com/X84657465/global-citizen-ai-network/issues/117
 - Issue #465: https://github.com/X84657465/global-citizen-ai-network/issues/465
 - Issue #446: https://github.com/X84657465/global-citizen-ai-network/issues/446
+
+
+---
+
+## GPT5 live operations refresh — 2026-11-23 18:29 Asia/Taipei
+
+### Governance files freshly read from current main
+
+- Main HEAD: `f4319ec65d33bf30804b2d447e7692207fd82f0c` (PR #458 merge).
+- `PROJECT_COORDINATION.md`: blob `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`: blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`: blob `46b188085c2dff0f527477b2486719a7f6c24b59`; status PROPOSED, not operative authority.
+- `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md`: blob `67166a378c92909c8ddf64586f8a2b5202be7d14`; status GOVERNANCE PROPOSAL, not operative authority.
+- `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md`: blob `299d445e1f29decc3002e29e68ecbf6ba6ddf900`.
+- Coordination remains Factory-first. GPT5's operative scope remains intelligence/operations/documentation/handoff; proposed governance text does not expand module ownership or merge/deployment authority.
+
+### Main exact-SHA CI and Factory preflight
+
+- Main push CI run `45137751765`, attempt 1, was independently confirmed by the Actions API as `head_sha=f4319ec65d33bf30804b2d447e7692207fd82f0c`, matching current main. Terminal conclusion: SUCCESS. Job results: metadata resolver SUCCESS; Windows quality gates SUCCESS; Supabase/PostgreSQL/RLS SUCCESS; Ollama/local integration SUCCESS; success persistence SUCCESS; conditional failure diagnostics SKIPPED; conditional failure persistence SKIPPED. Five SUCCESS and two conditional SKIPPED; skipped jobs are not passes.
+- Separate main Factory preflight run `45137751684`, attempt 1, same exact main SHA: FAILURE. Windows self-hosted project validation FAILED; plan generation, publication-state recording, publishing, dispatch and publication-state recording stages SKIPPED.
+- Separate Issue-triggered plan-validation run `45138473800`: FAILURE in read-only task-plan validation; downstream stages SKIPPED.
+- Latest System Health Recovery run `45156090151`, attempt 1, terminal SKIPPED (one skipped job). Other recent Recovery runs returned the same SKIPPED outcome; these do not replace main push CI or constitute recovery success.
+- Main combined status is Vercel SUCCESS only; provider status is kept separate from Actions.
+
+### Current 14-open-PR disposition
+
+| PR | Exact current head | Base / mergeability | Draft | Exact-head evidence and disposition |
+|---|---|---|---|---|
+| #466 | `2dbe77c2a659d31bf16b3bca035b4d8b97e8f4c5` | main `f4319ec...`; mergeable=true | No | Run #45154984024 terminal SUCCESS: 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED. Vercel FAILURE (provider rate limit). Review COMMENTED only; no formal APPROVED. GPT5-authored PR cannot self-approve. |
+| #448 | `ccccf9c5e46285426a3c269bd066e6fa47c65cb8` | current main; mergeable=true | No | Run #45147570005 terminal SUCCESS: 4 substantive SUCCESS, 3 conditional SKIPPED; Vercel SUCCESS. Reviews COMMENTED only; no formal APPROVED. |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | current main; mergeable=true | No | Run #45137959652 terminal SUCCESS: 4 substantive SUCCESS, 3 conditional SKIPPED; Vercel SUCCESS. Review COMMENTED only; no formal APPROVED. |
+| #468 | `588967ee9563a8896752eacce02aa7a14473d5d8` | current main; mergeable=true | No | Run #45151541188 terminal SUCCESS: 4 substantive Windows jobs SUCCESS, 3 conditional SKIPPED; the new Linux fixture job is absent. Vercel FAILURE (provider rate limit); no formal reviews. Workflow prerequisite only; not Linux acceptance. |
+| #467 | `3c802c9f206721fdcc71ec96e2bb178590fb9990` | current main; mergeable=true | Yes | Run #45151506039 terminal SUCCESS: 4 substantive Windows jobs SUCCESS, 3 conditional SKIPPED; Linux fixture job is absent. No formal reviews. Keep Draft; Linux acceptance remains unproven. |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | base `f622c852...` stale; mergeable=true | Yes | Current-head terminal CI/review evidence not established by the returned review records; prior review comments refer to older head(s), including a CI policy failure. Do not reuse old-head evidence. |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | base `a1c1b58...` stale; mergeable=false | Yes | Old exact-head run #44949425719 SUCCESS does not validate current-main integration. COMMENTED only; no formal APPROVED. Selective transplant and fresh independent review/CI required. |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | base `93e7ac35...` stale; mergeable=false | Yes | Prior exact-head run #45052753388 SUCCESS is not sufficient against current main. COMMENTED only; no formal APPROVED. Shared release-metadata overlap with #376 must be reconciled by owners. |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | base `93e7ac35...` stale; mergeable=false | Yes | No exact-head Actions run returned. COMMENTED only; no formal APPROVED. Shared release-metadata overlap with #373 remains a sequencing/conflict concern. |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | base `25d5ed51...` stale; mergeable=false | Yes | Historical failed quality-gate run #45056447505 is not a current-head pass. No formal reviews. |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | base `480f22e...` stale; mergeable=false | Yes | Historical run #45100493731 SUCCESS does not clear stale-base/mergeability or missing formal review. No formal reviews. |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | base `feat/cyber-security-defense` `7d90d059...`; mergeable=true | Yes | Run #45132200910 FAILURE: 361 passed / 1 failed in A-owned worker-lease recovery integration test; type/lint/build skipped after failure. GPT2 owns F redaction; GPT1 owns the failing A lifecycle test. No formal reviews. |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | base security integration branch `df841a9a...`; mergeable=true | Yes | Run #45108427275 SUCCESS on its branch: substantive build/unit/type/lint and Supabase/RLS jobs SUCCESS; conditional jobs SKIPPED. No formal reviews; not a mainline merge candidate. |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | base `f622c852...` stale; mergeable=true | Yes | Historical run #45117595636 FAILURE at Windows quality gates; downstream integration jobs SKIPPED. Review COMMENTED only; no formal APPROVED. |
+
+Formal review submissions freshly queried for all 14 open PRs: **zero APPROVED**. Returned records are COMMENTED or absent. COMMENTED does not satisfy approval. No PR is independently merge-authorized in this pass.
+
+### Owner handoffs and executable disposition
+
+1. **GPT1 / Factory — Issue #465 (P1):** exact main preflight run #45137751684 confirms Windows self-hosted project validation failure; Issue #465 identifies `spawnSync git ENOENT` in the offline restricted test container. Required remedy: provide a known pinned Git binary or make the test fixture hermetic, then assert `git --version` inside the same offline/read-only/non-root/capability-restricted container and rerun unit/type/lint. Issue #465 explicitly excludes GPT5 from workflow, Runner image, permissions and test-infrastructure changes. Do not retry the same failing setup blindly.
+2. **GPT1 / Factory — Issue #117 and PRs #467/#468:** #467 remains Draft because the exact-head run lacks the Linux fixture job; #468 is the prerequisite workflow change and its own run cannot activate a workflow definition that exists only on its PR branch. Required next step is owner-controlled integration of the safe workflow prerequisite, followed by a new exact-head Linux fixture execution and independent review. No Draft removal or merge now.
+3. **GPT1 — Issue #446 / PR #464:** exact-head substantive CI is terminal SUCCESS, but independent formal APPROVED review is absent. GPT5 will not approve an A-owned test repair or merge without the independent gate.
+4. **GPT1 — PR #450 / Issue #204:** candidate base is stale and its known CI failure is tied to the scratch upload policy gate. Refresh against current main only under the A owner and exact allowlist, then rerun all required gates and obtain independent approval.
+5. **GPT2/F + GPT1/A — PR #462:** route the worker-lease recovery regression to GPT1; keep F redaction changes with GPT2. Do not transplant A lifecycle edits into the F branch.
+6. **GPT3 / independent QA:** provide formal APPROVED decisions on exact current heads only after required CI and review findings are satisfied. Existing COMMENTED records are not approvals.
+7. **GPT5 own scope:** this report refresh is the current GPT5 deliverable. No A–P source, test, workflow, Runner, secret, permission, database/RLS, production-state or deployment change was made. No blind workflow rerun, Draft removal, approval or merge was performed.
+
+### Automation
+
+- Enabled daily automation: `GCAN 每日工程巡檢`, ID `6b0333fe43d48191a35a1c83fd72fe6c`, flexible daily schedule in `Asia/Taipei`, next scheduled occurrence `2026-11-24T08:00:00+08:00`.
+- This pass explicitly invoked that enabled automation for immediate execution; its instructions were carried out in this turn. Two duplicate schedules remain disabled.
