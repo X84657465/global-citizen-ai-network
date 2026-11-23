@@ -64,7 +64,7 @@ jobs:
           done
 
           for workstream in A B C D E F G H I J K L M N O P; do
-            grep -Eq "^\\| ${workstream} — " "$standard" || {
+            grep -Fq "| ${workstream} — " "$standard" || {
               echo "::error::Shared standard is missing workstream overlay ${workstream}"; exit 1;
             }
           done
