@@ -1,9 +1,9 @@
 # GCAN B Product Baseline Report
 
-**Snapshot date:** 2026-11-23 (Asia/Taipei; refreshed after PR #410, #411 and #413 merges)  
+**Snapshot date:** 2026-11-23 (Asia/Taipei; refreshed against main after PR #414, #415, #416, #418 and #419 merges)  
 **Repository:** `X84657465/global-citizen-ai-network`  
 **Default branch:** `main`  
-**Baseline main SHA:** `25d5ed519eb923d3001df6d43aec1670a0d4851a`  
+**Baseline main SHA:** `10fabef703ee3865d208196f46ee71ddd1b7e149`  
 **Overall release:** `0.3.137`  
 **B / GCAN Product:** `0.1.20`  
 **Status:** BASELINE DOCUMENTED — NOT PRODUCT ACCEPTANCE
@@ -12,12 +12,12 @@
 
 ## 1. Executive summary
 
-> **Live-state refresh:** This report was merged through PR #411, then refreshed against main `25d5ed519eb923d3001df6d43aec1670a0d4851a`. PR #410, #411 and #413 are merged. The latest exact-main Actions run is #45055645581 and is PENDING. The Vercel status is a separate build-rate-limit failure, not a GitHub test result. Issue #136's immutable review target has not been reauthorized for this new main SHA; Factory-wide independent acceptance remains BLOCKED.
+> **Live-state refresh:** This report is refreshed against main `10fabef703ee3865d208196f46ee71ddd1b7e149`. PR #414, #415, #416, #418 and #419 are merged. The current main combined status reports Vercel `build-rate-limit` failure; this is a deployment-provider quota status, not a GitHub test result. The available commit-workflow query is PR-triggered-only and returned no runs for this main SHA, so main Actions CI is UNKNOWN / NOT VERIFIED (not PASS). Issue #136 still targets `dce81ed801c41bca9bc364e3d0f248244d88f88f`; Factory-wide independent acceptance remains BLOCKED.
 
-- `main` is `25d5ed519eb923d3001df6d43aec1670a0d4851a`; `VERSION` and `versions/manifest.json` agree on overall `0.3.137`, with B at `0.1.20`. PR #410 (operations-intelligence documentation), PR #411 (B baseline) and PR #413 (GPT1/GPT4 ownership clarification) are merged into main.
+- `main` is `10fabef703ee3865d208196f46ee71ddd1b7e149`; `VERSION` and `versions/manifest.json` agree on overall `0.3.137`, with Agent Factory A at `2.0.84` and B at `0.1.20`. PR #414 (B baseline refresh), #415 (operations handoff), #416 (B contribution filters), #418 (Master Charter) and #419 (Factory handoff refresh) are merged into main.
 - B has source-level foundations for member accounts, projects, conversations, AI workspace, contribution tasks/submissions, member contribution summaries/appeals, admin review, and AI cost/reconciliation views.
 - The repository architecture describes an early MVP, not a production-ready service. Live provider billing, payouts, and distributed compute are not enabled by default. AI calls remain gated by server-side provider configuration and budget controls.
-- B Runtime remains **PREPARATION ONLY / BLOCKED** because the Factory-wide independent audit/acceptance gate is not complete. Issue #136 remains open but still targets the prior main SHA `dce81ed801c41bca9bc364e3d0f248244d88f8f`; its immutable audit baseline is stale after main advanced to `25d5ed519eb923d3001df6d43aec1670a0d4851a`. Do not silently retarget it; obtain owner authorization for a new exact-main audit target. The main CI run below is pending, not passed.
+- B Runtime remains **PREPARATION ONLY / BLOCKED** because the Factory-wide independent audit/acceptance gate is not complete. Issue #136 remains open but still targets `dce81ed801c41bca9bc364e3d0f248244d88f88f`; its immutable audit baseline is stale after main advanced to `10fabef703ee3865d208196f46ee71ddd1b7e149`. Do not silently retarget it; obtain owner authorization for a new exact-main audit target. Main Actions CI is UNKNOWN / NOT VERIFIED from the available PR-only run query; the Vercel status is a separate failure.
 - No B application code, database schema, RLS, workflow, Runner, secret, permission, production data, or deployment changes are made by this report.
 
 ## 2. Exact mainline and CI evidence
@@ -25,14 +25,14 @@
 | Item | Observed value | Disposition |
 |---|---|---|
 | Default branch | `main` | VERIFIED |
-| Main HEAD | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | VERIFIED |
+| Main HEAD | `10fabef703ee3865d208196f46ee71ddd1b7e149` | VERIFIED |
 | Overall version | `0.3.137` | VERIFIED |
 | B version | `0.1.20` | VERIFIED |
-| Main CI run | [45055645581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45055645581), attempt 1, exact main SHA | PENDING; 0 jobs returned at inspection |
-| Main combined status | Vercel `build-rate-limit` failure status | BLOCKED for Preview evidence; not a code-test conclusion |
+| Main CI run | No current main-triggered run ID verified | UNKNOWN / NOT VERIFIED; available PR-only commit workflow query returned no records for this main SHA |
+| Main combined status | Vercel `build-rate-limit` failure status | BLOCKED for Preview evidence; not a code-test conclusion or GitHub CI result |
 | Main PR-triggered workflow query | No PR-triggered runs returned for this SHA | NOT evidence of scheduler health or CI pass |
 
-The handoff snapshot in `docs/AGENT_HANDOFF.md` still names an older main SHA/version tuple. Treat that portion as stale; this report uses the live `main` ref and files fetched at the baseline SHA.
+`docs/AGENT_HANDOFF.md` still names an older main SHA (`25d5ed51…`) in its latest snapshot. Treat it as stale; this report uses live `main` and files fetched at `10fabef…`.
 
 ## 3. Current B implementation inventory
 
@@ -68,7 +68,7 @@ A migration filename or source definition is not proof that a production databas
 
 | Issue | Title / scope | Status at inspection | Owner / phase note |
 |---|---|---|---|
-| [#76](https://github.com/X84657465/global-citizen-ai-network/issues/76) | Account profile clarity and accessibility | OPEN | B UX; limited paths and focused tests specified |
+| [#74](https://github.com/X84657465/global-citizen-ai-network/issues/74) | Contribution task category / member submission-status filters | OPEN | PR #416 merged; B-owned type-preservation fix PR #428 remains Draft after exact-head unit-test failure; owner scope confirmation and GPT3 static review are recorded |
 | [#84](https://github.com/X84657465/global-citizen-ai-network/issues/84) | Production AI provider adapter and budget-control integration tests | OPEN | B AI; keep live billable calls disabled until gates pass |
 | [#86](https://github.com/X84657465/global-citizen-ai-network/issues/86) | End-to-end authentication and account security verification | OPEN | B closed-MVP release gate; signup remains disabled by default |
 | [#87](https://github.com/X84657465/global-citizen-ai-network/issues/87) | Recurring AI workspace use cases and paid-pilot economics | OPEN | Phase 2 commercial validation; not a Phase 1 runtime prerequisite to improvise |
@@ -79,8 +79,13 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 
 ### Factory acceptance
 
-- [Issue #136](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains OPEN, but its immutable audit target is now stale: it still names the prior baseline `dce81ed801c41bca9bc364e3d0f248244d88f88f`, while current main is `25d5ed519eb923d3001df6d43aec1670a0d4851a`. Its stop condition requires a fresh owner-authorized audit baseline; do not silently switch the target.
-- Current main CI run [45055645581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45055645581) is PENDING; no CI pass is claimed.
+- [Issue #136](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains OPEN, but its immutable audit target is now stale: it still names the prior baseline `dce81ed801c41bca9bc364e3d0f248244d88f88f`, while current main is `10fabef703ee3865d208196f46ee71ddd1b7e149`. Its stop condition requires a fresh owner-authorized audit baseline; do not silently switch the target.
+- [Issue #164](https://github.com/X84657465/global-citizen-ai-network/issues/164) is an open P0 Factory task/system circuit-breaker isolation finding (GPT1/Factory owner); [Issue #188](https://github.com/X84657465/global-citizen-ai-network/issues/188) is an open P2 recovery-wiring follow-up explicitly blocked on Issue #136 independent review. Neither is a B-owned implementation task.
+- PR #427 is open/Draft; exact-head run [#45061403391](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45061403391) failed with 746 unit tests passed / 1 failed at `tests/agent-factory-controller.test.mjs:1917` (`Missing expected rejection`); typecheck, lint and build were skipped.
+- PR #429 is open/Draft and fixes that Factory test fixture. Its exact-head run [#45062245405](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062245405) passed all 747 unit tests, but TypeScript failed in unchanged `app/contribute/contribution-client.tsx` because the filter return type omits API fields (`acceptance_criteria`, `title`, `description`, `reward_amount`, `reward_currency`, `closes_at`) and callback types. Lint/build and integration gates were skipped.
+- PR #428 is the B-owned generic type-preservation fix for Issue #74. Its exact-head run [#45062174946](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062174946) failed at unit tests (747 passed / 1 failed) on the same Factory fixture at `tests/agent-factory-controller.test.mjs:1917`; typecheck/lint/build and integration gates were skipped. GPT3 static review and B owner scope confirmation are recorded, but this does not make the failed run pass.
+- The two narrow fixes expose a cross-PR integration dependency: #428 addresses the TypeScript failure seen on #429, while #429 addresses the unit failure seen on #428. Neither isolated PR has a green complete run. Coordinate a same-head integration candidate with the relevant Factory/B owners; do not merge either by treating the other PR's unmerged changes as present.
+- PR #430's own exact-head run [#45062704981](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062704981) was still in progress at this snapshot (metadata resolver only). Main Actions CI remains UNKNOWN / NOT VERIFIED from the available PR-only workflow query; Vercel `build-rate-limit` is a separate deployment status, not a code-test result.
 - [Issue #354](https://github.com/X84657465/global-citizen-ai-network/issues/354) is CLOSED. Do not carry its former lease-handoff defect forward as an open blocker without fresh evidence.
 - [PR #259](https://github.com/X84657465/global-citizen-ai-network/pull/259) is an old, divergent, non-mergeable broad candidate. Its historical CI is not evidence for current main; do not merge, force-retarget, or transplant the full diff.
 
@@ -101,21 +106,261 @@ This list is a focused B backlog sample, not a claim that no other B-related iss
 | Repository / main SHA / versions | PASS (metadata only) | Live Git ref and files at exact main SHA |
 | B source inventory | DOCUMENTED | Tree and selected source files inspected |
 | Focused B test files | PRESENT; NOT RUN in this report | No local test command executed by this report |
-| Main exact-SHA CI | PENDING | Run 45055645581; 0 jobs at inspection |
-| A independent audit | BLOCKED / PENDING | Issue #136 remains open |
+| Main exact-SHA CI | UNKNOWN / NOT VERIFIED | No current main-triggered run ID returned by available PR-only workflow query |
+| A independent audit | BLOCKED | Issue #136 still targets stale SHA `dce81ed…`; owner-authorized exact-main retarget required |
 | B end-to-end auth / live provider / operational readiness | NOT VERIFIED | Issues #84 and #86 remain open; architecture lists pre-launch gaps |
+| B Issue #74 follow-up PR #428 | BLOCKED | Exact-head Actions #45062174946 failed at unit tests (747 passed / 1 failed); typecheck/lint/build/integration skipped; GPT3 static review and B scope confirmation recorded |
 | PR #376 exact-head CI / formal review | NOT PASS | Run observed is for an older SHA; formal approval not observed |
 | Production deployment / production DB | NOT RUN | No deployment or production database action performed |
 
 ## 8. Next actions (Factory-first)
 
-1. GPT1 / independent auditor: complete the read-only Issue #136 audit against the current exact main SHA; if main advances before the audit starts, refresh the target first.
-2. Factory owner: resolve any audit findings through the authorized A workflow and exact-head CI; do not bypass Runner, lease, or branch protections.
-3. GPT4 / B: keep this baseline current; prepare B-only test plans and narrow product slices without starting B Runtime.
-4. GPT4 / B + GPT1: close the A→B read-contract authentication, reference lifecycle, freshness and failure-mapping design before any adapter implementation.
-5. GPT2 / relevant F–P owners: review B security / governance needs within their ownership; GPT3 remains the independent architecture and QA reviewer.
-6. After A acceptance, refresh main, B branch, issues, PRs, exact SHA CI, RLS/Tenant evidence and then propose a B Runtime readiness plan for human approval.
+1. GPT1 / project owner: obtain explicit authorization to refresh Issue #136's immutable audit target from `dce81ed…` to current main `10fabef703ee3865d208196f46ee71ddd1b7e149`; the independent auditor must re-fetch main before starting.
+2. GPT1 / Factory: resolve P0 Issue #164 and dependent Issue #188 only through their owner-approved workflow and independent review.
+3. GPT1 / Factory + GPT4 / B: coordinate the cross-PR integration dependency. #429's fixture fix clears the unit regression but its isolated branch fails TypeScript; #428's generic typing fix clears that type contract but its isolated branch still fails the Factory fixture. Validate both together on one exact candidate SHA with all required gates; preserve each owner's path boundaries and do not merge a partial fix.
+4. GPT4 / B: keep PR #428 Draft; after the authorized combined candidate is available, re-run unit, typecheck, lint, production build and repository-required integration gates, then obtain GPT3 independent review on that exact SHA.
+5. GPT4 / B: continue B-only product preparation; do not start B Runtime while A acceptance and A→B gates remain blocked.
+6. GPT4 / B + GPT1: close A→B read-contract authentication, reference lifecycle, freshness and failure-mapping design before adapter implementation.
+7. GPT2 / relevant F–P owners: review B security / governance needs within their ownership; GPT3 remains the independent architecture and QA reviewer.
+8. After A acceptance, refresh main, B branch, issues, PRs, exact-SHA CI, RLS/Tenant evidence and then propose a B Runtime readiness plan for human approval.
 
-## 9. Evidence boundaries
+
+## 10. Superseding live Operations snapshot — 2026-11-23
+
+This section supersedes earlier PR/CI observations above where run status has since advanced. Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`; the current commit search still reports this as the latest main commit.
+
+### Exact-head PR and CI evidence
+
+| PR | Exact head | Actions run | Latest observed result | Disposition |
+|---|---|---|---|---|
+| [#428](https://github.com/X84657465/global-citizen-ai-network/pull/428) | `1bd38fff2a330ed97d5ab298323b0512e6e348ab` | [#45062174946](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062174946) | FAILURE — 747 unit tests passed / 1 failed; inherited Factory fixture failure at `tests/agent-factory-controller.test.mjs:1917`; typecheck/lint/build and integration skipped | B static diff review and owner scope confirmation are COMMENTED; overall NOT ACCEPTED |
+| [#429](https://github.com/X84657465/global-citizen-ai-network/pull/429) | `6f2403ae26467fa025546351bd45a8519f2bcd43` | [#45062245405](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062245405) | FAILURE — 747 unit tests passed; TypeScript fails in unchanged `app/contribute/contribution-client.tsx` because API task fields are erased by the filter return type; lint/build/integration skipped | Fixture correction unit scope passes; overall BLOCKED by B typing and incomplete gates |
+| [#430](https://github.com/X84657465/global-citizen-ai-network/pull/430) | `a56e5b96380b9ed1af81112989227a35a1e60efa` | [#45062969101](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062969101) | PENDING — metadata resolver job in progress at inspection | Documentation PR; no test pass claimed |
+| [#431](https://github.com/X84657465/global-citizen-ai-network/pull/431) | `2f8b0e4bd3db6e9c344f048d7708a528cb63a7b9` | [#45063086722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063086722) | FAILURE — 746 unit tests passed / 1 failed at `tests/agent-factory-controller.test.mjs:1917` (`Missing expected rejection`); typecheck/lint/build and integrations skipped | Draft operations handoff; no full CI pass claimed |
+| [#426](https://github.com/X84657465/global-citizen-ai-network/pull/426) | `5380fc9142873888d6cc54e70979720bc41696f3` | [#45060875720](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060875720) | FAILURE — unit tests passed; TypeScript failed; lint/build skipped | Factory recovery candidate NOT ACCEPTED |
+| [#425](https://github.com/X84657465/global-citizen-ai-network/pull/425) | `4680526983ac1ab4b1d5c4d0e35397e9c806cd3e` | [#45062346671](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45062346671) | FAILURE — unit tests failed; typecheck/lint/build skipped | Factory candidate isolation change NOT ACCEPTED |
+
+### Main and governance blockers
+
+- Main Actions: UNKNOWN / NOT VERIFIED. The available commit-workflow lookup returned no main-triggered run; do not interpret an empty PR-run lookup as PASS.
+- Main combined status: Vercel `build-rate-limit` failure. This is a deployment-provider quota status, not a GitHub Actions test result.
+- [Issue #136](https://github.com/X84657465/global-citizen-ai-network/issues/136) remains OPEN and READ-ONLY. Its immutable target is `dce81ed801c41bca9bc364e3d0f248244d88f88f`, not current main; its own instructions prohibit retargeting without a fresh owner-authorized audit request.
+- [Issue #164](https://github.com/X84657465/global-citizen-ai-network/issues/164) remains an open P0 Factory task/system breaker isolation task. [Issue #176](https://github.com/X84657465/global-citizen-ai-network/issues/176) and [#188](https://github.com/X84657465/global-citizen-ai-network/issues/188) remain open recovery wiring follow-ups; #188 explicitly depends on the independent review in #136.
+- [PR #422](https://github.com/X84657465/global-citizen-ai-network/pull/422) exact-head run [#45058587659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058587659) failed the CI trigger/Runner policy gate before unit tests. [PR #424](https://github.com/X84657465/global-citizen-ai-network/pull/424) exact-head run [#45058591151](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058591151) reports success only for its stacked test-fix candidate, but its base is PR #422's unmerged head and it is non-mergeable; this is not a green mainline candidate.
+- The Master Governance Charter on main still declares itself PROPOSED pending GPT3 independent review and formal governance acceptance. Its presence on main is not evidence that it has been adopted.
+
+### B Product next action
+
+GPT4/B must keep #428 Draft and avoid cross-owner integration by copying or modifying GPT1/Factory files. Request GPT1/Factory to provide or authorize a same-candidate integration route that includes the #429 fixture correction, then validate the B typing change on that exact candidate SHA. Required unit, TypeScript, lint, production build and repository integration gates must all complete on the same SHA, followed by GPT3 independent review. No merge, deployment, Runtime activation, schema/RLS change or production operation is authorized by this report.
+
+
+## 11. Evidence boundaries
 
 This report is a documentation snapshot, not a formal security audit, GPT3 acceptance, production readiness certification, legal review, or release authorization. All unknown or unexecuted checks remain UNKNOWN / NOT RUN / PENDING / BLOCKED. The report does not modify application code, workflows, database schema/RLS, secrets, permissions, Runner state, production data, or deployment.
+
+
+### Live CI delta — follow-up verification
+
+- PR #431 run [#45063086722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063086722) completed after the prior snapshot: metadata resolver passed, but the Windows quality-gates job failed with 746 unit tests passed / 1 failed at `tests/agent-factory-controller.test.mjs:1917` (`Missing expected rejection`). Typecheck, lint, production build, PostgreSQL/RLS and Ollama integration were skipped. This is the same inherited Factory fixture failure seen on #428; it does not establish a B Product regression.
+- PR #430 latest head `a0dff3e26dd08fb05dd435cfb573712a7dd5f953` has Actions run [#45063262289](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063262289) still PENDING with no jobs returned at this observation. Do not infer success or failure.
+- The daily automation record is enabled for 08:00 Asia/Taipei, but its metadata reports `last_run_time=null` and no recorded run result yet. Scheduling is configured; an actual completed automated run is not evidenced.
+
+
+## 12. Live Operations delta — 2026-11-23 (PR #432 integration candidate)
+
+### Current main and governance
+- Current main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`; `PROJECT_COORDINATION.md` was re-read from main at blob `849e4f43c87d7686f80ed2e6af9337e797403027`.
+- Current versions remain overall `0.3.137`, Agent Factory `2.0.84`, B Product `0.1.20`.
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` and `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` were re-read. The Master Charter still labels itself PROPOSED pending GPT3 independent review and formal governance acceptance.
+- Main combined status returns only Vercel `build-rate-limit` failure. The available commit-workflow wrapper filters to PR-triggered runs and returns no main Actions run; Main Actions therefore remains UNKNOWN / NOT VERIFIED, not PASS.
+
+### New combined integration candidate — PR #432
+- [PR #432](https://github.com/X84657465/global-citizen-ai-network/pull/432) is OPEN / DRAFT, base `main` at `10fabef703ee3865d208196f46ee71ddd1b7e149`, head `49d541eaed8be94e9fd442155f0b6a10d0390428`, GitHub mergeable=true.
+- The exact three changed files are `lib/contribution-task-filters.mjs`, `tests/agent-factory-controller.test.mjs`, and `tests/contribution-task-filters.test.ts`.
+- The diff combines the Factory negative-test fixture correction sourced from PR #429 head `6f2403ae26467fa025546351bd45a8519f2bcd43`, and the B Product generic task-shape preservation plus compile-time/runtime regression assertion sourced from PR #428 head `1bd38fff2a330ed97d5ab298323b0512e6e348ab`.
+- This is a promising single exact-main integration candidate and resolves the prior source-PR separation at the diff level. It is NOT yet validated: no GitHub Actions workflow run was returned for this head, no formal PR review submission or inline review thread was returned, and Vercel reports a provider quota error (`api-deployments-free-per-day`, retry after 24 hours). The Vercel deployment limit is not a GitHub test failure.
+- Required next evidence: run unit tests, TypeScript, lint, production build, security audit and required integration gates on this exact head SHA; then GPT3 independent review. Keep Draft; do not merge based on diff inspection or GitHub mergeability.
+
+### Other live PR and issue boundaries
+- PR #428 remains open/draft at `1bd38fff2a330ed97d5ab298323b0512e6e348ab`; PR #429 remains open/draft at `6f2403ae26467fa025546351bd45a8519f2bcd43`. PR #432 combines their narrow changes but does not make their prior exact-head failures disappear or establish current candidate acceptance.
+- PR #431 remains open/draft at `2f8b0e4bd3db6e9c344f048d7708a528cb63a7b9`; its last observed quality-gates job failed at the Factory fixture assertion.
+- Factory Issues #164 (P0 task/system breaker isolation), #176 and #188 (recovery wiring), #136 (read-only independent audit) remain open in the current issue listing. #136's immutable audit target remains `dce81ed801c41bca9bc364e3d0f248244d88f88f`; its stop condition prohibits silently switching to the current main SHA. Owner-authorized fresh audit baseline is required.
+- B Product readiness remains PREPARATION ONLY. No Runtime activation, production provider traffic, database/RLS change, payout or deployment is authorized by this report.
+
+### Automation evidence boundary
+- The GCAN daily audit automation is enabled for 08:00 Asia/Taipei, but its record still has `last_run_time=null` and no latest run result. Scheduling is configured; completed background execution is not yet evidenced.
+
+
+## 13. Exact-head CI and independent review refresh — 2026-11-23
+
+### PR #432 — combined integration candidate
+- Exact head remains `49d541eaed8be94e9fd442155f0b6a10d0390428`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- GitHub Actions run [45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302) is now present for this exact head. Metadata resolver job completed SUCCESS. Windows Runner quality-gates job is PENDING at the latest inspection; unit tests, typecheck, lint, audit/build and downstream integration are not yet evidenced as completed. Overall candidate remains PENDING / NOT ACCEPTED.
+- GPT3 submitted a COMMENTED static integration review on this exact SHA: no blocking defect found in the three-file diff; this is not an APPROVED review and explicitly requires exact-head CI plus downstream checks. No unresolved inline review threads were returned.
+- Combined commit status still includes the Vercel provider `api-deployments-free-per-day` failure. This is an external deployment quota, not a GitHub Actions test result.
+
+### PR #430 — this baseline report
+- After the previous report update, exact head `f50cdf9f8be5a6ce0f8a50a51ecfd18cbbee5b61` received GitHub Actions run [45063598690](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063598690). At inspection the run is PENDING and its jobs endpoint returned no jobs. Do not reuse the prior head's CI result or the earlier GPT3 comment as validation of this newer head.
+- Current compare to main: 5 commits ahead / 0 behind; only `docs/B_PRODUCT_BASELINE_REPORT.md` is changed. PR remains Draft. This new evidence addendum itself will create a new head and require a fresh exact-head CI run and, if required, review.
+
+### Separate Factory ownership blocker — Issue #117 / PRs #422 and #425
+- PR #422 and PR #425 remain simultaneous candidates against Issue #117 and overlap protected Factory workflow/test paths. GPT3's latest comments identify unresolved canonical DRI/implementation selection; PR #425 also had a confirmed 746-pass / 1-fail unit run on its then-current exact head, with typecheck/lint/build and downstream integration skipped.
+- This is Factory-owned work. GPT4 does not edit either candidate or select the Factory DRI; GPT1 must coordinate one canonical owner/candidate, with GPT3 independently reviewing the resulting exact SHA.
+
+
+## 14. Follow-up live CI progress — 2026-11-23
+
+### PR #432 exact-head CI progress
+- Exact head remains `49d541eaed8be94e9fd442155f0b6a10d0390428`, base `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Actions run [45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302), run number 3930, is in progress.
+- At latest job inspection, metadata resolver is SUCCESS. Windows Runner quality gates are IN_PROGRESS:
+  - PASS: Runner/Docker/Ollama setup; bounded local Ollama inference; migration and schema safety guards; production and full dependency audits; Factory script syntax; CI trigger/Runner policy; unit tests; TypeScript type check; lint.
+  - IN_PROGRESS: production build.
+  - NOT RUN / PENDING: subsequent classification/cleanup steps and downstream integration/persistence jobs (not yet returned as completed evidence).
+- Do not mark overall CI PASS until the workflow and every required downstream gate complete successfully.
+
+### GPT3 review and Vercel distinction
+- GPT3's review on exact #432 head is COMMENTED static review, not an APPROVED review. It found no blocking diff defect and explicitly requires exact-head CI and downstream evidence. No unresolved inline review threads were returned.
+- Combined status still shows Vercel `build-rate-limit`; this is external provider quota status, not GitHub Actions test evidence.
+
+### PR #430 latest exact-head Actions
+- PR #430 exact head is `53afc92c78e3e25650612046a7d1bc0411c97df1`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`, Draft, six commits ahead / zero behind.
+- Exact-head Actions run [45063781023](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063781023) is PENDING; the jobs endpoint returned no jobs at inspection. The only changed path remains `docs/B_PRODUCT_BASELINE_REPORT.md`. No test or review acceptance is inferred from the pending run.
+
+
+## 15. Follow-up live CI progress — 2026-11-23
+
+### PR #432 — exact-head run 45063594302
+- PR head remains `49d541eaed8be94e9fd442155f0b6a10d0390428`; base main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Latest Actions lookup still reports run 45063594302 as IN_PROGRESS (run number 3930).
+- Both jobs have not yet reached terminal completion. Metadata resolver job is SUCCESS.
+- Windows Runner quality-gate job has completed these steps successfully: Runner/Docker/Ollama checks; bounded local Ollama inference; migration/schema safety; production and full dependency audits; Factory script syntax; CI trigger/Runner policy; Unit tests; Type check; Lint; Production build.
+- Failure-classification step is SKIPPED (not a failure signal by itself); post-job cleanup is still IN_PROGRESS / PENDING. Do not mark the overall workflow PASS until the run and all required jobs reach terminal success.
+- GPT3's review remains COMMENTED static review, not APPROVED. It found no blocking diff defect but requires exact-head CI completion and any required integration evidence.
+
+### PR #430 — current exact-head run
+- PR #430 head is `579aad746ba4e09c0c1997c7eca11bf6050e2ca8`, base `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Exact-head Actions run [45063945439](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063945439) remains PENDING; jobs endpoint returned no jobs at this inspection.
+- PR remains Draft; change scope remains limited to `docs/B_PRODUCT_BASELINE_REPORT.md`. No CI PASS or independent acceptance is inferred.
+
+### Open governance blockers reconfirmed
+- #164 and #117 remain open Factory-owned issues; #422/#425 ownership overlap remains for GPT1 to resolve.
+- #136 remains open; its immutable audit baseline must not be silently retargeted.
+- #176 and #188 remain open control-plane/recovery follow-ups; implementation requires the appropriate owner and explicit authorization.
+- These issue states are ownership/status observations, not permission for this B Product workstream to modify Factory control-plane code.
+
+
+## 16. Live Operations refresh — 2026-11-23
+
+This continuation supersedes earlier status statements above where newer exact-SHA evidence is now available. Historical snapshots remain audit history; do not reuse their run states for a newer SHA.
+
+### Current main CI — exact evidence
+
+- Main HEAD remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Main Actions run [45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077), attempt 1, is **FAILURE** for this exact SHA.
+- Windows Runner quality-gates job [137325427532](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077/job/137325427532) failed during the unit stage: **746 passed / 1 failed / 747 total**.
+- The failing test is `operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation` at `tests/agent-factory-controller.test.mjs:1930`; assertion error: `Missing expected rejection.`
+- TypeScript, lint and production build were skipped after the unit failure. The Windows Supabase/PostgreSQL/RLS and Ollama/local-execution integration jobs were also skipped. These are not PASS.
+- The failure is consistent with the legacy-secret negative-test fixture defect corrected in source PR #429 and integrated with the B contribution task typing fix in PR #432. PR #432's candidate CI does not retroactively change the result recorded for main.
+- Main combined status separately reports Vercel `build-rate-limit` / “Deployment rate limited — retry in 24 hours.” This is a deployment-provider quota failure, not the GitHub Actions test result.
+
+### Combined candidate PR #432 — exact-head CI completed
+
+- [PR #432](https://github.com/X84657465/global-citizen-ai-network/pull/432) remains OPEN / DRAFT, based on main `10fabef703ee3865d208196f46ee71ddd1b7e149`, exact head `49d541eaed8be94e9fd442155f0b6a10d0390428`.
+- Exact-head Actions run [45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302), attempt 1, completed with overall **SUCCESS**.
+- Required jobs completed successfully: Windows Runner quality gates, Windows Ollama/local execution integration, and Windows Supabase migrations/PostgreSQL/RLS integration; the exact candidate metadata resolver also succeeded.
+- Conditional diagnostics and breaker-persistence jobs were SKIPPED; they are not counted as successful test jobs.
+- Two static review records are COMMENTED, not formal APPROVED reviews. No inline review threads were returned. The PR remains Draft / NOT ACCEPTED; do not merge or deploy until the required independent review and repository gates are satisfied.
+
+### GPT4 / B Product — Issue #75 candidate verification
+
+- Issue [#75](https://github.com/X84657465/global-citizen-ai-network/issues/75) remains OPEN. Candidate branch: `gpt4/issue-75-submission-status-main-10fab`, head `32d2beb1581e0770c7e85fbf0c83c746801ae1b3`; compare with current main: **4 commits ahead / 0 behind**.
+- Scope is exactly the four Issue #75 allowlisted paths: member contributions client, submission-status component, pure status helper, and focused Node test.
+- Re-fetched helper blob `e1494694b8c7243b6e93b1d75ae6e0538c7ce107` and test blob `24a5ee5c6fa50146247da4bbce85cab01a03ce56`; local Git blob hashes matched both fetched values.
+- Re-ran `node --experimental-strip-types --experimental-transform-types --test tests/contribution-submission-status.test.ts` with Node v22.16.0 against those exact contents: **5 passed / 0 failed / 0 skipped**.
+- Full repository `npm run test:unit`, `npm run lint`, `npx tsc --noEmit`, and `npm run build` remain **NOT RUN** against the complete candidate repository. Issue #75 explicitly requires the complete isolated offline suite before PR publication; therefore no PR was published and publication remains **BLOCKED**.
+- No API, schema, migration, RLS, reward, payout, paid-service, production, or Runtime changes were made.
+
+### B Runtime and next actions
+
+- B Runtime remains **PREPARATION ONLY / BLOCKED** until Factory independent acceptance and the A→B contract gates pass.
+- GPT1 / Factory owner: continue the P0 fixture/circuit-breaker and independent audit work within A ownership; do not treat this B report as A approval.
+- GPT3: independently review the exact final candidate SHA where required; static COMMENTED records are not approval.
+- GPT4 / B: keep Issue #75 candidate branch-only until the full offline suite is run in a complete isolated repository workspace; track PR #430's new exact-head CI after this documentation refresh.
+- No merge, deployment, Runtime activation, production database operation, permission/secret change, or branch-protection change is authorized by this snapshot.
+
+
+## 17. Operations delta — 2026-11-23 (latest live recheck)
+
+This is a new observation against the live repository; it supersedes earlier operational state where newer exact evidence is available.
+
+### Governance and mainline
+- Re-read `PROJECT_COORDINATION.md` from `main`, blob `849e4f43c87d7686f80ed2e6af9337e797403027`, plus `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`, `docs/GCAN_B_LINE_LEAD_CHARTER.md`, and `docs/GCAN_PRODUCT_NORTH_STAR.md` from live `main`.
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`; no newer main commit was observed.
+- Main combined status remains FAILURE solely from Vercel: `Deployment rate limited — retry in 24 hours`. This is an external preview/deployment quota, not a GitHub test result.
+- The recent `main` branch Actions list contains repeated `Agent Factory System Health Recovery` runs for this SHA, all observed as SKIPPED. No main-branch quality-gate run was evidenced by this query. Main test CI remains UNKNOWN / NOT VERIFIED; do not infer PASS from skipped recovery workflows.
+
+### PR #432 — combined Factory/B integration candidate
+- Exact head `49d541eaed8be94e9fd442155f0b6a10d0390428`, base main `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Actions run [45063594302](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45063594302), attempt 1, is now terminal **SUCCESS**.
+- Exact run jobs: metadata resolver SUCCESS; Windows Runner quality gates SUCCESS; Windows Ollama/local execution integration SUCCESS; Windows Supabase migrations/PostgreSQL/RLS integration SUCCESS. Conditional diagnostics and persistence jobs were SKIPPED.
+- GPT3 review records remain COMMENTED (not APPROVED); no inline review threads were returned. PR remains OPEN / DRAFT / NOT ACCEPTED. Issue #117's separate ownership conflict and Issue #136's stale immutable audit baseline remain unresolved.
+
+### PR #430 — this B baseline report
+- Current PR head before this update: `78f20437a1ecc5cf6789d0387a7804d93a403e50`, base main unchanged.
+- Exact-head Actions run [45064919766](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45064919766), attempt 1: metadata resolver SUCCESS; Windows Runner quality-gates job IN_PROGRESS. Overall result PENDING; no acceptance or merge claim.
+- This update only records evidence in this report. No B application code, API, schema, RLS, workflow, secret, permission, production data or deployment change.
+
+### Issue #75 — B Product candidate
+- Candidate `gpt4/issue-75-submission-status-main-10fab` remains 4 commits ahead / 0 behind main `10fabef703ee3865d208196f46ee71ddd1b7e149`, with exactly four allowlisted paths: member contributions client, submission-status component, pure status helper, and focused Node test.
+- Latest recorded focused helper test evidence is 5/5 PASS against exact fetched helper/test blobs. This recheck did not rerun that test.
+- Full repository unit suite, lint, TypeScript check, and production build remain NOT RUN against the complete candidate repository. No Actions run or PR exists for this candidate. Per Issue #75's publication gate, PR publication remains BLOCKED until full isolated offline validation is executed against the exact candidate SHA.
+- No additional B product source change is made in this snapshot.
+
+### Daily automation
+- Automation `GCAN 每日工程巡檢` remains enabled with daily 08:00 Asia/Taipei schedule.
+- Its run history still has `last_run_time=null` / no latest result at this observation. Scheduling is configured; successful background execution is NOT VERIFIED.
+
+
+## 18. Operations delta — 2026-11-23 (fresh focused-test rerun)
+
+This entry records the latest read-only repository checks and a new isolated focused-test execution. It supersedes earlier statements about the Issue #75 focused test being last run in a previous session.
+
+### Current repository / PR evidence
+- Re-read `PROJECT_COORDINATION.md` from live `main`, blob `849e4f43c87d7686f80ed2e6af9337e797403027`; also re-read the Neural Intelligence Agent Mode, Master Charter, B Line Lead Charter, and Product North Star from `main`.
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`. Latest queried main Actions entries are Agent Factory System Health Recovery runs with conclusion SKIPPED; no main quality-gate PASS was evidenced. Main GitHub test CI remains UNKNOWN / NOT VERIFIED.
+- Main combined status reports Vercel FAILURE at the build-rate-limit target. This is a deployment quota status, not a GitHub test result.
+- PR #432 remains OPEN / DRAFT at exact head `49d541eaed8be94e9fd442155f0b6a10d0390428`; its exact-head quality gates, Ollama/local execution, and PostgreSQL/RLS integration checks are SUCCESS. Conditional persistence/diagnostic checks are SKIPPED. Formal GPT3 APPROVED review was not observed.
+- PR #430 remains OPEN / DRAFT at exact head `542aadacec0403e1ce92aa74bcc37991120152f2`. Exact-head run [45065095758](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45065095758) is FAILURE: Windows quality gates failed in `tests/agent-factory-controller.test.mjs:1930` with `Missing expected rejection`; 746 passed, 1 failed. This is a Factory-owned test failure, not a B Product source failure.
+
+### Issue #75 — fresh focused validation
+- Candidate remains `gpt4/issue-75-submission-status-main-10fab`, head `32d2beb1581e0770c7e85fbf0c83c746801ae1b3`, four commits ahead / zero behind main, with only the four allowlisted paths.
+- Re-fetched the candidate helper and test from GitHub. Exact helper blob: `e1494694b8c7243b6e93b1d75ae6e0538c7ce107`; exact test blob: `24a5ee5c6fa50146247da4bbce85cab01a03ce56`.
+- Re-ran `node --experimental-strip-types --experimental-transform-types --test tests/contribution-submission-status.test.ts` in an isolated temporary workspace with Node v22.16.0: **5 passed / 0 failed / 0 skipped**.
+- This focused run validates the pure helper tests only. It is not a complete repository test suite and does not validate the member client against the complete app build.
+- Attempted to obtain a complete candidate checkout for the required full-suite run; the environment could not resolve `github.com` (DNS/network unavailable). Therefore `npm run test:unit`, `npm run lint`, `npx --no-install tsc --noEmit`, and `npm run build` remain NOT RUN. The Issue #75 gate requires the complete isolated offline suite before PR publication; candidate remains BLOCKED and no PR was created.
+- No API/schema/migration/RLS/reward/payout/paid-service/production/Runtime changes were made.
+
+### Automation
+- `GCAN 每日工程巡檢` remains enabled for 08:00 Asia/Taipei; `last_run_time` remains null and latest background delivery/result is UNKNOWN. This manual inspection does not prove scheduled background execution.
+
+### Next actions
+1. GPT1 owns the Factory Operator Recovery test failure and its exact-SHA repair.
+2. GPT3 must provide independent review against a valid, current audit baseline; no self-approval is substituted.
+3. GPT4 / B keeps Issue #75 candidate un-published until full isolated offline validation is available.
+4. Keep B Runtime PREPARATION ONLY / DISABLED until Factory acceptance and A→B contract gates pass.
+
+
+## 19. PR #430 exact-head quality-gate result — 2026-11-23
+
+Follow-up to section 18. The PR #430 report commit `b53ccf48edc021a5bdca6aac49eb9b55faac794f` triggered run [45065822356](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45065822356) against that exact SHA.
+
+- Metadata resolution: SUCCESS.
+- Windows Runner quality-gates job: **FAILURE**.
+- Unit tests: **746 passed / 1 failed / 0 skipped** (747 total).
+- The failing test is `operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation` at `tests/agent-factory-controller.test.mjs:1917`, failing at the assertion with `Missing expected rejection`.
+- The failure is in the Factory-owned controller test surface, not in the B baseline document or Issue #75 candidate files. GPT1 / Factory owner must resolve it; this B documentation branch must not modify Factory code or tests.
+- Ollama/local execution and PostgreSQL/RLS integration jobs were SKIPPED. Diagnostics job was still IN_PROGRESS at this observation; overall workflow conclusion therefore remained PENDING at capture time. Skipped integration jobs are not passes.
+- This exact-head result supersedes any implication that the new documentation commit's CI was merely pending without a known quality-gate outcome. It does not provide a formal PR approval or permission to merge.
+
+No application, Factory, API, schema, RLS, workflow, secrets, permissions, production data, deployment or Runtime changes were made by this report update.
