@@ -72,7 +72,7 @@ export default function HomePage() {
     <div className={styles.executionHeader}>
      <div className={styles.sectionEyebrow}>P0 DELIVERY · MVP FIRST · PARALLEL WITH FACTORY</div>
      <h2 id="mvp-first-title">最短時間先交付：<em>第一版真正可操作的 GCAN 產品</em></h2>
-     <p>Factory 核心持續由 GPT1 優先穩定；B Product 由 GPT4 同步收斂首版。工廠未全數完工，不得成為安全產品工作無限期延後的理由；MVP 也不得跳過身份驗證、資料隔離、成本控制或獨立驗收。</p>
+     <p>更正：MVP 不只有 B。A、B、C……P 共 16 條工作線，每一線都必須交付自己的可用、可展示、可測試、可驗收產品級 MVP；Factory 核心與各線產品並行推進，不得以任何一線未完工阻塞無依賴工作。</p>
     </div>
     <div className={styles.executionStatus}>
      <div><span>MVP CORE JOURNEY</span><b>登入 → 專案 → 對話 → AI</b><small>既有工作區與 API 作為首版基線</small></div>
@@ -85,10 +85,29 @@ export default function HomePage() {
      <article><span>03 · AI SERVICE</span><b>受控 AI 對話</b><p>AI 供應商、伺服器端金鑰與預算尚未完成安全設定時，系統必須拒絕付費請求並明確提示。</p><a href="https://github.com/X84657465/global-citizen-ai-network/tree/main/app/api/ai/chat" target="_blank" rel="noreferrer">查看 AI Chat API <ArrowUpRight size={13}/></a></article>
      <article><span>04 · DELIVERY</span><b>精確 SHA 驗收</b><p>測試、TypeScript、Lint、Build、必要 CI 與獨立 Review 必須對應同一候選 SHA；PENDING／0 Job／SKIPPED 都不是 PASS。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">查看 GitHub Actions <ArrowUpRight size={13}/></a></article>
     </div>
+    <div className={styles.executionLiveHeading}><b>A–P 全線產品 MVP 交付目錄</b><span>16 條工作線各自交付產品；以下是 MVP 驗收方向，不代表已實作或已上線</span></div>
+    <div className={styles.executionLiveGrid}>
+     <article><span>A · FACTORY</span><b>Agent Factory V2</b><p>安全完成核准任務→隔離執行→測試→候選 PR→獨立 Review。</p></article>
+     <article><span>B · GCAN PRODUCT</span><b>全球公民 AI 網路</b><p>訪客→登入→工作區→專案→對話→受控 AI Chat。</p></article>
+     <article><span>C · PREDICTIVE CODING</span><b>預測編碼產品</b><p>輸入任務／樣本，產生預測結果並可比較評估。</p></article>
+     <article><span>D · DEEP NEURAL</span><b>深度神經能力</b><p>可執行推論流程、固定測試集與資源量測。</p></article>
+     <article><span>E · DEEP RESEARCH</span><b>深度研究產品</b><p>來源擷取→主張引用→交叉核對→可追溯報告。</p></article>
+     <article><span>F · SECURITY</span><b>安全檢查產品</b><p>可執行安全 Gate、風險結果與阻擋規則。</p></article>
+     <article><span>G · RELEASE QA</span><b>發布品質產品</b><p>精確 SHA 檢查、相容性與 release decision。</p></article>
+     <article><span>H · OBSERVABILITY</span><b>可觀測性產品</b><p>工作流關聯追蹤、錯誤事件與最小儀表板。</p></article>
+     <article><span>I · INTEGRATION</span><b>外部整合產品</b><p>至少一個安全 sandbox connector 與契約測試。</p></article>
+     <article><span>J · RESILIENCE</span><b>韌性診斷產品</b><p>故障案例→根因證據→dry-run 修復建議。</p></article>
+     <article><span>K · KNOWLEDGE</span><b>知識檢索產品</b><p>文件登錄→索引→檢索→引用與來源回鏈。</p></article>
+     <article><span>L · FEDERATION</span><b>聯邦協作產品</b><p>隔離節點 sandbox 委派、驗證、撤銷與稽核。</p></article>
+     <article><span>M · COMPLIANCE</span><b>合規風險產品</b><p>控制項、證據登錄、風險與缺口報告。</p></article>
+     <article><span>N · ANALYTICS</span><b>產品分析產品</b><p>隱私最小化事件、聚合 KPI 與資料品質報告。</p></article>
+     <article><span>O · LIFECYCLE</span><b>生命週期產品</b><p>版本相容、支援期限、遷移與回滾檢查。</p></article>
+     <article><span>P · GOVERNANCE</span><b>治理信任產品</b><p>權限／Review 證據、政策評估與放行結果。</p></article>
+    </div>
     <div className={styles.executionLiveHeading}><b>五 GPT 交付閉環</b><span>每個角色單次主導一項任務；權限仍以現行核准政策與工具設定為準</span></div>
     <div className={styles.executionLiveGrid}>
-     <article><span>GPT1 · P0</span><b>Factory 首席工程</b><p>A–E／Factory 核心、執行閉環、必要 A→B 介面。</p></article>
-     <article><span>GPT2 · P2</span><b>專業能力工程</b><p>F–P 只處理直接阻擋 MVP／Factory 的必要安全、QA、觀測與整合能力。</p></article>
+     <article><span>GPT1 · P0</span><b>Factory 首席工程</b><p>A–E 每線產品級 MVP；優先維持 Factory 核心並提供必要 A→B 契約。</p></article>
+     <article><span>GPT2 · P2</span><b>專業能力工程</b><p>F–P 每線各自交付專業能力 MVP，依賴排序並行推進。</p></article>
      <article><span>GPT3 · QA</span><b>獨立架構與放行</b><p>依風險分級審查精確 SHA；不得審查自己開發的成果。</p></article>
      <article><span>GPT4 · P1</span><b>B Product 負責人</b><p>首版範圍、使用者旅程、產品實作、驗收與 Post-MVP 排序。</p></article>
      <article><span>GPT5 · OPS</span><b>營運總控與第二執行席</b><p>狀態／SHA、派工、阻塞清理與受明確授權的支援開發；不取得模組 owner 權。</p></article>
