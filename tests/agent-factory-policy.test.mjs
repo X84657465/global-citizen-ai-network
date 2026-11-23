@@ -316,6 +316,6 @@ test("scratch failures require an explicit task-scope marker", () => {
   const section = workflow.slice(start, next < 0 ? workflow.length : next);
 
   assert.match(section, /AGENT_FACTORY_FAILURE_SCOPE -eq "task"/);
-  assert.doesNotMatch(section, /APPLY_SCRATCH_OUTCOME|steps\\.apply-scratch\\.outcome/);
+  assert.doesNotMatch(section, /APPLY_SCRATCH_OUTCOME|steps.*apply-scratch.*outcome/);
   assert.match(section, /defaulting to system-scoped/);
 });
