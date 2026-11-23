@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { isRepeatedInvoiceSourceFingerprint } from "@/lib/ai-cost-reconciliation.mjs";
 import { useEffect, useState, type CSSProperties } from "react";
 
 type CostItem = { kind: string; currency: string; amount: number };
@@ -57,7 +56,7 @@ export default function AiCostDashboardClient() {
       const response = await fetch("/api/admin/ai-costs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csv: invoiceCsv, fxConversion: fx }) });
       const result = await response.json() as { preview?: InvoicePreview; error?: string };
       if (!response.ok || !result.preview) throw new Error(result.error ?? "帳單預覽失敗。");
-      const duplicateFile = isRepeatedInvoiceSourceFingerprint(result.preview.sourceFingerprint, seenInvoiceFingerprints);
+      const duplicateFile = seenInvoiceFingerprints.includes(result.preview.sourceFingerprint);
       setInvoiceDuplicateFile(duplicateFile);
       if (!duplicateFile) setSeenInvoiceFingerprints((previous) => [...previous, result.preview!.sourceFingerprint]);
       setInvoicePreview(result.preview);
