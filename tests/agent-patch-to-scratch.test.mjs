@@ -252,8 +252,10 @@ test("classifies Docker OOM-killed and dead candidate containers as system failu
   assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, Dead: true }), "system");
   assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: true, Dead: true }), "system");
 
-  const { OOMKilled: _oomKilled, ...missingOomKilled } = healthyRuntimeFailure;
-  const { Dead: _dead, ...missingDead } = healthyRuntimeFailure;
+  const missingOomKilled = { ...healthyRuntimeFailure };
+  delete missingOomKilled.OOMKilled;
+  const missingDead = { ...healthyRuntimeFailure };
+  delete missingDead.Dead;
   assert.equal(candidateContainerFailureScope(missingOomKilled), "system");
   assert.equal(candidateContainerFailureScope(missingDead), "system");
   assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: null }), "system");
