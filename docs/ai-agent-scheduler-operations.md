@@ -1,96 +1,112 @@
 # AI Task Scheduler Operations Runbook
 
-**Scope:** repository-owner-operated, preflight-only AI task worker.  
-**Source of truth:** `.github/workflows/agent-task-preflight.yml`, `lib/agent-task-validation.mjs`, `scripts/select-agent-task.mjs`, and `lib/agent-factory-state-machine.mjs`.
+**Verified baseline:** `main` `f622c852346577d67aed0bde2922ade17044057c` (2026-11-23).  
+**Source of truth:** `.github/workflows/agent-task-preflight.yml`, `lib/agent-task-validation.mjs`, `scripts/select-agent-task.mjs`, `lib/agent-factory-controller.mjs`, and `lib/agent-factory-state-machine.mjs`.
+
+This is a point-in-time operator guide. Before acting, inspect the current workflow and newest Actions run; a later `main` commit may change behavior.
 
 ## 1. Submit a valid task
 
-Create a GitHub Issue in this repository. The title must begin exactly with `[AI Task]` and the Issue must be authored by the repository owner (or be an explicitly planner-generated task). Keep the Issue open while it is queued.
+Create an open GitHub Issue in this repository. Its title must begin exactly with `[AI Task]`. The normal queue accepts Issues authored by the repository owner. The explicitly planner-generated bot path is a separate exception and requires the generated-task marker; it is not a general way to submit arbitrary bot-authored tasks.
 
-The body must contain these four second-level Markdown headings exactly once, in any order:
+The Issue body must contain these four second-level headings exactly once:
 
-1. `## Goal` — describe one concrete outcome in 20–3,000 characters.
-2. `## Allowed paths` — a bullet list of 1–20 repository-relative paths. Paths must be under `app/`, `components/`, `lib/`, `tests/`, or `docs/`; use forward slashes. Do not include `.github/`, secrets, credentials, Supabase internals, absolute paths, or traversal segments.
-3. `## Acceptance criteria` — a bullet list of 1–15 observable checks.
-4. `## Explicit exclusions` — a bullet list of 1–15 things the worker must not change or do.
+1. `## Goal` — one concrete outcome, 20–3,000 characters.
+2. `## Allowed paths` — 1–20 repository-relative paths.
+3. `## Acceptance criteria` — 1–15 observable checks.
+4. `## Explicit exclusions` — 1–15 prohibited changes or actions.
 
-On the integrated `main` baseline, the only optional headings are `## Priority` (short `P0`–`P3` value) and `## Dependencies` (references to prerequisite Issue numbers). Do not add other section headings to tasks processed by that baseline. The current A 2.0.78 candidate in PR #195 (exact HEAD `41b93b8fc6a203062ea1eff5c9c6e79afe755bb0`) additionally recognizes `## Confirmed evidence`, `## Finding and required behavior`, and real-calendar-date headings in the form `## Retry scope refinement — YYYY-MM-DD` as supplemental untrusted context. It preserves those sections in the validated task bundle and passes the same bounded context projection to both planning and patch generation. Its exact-head GitHub Actions run [44884400029](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44884400029) completed successfully, including Windows quality gates, local Ollama execution, and isolated Supabase/PostgreSQL/RLS integration. Its Vercel status remains blocked by the provider build-rate-limit response, and it has no formal independent review; therefore this parser is not active on integrated `main` and must not be used by the current worker. Do not submit those supplemental headings until the dependent A stack is independently reviewed, accepted, and merged. In all versions, the four required sections remain mandatory, duplicate and unrecognized headings are rejected, each required list must contain bullets only, indented code blocks are not accepted as task directives, and the entire Issue body is treated as untrusted data.
+The complete body must not exceed 20,000 characters. Required lists use Markdown bullets. The normal writable roots are `app/`, `components/`, `lib/`, `tests/`, and `docs/`. The scheduler workflow path is a narrow control-plane exception and requires the `factory-control-plane-approved` Issue label; do not use it for ordinary product tasks. Absolute paths, traversal segments, backslashes, secret/credential paths, and Supabase internals are rejected.
 
-Example structure:
+The current validator also recognizes these optional sections when needed: `Priority`, `Dependencies`, `Required patch paths`, `Forbidden content`, `Confirmed evidence`, `Finding and required behavior`, and date-specific `Retry scope refinement — YYYY-MM-DD`. `Dependencies / context` is accepted as an alias for `Dependencies`. Keep the four required sections; optional context is untrusted task data, not executable instructions. Do not assume a heading accepted by an older worker is accepted by the current `main` validator.
+
+Example:
 
 ```markdown
 ## Goal
-Improve one clearly identified documentation or product behavior.
+Improve one clearly identified behavior or document one verified operational procedure.
 
 ## Allowed paths
 - docs/example-operations.md
 
 ## Acceptance criteria
-- The documented behavior matches the current implementation.
-- The instructions can be followed without running repository code.
+- The document matches the checked-in implementation.
+- A non-technical operator can follow the steps.
 
 ## Explicit exclusions
-- Do not modify workflows, secrets, production data, or deployment settings.
+- Do not modify workflows, application code, secrets, production data, or deployment settings.
 ```
 
-## 2. Scheduler cadence and queue behavior
+## 2. Schedule, triggers, and queue behavior
 
-The current workflow schedule is **every 5 minutes** (`*/5 * * * *`), not every 30 minutes. This runbook follows the checked-in workflow; changing the cadence requires a separate, explicit workflow change and fresh CI. The workflow also reacts to newly opened/reopened Issues and the internal `ai-task-next` repository-dispatch event. A task is not guaranteed to start immediately after an Issue is opened.
+The checked-in workflow on the verified baseline declares:
 
-Each queue-triggered run selects **at most one** eligible task. The selector:
-- considers open owner-authored Issues whose titles begin with `[AI Task]` (plus explicitly marked planner-generated tasks);
-- skips tasks already represented by an open or merged task PR, tasks already published, skipped/quarantined tasks, and tasks with unresolved dependencies;
-- respects the explicit P0–P3 priority, then FIFO ordering within a priority;
-- pauses selection when a durable active lease exists or the system circuit breaker is in cooldown.
+```yaml
+schedule:
+  - cron: "3-59/5 * * * *"
+```
 
-An “empty queue” message means no eligible task was selected in that run. It does not by itself mean GitHub Actions is broken. Check whether the task is malformed, has unresolved dependencies, is already represented by a PR, is quarantined, or is blocked by an active lease/cooldown. The workflow only creates a bounded roadmap task when its explicit empty-queue conditions are met; do not assume every empty poll creates work.
+This runs every five minutes at minute 3, 8, 13, …, 58. It is **not** the literal expression `*/5 * * * *`; both describe a five-minute cadence, but their minute offsets differ. The runbook documents the exact checked-in expression and does not change the workflow.
 
-Scheduled poller runs are coalesced. Worker jobs share a serialized self-hosted Runner concurrency group and are not configured to cancel an already-running worker. A run that is waiting for the Runner is queued, not proof that the task has started.
+The workflow also has these triggers:
+- Issues opened or reopened;
+- repository dispatch event `ai-task-next`;
+- manual `workflow_dispatch` with an Issue number;
+- selected owner pushes that match the workflow's branch and path filters.
+
+A queue-triggered selection run chooses **at most one** eligible task. The selector considers open owner-authored Issues with titles beginning `[AI Task]` (plus the explicit planner-generated path), and excludes tasks already represented by an open or merged task PR, already published tasks, skipped tasks, and tasks with unresolved dependencies. It sorts by explicit P0–P3 priority and then FIFO within a priority.
+
+An empty-queue message means no eligible task was selected in that run. It does not prove Actions is broken. Check for unresolved dependencies, an existing task PR, skipped/quarantined state, an active lease, or a system/provider cooldown. The workflow may create one roadmap task only under its explicit empty-queue conditions; an empty poll does not guarantee a new task.
+
+Scheduled pollers are coalesced. Worker jobs share a serialized Windows self-hosted Runner concurrency group and are not configured to cancel an already-running worker. A queued run is waiting for capacity; it is not evidence that task execution has started.
 
 ## 3. Runner prerequisites and execution boundaries
 
-The worker job requires a reachable GitHub Actions runner with labels `self-hosted`, `Windows`, and `X64`. Its local execution path checks for:
+The task worker's main execution job requires a reachable GitHub Actions Runner with labels `self-hosted`, `Windows`, and `X64`. The workflow pins Node.js `22.13.0` and checks local execution dependencies, including:
+
 - Node.js and npm;
-- a responsive local Ollama API at `http://127.0.0.1:11434` with a usable model;
+- a responsive local Ollama API at `http://127.0.0.1:11434` and a usable local model;
 - Docker CLI and a running Docker daemon;
-- the pinned Node container image used for isolated candidate installation and tests.
+- the pinned Node container image used for isolated candidate dependency installation and testing.
 
-WSL, hypervisor, and Windows Sandbox capability checks are diagnostic; their absence is reported but is not itself proof that the task worker is ready. The worker also uses local scratch storage and bounded timeouts. A successful historical run is evidence only for that run and time; it does not guarantee the Runner is online now.
+WSL, hypervisor, and Windows Sandbox checks are diagnostic. Their absence is reported, but it is not a substitute for the mandatory disposable-container isolation gate. A successful historical run proves only what happened in that run; it does not prove the Runner is online now.
 
-**Runner evidence — exact current runbook candidate:** PR #191 HEAD `4bb66ddbdfd008938db9b3dd3cfa350dec3574aa` was validated by exact-head Actions run [44882226223](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44882226223), which completed successfully. The Windows quality-gates job passed locked dependency installation, Windows Runner/Docker/Ollama checks, bounded local inference, migration/schema guards, dependency audits, Factory script syntax and CI policy, unit tests, TypeScript, lint, and production build. The separate Windows Ollama/local execution job and isolated Supabase migrations, PostgreSQL/pgTAP, and two-member application RLS integration job also completed successfully. The exact-HEAD Vercel Preview deployment `dpl_Bg27u6NfD1fuFL9Qy6e2jBxUfr99` reached `READY` for the same SHA. Formal independent PR reviews and inline review threads remain 0; CI and Preview success are not approval or merge acceptance. Conditional failure-diagnostics and durable-state persistence jobs were skipped because their conditions were not eligible; this does not claim a durable task-state write or breaker reset. All run results are point-in-time evidence, not a live Runner availability promise; check the newest Actions run before assuming the machine is online.
+The normal task path checks durable cooldown/lease state, requeues tasks whose retry deadline has elapsed, selects one task, reserves a durable lease, validates the Issue, generates a read-only plan, proposes a bounded patch, applies it in disposable scratch, installs candidate dependencies in a restricted container, and runs offline tests plus TypeScript and lint checks. Publication is a separate permission-scoped job and creates a **Draft PR** only after the candidate validation path succeeds.
 
-The task flow validates the Issue, generates a read-only plan, proposes a bounded patch, applies it only in a disposable scratch workspace, installs candidate dependencies in a restricted container, and runs offline unit tests, TypeScript validation, and lint before it can publish a **Draft PR**. The worker does not execute arbitrary repository code from the Issue, and its task plan keeps AI code execution disabled.
+The workflow does not perform production deployment, production database mutation, paid provider calls, or automatic PR merge. Do not infer any of those permissions from a successful preflight or Draft PR.
 
 ## 4. Retry, failure, and waiting behavior
 
-There are separate task-scoped and system-scoped failure controls:
+The Factory distinguishes task/candidate failures from shared-system failures:
 
-- A candidate dependency installation has one retry after the initial attempt (each attempt is time-bounded).
-- A task-scoped failure returns that task to `retry_wait` with exponential delays of 1 minute, then 2 minutes; after the third task failure it is quarantined and is no longer selected automatically.
-- Three consecutive system-scoped failures activate a 15-minute system cooldown. During cooldown the queue does not start another task.
-- A shared system breaker is reset only by the separate **Agent Factory System Health Recovery** workflow after the full `CI` workflow has completed successfully. It verifies the completed run ID, attempt, workflow path, exact head SHA, pull-request event, and same-repository PR targeting `main` before writing the health event to durable state. An in-progress CI job cannot certify its own completion.
-- This health reset proves only that the registered CI infrastructure gates passed for that exact PR revision; it does not approve the candidate, authorize a merge, or deploy production.
-- A durable active lease prevents another task from being selected. The default lease duration is 90 minutes; recovery is evidence-checked and must not be bypassed manually.
-- A waiting Actions run can be waiting for the serialized Windows Runner, for the cooldown/lease gate, or for a task dependency. Inspect the job and step status before treating it as a failure.
+- Candidate dependency installation has one retry after its initial attempt.
+- A task-scoped failure enters `retry_wait`; eligible tasks are requeued by the controller after the recorded deadline. The delay grows exponentially (starting at 1 minute and 2 minutes for the first two task failures). A task is quarantined after three task failures.
+- Candidate CI failures are tracked separately; retry deadlines also grow exponentially, and a candidate is quarantined after three candidate failures.
+- Three consecutive system-scoped failures activate a 15-minute system cooldown.
+- A validated external provider rate-limit deadline is carried separately and is bounded to at most 24 hours; do not repeatedly dispatch work during that cooldown.
+- The default worker lease is 90 minutes. An active lease prevents another task from being selected. Expired-lease recovery is evidence-checked; do not bypass it manually.
+- A system-health recovery is not triggered by a task's own successful publication. It requires the separate evidence-verified recovery path.
 
-Do not repeatedly reopen or duplicate an Issue to force a retry. First inspect the task state and the failed run. Correct the underlying task specification or wait for the recorded retry/cooldown path. Quarantined tasks require deliberate owner triage; do not delete durable factory state or bypass the circuit breaker.
+Do not repeatedly reopen or duplicate an Issue to force a retry. Inspect the failed step and task state, correct the underlying task specification or code within its allowed scope, and let the normal retry/requeue policy operate. Quarantined tasks require deliberate owner triage.
 
-## 5. Inspect a run and review its Draft PR
+## 5. Inspect Actions and review a Draft PR
 
 1. Open the repository's [Actions page](https://github.com/X84657465/global-citizen-ai-network/actions).
-2. Select **AI Agent Task Preflight** and open the newest run. Check the event, commit, overall status, and the `prepare-task` job.
-3. If the job is queued, inspect Runner availability and the concurrency queue. If it failed, open the failed step and read its log; distinguish task-scoped validation/generation/test failures from Runner, GitHub API, or system failures.
-4. If the run succeeds and publishes a PR, open the Draft PR linked from the run or Issue. Check the changed-file list against the Issue's Allowed paths, read the diff, and confirm every acceptance criterion.
-5. Keep the PR in Draft until its exact head SHA has fresh required CI and the required review/approval gates. A previous SHA's passing CI does not approve a newer commit.
+2. Select **AI Agent Task Preflight** and open the newest run. Verify its event, commit SHA, run attempt, overall status, and job list.
+3. Open the `Validate task and generate read-only AI plan` job. Inspect the step that is queued, pending, or failed; distinguish task validation/planning failures from Runner, GitHub API, Docker/Ollama, and provider failures.
+4. A run marked `PENDING`, a run exposing zero jobs, or a missing required job is **not PASS**. A `SKIPPED` conditional job is not a successful execution of that job. Overall run success alone does not prove that a task was selected, patched, tested, or published; inspect the actual job and step outcomes.
+5. If a Draft PR is published, check its exact head SHA, base SHA, changed-file list, diff, acceptance criteria, and required CI/review gates. Every changed path must be within the Issue's allowlist.
+6. Keep the PR in Draft until the exact current head has the required terminal CI evidence and independent review. A previous SHA's passing result does not transfer to a newer commit.
 
-**Do not merge or deploy from this runbook.** The worker's publication result is a Draft PR only. It does not perform production deployment, production database mutation, paid API calls, or automatic merge. Any later merge/deployment is a separate, human-governed release decision.
+**Runner availability is not asserted by this runbook.** Check a real, recent workflow run and its Runner job to establish point-in-time availability. Historical CI, Preview, or Runner results from PR #191 are not current availability evidence and are intentionally not used here.
 
 ## 6. Operational safety checklist
 
-- [ ] Issue title starts with `[AI Task]` and is authored by the repository owner.
-- [ ] All four required sections are present and use the required bullet format.
-- [ ] Allowed paths are minimal and do not include control-plane or protected paths.
-- [ ] Dependencies are resolved and the task is not already represented by a PR.
-- [ ] The latest Actions run confirms Runner availability; do not infer it from an old run.
+- [ ] Issue title begins with `[AI Task]` and the author meets the owner/planner rule.
+- [ ] All four required sections are present exactly once and use the required bullet format.
+- [ ] Allowed paths are minimal and within the current write allowlist.
+- [ ] Dependencies are resolved and the task is not already represented by a task PR.
+- [ ] The newest Actions run confirms whether a Runner job actually started; do not infer availability from history.
+- [ ] PENDING, zero-job, SKIPPED, stale-SHA, and rate-limit states are recorded as blockers, not PASS.
 - [ ] Candidate changes remain within the approved paths and are reviewed as a Draft PR.
-- [ ] Exact-head CI and required review gates pass before any separate release decision.
+- [ ] Exact-head CI and independent review pass before any separate release decision.
