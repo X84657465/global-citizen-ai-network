@@ -3597,3 +3597,56 @@ This addendum supersedes older status lines above only for the refs and run IDs 
 - Existing automation delivery status is not re-verified in this pass; this manual refresh is not represented as a scheduled delivery.
 
 **Disposition: MAIN FAILURE; 14 OPEN PRs; 11 Draft; 0 formal APPROVED; 10 stale-base PRs; 0 safe merges. #493 Vercel changed to SUCCESS but its exact-head Actions remains FAILURE and CircleCI remains ERROR. NOT RUN, SKIPPED, stale-base SUCCESS, external errors, and unavailable logs remain non-green.**
+
+
+---
+
+## GPT5 exact-state delta — 2026-11-24 (fresh ref recheck)
+
+This delta supersedes only the older ref/run/status values explicitly corrected below. All SHAs and run IDs are exact observations from this pass.
+
+### Governance and source reads
+- Re-read current Main `PROJECT_COORDINATION.md` (blob `d3ee1881aa67861fc42a2b568b26020945b0c218`), `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`), and `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` (blob `67166a378c92909c8ddf64586f8a2b5202be7d14`).
+- Main ref re-fetched directly: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- GPT5 remains Global Intelligence & Operations support only; no A–P module ownership or independent approval authority is implied.
+
+### Main exact CI and provider state
+- Main push run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 2, exact Main SHA: COMPLETED / FAILURE.
+- Resolver job `137929482510` and exact-SHA diagnostics `137929509999`: FAILURE. Windows quality `137929510006`, PostgreSQL/RLS `137929511495`, Ollama `137929513478`, and success persistence `137929512842`: SKIPPED. Failure persistence `137929510391`: SUCCESS only for recording the failure.
+- Latest observed Main recovery run [#45277427299](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45277427299): COMPLETED / SKIPPED, not a recovery.
+- Current Main external statuses: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline 94 ERROR.
+- Main Resolver/Diagnostics log retrieval returns GitHub Storage 404 `BlobNotFound`; failed job steps are unavailable. Root cause remains UNKNOWN; no blind retry.
+
+### All open PR refs re-fetched
+- 14 OPEN, 0 merged. Current metadata: 11 Draft / 3 non-Draft. Four PRs have base SHA equal to current Main (#503/#502/#501/#500); ten are stale-base (#498/#497/#496/#495/#493/#478/#476/#417/#376/#259).
+- Exact current HEAD / base SHA / Draft / mergeability:
+  - #503 `549ea4c8b904afb0f9b96bdd020f2315fc3fb979` / current Main / Draft / mergeable=true.
+  - #502 `2de9dfc0a2959e51ba76da124a3cdfdac6e9fad0` / current Main / Draft / mergeable=true.
+  - #501 `7c9364136a4ffd7f95f51ffde616a2a04cbbe84d` / current Main / Draft / mergeable=true.
+  - #500 `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` / current Main / Draft / mergeable=true.
+  - #498 `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` / base `8002072738d0dad722ccfc1207250165d1b7d8bc` / Draft / mergeable=true.
+  - #497 `c3e6450551d53011bf74168239e65496699e995b` / base `8002072738d0dad722ccfc1207250165d1b7d8bc` / Draft / mergeable=true.
+  - #496 `5251f221884aa8cc7e170fe3b90811e567a59f94` / base `8002072738d0dad722ccfc1207250165d1b7d8bc` / Draft / mergeable=true.
+  - #495 `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` / base `8002072738d0dad722ccfc1207250165d1b7d8bc` / Draft / mergeable=true.
+  - #493 `dbb3cc0b443d6ce220f0bb4728ce838f03522067` / base `8002072738d0dad722ccfc1207250165d1b7d8bc` / Draft / mergeable=true.
+  - #478 `9a696398fb8c3acf7152649207d3a4489a59c75c` / base `4225a244407f7a323262c4d6e17b2749193d6476` / Draft / mergeable=false.
+  - #476 `977896a9db756e336405bb2f1956f9377da60038` / base `4225a244407f7a323262c4d6e17b2749193d6476` / Ready / mergeable=false.
+  - #417 `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` / base `25d5ed519eb923d3001df6d43aec1670a0d4851a` / Ready / mergeable=false.
+  - #376 `d10e6dd6d428d9ce35dbd14778e01c628f909742` / base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` / Ready / mergeable=false.
+  - #259 `3330cd04a77358cf0ff780940d09f938cab1dc3a` / base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` / Draft / mergeable=false.
+- Exact-head run results last recorded in the full inventory: #503/#502/#501/#500/#498/#497/#496/#495/#493/#417 FAILURE; #478/#259 SUCCESS only on stale bases; #476/#376 no exact-head Actions run (NOT RUN). Current exact-head checks re-fetched this pass for Main, #503, #493, #500, #498, #495 and #497 confirm the same failure pattern; no new PASS.
+- Formal review API rechecked on #493 and #503: COMMENTED only, zero APPROVED. Both sets of comments are attributed to repository owner `X84657465`; they do not establish an independent GPT3 approval. #493 and #503 have zero unresolved inline threads.
+
+### GPT5-owned PR #493 and Factory support PR #503
+- PR #493 current HEAD is `dbb3cc0b443d6ce220f0bb4728ce838f03522067` (supersedes prior `90315a...` / `e887a...` snapshots); base remains stale `8002072738d0dad722ccfc1207250165d1b7d8bc`; OPEN / Draft / mergeable=true.
+- Exact-head Actions run [#45277388807](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45277388807), attempt 1: FAILURE. Resolver `138052599631` and diagnostics `138052630949` FAILURE; PostgreSQL/RLS `138052632034`, Ollama `138052632092`, quality `138052633472`, success persistence `138052633734`, and failure persistence `138052633815` SKIPPED. Failed-job step/log evidence unavailable; root cause UNKNOWN.
+- PR #493 external statuses rechecked: Vercel SUCCESS; CircleCI Pipeline 107 ERROR. Provider SUCCESS does not override Actions FAILURE. Review submissions remain COMMENTED only; zero APPROVED. Keep Draft.
+- PR #503 remains HEAD `549ea4c8b904afb0f9b96bdd020f2315fc3fb979`, current-base, OPEN / Draft. Preflight [#45261470499](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45261470499) FAILURE; exact-head Actions [#45261470501](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45261470501), attempt 2, FAILURE. Resolver `138021178595` and diagnostics `138021202106` FAILURE; quality, PostgreSQL/RLS, Ollama and both persistence jobs SKIPPED.
+- PR #503 external statuses: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline 105 ERROR. Review submissions COMMENTED only; zero APPROVED. The known fixture file `tests/agent-factory-policy.test.mjs` overlaps PR #259; do not edit it concurrently. GPT1/Factory and the canonical file owner must reconcile it.
+
+### Automation and action disposition
+- Existing `GCAN 每日工程巡檢` automation remains enabled at a flexible daily 08:00 Asia/Taipei target; next scheduled occurrence is 2026-11-24 08:00. Last recorded run is 2026-11-23; delivery status is UNKNOWN. This manual audit is not a scheduled run. Three duplicate schedules remain disabled; no duplicate was created.
+- No PR satisfies current-base integration, exact-head required CI, independent formal approval and merge gates. No Draft promotion, merge, deployment, quota bypass, CI retry or protected-state mutation was performed.
+- GPT5 continued its own Operations/handoff work, preserved the #117 support boundary, and routed Factory resolver/log/fixture blockers to GPT1/Factory and the canonical test-file owner. Next independent work remains the Operations evidence/handoff lane while shared Factory diagnostics are blocked.
+
+**Disposition: MAIN FAILURE; 14 OPEN PRs; 11 Draft; 0 confirmed independent APPROVED reviews on the GPT5/#117 candidates; 10 stale-base PRs; 0 safe merges. PENDING/NOT RUN/SKIPPED, stale-base SUCCESS, external errors, and unavailable logs remain non-green.**
