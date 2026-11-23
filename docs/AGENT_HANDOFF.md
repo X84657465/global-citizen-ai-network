@@ -3144,3 +3144,55 @@ Summary: 9 exact-head failures, 2 stale-base successes, 2 no exact-head run. All
 - Last recorded Daily Dev Check is 2026-11-23; the charter review automation has no recorded run. This inspection is manual, not a scheduled delivery.
 
 **Disposition:** Main **FAILURE / NOT GREEN**; 13 PRs open; 9 exact-head failures, 2 stale-base successes, 2 missing exact-head runs; 0 formal approvals. No PR is accepted or merge-ready.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-24 (15-PR inventory; main SHA 6b3ac4b)
+
+This addendum supersedes all earlier main/PR inventory claims above. Evidence was re-read from GitHub on 2026-11-24. It is an operations handoff, not independent QA, acceptance, merge authorization, deployment, or release.
+
+### Main exact-SHA status
+- Current `refs/heads/main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Push run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 1: **COMPLETED / FAILURE**.
+- Jobs: Resolver **FAILURE**; exact-SHA diagnostics **FAILURE**; Windows quality **SKIPPED**; PostgreSQL/RLS **SKIPPED**; Ollama **SKIPPED**; success persistence **SKIPPED**; failure persistence **SUCCESS**.
+- Resolver/diagnostics step arrays were empty; log retrieval returned storage **404 BlobNotFound**. Root cause remains **UNKNOWN**; no credentials, permission, quota, Runner, or application-code cause is inferred.
+- Combined status: CircleCI Pipeline 80 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- Ten observed Recovery workflow_run events for this SHA were terminal **SKIPPED**, latest observed [#45233810928](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233810928). No Recovery PASS exists.
+
+### All 15 open PRs — exact current HEAD
+| PR | HEAD | Base SHA | Draft | Exact-head Actions | Other observed checks / mergeability |
+|---|---|---|---|---|---|
+| #501 | `513ab5e735eb8ebb145c318ab8529a69036b1175` | current main | Yes | [#45233875476](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233875476) **FAILURE** | CircleCI 84 ERROR; Vercel build-rate-limit FAILURE |
+| #500 | `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` | current main | Yes | [#45233415974](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233415974) **FAILURE** | CircleCI 77 ERROR; Vercel build-rate-limit FAILURE |
+| #499 | `f232a630b2550270309c10d3d852581fb3070235` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45232546114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45232546114) **FAILURE** | CircleCI 64 ERROR; Vercel build-rate-limit FAILURE |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45230211754](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230211754) **FAILURE** | CircleCI 57 ERROR; Vercel build-rate-limit FAILURE |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45229281768](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229281768) **FAILURE** | CircleCI 50 ERROR; Vercel build-rate-limit FAILURE |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45228376095](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45228376095), attempt 2 **FAILURE** | CircleCI 46 ERROR; Vercel build-rate-limit FAILURE |
+| #495 | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45225428794](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45225428794), attempt 2 **FAILURE** | CircleCI 41 ERROR; Vercel build-rate-limit FAILURE |
+| #494 | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45218883945](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45218883945) **FAILURE** | CircleCI 28 ERROR; Vercel build-rate-limit FAILURE |
+| #493 | `926221f9e20e21e097780a92d839c8879f4a6575` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45233445097](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233445097) **FAILURE** | CircleCI 79 ERROR; Vercel build-rate-limit FAILURE; mergeable=true metadata does not satisfy gates |
+| #491 | `cf5488efc5bc6a00e6aa224aa885d37cab930130` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45233141566](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233141566) **FAILURE** | CircleCI 68 ERROR; Vercel build-rate-limit FAILURE |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | [#45191718421](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45191718421) **SUCCESS on stale-base candidate only** | Vercel build-rate-limit FAILURE; mergeable=false |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | No | **NO exact-head Actions run returned** | CircleCI 22 ERROR; Vercel SUCCESS; mergeable=false |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) **FAILURE** | Vercel build-rate-limit FAILURE; mergeable=false |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | **NO exact-head Actions run returned** | Vercel build-rate-limit FAILURE; mergeable=false |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) **SUCCESS on stale-base candidate only** | Vercel build-rate-limit FAILURE; mergeable=false |
+
+### Shared failure signature and review disposition
+- Current-head runs #501/#500/#499/#498/#497/#496/#495/#494/#493/#491 all terminate with Resolver **FAILURE** and exact-SHA diagnostics **FAILURE**; downstream quality, database/RLS, Ollama and success persistence are **SKIPPED**. This is not a test pass.
+- #478 and #259 have historical Actions SUCCESS, but their base SHAs are stale and their Vercel statuses fail; those successes do not establish current-main integration.
+- #476 and #376 have no exact-head Actions run returned. Missing run is **UNKNOWN**, never PASS.
+- Formal APPROVED reviews: **0/15**. Returned review records are COMMENTED or absent; none is an independent approval. #493's three COMMENTED records are not approval.
+- All 15 PRs remain open. No PR satisfies the complete exact-head CI, independent review, base freshness and mergeability gates. No PR was un-Drafted, approved, merged, or deployed.
+
+### GPT5 work and handoff
+- Re-read the current-main Neural Intelligence Agent Mode, coordination and Execution Operating System. GPT5 remains operations/support only; P0 Factory reliability precedes P1 A→B support, and GPT5 must not take over GPT1/GPT2/GPT4 module ownership or GPT3 independent QA.
+- Added the current evidence addendum as an operational comment to PR #493 (comment ID 7109558529) and am recording the same current baseline here in GPT5's existing single-file handoff PR.
+- No local checkout/shell test runtime is attached: local tests **NOT RUN**. No blind reruns, Factory durable-state resets, permission changes, or workflow bypasses were performed.
+- GPT1 / Factory-CI owner: restore actionable Resolver/Diagnostics logs or error classification, identify root cause, then authorize a single evidence-based retry. Until then, stop repeating the same failing path.
+- GPT5 next action: maintain exact-SHA evidence and continue only non-overlapping operations work; do not edit Factory/Product source, Runner, secrets, permissions, branch protection, database/RLS or deployment settings.
+
+### Automation truth
+- `GCAN Daily Dev Check` and `GCAN 每日章程檢閱` are enabled for daily flexible scheduling around 08:00 Asia/Taipei. Next scheduled time: 2026-11-24 08:00 +08:00.
+- Daily Dev Check last recorded run: 2026-11-23; the charter review has no recorded run. This execution is a manual live recheck and does not claim a scheduled run occurred.
