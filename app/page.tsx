@@ -79,6 +79,16 @@ export default function HomePage() {
      <div><span>RELEASE REGISTRY</span><b>{releaseManifest.overall}</b><small>A {releaseManifest.tracks.A.version} · B {releaseManifest.tracks.B.version}</small></div>
      <div><span>LIVE CI / DEPLOYMENT</span><b>即時狀態以 GitHub 為準</b><small>本頁不快取或冒充 CI PASS／Production READY</small></div>
     </div>
+    <div className={styles.executionLiveSnapshot}>
+     <div className={styles.executionLiveHeading}><b>最新工程快照 · 2026-11-23 10:56（Asia/Taipei）</b><span>以下是本次查證紀錄，不是即時串流</span></div>
+     <div className={styles.executionLiveGrid}>
+      <article><span>MAIN · 480f22e4</span><b>CI IN_PROGRESS</b><p>Windows Runner quality gates 正在執行；System Health Recovery 為 SKIPPED，不代表健康恢復成功。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100393869" target="_blank" rel="noreferrer">查看 main CI #45100393869 <ArrowUpRight size={13}/></a></article>
+      <article><span>GOVERNANCE PR · #440</span><b>OPEN · NOT MERGED</b><p>提案分支最後查證 HEAD：0abec829。GPT3 獨立 Review 尚未出現。</p><a href="https://github.com/X84657465/global-citizen-ai-network/pull/440" target="_blank" rel="noreferrer">查看 PR #440 <ArrowUpRight size={13}/></a></article>
+      <article><span>PR EXACT-HEAD CI</span><b>0 JOBS · NOT PASS</b><p>Run #45102694706 當時回傳 0 jobs；先前 resolver run 仍 PENDING。不得標示 CI 通過。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions/runs/45102694706" target="_blank" rel="noreferrer">查看候選 CI #45102694706 <ArrowUpRight size={13}/></a></article>
+      <article><span>VERCEL PREVIEW</span><b>NOT FOUND · RATE LIMITED</b><p>此分支尚未找到 Preview deployment；Vercel provider 回報 build-rate-limit，與 GitHub Actions CI 分開判定。</p><a href="https://vercel.com/acmes-projects-3dfbdf35?upgradeToPro=build-rate-limit" target="_blank" rel="noreferrer">查看 Vercel 專案配額 <ArrowUpRight size={13}/></a></article>
+     </div>
+     <small>快照來源：GitHub exact-SHA check-runs／workflow jobs／PR metadata 與 Vercel preview lookup。主線或 PR HEAD 前進後，必須重新查證；歷史快照不自動代表最新狀態。</small>
+    </div>
     <div className={styles.executionPriority}>
      <article><span>P0 · FIRST</span><h3>A｜Agent Factory V2</h3><p>Scheduler、task state、lease/fencing、Runner、sandbox、preflight、retry/recovery、task/global breaker 隔離，以及自動實作→測試→修復→候選 PR。</p></article>
      <article><span>P1 · HANDOFF</span><h3>A → B｜必要銜接</h3><p>只處理公開介面、版本相容、資料契約、安全邊界與驗收阻塞；B 持續準備需求、UX、API 與測試規格。</p></article>
