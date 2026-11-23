@@ -3196,3 +3196,51 @@ This addendum supersedes all earlier main/PR inventory claims above. Evidence wa
 ### Automation truth
 - `GCAN Daily Dev Check` and `GCAN 每日章程檢閱` are enabled for daily flexible scheduling around 08:00 Asia/Taipei. Next scheduled time: 2026-11-24 08:00 +08:00.
 - Daily Dev Check last recorded run: 2026-11-23; the charter review has no recorded run. This execution is a manual live recheck and does not claim a scheduled run occurred.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-24 (latest refresh; 13 open PRs)
+
+This latest delta supersedes prior PR counts and state claims above. It is a direct GitHub recheck, not independent QA or release authorization.
+
+### Main
+- Re-read `refs/heads/main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99` (unchanged).
+- Exact push run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163) remains **COMPLETED / FAILURE**. Resolver and diagnostics failed; Windows quality, PostgreSQL/RLS, Ollama and success persistence skipped; failure persistence only recorded a system CI failure.
+- Main combined status remains CircleCI Pipeline **ERROR** and Vercel **FAILURE**.
+- Thirteen latest Recovery workflow_run events are terminal **SKIPPED** (latest observed [#45234596122](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45234596122)); no recovery PASS.
+- Resolver and diagnostics logs for main and current PR runs still return storage 404 `BlobNotFound`. Root cause remains **UNKNOWN**; do not infer an application-code, permission, quota, credential, or Runner issue.
+
+### Current 13 open PRs
+| PR | HEAD | Base | Draft | Exact-head Actions | Other status |
+|---|---|---|---|---|---|
+| #502 | `2de9dfc0a2959e51ba76da124a3cdfdac6e9fad0` | current main | Yes | [#45234565750](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45234565750) **FAILURE** | CircleCI ERROR; Vercel FAILURE |
+| #493 | `20b6439041d0e7382c6c27a448b85417e0ff0404` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45234376048](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45234376048) **FAILURE** | CircleCI ERROR; Vercel SUCCESS |
+| #501 | `513ab5e735eb8ebb145c318ab8529a69036b1175` | current main | Yes | [#45233875476](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233875476) **FAILURE** | CircleCI ERROR; Vercel FAILURE |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | No | **NO exact-head Actions run returned** | CircleCI ERROR; Vercel SUCCESS; mergeable=false |
+| #500 | `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` | current main | Yes | [#45233415974](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233415974) **FAILURE** | CircleCI ERROR; Vercel FAILURE |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45230211754](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230211754) **FAILURE** | CircleCI ERROR; Vercel FAILURE |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45229281768](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229281768) **FAILURE** | CircleCI ERROR; Vercel FAILURE |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) **SUCCESS on stale base only** | Vercel FAILURE; mergeable=false |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45228376095](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45228376095), attempt 2 **FAILURE** | CircleCI ERROR; Vercel FAILURE |
+| #495 | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45225428794](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45225428794), attempt 2 **FAILURE** | CircleCI ERROR; Vercel FAILURE |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) **FAILURE** | Vercel FAILURE; mergeable=false |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | [#45191718421](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45191718421) **SUCCESS on stale base only** | Vercel FAILURE; mergeable=false |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | **NO exact-head Actions run returned** | Vercel FAILURE; mergeable=false |
+
+### Counts and disposition
+- Open PRs: **13**. #499, #494 and #491 are now **CLOSED / NOT MERGED**; do not count them as delivered.
+- Exact-head Actions: **9 FAILURE**, **2 historical SUCCESS on stale bases**, **2 no exact-head run**. Missing run is UNKNOWN, never PASS.
+- #502 and #493 current job breakdown: Resolver **FAILURE**, diagnostics **FAILURE**; downstream quality/integration and persistence jobs **SKIPPED**. #502's persistence jobs were skipped; #493's were skipped. This is no test acceptance.
+- No PR is ready to merge: all drafts still have failed CI, and non-draft #476/#417/#376 are stale and/or unmergeable with missing or failed validation. Do not un-Draft or merge based on partial statuses.
+- #493's new documentation HEAD has CircleCI **ERROR**, Vercel **SUCCESS**, Actions **FAILURE**. Vercel success does not override the other required gates.
+
+### GPT5 scope and next action
+- Updated this GPT5-owned handoff only; no Factory/Product source, workflow, Runner, secrets, permission, branch-protection, database/RLS or deployment configuration was changed.
+- Resolver/diagnostics logs again returned 404 `BlobNotFound`; the responsible Factory-CI owner must restore actionable logs and classify the root cause before another retry. Do not burn cycles on blind reruns.
+- GPT5 retains operations evidence and non-overlapping work. GPT1 owns Factory CI remediation; GPT2/GPT4 retain their module scopes; GPT3 retains independent QA.
+- Local checkout tests are **NOT RUN** in this execution. No independent approval, Draft promotion, merge, or deployment was performed.
+
+### Automation
+- `GCAN Daily Dev Check` and `GCAN 每日章程檢閱` remain enabled, with next flexible run around 08:00 Asia/Taipei on 2026-11-24.
+- Daily Dev Check last recorded run remains 2026-11-23; charter review has no recorded run. This is a manual live recheck, not a scheduled delivery.
