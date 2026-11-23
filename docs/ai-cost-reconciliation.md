@@ -6,7 +6,8 @@ A read-only first vertical slice is implemented in the admin AI cost dashboard:
 - bounded CSV parsing and validation;
 - authenticated admin-only preview endpoint;
 - upload and preview surface in the existing admin dashboard;
-- exact-evidence request matching and explicit variance/unmatched/duplicate outcomes.
+- exact-evidence request matching and explicit variance/unmatched/duplicate outcomes;
+- deterministic repeated-file fingerprint detection within the active dashboard session.
 
 The work is still a Draft candidate. Exact-head CI, integration tests, independent GPT3 review, and owner acceptance remain required.
 
@@ -34,7 +35,7 @@ openai,gpt-model,2026-11-01,2026-11-30,provider-request-id,USD,1.25000000
 - `duplicate_reference`: same source reference appears with a different row; excluded from matched actuals pending human review.
 - TWD normalization is emitted only when the operator supplies an explicit positive rate, matching source currency, target TWD, and parseable timestamp. Original amount and currency remain present.
 
-The preview returns a SHA-256 source fingerprint so an operator can recognize an identical file. No fingerprints or invoice rows are persisted; cross-session duplicate-file suppression is not claimed.
+The preview returns a SHA-256 source fingerprint. The dashboard compares it against fingerprints already previewed in the active browser session and flags repeated files so operators do not treat the same source as a new import. No fingerprints or invoice rows are persisted; cross-session duplicate-file suppression is not claimed.
 
 ## Safety and limitations
 
