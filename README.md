@@ -46,6 +46,29 @@
 
 
 
+## 🚀 P0 MVP First｜最短時間交付第一版可運作產品
+
+**硬性方向：Factory 核心與 B Product MVP 並行推進；先交付可操作、可展示、可驗收的核心旅程，再擴充 A–P。** Factory-first 保護 GPT1 的核心工程資源，不得成為 B 產品無限期等待的理由；MVP-first 也不得跳過身份驗證、RLS、成本預檢、CI、獨立審查或正式環境核准。
+
+| MVP 核心旅程 | 首版驗收重點 |
+|---|---|
+| 產品入口 → 註冊／登入 | 訪客可理解產品；會員資料必須經身份驗證 |
+| 會員工作區 → 專案 | 使用者只能管理自己的專案 |
+| 對話 → AI Chat | 對話可建立與恢復；AI 需先完成供應商、伺服器端金鑰與預算安全設定 |
+| 安全與交付 | 成本預檢、冪等性、資料隔離、測試、精確 SHA CI 與獨立 Review |
+
+**現有程式基線：** 已有 `app/workspace`、專案／對話 API 與 `app/api/ai/chat`；這代表程式碼已存在，不代表正式服務已啟用或最新 SHA 已驗收。AI 設定未完成時必須 fail-closed，不得發出付費請求。
+
+**五 GPT 閉環：** GPT1＝A–E／Factory；GPT2＝F–P 必要專業能力；GPT3＝獨立架構與 QA；GPT4＝B Product MVP；GPT5＝營運總控與受授權的第二執行席。各角色單次主導一項任務；GPT5 不取得模組 owner 權，也不得審查自己開發的成果。
+
+**期限與反空轉：** MVP kickoff 後以 5 個工作日完成首輪端到端驗收為目標；PENDING、0 Job、SKIPPED、CANCELLED、UNKNOWN 或 Rate Limit 都不是 PASS。同一根因連敗兩次停止盲重試；超期阻塞必須拆解、改派、升級或 DEFERRED。
+
+- [MVP First 完整交付章程](docs/GCAN_MVP_FIRST_DELIVERY_CHARTER.md)
+- [Master Charter §24](docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md)
+- [五 GPT 協調與派工規範](PROJECT_COORDINATION.md)
+
+---
+
 ## 🏛️ GCAN 公開入口｜願景、架構與進度一眼看懂
 
 GitHub README 與 [GCAN 官方網站](https://global-citizen-ai-network.vercel.app) 是本專案兩個主要公開入口。README 面向開發者與貢獻者；網站首頁面向使用者與合作夥伴。兩處會以一致的事實來源、不同的閱讀路徑，持續提供圖文並茂的總覽。
