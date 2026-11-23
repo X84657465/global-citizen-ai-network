@@ -108,7 +108,25 @@ jobs:
         with:
           node-version: "22.13.0"
       - name: Run offline Linux Git-shim fixture tests
-        run: node --test tests/agent-patch-to-scratch.test.mjs
+        shell: bash
+        run: |
+          set +e
+          node --test tests/agent-patch-to-scratch.test.mjs 2>&1 | tee "$RUNNER_TEMP/linux-fixture-test.log"
+          test_status=${PIPESTATUS[0]}
+          {
+            echo "Linux fixture test exit code: ${test_status}"
+            echo
+            cat "$RUNNER_TEMP/linux-fixture-test.log"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$test_status"
+      - name: Upload Linux fixture failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-fixture-validation-${{ github.run_id }}
+          path: ${{ runner.temp }}/linux-fixture-test.log
+          if-no-files-found: warn
+          retention-days: 3
 
   validation-tests:
     name: Windows self-hosted project validation
