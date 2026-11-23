@@ -13,10 +13,9 @@ import {
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
-import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+import { AgentPlanValidationError, validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { buildScratchPatchEvidence } from "../lib/agent-scratch-evidence.mjs";
 import { validatePatchManifest, PatchValidationError } from "../lib/agent-patch-validation.mjs";
-import { AgentPlanValidationError } from "../lib/agent-plan-validation.mjs";
 
 let scratchDir;
 let task = null;
@@ -54,7 +53,7 @@ const fail = (message, { taskScoped = false } = {}) => {
   process.exit(1);
 };
 
-const readJson = (path, label, { invalidJsonTaskScoped = false } = {}) => {
+const readJson = (path, label) => {
   let raw;
   try {
     raw = readFileSync(path, "utf8");
@@ -64,9 +63,7 @@ const readJson = (path, label, { invalidJsonTaskScoped = false } = {}) => {
   try {
     return JSON.parse(raw);
   } catch (error) {
-    fail(label + " contains invalid JSON.", {
-      taskScoped: invalidJsonTaskScoped && error instanceof SyntaxError,
-    });
+    fail(label + " contains invalid JSON.");
   }
 };
 
@@ -83,11 +80,11 @@ if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false || !
   fail("Only a validated task bundle with a valid fetched Issue identity is accepted.");
 }
 
-const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan", { invalidJsonTaskScoped: true });
+const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan");
 if (planArtifact?.execution_mode !== "validated_plan_only" ||
     planArtifact?.ai_execution_enabled !== false ||
     planArtifact?.safety?.no_commands_or_model_code_executed !== true) {
-  fail("Only a validated read-only plan is accepted.", { taskScoped: true });
+  fail("Only a validated read-only plan is accepted.");
 }
 
 let validatedPlan;
@@ -102,7 +99,7 @@ try {
   });
 }
 
-const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal", { invalidJsonTaskScoped: true });
+const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal");
 
 const plannedPaths = new Set(
   validatedPlan.tasks
