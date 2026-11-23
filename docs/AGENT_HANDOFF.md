@@ -1759,3 +1759,26 @@ This snapshot records the execution-charter/homepage proposal branch. It does no
 
 ### Human action
 - None required to continue repository-side work at this snapshot. If GitHub/Vercel later requires an account-owner approval or quota/billing action, provide a precise click-by-click request rather than claiming it was completed.
+
+
+---
+
+## Updated governance PR and main CI snapshot — 2026-11-23 11:00 Asia/Taipei
+
+- Main baseline remains `480f22e484dfa80d301f136cedd5504fbde41407`.
+- Main exact-SHA run [#45100393869](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100393869):
+  - Windows Runner quality gates job #137455618076: **SUCCESS**. Steps verified locked dependency install, Windows/Docker/Ollama preflight, bounded Ollama inference, migration/schema guards, production and full dependency audits, Factory script syntax, CI trigger/Runner policy, unit tests, type check, lint and production build. The build completed; one unrelated CSS autoprefixer warning and an existing unused import warning were logged.
+  - Supabase/PostgreSQL/RLS integration job #137457178293: **PENDING** at observation.
+  - Ollama/local execution integration job #137457178509: **PENDING** at observation.
+  - System Health Recovery run #45102208922: **SKIPPED**; not a recovery success.
+- PR #440 remains OPEN / NOT MERGED. At the observation before this handoff append, head was `606513983c068ed72d09fcd0781e10c5a2563e29`; re-fetch exact head after this commit.
+- Candidate exact-head check-runs were not available for the then-current PR head; earlier branch run #45102694706 returned 0 jobs and run #45102647704 remained PENDING. Neither constitutes PASS.
+- No GPT3 independent review had been submitted.
+- Vercel preview lookup for this branch found no deployment; Vercel combined status reported `build-rate-limit`, distinct from Actions CI.
+
+### Immediate next actions
+1. Wait for main run #45100393869 Supabase/PostgreSQL/RLS and Ollama/local execution jobs to finish; do not mark full main CI PASS until all required jobs complete successfully.
+2. Re-fetch PR #440 exact HEAD and ensure its own required jobs execute; current PR has no valid exact-head CI evidence yet.
+3. Obtain GPT3 independent review against the final PR HEAD.
+4. Verify Vercel Preview and responsive homepage after provider quota/build capacity recovers.
+5. Re-check main/base/head, mergeability, required checks and reviews before any merge.
