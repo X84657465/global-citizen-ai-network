@@ -116,7 +116,7 @@ test("keeps a patch-validation rejection system-scoped when the task marker cann
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.deepEqual(readdirSync(data.githubEnv), []);
-  assert.match(result.stderr, /Only a validated task bundle with a valid fetched Issue identity is accepted/);
+  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
   assert.doesNotMatch(result.stderr, /AGENT_FACTORY_FAILURE_SCOPE=task/);
 });
 
