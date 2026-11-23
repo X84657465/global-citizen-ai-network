@@ -313,3 +313,73 @@ All 13 open PRs were re-read from GitHub. The exact base/head SHA and Draft/merg
 - #466 remains Draft because there is no independent formal APPROVED review. Do not self-approve or convert the GPT5 author's own review/comment into an independent gate.
 - No PR was merged or approved. No Draft was removed. No A–P source/tests/workflows, Runner, secrets, permissions, Factory durable state, database/RLS, production environment or deployment configuration was changed.
 - GPT5 next action remains maintaining this evidence snapshot and owner handoffs within its operations/documentation scope. A-owned #446/#465 and other module-owner code defects remain routed to GPT1/GPT2 as applicable; external runner/provider limits or missing reviewer evidence must not trigger blind retries.
+
+
+---
+
+## Live recheck addendum — 2026-11-23 (current pass; supersedes earlier PR inventory)
+
+### Current baseline and CI
+
+- Repository: `X84657465/global-citizen-ai-network`; default branch `main`.
+- Latest main HEAD: `f4319ec65d33bf30804b2d447e7692207fd82f0c` (merge commit for PR #458).
+- Current-main `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- Current-main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob: `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` blob: `46b188085c2dff0f527477b2486719a7f6c24b59`; status remains PROPOSED and is not operative authority.
+- `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob: `67166a378c92909c8ddf64586f8a2b5202be7d14`; status remains GOVERNANCE PROPOSAL and is not operative authority.
+- Main push CI run #45137751765: 7 jobs returned. Metadata resolver, Windows quality gates, Supabase/PostgreSQL/RLS, Ollama/local integration, and success persistence completed SUCCESS; diagnostics and failure-persistence jobs were conditionally SKIPPED. Main CI required validation gates therefore completed successfully on the report's stated main baseline; skipped conditional jobs are not counted as executed.
+- Separate Factory preflight run #45137751684: 6 jobs returned; Windows self-hosted project validation FAILURE, with plan generation, publication and dispatch stages SKIPPED. This remains a separate P1 Factory blocker; it does not negate the distinct main CI result.
+- Separate read-only task-plan validation run #45138473800: plan validation FAILURE; downstream validation/publication/dispatch stages SKIPPED.
+- Main combined commit status reports Vercel SUCCESS. Provider status is distinct from GitHub Actions.
+
+### All 14 open PRs — exact current metadata, Actions, and review state
+
+| PR | Exact head SHA | Base SHA / target | Draft; mergeable | Exact-head Actions | Separate Vercel |
+|---|---|---|---|---|---|
+| #468 | `588967ee9563a8896752eacce02aa7a14473d5d8` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | Ready; true | #45151541188 COMPLETED/SUCCESS; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | FAILURE — provider build-rate-limit |
+| #467 | `3c802c9f206721fdcc71ec96e2bb178590fb9990` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | Draft; true | #45151506039 PENDING; metadata and quality gates SUCCESS, Supabase/RLS IN_PROGRESS, Ollama/local PENDING | FAILURE — provider build-rate-limit |
+| #448 | `ccccf9c5e46285426a3c269bd066e6fa47c65cb8` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | Ready; true | #45147570005 COMPLETED/SUCCESS; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | SUCCESS |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | main `f622c852346577d67aed0bde2922ade17044057c` (stale) | Draft; true | #45137849234 COMPLETED/FAILURE; Windows quality-gates job FAILURE; later substantive jobs SKIPPED | SUCCESS |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | Ready; true | #45137959652 COMPLETED/SUCCESS; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | SUCCESS |
+| #466 | `2e1704696455a9216efd055b32b486ab3c2a953f` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | Ready; true | #45145344408 COMPLETED/SUCCESS; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | SUCCESS |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` (stale) | Draft; false | #44949425719 COMPLETED/SUCCESS; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | FAILURE — provider build-rate-limit |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` (stale) | Draft; false | #45052753388 COMPLETED/SUCCESS; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | FAILURE — provider build-rate-limit |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` (stale) | Draft; false | NO exact-head Actions run returned | FAILURE — provider build-rate-limit |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main `25d5ed519eb923d3001df6d43aec1670a0d4851a` (stale) | Draft; false | #45056447505 COMPLETED/FAILURE; Windows quality-gates job FAILURE; later substantive jobs SKIPPED | FAILURE — provider build-rate-limit |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main `480f22e484dfa80d301f136cedd5504fbde41407` (stale) | Draft; false | #45100493731 COMPLETED/SUCCESS; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | FAILURE — provider build-rate-limit |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | `feat/cyber-security-defense` `7d90d05942f589f657e88069b58a19e0e3ec26ca` | Draft; true | #45132200910 COMPLETED/FAILURE; Supabase/RLS SUCCESS, build/unit/type/lint/production job FAILURE; later gates SKIPPED | FAILURE — provider build-rate-limit |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | `feat/cyber-security-defense-integration` `df841a9a89b0526477543b76667d99ae4554a7f7` | Draft; true | #45108427275 COMPLETED/SUCCESS; build and Supabase/RLS jobs SUCCESS; 2 conditional persistence jobs SKIPPED | FAILURE — provider build-rate-limit |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main `f622c852346577d67aed0bde2922ade17044057c` (stale) | Draft; true | #45117595636 COMPLETED/FAILURE; Windows quality-gates job FAILURE; diagnostics SUCCESS; later substantive jobs SKIPPED | FAILURE — provider build-rate-limit |
+
+Review and thread evidence:
+- Formal independent APPROVED review count: **0 across all 14 open PRs**. Returned submissions are absent or COMMENTED only; COMMENTED is not approval.
+- Review-thread lookups returned **0 unresolved threads** for all 14 inspected PRs. #373 returned one resolved thread; #376 returned three resolved threads. This does not substitute for formal approval.
+- Exact-head CI SUCCESS is not a merge authorization where base is stale, GitHub reports mergeable=false, required review is absent, or Vercel/provider policy remains an independent requirement.
+- PR #462 and #442 target F integration branches, not main; do not collapse them into a mainline merge candidate.
+
+### New/current blockers and ownership routing
+
+1. **Issue #465 — missing Git executable in isolated offline test container (P1, GPT1/Factory owner).** Mainline run #45137751684 has a terminal FAILURE in Windows self-hosted project validation; six jobs were returned and all five downstream stages were SKIPPED. Issue #465 confirms `spawnSync git ENOENT` in the offline restricted test container and explicitly states that it does not authorize GPT5 to modify the workflow, Runner image, permissions, or test infrastructure. Return to GPT1 with the issue's acceptance requirements; preserve offline, read-only, non-root, capability-restricted isolation.
+2. **Issue #446 / PR #464 — scratch-manifest upload policy assertion (P1, GPT1 test owner).** Current PR #464 exact-head run #45137959652 is now terminal SUCCESS with all four substantive jobs SUCCESS. This is validation evidence only; there is no formal independent APPROVED review. GPT5 does not own the A test file and will not self-approve the PR.
+3. **PR #467 / Issue #117 — offline Git fixture.** Exact-head run #45151506039 is still PENDING with Supabase/RLS IN_PROGRESS and Ollama/local PENDING. Keep Draft; do not infer acceptance from the completed quality-gates job. PR #468 adds the safe Linux validation path, but its own exact-head run cannot establish that the newly introduced workflow is live on base main; the PR body documents this event-source limitation. #468 has no formal review and a separate Vercel build-rate-limit failure.
+4. **PR #457 — scheduler runbook.** Exact-head CI is FAILURE, and base is stale. Do not mark ready or merge.
+5. **PR #462 — F security redaction.** Exact-head CI remains FAILURE in build/unit/type/lint/production validation, while Supabase/RLS alone passed. GPT2 owns the F fix; the A-owned lifecycle regression must be routed to GPT1. Do not edit A code from this branch.
+6. **PRs #259/#373/#376/#417/#438/#450.** These have stale bases and/or merge conflicts and/or failed/no exact-head CI and lack formal independent approvals. Owners must selectively reconcile and request new exact-head checks/reviews; do not force-rebase or merge on their behalf.
+7. **Vercel build-rate-limit.** Provider FAILURE is separate from GitHub Actions. Do not repeatedly dispatch builds to bypass quota and do not translate provider failure into an Actions result.
+
+### GPT5-owned delivery and disposition
+
+- This report is maintained in GPT5's existing documentation-only PR #466, path allowlist: `docs/research/factory-operations-intelligence-main-f4319-2026-11-23.md`. This addendum records the fresh 14-PR inventory, exact SHA/run/job states, review/thread evidence and owner routing; it does not alter A–P code or workflow behavior.
+- PR #466's prior head `2e1704696455a9216efd055b32b486ab3c2a953f` had exact-head run #45145344408 with all substantive jobs SUCCESS. This documentation update creates a new head; its new exact-head CI must be independently rechecked before acceptance.
+- No approval, merge, deployment, Runner/secret/permission change, Factory durable-state mutation, database/RLS change or production action is claimed.
+- GPT5's next step is to retain the evidence handoff and continue documentation/operations support. GPT1 owns Issue #465/#446/#117 Factory-side repairs; GPT2 owns F redaction; GPT3 remains the independent reviewer. If a blocker is external or overlaps another owner's scope, stop that path and continue only non-overlapping GPT5 operations work.
+
+Evidence:
+- Main: https://github.com/X84657465/global-citizen-ai-network/commit/f4319ec65d33bf30804b2d447e7692207fd82f0c
+- Main CI #45137751765: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751765
+- Factory preflight #45137751684: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684
+- PR #466: https://github.com/X84657465/global-citizen-ai-network/pull/466
+- PR #468: https://github.com/X84657465/global-citizen-ai-network/pull/468
+- PR #467: https://github.com/X84657465/global-citizen-ai-network/pull/467
+- Issue #465: https://github.com/X84657465/global-citizen-ai-network/issues/465
+- Issue #446: https://github.com/X84657465/global-citizen-ai-network/issues/446
