@@ -2176,3 +2176,32 @@ This checkpoint supersedes the earlier same-day snapshots where statuses differ.
 - #472 requires accessible diagnostics for the failing Linux fixture and Windows quality gate; dependent SKIPPED jobs do not count as validation.
 - #476 requires a new run/diagnostic for the failed integrity annotation, successful substantive exact-head CI, and GPT3 formal review. Vercel quota remains a separate external blocker.
 - No PR is eligible for merge from this checkpoint. Continue independent operations/documentation work; do not bypass review, branch protection, exact-SHA CI or owner boundaries.
+
+
+## GPT5 live operations delta — 2026-11-23 12:31 UTC
+
+This delta supersedes earlier same-day status snapshots where exact-head or run state changed. Evidence only; it does not approve or authorize any merge.
+
+### Main and recovery recheck
+- Latest main remains `4225a244407f7a323262c4d6e17b2749193d6476`.
+- Main CI run `45166790416`, attempt 1, is terminal **FAILURE**. Exact jobs: metadata resolver `137679885993` SUCCESS; Windows quality gates `137682759367` FAILURE; diagnostic evidence `137685704526` SUCCESS; persist-failure job `137685704972` SUCCESS; Supabase/RLS `137685705077` SKIPPED; breaker reset `137685705905` SKIPPED; Ollama `137685706325` SKIPPED. Root cause remains test 565 at `tests/fp/mainline-integration.test.ts:82`: missing scheduler-runbook authority sentence. The #475 patch now contains the requested sentence, but it is not yet verified on its current head.
+- Main System Health Recovery run `45173365419`, attempt 1, is now terminal **FAILURE**; its only job `137688256213` completed FAILURE. Earlier same-SHA recovery runs include repeated SKIPPED and FAILURE results. No recovery success is established.
+- Vercel provider deployment quota remains an external blocker, distinct from GitHub Actions.
+
+### Exact current candidate heads and new execution evidence
+- PR #475 current exact HEAD is now `8f7a922e2c2b97b6d390b52015b76da202204b7c` (supersedes prior `370b7463…` snapshot). It remains OPEN / Draft / mergeable=true; no formal review. Exact-head workflow `45174503526`, attempt 1, is **PENDING** and its jobs endpoint returns **0 jobs**; the exact-head check-runs endpoint returns **0 checks** at this observation. The patch includes the authority clarification required by main test 565, but do not mark verified or remove Draft until checks actually run and GPT3 reviews this exact SHA.
+- PR #473 current HEAD remains `150ac74b8acc5e1ea36f8c8f26f3a12dd663aa67`, OPEN / Draft / mergeable=true; no formal review. Exact-head workflow `45174519450`, attempt 1, is **PENDING**; it currently has one pending metadata-resolver job `137693657897`. This handoff update will create another candidate SHA and require its own CI.
+- PR #476 HEAD `6be79aa9a471700054abe900755302579ba88d0a`, OPEN / non-Draft / mergeable=true. Governance integrity run `45173896580` has reached attempt 3 and is terminal **FAILURE**; its one job `137693334938` is FAILURE. Job-log retrieval returned BlobNotFound, so the precise failed assertion remains **UNKNOWN**. Standard CI run `45173896584` remains **PENDING**; do not interpret its earlier 0-job snapshot as a pass. No formal review exists. Non-Draft status is not approval.
+- PR #474 HEAD `0e890a990eafe5371b1e17d0e33876bdaecefea5`: Windows quality FAILURE at version-baseline mismatch; DB/RLS and Ollama checks SKIPPED; diagnostic job SUCCESS. The 0.3.138 vs 0.3.137 planning baseline mismatch still requires the K/docs or release owner; no formal review.
+- PR #472 HEAD `670723f8065e307b1251e81fe331bd037b60bf06`: Linux fixture FAILURE, Windows quality FAILURE, diagnostics PENDING, dependent checks SKIPPED. Failure logs remain unavailable (BlobNotFound); root causes UNKNOWN. No formal review.
+- PR #259/#373 historical exact-head checks were SUCCESS but their base SHAs are stale and GitHub mergeable=false; COMMENTED reviews are not APPROVED. #376 has no exact-head checks and is mergeable=false/stale-base; #417 quality FAILURE and mergeable=false/stale-base. All remain Draft.
+
+### Automation schedule
+- The automation inventory contains exactly one enabled daily GCAN engineering sweep, Asia/Taipei 08:00, next run `2026-11-24T08:00:00+08:00`. Three duplicate/alternate schedules are disabled. Do not create another duplicate.
+
+### GPT5 next actions and boundaries
+- Continue scoped operations/handoff work only; GPT5 does not own A–P modules and cannot substitute for GPT3 independent review.
+- #475 is the smallest candidate for the mainline assertion, but current exact-head CI is PENDING with 0 jobs. Do not mark ready or merge.
+- #476 requires retrievable diagnostics for its failed governance assertion, successful exact-head substantive CI and formal GPT3 review.
+- #474 requires the version-baseline owner to resolve the release/document mismatch; #472 requires accessible Linux and Windows failure evidence before a safe patch can be selected.
+- No PR is eligible for merge at this checkpoint. No branch protection, runner permission, secret, production data, DB/RLS, security policy or deployment setting was changed.
