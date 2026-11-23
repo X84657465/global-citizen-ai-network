@@ -8,7 +8,7 @@ This runbook covers the current mainline Agent Factory V2 operations defined by:
 - `.github/workflows/ci.yml` — exact-head candidate metadata resolution, Windows quality/build, database/RLS, Ollama integration and candidate outcome evidence.
 - `.github/workflows/agent-factory-system-health.yml` — post-CI global breaker recovery, which must use trusted mainline controller code and verified exact-run evidence.
 
-The current mainline workflow declares `schedule: "*/5 * * * *"`, `issues: opened/reopened`, `repository_dispatch: ai-task-next`, and `workflow_dispatch` with an explicit `issue_number`. These are configured triggers, not proof that a scheduled run was dispatched, that the Runner is online, or that a task executed successfully. Verify each fact from the exact GitHub Actions run and job records.
+The current mainline workflow declares `schedule: "3-59/5 * * * *"` (minute 3, 8, 13, …, 58), `issues: opened/reopened`, `repository_dispatch: ai-task-next`, and `workflow_dispatch` with an explicit `issue_number`. The cron expression is intentionally not `*/5 * * * *`. These are configured triggers, not proof that a scheduled run was dispatched, that the Runner is online, or that a task executed successfully. Verify each fact from the exact GitHub Actions run and job records.
 
 - The Windows self-hosted Runner is one execution lane, not multi-host parallel capacity. Preserve shared Runner serialization for all state writers.
 - CI database tests use isolated local Supabase/PostgreSQL. They are not production database tests.
