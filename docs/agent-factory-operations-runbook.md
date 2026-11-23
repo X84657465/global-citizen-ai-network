@@ -209,3 +209,16 @@ All state writers share the serialized Windows Runner concurrency group. The dur
 
 The workflow does not itself dispatch the task. The normal scheduler may select it only after the bounded retry deadline and under the existing lease, cooldown, path-allowlist, scratch, test and publication gates. Do not edit Issue #100, reset global cooldowns, clear event history, or create a lease manually.
 
+
+
+## Verification addendum (2026-11-24)
+
+This addendum supersedes any older statement above when describing the current repository snapshot; older run IDs and SHA values remain historical evidence only.
+
+- Latest observed default-branch HEAD: `8002072738d0dad722ccfc1207250165d1b7d8bc`. The connected commit search returned this as the newest commit; the next returned commits were older.
+- The combined GitHub commit status for that SHA reports CircleCI Pipeline 38 as `error`: https://app.circleci.com/pipelines/gh/X84657465/global-citizen-ai-network/38. The connected GitHub integration does not expose CircleCI job details, so the failing CircleCI step and cause remain unverified.
+- PR #495 documentation correction is at exact HEAD `2933e95b07258a576ef6200b1626a3deaa477fea`; exact-head Actions run #45225139195 failed. Its `Resolve exact candidate PR metadata` job failed, the exact-SHA diagnostics job also failed, and Windows quality, Supabase/PostgreSQL/RLS, Ollama and outcome-persistence jobs were skipped. The run exposes no artifact; the connected job-log retrieval returned 404. Do not infer a root cause from these missing diagnostics.
+- The same resolver-first failure pattern is present on PR #494 HEAD `4d6586f4de5764e74e0414e047b3d9ad1b254d57` (run #45218883945), PR #493 HEAD `e53acf3124a96dd81ba9167990fa887ac0a9bd6d` (run #45225044275), and PR #491 HEAD `3b9baef27b9590b01245eb4eac90f9d78fee8723` (run #45213070420). In each case resolver and diagnostics failed; downstream validation was skipped. PR #493 has only a COMMENTED review, not an approval. PRs #495, #494 and #491 have no submitted formal reviews in the retrieved review records.
+- PR #478 exact-head run #45191718421 succeeded, but its base is old (`4225a244407f7a323262c4d6e17b2749193d6476`) and GitHub reports it non-mergeable against current main. Its green result is not current-main acceptance. PR #476 and #376 had no exact-head Actions runs in the retrieved results and are non-mergeable. PR #417 run #45056447505 failed and is non-mergeable. PR #259 run #44949425719 succeeded on its old candidate head, but it is non-mergeable and must not be transplanted as a broad diff.
+- The current evidence does not establish whether the shared resolver failure is caused by GitHub API availability, authentication/permissions, workflow configuration, or another provider-side condition. The next diagnostic must capture a safe resolver error classification and exact failing step output before any blind retry. Do not mark Factory green, lift Draft status, or merge based on downstream SKIPPED jobs.
+- No Factory durable state, lease, cooldown, quarantine, secrets, branch protection, database, or Production deployment was changed as part of this verification.
