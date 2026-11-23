@@ -1228,3 +1228,18 @@ F13–F19 是 F12 生產級 Factory 完成獨立驗收後的擴展階段。F0–
 10. **狀態分層：** IMPLEMENTED、TESTED、VERIFIED、ACCEPTED、RELEASED 必須逐級提供證據；不得以程式碼存在、文件完成或舊 SHA 的 CI 綠燈冒充最新版本驗收。
 
 **本輪程式基線（僅代表 main `4225a244407f7a323262c4d6e17b2749193d6476`）：** 已有登入閘門、會員工作區、專案／對話 API、AI Chat API、成本預檢及冪等請求恢復程式。這些程式存在不代表已部署、供應商已啟用或最新 SHA 已驗收；每輪均須重新核對。
+
+
+### 24.1 A–P Portfolio MVP — 每條工作線都必須交付自己的產品
+
+**更正與補充：MVP First 的交付對象是 A–P 全部 16 條工作線，不是只有 B Product。** A 是 Agent Factory 產品，B 是 GCAN 面向使用者的整合產品，C–P 每條線也都必須有自己可實際使用、可展示、可測試、可驗收的產品級 MVP。
+
+1. 每條線都要有唯一 owner／DRI、明確使用者或下游消費者、核心問題、最小功能、輸入／輸出、介面契約、可執行成果、測試與驗收條件。
+2. 產品形式可依領域採網站／工作區、API、CLI、SDK、Connector、Dashboard、品質 Gate 或可重現工作流；基礎設施模組的「產品」是可被真實使用者／下游系統消費的能力，不要求全部做成獨立公開網站。
+3. 每線至少完成一條獨立可用的垂直切片；文件、架構圖、空殼頁、成熟度表或僅有 TODO 的 API 不算 MVP。
+4. A–P 各線 MVP 必須分別追蹤，不得以 B Product 的首頁、登入或工作區代替 C–P 的產品成果，也不得以某一線完成宣稱全體完成。
+5. 各線 kickoff 後以 5 個工作日內交付首個可展示 MVP 垂直切片為目標；有依賴時先交付隔離／sandbox／mock MVP，標記 BLOCKED 與解除條件。L 等聯邦能力不得因此開放正式跨租戶資料交換。
+6. GPT1 負責 A–E，GPT2 負責 F–P，GPT4 負責 B 產品整合與產品需求，GPT3 獨立審查，GPT5 只在明確授權範圍支援；每個工作項目只有一位 DRI。
+7. 每線依序記錄 PLANNED → IMPLEMENTED → TESTED → VERIFIED → ACCEPTED → RELEASED；缺少該線自己的精確 SHA、測試、owner 接受與必要獨立審查證據，不得升級狀態。
+
+A–P 各線 MVP 的最小驗收目錄及範例以 `GCAN_MVP_FIRST_DELIVERY_CHARTER.md §2.4` 為準。此規則不擴張模組權限、不授權正式部署、付費支出、Secrets 或不可逆操作。
