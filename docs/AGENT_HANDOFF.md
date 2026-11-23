@@ -1,43 +1,42 @@
-# GPT5 Live Recheck — 2026-11-24 follow-up
+# GPT5 Live Recheck — 2026-11-24 latest exact-head correction
 
-This entry supersedes the prior statement that the latest GPT5 support-branch commit had no CI run. A PR-triggered run has now been found and inspected.
+This section supersedes earlier live-state summaries below wherever they conflict. Candidate SHA and workflow evidence are explicitly bound to the same exact commit; historical snapshots remain below for audit only.
 
 ## Latest support branch exact-head result
 
-- Branch: `docs/gpt5-live-ops-checkpoint-8002072738-20261124`
-- Candidate commit: `66d466ccd15f678b36a25e5c6e1b318126eb534e`
-- Run [#45222729603](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45222729603), run number 4259: terminal **FAILURE**.
-- Resolver job #137861051322: FAILURE.
-- Diagnostics job #137861067686: FAILURE.
-- Windows quality #137861069132, Supabase/RLS #137861069472, Ollama #137861069709, success persistence #137861070068, failure persistence #137861070864: all **SKIPPED**.
-- Both failed jobs expose empty step summaries; both job-log downloads return 404 `BlobNotFound`; run artifact list is empty. Root cause remains **UNKNOWN**.
-- Branch compare remains 8 ahead / 0 behind current main, with only `docs/AGENT_HANDOFF.md` changed. Documentation-only branch does not validate itself when its own exact-head CI fails.
+- Branch / PR: `docs/gpt5-live-ops-checkpoint-8002072738-20261124` / [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493).
+- Current candidate HEAD: `d228ea5f0fb01b14b0248255e967f32405192269`.
+- Base: current `main` `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Exact-head run [#45222971581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45222971581), run number 4260: terminal **FAILURE**.
+- Resolver job #137861865566: **FAILURE**; diagnostics job #137861885944: **FAILURE**.
+- Windows quality #137861887366, Ollama #137861887583, Supabase/RLS #137861887815, success persistence #137861887224, and failure persistence #137861889194: **SKIPPED**.
+- Both failed jobs expose empty step summaries; log retrieval returns 404 `BlobNotFound`. Root cause remains **UNKNOWN**. No artifact-backed diagnostic evidence is available from the earlier exact-head inspections; this does not establish a specific runtime cause.
+- PR #493 remains **Draft**. GitHub mergeable=true is not acceptance: exact-head CI failed and formal APPROVED review count is zero.
 
-## Current main and open PR inventory
+## Mainline and PR inventory
 
-- Main HEAD remains `8002072738d0dad722ccfc1207250165d1b7d8bc`; recent commit search returned this as the newest repository commit.
-- Main push run #45211976105 remains terminal FAILURE: resolver and diagnostics FAILURE; failure persistence SUCCESS; Windows quality, Ollama, Supabase/RLS and success persistence SKIPPED. Logs are unavailable (404 BlobNotFound); artifacts list empty.
-- The open PR search still returns exactly #493, #478, #417, #494, #491, #476, #259 and #376. Prior exact-head evidence and review matrix remain the last available evidence for those candidates; no new exact-head green run or formal APPROVED review has been established in this recheck.
-- #493 now has a new exact-head run #45222729603, which failed as detailed above. Keep Draft.
+- Latest repository commit search still identifies current `main` as `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Exact-main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105): terminal **FAILURE**. Resolver #137840877458 and diagnostics #137840906306 **FAILURE**; failure persistence #137840906764 **SUCCESS**; Windows quality #137840907274, Ollama #137840909193, Supabase/RLS #137840909327 and success persistence #137840909738 **SKIPPED**. Failed-job logs remain unavailable (404 `BlobNotFound`); root cause **UNKNOWN**.
+- Open PR search returns exactly #493, #494, #491, #478, #417, #476, #259 and #376.
+- #493, #494 and #491 are open Drafts, mergeable=true, based on current main, but have no formal APPROVED reviews; their latest evidenced exact-head Actions runs are FAILURE (#493 run #45222971581, #494 run #45218883945, #491 run #45213070420).
+- #478, #476, #417, #259 and #376 are mergeable=false and based on older main SHAs. Their available historical run results are not reusable as current-main acceptance.
+- All eight open PRs have **zero formal APPROVED reviews**. COMMENTED reviews, including author/self-comments and bot comments, are not approvals.
 
-## Read-only source inspection — diagnostic boundaries
+## Diagnostic boundary and owner routing
 
-At current main, `.github/workflows/ci.yml` invokes `scripts/resolve-agent-task-pr.mjs` in the resolver and runs the diagnostics capture step in a separate Ubuntu job. The resolver has explicit stages (`validate_environment`, `parse_event_metadata`, `fetch_pull_request`, optional task/state reads, output writing) and writes redacted stage/status/method/path/rate-limit evidence when it can. Its source path exists at main.
+The current evidence does not expose failed step names or actionable redacted error output for Resolver/Diagnostics: step summaries are empty and log downloads return 404. Source inspection of the resolver and diagnostics scripts identifies possible evidence-producing stages but does not prove which runtime stage failed. Do not infer token, permission, quota, endpoint, Runner, or application-code root cause.
 
-The diagnostics job fetches run metadata, jobs and sibling runs through the GitHub API, then attempts to download the run-log archive. The PowerShell step catches a log-download exception and continues with an empty log string before writing diagnostics. The downstream report validates exact SHA and job metadata. The connector cannot expose the failed job's step summaries or log bytes for the observed runs, and there are no uploaded artifacts to inspect. Therefore source inspection narrows where evidence should be emitted but does **not** establish which runtime stage failed. Do not label this a token, permission, quota, endpoint, or code defect without the missing runtime evidence.
+1. Factory/CI owner: recover actual failed-step evidence for main run #45211976105 and PR #493 run #45222971581: failed step name, redacted error/status, resolver stage, and diagnostics capture outcome. If GitHub log storage remains unavailable, escalate through the authorized Actions/CI owner.
+2. Keep Factory breaker and quarantined task state fail-closed. Issue #100 is machine-managed; do not manually edit or reset it, and do not blindly rerun.
+3. GPT5 support remains documentation/evidence coordination only; no Factory/Runner or A–P module execution authority is inferred.
+4. Continue B-line preparation only; no B production, integration, or deployment is authorized by this evidence.
 
-The Factory state Issue #100 is machine-managed and contains durable cooldown/quarantine state; it must not be edited manually. No manual state reset or retry was performed.
+## Scope and disposition
 
-## Disposition / owner routing
+This correction fixes the handoff's stale opening candidate/run reference identified during independent read-only QA. Only this documentation file is in scope. No Factory/Product source, workflow, Runner, permission, secret, database/RLS, branch-protection or deployment setting is changed. No workflow rerun, state mutation, Draft transition, approval, merge or deployment is performed.
 
-1. Factory/CI owner: recover the resolver and diagnostics step evidence for run #45222729603 and main run #45211976105. Required minimum: actual failed step name, redacted error/status, resolver stage, and diagnostics capture outcome. If GitHub continues to return 404 for logs/artifacts, escalate through the repository's authorized Actions/CI owner; do not infer root cause.
-2. Keep Factory global breaker and quarantined task state fail-closed; no blind rerun, state mutation, or bypass.
-3. GPT5 support branch is itself CI **FAILURE**; do not mark ready or merge. The handoff update is support documentation only, not an acceptance artifact.
-4. Continue B-line preparation only; no B production or deployment action is authorized by this evidence.
+**Status:** Main BLOCKED; PR #493 exact-head CI FAILURE; Resolver/Diagnostics root cause UNKNOWN; downstream quality/integration jobs SKIPPED. No green claim.
 
-No source/workflow/Runner/permission/secret/database/RLS changes, no state mutation, no rerun, no Draft transition, no approval, no merge, and no deployment were performed.
-
-**Status:** Main BLOCKED; GPT5 handoff candidate CI FAILURE; resolver/diagnostics evidence unavailable; all downstream quality/integration jobs SKIPPED. No green claim.
 
 ---
 
