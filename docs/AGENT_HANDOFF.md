@@ -14,12 +14,23 @@ This snapshot supersedes earlier live-state snapshots below. All checks are tied
 - GPT5 scope remains Global Intelligence & Operations support. No A–P module ownership; no replacement of GPT1 Factory, GPT2 F–P, GPT3 independent QA, or GPT4 B Product. Proposal documents do not expand permissions.
 - Coordination rules require exact-SHA evidence, treat SKIPPED/NOT RUN/PENDING as non-pass, and require independent review where applicable.
 
+## Latest same-day refresh — 2026-11-24 (after prior snapshot)
+
+- Rechecked latest Main: still `8002072738d0dad722ccfc1207250165d1b7d8bc`. Re-read current `PROJECT_COORDINATION.md` and governance/agent-mode documents from this exact SHA; GPT5 remains Operations support, with no A–P ownership or independent QA authority.
+- Open PR count remains 12. Current #493 HEAD advanced to `e9b43fdf19256e65e5f96edff84dd95769918aae`; its exact-head Actions [#45232238003](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45232238003) is COMPLETED/FAILURE. Resolver and diagnostics failed; Windows quality, Ollama, PostgreSQL/RLS and persistence jobs were SKIPPED. CircleCI Pipeline 62 ERROR; Vercel reports build-rate-limit FAILURE.
+- The other 11 PR HEADs remain as listed below. #498/#497/#496/#495/#494/#491/#417 exact-head Actions are FAILURE; #478 and #259 have SUCCESS only on stale bases; #476 and #376 have no exact-head Actions run.
+- PR #259 is currently Draft=true, base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`; #478 remains Draft=true on stale base `4225a244407f7a323262c4d6e17b2749193d6476`. #476 and #376 remain Ready but stale-base/blocked.
+- Across all 12 PRs, formal APPROVED reviews remain **0**. Unresolved threads remain **20**: #259=7, #376=10, #417=1, #476=1, #478=1.
+- Current Main combined status reports CircleCI Pipeline 63 ERROR. The previously verified Main push run #45211976105 remains FAILURE; this turn's exact-commit Actions lookup returned no newer Main run. Do not treat missing run as pass.
+- Automation `GCAN 每日工程巡檢` is enabled daily 08:00 Asia/Taipei. Latest recorded scheduled run is still 2026-11-23 COMPLETED with stale stored digest; current work is a manual recheck, not a scheduled run.
+- No PR meets all merge gates. No Draft, merge, acceptance, deployment or release state was changed.
+
 ## Main exact CI — BLOCKED / NOT GREEN
 
 - Main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105), attempt 1, exact Main SHA: **COMPLETED / FAILURE**.
 - Jobs: candidate metadata resolver #137840877458 **FAILURE**; exact-SHA diagnostics #137840906306 **FAILURE**; failure persistence job #137840906764 job-level SUCCESS but its candidate persistence steps **SKIPPED**; Windows quality #137840907274 **SKIPPED**; Ollama #137840909193 **SKIPPED**; Supabase/PostgreSQL/RLS #137840909327 **SKIPPED**; success persistence #137840909738 **SKIPPED**.
-- Main combined status: CircleCI Pipeline 52 **ERROR**.
-- Main exact-SHA query returned **43** Recovery workflow runs; all 43 terminal **SKIPPED**. Latest [#45230286423](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230286423) is **SKIPPED**. No recovery success is evidenced.
+- Main combined status at this recheck: CircleCI Pipeline 63 **ERROR**. The latest Main SHA remains `8002072738d0dad722ccfc1207250165d1b7d8bc`; no newer exact-Main Actions run was returned by the current commit-run lookup. The previously verified push run #45211976105 remains **FAILURE**.
+- Main exact-SHA query in the prior live observation returned **45** Recovery workflow runs; all 45 terminal **SKIPPED**. Latest observed [#45230905192](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230905192) is **SKIPPED**. This turn did not retrieve a newer Recovery listing; no recovery success is evidenced.
 - Resolver/diagnostics root cause remains **UNKNOWN**: step APIs return empty arrays and logs return 404 `BlobNotFound`. Do not guess at credentials, quota, Runner, workflow or source code as root cause; stop blind retries.
 
 ## All 12 open PRs — current exact heads
@@ -33,7 +44,7 @@ All PR metadata and exact-head Actions lookups were refreshed. The Actions concl
 | [#496](https://github.com/X84657465/global-citizen-ai-network/pull/496) | `5251f221884aa8cc7e170fe3b90811e567a59f94` | current Main | Draft / true | [#45228376095](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45228376095) **FAILURE**. |
 | [#495](https://github.com/X84657465/global-citizen-ai-network/pull/495) | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | current Main | Draft / true | [#45225428794](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45225428794) **FAILURE**. |
 | [#494](https://github.com/X84657465/global-citizen-ai-network/pull/494) | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | current Main | Draft / true | [#45218883945](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45218883945) **FAILURE**. |
-| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `a63dc82c1245052ecaea09ebc7b82554cc994ee9` | current Main | Draft / true | [#45230251841](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230251841) **FAILURE**; resolver + diagnostics FAILURE; downstream gates SKIPPED. |
+| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `e9b43fdf19256e65e5f96edff84dd95769918aae` | current Main | Draft / true | [#45232238003](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45232238003) **FAILURE**; resolver + diagnostics FAILURE; quality, DB/RLS, Ollama and persistence SKIPPED. CircleCI Pipeline 62 ERROR; Vercel build-rate-limit FAILURE. |
 | [#491](https://github.com/X84657465/global-citizen-ai-network/pull/491) | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | current Main | Draft / true | [#45213070420](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45213070420) **FAILURE**. |
 | [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale base `4225a244407f7a323262c4d6e17b2749193d6476` | Draft / false | [#45191718421](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45191718421) **SUCCESS on stale base**; not current-base acceptance. |
 | [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | stale base `4225a244407f7a323262c4d6e17b2749193d6476` | Ready / false | **NO EXACT-HEAD ACTIONS RUN**. |
