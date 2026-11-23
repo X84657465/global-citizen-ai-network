@@ -2,7 +2,13 @@
 
 ## Status
 
-This document describes the read-only parsing and evidence-matching foundation. It is not a claim that the complete admin upload workflow is shipped or accepted. The API/UI integration, independent review, and exact-head CI remain required.
+A read-only first vertical slice is implemented in the admin AI cost dashboard:
+- bounded CSV parsing and validation;
+- authenticated admin-only preview endpoint;
+- upload and preview surface in the existing admin dashboard;
+- exact-evidence request matching and explicit variance/unmatched/duplicate outcomes.
+
+The work is still a Draft candidate. Exact-head CI, integration tests, independent GPT3 review, and owner acceptance remain required.
 
 ## CSV contract
 
@@ -26,13 +32,14 @@ openai,gpt-model,2026-11-01,2026-11-30,provider-request-id,USD,1.25000000
 - `unmatched_estimate`: no exact request-level evidence supports a match.
 - `duplicate_row`: repeated normalized row; excluded from counted unique rows.
 - `duplicate_reference`: same source reference appears with a different row; excluded from matched actuals pending human review.
-- TWD normalization is emitted only when the caller supplies an explicit positive rate, matching source currency, target TWD, and parseable timestamp. Original amount and currency remain present.
+- TWD normalization is emitted only when the operator supplies an explicit positive rate, matching source currency, target TWD, and parseable timestamp. Original amount and currency remain present.
 
-The parser returns a SHA-256 source fingerprint so an operator can recognize an identical file during preview. This foundation does not persist fingerprints, invoice rows, or reconciliation outcomes. Cross-session duplicate-file detection therefore requires a separately approved persistence design and is not claimed here.
+The preview returns a SHA-256 source fingerprint so an operator can recognize an identical file. No fingerprints or invoice rows are persisted; cross-session duplicate-file suppression is not claimed.
 
 ## Safety and limitations
 
+- The POST preview endpoint checks the current active-admin role before processing, enforces a bounded streamed request body, and reads only request-level evidence needed for the preview.
 - Pure parsing and preview only: no provider polling, credentials, scheduled jobs, database writes, ledger changes, payments, refunds, or automatic adjustments.
 - No invoice contents or secrets are logged.
-- This module does not establish a financial liability. A preview is evidence for human review, not a ledger posting or accounting approval.
-- Admin authentication, upload-size enforcement at the HTTP boundary, safe UI rendering, and integration tests must be verified in the API/UI follow-up before the MVP can be accepted.
+- A preview is evidence for human review, not a ledger posting or accounting approval.
+- Exact-head tests, TypeScript, lint, production build, and independent review are still required before acceptance.
