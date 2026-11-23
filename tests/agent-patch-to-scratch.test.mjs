@@ -25,9 +25,9 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
     const gitShim = String.raw`#!/usr/bin/env node
 const args = process.argv.slice(2);
 if (args[0] === "ls-files" && args[1] === "-z") {
-  process.stdout.write("README.md\\0");
+  process.stdout.write("README.md\0");
 } else if (args[0] === "rev-parse" && args[1] === "HEAD") {
-  process.stdout.write("0123456789abcdef0123456789abcdef01234567\\n");
+  process.stdout.write("${FIXTURE_COMMIT}\n");
 } else {
   console.error("Unsupported fixture git command: " + args.join(" "));
   process.exitCode = 2;
@@ -128,6 +128,7 @@ test("applies an authorized patch only to scratch and emits no failure marker", 
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
   const manifest = JSON.parse(readFileSync(join(data.root, "artifacts", "agent-scratch.json"), "utf8"));
+  if (process.platform !== "win32") assert.equal(manifest.base_commit, FIXTURE_COMMIT);
   assert.equal(manifest.repository_files_modified, false);
   assert.equal(manifest.generated_code_executed, false);
   assert.equal(manifest.patched_files.length, 1);
