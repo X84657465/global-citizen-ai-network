@@ -1,3 +1,41 @@
+# GPT5 Live Operations Correction — 2026-11-24 latest recheck
+
+**Supersedes the 00:55 live snapshot below where it conflicts.** Evidence is bound to exact SHAs and run IDs; no acceptance, merge, deployment, or release is implied.
+
+## Current main
+
+- `main` remains `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Exact-main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105): terminal **FAILURE**. Resolver #137840877458 **FAILURE**; diagnostics #137840906306 **FAILURE**; failure persistence #137840906764 **SUCCESS**; Windows quality #137840907274, Ollama #137840909193, Supabase/RLS #137840909327 and success persistence #137840909738 **SKIPPED**.
+- Re-requested resolver and diagnostics logs: both return GitHub 404 `BlobNotFound`. Root cause remains **UNKNOWN**; do not infer Runner outage, token/permission issue, rate limit, or application defect.
+- CircleCI Pipeline 24 remains **ERROR** (no configuration found). Main remains **BLOCKED**, not green.
+
+## GPT5 handoff PR #493 — latest exact HEAD
+
+- Branch `docs/gpt5-live-ops-checkpoint-8002072738-20261124` is 5 commits ahead / 0 behind current main; only `docs/AGENT_HANDOFF.md` differs.
+- Latest branch commit / exact PR candidate: `8f0ffdf6beabbe13b41b0bce4be28b6560d75df8`.
+- Exact-head Actions run [#45222178659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45222178659): terminal **FAILURE**. Resolver #137859073147 and diagnostics #137859098580 **FAILURE**; Windows quality #137859100518, Supabase/RLS #137859100981, failure persistence #137859101741, Ollama #137859102123 and success persistence #137859102995 **SKIPPED**.
+- Both exact-head failure logs again return 404 `BlobNotFound`; root cause **UNKNOWN**. This confirms the handoff commit itself is not CI-accepted. Keep #493 Draft; no self-approval or merge.
+- The prior #493 HEAD/run listed in the 00:55 section is superseded. Do not reuse its older run as evidence for `8f0ffdf6...`.
+
+## Factory test finding — corrected owner routing
+
+- Historical PR #417 HEAD `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`, run [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505), failed test 71: `operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation`; assertion was `Missing expected rejection` at `tests/agent-factory-controller.test.mjs:1930`.
+- This old-candidate failure is **superseded on main** by merged PR #429, merge commit `f7d27858b608c3d74d5f9c0d9a361fc5e699d888`. Its one-line fixture correction explicitly sets `FACTORY_OPERATOR_RECOVERY_ENV_GUARD: ""` alongside the legacy repository-scoped secret, so the test now exercises the intended Environment-only guard.
+- Do not continue routing the old #417 test failure as an unresolved current-main blocker. The current main push run did not reach quality tests because the metadata resolver/diagnostics failed first; current-main quality status is **SKIPPED**, not PASS.
+- GPT5 makes no Factory controller, test, workflow, Runner, permission, or secret changes.
+
+## Current disposition / owner handoff
+
+1. **Factory/CI owner:** recover actionable logs for main run #45211976105 resolver/diagnostics failures. Same failure pattern appears on #494, #493 and #491 exact-head runs, but root cause is not observable; no blind rerun or bypass.
+2. **GPT5:** this PR remains documentation-only; latest exact-head CI is FAILURE with downstream jobs SKIPPED. Wait for observable diagnostics / CI recovery, then revalidate a new exact SHA. Do not mark ready or merge.
+3. **Other PR owners:** retain their exact-head checks, stale-base, unresolved review, and provider blockers; no older success is reusable after HEAD changes.
+
+No local tests, workflow reruns, Runner interventions, permissions/secrets changes, Draft transitions, review approvals, merges or deployments were performed in this recheck.
+
+**Disposition:** main BLOCKED; GPT5 PR #493 exact-head FAILURE; resolver root cause UNKNOWN; historical #417 test failure has a mainline fixture correction in #429, but current main quality remains SKIPPED. No PR is merge-authorized.
+
+---
+
 # GPT5 Live Operations Correction — 2026-11-24 00:55 Asia/Taipei
 
 **This section supersedes conflicting live-state statements below.** It records the current exact main SHA, the main push-run terminal matrix, and all eight currently open PRs. This is an evidence handoff only, not an acceptance, review approval, merge, deployment, or release decision.
