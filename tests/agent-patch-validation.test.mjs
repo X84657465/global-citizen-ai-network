@@ -159,6 +159,57 @@ test("existing test files cannot be modified and control-plane files require exp
 
 
 
+
+test("Issue #116 may modify only its two exact existing test paths with control-plane approval", () => {
+  const allowedPaths = [
+    "tests/agent-task-validation.test.mjs",
+    "tests/agent-patch-validation.test.mjs",
+  ];
+
+  for (const path of allowedPaths) {
+    const approvedTask = {
+      schema_version: 1,
+      issue: { number: 116 },
+      allowed_paths: [path],
+      control_plane_authorized: true,
+    };
+    const accepted = validatePatchManifest(
+      manifest([file(path, "modify")]),
+      approvedTask,
+      [path],
+    );
+    assert.equal(accepted.files.length, 1);
+    assert.equal(accepted.safety.issue_116_test_path_exception_exact_and_approval_gated, true);
+  }
+
+  const rejectedTasks = [
+    {
+      path: allowedPaths[0],
+      task: { schema_version: 1, issue: { number: 117 }, allowed_paths: [allowedPaths[0]], control_plane_authorized: true },
+    },
+    {
+      path: allowedPaths[0],
+      task: { schema_version: 1, issue: { number: 116 }, allowed_paths: [allowedPaths[0]], control_plane_authorized: false },
+    },
+    {
+      path: "tests/unlisted.test.mjs",
+      task: { schema_version: 1, issue: { number: 116 }, allowed_paths: ["tests/unlisted.test.mjs"], control_plane_authorized: true },
+    },
+  ];
+
+  for (const item of rejectedTasks) {
+    assert.throws(
+      () => validatePatchManifest(
+        manifest([file(item.path, "modify")]),
+        item.task,
+        [item.path],
+      ),
+      /Existing test files are immutable/,
+      item.path,
+    );
+  }
+});
+
 test("scheduler workflow patch requires exact path, approval, and an existing file", () => {
   const path = ".github/workflows/agent-task-preflight.yml";
   const approvedTask = {
