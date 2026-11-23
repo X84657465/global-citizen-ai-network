@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { writeTaskFailureScopeMarker } from "../lib/agent-task-failure-marker.mjs";
+import { writeTaskFailureScopeMarker, cleanupThenWriteTaskFailureScopeMarker } from "../lib/agent-task-failure-marker.mjs";
 
 test("writes a task-scope marker only for a validated task with a valid issue number", () => {
   const directory = mkdtempSync(join(tmpdir(), "gcan-task-marker-"));
@@ -34,4 +34,28 @@ test("marker persistence failure returns false so callers can fail closed to sys
     }),
     false,
   );
+});
+
+test("does not persist task scope when scratch cleanup fails", () => {
+  let markerWrites = 0;
+  const result = cleanupThenWriteTaskFailureScopeMarker(
+    { issue: { number: 117 } },
+    "env",
+    () => { throw new Error("cleanup I/O failed"); },
+    () => { markerWrites += 1; },
+  );
+  assert.equal(result, false);
+  assert.equal(markerWrites, 0);
+});
+
+test("persists task scope only after scratch cleanup succeeds", () => {
+  const calls = [];
+  const result = cleanupThenWriteTaskFailureScopeMarker(
+    { issue: { number: 117 } },
+    "env",
+    () => { calls.push("cleanup"); },
+    () => { calls.push("marker"); },
+  );
+  assert.equal(result, true);
+  assert.deepEqual(calls, ["cleanup", "marker"]);
 });
