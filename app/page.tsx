@@ -80,11 +80,11 @@ export default function HomePage() {
      <div><span>LIVE CI / DEPLOYMENT</span><b>即時狀態以 GitHub 為準</b><small>本頁不快取或冒充 CI PASS／Production READY</small></div>
     </div>
     <div className={styles.executionLiveSnapshot}>
-     <div className={styles.executionLiveHeading}><b>最新工程快照 · 2026-11-23 10:56（Asia/Taipei）</b><span>以下是本次查證紀錄，不是即時串流</span></div>
+     <div className={styles.executionLiveHeading}><b>最新工程快照 · 2026-11-23 10:59（Asia/Taipei）</b><span>以下是本次查證紀錄，不是即時串流</span></div>
      <div className={styles.executionLiveGrid}>
-      <article><span>MAIN · 480f22e4</span><b>CI IN_PROGRESS</b><p>Windows Runner quality gates 正在執行；System Health Recovery 為 SKIPPED，不代表健康恢復成功。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100393869" target="_blank" rel="noreferrer">查看 main CI #45100393869 <ArrowUpRight size={13}/></a></article>
-      <article><span>GOVERNANCE PR · #440</span><b>OPEN · NOT MERGED</b><p>提案分支最後查證 HEAD：0abec829。GPT3 獨立 Review 尚未出現。</p><a href="https://github.com/X84657465/global-citizen-ai-network/pull/440" target="_blank" rel="noreferrer">查看 PR #440 <ArrowUpRight size={13}/></a></article>
-      <article><span>PR EXACT-HEAD CI</span><b>0 JOBS · NOT PASS</b><p>Run #45102694706 當時回傳 0 jobs；先前 resolver run 仍 PENDING。不得標示 CI 通過。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions/runs/45102694706" target="_blank" rel="noreferrer">查看候選 CI #45102694706 <ArrowUpRight size={13}/></a></article>
+      <article><span>MAIN · 480f22e4</span><b>CI IN_PROGRESS</b><p>Windows Runner quality gates 已 SUCCESS；Supabase/PostgreSQL/RLS 與 Ollama/local execution 仍 PENDING。System Health Recovery 為 SKIPPED，不代表健康恢復成功。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100393869" target="_blank" rel="noreferrer">查看 main CI #45100393869 <ArrowUpRight size={13}/></a></article>
+      <article><span>GOVERNANCE PR · #440</span><b>OPEN · NOT MERGED</b><p>提案分支最後查證 HEAD：c1522e33。GPT3 獨立 Review 尚未出現。</p><a href="https://github.com/X84657465/global-citizen-ai-network/pull/440" target="_blank" rel="noreferrer">查看 PR #440 <ArrowUpRight size={13}/></a></article>
+      <article><span>PR EXACT-HEAD CI</span><b>0 JOBS · NOT PASS</b><p>目前 HEAD check-runs 回傳 0 checks；較早的 Run #45102694706 亦回傳 0 jobs。不得標示 CI 通過。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions/runs/45102694706" target="_blank" rel="noreferrer">查看候選 CI #45102694706 <ArrowUpRight size={13}/></a></article>
       <article><span>VERCEL PREVIEW</span><b>NOT FOUND · RATE LIMITED</b><p>此分支尚未找到 Preview deployment；Vercel provider 回報 build-rate-limit，與 GitHub Actions CI 分開判定。</p><a href="https://vercel.com/acmes-projects-3dfbdf35?upgradeToPro=build-rate-limit" target="_blank" rel="noreferrer">查看 Vercel 專案配額 <ArrowUpRight size={13}/></a></article>
      </div>
      <small>快照來源：GitHub exact-SHA check-runs／workflow jobs／PR metadata 與 Vercel preview lookup。主線或 PR HEAD 前進後，必須重新查證；歷史快照不自動代表最新狀態。</small>
