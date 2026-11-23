@@ -204,3 +204,18 @@
 .executionLink{display:inline-flex;align-items:center;gap:8px;margin-top:19px;color:var(--cyan,#6bdce4);font-size:13px;text-decoration:none}
 @media(max-width:1000px){.executionRoles{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.executionSection{width:min(100% - 34px,540px);padding:56px 0}.executionStatus,.executionPriority,.executionRoles{grid-template-columns:1fr}.executionHeader h2{font-size:27px}.executionHeader>p{font-size:13px}.executionPriority article,.executionRoles article{padding:16px}.executionFlow{padding:15px}.executionFlow p{font-size:12px}}
+
+
+.executionLiveSnapshot{margin:16px 0 22px;padding:19px;border:1px solid rgba(221,163,78,.3);border-radius:17px;background:linear-gradient(145deg,rgba(67,48,24,.22),rgba(12,23,36,.7))}
+.executionLiveHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.executionLiveHeading b{font-size:14px;color:var(--foreground,#f2f6fb)}
+.executionLiveHeading span,.executionLiveSnapshot small{font-size:11px;color:var(--muted,#aebed0)}
+.executionLiveGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.executionLiveGrid article{min-width:0;padding:14px;border:1px solid rgba(120,170,200,.16);border-radius:12px;background:rgba(5,15,28,.52)}
+.executionLiveGrid article>span{display:block;margin-bottom:8px;font-size:10px;letter-spacing:.07em;font-weight:800;color:#9fc3dd}
+.executionLiveGrid article>b{display:block;margin-bottom:7px;color:#f0d19b;font-size:13px;overflow-wrap:anywhere}
+.executionLiveGrid article>p{min-height:72px;margin:0 0 10px;color:var(--muted,#aebed0);font-size:11px;line-height:1.7}
+.executionLiveGrid article>a{display:inline-flex;align-items:center;gap:5px;color:var(--cyan,#6bdce4);font-size:11px;text-decoration:none}
+.executionLiveSnapshot>small{display:block;margin-top:12px;line-height:1.7}
+@media(max-width:950px){.executionLiveGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.executionLiveSnapshot{padding:15px}.executionLiveHeading{display:block}.executionLiveHeading span{display:block;margin-top:5px}.executionLiveGrid{grid-template-columns:1fr}.executionLiveGrid article>p{min-height:0}}
