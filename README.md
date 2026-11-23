@@ -21,6 +21,30 @@
 ---
 
 
+## ⚙️ GCAN 最高執行總綱｜Factory-first × 五 GPT 交付閉環
+
+**目前工程順序：A Factory 優先 → 必要 A→B 銜接 → B 產品接棒。** 除非直接阻擋 A 穩定或 A→B，其他工作線不得平均分配資源。B 可持續完成產品需求、API／資料契約、UX 與測試規格準備，但不得提前啟動未就緒 Runtime 或正式資料操作。
+
+| GPT | 正式責任 | 本輪硬性交付 |
+|---|---|---|
+| GPT1 | A–E / Factory Chief Engineer | 可執行 Factory 程式、回歸測試、exact-SHA CI 與 A→B 契約 |
+| GPT2 | F–P Specialist Engineering | 只補阻擋 A/B 的安全、Release/QA、觀測及必要治理能力 |
+| GPT3 | Independent Architecture / QA | 獨立審查、風險分級、exact-SHA 放行或退回 |
+| GPT4 | B Product Lead | 產品需求、UX、API／資料契約與驗收規格 |
+| GPT5 | Global Engineering Operations + Second Execution Seat | 任務派工、阻塞清理、跨線整合及受授權的非衝突開發 |
+
+**零空轉：** 每項任務需有唯一 DRI、Developer、Reviewer、allowlist、DoD、依賴、測試、期限及 fallback。同一根因失敗兩次停止盲重試；阻塞超過一個工作週期必須拆解、改派、升級或暫緩。開發者不得自我批准。
+
+**證據規則：** PENDING、0 Job、SKIPPED、CANCELLED、UNKNOWN、外部 rate limit 都不是 PASS。CI 必須綁定精確 SHA 與實際必要 jobs。GitHub Actions 與 Vercel deployment 狀態分開判定。角色規範不代表五個 GPT 已同時啟動；實際派工以 Issue／PR／Agent Runtime 紀錄為準。
+
+- [完整 GCAN Execution Operating System](docs/GCAN_EXECUTION_OPERATING_SYSTEM.md)
+- [Master Governance Charter](docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md)
+- [五 GPT 協作入口](PROJECT_COORDINATION.md)
+- [神經智慧體協作模式](GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md)
+
+---
+
+
 
 ## 🏛️ GCAN 公開入口｜願景、架構與進度一眼看懂
 
