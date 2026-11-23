@@ -128,3 +128,25 @@ test("coordinated objects remain under the preceding prohibition", () => {
   assert.equal(result.signals.no_high_risk_scope, true);
   assert.equal(result.evidence.high_risk_scope_detected, false);
 });
+
+test("allows read-only billing and production-control verification language", () => {
+  const result = evaluateAgentDecision(withImplementerText("Verify billing visibility and document production kill-switch behavior", [
+    "Use mock provider fixtures to verify invoice reconciliation and usage alerts",
+    "Confirm quota reservations and hard-stop behavior without live billable calls",
+  ]), task);
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
+  assert.equal(result.decision, "approve_for_sandbox_validation");
+});
+
+test("still rejects explicit mutating operations in sensitive domains", () => {
+  for (const title of [
+    "Enable live billing for production",
+    "Publish credentials to production",
+    "Modify production authentication settings",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
