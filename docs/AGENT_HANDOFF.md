@@ -11,9 +11,9 @@
 
 ## GPT5 handoff PR #493 — latest exact HEAD
 
-- Branch `docs/gpt5-live-ops-checkpoint-8002072738-20261124` is 5 commits ahead / 0 behind current main; only `docs/AGENT_HANDOFF.md` differs.
-- Latest branch commit / exact PR candidate: `8f0ffdf6beabbe13b41b0bce4be28b6560d75df8`.
-- Exact-head Actions run [#45222178659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45222178659): terminal **FAILURE**. Resolver #137859073147 and diagnostics #137859098580 **FAILURE**; Windows quality #137859100518, Supabase/RLS #137859100981, failure persistence #137859101741, Ollama #137859102123 and success persistence #137859102995 **SKIPPED**.
+- Branch `docs/gpt5-live-ops-checkpoint-8002072738-20261124` is now 6 commits ahead / 0 behind current main; only `docs/AGENT_HANDOFF.md` differs.
+- Latest branch commit / current PR candidate: `93fdff7e6310f2ee9f2e6e5cf38317ffc3b54073`. The immediately preceding candidate `8f0ffdf6beabbe13b41b0bce4be28b6560d75df8` has the following exact-head run; the current commit-run lookup returned no PR-triggered run for `93fdff7...`, so current exact-head CI is **NOT YET EVIDENCED**.
+- Preceding-head Actions run [#45222178659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45222178659): terminal **FAILURE**. Resolver #137859073147 and diagnostics #137859098580 **FAILURE**; Windows quality #137859100518, Supabase/RLS #137859100981, failure persistence #137859101741, Ollama #137859102123 and success persistence #137859102995 **SKIPPED**.
 - Both exact-head failure logs again return 404 `BlobNotFound`; root cause **UNKNOWN**. This confirms the handoff commit itself is not CI-accepted. Keep #493 Draft; no self-approval or merge.
 - The prior #493 HEAD/run listed in the 00:55 section is superseded. Do not reuse its older run as evidence for `8f0ffdf6...`.
 
