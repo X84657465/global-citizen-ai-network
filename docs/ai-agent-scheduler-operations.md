@@ -1,8 +1,20 @@
 # AI Task Scheduler Operations Runbook
 
-**Baseline inspected:** `main` at `f4319ec65d33bf30804b2d447e7692207fd82f0c`  
+**Baseline inspected:** `main` at `af53eaa6febe777a7f29f14edb71afa156107f2e`  
 **Scope:** repository-owner-operated AI task worker. This runbook describes the checked-in workflow; it does not promise that a self-hosted Runner is online.  
-**Sources of truth:** `.github/workflows/agent-task-preflight.yml`, `lib/agent-task-validation.mjs`, `scripts/select-agent-task.mjs`, `lib/agent-factory-state-machine.mjs`, and `scripts/agent-factory-v2-controller.mjs`.
+**Sources of truth:** `.github/workflows/agent-task-preflight.yml` (blob `bbe6b5271cdc3fa1809f4466c4594e1798f156af` at the inspected main baseline), `lib/agent-task-validation.mjs`, `scripts/select-agent-task.mjs`, `lib/agent-factory-state-machine.mjs`, and `scripts/agent-factory-v2-controller.mjs`.
+
+## Current evidence snapshot (2026-11-23)
+
+This dated snapshot is operational evidence, not a promise of present or future Runner availability:
+
+- Main inspected: `af53eaa6febe777a7f29f14edb71afa156107f2e`.
+- Main push CI run [45198996336](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45198996336), attempt 1: completed `success`; its Windows Runner quality, local Ollama execution, and disposable Supabase/PostgreSQL/RLS jobs completed successfully.
+- Main preflight run [45198996377](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45198996377), attempt 1: completed `failure`; Windows self-hosted project validation failed at the Linux scratch fixture suite. The separate Linux fixture check was skipped on this push event.
+- The combined commit status reported Vercel `failure` with the message “Deployment rate limited — retry in 24 hours.” This is not a successful deployment and does not block local test evidence from being reported separately.
+- Recovery workflow runs for this SHA included repeated `skipped` conclusions and failures. A skipped recovery job is not a recovery success.
+
+A completed Windows Runner job proves that the runner executed that specific job at that recorded time only. It does not establish that the runner is online now. Before dispatching or diagnosing a new task, inspect the newest run and its job list again.
 
 ## 1. Submit one valid task
 
