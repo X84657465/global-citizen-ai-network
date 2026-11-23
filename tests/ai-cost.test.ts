@@ -1,5 +1,4 @@
 import test from "node:test";
-import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { estimateCostTwd, getAiRuntimeConfig, type AiRuntimeConfig } from "../lib/ai/config.ts";
 
@@ -90,7 +89,7 @@ test("runtime config caps provider timeout at sixty seconds", () => {
   }
 });
 
-import { parseProviderInvoiceCsv, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
+import { parseProviderInvoiceCsv, parseProviderInvoicePreviewPayload, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
 
 const invoiceCsv = [
   "provider,model,billing_period_start,billing_period_end,source_reference,currency,amount",
@@ -189,21 +188,38 @@ test("invoice reconciliation never treats missing billed-cost evidence as a veri
 });
 
 
-const invoicePreviewRouteSource = readFileSync(
-  new URL("../app/api/admin/ai-costs/route.ts", import.meta.url),
-  "utf8",
-);
+test("invoice preview payload validator rejects null, arrays, and primitives", () => {
+  for (const payload of [null, [], ["csv"], "text", 42, true]) {
+    assert.throws(() => parseProviderInvoicePreviewPayload(payload), /JSON 物件格式/);
+  }
+});
 
-test("invoice preview route rejects null and array JSON before reading csv fields", () => {
-  const parsePosition = invoicePreviewRouteSource.indexOf("payload = JSON.parse");
-  const guardPosition = invoicePreviewRouteSource.indexOf(
-    "typeof payload !== \"object\" || payload === null || Array.isArray(payload)",
-    parsePosition,
-  );
-  const csvAccessPosition = invoicePreviewRouteSource.indexOf("invoicePayload.csv", parsePosition);
-  const guardBlock = invoicePreviewRouteSource.slice(guardPosition, csvAccessPosition);
-  assert.ok(parsePosition >= 0, "route must parse the request JSON");
-  assert.ok(guardPosition > parsePosition, "route must reject null and arrays after parsing");
-  assert.ok(csvAccessPosition > guardPosition, "route must validate the top-level object before reading csv");
-  assert.match(guardBlock, /status:\s*400/, "invalid JSON object shape must return HTTP 400");
+test("invoice preview payload validator requires CSV text", () => {
+  for (const payload of [{}, { csv: null }, { csv: 42 }]) {
+    assert.throws(() => parseProviderInvoicePreviewPayload(payload), /缺少 CSV 文字/);
+  }
+});
+
+test("invoice preview payload validator accepts CSV and validated explicit FX evidence", () => {
+  const payload = parseProviderInvoicePreviewPayload({
+    csv: invoiceCsv,
+    fxConversion: {
+      fromCurrency: "usd", toCurrency: "twd", rate: 32,
+      timestamp: "2026-11-23T00:00:00.000Z",
+    },
+  });
+  assert.equal(payload.csv, invoiceCsv);
+  assert.deepEqual(payload.fxConversion, {
+    fromCurrency: "USD", toCurrency: "TWD", rate: 32,
+    timestamp: "2026-11-23T00:00:00.000Z",
+  });
+});
+
+test("invoice preview payload validator rejects malformed FX evidence", () => {
+  for (const fxConversion of [
+    [], "32", { fromCurrency: "USD", toCurrency: "TWD", rate: 0, timestamp: "2026-11-23T00:00:00.000Z" },
+    { fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "not-a-date" },
+  ]) {
+    assert.throws(() => parseProviderInvoicePreviewPayload({ csv: invoiceCsv, fxConversion }), /匯率資訊/);
+  }
 });
