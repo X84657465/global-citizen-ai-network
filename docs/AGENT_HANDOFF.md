@@ -1,3 +1,50 @@
+# GPT5 live operations delta — 2026-11-24 (latest main 6b3ac4b)
+
+This section supersedes only the live-state claims in earlier snapshots below. Historical records remain for audit. Evidence is tied to exact commit SHAs and run IDs; this is not independent acceptance or merge/deployment authorization.
+
+## Main
+
+- Current `main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99` (commit follows `8002072738d0dad722ccfc1207250165d1b7d8bc`).
+- Exact push CI [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 1: **COMPLETED / FAILURE**.
+- Resolver job #137897365918 and exact-SHA diagnostics job #137897386419: **FAILURE**; Windows quality #137897388386, Supabase/PostgreSQL/RLS #137897388826, Ollama #137897388962, and success persistence #137897389278: **SKIPPED**. Failure persistence job #137897386691 completed SUCCESS, but candidate persistence steps were SKIPPED; only system failure recording succeeded.
+- Exact-main combined statuses: CircleCI Pipeline 73 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- Recovery runs #45233140781, #45233153611, #45233172532 and #45233177558 all completed **SKIPPED**. No recovery PASS is evidenced.
+- Resolver/diagnostics steps return empty summaries; attempted job-log retrieval returned 404 `BlobNotFound`. Root cause remains **UNKNOWN**. Do not infer credentials, permissions, quota, Runner, or source-code cause; do not repeat blind retries.
+
+## All 13 open PRs — exact current inventory
+
+All 13 are open and unmerged. Ten are Draft (#499, #498, #497, #496, #495, #494, #493, #491, #478, #259); three are Ready (#476, #417, #376). Exact-head Actions conclusions below apply only to the listed SHA.
+
+| PR | Exact HEAD | Base SHA | Draft | Exact-head Actions / external checks |
+|---|---|---|---|---|
+| [#499](https://github.com/X84657465/global-citizen-ai-network/pull/499) | `f232a630b2550270309c10d3d852581fb3070235` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45232546114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45232546114) **FAILURE**; CircleCI ERROR; Vercel FAILURE. |
+| [#498](https://github.com/X84657465/global-citizen-ai-network/pull/498) | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45230211754](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230211754) **FAILURE**; resolver/diagnostics FAILURE; downstream jobs SKIPPED; CircleCI ERROR; Vercel FAILURE. |
+| [#497](https://github.com/X84657465/global-citizen-ai-network/pull/497) | `c3e6450551d53011bf74168239e65496699e995b` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45229281768](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229281768) **FAILURE**; CircleCI ERROR; Vercel FAILURE. |
+| [#496](https://github.com/X84657465/global-citizen-ai-network/pull/496) | `5251f221884aa8cc7e170fe3b90811e567a59f94` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45228376095](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45228376095) **FAILURE**; CircleCI ERROR; Vercel FAILURE. |
+| [#495](https://github.com/X84657465/global-citizen-ai-network/pull/495) | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45225428794](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45225428794) **FAILURE**; resolver/diagnostics FAILURE; downstream jobs SKIPPED; CircleCI ERROR; Vercel FAILURE. |
+| [#494](https://github.com/X84657465/global-citizen-ai-network/pull/494) | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45218883945](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45218883945) **FAILURE**; CircleCI ERROR; Vercel FAILURE. |
+| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `e887a7507160b2ad19bfc645de61aad1e6d3bfc6` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45233155032](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233155032) **FAILURE**; resolver/diagnostics FAILURE; quality, DB/RLS, Ollama and persistence SKIPPED; CircleCI Pipeline 69 ERROR; Vercel FAILURE. |
+| [#491](https://github.com/X84657465/global-citizen-ai-network/pull/491) | `cf5488efc5bc6a00e6aa224aa885d37cab930130` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45233141566](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233141566) **FAILURE**; resolver/diagnostics FAILURE; quality, DB/RLS, Ollama and persistence SKIPPED; CircleCI Pipeline 68 ERROR; Vercel FAILURE. |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | [#45191718421](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45191718421) **SUCCESS on stale base only**; Vercel FAILURE. Not current-main acceptance. |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | No | **No exact-head Actions run**; CircleCI ERROR; Vercel SUCCESS. Stale base; no current-head CI acceptance. |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) **FAILURE**; Vercel FAILURE. |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | **No exact-head Actions run**; Vercel FAILURE. |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) **SUCCESS on stale base only**; Vercel FAILURE. Not current-main acceptance. |
+
+## Independent review and merge disposition
+
+- Formal PR review API: **0 APPROVED reviews across all 13 open PRs**. Existing COMMENTED records are not approvals.
+- No PR meets the project's complete merge gate. Do not un-Draft, self-approve, merge, or deploy based on mergeable metadata, stale-base CI, Vercel status, or skipped jobs.
+- Main branch protection API currently reports `protected=false`; this does not override the project's documented independent-review and exact-SHA acceptance requirements.
+
+## Factory-first next owner action
+
+- Keep Factory changes (#496–#498 and #259) with their existing module owners. Their candidate changes are not validated because the shared resolver/diagnostics stage failed before quality jobs ran.
+- Factory/CI owner must provide a safe resolver error classification and retained exact-step logs/artifacts for Main and current PR heads before another bounded retry. No Runner, workflow, permission, secret, or Factory durable-state mutation is made by this GPT5 handoff.
+- B remains preparation-only: no B runtime activation or product work is advanced until A/Factory's required gates and independent acceptance are evidenced.
+
+---
+
 # GPT5 Live Operations — authoritative recheck, 2026-11-24 (latest)
 
 This snapshot supersedes earlier live-state snapshots below. All checks are tied to exact SHAs and run IDs. This is an operations handoff, not self-review, independent acceptance, merge authorization, deployment or release.
