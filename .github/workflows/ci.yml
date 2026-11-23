@@ -24,17 +24,15 @@ defaults:
 
 jobs:
   resolve-candidate:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
+    # Metadata resolution uses only the read-only GitHub API and must not
+    # occupy or wait behind the scarce Windows/Ollama execution runner.
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
        (github.event.pull_request.user.login == github.repository_owner ||
         github.event.pull_request.user.login == 'github-actions[bot]'))
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
