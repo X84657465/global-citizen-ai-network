@@ -220,6 +220,8 @@ test("invoice preview payload rejects malformed FX evidence", () => {
     [], "32",
     { fromCurrency: "USD", toCurrency: "TWD", rate: 0, timestamp: "2026-11-23T00:00:00.000Z" },
     { fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "not-a-date" },
+    { fromCurrency: "ZZZ", toCurrency: "TWD", rate: 32, timestamp: "2026-11-23T00:00:00.000Z" },
+    { fromCurrency: "USD", toCurrency: "ZZZ", rate: 32, timestamp: "2026-11-23T00:00:00.000Z" },
   ]) {
     assert.throws(() => parseProviderInvoicePreviewPayload({ csv: invoiceCsv, fxConversion }), /匯率資訊/);
   }
