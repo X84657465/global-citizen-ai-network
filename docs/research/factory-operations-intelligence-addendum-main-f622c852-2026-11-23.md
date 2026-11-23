@@ -530,3 +530,43 @@ Do not reuse older CI outcomes as this delta's current poll for rows marked not 
 ### Daily automation
 
 The existing `GCAN 每日工程巡檢` automation remains enabled, daily at 08:00 Asia/Taipei; next scheduled run is 2026-11-24 08:00 +08:00. Its recorded last run is historical and is not represented as this manual live refresh.
+
+
+---
+
+## Follow-up poll — exact run/job evidence (2026-11-23)
+
+### Main push CI, queried directly from Actions API
+
+- Exact main SHA: `f622c852346577d67aed0bde2922ade17044057c`.
+- Exact-main Actions query returned 51 workflow runs across events. Grouped outcomes: 47 `Agent Factory System Health Recovery` runs on `workflow_run` events all COMPLETED/SKIPPED; one `AI Agent Task Preflight` `issues` run SUCCESS; one scheduled preflight FAILURE; one main push CI run FAILURE; one push preflight FAILURE.
+- Main push CI run `45106600175`, attempt 1: COMPLETED/FAILURE. Exact job outcomes:
+  - Resolve exact candidate PR metadata: SUCCESS.
+  - Windows Runner quality gates: FAILURE.
+  - Exact-SHA failure diagnostics and evidence: SUCCESS.
+  - Windows Supabase/PostgreSQL/RLS integration: SKIPPED.
+  - Windows Ollama/local execution integration: SKIPPED.
+  - Persist candidate success/reset breaker: SKIPPED.
+  - Persist candidate/system failures: SUCCESS.
+- Failing quality-gate step: `Verify CI trigger and Runner policy`. The test output confirms 42/43 pass; test 43 fails at `tests/ci-trigger-policy.test.mjs:838`: `the machine-local scratch directory path must never be uploaded`, assertion `true !== false`. Unit tests, type check, lint and production build were SKIPPED after the policy failure.
+- Scheduled preflight `45109084561`: FAILURE; Windows self-hosted project validation and downstream planning/dispatch/publication were SKIPPED. A later issue-triggered preflight `45111509940` had the read-only plan SUCCESS, but self-hosted validation and downstream write/dispatch steps were SKIPPED. These are task preflight outcomes, not full system CI passes.
+- Forty-seven repeated system-health recovery workflow runs were SKIPPED. Treat this as repeated non-execution, not 47 successful recoveries. The latest two are `45129851504` and `45129479340`.
+
+### GPT5 PR #445 — latest exact HEAD run
+
+- PR HEAD: `79f07e82f76a18847319c38bb1217eef1fe3bd65`; base main: `f622c852346577d67aed0bde2922ade17044057c`; Draft=true; mergeable=true.
+- Run `45130004688`, attempt 1 is still IN_PROGRESS at latest poll; do not infer terminal result.
+- Jobs: metadata resolver COMPLETED/SUCCESS; Windows Runner quality gates IN_PROGRESS. Within quality gates, Ollama inference, migration filename guard, schema safety guard, and production dependency audit have completed SUCCESS; full dependency security audit is IN_PROGRESS; script syntax, CI trigger/Runner policy, unit tests, type check, lint and production build remain PENDING.
+- Formal reviews on #445: 0. No self-approval. Keep Draft until exact-head required checks and applicable review gates are satisfied.
+
+### PR #458 independent gate
+
+- Exact HEAD remains `a4a3194c2c60e6b7950dee848bd87c6add0732fc`; run `45126296524` completed.
+- Jobs: metadata resolver, Windows quality gates, Ollama/local integration, and Supabase/PostgreSQL/RLS integration all SUCCESS; conditional diagnostics and persistence jobs SKIPPED.
+- Formal reviews: 0; review comments: 0. Despite all four required validation jobs passing and mergeable=true, independent APPROVED is absent. Do not merge or treat CI as a substitute for review.
+
+### Operational disposition
+
+- No new CI was triggered by GPT5; no redundant retries were launched.
+- #445 remains GPT5's active documentation-only delivery. Its current run is allowed to finish; no Factory-owned code or workflow changes were made.
+- Factory owner retains #458/#461 and the scratch-policy implementation/rebase sequence. GPT3 independent review remains the #458 approval gate.
