@@ -1211,3 +1211,14 @@ MVP kickoff 後以 **5 個工作日**完成首輪端到端驗收為目標；若�
 首版必須在同一候選 SHA 證明單元／整合測試、TypeScript、Lint、Production Build、登入保護、使用者資料隔離、專案／對話流程、AI 成本預檢與冪等性；要求 Preview 時另驗證該 SHA 的 READY deployment 與 smoke test。GPT3／授權獨立 Reviewer 必須對同一 SHA 給出正式結論。
 
 PENDING、0 Job、SKIPPED、CANCELLED、UNKNOWN、Rate Limit 均非 PASS；舊 SHA 綠燈不得移轉。相同根因連敗兩次停止盲重試；阻塞超過一個工作週期拆解、改派、升級或 DEFERRED。詳細狀態轉換及安全界線以 MVP First Delivery Charter 為準。
+
+
+### 22.5 A–P 全線產品級 MVP（不是只有 B）
+
+- **硬性要求：A、B、C……P 每條線都必須各自交付一個可用、可展示、可測試、可驗收的產品級 MVP。** B Product 是 GCAN 整合產品，不是 A、C–P 的替代品。
+- A–E 由 GPT1／指定模組 owner 負責；F–P 由 GPT2／指定模組 owner 負責；GPT4 負責 B 產品需求與整合；GPT3 獨立審查；GPT5 僅做明確授權的支援。
+- 每條線需有使用者／下游消費者、問題、核心旅程、輸入／輸出、版本化介面、可執行產物、測試、文件、唯一 DRI 及驗收證據。
+- 產品形式可為網站、API、CLI、SDK、Connector、Dashboard、品質 Gate 或可重現工作流；文件／架構圖／空殼 UI／只有 TODO 的 API 不算 MVP。
+- 每線先交一條垂直切片，非必要能力列入該線 Post-MVP。依賴未就緒時交付隔離／sandbox／mock 版本並標記 BLOCKED，不得假報正式整合。
+- 每線 kickoff 後以 5 個工作日內交付第一個可展示 MVP 切片為目標；各線獨立追蹤 IMPLEMENTED、TESTED、VERIFIED、ACCEPTED、RELEASED，不能用 B 的狀態代表 A–P 全體。
+- 詳細 A–P 最小產品目錄見 `docs/GCAN_MVP_FIRST_DELIVERY_CHARTER.md §2.4`。安全、資料權限、正式部署及付費核准政策維持不變。
