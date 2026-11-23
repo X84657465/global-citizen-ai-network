@@ -1,6 +1,241 @@
-## Superseding verified continuation snapshot — 2026-11-23 (main 9cb3107f)
+## Additional exact-head failure diagnosis — 2026-11-23
 
-This section supersedes all historical live-state snapshots below. Re-fetch SHAs, Actions runs, reviews, labels and issue state before the next operation; historical entries remain traceability only.
+- Retrieved the full Windows quality-job log for PR #425 run #45058830722 (job #137323550242). The failure is deterministic in `tests/ci-trigger-policy.test.mjs`: subtest at line 631 fails at line 652 with `preserve the native Docker exit code` (`expected: true`, `actual: false`). The policy test found 42 passed / 1 failed among 43 checks. Type check, lint and production build were skipped after this failure.
+- This is a mismatch between the CI workflow text and the test's expected exit-code capture contract, not evidence of a Docker daemon outage. The job had already passed Docker/Ollama verification, bounded local inference, migration/schema guards, dependency audits and script syntax.
+- Source inspection of #422 reveals its second offline-test step captures `$dockerExecExitCode = $LASTEXITCODE`, while the existing policy regression checks for the literal `$testExitCode = $LASTEXITCODE` in every matching offline-test step. This indicates a likely same policy-test failure if #422 reaches that test unchanged; it is a source-based prediction, not a completed #422 CI result.
+- Before editing either overlapping candidate, establish one canonical DRI. Then reconcile the test contract semantically: preserve the actual native Docker exit code for each offline test invocation and assert the behavior without coupling the test to an arbitrary local variable name. Keep diagnostic output persistence before raising failure. Do not weaken the exit-code handling or sandbox constraints.
+- Evidence: [#425 run #45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722), [failing Windows job](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722/job/137323550242).
+
+---
+
+## Latest P0 CI failure evidence — 2026-11-23 (Issue #117 candidates)
+
+This note supersedes earlier PR #422/#425 CI descriptions below.
+
+- PR #425 exact head remains `2a1d27388f7586405f62f04f6a8544a6dd36360e`; run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) has failed its Windows Runner quality-gate job.
+- Failure is in `tests/ci-trigger-policy.test.mjs:652`, test `preflight captures and uploads both synthetic and real candidate offline-test diagnostics`. Assertion `preserve the native Docker exit code` expected the old `$testExitCode = $LASTEXITCODE` text, but the candidate workflow now uses `docker create`, `docker start --attach`, and `docker inspect` with `$createExitCode` / `$startExitCode` / inspected state. The job reports 42 passing, 1 failing; unit tests, type check, lint and production build were skipped after the earlier policy test failure. Exact-SHA diagnostics job remains PENDING.
+- The same stale test assertion is present in PR #422's exact head `535daef3edb0ee81abfb003131d4149e81620357`. This is an observed shared test-contract defect and a likely blocker if its Windows quality job reaches this test; #422's exact-head quality job is currently PENDING, not failed.
+- Minimal repair recommendation: update the structural regression test to assert the new container create/start/inspect flow, preserve both create/start command outcomes and the inspected container exit evidence, and continue requiring diagnostics to be uploaded on failure. Do not weaken the actual fail-closed runtime behavior merely to satisfy the old assertion.
+- #422 and #425 remain competing implementations on the same workflow/test paths. Do not independently patch both branches or merge either under Issue #117; establish the canonical DRI and obtain GPT3 adversarial review first.
+- No test was run by this assistant. The failure evidence above comes from the exact-head GitHub Actions job log.
+
+---
+
+## Superseding live execution snapshot — 2026-11-23 (main 10fabef7)
+
+This section supersedes older live-state snapshots below. Always re-fetch exact refs before acting; historical snapshots are retained for audit history, not current status.
+
+### Main / CI
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Exact-main standard CI [#45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077) remains **PENDING**. Do not treat this as PASS.
+- Recent main-branch System Health Recovery workflow runs are **SKIPPED**, including #45060377211, #45060360765 and #45060335850. Skipped is not a recovery success.
+- Vercel `build-rate-limit` is provider quota status and must remain separate from GitHub Actions CI.
+
+### Current exact-head PR evidence
+- #420: live head at last check `b1671f72ae6a8c5475da5ac59595a1bfe2c21eae`, base main. Exact-head run [#45060370063](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060370063) is **PENDING**; its only visible job, metadata resolver, is PENDING. Documentation-only change; no repository test suite run. Re-fetch the head and exact-head run after every further update.
+- #422: head `535daef3edb0ee81abfb003131d4149e81620357`; exact-head PR run [#45058587659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058587659): metadata resolver SUCCESS, Windows quality job PENDING. Associated push run #45058582257 failed. Author COMMENTED review records say the previously observed three-way classifier assertion mismatch was fixed in current head; a separate COMMENTED finding says #422 and #425 overlap and require one canonical DRI. No independent formal APPROVE.
+- #425: head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; exact-head run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) has metadata resolver SUCCESS but **Windows Runner quality gates FAILURE** at `Verify CI trigger and Runner policy`. Unit tests, type check, lint and production build were SKIPPED; diagnostics remain pending at this check. Ollama and Supabase/PostgreSQL/RLS jobs were SKIPPED. Separately, the blocking COMMENTED review finding remains: `Number(state.ExitCode)` can coerce null, empty string and false to zero. Require raw-value validation and regressions for missing/null/empty/boolean/fractional/out-of-range values.
+- #426: head `542d315d0c3733aeef155d51f9a662528050b1bb`; exact-head run [#45058900487](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058900487) has resolver SUCCESS and Windows quality job PENDING. No formal review submitted; full exact-head matrix and independent review remain required.
+- #424 remains Draft and stacked on #422. Its workflow-level success did not establish substantive validation; do not integrate independently.
+- #427 remains Draft; head `5516d4b207a016b0a6d55c112a5fd6887611ff7d`; exact-head run [#45060267113](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060267113) is PENDING. Roadmap text is not implemented runtime capability.
+- Other open PRs #417, #376, #373 and #259 have stale/non-main bases or Draft/failure constraints; do not bulk merge.
+
+### Governance / decision
+- Issue #117 explicitly says **do not merge a pull request or deploy any environment**. The `factory-control-plane-approved` label does not override that explicit exclusion.
+- #422 and #425 are competing implementations for the same P0 scope and overlapping protected workflow/test paths. Do not make overlapping edits or choose a canonical implementation without owner/DRI coordination. Prefer evaluating #422's workflow-level explicit evidence approach, but no acceptance or merge is authorized by this note.
+- Issue #176 requires exact-head full CI, including Windows quality, Ollama/local execution, disposable Supabase/PostgreSQL/RLS, and independent formal review. Its approval label does not waive these gates.
+- Issue #136 audit baseline remains stale; stop until owner-authorized current-main baseline is supplied.
+- No PR is accepted or mergeable for policy purposes on this evidence. No merge, deployment, production state mutation, Runner change or B Runtime activation occurred.
+- Factory-first next actions: (1) diagnose #425 CI trigger-policy failure and strict exit-evidence gap only after canonical DRI is resolved; (2) observe #422 exact-head Windows quality result; (3) track #426 full matrix and independent review; (4) keep B handoff versioned, redacted and read-only until A gates pass.
+
+---
+
+## Latest live evidence — 2026-11-23 (main 10fabef7; PR #420 refresh)
+
+This section supersedes earlier live-state statements below. Re-fetch all exact refs and run attempts before further writes.
+
+### Main / CI
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Exact-main standard CI run [#45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077) remains **PENDING**. Its latest jobs response shows only `Resolve exact candidate PR metadata` as PENDING; no test/quality job pass is evidenced.
+- Main's latest System Health Recovery runs include [#45060259449](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060259449), [#45060221714](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060221714), and [#45060214096](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060214096), all **SKIPPED**. Skipped is not a health pass.
+- Combined status previously returned Vercel `build-rate-limit`; treat provider deployment quota separately from GitHub Actions CI. Do not retry/dispatch workflows to force green.
+
+### Open PRs — current exact heads
+- #420 (this documentation PR): its live head SHA and exact-head CI run are intentionally not hard-coded here because each documentation refresh creates a new candidate commit. Re-fetch the PR head and matching run from GitHub immediately before review/merge; do not reuse a prior SHA or run. Latest checked before this correction: head `b1671f72ae6a8c5475da5ac59595a1bfe2c21eae`, run [#45060370063](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060370063) **PENDING**. This update is documentation-only; no repository test suite was run.
+- #422: head `535daef3edb0ee81abfb003131d4149e81620357`; exact-head PR run [#45058587659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058587659) has metadata resolver SUCCESS and Windows quality job PENDING. Associated push run [#45058582257](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058582257) failed. No exact-head full CI PASS.
+- #425: head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; exact-head run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) has metadata resolver SUCCESS and Windows quality job PENDING. Its helper still uses `Number(state.ExitCode)`; null, empty string and false can coerce to zero. Existing review requires strict raw-value validation and regression cases.
+- #426: head `542d315d0c3733aeef155d51f9a662528050b1bb`; exact-head run [#45058900487](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058900487) remains PENDING at metadata resolution; independent formal review is absent.
+- #424: Draft and stacked on #422, base is #422 head; not independently mergeable to main. Its prior successful workflow does not establish independent integration or full validation.
+- #427: head `5516d4b207a016b0a6d55c112a5fd6887611ff7d`; Draft, base main. Exact-head run [#45060267113](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060267113) is PENDING; roadmap documentation is not implemented runtime capability.
+- Other open PRs include #417, #376, #373 and #259. Stale/diverged candidates must not be wholesale merged.
+
+### Governance / Factory-first
+- Issues #116 and #117 both currently carry `factory-control-plane-approved`.
+- Issue #117's own explicit exclusions still prohibit merging a PR or deploying under that task. The label does not override those exclusions, exact-head CI or GPT3 independent review.
+- #422 and #425 remain competing implementations of the same P0 Issue #117 scope and overlapping workflow/test paths. Do not make overlapping edits or declare either accepted before one canonical DRI is established.
+- GPT3 independent architecture review/QA remains separate. The current review records are COMMENTED, not GPT3 APPROVED.
+- Issue #136 remains READ-ONLY with a stale pinned audit baseline; obtain a fresh owner-authorized exact-main baseline before proceeding.
+- No merge, deployment, workflow dispatch, Runner/queue change, permission/secret change, production DB/RLS operation or machine-managed Factory-state mutation occurred.
+
+### Verification and delivery status
+- Main CI: PENDING / NOT PASS.
+- Recovery: SKIPPED / NOT PASS.
+- #420 docs: updated in this PR branch only; no tests run because this is documentation-only.
+- #422/#425/#426: exact-head quality/CI remains pending; no candidate acceptance.
+- No PR merge or runtime acceptance is claimed.
+
+---
+
+## Live evidence correction — 2026-11-23 (exact main CI and governance labels)
+
+This note supersedes any conflicting statement in the snapshots below.
+
+- Main SHA remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Exact-main standard CI **does exist**: [run #45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077), workflow `.github/workflows/ci.yml`, event `push`, attempt 1, currently **PENDING**. Jobs endpoint currently returns an empty job list. It is not PASS and must not be described as NOT RUN.
+- Main's combined commit status currently exposes Vercel `build-rate-limit` failure separately; that is not the GitHub Actions CI conclusion.
+- Issue #117 currently has `factory-control-plane-approved`; Issue #176 also has that label. Their labels do not override their explicit issue-level acceptance restrictions. Issue #117 explicitly says do not merge any PR or deploy as part of that task.
+- The current open PR list contains 10 entries (#427, #426, #425, #424, #422, #420, #417, #376, #373, #259). Some are stacked or target non-main bases; do not count them as mainline-ready work.
+- PR #422's exact-head CI run #45058587659 is still in progress: metadata resolver succeeded, Windows quality job is pending. Its associated push workflow run #45058582257 failed. PR #424's exact-head PR run #45058591151 is successful, but it is stacked on #422 and does not independently authorize integration.
+- PR #425's exact-head run #45058830722 remains pending; its review has a blocking malformed-exit evidence finding (Number(null)/empty/false coercion may falsely yield zero).
+- PR #426's exact-head run #45058900487 remains pending at metadata resolution; there are no formal reviews. Issue #176 requires full exact-head CI matrix and independent formal review.
+- PR #420's latest candidate head is `ada2cd84dc32583904e1a428629d8af89654b00c`; exact-head run #45060107358 is pending. Its existing review is COMMENTED by the repository owner, not an independent approval.
+- PR #427's latest head is `71ba10a6d0c8297568a17120f6bcbdf38815c4cf`; exact-head run #45060080901 is pending. It remains Draft and its proposed roadmap is not implemented runtime capability.
+
+**Acceptance:** no PR in this evidence set is eligible for merge now. Keep #422/#425 blocked by the #117 no-merge rule and competing implementation review; keep #426 blocked by pending exact-head CI and missing independent review; keep #420 blocked by pending CI and missing independent review. Do not merge based on mergeable=true.
+
+---
+
+## Latest execution correction — 2026-11-23 (PR #420 head 60325ed)
+
+This correction supersedes any conflicting PR/run details in the continuation snapshot below. It is documentation-only and does not change runtime or governance state.
+
+### Re-fetched exact-head evidence
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- PR #420 head is `60325eddef8135af735d7c530b82314a30407eeb`, base main `10fabef...`, non-Draft and mergeable=true. Exact-head Actions run [#45060047810](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45060047810) is PENDING (attempt 1); this is not PASS. The earlier run #45057706557 was for a prior candidate commit and is CANCELLED.
+- PR #422 head `535daef3edb0ee81abfb003131d4149e81620357`: exact-head PR run [#45058587659](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058587659) is PENDING; associated push run #45058582257 is FAILURE. Do not treat either as a passing PR validation.
+- PR #425 head `2a1d27388f7586405f62f04f6a8544a6dd36360e`: exact-head run [#45058830722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058830722) is PENDING.
+- PR #426 head `542d315d0c3733aeef155d51f9a662528050b1bb`: exact-head run [#45058900487](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45058900487) is PENDING.
+- PR #427 head `beabff34d7aa728655ed96f7375ce4bfd07e84f6`: exact-head run [#45059914601](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45059914601) is CANCELLED.
+- The latest main-branch workflow runs visible in the branch listing are System Health Recovery runs with conclusion SKIPPED. Standard CI for exact main SHA remains UNKNOWN / NOT RUN in this evidence set.
+- PR #420 has a COMMENTED review from the repository author identifying stale documentation; no independent GPT3 APPROVE is recorded. Mergeability alone is not acceptance.
+- The current Vercel status `build-rate-limit` is a provider quota/deployment status, not GitHub Actions test evidence.
+
+### Integration decision
+- No PR in this set is accepted or eligible for merge based on the evidence above.
+- Keep #422/#425 as competing Issue #117 candidates; do not edit overlapping paths or close either until a canonical DRI/PR is agreed. The malformed-exit coercion finding on #425 remains a blocking review finding.
+- Keep #426 blocked pending exact-head CI and independent formal review.
+- Issue #136 remains READ-ONLY and its pinned audit SHA is stale; stop and obtain a fresh owner-authorized baseline rather than silently retargeting it.
+- Continue Factory-first. Do not dispatch/retry workflows, alter Runner/queue policy, modify machine-managed Factory state, change permissions/secrets, touch production DB/RLS, or activate B Runtime.
+
+**Verification status:** documentation snapshot correction only; no repository test suite was run. Exact-head CI is pending/cancelled/failed as itemized above. No merge, deployment or runtime acceptance occurred.
+
+---
+
+## Superseding verified continuation snapshot — 2026-11-23 (main 10fabef7; refreshed after PR #427)
+
+This section supersedes the prior live-state snapshot immediately below. It is a point-in-time operations record; re-fetch all exact SHAs, run IDs, review states and labels before the next write.
+
+### Mainline / governance
+- Repository: `X84657465/global-citizen-ai-network`; current main HEAD: `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Re-read current-main `PROJECT_COORDINATION.md` (blob `849e4f43c87d7686f80ed2e6af9337e797403027`), `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `adac745cf4d347d55a92d4c850b9dcf727b41042`), Master Governance Charter and this handoff before this continuation.
+- Factory-first remains highest priority. GPT1 owns A–E and Factory-side A→B read-only handoff; GPT2 owns F–P; GPT3 independent architecture review/QA; GPT4 B Product; GPT5 supports intelligence/operations and scoped execution only under current approved policy and actual permissions.
+- The Master Governance Charter remains **PROPOSED** pending GPT3 independent review and formal governance acceptance. PR #427 explicitly preserves this boundary; the proposed roadmap and eight capability domains are not implemented runtime capabilities or expanded GPT5 permissions.
+- B Runtime remains PREPARATION ONLY / BLOCKED pending A independent acceptance, exact-current-main CI, operational evidence and sanitized versioned read-only A→B contract gates.
+
+### Main CI / deployment
+- Exact-commit workflow-run lookup for main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` returned no standard CI run. The latest branch run listing shows only `Agent Factory System Health Recovery` runs (including #45059924139, #45059915815 and #45059845428), all **SKIPPED**. Main CI is **UNKNOWN / NOT RUN**, not PASS.
+- Main branch run listing shows repeated `Agent Factory System Health Recovery` runs completing **SKIPPED** (e.g. #45058930797, #45058914583, #45058898439). Skipped recovery is not a health pass and does not verify Factory operation.
+- Main combined status reports Vercel `failure` with `build-rate-limit`. This is a provider quota/deployment status, separate from GitHub Actions test evidence.
+- Do not dispatch/retry workflows, alter Runner queue policy, change deployment quotas or settings to force green checks.
+
+### Current open PR inventory (10)
+PR CI states below are tied to each listed exact head SHA and run attempt 1; statuses differ by PR. Combined status on these heads reports Vercel `build-rate-limit`, not a code-test failure.
+- PR #427 — GCAN autonomous intelligence production roadmap; Draft; 7 files (5 docs/UI assets); base main `10fabef...`; current head `beabff34d7aa728655ed96f7375ce4bfd07e84f6`; Actions run #45059914601 PENDING. Source inspection documented by PR author; no build/test pass or independent GPT3 review recorded. Charter remains PROPOSED.
+- PR #420 — current-main operational handoff refresh; non-Draft; one documentation file; base main `10fabef...`; current head before this snapshot refresh `ecc171e623dd10ccb1e2ab1c060c886e9ceab4b8`; exact-head Actions run #45059832520 PENDING (jobs endpoint empty). Documentation-only; no tests were executed.
+- PR #422 — Issue #117 candidate runtime/test separation; head `535daef3edb0ee81abfb003131d4149e81620357`; run #45058587659 PENDING; current job `Resolve exact candidate PR metadata` is PENDING. Current patch splits container create/start/inspect from candidate command execution, retrieves explicit exit evidence from tmpfs, accepts only decimal exit evidence, and leaves missing/invalid evidence system-scoped. This is a stronger alternative to #425's helper approach, but exact-head CI and Docker runtime tests remain unverified. Changed paths overlap PR #425 in `.github/workflows/agent-task-preflight.yml` and `tests/agent-factory-policy.test.mjs`.
+- PR #425 — competing Issue #117 candidate failure-isolation implementation; head `2a1d27388f7586405f62f04f6a8544a6dd36360e`; run #45058830722 IN_PROGRESS at this refresh; current job state must be rechecked before interpreting workflow completion. Its helper still coerces `state.ExitCode` with `Number(...)`; null/empty-string/false can become zero and be misclassified as success. This defect and regression requirements remain in the COMMENT review. #422 and #425 remain competing changes; do not perform overlapping edits until one canonical DRI is agreed.
+- PR #424 — Draft, one-file test follow-up stacked on #422; base branch head `535daef3...`; head `444da48f8c32db850603b2e5e87adc628ea6fa20`; run #45058591151 COMPLETED/SUCCESS at workflow level, but only `Resolve exact candidate PR metadata` succeeded; Windows Supabase/PostgreSQL/RLS, Windows quality, diagnostics, Ollama/local execution and state-persistence jobs were all SKIPPED. This is not a test pass and remains stacked on #422, not independently mergeable to main.
+- PR #426 — Issue #176 post-completion system-health recovery evidence hardening; head `542d315d0c3733aeef155d51f9a662528050b1bb`; run #45058900487 PENDING; jobs endpoint empty. Exact-head CI, Windows Runner, Ollama/local execution, disposable Supabase/PostgreSQL/RLS and independent review remain required.
+- PR #417 — Draft developer-seat documentation; head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`; base SHA `25d5ed519eb923d3001df6d43aec1670a0d4851a` is stale; mergeable=false.
+- PR #376 — stale Factory autonomy / product north-star documentation candidate; base is stale; do not merge wholesale.
+- PR #373 — stale P changelog validation candidate; base is stale; do not merge wholesale.
+- PR #259 — stale A/F–P integration baseline; base is stale; reconcile only with owning workstreams.
+- No PR is accepted by this snapshot. The review records on #422/#425 are COMMENTED coordination/findings from the author account, not independent GPT3 approvals.
+
+### Factory blockers / authorization
+- Issues #116, #117 and #176 currently carry `factory-control-plane-approved`. This authorizes only their explicitly scoped work; it does not authorize merge/deploy, Runner/permission/secrets changes, machine-managed state mutation or another workstream's files.
+- PR #422 and #425 are competing implementations for Issue #117 and modify overlapping protected workflow/test paths. Current #422 patch implements stricter workflow-level evidence handling; #425 still has unsafe numeric coercion. Establish one canonical DRI/PR with the owner before further overlapping edits or integration. Do not silently close either candidate.
+- Issue #136's READ-ONLY audit target remains `dce81ed801c41bca9bc364e3d0f248244d88f88f`, stale relative to current main `10fabef...`. Do not silently retarget; a fresh owner-authorized exact-main baseline is required.
+- Issue #188 remains blocked on independent audit and reviewed recovery contract. Preserve exact run/attempt/SHA evidence; do not reset the global breaker from candidate-task success.
+- Issue #352 remains BLOCKED until Environment-only guard, reviewer/main-only restrictions and secret scope are verified. Do not dispatch operator recovery or unquarantine tasks.
+- Issue #100 machine-managed durable Factory state remains strictly read-only.
+- No Runner restart/reconfiguration, task dispatch/retry, manual recovery, workflow dispatch, permissions/secrets change, production DB/RLS operation or deployment was performed.
+
+### A→B and daily monitoring
+- Continue only minimum versioned, sanitized, read-only Factory projection / Read Adapter preparation. B must not access Factory private state, internal tables, lease IDs, Runner/Sandbox controls, raw logs, patches, secrets or privileged execution authority.
+- Existing automation `6b0333ddf1548191a7da3cefb9ac7b15` — `GCAN 每日 main／CI／PR 營運檢查` — is enabled daily at 12:30 Asia/Taipei; next run `2026-11-24T12:30:00+08:00`. Reuse it; do not create a duplicate scheduler.
+- Next order: (1) resolve #422/#425 single-DRI overlap, with the #425 malformed-exit coercion gap resolved in whichever candidate is canonical; (2) observe exact-head CI without dispatch/retry; (3) obtain fresh owner-authorized #136 audit baseline; (4) obtain GPT3 independent reviews for Factory control-plane PRs; (5) keep B Runtime blocked until A gates pass.
+
+**Evidence status:** current-main Actions CI UNKNOWN/NOT RUN; mainline standard CI UNKNOWN/NOT RUN; PR #420 exact-head run PENDING with no jobs returned; #422 PENDING; #425 IN_PROGRESS; #426 PENDING; #427 PENDING; #424 workflow completed but substantive jobs SKIPPED; Vercel build-rate-limit; no independent GPT3 acceptance established. This snapshot is not a merge, deployment, runtime acceptance or permission grant.
+
+---
+
+## Current verified continuation snapshot — 2026-11-23 (main 10fabef7)
+
+This is the current operational snapshot, verified against repository main and exact-head GitHub metadata during this refresh. It supersedes all historical live-state snapshots below. Re-fetch exact SHAs and run IDs before any subsequent operation.
+
+### Mainline / authority
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Verified main HEAD: `10fabef703ee3865d208196f46ee71ddd1b7e149`, merge commit for PR #419 (`docs(factory): refresh verified handoff for main 9cb3107f`).
+- `PROJECT_COORDINATION.md`, `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`, `docs/GCAN_B_LINE_LEAD_CHARTER.md`, `docs/GCAN_PRODUCT_NORTH_STAR.md`, and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` are present on main. GPT1 owns A–E and Factory-side A→B read-only interface/handoff; GPT2 owns F–P; GPT3 retains independent architecture review/QA; GPT4 owns B Product; GPT5 supports research/operations and explicitly scoped execution. Role authority is constrained by approved charters and actual repository permissions.
+- Release manifest: overall `0.3.137`; A Factory `2.0.84` active; B Product `0.1.20` active. Manifest registration does not establish Factory acceptance or B Runtime readiness.
+- Factory-first remains mandatory. B Runtime is PREPARATION ONLY / BLOCKED until A independent acceptance, exact-current-main CI, operational evidence and sanitized versioned read-only handoff gates pass.
+
+### Main CI / deployment
+- Combined status for main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` reports Vercel `failure` with target indicating `build-rate-limit`. This is a deployment-provider quota status, not a GitHub Actions test result.
+- The commit workflow-runs lookup returned **no Actions run** for this exact main SHA. Therefore current-main GitHub Actions CI is UNKNOWN / NOT RUN in the available evidence; do not infer PASS from predecessor PRs or older main runs.
+- Do not trigger duplicate runs, alter quotas, or change deployment settings merely to force a green status.
+
+### Open PRs (five; re-fetched)
+- PR #420 — current-main handoff refresh; latest head `70954ef61ff1601170fd70ac964b7b66b90780ff`; base main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149`; mergeable=true. Previous-head run #45057706557 targets `aa068412a15393e04df57ddbce83168294850cc4` and remains PENDING with no jobs returned; no exact-head Actions run has yet been surfaced for the latest commit. Vercel reports `build-rate-limit`. Documentation-only; awaits fresh exact-head CI and independent review.
+- PR #417 — developer-seat documentation; Draft; head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`; base main SHA `25d5ed519eb923d3001df6d43aec1670a0d4851a` is stale; GitHub reports mergeable=false. Exact-head Actions run #45056447505 is PENDING. No merge.
+- PR #376 — Factory autonomy / product north-star documentation; head `d10e6dd6d428d9ce35dbd14778e01c628f909742`; base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` is stale; mergeable=false; no exact-head Actions run surfaced in this check. Canonical B docs are already present on main, so do not merge this stale candidate wholesale.
+- PR #373 — P changelog validation; head `cb90b213d76f1e353c3bae39c9800cecf8a07274`; base SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` is stale; mergeable=false. Exact-head run #45052753388 remains PENDING overall: metadata resolver and Windows quality gates completed SUCCESS, while Windows Ollama/local execution integration and Supabase/PostgreSQL/RLS integration jobs are still PENDING. Do not call the PR validated or mergeable.
+- PR #259 — A/F–P integration baseline; head `3330cd04a77358cf0ff780940d09f938cab1dc3a`; base SHA `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` is stale; mergeable=false. Exact-head run #44949425719 succeeded, but that result is tied only to this old candidate SHA and does not validate current main.
+- No open PR meets the current-base, exact-head CI, independent-review and mergeability gates. Do not merge or cherry-pick stale stacks wholesale.
+
+### Factory P0 / recovery gates
+- Issue #136's owner-authored READ-ONLY independent audit target remains `dce81ed801c41bca9bc364e3d0f248244d88f88f`; current main has advanced to `10fabef...`. Per Issue #136, stop rather than silently changing the target. A fresh owner-authorized exact-main audit baseline is required. Do not edit Issue #136's task definition or claim A-wide independent acceptance.
+- Issue #117 remains a P0 classification risk: the current workflow's combined `candidate-tests` step can conflate Docker/OCI/container startup failure with an actual candidate test failure, while the outcome is classified task-scoped. This is a Developer finding, not a live incident or accepted defect. The required `factory-control-plane-approved` label is absent, and Issue #116 requires it before the exact path `.github/workflows/agent-task-preflight.yml` may be modified through the task path validator. Therefore workflow implementation is BLOCKED until the repository owner records the scoped authorization. Do not edit the workflow, alter labels, or weaken sandbox constraints before that gate.
+- Issue #354 cross-job lease propagation is CLOSED / IMPLEMENTED through merged PR #362 (`388b25f354ea887727f7cfe54dd7081d4f8eb6a2`); exact-head Actions run #45029877567 was SUCCESS, including Windows quality gates and isolated integration jobs. This is candidate CI evidence, not proof of a production publication operation.
+- Issue #188 remains blocked on the independent audit and a reviewed recovery contract. Preserve exact run/attempt/SHA evidence; do not weaken event verification or reset the global breaker using candidate-task success.
+- Issue #352 operator recovery remains BLOCKED. Its post-merge follow-up requires verified Environment-only guard configuration, required reviewers/main-only deployment restriction, fail-closed preflight evidence, exact-head CI and independent review. Do not dispatch recovery or unquarantine any task.
+- Issue #100 is machine-managed durable Factory state and remains strictly read-only. Do not edit its body, alter task counters, lease, quarantine, cooldown or breaker fields.
+- No Runner restart/reconfiguration, task dispatch, manual recovery, workflow permission change, secret change, production DB/RLS operation or deployment was performed in this refresh.
+
+### A→B / B preparation
+- Canonical B charter and Product North Star are present on main; the earlier missing-document finding is resolved.
+- Continue only the minimum versioned, sanitized, read-only Factory projection / Read Adapter contract and B baseline preparation. B must not access Factory private state, internal tables, lease IDs, Runner/Sandbox controls, raw logs, patches, secrets or privileged execution authority.
+- GPT1's scope is Factory-side interface and handoff only; GPT4 owns B product direction, requirements, UX, product architecture and delivery. Do not reopen the old ownership overlap.
+- Do not activate B Runtime until the A gates above are independently satisfied.
+
+### Daily monitoring
+- Reuse the existing automation `6b000cb5c28c8191956a3575bd40d35f` — `GCAN 工廠每日巡檢`; it is enabled daily at 19:00 Asia/Taipei. Do not create a duplicate scheduler.
+- Daily output must distinguish current main CI from Vercel deployment status, bind every CI claim to exact SHA/run/attempt, and list new blockers/deliveries only when evidence changes.
+
+### Next execution order
+1. Obtain a fresh owner-authorized Issue #136 audit baseline for current main; the existing READ-ONLY audit target is stale.
+2. Keep Factory recovery blocked until Issue #188 / #352 review and security/configuration prerequisites are satisfied; do not mutate machine-managed state.
+3. Reconcile stale PRs only through their owning workstream and narrow new candidates; rerun exact-head CI and independent review after every changed SHA.
+4. Continue minimal A→B contract preparation and B baseline readiness; no B Runtime.
+
+**Safety boundary:** this is a documentation-only status refresh. It does not authorize changing Factory runtime, Issue #100 state, Runner, workflows, permissions, secrets, production DB/RLS, deployment or B Runtime.
+ 
+---
+
+## Historical snapshot — 2026-11-23 (main 9cb3107f; superseded)
+
+This record is retained for traceability only. The current verified continuation snapshot is the section immediately above this historical record. Re-fetch all SHAs, Actions runs, reviews, labels and issue state before any operation.
 
 ### Mainline / authority
 - Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
