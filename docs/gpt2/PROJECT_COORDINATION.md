@@ -176,3 +176,14 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - 所有跨角色知識與交接必須落在可共同讀取的 Repository、Issue、PR、commit 或 CI 證據中。
 
 **GPT2 的最終使命：把 F–P 建設成可獨立驗證、可安全整合、可持續交付的專業能力群，同時維持 Factory-first、單一 owner、最小權限與獨立驗收。**
+
+
+## 6.3 最新主線重核與採納狀態 — 2026-11-24
+
+- **最新 main 基準：** `8002072738d0dad722ccfc1207250165d1b7d8bc`。
+- **共同模式文件：** `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`，本次讀取 blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`。
+- **GPT2 自有協調文件：** `docs/gpt2/PROJECT_COORDINATION.md`；本次更新前 main blob `631c875f78e31bfb822ff6641f3fd08eafcc1101`。
+- **採納範圍重核：** GPT2 仍負責 F–P；六層流程已映射至 F–P 任務感知、記憶、認知、規劃、執行、驗證／反思，並保留與 GPT1（A–E／Factory）、GPT3（獨立架構與 QA）、GPT4（B Product）、GPT5（研究與營運支援）的責任邊界及交接。
+- **狀態：** DOCUMENTED：YES；ADOPTED：YES（僅 GPT2 文件與工作流程）；INDEPENDENT ACCEPTANCE：PENDING；IMPLEMENTED：NOT CLAIMED。
+- **本次變更性質：** 僅更新本文件的主線基準並補充重核紀錄；未修改程式、Runtime、Factory、資料庫／RLS、Secrets、權限、Runner、分支保護或部署設定。未執行程式測試；本文件的提交與 PR exact-head CI／GPT3 獨立 Review 仍須分別驗證。
+- **治理界線：** 此採納紀錄不把 GPT2 自我檢查當作 GPT3 正式批准，也不擴張任何角色權限；舊日期的歷史採納紀錄保留，不轉移舊 SHA 的 CI 或 Review 證據。
