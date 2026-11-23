@@ -1728,3 +1728,43 @@ Issue #204 remains OPEN and unassigned. Its two-file allowlist and acceptance cr
 - **本輪排程**：`GCAN 每日 main／CI／PR 營運檢查` 與 `每日檢查 Global Citizen AI Network` 均為 enabled；尚無完成執行紀錄（last_run_time=null）。`每日重讀專案協作規範` 已啟用並有最近執行紀錄。未建立重複排程。
 - **本輪工程處置**：只更新營運交接文件以校正已合併 PR、最新 main SHA、CI 與 Issue 指派狀態；未修改 Factory runtime、A–P 模組程式碼、workflow、secrets、權限、資料庫/RLS、branch protection 或正式環境。未執行程式碼測試；文件更新不能替代功能驗收。
 - **停止／接手條件**：main CI 尚 PENDING 時不宣稱主線健康；#204 在 owner/scope/DRI 與有效授權未釐清前不寫入 allowlist 程式碼；#117 在唯一 DRI、fresh base、完整測試與獨立 review 完成前不合併、不部署。
+
+
+---
+
+## 9. Fresh live operations checkpoint — 2026-11-23 (Asia/Taipei)
+
+This checkpoint supersedes the earlier live-state snapshots above where their main SHA, PR state, CI status, or Issue #117 governance wording differs. Historical entries remain for audit history.
+
+### Main / CI / external status
+
+- Live `main` HEAD: `480f22e484dfa80d301f136cedd5504fbde41407`.
+- The latest commit is merge PR #437 (`docs(coordination): add GPT3 24-domain review and A-P inventory`), merged from `c93a6b65089bfc95ce31b10f7f8793c0b3643415`.
+- Exact-main push CI: [run #45100393869](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100393869), attempt 1, **PENDING**. The jobs endpoint returned no jobs at this observation; do not infer PASS, FAILURE, or that substantive quality gates have started.
+- The exact-main combined commit status reports Vercel `build-rate-limit` failure. This is an external deployment-provider quota status, not GitHub Actions test CI.
+- The previous main SHA `c93a6b65089bfc95ce31b10f7f8793c0b3643415` had System Health Recovery runs #45099648279 and #45100048759, both **SKIPPED**. Skipped recovery is not a successful breaker reset or Factory recovery.
+
+### Open PR inventory
+
+| PR | Exact head | Current evidence / disposition |
+|---|---|---|
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | Exact-head CI #44949425719 SUCCESS, but base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` is stale, 41 files / 111 commits, GitHub mergeable=false; do not transplant wholesale. |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | Exact-head CI #45052753388 SUCCESS, but base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` is stale, mergeable=false; reviews are COMMENTED, not APPROVED. |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | No exact-head Actions run found; base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` is stale, mergeable=false. Documentation-only proposal; Master Charter remains PROPOSED. |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | Exact-head CI #45056447505 FAILURE at Unit tests; TypeScript, lint, build and integration jobs were SKIPPED. Base `25d5ed519eb923d3001df6d43aec1670a0d4851a` is stale; no formal review found. |
+ 
+PR #437 was merged into main at `480f22e484dfa80d301f136cedd5504fbde41407`. Its exact-head run #45099873112 had Windows quality gates SUCCESS while Ollama/local and Supabase/PostgreSQL/RLS integration jobs were still PENDING at the last job inspection; no formal review records were returned at that inspection. Treat the merge as observed repository history, not as proof that pending checks or independent acceptance completed.
+
+### Issue #117 — P0 Factory continuity
+
+- Issue #117 remains **OPEN** and is assigned to `X84657465`.
+- Its current Issue body explicitly states that merge and deployment are not prohibited by the requester; ordinary required checks, independent reviews, permissions, allowlists, and release controls still apply. Historical PR comments stating a blanket no-merge/no-deploy restriction are superseded by the current Issue body.
+- PR #425 is **MERGED**; PR #422 is **CLOSED / NOT MERGED**. The latest Issue comment records that #425 included `tests/ci-trigger-policy.test.mjs`, outside the Issue's explicit five-path allowlist. This is a pre-existing scope deviation, not retroactive authorization. Issue #117 remains open pending exact-current-main CI and explicit disposition of the scope deviation / acceptance evidence.
+- Do not reopen or duplicate the superseded #422/#425 implementations. Any further change must start from fresh main, remain within the current Issue allowlist (or obtain a recorded scope change), and receive exact-head full CI plus independent GPT3 review.
+
+### Handoff freshness and next actions
+
+- This handoff's previous live snapshot ended at main `fc1d3c6644b4dc463313afb82567ba2985639c67`; it is now **STALE** relative to `480f22e...`.
+- `docs/B_PRODUCT_BASELINE_REPORT.md` still records baseline main `10fabef703ee3865d208196f46ee71ddd1b7e149`; it is **STALE**. GPT4 owns the B product baseline refresh. B Runtime remains PREPARATION ONLY until Factory acceptance and the A→B contract gates pass.
+- Next Factory action: wait for and inspect exact-main run #45100393869, including its jobs and attempt; do not call main healthy while pending. In parallel, resolve the already-merged #425 scope deviation through the Issue's accountable owner and independent review record. Continue to prioritize Factory reliability; only address genuine A→B handoff blockers and preserve B preparation.
+- No code tests, Runner changes, Factory durable-state changes, Issue #100 mutations, secrets/permissions changes, database/RLS changes, or production deployments were performed in this checkpoint.
