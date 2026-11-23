@@ -1,3 +1,17 @@
+# Superseding exact-HEAD correction — 2026-11-24 (latest recheck)
+
+This correction supersedes the immediately following earlier 2026-11-24 snapshot wherever its PR #493 HEAD, exact-head run, or Recovery count differs. Historical snapshots remain for traceability and must not be treated as current.
+
+- Main remains SHA 6b3ac4b639c285b2c664ffae579029a3fae29f99; push run #45233037163 remains COMPLETED / FAILURE. Resolver and exact-SHA diagnostics are FAILURE; quality, PostgreSQL/RLS, Ollama, and success persistence are SKIPPED. Failure-persistence SUCCESS records only the system failure.
+- The latest observed Recovery run is #45239227469, COMPLETED / SKIPPED. The current-main Actions listing contains 17 Recovery runs, all SKIPPED; none is a recovery pass.
+- PR #493 current exact HEAD is e686644fc1f73f3e1962e90b139573b9f6334332 (not the earlier 558dd3d92a18adad3c6e491222ec7a7477a8eaa9). Its exact-head Actions run is #45239197787, COMPLETED / FAILURE. Resolver and diagnostics are FAILURE; Windows quality, Ollama, PostgreSQL/RLS, and both persistence paths are SKIPPED.
+- PR #493 remains OPEN / DRAFT, based on 8002072738d0dad722ccfc1207250165d1b7d8bc; GitHub mergeable state is unstable. Its three review submissions remain COMMENTED; there is no formal APPROVED review.
+- The PR #493 diff remains documentation-only (docs/AGENT_HANDOFF.md), 895 additions and 0 deletions relative to its base. No tests or builds are claimed as run by this correction.
+- The remaining 12 PR exact-head results and main external statuses were rechecked in this conversation and are summarized in the live report. No PR met the complete merge/acceptance gate; no Draft transition or merge was performed.
+
+**Current disposition after correction: MAIN FAILURE; 13 OPEN PRs; PR #493 exact HEAD FAILURE; 0 formal APPROVED; 0 safe merges.**
+
+---
 # GPT5 live operations follow-up — 2026-11-24 (corrected live PR inventory)
 
 This observation is newer than the historical snapshots below. It supersedes prior live-state claims only where the exact SHA/run below is stated. All statuses were re-read from GitHub during this run; no CI retry, merge, deployment, or protected-state mutation was performed.
