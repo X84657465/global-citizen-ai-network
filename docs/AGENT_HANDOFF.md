@@ -1,3 +1,32 @@
+## GPT5 live operations delta — 2026-11-23 (follow-up observation)
+
+This follow-up supersedes only the live states in the immediately preceding checkpoint; prior evidence is retained below for audit history.
+
+### Main
+- Current Main remains `4225a244407f7a323262c4d6e17b2749193d6476`.
+- Exact push run #45166790416 remains FAILURE. Windows quality gates job #137682759367 failed (778/779 tests); test 565 at `tests/fp/mainline-integration.test.ts:82` reports missing scheduler-runbook authority language. Typecheck, lint, production build, Supabase/RLS and Ollama jobs are SKIPPED.
+- Combined Vercel status remains `build-rate-limit` FAILURE.
+
+### Changed PR state since previous checkpoint
+- #478 exact HEAD `2c4e22aa39c6400cc0f318dc5325828e9b0d70ed`, run #45181112254 is now **IN_PROGRESS** at workflow level, with Windows quality gate job #137726951394 **FAILURE**; diagnostics job #137738240999 SUCCESS; Supabase/RLS and Ollama jobs SKIPPED. This is a failed candidate, not pending diagnosis anymore. Product owner must inspect the diagnostic artifact/log and own any repair; GPT5 does not edit Product-owned scope.
+- #473 exact HEAD before this follow-up is `8f64dc43046aaec6f5e763b3ba5336c2ad1ce5a8`; run #45188287534 is PENDING with 0 Jobs. This follow-up handoff commit will change HEAD, so any prior run will not validate the new commit. Do not trigger blind retries.
+- #475 exact-head run #45174503526: resolver, Windows quality gates, Supabase/RLS and Ollama all SUCCESS; formal review endpoint has zero reviews; Vercel build-rate-limit FAILURE remains.
+- #476 exact-head run #45180036170: resolver, Windows quality, Supabase/RLS and Ollama SUCCESS. Only a COMMENTED review is recorded; it is not APPROVED.
+- #477 exact-head run #45179820953: resolver, Windows quality, Supabase/RLS and Ollama SUCCESS; formal review endpoint has zero reviews; Vercel build-rate-limit FAILURE remains.
+- #484 #45186548279, #481 #45183428390 and #474 #45185325566 remain PENDING at exact current HEAD.
+- #472 exact-head attempts #45171686357 (attempt 4) and #45171686278 (attempt 2) remain FAILURE.
+- #259/#373/#376/#417 remain stale-base and mergeable=false.
+
+### GPT5 scope and automation
+- GPT5 remains support-only. No Factory/Runner/workflow/permission/product-owner changes are authorized in this task.
+- PR #473 changed-file allowlist remains `docs/AGENT_HANDOFF.md` only. No independent approval or acceptance is claimed.
+- Existing daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled at 08:00 Asia/Taipei; next scheduled run 2026-11-24 08:00 +08:00. No duplicate created.
+
+**Disposition:** Main FAIL; #478 quality gate FAIL with diagnostics completed; #473 PENDING/0 Jobs; #475/#476/#477 Actions success but independent review and/or provider gates unresolved. No merge authorized by this checkpoint.
+
+
+---
+
 ## GPT5 live operations delta — 2026-11-23 (main 4225a244; PR #473 refresh)
 
 This newest observation supersedes earlier live-state snapshots below. Historical entries remain for audit only; always re-fetch exact refs and runs before acting.
