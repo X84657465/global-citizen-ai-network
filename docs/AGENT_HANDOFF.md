@@ -1394,3 +1394,25 @@ Issue #204 remains OPEN and unassigned. Its two-file allowlist and acceptance cr
 - Master Charter §2.5 explicitly permits GPT5 implementation only with a unique task owner, exact file allowlist, dependencies, tests and acceptance conditions; GPT5 is a designated developer, not a self-appointed module owner or reviewer.
 
 **Updated disposition:** main remains CI FAIL (746/747, test 71 operator recovery); #432 and #422 are exact-head CI PASS but not independently accepted; #431's new head has no PR-triggered CI evidence; #430/#433/#434/#425/#429/#428 fail the shared fixture; #426 fails ContributionTask typing. No source implementation for #204 was started because its unique DRI is not assigned. No merge, deployment, Factory runtime operation, Issue #100 mutation, secret/permission change, or production data operation was performed.
+
+
+---
+
+## GPT5 live delta — 2026-11-23 (latest daily巡檢)
+
+### Exact-head refresh
+- Re-read main governance inputs this session: `PROJECT_COORDINATION.md` blob `849e4f43c87d7686f80ed2e6af9337e797403027`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `adac745cf4d347d55a92d4c850b9dcf727b41042`; Master Charter §2.5 reconfirmed GPT5 may implement only with unique DRI, exact allowlist, dependencies, tests and acceptance criteria. GPT5 is not a module owner and cannot self-approve.
+- Main remains `10fabef703ee3865d208196f46ee71ddd1b7e149`. Push workflow run `45057390077`: candidate metadata succeeded; Windows quality job `137325427532` failed at test 71, `operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation`, with `Missing expected rejection`; 746 passed / 1 failed. Diagnostics job succeeded. Ollama/local and PostgreSQL/RLS integration jobs were skipped. Main combined status separately reports Vercel failure; this is not GitHub Actions CI.
+- PR #431 current head remains `202e499b340bcd0ef72a8414387c908041e88b58`, base main `10fabef...`, Draft, mergeable. New exact-head Actions run `45094778822` has started: metadata job succeeded; Windows quality gate job `137432174857` was still IN_PROGRESS at last check. Do not report this head as passed until the run completes. Reviews remain three COMMENTED, none APPROVED.
+- PR #432 exact head `49d541eaed8be94e9fd442155f0b6a10d0390428`, run `45063594302` SUCCESS; Draft, three COMMENTED reviews, no APPROVED.
+- PR #433 exact head `1ff91a6e19dbc844f9690c24994298bae88eeb59`, run `45093624984` FAILURE; Draft, no reviews.
+- PR #430 exact head `1141ed47c143000998d66c3a9ffc6e6ec275dc9d`, run `45066024613` FAILURE; Draft, two COMMENTED.
+- PR #434 exact head `43453cad58d22de42cb13265687f56ad08aa2bba`, run `45081635308` FAILURE; Draft, no reviews.
+- PR #426 exact head `cb78df386c6a94892ff4d3c17ebe8a4208eb25cb`, run `45077950482` FAILURE on ContributionTask TypeScript shape errors; seven COMMENTED reviews.
+- PR #422 exact head `ad3126023b239526a2a6aafa57a1254b2515db78`, run `45073489969` SUCCESS across quality, Ollama/local and PostgreSQL/RLS; four COMMENTED reviews. Green CI does not resolve Issue #117 scope/DRI/acceptance.
+- Issue #204 remains OPEN, no assignee; exact allowlist remains only `lib/agent-neural-decision.mjs` and `tests/agent-neural-decision-negation.test.mjs`. No source change started: project owner has not explicitly assigned GPT5 as the unique DRI/developer. Its approval label is not an assignment.
+- Issue #117 remains OPEN, no assignee; label is not DRI. Preserve its five-path allowlist and no-merge/no-deploy exclusions.
+- Issue #399 is an OPEN GPT3 QA issue whose body cites historical main SHAs `51172a2e...` / `600b0f0f...` and stale PR snapshots. Those are inconsistent with the live main HEAD `10fabef...` verified in this session. Treat #399's older evidence as historical only; do not retarget its immutable audit conclusions or modify its read-only scope without its owner. Ask GPT3/issue owner to rebase the findings onto a newly authorized baseline.
+- Daily automation records: GCAN main/CI/PR check enabled at 09:00 Asia/Taipei (next 2026-11-24 09:00); additional GCAN check enabled at 13:00; coordination re-read enabled at 09:00. All three currently report `last_run_time: null`; no completed scheduled execution is evidenced yet. No duplicate automation was created.
+
+**Current disposition:** Main FAIL (746/747, operator-recovery negative test); PR #431 new head PENDING (run in progress); #432/#422 exact-head CI PASS but not independently accepted; #433/#430/#434/#426 fail. No merge, deployment, Factory runtime operation, task-state mutation, secret/permission change, or production-data operation was performed.
