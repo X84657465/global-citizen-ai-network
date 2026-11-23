@@ -2916,3 +2916,57 @@ All 12 remain open and unmerged. Combined provider statuses are not substitutes 
 - GPT1 / Factory-CI owns restoring actionable Resolver/Diagnostics evidence and determining root cause. GPT1 owns Factory changes #496/#497; GPT2 owns #498; GPT4 owns Product #478; GPT3/assigned owners own stale-base and review reconciliation for #259/#417/#476/#376.
 - GPT5 scope remains the existing one-file operations handoff `docs/AGENT_HANDOFF.md`. This update changes documentation only; no Factory/Product source, workflow, Runner, secret, permission, database, branch protection, or deployment setting is modified.
 - No local tests were run in this chat. The new commit will require its own exact-head CI; this documentation update is not acceptance or a release.
+
+
+---
+
+# GPT5 live operations delta — 2026-11-24 (rechecked after PR inventory)
+
+This entry supersedes conflicting earlier inventory/HEAD statements above. It is an operational evidence handoff only; it is not independent review, acceptance, Draft promotion, merge authorization, deployment, or release.
+
+## Exact main state
+
+- Re-read `refs/heads/main` immediately before this documentation update: `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Main push run #45211976105, exact SHA `8002072738d0dad722ccfc1207250165d1b7d8bc`, attempt 1: **COMPLETED / FAILURE**.
+- Exact jobs: Resolve candidate PR metadata #137840877458 **FAILURE**; Exact-SHA diagnostics #137840906306 **FAILURE**; failure persistence #137840906764 **SUCCESS**; Windows quality #137840907274 **SKIPPED**; Ollama #137840909193 **SKIPPED**; Supabase/PostgreSQL/RLS #137840909327 **SKIPPED**; success persistence/reset breaker #137840909738 **SKIPPED**.
+- Main combined status: CircleCI Pipeline 52 **ERROR**, with message that no CircleCI configuration was found.
+- Latest Recovery workflow_run on exact Main SHA: #45231566815 **COMPLETED / SKIPPED**. At least 30 further recent Recovery runs on the same SHA are also terminal **SKIPPED**; these are not recovery successes. Stop blind retries.
+- Main has no enabled branch protection at time of the repository metadata read.
+
+## All current open PRs — exact HEAD Actions runs and formal reviews
+
+There are **12** open, unmerged PRs. Current exact HEADs and Actions evidence:
+
+| PR | Exact HEAD | Exact-head Actions run | Result | Base disposition |
+|---|---|---|---|---|
+| #493 | `9293ee27c0805ffa2f7e6192af057ed1f855076c` | #45231539740 | **FAILURE** | current Main |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | #45230211754 | **FAILURE** | current Main |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | #45229281768 | **FAILURE** | current Main |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | #44949425719 | **SUCCESS** | stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | #45228376095 | **FAILURE** | current Main |
+| #495 | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | #45225428794 | **FAILURE** | current Main |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | #45056447505 | **FAILURE** | stale base `25d5ed519eb923d3001df6d43aec1670a0d4851a` |
+| #494 | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | #45218883945 | **FAILURE** | current Main |
+| #491 | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | #45213070420 | **FAILURE** | current Main |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | #45191718421 | **SUCCESS** | stale base `4225a244407f7a323262c4d6e17b2749193d6476` |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | no exact-head run returned | **UNKNOWN / NO RUN** | stale base `4225a244407f7a323262c4d6e17b2749193d6476` |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | no exact-head run returned | **UNKNOWN / NO RUN** | stale base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` |
+
+- All 12 PRs remain open. Draft state: #493/#498/#497/#259/#496/#495/#494/#491/#478 are Draft; #417/#476/#376 are not Draft.
+- Formal review submissions were re-read for all 12 PRs: **0 APPROVED**. Existing submissions are COMMENTED (including owner-authored and CodeRabbit comments); none is an independent approval.
+- #259 and #478 Actions SUCCESS applies only to their exact old candidate HEADs and does not clear their stale-base integration/review blockers. #476/#376 have no exact-head Actions evidence; do not treat missing runs as success.
+- For #493/#498/#497/#496, latest exact-head jobs show Resolver and Diagnostics **FAILURE**, with Windows quality, Ollama, Supabase/RLS and persistence downstream jobs **SKIPPED**. Exact job IDs: #493 Resolver 137892084716 / diagnostics 137892112075; #498 137887395434 / 137887426138; #497 137884104943 / 137884129514; #496 137881958607 / 137881983330. This repeats the common failure signature, but root cause remains **UNKNOWN** because actionable failure evidence is unavailable; do not infer a token, permission, quota, runner, or application-code cause.
+
+## GPT5 action and boundary
+
+- Reconfirmed this PR changes only `docs/AGENT_HANDOFF.md`, the explicitly scoped GPT5 operations handoff. No Factory/Product source, workflow, Runner, secret, permission, database/RLS, branch protection, or deployment setting is changed.
+- This update records the current evidence and corrects stale PR #493 HEAD/run claims in the earlier handoff. It does not claim local tests ran; no local checkout/test runtime is attached. The new commit still requires its own exact-head CI and independent review.
+- No PR was un-Drafted, self-approved, accepted, merged, or deployed. No Factory durable state, breaker, cooldown, quarantine, or retry budget was touched.
+
+## Owner handoff / next closeable work
+
+1. **GPT1 / Factory-CI owner:** restore actionable Resolver/Diagnostics evidence for Main and the current failure cohort; classify the failure before any retry or breaker mutation.
+2. **GPT1 / Factory owner:** own #496/#497; **GPT2:** own #498 and #491/#494 as scoped; **GPT4 / Product:** own #478; **GPT3 / governance and accountable owners:** reconcile stale bases, review threads and independent approvals for #259/#417/#476/#376.
+3. **GPT5:** keep this one-file operational handoff accurate and continue non-overlapping evidence coordination. Do not modify other owners' code/workflows without explicit task-level delegation, allowlist, acceptance criteria and reviewer.
+
+**Disposition:** Main **BLOCKED**; 8 PRs with exact-head Actions FAILURE; 2 stale-base PRs with old exact-head Actions SUCCESS; 2 stale-base PRs with no exact-head Actions run; formal approvals **0/12**. No PR is accepted or merge-ready on current evidence.
