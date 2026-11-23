@@ -3519,3 +3519,40 @@ All PRs are OPEN and unmerged. HEADs below were fetched from current PR metadata
 - Existing daily GCAN automation remains the configured schedule; this manual refresh is not represented as a scheduled run or delivery. No duplicate automation was created.
 
 **Disposition: MAIN FAILURE; 14 OPEN PRs; 0 formal APPROVED; 10 stale-base PRs; 0 safe merges. PENDING/NOT RUN/SKIPPED, stale-base SUCCESS, external provider errors, and unavailable logs remain non-green.**
+
+
+---
+
+## GPT5 late-day exact-state refresh — 2026-11-24
+
+This addendum supersedes older status lines above only for the refs and run IDs explicitly rechecked in this pass.
+
+### Governance and Main
+- Re-read current Main `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`, `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`, and `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob `67166a378c92909c8ddf64586f8a2b5202be7d14`.
+- Main remains `6b3ac4b639c285b2c664ffae579029a3fae29f99`; Master Governance and Execution Operating System remain proposals, not authority to expand GPT5 ownership.
+- Main combined status remains FAILURE: Vercel FAILURE (build-rate-limit) and CircleCI Pipeline ERROR (missing project configuration).
+- Main push Actions run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 2, exact Main SHA: FAILURE. Resolver #137929482510 and diagnostics #137929509999 FAILURE; quality #137929510006, PostgreSQL/RLS #137929511495, Ollama #137929513478, and candidate-success persistence #137929512842 SKIPPED; failure-persistence #137929510391 SUCCESS only records the failure.
+- Latest observed System Health Recovery run [#45276476133](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45276476133), attempt 1, exact Main SHA: COMPLETED / SKIPPED. This is not a recovery.
+- Retried retrieval of Main Resolver/Diagnostics job logs for #137929482510 and #137929509999; both return GitHub Storage 404 BlobNotFound. Root cause remains UNKNOWN. Do not blind-rerun.
+
+### Current PR inventory — exact current heads
+- Re-fetched all 14 OPEN PR metadata, exact HEAD and base SHA, combined commit status, workflow runs for each exact HEAD, and formal review submissions.
+- 14 OPEN, 11 Draft, 3 Ready, 0 merged. Four PRs use current Main as base (#503/#502/#501/#500); ten PRs have stale bases.
+- Formal review endpoints show zero APPROVED submissions across all 14. COMMENTED (including author and bot comments) is not approval.
+- #503/#502/#501/#500/#498/#497/#496/#495/#417 have exact-head Actions FAILURE; #493 exact-head Actions FAILURE; #478 and #259 have historical SUCCESS on stale bases only; #476 and #376 have no exact-head Actions run returned (NOT RUN).
+- External statuses are distinct from GitHub Actions: CircleCI ERROR on #503/#502/#501/#500/#498/#497/#496/#495/#493/#476; Vercel FAILURE on most PR heads. #493 is a change since the prior snapshot: Vercel now reports SUCCESS, while CircleCI remains ERROR. Provider SUCCESS does not override its exact-head Actions FAILURE.
+- No PR satisfies exact-head required CI, independent review, current-base integration, and merge gates. No Draft promotion or merge is justified.
+
+### GPT5-owned PR #493 — current exact state
+- PR #493 current HEAD remains `90315a490c940080902127101aac5fa84cef4459`; base remains stale `8002072738d0dad722ccfc1207250165d1b7d8bc`; OPEN / Draft.
+- Exact-head Actions run [#45276442252](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45276442252), attempt 1: FAILURE. Resolver #138049357403 and diagnostics #138049381885 FAILURE; quality #138049383130, PostgreSQL/RLS #138049383868, Ollama #138049384231, success persistence #138049384323, and failure persistence #138049385164 SKIPPED. Steps arrays are empty; root cause UNKNOWN.
+- Current external statuses on #493: Vercel SUCCESS; CircleCI Pipeline ERROR. These do not make Actions green.
+- Review submissions remain COMMENTED only; zero APPROVED. Keep Draft. Documentation-only change; no tests/builds or independent acceptance claimed.
+
+### GPT5 action and disposition
+- Completed exact-state sweep of all 14 PRs and Main; rechecked failed-job metadata and retried log retrieval.
+- No safe, non-overlapping code change is authorized while Factory Resolver/Diagnostics ownership remains with GPT1 and evidence is unavailable. GPT5 kept to its existing Operations handoff allowlist and did not modify Factory/Product source, workflows, Runner, durable state, secrets, permissions, branch protection, database/RLS, or deployment.
+- No CI retry, provider quota bypass, payment, un-Draft, or merge performed.
+- Existing automation delivery status is not re-verified in this pass; this manual refresh is not represented as a scheduled delivery.
+
+**Disposition: MAIN FAILURE; 14 OPEN PRs; 11 Draft; 0 formal APPROVED; 10 stale-base PRs; 0 safe merges. #493 Vercel changed to SUCCESS but its exact-head Actions remains FAILURE and CircleCI remains ERROR. NOT RUN, SKIPPED, stale-base SUCCESS, external errors, and unavailable logs remain non-green.**
