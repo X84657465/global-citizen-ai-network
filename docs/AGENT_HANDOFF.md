@@ -1708,3 +1708,23 @@ Issue #204 remains OPEN and unassigned. Its two-file allowlist and acceptance cr
 - Issue #117 最新 metadata 現為 assignee `X84657465`；此更新已回寫本 handoff，修正前一節的舊狀態。
 - PR #435 仍為 Draft，head `079129010cda4428998c8fc525370a38a7e765fa`，base `eecfc0515adc9f5eb821241ca69e6efd8de204b5`；PR metadata check 仍 PENDING，未取得完整 CI 結果。
 - 本次未執行程式碼測試，未修改 main 或任何 runtime／workflow／權限／資料庫／正式環境；只更新營運交接文件。任何後續合併仍須滿足正式 CI 與 GPT3 獨立審查。
+
+
+### 8. 本輪即時狀態校正（2026-11-23，Asia/Taipei）
+本節為本文件前述歷史快照之後續觀測；若與舊節的 main SHA、PR 狀態或 Issue 指派資訊不同，以本節及 GitHub 即時資料為準。
+
+- **規範重讀**：本輪重新讀取 main 的 `PROJECT_COORDINATION.md`（blob `bfcfd20135e88a4126d63cf9d0790fb5ddd89aaa`）、`GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`（blob `02a49adf7a7ccdc7a813a25254266939a2aed533`）及 `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`（blob `8f8f06091466ba504088ae8577fb9b312ab4ba4f`）。Master Charter 仍為 PROPOSED；不得據此推定 GPT5 已取得 A–P 模組 owner 或新增程式碼寫入權。
+- **main**：HEAD 為 `fc1d3c6644b4dc463313afb82567ba2985639c67`。CI run [#45097330848](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45097330848) 對應此精確 SHA，觀測時仍為 PENDING。System Health Recovery run [#45097341626](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45097341626) 為 SKIPPED，不是恢復成功證據。
+- **PR #435**：已於 2026-11-23T01:56:11Z 合併；merge commit 即目前 main HEAD `fc1d3c6644b4dc463313afb82567ba2985639c67`。文件交接已進入 main。
+- **目前開啟 PR**：
+  - [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259)：exact-head Windows quality、Ollama/local、PostgreSQL/RLS 均 SUCCESS；無 APPROVED，mergeable=false，base 落後。
+  - [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373)：上述三項 exact-head 檢查均 SUCCESS；無 APPROVED，mergeable=false，base 落後。
+  - [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376)：目前未見 exact-head check-runs；治理章程仍 PROPOSED。
+  - [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417)：Windows quality gate FAILURE，Ollama/local 與 PostgreSQL/RLS jobs SKIPPED；無正式 review。
+  - [#422](https://github.com/X84657465/global-citizen-ai-network/pull/422)：exact-head Windows quality、Ollama/local、PostgreSQL/RLS 均 SUCCESS；無 APPROVED、mergeable=false、base 落後。
+  - [#424](https://github.com/X84657465/global-citizen-ai-network/pull/424)：Draft；僅 metadata check 成功，必要 quality／整合 jobs SKIPPED。
+- **Issue #204（P0）**：仍 OPEN、目前無 assignee；`factory-control-plane-approved` label 不等於已指派 DRI。允許路徑僅 `lib/agent-neural-decision.mjs` 與 `tests/agent-neural-decision-negation.test.mjs`。驗收要求包含完整離線 `npm run test:unit`，並保留敏感路徑 fail-closed。舊候選不得直接發布；仍須先解決 GPT1 A–E scope confirmation／唯一 DRI 及有效開發授權。
+- **Issue #117（P0）**：仍 OPEN；本輪即時 Issue metadata 顯示目前無 assignee（與較早 handoff 所記錄的 `X84657465` 不一致，故以目前 API 狀態校正為無 assignee）。允許路徑限 Issue 本文列出的五個 Factory policy/controller/preflight/test/workflow 檔案。PR #422 雖有 exact-head CI 成功證據，但無 APPROVED 且 base 落後；Issue 明文禁止 merge／deploy。
+- **本輪排程**：`GCAN 每日 main／CI／PR 營運檢查` 與 `每日檢查 Global Citizen AI Network` 均為 enabled；尚無完成執行紀錄（last_run_time=null）。`每日重讀專案協作規範` 已啟用並有最近執行紀錄。未建立重複排程。
+- **本輪工程處置**：只更新營運交接文件以校正已合併 PR、最新 main SHA、CI 與 Issue 指派狀態；未修改 Factory runtime、A–P 模組程式碼、workflow、secrets、權限、資料庫/RLS、branch protection 或正式環境。未執行程式碼測試；文件更新不能替代功能驗收。
+- **停止／接手條件**：main CI 尚 PENDING 時不宣稱主線健康；#204 在 owner/scope/DRI 與有效授權未釐清前不寫入 allowlist 程式碼；#117 在唯一 DRI、fresh base、完整測試與獨立 review 完成前不合併、不部署。
