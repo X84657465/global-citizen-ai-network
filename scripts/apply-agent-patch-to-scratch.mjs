@@ -23,7 +23,7 @@ const fail = (message, { taskScoped = false } = {}) => {
   let taskScopeRecorded = false;
   if (taskScoped && typeof process.env.GITHUB_ENV === "string" && process.env.GITHUB_ENV.length > 0) {
     try {
-      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
       taskScopeRecorded = true;
     } catch {
       // A marker-write failure must remain system-scoped.
