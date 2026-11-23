@@ -383,3 +383,12 @@ Evidence:
 - PR #467: https://github.com/X84657465/global-citizen-ai-network/pull/467
 - Issue #465: https://github.com/X84657465/global-citizen-ai-network/issues/465
 - Issue #446: https://github.com/X84657465/global-citizen-ai-network/issues/446
+
+
+### Evidence qualification — exact main-run SHA binding
+
+The job endpoint for run #45137751765 returned seven terminal jobs (five SUCCESS, two conditional SKIPPED), but the available connector response did **not** return that run's `head_sha` / branch metadata. The run ID is referenced as the main CI run in the pre-existing PR description, but that reference is not a substitute for independently verifying its exact commit binding. Therefore:
+- Job-level outcome for run #45137751765: observed terminal SUCCESS for substantive jobs; conditional jobs SKIPPED.
+- Exact association of run #45137751765 to main HEAD `f4319ec65d33bf30804b2d447e7692207fd82f0c`: **UNKNOWN / NOT VERIFIED**.
+- Main combined status lookup returned Vercel SUCCESS only; it did not return a GitHub Actions status context.
+- Do not label exact-main-SHA CI PASS until the workflow run's head SHA and attempt are independently confirmed.
