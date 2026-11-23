@@ -1273,3 +1273,71 @@ This delta supersedes earlier CI statements where they conflict. It updates only
 5. Re-run required checks only on an authorized final candidate SHA; no merge, deployment, task dispatch, Issue #100 mutation, Runner/secret/permission change, or production DB/RLS operation.
 
 **Disposition:** main exact-head CI = FAIL (746/747; type/lint/build NOT RUN); PR #422 scoped CI = PASS / acceptance BLOCKED; PR #432 scoped CI = PASS / owner and formal review PENDING; PR #425 = FAIL; PR #431 exact-head CI = FAIL (same single unit-test fixture; downstream checks skipped); Issue #117 = BLOCKED on DRI/scope; Issue #136 = BLOCKED on stale immutable baseline; Issue #352 = BLOCKED / NOT OPERATIONAL.
+
+
+---
+
+## Superseding GPT5 operations checkpoint — 2026-11-23 (fresh live recheck)
+
+This checkpoint supersedes earlier live-state statements above where they conflict. It is limited to the existing GPT5 operations handoff branch and does not change main, Factory runtime, workflow, Runner, secrets, permissions, durable state, database/RLS, deployment, or PR acceptance.
+
+### Mainline, governance and CI
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Current main HEAD: `10fabef703ee3865d208196f46ee71ddd1b7e149`.
+- Current-main `PROJECT_COORDINATION.md` blob: `849e4f43c87d7686f80ed2e6af9337e797403027`; Master Charter blob: `0fbbeb513c23224b0857687d3f31aabdc2a7f935`; Neural Intelligence mode blob: `adac745cf4d347d55a92d4c850b9dcf727b41042`.
+- Main Push Actions run [#45057390077](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45057390077), attempt 1, was verified from its job log to check out the exact main SHA above. Windows quality job #137325427532 FAILED: unit tests 746/747, with test 71 `operator recovery requires owner, main, workflow_dispatch, protected secret, and explicit confirmation` failing at `tests/agent-factory-controller.test.mjs:1930` with `Missing expected rejection.`. Type check, lint and production build were NOT RUN; Ollama and PostgreSQL/RLS jobs were SKIPPED. Diagnostics and failure persistence completed successfully. Main exact-SHA CI = FAIL, not PASS.
+- Main combined status reports Vercel `failure` / `build-rate-limit`; this is a deployment-provider quota signal, separate from GitHub Actions CI.
+- The commit-workflow-runs lookup is PR-triggered-only and returned no run record for main; it does not override the directly inspected main Push run above.
+
+### Complete open-PR inventory — exact current heads
+All review submissions inspected for these PRs were COMMENTED or absent; no formal APPROVED review was found. Review threads returned no inline threads for the inspected PRs. CI results below are scoped only to the listed exact head SHA.
+
+| PR | Head SHA | Base SHA | Exact-head Actions | Current disposition |
+|---|---|---|---|---|
+| #433 | `eb3f48af7cd5e0b9b61f4e3e1735d98a13633b73` | main `10fabef` | #45093254304 in progress; Windows quality job FAILED; diagnostics in progress | Draft; no formal review |
+| #428 | `1bd38fff2a330ed97d5ab298323b0512e6e348ab` | main `10fabef` | #45062174946 FAILURE; unit test 71 fails on shared operator-recovery fixture | Draft; GPT4-owned B change; no approval |
+| #429 | `6f2403ae26467fa025546351bd45a8519f2bcd43` | main `10fabef` | #45062245405 FAILURE; TypeScript ContributionTask field errors | Draft; fixture correction candidate; no approval |
+| #434 | `43453cad58d22de42cb13265687f56ad08aa2bba` | main `10fabef` | #45081635308 FAILURE | Draft; no formal review |
+| #422 | `ad3126023b239526a2a6aafa57a1254b2515db78` | main `10fabef` | #45073489969 SUCCESS: Windows quality, Ollama/local, PostgreSQL/RLS | Non-Draft; 4 COMMENTED reviews; acceptance BLOCKED by scope/DRI |
+| #426 | `cb78df386c6a94892ff4d3c17ebe8a4208eb25cb` | main `10fabef` | #45077950482 FAILURE; TypeScript ContributionTask field errors | Non-Draft; 7 COMMENTED reviews |
+| #431 | `8290326752e9caa1651e9609562de881e918e281` | main `10fabef` | #45085745918 FAILURE; shared operator-recovery fixture test | Draft; 3 COMMENTED reviews; this handoff branch |
+| #432 | `49d541eaed8be94e9fd442155f0b6a10d0390428` | main `10fabef` | #45063594302 SUCCESS: Windows quality, Ollama/local, PostgreSQL/RLS | Draft; 3 COMMENTED reviews; owner disposition and formal review pending |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | #45056447505 FAILURE | Draft; mergeable=false; overlaps `PROJECT_COORDINATION.md` |
+| #420 | `bd98bc88df09620b7bc543b620cc1998d95d110d` | main `10fabef` | #45060539900 FAILURE | Non-Draft; 4 COMMENTED reviews |
+| #430 | `1141ed47c143000998d66c3a9ffc6e6ec275dc9d` | main `10fabef` | #45066024613 FAILURE | Draft; 2 COMMENTED reviews |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | #45052753388 SUCCESS (old candidate head) | Non-Draft; mergeable=false; 9 COMMENTED reviews; stale base |
+| #425 | `4680526983ac1ab4b1d5c4d0e35397e9c806cd3e` | main `10fabef` | #45062346671 FAILURE; shared operator-recovery fixture test | Draft; 4 COMMENTED reviews; overlaps #422 |
+| #427 | `6d12df4b056bb955cd537265a19b8fdee2778e72` | main `10fabef` | #45061403391 FAILURE | Draft; 3 COMMENTED reviews |
+| #424 | `444da48f8c32db850603b2e5e87adc628ea6fa20` | stale `535daef3edb0ee81abfb003131d4149e81620357` | #45058591151 SUCCESS (stacked candidate) | Draft; mergeable=false; 1 COMMENTED review; stale base |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No exact-head run returned | Non-Draft; mergeable=false; 13 COMMENTED reviews; stale broad candidate |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | #44949425719 SUCCESS on stale candidate | Non-Draft; mergeable=false; 2 COMMENTED reviews; broad stale integration |
+
+### Factory P0 and shared test-fixture blocker
+- Issue #117 remains OPEN, unassigned, and carries `factory-control-plane-approved`. The label does not appoint a unique DRI or waive the Issue's explicit no-merge/no-deploy exclusion.
+- PR #422 and #425 overlap the Factory workflow surface. #422 passes its exact-head CI but changes `lib/contribution-task-filters.mjs`, `tests/agent-factory-controller.test.mjs`, and `tests/contribution-task-filters.test.ts` outside Issue #117's allowlist. #425 changes `tests/ci-trigger-policy.test.mjs`, also outside that allowlist. Neither is eligible for Issue #117 acceptance as currently scoped. Factory owner must choose one canonical DRI/candidate and reconcile the out-of-allowlist changes before further overlapping edits.
+- The shared operator-recovery negative-test fixture causes the main 746/747 failure and the same failure on #433, #428, #425 and this #431 documentation candidate. PR #432 includes the narrow fixture correction together with the B contribution-task typing fix and passes its exact-head CI. It remains Draft with COMMENTED-only reviews; Factory owner and GPT4/B owner must separately disposition their respective changes. Passing #432 does not retroactively pass main or the other PR heads.
+- PR #433's Issue #116 file list matches its exact-path allowlist, but its current CI remains failed at the shared mainline fixture; its diagnostics job was still running at this inspection.
+- Issue #136 is strictly READ-ONLY and its immutable target `dce81ed801c41bca9bc364e3d0f248244d88f88f` is stale against main `10fabef...`. Require owner reauthorization for a fresh immutable baseline; do not silently retarget.
+- Issue #204 is an open P0 classifier task with a two-file allowlist and regression criteria, but it has no assignee. The approval label alone does not appoint GPT5 as its DRI; do not self-assign or write until the project owner designates the unique owner.
+- Issue #100 and all machine-managed task/lease/retry/cooldown/quarantine/breaker state remain strictly read-only. B Runtime remains PREPARATION ONLY / BLOCKED until Factory independent acceptance and sanitized, versioned, read-only A→B gates pass.
+
+### A–P four-GPT ownership inventory (current main)
+- GPT1: A–E — A Agent Factory V2; B Factory-side A→B read-only contract/handoff only; C Predictive Coding; D Deep Neural; E Deep Research.
+- GPT2: F–P — F Cyber Security & Defense; G Release/QA/Integration; H Observability/Telemetry/Cost; I Connectors/Workflow Automation; J Self-Healing/Chaos/Continuity; K Knowledge/Docs/Governance; L Multi-Node/Federation/Cluster; M Compliance/Policy Audit/Risk; N Productization/Analytics/Growth/Ecosystem; O Lifecycle/Deprecation/Legacy Retirement; P Governance/Ethics/Trust.
+- GPT3: cross-A–P independent architecture review, integration review and QA; not a parallel feature owner.
+- GPT4: B Product owner — product direction, requirements, UX, product contracts and B delivery. This is distinct from GPT1's Factory-side B handoff responsibility.
+- GPT5: global intelligence/operations and explicitly scoped execution support; owns no A–P module and cannot replace GPT3 independent acceptance.
+
+### PROJECT_COORDINATION.md disposition
+- Fresh main read confirms Blob `849e4f43c87d7686f80ed2e6af9337e797403027`, 291 lines, and no literal backslash-n sequences remain. Its current text already lists GPT1 A–E, GPT2 F–P, GPT3 cross-A–P QA, GPT4 B Product, and GPT5 support without A–P ownership.
+- Do not create a competing edit to `PROJECT_COORDINATION.md` while PR #417 remains open and changes that same file. PR #417 is based on stale main `25d5ed51...`, mergeable=false, and exact-head CI failed; its owner must first disposition or close/supersede it. The earlier reported literal-newline defect is not present in the current main file.
+
+### Next actions and disposition
+1. Factory owner: assign a unique DRI and select the canonical Issue #117 candidate; reconcile its allowed paths before more workflow/policy edits.
+2. Factory owner and GPT4: disposition the mixed #432 fixture/type candidate by ownership, obtain formal independent review, then revalidate each resulting exact head.
+3. Factory owner: refresh Issue #136's immutable audit baseline by explicit authorization; keep the audit read-only.
+4. Project owner: assign Issue #204 to a unique DRI if it is the next P0 classifier task.
+5. PR #417 owner: resolve the stale overlapping `PROJECT_COORDINATION.md` branch before any new edit to that file.
+6. Keep B Runtime blocked; no merge, deployment, task dispatch, lease/quarantine/breaker mutation, Runner/secret/permission change, or production DB/RLS operation.
+
+**Disposition:** main CI = FAIL (746/747; type/lint/build NOT RUN); #432 and #422 exact-head scoped CI = PASS but acceptance BLOCKED; #433 currently has a failed quality job and diagnostics in progress; #428/#429/#426/#425/#431/#417/#420/#430/#427 exact-head CI = FAIL; #373/#424 are successful only on stale-base candidates; #376 has no exact-head run; #259's success is historical/stale. No PR is independently accepted or approved. No merge, deployment, main modification, Factory runtime operation, task dispatch, or production data operation was performed.
