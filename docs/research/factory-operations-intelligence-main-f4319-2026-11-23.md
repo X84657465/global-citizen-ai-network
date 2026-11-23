@@ -218,3 +218,49 @@ The current open-PR search returned 13 PRs. Metadata, exact head SHAs, exact-hea
 - **#450 / #417 / #373 / #376 / #259:** remain blocked by failed or missing exact-head checks, stale bases, merge conflicts and/or absent independent approvals as shown above.
 
 No Draft was removed and no PR was merged: no candidate satisfies every required exact-head CI, ownership, independent-review and conflict gate. No self-review is counted as independent approval.
+
+
+---
+
+## Latest live recheck — 2026-11-23 (Asia/Taipei)
+
+### Governance read freshness
+Re-read from current main `f4319ec65d33bf30804b2d447e7692207fd82f0c`:
+- `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`
+- `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` blob `46b188085c2dff0f527477b2486719a7f6c24b59`
+- `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob `67166a378c92909c8ddf64586f8a2b5202be7d14`
+- `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md` blob `299d445e1f29decc3002e29e68ecbf6ba6ddf900`
+- `docs/AGENT_HANDOFF.md` blob `8bc4e409ef5dc20626005dd526f02782e870ea64`
+
+Master Charter and Execution Operating System remain PROPOSED. GPT5 stays Global Intelligence & Operations support; no A–P module ownership or independent acceptance authority is inferred.
+
+### Current PR status changes since the prior snapshot
+
+| PR | Exact HEAD | Latest Actions run | PR state | Formal review |
+|---|---|---|---|---|
+| #466 | `ec17c72539f10a33069bdde883beff09f25bb240` | #45142552452 IN_PROGRESS; only metadata resolver job #137584753177 is IN_PROGRESS; no substantive validation jobs yet | Draft, mergeable=true | 0 reviews |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | #45137959652 COMPLETED/SUCCESS; metadata, quality gates, Ollama and Supabase/RLS all SUCCESS; conditional persistence/diagnostics SKIPPED | **Ready (not Draft), mergeable=true** | Only author COMMENTED on exact head; independent APPROVED=0 |
+| #448 | `ec18573aca2562dee8a9e70408acd2c1eca9a0f4` | #45139492461 COMPLETED/SUCCESS; metadata, quality gates, Ollama and Supabase/RLS all SUCCESS; conditional jobs SKIPPED | Draft, mergeable=true | No current-head formal approval |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | #45137849234 COMPLETED/FAILURE | Ready, mergeable=true, stale base `f622c852...` | No independent approval |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | #45100493731 SUCCESS | Draft, mergeable=false; stale base `480f22e...` | 0 reviews |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | #45132200910 FAILURE | Draft, mergeable=true; security branch base | 0 reviews |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | #45108427275 SUCCESS | Draft, mergeable=true; integration branch base | 0 reviews |
+| #445 | `ecb4d5068a63b68e9917c348568a96bfb7fdf9b8` | #45130468033 FAILURE | Draft, mergeable=true; stale main base | 0 reviews |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | #45117595636 FAILURE | Draft, mergeable=true; stale main base | author COMMENTED only |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | #45056447505 FAILURE | Ready, mergeable=false; stale base | 0 reviews |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | #45052753388 SUCCESS | Ready, mergeable=false; stale base | COMMENTED only; not independent approval |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | No exact-head Actions run returned | Ready, mergeable=false; stale base | COMMENTED only; no approval |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | #44949425719 SUCCESS | Ready, mergeable=false; stale base | COMMENTED only; no independent approval |
+
+### Current main CI and preflight clarification
+- Main exact-SHA push run #45137751684 attempt 1 = FAILURE: 763/776 offline tests passed; 13 fixture failures all from `spawnSync git ENOENT` in `tests/agent-patch-to-scratch.test.mjs`. The failed job uploaded diagnostic artifact #14800631779.
+- Main exact-SHA push run #45137751765 attempt 1 = SUCCESS: resolver, Windows quality gates, Ollama/local integration, Supabase/PostgreSQL/RLS integration and success persistence all SUCCESS. Failure diagnostics and failure persistence are conditional SKIPPED.
+- Separate preflight run #45138473800 completed with `Validate task and generate read-only AI plan` FAILURE; Windows self-hosted validation and publishing/dispatch follow-ons SKIPPED. This is not a passing preflight.
+- Main combined commit status currently reports Vercel SUCCESS only; it does not override the failed Actions run.
+- Daily inspection automation is enabled; next scheduled run is 2026-11-24 08:00 Asia/Taipei. This is a scheduled run, not a claim of continuous background monitoring.
+
+### Action and acceptance disposition
+- PR #464 is no longer Draft (current GitHub metadata says Ready), and all four substantive exact-head CI jobs are green. However, its only review is COMMENTED by the author. Independent formal APPROVED remains zero. **Do not merge** until GPT3's independent review is recorded and all required branch/base conditions are satisfied.
+- PR #466 remains Draft. Its latest exact-head run #45142552452 is IN_PROGRESS with only one metadata resolver job running. Do not infer CI success or a substantive job launch from this 1-job state.
+- No PR in the 13-item inventory has an independent formal APPROVED review. No merge is authorized by this evidence.
