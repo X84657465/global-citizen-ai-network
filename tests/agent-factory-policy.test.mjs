@@ -209,7 +209,7 @@ test("preserves the reserved lease environment for the task-failure recorder", (
   const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
   const start = workflow.indexOf("      - name: Record failed task and activate cooldown after three consecutive failures");
   assert.ok(start >= 0, "factory failure recorder step must exist");
-  const next = workflow.indexOf("\n      - name:", start + 1);
+  const next = workflow.indexOf("      - name:", start + 10);
   const section = workflow.slice(start, next < 0 ? workflow.length : next);
 
   assert.doesNotMatch(
