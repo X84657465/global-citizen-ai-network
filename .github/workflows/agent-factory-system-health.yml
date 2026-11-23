@@ -8,18 +8,26 @@ on:
 jobs:
   reset-system-breaker:
     name: Verify completed exact-head CI before resetting system breaker
-    # Only trusted AI-task PRs may reserve the shared state-writer queue.
-    # Failed/cancelled/non-task workflow_run events skip before queue acquisition.
+    # Only one trusted, same-repository, non-task PR targeting main may
+    # request system-health recovery after its source CI run has completed.
+    # All other workflow_run events skip before queue acquisition.
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       cancel-in-progress: false
       queue: max
     if: >-
+      github.event.workflow_run.path == '.github/workflows/ci.yml' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'pull_request' &&
-      startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
       github.event.workflow_run.head_repository.full_name == github.repository &&
-      github.event.workflow_run.pull_requests[0].number != ''
+      github.event.workflow_run.pull_requests[0].number > 0 &&
+      github.event.workflow_run.pull_requests[1] == null &&
+      github.event.workflow_run.pull_requests[0].base.ref == 'main' &&
+      github.event.workflow_run.pull_requests[0].base.repo.full_name == github.repository &&
+      github.event.workflow_run.pull_requests[0].head.repo.full_name == github.repository &&
+      github.event.workflow_run.pull_requests[0].head.ref == github.event.workflow_run.head_branch &&
+      !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
+      !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:

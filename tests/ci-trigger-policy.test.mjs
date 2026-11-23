@@ -684,10 +684,19 @@ test("system breaker recovery waits for a completed successful exact-head CI wor
   assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
   assert.ok(recovery.includes("github.event.workflow_run.conclusion == 'success'"));
   assert.ok(recovery.includes("github.event.workflow_run.event == 'pull_request'"));
-  assert.ok(recovery.includes("startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-')"),
-    "ordinary same-repository PRs must not reserve the shared Runner queue for candidate recovery");
+  assert.ok(recovery.includes("github.event.workflow_run.path == '.github/workflows/ci.yml'"));
   assert.ok(recovery.includes("github.event.workflow_run.head_repository.full_name == github.repository"));
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].number != ''"));
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].number > 0"));
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[1] == null"),
+    "ambiguous workflow_run PR associations must skip before acquiring the shared Runner queue");
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].base.ref == 'main'"));
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].base.repo.full_name == github.repository"));
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.repo.full_name == github.repository"));
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.ref == github.event.workflow_run.head_branch"));
+  assert.ok(recovery.includes("!startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-')"),
+    "AI task-candidate PRs must never be treated as independent system-health evidence");
+  assert.ok(recovery.includes("!startsWith(github.event.workflow_run.head_branch, 'codex/issue-')"),
+    "Codex task-candidate PRs must never be treated as independent system-health evidence");
   const recoveryWorkflowHeader = recovery.slice(0, recovery.indexOf("\njobs:"));
   assert.equal(recoveryWorkflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false,
     "cancelled/failed workflow_run events must not reserve the shared Runner queue at workflow scope");
