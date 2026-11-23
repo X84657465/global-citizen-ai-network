@@ -580,3 +580,63 @@ Evidence:
 - Issue #117: https://github.com/X84657465/global-citizen-ai-network/issues/117
 - Issue #465: https://github.com/X84657465/global-citizen-ai-network/issues/465
 - Issue #446: https://github.com/X84657465/global-citizen-ai-network/issues/446
+
+
+---
+
+## GPT5 daily operations recheck — 2026-11-23 (fresh exact-head inspection)
+
+### Governance and automation reread
+
+- Current main: `f4319ec65d33bf30804b2d447e7692207fd82f0c`.
+- `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218` (fully reread this run).
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob: `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31` (fully reread this run).
+- `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` blob: `46b188085c2dff0f527477b2486719a7f6c24b59`; still PROPOSED and does not expand GPT5 authority.
+- `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` and `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md` were freshly fetched from main. Current authority remains Factory-first, single DRI, exact-SHA evidence, no self-approval, and GPT3 independent QA.
+- Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` is ENABLED, flexible daily at 08:00 Asia/Taipei; last execution timestamp `2026-11-23T01:03:11Z`, next scheduled `2026-11-24T08:00:00+08:00`. Two duplicate schedules remain disabled.
+
+### Main exact-SHA CI
+
+- Main SHA remains `f4319ec65d33bf30804b2d447e7692207fd82f0c`.
+- Push CI run `45137751765`, attempt 1, exact matching head SHA: terminal SUCCESS. Five substantive jobs SUCCESS; two conditional failure diagnostics/persistence jobs SKIPPED (not counted as passes).
+- Separate Factory Preflight run `45137751684`, attempt 1, same exact main SHA: terminal FAILURE at `Windows self-hosted project validation`; five downstream plan/publication/dispatch jobs SKIPPED.
+- Issue-triggered preflight `45138473800`: terminal FAILURE in read-only plan validation.
+- Latest Recovery run `45156090151`, attempt 1, exact main SHA: terminal SKIPPED; its only job `Verify completed exact-head CI before resetting system breaker` is SKIPPED. Repeated Recovery runs on this same SHA are also SKIPPED; they are not recovery success.
+- Main combined commit status remains Vercel SUCCESS only; Actions evidence is taken from the explicit run API and kept separate from Vercel.
+
+### All 14 open PRs — exact current head, base and run
+
+| PR | Exact head SHA | Base SHA / mergeability | Draft | Exact-head Actions | Provider status |
+|---|---|---|---|---|---|
+| #466 (GPT5 report) | `d61c82afc714ce4670c8784e5c1329feec606200` | main `f4319ec...`; mergeable | No | Run `45157068684` IN_PROGRESS; 2 jobs returned: metadata SUCCESS, Windows quality gates IN_PROGRESS | Vercel SUCCESS |
+| #448 | `ccccf9c5e46285426a3c269bd066e6fa47c65cb8` | current main; mergeable | No | `45147570005` SUCCESS | SUCCESS |
+| #468 | `588967ee9563a8896752eacce02aa7a14473d5d8` | current main; mergeable | No | `45151541188` SUCCESS; 4 substantive Windows jobs SUCCESS, 3 conditional jobs SKIPPED; no Linux fixture job | FAILURE: provider build-rate-limit |
+| #467 | `3c802c9f206721fdcc71ec96e2bb178590fb9990` | current main; mergeable | Yes | `45151506039` SUCCESS; 4 substantive Windows jobs SUCCESS, 3 conditional jobs SKIPPED; no Linux fixture job | FAILURE: provider build-rate-limit |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | stale base `f622c852...`; mergeable | Yes | `45137849234` FAILURE | SUCCESS |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | current main; mergeable | No | `45137959652` SUCCESS | SUCCESS |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale base `a1c1b58...`; mergeable=false | Yes | `44949425719` SUCCESS, but old-base integration is not validated against current main | FAILURE: provider build-rate-limit |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | stale base `93e7ac35...`; mergeable=false | Yes | `45052753388` SUCCESS, but old-base integration not validated | FAILURE: provider build-rate-limit |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale base `93e7ac35...`; mergeable=false | Yes | No Actions run returned for exact head | FAILURE: provider build-rate-limit |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale base `25d5ed51...`; mergeable=false | Yes | `45056447505` FAILURE | FAILURE: provider build-rate-limit |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | stale base `480f22e...`; mergeable=false | Yes | `45100493731` SUCCESS, but stale-base integration not validated | FAILURE: provider build-rate-limit |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | security integration branch `7d90d059...`; mergeable | Yes | `45132200910` FAILURE: quality gates failed after 361 pass / 1 fail | FAILURE: provider build-rate-limit |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | security integration branch `df841a9a...`; mergeable | Yes | `45108427275` SUCCESS on non-main target branch | FAILURE: provider build-rate-limit |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | stale base `f622c852...`; mergeable | Yes | `45117595636` FAILURE | FAILURE: provider build-rate-limit |
+
+Formal review submissions were re-read on all 14 PRs: **zero formal APPROVED**. Records are COMMENTED or absent; all PRs are authored by the same repository account in this snapshot. No self-approval is valid. No Draft removal or merge is authorized by current evidence.
+
+### New/current blocker interpretation
+
+1. #466 is no longer 0-job/PENDING: its exact current head has a real Actions run `45157068684`, currently IN_PROGRESS with 2 jobs (one completed SUCCESS, one IN_PROGRESS). Vercel now SUCCESS. Do not declare it terminal until all jobs finish; its current exact SHA is this report's commit before this append, so the append itself will create a new head and invalidate this run for the next head.
+2. #467/#468 remain a workflow bootstrap limitation: their completed exact-head Windows runs contain no Linux fixture job. #467 stays Draft; #468's workflow prerequisite cannot validate the new Linux job from its own PR-only workflow definition.
+3. #462's exact-head failed quality-gate job is owned across GPT1/A worker-lease recovery and GPT2/F redaction; GPT5 must not transplant A lifecycle changes into F.
+4. #457/#259/#373/#376/#417/#438/#450 remain stale-base, failed, absent-run or conflict-limited. Old SHA CI does not clear current-base integration.
+5. Repeated Recovery SKIPPED runs indicate the recovery gate is not executing; do not repeatedly dispatch or label it healthy.
+6. Vercel provider build-rate-limit remains a separate third-party status on multiple PRs; it is not evidence of GitHub Actions failure or success.
+
+### GPT5 next action and boundary
+
+- This update remains confined to the existing GPT5-owned report path in PR #466.
+- No A–P source, tests, workflow, Runner, permissions, secrets, database/RLS, production state or deployment was changed.
+- No self-review, Draft removal, merge, CI bypass or blind rerun was performed.
+- Next independent action: continue exact-head monitoring of #466's new report commit, and maintain owner handoffs for Factory preflight/Linux fixture blockers while keeping GPT5 work inside Global Intelligence & Operations.
