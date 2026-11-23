@@ -48,6 +48,12 @@ jobs:
             echo "::error::Project coordination does not link the shared A-P standard"; exit 1;
           }
 
+          for role_rule in 'GPT1:' 'GPT2:' 'GPT3:' 'GPT4:' 'GPT5:'; do
+            grep -Fq "$role_rule" "$standard" || {
+              echo "::error::Shared standard is missing existing role boundary $role_rule"; exit 1;
+            }
+          done
+
           for gate in G0 G1 G2 G3 G4 G5; do
             grep -Fq "$gate" "$standard" || {
               echo "::error::Shared standard is missing gate $gate"; exit 1;
