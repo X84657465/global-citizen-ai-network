@@ -1,4 +1,5 @@
 import {
+  appendFileSync,
   copyFileSync,
   existsSync,
   lstatSync,
@@ -18,7 +19,16 @@ import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 
 let scratchDir;
 
-const fail = (message) => {
+const fail = (message, { taskScoped = false } = {}) => {
+  let taskScopeRecorded = false;
+  if (taskScoped && typeof process.env.GITHUB_ENV === "string" && process.env.GITHUB_ENV.length > 0) {
+    try {
+      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+      taskScopeRecorded = true;
+    } catch {
+      // A marker-write failure must remain system-scoped.
+    }
+  }
   if (scratchDir && existsSync(scratchDir)) {
     try {
       rmSync(scratchDir, { recursive: true, force: true });
@@ -27,6 +37,9 @@ const fail = (message) => {
     }
   }
   console.error("Scratch patch validation failed: " + message);
+  if (taskScoped && !taskScopeRecorded) {
+    console.error("Task failure marker unavailable; failure remains system-scoped.");
+  }
   process.exit(1);
 };
 
@@ -40,7 +53,15 @@ const readJson = (path, label) => {
 
 const task = readJson("artifacts/agent-task.json", "Validated task bundle");
 const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan");
-const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal");
+let patchCandidate;
+try {
+  patchCandidate = JSON.parse(readFileSync("artifacts/agent-patch.json", "utf8"));
+} catch (error) {
+  if (error instanceof SyntaxError) {
+    fail("Validated patch proposal contains invalid JSON.", { taskScoped: true });
+  }
+  fail("Validated patch proposal is missing or unreadable.");
+}
 
 if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false ||
     (task.issue && task.safety?.issue_content_is_untrusted_data !== true)) {
@@ -59,7 +80,7 @@ try {
     task,
   );
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Plan revalidation failed.");
+  fail(error instanceof Error ? error.message : "Plan revalidation failed.", { taskScoped: true });
 }
 
 const plannedPaths = new Set(
@@ -68,7 +89,9 @@ const plannedPaths = new Set(
     .flatMap((item) => item.allowed_paths.map((path) => String(path).toLowerCase())),
 );
 const patchablePaths = task.allowed_paths.filter((path) => plannedPaths.has(path.toLowerCase()));
-if (patchablePaths.length === 0) fail("The validated plan did not authorize any patch paths.");
+if (patchablePaths.length === 0) {
+  fail("The validated plan did not authorize any patch paths.", { taskScoped: true });
+}
 
 const scopedTask = { ...task, allowed_paths: patchablePaths };
 let trackedPaths;
