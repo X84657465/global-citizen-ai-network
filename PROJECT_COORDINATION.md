@@ -1172,3 +1172,42 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 本次治理提案分支以 main `480f22e484dfa80d301f136cedd5504fbde41407` 為起點。該 SHA 是提案建立基準，不代表 PR 合併時 main 仍相同。main、PR、CI、Runner、Factory durable state、Vercel deployment 均須在交付時重新查證；歷史快照標記 STALE，不可複製成最新狀態。
 
 **本文件只定義協作規範，不代表 GPT1–GPT5 已同時啟動，也不代表尚未觸發的工作已派工成功。** 跨 GPT 交接以 GitHub Issue、PR、commit、CI 與 handoff 為準。
+
+
+---
+
+## 22. P0 MVP First — 首版產品最短交付與五 GPT 並行閉環
+
+**本節的詳細規格：** [GCAN MVP First Delivery Charter](docs/GCAN_MVP_FIRST_DELIVERY_CHARTER.md)；全域總綱同步見 [Master Governance Charter §24](docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md)。
+
+### 22.1 不得再以 Factory 未完工阻塞安全的 MVP 工作
+
+- GPT1 維持 A–E／Factory P0 核心穩定與必要 A→B 介面。
+- GPT4 對 B Product MVP 負唯一產品 DRI，先收斂可操作的核心使用者旅程。
+- Factory 建置與 B MVP 並行；B 可先完成首頁、登入導引、工作區 UX、API／資料契約、測試 fixture 及已就緒介面整合。
+- Factory 尚未提供的依賴明確標記 BLOCKED；不得停止所有不依賴該卡點的產品工作。
+- 不得把 Factory-first 解讀為 B 必須等待 A–P 全部完工；也不得把 MVP-first 解讀為可跳過身份驗證、RLS、成本、CI、Review 或正式環境核准。
+
+### 22.2 五 GPT 本輪交付
+
+| GPT | 主責 | 必須交付 | 單次主導上限 |
+|---|---|---|---:|
+| GPT1 | A–E／Factory，P0 核心工程 | 可執行程式、回歸測試、exact-SHA CI、A→B 唯讀契約 | 1 項 |
+| GPT2 | F–P 必要專業能力 | 可執行安全／QA／觀測／整合 Gate 或測試 | 1 項 |
+| GPT3 | 獨立架構與品質放行 | 精確 SHA 的放行／退回／阻塞結論與缺口 | 依風險排程 |
+| GPT4 | B Product MVP | 核心使用者旅程、產品程式、測試及產品驗收 | 1 項 |
+| GPT5 | 全域營運與第二執行支援 | 最新 SHA／PR／CI 快照、阻塞清理或受授權的程式／測試整合 | 1 項 |
+
+GPT5 不取得 A–P 模組 owner 權，不得審查或批准自己開發成果。任何寫入均須遵守現行已核准權限、task allowlist、唯一 DRI 及獨立 Reviewer；本節不構成權限擴張。
+
+### 22.3 首版範圍與期限
+
+首版先完成：訪客產品說明 → 註冊／登入 → 會員工作區 → 專案 → 對話 → 在供應商與預算安全設定完成後的 AI Chat。AI 未設定時須 fail-closed，不得產生付費請求。多節點、獎勵支付、公開貢獻市場、非必要擴充與重構全部列入 Post-MVP。
+
+MVP kickoff 後以 **5 個工作日**完成首輪端到端驗收為目標；若外部服務、Runner、CI 或安全閘門阻塞，拆分不依賴工作、標記解除條件與期限影響，不得假報完成。
+
+### 22.4 驗收與反空轉
+
+首版必須在同一候選 SHA 證明單元／整合測試、TypeScript、Lint、Production Build、登入保護、使用者資料隔離、專案／對話流程、AI 成本預檢與冪等性；要求 Preview 時另驗證該 SHA 的 READY deployment 與 smoke test。GPT3／授權獨立 Reviewer 必須對同一 SHA 給出正式結論。
+
+PENDING、0 Job、SKIPPED、CANCELLED、UNKNOWN、Rate Limit 均非 PASS；舊 SHA 綠燈不得移轉。相同根因連敗兩次停止盲重試；阻塞超過一個工作週期拆解、改派、升級或 DEFERRED。詳細狀態轉換及安全界線以 MVP First Delivery Charter 為準。
