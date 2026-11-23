@@ -1,22 +1,47 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync, chmodSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { delimiter, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
+const FIXTURE_COMMIT = "0123456789abcdef0123456789abcdef01234567";
 
 function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, missingIssueSafety = false, invalidRunnerTemp = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
-  execFileSync("git", ["config", "user.email", "factory-test@example.invalid"], { cwd: root });
-  execFileSync("git", ["config", "user.name", "Factory Test"], { cwd: root });
+  const gitBin = join(root, "git-bin");
+  mkdirSync(gitBin);
+  if (process.platform === "win32") {
+    // The Windows host runner has Git installed; retain a real repository fixture there.
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    execFileSync("git", ["config", "user.email", "factory-test@example.invalid"], { cwd: root });
+    execFileSync("git", ["config", "user.name", "Factory Test"], { cwd: root });
+  } else {
+    // The network-isolated Node container intentionally has no Git package.
+    // Provide only the two read-only Git responses this script consumes.
+    const gitShim = String.raw`#!/usr/bin/env node
+const args = process.argv.slice(2);
+if (args[0] === "ls-files" && args[1] === "-z") {
+  process.stdout.write("README.md\0");
+} else if (args[0] === "rev-parse" && args[1] === "HEAD") {
+  process.stdout.write("${FIXTURE_COMMIT}\n");
+} else {
+  console.error("Unsupported fixture git command: " + args.join(" "));
+  process.exitCode = 2;
+}
+`;
+    const shimPath = join(gitBin, "git");
+    writeFileSync(shimPath, gitShim, { mode: 0o755 });
+    chmodSync(shimPath, 0o755);
+  }
   writeFileSync(join(root, "README.md"), "scratch fixture\n");
-  execFileSync("git", ["add", "README.md"], { cwd: root });
-  execFileSync("git", ["commit", "-m", "fixture"], { cwd: root, stdio: "ignore" });
+  if (process.platform === "win32") {
+    execFileSync("git", ["add", "README.md"], { cwd: root });
+    execFileSync("git", ["commit", "-m", "fixture"], { cwd: root, stdio: "ignore" });
+  }
   const artifacts = join(root, "artifacts");
   mkdirSync(artifacts);
   const allowedPath = "docs/generated-fixture.md";
@@ -48,13 +73,13 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
   writeFileSync(githubEnv, "");
   const runnerTemp = invalidRunnerTemp ? join(root, "missing-runner-temp") : join(root, "runner-temp");
   if (!invalidRunnerTemp) mkdirSync(runnerTemp);
-  return { root, githubEnv, runnerTemp };
+  return { root, githubEnv, runnerTemp, gitBin };
 }
 
 function runScript(data) {
   return spawnSync(process.execPath, [scriptPath], {
     cwd: data.root, encoding: "utf8",
-    env: { ...process.env, GITHUB_ENV: data.githubEnv, RUNNER_TEMP: data.runnerTemp },
+    env: { ...process.env, ...(process.platform === "win32" ? {} : { PATH: [data.gitBin, process.env.PATH ?? ""].filter(Boolean).join(delimiter) }), GITHUB_ENV: data.githubEnv, RUNNER_TEMP: data.runnerTemp },
   });
 }
 
@@ -99,10 +124,12 @@ test("leaves Runner scratch-directory failures unmarked for system-scope classif
 
 test("applies an authorized patch only to scratch and emits no failure marker", (t) => {
   const data = fixture(t);
+  assert.equal(data.gitBin, join(data.root, "git-bin"));
   const result = runScript(data);
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
   const manifest = JSON.parse(readFileSync(join(data.root, "artifacts", "agent-scratch.json"), "utf8"));
+  if (process.platform !== "win32") assert.equal(manifest.base_commit, FIXTURE_COMMIT);
   assert.equal(manifest.repository_files_modified, false);
   assert.equal(manifest.generated_code_executed, false);
   assert.equal(manifest.patched_files.length, 1);
