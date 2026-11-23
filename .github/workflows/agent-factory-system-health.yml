@@ -13,6 +13,11 @@ jobs:
     # All other workflow_run events skip before queue acquisition.
     # Recovery is a GitHub API/state operation; keep it off the Windows
     # execution runner so Factory health recovery cannot queue behind workloads.
+    # Preserve the cross-process serialization fence for durable Factory state writes.
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      cancel-in-progress: false
+      queue: max
     if: >-
       github.event.workflow_run.path == '.github/workflows/ci.yml' &&
       github.event.workflow_run.conclusion == 'success' &&
