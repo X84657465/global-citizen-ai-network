@@ -89,7 +89,7 @@ test("runtime config caps provider timeout at sixty seconds", () => {
   }
 });
 
-import { parseProviderInvoiceCsv, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
+import { isRepeatedInvoiceSourceFingerprint, parseProviderInvoiceCsv, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
 
 const invoiceCsv = [
   "provider,model,billing_period_start,billing_period_end,source_reference,currency,amount",
@@ -155,4 +155,12 @@ test("invoice TWD normalization requires an explicit valid rate and timestamp", 
 
 test("invoice CSV rejects stray quote characters in unquoted fields", () => {
   assert.throws(() => parseProviderInvoiceCsv(invoiceCsv.replace("openai,gpt-test", 'open"ai,gpt-test')), /雙引號/);
+});
+
+
+test("invoice source fingerprints detect repeated files deterministically without counting invalid fingerprints", () => {
+  const fingerprint = "a".repeat(64);
+  assert.equal(isRepeatedInvoiceSourceFingerprint(fingerprint, []), false);
+  assert.equal(isRepeatedInvoiceSourceFingerprint(fingerprint, [fingerprint]), true);
+  assert.equal(isRepeatedInvoiceSourceFingerprint("not-a-sha256", [fingerprint]), false);
 });
