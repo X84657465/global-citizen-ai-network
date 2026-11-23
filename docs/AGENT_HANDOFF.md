@@ -5,38 +5,36 @@ This section supersedes earlier live-state summaries below wherever they conflic
 ## Latest support branch exact-head result
 
 - Branch / PR: `docs/gpt5-live-ops-checkpoint-8002072738-20261124` / [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493).
-- Current candidate HEAD: `d228ea5f0fb01b14b0248255e967f32405192269`.
+- Current candidate HEAD: `af717730b20de078a2758a40517f44511c92d9ec`.
 - Base: current `main` `8002072738d0dad722ccfc1207250165d1b7d8bc`.
-- Exact-head run [#45222971581](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45222971581), run number 4260: terminal **FAILURE**.
-- Resolver job #137861865566: **FAILURE**; diagnostics job #137861885944: **FAILURE**.
-- Windows quality #137861887366, Ollama #137861887583, Supabase/RLS #137861887815, success persistence #137861887224, and failure persistence #137861889194: **SKIPPED**.
-- Both failed jobs expose empty step summaries; log retrieval returns 404 `BlobNotFound`. Root cause remains **UNKNOWN**. No artifact-backed diagnostic evidence is available from the earlier exact-head inspections; this does not establish a specific runtime cause.
-- PR #493 remains **Draft**. GitHub mergeable=true is not acceptance: exact-head CI failed and formal APPROVED review count is zero.
+- Exact-head run [#45223486216](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45223486216): terminal **FAILURE**.
+- Resolver job #137863680386: **FAILURE**; diagnostics job #137863702918: **FAILURE**.
+- Windows quality #137863703680, Ollama #137863704077, Supabase/RLS #137863704716, success persistence #137863705787, and failure persistence #137863706522: **SKIPPED**.
+- Both failed jobs' log retrieval returns 404 `BlobNotFound`; no diagnostic artifact is available. Root cause remains **UNKNOWN**. No token, permission, quota, endpoint, or code-root-cause inference is justified.
+- PR #493 remains **Draft**. Mergeable=true is not acceptance: exact-head CI failed and formal APPROVED review count is zero.
 
 ## Mainline and PR inventory
 
-- Latest repository commit search still identifies current `main` as `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Current `main`: `8002072738d0dad722ccfc1207250165d1b7d8bc`.
 - Exact-main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105): terminal **FAILURE**. Resolver #137840877458 and diagnostics #137840906306 **FAILURE**; failure persistence #137840906764 **SUCCESS**; Windows quality #137840907274, Ollama #137840909193, Supabase/RLS #137840909327 and success persistence #137840909738 **SKIPPED**. Failed-job logs remain unavailable (404 `BlobNotFound`); root cause **UNKNOWN**.
-- Open PR search returns exactly #493, #494, #491, #478, #417, #476, #259 and #376.
-- #493, #494 and #491 are open Drafts, mergeable=true, based on current main, but have no formal APPROVED reviews; their latest evidenced exact-head Actions runs are FAILURE (#493 run #45222971581, #494 run #45218883945, #491 run #45213070420).
-- #478, #476, #417, #259 and #376 are mergeable=false and based on older main SHAs. Their available historical run results are not reusable as current-main acceptance.
-- All eight open PRs have **zero formal APPROVED reviews**. COMMENTED reviews, including author/self-comments and bot comments, are not approvals.
+- Eight open PRs remain: #493, #494, #491, #478, #417, #476, #259 and #376.
+- #493, #494 and #491 are Drafts based on current main; latest verified exact-head runs are FAILURE. #478, #476, #417, #259 and #376 target older base SHAs and are not safe to merge without owner-led reconciliation.
+- Formal independent APPROVED review evidence is absent for the candidates checked; COMMENTED reviews and author/bot comments are not approvals.
 
 ## Diagnostic boundary and owner routing
 
-The current evidence does not expose failed step names or actionable redacted error output for Resolver/Diagnostics: step summaries are empty and log downloads return 404. Source inspection of the resolver and diagnostics scripts identifies possible evidence-producing stages but does not prove which runtime stage failed. Do not infer token, permission, quota, endpoint, Runner, or application-code root cause.
+The available evidence does not expose failed step names or actionable redacted error output: failed-job log downloads return 404 and no diagnostics artifact is available. Source inspection can identify possible stages but does not prove which runtime stage failed.
 
-1. Factory/CI owner: recover actual failed-step evidence for main run #45211976105 and PR #493 run #45222971581: failed step name, redacted error/status, resolver stage, and diagnostics capture outcome. If GitHub log storage remains unavailable, escalate through the authorized Actions/CI owner.
+1. Factory/CI owner: recover failed-step evidence for main run #45211976105 and PR #493 run #45223486216: failed step, redacted error/status, resolver stage, and diagnostics capture outcome. If GitHub log storage remains unavailable, escalate through the authorized Actions/CI owner.
 2. Keep Factory breaker and quarantined task state fail-closed. Issue #100 is machine-managed; do not manually edit or reset it, and do not blindly rerun.
 3. GPT5 support remains documentation/evidence coordination only; no Factory/Runner or A–P module execution authority is inferred.
 4. Continue B-line preparation only; no B production, integration, or deployment is authorized by this evidence.
 
 ## Scope and disposition
 
-This correction fixes the handoff's stale opening candidate/run reference identified during independent read-only QA. Only this documentation file is in scope. No Factory/Product source, workflow, Runner, permission, secret, database/RLS, branch-protection or deployment setting is changed. No workflow rerun, state mutation, Draft transition, approval, merge or deployment is performed.
+This is a documentation-only refresh of the GPT5-owned handoff file. No Factory/Product source, workflow, Runner, permission, secret, database/RLS, branch-protection or deployment setting is changed. No workflow rerun, state mutation, Draft transition, approval, merge or deployment is performed.
 
 **Status:** Main BLOCKED; PR #493 exact-head CI FAILURE; Resolver/Diagnostics root cause UNKNOWN; downstream quality/integration jobs SKIPPED. No green claim.
-
 
 ---
 
