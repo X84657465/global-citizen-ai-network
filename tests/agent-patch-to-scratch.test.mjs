@@ -64,7 +64,7 @@ test("does not classify malformed plan JSON without a valid fetched Issue identi
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
-  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
+  assert.match(result.stderr, /valid fetched Issue identity/);
 });
 
 test("does not classify malformed plan JSON without the Issue safety attestation", (t) => {
@@ -116,7 +116,7 @@ test("keeps a patch-validation rejection system-scoped when the task marker cann
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.deepEqual(readdirSync(data.githubEnv), []);
-  assert.match(result.stderr, /valid fetched Issue identity/);
+  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
 });
 
 test("keeps missing tracked repository files system-scoped", (t) => {
@@ -162,12 +162,12 @@ test("keeps missing patch artifact I/O system-scoped", (t) => {
   assert.match(result.stderr, /Validated patch proposal is missing or unreadable/);
 });
 
-test("keeps patch rejection system-scoped when task identity is invalid", (t) => {
+test("rejects patch when task identity is invalid without writing a task marker", (t) => {
   const data = fixture(t, { invalidPatch: true, invalidTaskIdentity: true });
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
-  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
+  assert.match(result.stderr, /valid fetched Issue identity/);
 });
 
 test("guards task marker persistence behind successful scratch cleanup", () => {
