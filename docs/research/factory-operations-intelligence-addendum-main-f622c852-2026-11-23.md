@@ -255,3 +255,56 @@ After the GPT5 evidence handoff on PR #452, its owner pushed a new exact HEAD `4
 - This PR's original failing HEAD is superseded; do not treat its failure as the status of the new HEAD.
 - GPT5's own documentation PR #445 remains Draft and its exact-head run #45117249210 failed on the shared Main #446 policy test. The report update is documentation-only and does not change Factory code or workflow.
 - No Draft was removed, no formal approval was issued, no merge/deploy was performed, and no Runner, secret, permission, database, branch-protection or production state was changed.
+
+
+---
+
+## Superseding exact-head refresh — 2026-11-23 (latest live recheck)
+
+This section supersedes all earlier PR head/run/review dispositions above. The repository was re-read from the default branch; current Main remains `f622c852346577d67aed0bde2922ade17044057c`. All run states below are attached to the exact HEAD listed, attempt 1 unless noted. PENDING/QUEUED/IN_PROGRESS, zero jobs, and SKIPPED are not PASS.
+
+### Main
+
+- Main push Run [#45106600175](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600175), attempt 1: COMPLETED / FAILURE.
+- Metadata resolver #137479204814: SUCCESS.
+- Windows quality job #137479451351: FAILURE at `tests/ci-trigger-policy.test.mjs:818`, assertion at line 838: `the machine-local scratch directory path must never be uploaded`; expected false, actual true. Policy suite: 42 PASS / 1 FAIL.
+- Exact-SHA diagnostics #137480108704 and failure persistence #137480109809: SUCCESS.
+- Unit tests, typecheck, lint, production build, Supabase/PostgreSQL/RLS, Ollama/local integration and success/breaker-reset path: SKIPPED after the policy failure. None is PASS.
+- Combined commit status: Vercel FAILURE, target identifies `build-rate-limit`. This is a separate external deployment-provider limit.
+
+### All 12 open PRs — refreshed exact HEAD / exact run
+
+| PR | Exact HEAD | Base | Draft | Matching Actions Run | Formal review |
+|---|---|---|---|---|---|
+| [#445](https://github.com/X84657465/global-citizen-ai-network/pull/445) | `0432f4ed166cdbf9eb7ffbd397d2db5872d3638d` | main / `f622c852` | Yes | [#45119825474](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45119825474) — FAILURE; diagnostics #137512046710 was PENDING at recheck | 0 |
+| [#452](https://github.com/X84657465/global-citizen-ai-network/pull/452) | `a741d4482321805b31a707fd5c895bbc2afc86aa` | main / `f622c852` | Yes | [#45120022524](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45120022524) — QUEUED; only metadata resolver #137511423673 had started (IN_PROGRESS at latest job snapshot); no quality-gate result | 0 |
+| [#449](https://github.com/X84657465/global-citizen-ai-network/pull/449) | `4f78d802ba551c6e07bda67c464bcbc42d3e2ccc` | main / `f622c852` | Yes | [#45113404358](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45113404358) — FAILURE | 0 |
+| [#443](https://github.com/X84657465/global-citizen-ai-network/pull/443) | `618b283819ee5644b001f08b3700b6f4ac0d8eb1` | main / `f622c852` | No | [#45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854) — SUCCESS; quality gates, Ollama/local and Supabase/PostgreSQL/RLS jobs SUCCESS | 1 COMMENTED, 0 APPROVED |
+| [#450](https://github.com/X84657465/global-citizen-ai-network/pull/450) | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main / `f622c852` | Yes | [#45117595636](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45117595636) — FAILURE | 0 |
+| [#448](https://github.com/X84657465/global-citizen-ai-network/pull/448) | `d81a22fa91ed8ff38f23aa76dedf322ab86c6c30` | main / `f622c852` | Yes | [#45112368774](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112368774) — FAILURE | 1 COMMENTED, 0 APPROVED |
+| [#442](https://github.com/X84657465/global-citizen-ai-network/pull/442) | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | feature branch / `df841a9a` | Yes | [#45108427275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45108427275) — SUCCESS; not based on main | 0 |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main / `25d5ed51` | No | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) — FAILURE; stale base, mergeable=false | 0 |
+| [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main / `480f22e4` | Yes | [#45100493731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100493731) — SUCCESS; stale base, mergeable=false | 0 |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main / `93e7ac35` | No | [#45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388) — SUCCESS; stale base, mergeable=false | 9 COMMENTED, 0 APPROVED |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main / `93e7ac35` | No | No exact-head run — 0 RUN / NOT RUN; stale base, mergeable=false | 13 COMMENTED, 0 APPROVED |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main / `a1c1b58e` | No | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) — SUCCESS; stale base, mergeable=false | 2 COMMENTED, 0 APPROVED |
+
+All 12 PRs remain open and unmerged. Formal APPROVED reviews observed for #443, #445 and #452: zero (and no approval was found in prior review snapshots for the other PRs). COMMENTED is not APPROVED. A SUCCESS run on a stale base or feature-branch base is not current-main acceptance.
+
+### Newly confirmed GPT5-owned PR #445 regression
+
+PR #445 changes only this operations intelligence addendum. Its exact-head Run #45119825474 has metadata resolver SUCCESS, Windows quality gates FAILURE, and downstream integration/persistence paths SKIPPED. The exact failure is the same Main policy assertion: `tests/ci-trigger-policy.test.mjs:818`, line 838, 42/43 (42 PASS / 1 FAIL). The diagnostic job #137512046710 was still PENDING at the last job read. This is a Factory-owned test failure, not a defect introduced by the documentation-only PR. GPT5 must not modify the Factory test to make its own documentation PR green.
+
+### PR #452 exact-head transition
+
+PR #452 changed its fileset and advanced to HEAD `a741d4482321805b31a707fd5c895bbc2afc86aa`; current changed paths are `tests/agent-patch-to-scratch.test.mjs` and `tests/ci-trigger-policy.test.mjs`. Its previous HEAD `4149f4ca...` had Run #45119622716 FAILURE (774/776; two task/system failure-scope test mismatches). That failure belongs only to the previous SHA. The current HEAD's Run #45120022524 was QUEUED and had no quality-gate result at recheck; do not carry forward the old failure or call the new head green. This is GPT1/Factory-owned code; GPT5 makes no edits there.
+
+### Ownership, merge gates and GPT5 delivery
+
+- GPT1 / Factory owner: resolve the Main/#445 policy test mismatch and ensure the raw local scratch manifest is excluded from publication artifacts; review #452's latest exact-head CI.
+- GPT3: provide independent formal APPROVED review for #443's exact HEAD `618b2838...`; its CI is successful, but COMMENTED is not an approval.
+- Owners of #417/#438/#373/#376/#259: resolve stale-base divergence and obtain new exact-head runs; #376 additionally has 0 exact-head runs.
+- External deployment owner: Vercel `build-rate-limit` requires provider-side cooldown/capacity; no paid upgrade or bypass was attempted.
+- GPT5: refresh and maintain this single-file evidence artifact on its own PR branch; do not modify other workstream code, approve own work, remove Draft, or merge without all independent gates.
+
+No source code, Factory control plane, Runner, Lease, RLS, secrets, permissions, production data, branch protection, deployment or durable Factory state was modified by this refresh.
