@@ -29,7 +29,7 @@ test("MVP-first charter defines a bounded scope, deadline, and exact-SHA accepta
   assert.match(charter, /資料隔離/);
   assert.match(charter, /Post-MVP/);
   assert.match(charter, /A–P 全工作線都必須各自交付產品級 MVP/);
-  for (const track of "ABCDEFGHIJKLMNOP".split("")) assert.match(charter, new RegExp(`\\| ${track} \\|`));
+  for (const track of "ABCDEFGHIJKLMNOP".split("")) assert.match(charter, new RegExp(`\\| ${track} —`));
 });
 
 test("README and homepage expose the MVP entry points and delivery status", () => {
@@ -54,4 +54,12 @@ test("AI MVP path fails closed and retains idempotency and cost preflight contro
   assert.match(chatApi, /estimateCostTwd/);
   assert.match(chatApi, /claim_ai_request/);
   assert.match(chatApi, /AI 服務尚未完成安全設定/);
+});
+
+
+test("homepage exposes a separate MVP product card for every A-P track", () => {
+  assert.match(homepage, /A–P 全線產品 MVP 交付目錄/);
+  for (const track of "ABCDEFGHIJKLMNOP".split("")) {
+    assert.match(homepage, new RegExp(`${track} ·`));
+  }
 });
