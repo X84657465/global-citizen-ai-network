@@ -3043,3 +3043,57 @@ Summary: 9 exact-head failures, 2 stale-base successes, 2 no exact-head run. All
 ### Automation truth
 - `GCAN Daily Dev Check` and `GCAN 每日章程檢閱` are enabled, both scheduled daily at 08:00 Asia/Taipei; next run is 2026-11-24 08:00 +08:00.
 - Last recorded run for Daily Dev Check is 2026-11-23; the charter review automation has no recorded run. This is a manual recheck, not a scheduled automation delivery.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-24 (Main advanced to a new SHA)
+
+This addendum supersedes older live-state claims above. It records the latest direct repository reads and exact-head CI evidence; it is not independent review, acceptance, Draft promotion, merge authorization, deployment, or release.
+
+### Main current baseline
+- Latest `main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99` (commit timestamp 2026-11-23T17:56:32Z).
+- Exact-SHA push run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163): **COMPLETED / FAILURE**.
+- Main combined status: CircleCI Pipeline **ERROR** (Pipeline 66); Vercel **FAILURE** (build-rate-limit).
+- Main Recovery events on this SHA: #45233177558, #45233172532, #45233153611, #45233140781 all **COMPLETED / SKIPPED**. No recovery pass is evidenced.
+- The earlier Main SHA `8002072738d0dad722ccfc1207250165d1b7d8bc` is no longer current. Do not report its run as validation of the new Main.
+
+### All 13 open PRs — exact HEAD Actions state
+| PR | Exact HEAD | Base | Draft | Exact-head Actions |
+|---|---|---|---|---|
+| #491 | `cf5488efc5bc6a00e6aa224aa885d37cab930130` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45233141566](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233141566) **FAILURE** |
+| #493 | `e887a7507160b2ad19bfc645de61aad1e6d3bfc6` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45233155032](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233155032) **FAILURE** |
+| #499 | `f232a630b2550270309c10d3d852581fb3070235` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | [#45232546114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45232546114) **FAILURE** |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | current-at-check Main parent | Yes | [#45230211754](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230211754) **FAILURE** |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | current-at-check Main parent | Yes | [#45229281768](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229281768) **FAILURE** |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) **SUCCESS on stale base only** |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | current-at-check Main parent | Yes | [#45228376095](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45228376095) **FAILURE** |
+| #495 | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | current-at-check Main parent | Yes | [#45225428794](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45225428794) **FAILURE** |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) **FAILURE** |
+| #494 | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | current-at-check Main parent | Yes | [#45218883945](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45218883945) **FAILURE** |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | [#45191718421](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45191718421) **SUCCESS on stale base only** |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | No | **NO EXACT-HEAD RUN RETURNED** |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | **NO EXACT-HEAD RUN RETURNED** |
+
+Summary: 9 exact-head failures, 2 stale-base successes, 2 no exact-head run. All 13 PRs remain open; formal APPROVED reviews: **0/13** (the returned review submissions are COMMENTED or absent). No PR meets merge gates.
+
+### Newly confirmed failure cohort
+- PR #493 exact-head run #45233155032: Resolver #137897784506 **FAILURE**; diagnostics #137897805434 **FAILURE**; Ollama, PostgreSQL/RLS, Windows quality, failure persistence and success persistence all **SKIPPED**.
+- PR #491 exact-head run #45233141566: Resolver #137897733026 **FAILURE**; diagnostics #137897751595 **FAILURE**; Ollama, Windows quality, failure persistence, success persistence and PostgreSQL/RLS all **SKIPPED**.
+- This repeats the shared preflight failure signature. Root cause remains **UNKNOWN**; do not infer credentials, rate limit, Runner, permissions, or source-code defect without actionable logs.
+
+### GPT5 delivery and scope
+- GPT5's previous documentation commit `e887a7507160b2ad19bfc645de61aad1e6d3bfc6` is the current #493 HEAD and has its own exact-head Actions failure #45233155032. No tests or integration jobs passed; #493 remains Draft.
+- This addendum is a documentation-only update within the existing `docs/AGENT_HANDOFF.md` allowlist. No Factory/Product source, workflows, Runner, secrets, permissions, database/RLS, branch protection, or deployment settings were changed.
+- GPT5 does not self-approve, un-Draft, merge, or claim independent acceptance. No local test runtime is available in this chat; local tests are **NOT RUN**.
+
+### Owner routing and stop conditions
+1. **GPT1 / Factory-CI:** recover actionable Resolver/Diagnostics failure evidence and determine root cause before further retries or state changes.
+2. **GPT1 / GPT2 / GPT4 / GPT3:** retain ownership of their respective Factory, F–P, Product and independent-QA work; reconcile stale-base PRs and review findings within their scopes.
+3. **GPT5:** continue exact-SHA evidence maintenance and this single-file operations handoff. Do not take over other workstreams or mutate durable Factory state.
+
+### Automation truth
+- `GCAN Daily Dev Check` and `GCAN 每日章程檢閱` remain enabled, both scheduled daily at 08:00 Asia/Taipei; next scheduled time is 2026-11-24 08:00 +08:00.
+- Last recorded Daily Dev Check is 2026-11-23; the charter review automation has no recorded run. This inspection is manual, not a scheduled delivery.
+
+**Disposition:** Main **FAILURE / NOT GREEN**; 13 PRs open; 9 exact-head failures, 2 stale-base successes, 2 missing exact-head runs; 0 formal approvals. No PR is accepted or merge-ready.
