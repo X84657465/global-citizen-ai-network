@@ -176,3 +176,12 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - 所有跨角色知識與交接必須落在可共同讀取的 Repository、Issue、PR、commit 或 CI 證據中。
 
 **GPT2 的最終使命：把 F–P 建設成可獨立驗證、可安全整合、可持續交付的專業能力群，同時維持 Factory-first、單一 owner、最小權限與獨立驗收。**
+
+## 6.4 最新主線重核與 GPT2 交付狀態 — 2026-11-24
+
+- **本次直接驗證的 main SHA：** `6b3ac4b639c285b2c664ffae579029a3fae29f99`。
+- **GPT2 文件路徑：** `docs/gpt2/PROJECT_COORDINATION.md`；本次更新前 blob `631c875f78e31bfb822ff6641f3fd08eafcc1101`。
+- **採納範圍：** GPT2 的 F–P；六層工作閉環涵蓋感知、記憶、認知、規劃、執行、驗證與反思；跨角色交接保留 GPT1（A–E／Factory）、GPT3（獨立架構與 QA）、GPT4（B Product）及 GPT5（僅依明確授權支援）的責任界線。
+- **狀態：** DOCUMENTED：YES（本文件已在 main）；ADOPTED：YES（僅 GPT2 文件與工作流程）；INDEPENDENT ACCEPTANCE：PENDING；IMPLEMENTED：NOT CLAIMED。
+- **證據界線：** 本次是文件基準重核，不代表此文件本身已取得新的獨立批准，也不轉移任何其他 SHA 的 CI／Review 證據。此變更不修改 Runtime、Factory、資料庫／RLS、Secrets、權限、Runner、分支保護或部署設定。
+- **驗證限制：** 僅完成 GitHub 遠端文件內容核對；未執行本機測試、TypeScript、Lint 或 Build。新 PR 的 exact-head CI 與 GPT3 正式 Review 仍須獨立驗證。
