@@ -412,3 +412,18 @@ test("discourse no punctuation variants do not hide an actionable production com
     assert.equal(result.decision, "approve_for_sandbox_validation", title);
   }
 });
+
+test("reminder wording remains an actionable positive high-risk request", () => {
+  for (const title of [
+    "Please remember to deploy to production",
+    "Please don't forget to deploy to production",
+    "Don't forget to rotate credentials",
+    "Never forget to change billing settings",
+    "Do not forget to deploy to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
