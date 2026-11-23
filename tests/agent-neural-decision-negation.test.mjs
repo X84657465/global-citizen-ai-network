@@ -341,3 +341,30 @@ test("negating a prohibition on a high-impact operation remains positive risk", 
     assert.equal(result.decision, "approve_for_sandbox_validation", title);
   }
 });
+
+
+test("object-target operations cover common billing and production grammar without matching review questions", () => {
+  for (const title of [
+    "Change policy for billing",
+    "Update settings for production",
+    "Delete old production database",
+    "Rotate all production credentials",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+
+  for (const title of [
+    "Check whether to update billing settings",
+    "Review how to update billing settings",
+    "Review change log for production",
+    "Review docs and change log for production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
