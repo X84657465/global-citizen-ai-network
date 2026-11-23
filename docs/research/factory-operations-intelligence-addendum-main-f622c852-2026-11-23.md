@@ -417,3 +417,23 @@ PR #445 remains a single-file documentation-only change on its own branch. Its e
 5. Vercel: external `build-rate-limit` remains a provider-side restriction; no bypass, plan change, secret or deployment action was attempted.
 
 No Factory implementation, workflow, Runner/Lease, database/RLS, secret, permission, branch protection, production data, deployment or durable Factory state was changed by this GPT5 documentation refresh.
+
+
+---
+
+## Exact-head job-state delta — 2026-11-23 (post-refresh poll)
+
+This delta supersedes the PR #458 / #459 job-level states in the preceding refresh. PR HEAD SHAs have not changed.
+
+- PR #458 HEAD `a4a3194c2c60e6b7950dee848bd87c6add0732fc`, run [#45126296524](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45126296524), attempt 1:
+  - Exact candidate metadata resolver: SUCCESS.
+  - Windows Runner quality gates (tests, types, lint, audit, production build): SUCCESS.
+  - Windows Ollama/local execution integration: PENDING.
+  - Windows Supabase migrations, PostgreSQL and RLS integration: PENDING.
+  - Therefore the full required candidate CI is still PENDING; do not treat the Windows quality-gates result alone as full acceptance or merge authorization.
+- PR #459 HEAD `c52f49e90e026d1defb93d2ec1cf9f7a2b7a074c`, run [#45126318408](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45126318408), attempt 1:
+  - Exact candidate metadata resolver: SUCCESS.
+  - Windows Runner quality gates: IN_PROGRESS.
+  - No terminal quality-gates result yet.
+- GPT5 operations documentation PR #445 has been refreshed on its own branch. New documentation commit: `5ff4f6cb70731245e05d8656a5b106700387781a`; current PR HEAD equals this commit, base remains main `f622c852...`, Draft remains true. No exact-head GitHub Actions run was returned for this commit at the time of this poll. Combined status shows only Vercel FAILURE `build-rate-limit`; this is not an Actions result.
+- No formal independent review was created by GPT5. No Draft was removed, no PR approved or merged, and no deployment or protected resource was changed.
