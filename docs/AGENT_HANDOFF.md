@@ -3800,3 +3800,19 @@ This addendum supersedes older snapshots only for the exact refs and run IDs bel
 - The existing daily automation remains enabled at 19:00 Asia/Taipei per the current automation record. Its run history is empty and delivery is UNKNOWN; this manual audit is not represented as a scheduled execution.
 
 **Disposition: MAIN FAILURE; 14 OPEN PRs; 11 Draft; 3 Ready; 0 merged; 0 formal APPROVED; 10 stale-base PRs; no safe merge. FAILURE, SKIPPED, NOT RUN, external errors, stale-base success, and UNKNOWN remain non-green.**
+
+
+## GPT5 live recheck — 2026-11-24 (fresh API snapshot)
+
+- Main ref remains `6b3ac4b639c285b2c664ffae579029a3fae29f99` (`fix(ai-cost): extract testable invoice preview payload validation`). Main CI run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163) is COMPLETED / FAILURE.
+- Main run has **7 jobs** (not 0): metadata resolver job `137929482510` FAILURE; diagnostics job `137929509999` FAILURE; Windows quality, Supabase/PostgreSQL/RLS, and Ollama jobs SKIPPED; failure persistence SUCCESS; success persistence SKIPPED. The two failed jobs' step endpoints returned empty arrays, so step-level cause remains UNKNOWN; do not relabel this as zero jobs.
+- Latest Main recovery run [#45288606289](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45288606289) is COMPLETED / SKIPPED. Numerous recovery runs on the same Main SHA are also SKIPPED; no recovery success is evidenced.
+- Live open-PR inventory: 14 OPEN, 11 Draft, 3 Ready, 0 merged. Current-main bases: #503/#502/#501/#500. Stale bases: #498/#497/#496/#495/#493/#478/#476/#417/#376/#259 (10).
+- #493 current PR ref is OPEN / Draft; exact HEAD `ae0bfbcc8910c264c1ae812c477f058480b5bec0`; base remains stale `8002072738d0dad722ccfc1207250165d1b7d8bc`. Its exact-HEAD Actions check suite is FAILURE: Resolver and Diagnostics FAILURE; Windows quality, Supabase/RLS, Ollama and persistence checks SKIPPED; Vercel Preview Comments and Summary SUCCESS; Mergify neutral. Combined statuses: Vercel SUCCESS, CircleCI ERROR (no project configuration). This is not a passing CI gate.
+- #493 formal review records currently visible are COMMENTED only (all prior comments, no APPROVED); current inline review threads query returned zero unresolved threads. No independent formal approval is evidenced.
+- A stale branch-name lookup previously used for the handoff returned 404; the actual live PR head ref is `docs/gpt5-live-ops-checkpoint-8002072738-20261124`. This was corrected by reading the file at the exact PR HEAD SHA before updating.
+- No Draft promotion or merge is justified. Shared Resolver/Diagnostics failure routes to GPT1/Factory; CircleCI configuration to its project owner; Vercel rate-limit/deployment issue (where applicable on other PRs) to the deployment owner. Do not blind-retry known deterministic failures.
+- GPT5-owned action this pass: refresh this handoff document with the current Main job matrix, exact #493 HEAD checks/status/reviews, and automation evidence. No Factory/Product code, workflow, Runner, database/RLS, secrets, permissions, deployment, or quota changes.
+- Existing automation `6b03d327186881919adac1a7ed62e1b8` is enabled, daily flexible schedule at 07:00 Asia/Taipei, next run `2026-11-25T07:00:00+08:00`. Last run and latest result are null; delivery status UNKNOWN. This manual audit is not a scheduled automation run.
+
+**Current disposition: MAIN FAILURE; recovery SKIPPED; 14 OPEN PRs (11 Draft / 3 Ready); 10 stale bases; #493 exact-head CI FAILURE; no independent approval; no safe merge.**
