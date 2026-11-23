@@ -1558,6 +1558,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
   };
   const expectedTasks = structuredClone(initial.tasks);
   const sha = "d".repeat(40);
+  const pullRequestHeadSha = "e".repeat(40);
   const requests = [];
   const store = fakeStore(initial);
   const controller = createAgentFactoryController({
@@ -1584,7 +1585,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
             pull_requests: [{
               number: 168,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
-              head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
+              head: { ref: "feature/system-health", sha: pullRequestHeadSha, repo: { full_name: "owner/repo" } },
             }],
           };
         }
@@ -1593,7 +1594,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
             number: 168,
             state: "open",
             base: { ref: "main", repo: { full_name: "owner/repo" } },
-            head: { ref: "feature/system-health", sha, repo: { full_name: "owner/repo" } },
+            head: { ref: "feature/system-health", sha: pullRequestHeadSha, repo: { full_name: "owner/repo" } },
           };
         }
         throw new Error("Unexpected API request: " + path);
@@ -1606,6 +1607,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
     SYSTEM_HEALTH_RUN_ATTEMPT: "2",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "168",
     SYSTEM_HEALTH_HEAD_SHA: sha,
+    SYSTEM_HEALTH_PR_HEAD_SHA: pullRequestHeadSha,
   };
 
   const first = await controller.run(env);
@@ -1613,6 +1615,8 @@ test("system-health success requires verified exact-head CI evidence and resets 
 
   assert.equal(first.outputs.breaker_reset, true);
   assert.equal(first.outputs.duplicate, false);
+  assert.equal(first.outputs.health_head_sha, sha);
+  assert.equal(first.outputs.health_pr_head_sha, pullRequestHeadSha);
   assert.equal(first.outputs.cooldown_active, false);
   assert.equal(first.state.system.consecutive_failures, 0);
   assert.equal(first.state.system.cooldown_until, null);
@@ -1684,6 +1688,7 @@ test("system-health success rejects an overall successful run when required CI j
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "170",
     SYSTEM_HEALTH_HEAD_SHA: sha,
+    SYSTEM_HEALTH_PR_HEAD_SHA: sha,
   }), /every resolver, quality, build, and database job to succeed/);
 
   assert.equal(store.state.state_version, initial.state_version);
@@ -1739,6 +1744,7 @@ test("system-health success rejects a required CI job from another attempt or SH
     SYSTEM_HEALTH_RUN_ATTEMPT: "2",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "171",
     SYSTEM_HEALTH_HEAD_SHA: sha,
+    SYSTEM_HEALTH_PR_HEAD_SHA: sha,
   }), /every resolver, quality, build, and database job to succeed/);
 
   assert.equal(store.state.state_version, initial.state_version);
@@ -1798,6 +1804,7 @@ test("system-health success rejects a closed PR even when its old CI run was suc
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "172",
     SYSTEM_HEALTH_HEAD_SHA: sha,
+    SYSTEM_HEALTH_PR_HEAD_SHA: sha,
   }), /current open same-repository non-task PR head and branch no longer match/);
 
   assert.equal(store.state.state_version, initial.state_version);
@@ -1810,7 +1817,8 @@ test("system-health success rejects a successful CI run when the PR has advanced
   initial.system.consecutive_failures = 2;
   initial.system.cooldown_until = new Date(120_000).toISOString();
   const testedSha = "d".repeat(40);
-  const currentSha = "e".repeat(40);
+  const testedPullRequestHeadSha = "e".repeat(40);
+  const currentSha = "f".repeat(40);
   const store = fakeStore(initial);
   const controller = createAgentFactoryController({
     store,
@@ -1835,7 +1843,7 @@ test("system-health success rejects a successful CI run when the PR has advanced
             pull_requests: [{
               number: 169,
               base: { ref: "main", repo: { full_name: "owner/repo" } },
-              head: { ref: "feature/system-health", sha: testedSha, repo: { full_name: "owner/repo" } },
+              head: { ref: "feature/system-health", sha: testedPullRequestHeadSha, repo: { full_name: "owner/repo" } },
             }],
           };
         }
@@ -1858,6 +1866,7 @@ test("system-health success rejects a successful CI run when the PR has advanced
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "169",
     SYSTEM_HEALTH_HEAD_SHA: testedSha,
+    SYSTEM_HEALTH_PR_HEAD_SHA: testedPullRequestHeadSha,
   }), /current open same-repository non-task PR head and branch no longer match/);
 
   assert.equal(store.state.state_version, initial.state_version);
@@ -1906,7 +1915,18 @@ test("system-health success fails closed for missing or mismatched health eviden
       SYSTEM_HEALTH_RUN_ID: "555010",
       SYSTEM_HEALTH_RUN_ATTEMPT: "1",
       SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "168",
+      SYSTEM_HEALTH_HEAD_SHA: "e".repeat(40),
+    }),
+    /System health pull-request head SHA is required/,
+  );
+  await assert.rejects(
+    controller.run({
+      AGENT_FACTORY_MODE: "system-health-success",
+      SYSTEM_HEALTH_RUN_ID: "555010",
+      SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "168",
       SYSTEM_HEALTH_HEAD_SHA: "f".repeat(40),
+      SYSTEM_HEALTH_PR_HEAD_SHA: "f".repeat(40),
     }),
     /exact-head CI pull_request run/,
   );
@@ -1917,6 +1937,7 @@ test("system-health success fails closed for missing or mismatched health eviden
       SYSTEM_HEALTH_RUN_ATTEMPT: "1",
       SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "999",
       SYSTEM_HEALTH_HEAD_SHA: "e".repeat(40),
+      SYSTEM_HEALTH_PR_HEAD_SHA: "e".repeat(40),
     }),
     /same-repository PR targeting main/,
   );
@@ -2040,6 +2061,7 @@ test("system-health success rejects task candidates and ambiguous or mismatched 
       SYSTEM_HEALTH_RUN_ATTEMPT: "1",
       SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "180",
       SYSTEM_HEALTH_HEAD_SHA: sha,
+      SYSTEM_HEALTH_PR_HEAD_SHA: sha,
     }), /exactly one non-task same-repository PR targeting main/);
 
     assert.equal(store.state.state_version, initial.state_version, scenario.name);
@@ -2100,6 +2122,7 @@ test("system-health success rejects a PR whose current branch ref no longer matc
     SYSTEM_HEALTH_RUN_ATTEMPT: "1",
     SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "180",
     SYSTEM_HEALTH_HEAD_SHA: sha,
+    SYSTEM_HEALTH_PR_HEAD_SHA: sha,
   }), /current open same-repository non-task PR head and branch no longer match/);
 
   assert.equal(store.state.state_version, initial.state_version);
