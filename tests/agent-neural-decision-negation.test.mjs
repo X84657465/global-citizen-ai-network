@@ -368,3 +368,21 @@ test("object-target operations cover common billing and production grammar witho
     assert.equal(result.decision, "approve_for_sandbox_validation", title);
   }
 });
+
+test("negated prohibitions retain positive-risk meaning across coordinated targets", () => {
+  for (const title of [
+    "Do not block deployment to production or change billing settings",
+    "Do not prevent production migration and update production settings",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+
+  const observationalTitle = "Do not block the production deployment history review";
+  const observational = evaluateAgentDecision(withImplementerText(observationalTitle), task);
+  assert.equal(observational.signals.no_high_risk_scope, true, observationalTitle);
+  assert.equal(observational.evidence.high_risk_scope_detected, false, observationalTitle);
+  assert.equal(observational.decision, "approve_for_sandbox_validation", observationalTitle);
+});
