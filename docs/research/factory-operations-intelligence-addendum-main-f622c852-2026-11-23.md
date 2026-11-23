@@ -358,3 +358,62 @@ No Factory source/workflow outside PR administration, Runner, Lease, database/RL
 ### Daily automation
 
 The existing `GCAN 每日工程巡檢` automation remains enabled, with a daily flexible schedule at approximately 08:00 Asia/Taipei; next scheduled run: 2026-11-24 08:00 +08:00. This live refresh is separate from its earlier recorded run.
+
+
+---
+
+## Superseding live refresh — 2026-11-23 (12 open PRs; current exact-head recheck)
+
+This section supersedes every earlier PR inventory/head/run state in this addendum where values differ. Fresh reads confirm current main is still `f622c852346577d67aed0bde2922ade17044057c`. The coordination document was freshly read from main in this session (blob `d3ee1881aa67861fc42a2b568b26020945b0c218`); Neural Intelligence mode blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`, Master Charter blob `46b188085c2dff0f527477b2486719a7f6c24b59`, and Execution Operating System blob `67166a378c92909c8ddf64586f8a2b5202be7d14` were also freshly read. The Master Charter and Execution Operating System remain proposals; no new GPT5/module permissions are inferred.
+
+### Main — exact terminal result
+
+- Main HEAD: `f622c852346577d67aed0bde2922ade17044057c`.
+- Push run [#45106600175](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600175), attempt 1: COMPLETED / FAILURE.
+- Metadata resolver: SUCCESS.
+- Windows quality gates: FAILURE at `Verify CI trigger and Runner policy`; CI policy test `tests/ci-trigger-policy.test.mjs:838`, 42 PASS / 1 FAIL.
+- Exact-SHA diagnostics and failure-evidence persistence: SUCCESS.
+- Unit tests, typecheck, lint, production build, PostgreSQL/RLS and Ollama integration: SKIPPED after the quality-gate failure; none is PASS for Main.
+- Combined commit status reports Vercel FAILURE with `build-rate-limit`. This is external deployment-provider quota, not GitHub Actions CI.
+
+### New split candidates for the two independent Factory test defects
+
+The prior canonical combined PR #458 has been split into owner-controlled, narrower candidates. Do not reuse the old #458 head `3691b261...` or its old SUCCESS result as current-head evidence.
+
+- [PR #458](https://github.com/X84657465/global-citizen-ai-network/pull/458), title `fix(factory): consolidate scratch publication CI repairs`, is OPEN / non-Draft / mergeable, base main at `f622c852...`. Current exact HEAD: `a4a3194c2c60e6b7950dee848bd87c6add0732fc`. Changed paths: `.github/workflows/agent-task-preflight.yml` and `tests/agent-patch-to-scratch.test.mjs`. Exact-head run [#45126296524](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45126296524), attempt 1: metadata resolver SUCCESS; Windows quality gates IN_PROGRESS at last observation. No terminal CI result and no formal reviews.
+- [PR #459](https://github.com/X84657465/global-citizen-ai-network/pull/459), title `test(ci): scope scratch manifest assertion to upload step`, is OPEN / non-Draft / mergeable, base main at `f622c852...`. Current exact HEAD: `c52f49e90e026d1defb93d2ec1cf9f7a2b7a074c`. Changed path only: `tests/ci-trigger-policy.test.mjs`. Exact-head run [#45126318408](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45126318408), attempt 1: metadata resolver SUCCESS; Windows quality gates PENDING at last observation. No terminal CI result and no formal reviews.
+- Both current candidate runs are waiting/working on the shared self-hosted Windows Runner concurrency group. PENDING/IN_PROGRESS is not PASS. Do not rerun unchanged jobs or infer successful validation.
+- PR #458 and #459 each have zero formal review submissions. GPT5 is not the code owner or independent approver for either Factory-owned change.
+
+### All current open PRs — exact observed heads
+
+| PR | Exact HEAD | Base | Draft | Exact-head Actions | Formal reviews |
+|---|---|---|---|---|---|
+| [#458](https://github.com/X84657465/global-citizen-ai-network/pull/458) | `a4a3194c2c60e6b7950dee848bd87c6add0732fc` | main / `f622c852...` | No | [#45126296524](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45126296524): IN_PROGRESS (resolver SUCCESS; Windows quality gates IN_PROGRESS) | 0 |
+| [#459](https://github.com/X84657465/global-citizen-ai-network/pull/459) | `c52f49e90e026d1defb93d2ec1cf9f7a2b7a074c` | main / `f622c852...` | No | [#45126318408](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45126318408): PENDING (resolver SUCCESS; Windows quality gates PENDING) | 0 |
+| [#445](https://github.com/X84657465/global-citizen-ai-network/pull/445) | `1c39e82c19fe3a5ab428dc33a3af864e02fd17a3` | main / `f622c852...` | Yes | [#45121640720](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45121640720): FAILURE (shared #446 policy assertion) | 0 |
+| [#450](https://github.com/X84657465/global-citizen-ai-network/pull/450) | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main / `f622c852...` | Yes | [#45117595636](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45117595636): FAILURE | 1 COMMENTED |
+| [#448](https://github.com/X84657465/global-citizen-ai-network/pull/448) | `d81a22fa91ed8ff38f23aa76dedf322ab86c6c30` | main / `f622c852...` | Yes | [#45112368774](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112368774): FAILURE | 1 COMMENTED |
+| [#457](https://github.com/X84657465/global-citizen-ai-network/pull/457) | `bf64ecdd7e0e61303a5514703a03ea028947d96c` | main / `f622c852...` | Yes | [#45122214293](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45122214293): FAILURE | 2 COMMENTED |
+| [#442](https://github.com/X84657465/global-citizen-ai-network/pull/442) | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | feature branch / `df841a9a...` | Yes | [#45108427275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45108427275): SUCCESS; not based on main | 0 |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main / `25d5ed51...` | No | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505): FAILURE; stale base, mergeable=false | 0 |
+| [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main / `480f22e4...` | Yes | [#45100493731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100493731): SUCCESS; stale base, mergeable=false | 0 |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main / `93e7ac35...` | No | [#45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388): SUCCESS; stale base, mergeable=false | 9 COMMENTED |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main / `93e7ac35...` | No | No exact-head run: 0 RUN / NOT RUN; stale base, mergeable=false | 13 COMMENTED; unresolved thread(s) |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main / `a1c1b58e...` | No | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719): SUCCESS; stale base, mergeable=false | 2 COMMENTED |
+
+Aggregate: 12 OPEN PRs; formal APPROVED reviews observed: 0. COMMENTED is not APPROVED. Historical SUCCESS on stale bases or another feature branch does not establish current-main acceptance. No PR currently has sufficient evidence for merge.
+
+### GPT5-owned operations PR #445
+
+PR #445 remains a single-file documentation-only change on its own branch. Its exact-head run remains FAILURE at the shared Factory CI policy assertion; downstream checks are not acceptance evidence. GPT5 may refresh this evidence document on its own branch, but must not edit Factory-owned test/workflow paths, self-approve, remove Draft, or merge without the required independent review and exact-head checks.
+
+### Owner handoff / next actions
+
+1. GPT1 / Factory owner: finish PR #458 and #459 in their separated scopes; preserve scratch-manifest exclusion and cleanup ordering; obtain terminal exact-head CI.
+2. GPT3: independently review the final exact HEAD(s), recording formal APPROVED only if all required evidence and review criteria pass.
+3. Main: after authorized merge(s), capture the new main SHA and run complete Main CI. Recheck that unit tests, typecheck, lint, build, Ollama and PostgreSQL/RLS actually execute rather than SKIP.
+4. GPT5: keep this operations addendum current on its own branch; continue only non-overlapping evidence/operations work.
+5. Vercel: external `build-rate-limit` remains a provider-side restriction; no bypass, plan change, secret or deployment action was attempted.
+
+No Factory implementation, workflow, Runner/Lease, database/RLS, secret, permission, branch protection, production data, deployment or durable Factory state was changed by this GPT5 documentation refresh.
