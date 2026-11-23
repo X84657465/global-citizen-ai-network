@@ -2996,3 +2996,50 @@ This addendum supersedes the immediately preceding #493 head/run values. During 
 - This recheck's other PR inventory remains 12 open PRs; exact current heads, CI, reviews and thread counts are recorded in the preceding delta, with #493 now advanced to this SHA. Formal APPROVED count remains 0/12 in the last refreshed review pass.
 - No code, workflow, Runner, permissions, secrets, DB/RLS, branch protection, or deployment settings changed. No local tests run. Main remains BLOCKED / NOT GREEN; #493 remains Draft. Do not promote or merge on mergeable=true.
 - The HTTP 409 was handled by re-reading the latest branch/blob and not overwriting concurrent work. No blind write retry was made.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-24 (fresh recheck after concurrent updates)
+
+This addendum supersedes conflicting earlier inventory and #493 HEAD/run claims. It records direct GitHub evidence only and does not constitute independent review, acceptance, Draft promotion, merge authorization, deployment, or release.
+
+### Main
+- Latest `main` HEAD re-read: `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Exact Main push run previously verified: [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105), attempt 1, **FAILURE**. Resolver and diagnostics failed; failure persistence job succeeded but candidate-specific persistence was skipped; Windows quality, Ollama, Supabase/PostgreSQL/RLS and success persistence were **SKIPPED**.
+- Current Actions listing still shows Recovery [#45232912866](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45232912866) on this Main SHA **COMPLETED / SKIPPED**. No recovery PASS is evidenced.
+- Exact-commit workflow-run lookup returned no new Main push run. Missing run is not PASS. Main remains **BLOCKED / NOT GREEN**.
+
+### All 13 open PRs — exact current HEAD Actions
+| PR | Current HEAD | Base | Draft | Exact-head Actions |
+|---|---|---|---|---|
+| #493 | `3994a3fc7a0a9a0ebfedd095e8a3bef86ac1bbe2` | current Main | Yes | [#45232884859](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45232884859) **FAILURE** |
+| #499 | `f232a630b2550270309c10d3d852581fb3070235` | current Main | Yes | [#45232546114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45232546114) **FAILURE** |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | current Main | Yes | [#45230211754](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230211754) **FAILURE** |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | current Main | Yes | [#45229281768](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229281768) **FAILURE** |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) **SUCCESS on stale-base candidate only** |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | current Main | Yes | [#45228376095](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45228376095) **FAILURE** |
+| #495 | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | current Main | Yes | [#45225428794](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45225428794) **FAILURE** |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale base `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) **FAILURE** |
+| #494 | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | current Main | Yes | [#45218883945](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45218883945) **FAILURE** |
+| #491 | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | current Main | Yes | [#45213070420](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45213070420) **FAILURE** |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale base `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | [#45191718421](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45191718421) **SUCCESS on stale-base candidate only** |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale base `4225a244407f7a323262c4d6e17b2749193d6476` | No | **NO EXACT-HEAD RUN RETURNED** |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | **NO EXACT-HEAD RUN RETURNED** |
+
+Summary: 9 exact-head failures, 2 stale-base successes, 2 no exact-head run. All 13 remain open; 0 formal APPROVED reviews were returned across the 13 PRs. #493 has a COMMENTED review, not approval. No PR meets merge gates.
+
+### Current GPT5-owned PR #493 failure
+- #493 is open, unmerged, Draft=true, mergeable=true; HEAD `3994a3fc7a0a9a0ebfedd095e8a3bef86ac1bbe2`, base current Main.
+- Exact-head run #45232884859: Resolver #137896833622 **FAILURE**; diagnostics #137896857622 **FAILURE**; Windows quality #137896858375, Supabase/RLS #137896858849, Ollama #137896859786, failure persistence #137896860472, success persistence #137896861463 all **SKIPPED**.
+- The run has no evidenced substantive quality/integration pass. No self-approval, Draft promotion, acceptance, or merge.
+
+### Root cause / owner routing / GPT5 scope
+- Resolver/diagnostics root cause remains **UNKNOWN**. Earlier log retrieval returned storage 404 `BlobNotFound`; do not infer credentials, permission, quota, Runner or application-code cause. Stop blind retries.
+- GPT1 / Factory-CI owner: restore actionable resolver/diagnostics evidence and classify the failure before another retry.
+- GPT1 owns Factory changes; GPT2 owns F–P coordination/source; GPT3 owns independent QA; GPT4 owns Product. GPT5 remains limited to operations evidence and `docs/AGENT_HANDOFF.md`; no other workstream source/workflow/Runner/security/database changes.
+- No local tests were run in this chat. No PR was un-Drafted, self-approved, merged or deployed.
+
+### Automation truth
+- `GCAN Daily Dev Check` and `GCAN 每日章程檢閱` are enabled, both scheduled daily at 08:00 Asia/Taipei; next run is 2026-11-24 08:00 +08:00.
+- Last recorded run for Daily Dev Check is 2026-11-23; the charter review automation has no recorded run. This is a manual recheck, not a scheduled automation delivery.
