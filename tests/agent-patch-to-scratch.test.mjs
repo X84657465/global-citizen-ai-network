@@ -172,9 +172,14 @@ test("keeps patch rejection system-scoped when task identity is invalid", (t) =>
 test("guards task marker persistence behind successful scratch cleanup", () => {
   const source = readFileSync(scriptPath, "utf8");
   const cleanupFailure = source.indexOf("cleanupSucceeded = false");
+  const cleanupAttempt = source.indexOf("if (scratchDir) {");
+  const cleanupCall = source.indexOf('rmSync(scratchDir, { recursive: true, force: true })');
   const guardedMarker = source.indexOf("if (taskScoped && cleanupSucceeded && validTaskIdentity");
   const markerAppend = source.indexOf('appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task');
   assert.ok(cleanupFailure >= 0);
+  assert.ok(cleanupAttempt >= 0);
+  assert.ok(cleanupCall > cleanupAttempt);
+  assert.equal(source.includes("if (scratchDir && existsSync(scratchDir))"), false);
   assert.ok(guardedMarker > cleanupFailure);
   assert.ok(markerAppend > guardedMarker);
 });
