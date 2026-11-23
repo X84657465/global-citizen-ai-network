@@ -705,7 +705,8 @@ test("system breaker recovery waits for a completed successful exact-head CI wor
   assert.ok(recoveryJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
   assert.ok(recoveryJob.includes("queue: max"));
   assert.ok(recoveryJob.includes("cancel-in-progress: false"));
-  assert.ok(recovery.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.ok(recovery.includes("runs-on: ubuntu-latest"),
+    "the state recovery job must stay on hosted Linux while retaining the shared cross-process queue");
   assert.ok(recovery.includes("actions: read"));
   assert.ok(recovery.includes("contents: read"));
   assert.ok(recovery.includes("issues: write"));
