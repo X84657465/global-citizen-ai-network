@@ -800,19 +800,6 @@ jobs:
             [System.Text.UTF8Encoding]::new($false)
           )
 
-      - name: Upload exact validated publication bundle
-        if: success() && steps.candidate-tests.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-agent-publication-${{ github.run_id }}
-          path: |
-            artifacts/agent-task.json
-            artifacts/agent-plan.json
-            artifacts/agent-patch.json
-            artifacts/agent-scratch-publication.json
-          if-no-files-found: error
-          retention-days: 1
-
       - name: Clean disposable scratch workspace
         id: cleanup-scratch
         if: always()
@@ -831,6 +818,19 @@ jobs:
               Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
             }
           }
+
+      - name: Upload exact validated publication bundle
+        if: success() && steps.candidate-tests.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agent-publication-${{ github.run_id }}
+          path: |
+            artifacts/agent-task.json
+            artifacts/agent-plan.json
+            artifacts/agent-patch.json
+            artifacts/agent-scratch-publication.json
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Classify known task-scoped failures before updating factory state
         if: failure()
