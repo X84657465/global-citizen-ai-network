@@ -202,3 +202,56 @@ The declared base is PR #443's branch at 618b283819ee5644b001f08b3700b6f4ac0d8eb
 - GPT5: this refresh is documentation/evidence-only on the already-open GPT5 operations PR's single-file allowlist. No Factory source, Runner, secrets, permissions, database, deployment or branch protection was changed.
 
 No PR was approved, undrafted, merged, deployed, or represented as accepted by this update.
+
+
+---
+
+## Superseding live refresh — 2026-11-23 afternoon (Main SHA f622c852)
+
+This section supersedes the earlier PR count and dispositions above. Re-read live repository refs, exact-head Actions runs, current PR metadata, and formal review submissions. All times in this check are Taiwan local unless noted.
+
+### Mainline exact state
+
+- Default branch: `main`; current SHA: `f622c852346577d67aed0bde2922ade17044057c`.
+- Main push Actions run [#45106600175](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600175), attempt 1: **COMPLETED / FAILURE** (7 jobs).
+  - Exact metadata resolver: SUCCESS.
+  - Windows Runner quality gates: FAILURE, at `tests/ci-trigger-policy.test.mjs:838` (42/43 policy tests).
+  - Exact-SHA diagnostics and system-failure evidence persistence: SUCCESS.
+  - Supabase/PostgreSQL/RLS integration: SKIPPED.
+  - Ollama/local execution integration: SKIPPED.
+  - Success/breaker-reset path: SKIPPED.
+  - Typecheck, lint, production build and downstream integration did not complete after the policy failure; none is PASS.
+- Combined commit status for the same Main SHA: Vercel FAILURE, target URL indicates `build-rate-limit`. This is an external deployment-provider limit, separate from GitHub Actions.
+- Issue [#446](https://github.com/X84657465/global-citizen-ai-network/issues/446) remains the owner-tracked P1 policy-test blocker. GPT1/Factory owns the source/test repair; GPT5 does not modify that allowlist.
+
+### All 12 open PRs — exact current heads and CI
+
+| PR | Current exact HEAD | Base ref / SHA | Draft | Exact-head Actions | Formal review |
+|---|---|---|---|---|---|
+| [#452](https://github.com/X84657465/global-citizen-ai-network/pull/452) | `4149f4ca525233e3c32f216538cc567ab98aa649` | main / `f622c852346577d67aed0bde2922ade17044057c` | Yes | [#45119622716](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45119622716) attempt 1 IN_PROGRESS at recheck; previous HEAD `cc642135...` run #45119304477 FAILED | 0 |
+| [#450](https://github.com/X84657465/global-citizen-ai-network/pull/450) | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main / `f622c852346577d67aed0bde2922ade17044057c` | Yes | [#45117595636](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45117595636) attempt 1 FAILURE; same #446 policy assertion | 0 |
+| [#449](https://github.com/X84657465/global-citizen-ai-network/pull/449) | `4f78d802ba551c6e07bda67c464bcbc42d3e2ccc` | main / `f622c852346577d67aed0bde2922ade17044057c` | Yes | [#45113404358](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45113404358) attempt 1 FAILURE; same #446 policy assertion | 0 |
+| [#448](https://github.com/X84657465/global-citizen-ai-network/pull/448) | `d81a22fa91ed8ff38f23aa76dedf322ab86c6c30` | main / `f622c852346577d67aed0bde2922ade17044057c` | Yes | [#45112368774](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112368774) attempt 1 FAILURE; same #446 policy assertion | 1 COMMENTED |
+| [#445](https://github.com/X84657465/global-citizen-ai-network/pull/445) | `c8cddcc9fba2a254f2663eb1de3d26d13d4e66fc` | main / `f622c852346577d67aed0bde2922ade17044057c` | Yes | [#45117249210](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45117249210) attempt 1 FAILURE; same #446 policy assertion | 0 |
+| [#443](https://github.com/X84657465/global-citizen-ai-network/pull/443) | `618b283819ee5644b001f08b3700b6f4ac0d8eb1` | main / `f622c852346577d67aed0bde2922ade17044057c` | No | [#45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854) attempt 1 SUCCESS | 1 COMMENTED; 0 APPROVED |
+| [#442](https://github.com/X84657465/global-citizen-ai-network/pull/442) | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | `feat/cyber-security-defense-integration` / `df841a9a89b0526477543b76667d99ae4554a7f7` | Yes | [#45108427275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45108427275) attempt 1 SUCCESS; not based on main | 0 |
+| [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main / `480f22e484dfa80d301f136cedd5504fbde41407` | Yes | [#45100493731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100493731) attempt 1 SUCCESS; stale base | 0 |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main / `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) attempt 1 FAILURE; stale base | 0 |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main / `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | No | No run for this exact HEAD: NOT RUN | 13 COMMENTED; 0 APPROVED |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main / `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | No | [#45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388) attempt 1 SUCCESS; stale base | 9 COMMENTED; 0 APPROVED |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main / `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | No | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) attempt 1 SUCCESS; stale base | 2 COMMENTED; 0 APPROVED |
+
+Aggregate: **12 open PRs; 0 formal APPROVED reviews.** COMMENTED is not APPROVED. Historical SUCCESS on stale bases or a non-main feature branch is not current-main acceptance. No PR is authorized for merge by this evidence.
+
+### Newly observed owner-side progress and regression
+
+PR #452's first exact-head run, #45119304477 on `cc642135e839c4c8179bac0b94a75a71b6ca99c9`, completed FAILURE. Its CI trigger-policy test passed, but unit test 243 failed at `tests/agent-patch-to-scratch.test.mjs:164`: expected the system-scoped cleanup error text, but actual output was `Scratch patch validation failed: Only a validated task bundle with a valid fetched Issue identity is accepted.` Typecheck, lint, build and integration jobs were skipped.
+
+After the GPT5 evidence handoff on PR #452, its owner pushed a new exact HEAD `4149f4ca525233e3c32f216538cc567ab98aa649`. The patch updates the test expectation to match the current fail-closed validation message and narrows the workflow policy assertion to the named upload step while separately asserting raw-manifest cleanup ordering. New exact-head run #45119622716 was IN_PROGRESS at the latest recheck. This is owner-side progress, not yet a pass; wait for terminal run/job results and recheck the exact current HEAD.
+
+### GPT5 operational work and boundaries
+
+- Posted a precise evidence handoff to PR #452 identifying the new exact-head unit-test mismatch; comment ID: `7092694799`.
+- This PR's original failing HEAD is superseded; do not treat its failure as the status of the new HEAD.
+- GPT5's own documentation PR #445 remains Draft and its exact-head run #45117249210 failed on the shared Main #446 policy test. The report update is documentation-only and does not change Factory code or workflow.
+- No Draft was removed, no formal approval was issued, no merge/deploy was performed, and no Runner, secret, permission, database, branch-protection or production state was changed.
