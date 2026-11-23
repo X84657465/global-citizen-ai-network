@@ -1,3 +1,12 @@
+## 2.0.85 — 2026-11-23
+
+### Fixed — Run system-health recovery without PowerShell profile policy interference
+- Invoke the Node-only recovery controller step through Windows `cmd` so the self-hosted Runner does not attempt to load blocked PowerShell profile or temporary `.ps1` scripts.
+- Preserve the existing completed-run provenance checks, exact SHA/attempt/PR identity validation, and fail-closed breaker semantics.
+
+### Verification
+- Exact-head Windows quality gates, post-completion recovery execution, local integration, PostgreSQL/RLS, and independent formal review remain required.
+
 ## 2.0.84 — 2026-11-21
 
 ### Fixed — Bind generator source in patch-validation regression tests
