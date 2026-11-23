@@ -2209,42 +2209,47 @@ This delta supersedes earlier same-day status snapshots where exact-head or run 
 
 ---
 
-## GPT5 live operations delta — 2026-11-24 (exact-head revalidation)
+---
 
-This delta supersedes older main/PR/CI snapshots above wherever the exact SHA or run state differs. It is an operations evidence record only, not acceptance, independent review, merge approval, or deployment authorization.
+## GPT5 live operations delta — 2026-11-23 12:48 UTC (current exact-head revalidation)
 
-### Governance read and execution boundary
-- Re-read from current main: `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md` blob `299d445e1f29decc3002e29e68ecbf6ba6ddf900`; Master Charter blob `46b188085c2dff0f527477b2486719a7f6c24b59`; Execution Operating System blob `67166a378c92909c8ddf64586f8a2b5202be7d14`.
-- Master Charter and Execution Operating System remain PROPOSED. Current approved role policy still applies: GPT5 provides Global Intelligence & Operations support, does not own A–P modules, and cannot replace GPT3 independent QA. Factory-first and exact evidence requirements remain in force.
+This checkpoint replaces the future-dated 2026-11-24 section previously appended to this branch. It records only observations made on 2026-11-23 and is evidence/handoff, not acceptance or merge authorization.
 
-### Main exact SHA and recovery
-- Main HEAD remains `4225a244407f7a323262c4d6e17b2749193d6476`.
-- Main push CI run `45166790416`, attempt 1, is terminal FAILURE: 778/779 unit tests passed; test 565 at `tests/fp/mainline-integration.test.ts:82` failed because the scheduler runbook lacked `does not approve the candidate, authorize a merge, or deploy production`. The sentence exists in PR #475, but that PR has not completed exact-head CI.
-- Latest System Health Recovery run `45175316194`, attempt 1, is terminal FAILURE. Job `137694913658` log confirms PowerShell profile and temporary script execution blocked by `PSSecurityException` / ExecutionPolicy. This is a confirmed runner execution-policy blocker; no successful breaker reset is established. Repeated SKIPPED recovery runs are not PASS.
+### Governance re-read
+- Current-main `PROJECT_COORDINATION.md`: blob `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- Current-main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`: blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- Current-main Master Charter: blob `46b188085c2dff0f527477b2486719a7f6c24b59` (**PROPOSED**).
+- Current-main Execution Operating System: blob `67166a378c92909c8ddf64586f8a2b5202be7d14` (**PROPOSED**).
+- Current-main Agent Factory Autonomy Charter: blob `299d445e1f29decc3002e29e68ecbf6ba6ddf900`.
+- Existing approved role boundaries remain effective: GPT5 is Global Intelligence & Operations support, not an A–P module owner or GPT3 independent reviewer. No proposal document grants additional write, Runner, merge, deployment, secret, or permission authority.
 
-### All 10 open PRs — exact HEAD checks and reviews
-| PR | Exact HEAD | Base | State | Exact-head checks | Review / blocker |
-|---|---|---|---|---|---|
-| #473 | `607141476e9edc1820a9267266a85a42d8926963` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true | Metadata resolver SUCCESS; Windows quality Job `137696263763` PENDING | No formal review; this GPT5 handoff commit is not yet verified |
-| #477 | `668b48a158f4660ba8b88360c6ac93b976081957` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true | Metadata resolver SUCCESS; Windows quality Job `137696030111` PENDING | No formal review; other required gates not yet established |
-| #476 | `6be79aa9a471700054abe900755302579ba88d0a` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / non-Draft / mergeable=true | Governance integrity Job `137693334938` FAILURE; Windows quality Job `137695347473` IN_PROGRESS; resolver SUCCESS | No formal review; governance log download BlobNotFound, failed assertion UNKNOWN; non-Draft is not approval |
-| #472 | `670723f8065e307b1251e81fe331bd037b60bf06` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true | Linux fixture Job `137691078591` FAILURE; Windows quality Job `137687765479` FAILURE; diagnostics SUCCESS; dependent jobs SKIPPED | No formal review; Linux/Windows log downloads unavailable (BlobNotFound), root cause UNKNOWN |
-| #475 | `8f7a922e2c2b97b6d390b52015b76da202204b7c` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true | Resolver SUCCESS; Windows quality Job `137695801743` PENDING | No formal review; DB/RLS, Ollama and other conditional checks not yet completed; not PASS |
-| #474 | `0e890a990eafe5371b1e17d0e33876bdaecefea5` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true | Windows quality FAILURE; diagnostics and resolver SUCCESS; DB/RLS, Ollama and breaker jobs SKIPPED | No formal review; manifest 0.3.138 conflicts with engineering-workstream planning baseline 0.3.137; release/version owner decision required |
-| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | OPEN / Draft / mergeable=false | Quality, DB/RLS, Ollama and resolver SUCCESS; three conditional jobs SKIPPED | Two COMMENTED reviews only; stale base/conflict; no APPROVED |
-| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | OPEN / Draft / mergeable=false | Quality, DB/RLS, Ollama and resolver SUCCESS; three conditional jobs SKIPPED | Nine COMMENTED reviews only; stale base/conflict; no APPROVED |
-| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | OPEN / Draft / mergeable=false | Exact-head check-runs endpoint: 0 checks | Thirteen COMMENTED reviews only; stale base/conflict; no APPROVED |
-| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | OPEN / Draft / mergeable=false | Windows quality FAILURE; diagnostics and resolver SUCCESS; dependent jobs SKIPPED | No formal review; stale base/conflict |
+### Main exact SHA and CI
+- Main HEAD: `4225a244407f7a323262c4d6e17b2749193d6476`.
+- Main push run [#45166790416](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45166790416), attempt 1: **FAILURE**. Exact jobs: metadata resolver #137679885993 SUCCESS; Windows quality gates #137682759367 FAILURE; diagnostic #137685704526 SUCCESS; failure persistence #137685704972 SUCCESS; Supabase/PostgreSQL/RLS #137685705077 SKIPPED; breaker reset #137685705905 SKIPPED; Ollama integration #137685706325 SKIPPED.
+- The Windows quality log proves 778/779 tests passed. Test 565, `tests/fp/mainline-integration.test.ts:82`, failed because `docs/ai-agent-scheduler-operations.md` lacked the required sentence: `does not approve the candidate, authorize a merge, or deploy production`. Type check, lint and production build were SKIPPED.
+- Main System Health Recovery run [#45175316194](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45175316194), attempt 1: **FAILURE**, job #137694913658. Existing evidence identifies a PowerShell profile / temporary wrapper ExecutionPolicy failure; no successful breaker reset is established.
+- Combined main commit status reports Vercel **FAILURE / build-rate-limit**. This external provider status is distinct from GitHub Actions. Main remains **NOT VERIFIED / BLOCKED**, not PASS.
 
-No inspected PR has a formal APPROVED review. COMMENTED submissions, mergeable=true, non-Draft state, SKIPPED jobs, and old-base successful checks do not satisfy acceptance. No PR is currently eligible for merge or Draft removal.
+### All 11 open PRs — current exact HEAD and observed workflow state
+| PR | Exact HEAD | Base | State | Exact-head workflow evidence |
+|---|---|---|---|---|
+| [#475](https://github.com/X84657465/global-citizen-ai-network/pull/475) | `8f7a922e2c2b97b6d390b52015b76da202204b7c` | main `4225a244...` | OPEN / Draft / mergeable=true | Run #45174503526: metadata SUCCESS; Windows quality SUCCESS (tests, typecheck, lint, build); PostgreSQL/RLS and Ollama jobs remain PENDING. Formal reviews returned: none. |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `13fe3b4d8f78d0676bf81cf327e30ef2be58299f` | main `4225a244...` | OPEN / Draft / mergeable=true | Run #45177140710 PENDING. |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `6be79aa9a471700054abe900755302579ba88d0a` | main `4225a244...` | OPEN / non-Draft / mergeable=true | Governance acceptance run #45173896580 FAILURE; standard CI #45173896584 PENDING. Governance failure log was unavailable; exact failed assertion UNKNOWN. Non-Draft is not approval. |
+| [#473](https://github.com/X84657465/global-citizen-ai-network/pull/473) | `73a2aad70bb72b9856ca9cc2af498988fdfa48bd` | main `4225a244...` | OPEN / Draft / mergeable=true | Run #45176305599 PENDING. This handoff commit has not completed exact-head CI. |
+| [#472](https://github.com/X84657465/global-citizen-ai-network/pull/472) | `670723f8065e307b1251e81fe331bd037b60bf06` | main `4225a244...` | OPEN / Draft / mergeable=true | Preflight #45171686357 FAILURE; CI #45171686278 FAILURE. Windows quality job #137687765479 failed at the same test 565 runbook assertion; 778/779 passed, typecheck/lint/build and downstream DB/RLS/Ollama jobs SKIPPED. |
+| [#477](https://github.com/X84657465/global-citizen-ai-network/pull/477) | `668b48a158f4660ba8b88360c6ac93b976081957` | main `4225a244...` | OPEN / Draft / mergeable=true | Run #45175303421 PENDING. |
+| [#474](https://github.com/X84657465/global-citizen-ai-network/pull/474) | `0e890a990eafe5371b1e17d0e33876bdaecefea5` | main `4225a244...` | OPEN / Draft / mergeable=true | Run #45171158902 FAILURE. The confirmed PowerShell recovery change is not validated: Windows quality fails on a separate release metadata mismatch (0.3.138 vs engineering planning baseline 0.3.137); dependent DB/RLS and Ollama jobs SKIPPED. |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | OPEN / Draft / mergeable=false | Historical exact-head CI #44949425719 SUCCESS; stale base and non-mergeable. |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | OPEN / Draft / mergeable=false | Historical exact-head CI #45052753388 SUCCESS; stale base and non-mergeable. |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | OPEN / Draft / mergeable=false | No exact-head workflow run returned; stale base and non-mergeable. |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | OPEN / Draft / mergeable=false | Historical exact-head CI #45056447505 FAILURE; stale base and non-mergeable. |
 
-### External and evidence limitations
-- A Vercel daily free-tier deployment quota limit was reported in the previous checkpoint; this round did not independently revalidate current provider quota state. Treat it as previously reported, not a newly confirmed current status.
-- PR #476 and #472 log retrieval still returns BlobNotFound; their exact failed assertions remain UNKNOWN. Do not guess or report a false diagnosis.
-- PR #473 and #477 have actual Windows quality jobs PENDING, not 0 Jobs. Continue tracking the job IDs above; if they terminate, fetch exact-head result and logs before updating state.
+The combined Vercel status for each inspected PR head is FAILURE / build-rate-limit; do not conflate this with Actions conclusions. Exact formal-review inventory was not re-fetched for every PR in this delta; PR #475's review endpoint returned zero reviews. No Draft removal or merge is justified by the evidence above.
 
-### GPT5-owned work and next actions
-- This delta updates only this operations handoff file on the existing GPT5 documentation branch. It changes no A–P module source, workflow, Runner permissions, secrets, branch protection, production data, DB/RLS, or deployment configuration.
-- This update creates a new PR #473 HEAD and invalidates prior exact-head CI evidence for #473. Fetch the resulting PR HEAD and its new exact-head checks before claiming validation; keep Draft pending independent GPT3 review.
-- Continue prioritizing GPT5-owned operational evidence and handoff work while other owners address Factory runtime, Linux fixture, governance assertion, and release-version blockers.
-- No self-approval, forced Draft transition, merge, or permission expansion is authorized by this record.
+### GPT5-owned work / disposition
+- Corrected this handoff branch by removing a future-dated 2026-11-24 checkpoint that was not valid for the current 2026-11-23 observation, and replacing it with this dated evidence snapshot. Only `docs/AGENT_HANDOFF.md` is in scope.
+- PR #475 contains the minimal one-paragraph scheduler authority clarification and its Windows quality gates now pass, but DB/RLS and Ollama remain PENDING and formal review is absent. Keep Draft.
+- PR #472 remains failed because the fix is not merged into main or present in its current candidate; no false clearance.
+- #474 needs the release/version owner to reconcile the planning baseline before its quality gate can pass; #476 needs accessible failure diagnostics, exact-head CI success, and GPT3 review.
+- Continue GPT5 operations/handoff work; do not take over A–P module fixes, self-approve, bypass required CI/review, or claim deployment/recovery success.
