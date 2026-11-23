@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { parseProviderInvoiceCsv, previewProviderInvoiceReconciliation } from "@/lib/ai-cost-reconciliation.mjs";
+import { parseProviderInvoiceCsv, parseProviderInvoicePreviewPayload, previewProviderInvoiceReconciliation } from "@/lib/ai-cost-reconciliation.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -165,12 +165,12 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "請提供有效的 UTF-8 JSON 與 CSV 文字。" }, { status: 400 });
   }
-  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
-    return NextResponse.json({ error: "請提供 JSON 物件格式的預覽內容。" }, { status: 400 });
-  }
-  const invoicePayload = payload as { csv?: unknown; fxConversion?: unknown };
-  if (typeof invoicePayload.csv !== "string") {
-    return NextResponse.json({ error: "缺少 CSV 文字內容。" }, { status: 400 });
+  let invoicePayload;
+  try {
+    invoicePayload = parseProviderInvoicePreviewPayload(payload);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "預覽內容格式錯誤。";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   let parsed;
