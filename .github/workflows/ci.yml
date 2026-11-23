@@ -24,17 +24,15 @@ defaults:
 
 jobs:
   resolve-candidate:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
+    # Metadata resolution uses only the read-only GitHub API and must not
+    # occupy or wait behind the scarce Windows/Ollama execution runner.
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
        (github.event.pull_request.user.login == github.repository_owner ||
         github.event.pull_request.user.login == 'github-actions[bot]'))
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -60,6 +58,7 @@ jobs:
           node-version: "22.13.0"
       - name: Resolve current PR head and task marker
         id: resolve
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -686,10 +685,8 @@ jobs:
           retention-days: 90
 
   ci-diagnostics:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
+    # Diagnostics are GitHub API / artifact work only; never queue behind
+    # the scarce Windows/Ollama execution runner.
     name: Exact-SHA CI failure diagnostics and evidence
     needs: [resolve-candidate, quality, build, database]
     if: >-
@@ -698,11 +695,14 @@ jobs:
        needs.quality.result == 'failure' ||
        needs.build.result == 'failure' ||
        needs.database.result == 'failure')
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       actions: read
       contents: read
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - name: Checkout exact tested revision
         uses: actions/checkout@v5

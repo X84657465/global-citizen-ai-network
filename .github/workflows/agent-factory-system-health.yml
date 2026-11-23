@@ -11,6 +11,9 @@ jobs:
     # Only one trusted, same-repository, non-task PR targeting main may
     # request system-health recovery after its source CI run has completed.
     # All other workflow_run events skip before queue acquisition.
+    # Recovery is a GitHub API/state operation; keep it off the Windows
+    # execution runner so Factory health recovery cannot queue behind workloads.
+    # Preserve the cross-process serialization fence for durable Factory state writes.
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       cancel-in-progress: false
@@ -28,7 +31,7 @@ jobs:
       github.event.workflow_run.pull_requests[0].head.ref == github.event.workflow_run.head_branch &&
       !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
       !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       actions: read
@@ -57,5 +60,5 @@ jobs:
           SYSTEM_HEALTH_PULL_REQUEST_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
           SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           SYSTEM_HEALTH_PR_HEAD_SHA: ${{ github.event.workflow_run.pull_requests[0].head.sha }}
-        shell: cmd
+        shell: bash
         run: node scripts/agent-factory-v2-controller.mjs
