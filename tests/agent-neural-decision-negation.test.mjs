@@ -123,6 +123,24 @@ test("a direct prohibition still suppresses prose-only risk while keeping the de
   assert.equal(result.authority.may_publish_changes, false);
 });
 
+
+test("a trailing contrast does not negate the sensitive action before it", () => {
+  const result = evaluateAgentDecision(withImplementerText("Change billing not documentation"), task);
+  assert.equal(result.signals.no_high_risk_scope, false);
+  assert.equal(result.evidence.high_risk_scope_detected, true);
+  assert.equal(result.decision, "reject_and_replan");
+});
+
+test("a prohibition in one plan field cannot negate a positive action in another", () => {
+  const result = evaluateAgentDecision(
+    withImplementerText("Do not deploy", ["Rotate credentials"]),
+    task,
+  );
+  assert.equal(result.signals.no_high_risk_scope, false);
+  assert.equal(result.evidence.high_risk_scope_detected, true);
+  assert.equal(result.decision, "reject_and_replan");
+});
+
 test("coordinated objects remain under the preceding prohibition", () => {
   const result = evaluateAgentDecision(withImplementerText("Do not modify billing or payout settings"), task);
   assert.equal(result.signals.no_high_risk_scope, true);
