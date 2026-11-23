@@ -6,6 +6,10 @@
 > 適用專案：Agent Factory V2 / GCAN Product  
 > 優先順序：Agent Factory V2（A 線）優先；只處理必要的 A→B 銜接阻塞；準備 GCAN Product（B 主線）。
 
+## 全 A–P 共用交付驗收入口
+
+A–P 所有工作線共用 [GCAN A–P Unified Delivery & Acceptance Standard](docs/GCAN_AP_UNIFIED_DELIVERY_ACCEPTANCE_STANDARD.md) 的 G0–G5 閘門及證據狀態；各模組可增加領域專屬測試，不得降低共用門檻。所有 PR 使用 `.github/PULL_REQUEST_TEMPLATE.md` 填寫精確 SHA、CI run／attempt／jobs、獨立 Review 與部署證據。DOCUMENTED、ADOPTED、ENFORCED 必須分開記錄；本標準在獨立審查與治理程序接受前維持 PROPOSED，不得宣稱 A–P 已全面採納或技術強制執行。
+
 ## 1. 目的與基本原則
 
 GCAN 的長期方向是發展為自主智慧生產與全球協作生態系；八大能力領域及分階段路線目前以 Master Charter 的 PROPOSED 藍圖為準，尚不得視為已核准或已實作能力。當前工程執行仍以 Factory-first、A0 穩定及必要 A→B 銜接為優先。
