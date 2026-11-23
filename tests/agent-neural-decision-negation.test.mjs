@@ -158,6 +158,20 @@ test("read-only deployment, billing-change, and release-process descriptions are
   assert.equal(result.decision, "approve_for_sandbox_validation");
 });
 
+test("progressive and passive mutating instructions remain high-risk", () => {
+  for (const title of [
+    "We are enabling live billing for production",
+    "The agent is rotating credentials",
+    "Credentials are being published to production",
+    "The plan has modified production authentication settings",
+    "The agent is transferring payouts",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
 test("modal and infinitive mutating instructions remain high-risk", () => {
   for (const title of [
     "The plan must enable live billing for production",
