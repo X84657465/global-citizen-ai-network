@@ -118,3 +118,62 @@
 .priorityRule p{margin:0;color:var(--text);font-size:13px;line-height:1.85}
 @media(max-width:820px){.prioritySection{width:min(100% - 40px,680px);padding:72px 0}.priorityGrid{gap:10px}.priorityCard{padding:19px}}
 @media(max-width:620px){.prioritySection{width:min(100% - 34px,540px);padding:62px 0}.priorityGrid{grid-template-columns:1fr;gap:9px}.priorityCard{padding:18px}.priorityHeader h2{font-size:27px}.priorityHeader>p{font-size:14px}.priorityCard h3{font-size:17px}.priorityCard p{font-size:14px}.priorityRule{padding:13px}.priorityRule p{font-size:12px}}
+
+/* Public homepage: illustrated, evidence-labelled GCAN evolution roadmap. */
+.evolutionSection{position:relative;z-index:1;width:min(1280px,calc(100% - 56px));margin:0 auto;padding:82px 0 88px;border-top:1px solid var(--line)}
+.evolutionHeader{max-width:850px;margin-bottom:28px}
+.evolutionHeader h2{margin:13px 0 12px;color:#edf5ff;font-size:clamp(28px,3vw,41px);line-height:1.35;letter-spacing:-.04em}
+.evolutionHeader h2 em{color:var(--cyan);font-style:normal}
+.evolutionHeader>p{margin:0;color:#9aafc5;font-size:15px;line-height:1.9}
+.evolutionGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.evolutionCard{position:relative;min-width:0;min-height:265px;padding:18px 16px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(150deg,rgba(17,37,60,.94),rgba(9,23,39,.98));box-shadow:inset 0 1px rgba(255,255,255,.025)}
+.evolutionCard[data-stage="active"]{border-color:rgba(112,229,237,.55);background:linear-gradient(150deg,rgba(22,65,83,.8),rgba(9,23,39,.98));box-shadow:0 0 28px rgba(65,185,199,.09)}
+.evolutionStep{display:block;min-height:30px;color:#7edce7;font-size:10px;font-weight:800;letter-spacing:.08em;line-height:1.5}
+.evolutionIcon{display:grid;place-items:center;width:43px;height:43px;margin:13px 0;border:1px solid rgba(107,206,220,.24);border-radius:12px;color:#81dce5;background:rgba(57,144,174,.11)}
+.evolutionCard h3{margin:0 0 9px;color:#edf5ff;font-size:17px;line-height:1.45}
+.evolutionCard p{margin:0 0 13px;color:#a4b7cc;font-size:13px;line-height:1.8}
+.evolutionCard>b{display:block;margin-top:auto;color:#80dfe7;font-size:11px;line-height:1.6}
+.evolutionRule{display:flex;align-items:flex-start;gap:12px;margin-top:15px;padding:15px 17px;border:1px solid rgba(64,190,204,.22);border-radius:14px;background:rgba(26,104,120,.10);color:var(--cyan)}
+.evolutionRule>svg{flex:0 0 auto;margin-top:3px}
+.evolutionRule p{margin:0;color:#d9e9f7;font-size:13px;line-height:1.85}
+@media(max-width:1040px){.evolutionGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.evolutionCard{min-height:245px}}
+@media(max-width:700px){.evolutionSection{width:min(100% - 34px,540px);padding:60px 0}.evolutionGrid{grid-template-columns:1fr;gap:9px}.evolutionCard{min-height:0;padding:17px}.evolutionHeader h2{font-size:27px}.evolutionHeader>p{font-size:14px}.evolutionCard h3{font-size:16px}.evolutionCard p{font-size:14px}.evolutionRule{padding:13px}.evolutionRule p{font-size:12px}}
+
+
+.factoryGovernanceSection{width:min(100% - 64px,1180px);margin:0 auto;padding:76px 0}
+.factoryGovernanceHeader{max-width:780px;margin:0 auto 26px;text-align:center}
+.factoryGovernanceHeader h2{margin:10px 0;font-size:clamp(27px,4vw,40px);letter-spacing:-.04em}
+.factoryGovernanceHeader h2 em{font-style:normal;color:var(--cyan)}
+.factoryGovernanceHeader>p{color:#a9bed2;font-size:14px;line-height:1.9}
+.factoryGovernancePriority{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:24px 0}
+.factoryGovernancePriority span{padding:9px 13px;border:1px solid rgba(120,170,200,.2);border-radius:999px;background:rgba(20,45,65,.38);color:#c5d7e7;font-size:12px}
+.factoryGovernancePriority b{color:var(--cyan);margin-right:5px}
+.factoryGovernanceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.factoryGovernanceCard{display:flex;flex-direction:column;min-height:205px;padding:19px;border:1px solid rgba(120,170,200,.18);border-radius:16px;background:linear-gradient(145deg,rgba(22,48,68,.62),rgba(10,25,42,.55))}
+.factoryGovernanceCard>span{color:var(--cyan);font-size:10px;letter-spacing:.12em;font-weight:800}
+.factoryGovernanceCard h3{margin:12px 0 8px;color:#eff7ff;font-size:16px}
+.factoryGovernanceCard p{margin:0 0 14px;color:#b3c5d6;font-size:13px;line-height:1.8}
+.factoryGovernanceCard>b{margin-top:auto;color:#80dfe7;font-size:11px;line-height:1.6}
+.factoryGovernanceFlow,.factoryGovernanceRoles{margin-top:17px;padding:19px 21px;border:1px solid rgba(64,190,204,.2);border-radius:15px;background:rgba(26,104,120,.09)}
+.factoryGovernanceFlow>b,.factoryGovernanceRoles>b{color:var(--cyan);font-size:14px}
+.factoryGovernanceFlow p,.factoryGovernanceRoles p{margin:8px 0 0;color:#c5d6e5;font-size:13px;line-height:1.9}
+.factoryGovernanceWarning{color:#f1d9a4!important}
+.factoryGovernanceLink{display:inline-flex;align-items:center;gap:8px;margin-top:19px;color:var(--cyan);font-size:13px;text-decoration:none}
+@media(max-width:900px){.factoryGovernanceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.factoryGovernanceSection{width:min(100% - 34px,540px);padding:58px 0}.factoryGovernanceGrid{grid-template-columns:1fr;gap:9px}.factoryGovernanceCard{min-height:0;padding:17px}.factoryGovernanceHeader h2{font-size:27px}.factoryGovernanceHeader>p{font-size:13px}.factoryGovernancePriority{justify-content:flex-start}.factoryGovernancePriority span{font-size:11px}.factoryGovernanceFlow,.factoryGovernanceRoles{padding:15px}.factoryGovernanceFlow p,.factoryGovernanceRoles p{font-size:12px}}
+
+
+/* Factory F13–F19 second-phase roadmap */
+.factoryNextRoadmap{margin:30px 0;padding:clamp(22px,4vw,42px);border:1px solid rgba(117,153,196,.22);border-radius:24px;background:linear-gradient(145deg,rgba(19,39,66,.55),rgba(12,20,34,.9));}
+.factoryNextNotice{display:flex;gap:14px;align-items:flex-start;margin:24px 0;padding:16px 18px;border:1px solid rgba(102,174,219,.3);border-radius:14px;background:rgba(47,113,157,.09);color:var(--muted,#aebed0);font-size:14px;line-height:1.7}
+.factoryNextNotice b{flex:0 0 auto;color:var(--foreground,#f2f6fb)}
+.factoryNextGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.factoryNextCard{min-width:0;padding:20px;border:1px solid rgba(133,164,196,.18);border-radius:16px;background:rgba(7,17,30,.52)}
+.factoryNextCard>span{font-size:11px;letter-spacing:.09em;font-weight:800;color:#83c5ee}
+.factoryNextCard h3{margin:10px 0 8px;font-size:18px;line-height:1.4;color:var(--foreground,#f2f6fb)}
+.factoryNextCard p{margin:0 0 14px;color:var(--muted,#aebed0);font-size:13px;line-height:1.75}
+.factoryNextCard>b{display:block;padding-top:12px;border-top:1px solid rgba(133,164,196,.16);font-size:12px;line-height:1.6;color:#b8d8ef}
+.factoryNextGovernance{margin-top:20px;padding:20px;border-radius:16px;background:rgba(5,13,24,.7);border:1px solid rgba(133,164,196,.18)}
+.factoryNextGovernance>b{font-size:15px;color:var(--foreground,#f2f6fb)}
+.factoryNextGovernance p{margin:10px 0 0;color:var(--muted,#aebed0);font-size:13px;line-height:1.8}
+@media(max-width:680px){.factoryNextRoadmap{padding:20px 16px;border-radius:18px}.factoryNextGrid{grid-template-columns:1fr}.factoryNextNotice{display:block}.factoryNextNotice b{display:block;margin-bottom:5px}.factoryNextCard{padding:17px}}
