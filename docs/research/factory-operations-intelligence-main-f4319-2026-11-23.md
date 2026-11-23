@@ -156,3 +156,30 @@
 - Exact-head workflow lookup returned run #45139806435 with status PENDING; its Jobs endpoint returned an empty array (0 Jobs). This is explicitly NOT RUN / BLOCKED evidence, not a green result.
 - Exact-head combined status shows Vercel FAILURE `build-rate-limit`; this is separate from GitHub Actions and does not explain or resolve the zero-job Actions state.
 - PR #466 remains Draft with zero formal reviews. No readiness, acceptance or merge claim.
+
+
+---
+
+## Exact main-push and current candidate recheck — 2026-11-23 16:49 Asia/Taipei
+
+### Main push CI — direct Actions API evidence
+
+Current main remains `f4319ec65d33bf30804b2d447e7692207fd82f0c`. Unlike the earlier PR-only commit-run lookup, the repository Actions branch/event listing now exposes two exact-SHA push runs:
+
+| Run | Attempt | Exact SHA | Terminal state |
+|---|---:|---|---|
+| [#45137751684](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684) | 1 | `f4319ec65d33bf30804b2d447e7692207fd82f0c` | FAILURE |
+| [#45137751765](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751765) | 1 | `f4319ec65d33bf30804b2d447e7692207fd82f0c` | SUCCESS |
+
+- Failure run #45137751684: Windows self-hosted project validation FAILED; 776 offline tests reported 763 passed / 13 failed. The 13 failures are in `tests/agent-patch-to-scratch.test.mjs` (subtests 231–243); every failure is `spawnSync git ENOENT` from fixture setup at line 14. This is an isolated test-container missing-Git dependency, not proof of a product behavior regression. The artifact was uploaded: [diagnostic artifact #14800631779](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684/artifacts/14800631779).
+- The same run's task-plan validation and publication/dispatch follow-on jobs were SKIPPED; these are not passes.
+- Success run #45137751765: exact-head metadata resolution, Windows Runner quality gates, Ollama/local integration, Supabase/PostgreSQL/RLS integration, and success persistence all SUCCESS. Failure diagnostics and failure persistence were SKIPPED.
+- Overall mainline CI verdict remains **FAIL / not fully green**, because one exact-SHA main push run failed. The second successful workflow does not erase it.
+- Main combined commit status separately reports Vercel SUCCESS; it is not a substitute for GitHub Actions.
+
+### PR #466 exact current head
+
+- Current head before this report refresh: `64862d4a0800f14a53cd988b56b5bb2254318f19`.
+- Exact-head run [#45139946276](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45139946276), attempt 1: metadata resolver SUCCESS; Windows Runner quality gates SUCCESS; Ollama/local integration PENDING; Supabase/PostgreSQL/RLS integration PENDING.
+- This is **2 SUCCESS + 2 PENDING**, not a terminal pass. PR remains Draft, mergeable=true, with zero formal reviews and zero unresolved review threads. Do not mark ready or merge before both pending jobs reach terminal success and GPT3 provides an independent formal approval.
+- This report refresh is documentation-only within GPT5 operations scope. No Factory/A–P source, tests, workflows, Runner, permissions, secrets, database/RLS, production state or deployment changes are authorized or performed.
