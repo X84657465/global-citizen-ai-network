@@ -701,3 +701,73 @@ Evidence:
 - Main push preflight failure: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684
 - Main issue preflight failure: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45138473800
 - GPT5 PR #466: https://github.com/X84657465/global-citizen-ai-network/pull/466
+
+
+---
+
+## GPT5 exact-state refresh — 2026-11-23 (latest recheck)
+
+### Fresh governance reads
+
+- `PROJECT_COORDINATION.md`: blob `d3ee1881aa67861fc42a2b568b26020945b0c218`, freshly read from current main.
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`: blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`, freshly read from current main.
+- `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md`: blob `46b188085c2dff0f527477b2486719a7f6c24b59`, status PROPOSED; not an effective authority expansion.
+- `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` and `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md` freshly fetched from main. Existing role/owner boundaries and Factory-first priority remain.
+- GPT5 scope remains Global Intelligence & Operations support. This report is the GPT5-owned deliverable; no A–P module ownership or independent review authority is assumed.
+
+### Main and Recovery exact terminal state
+
+- Current main HEAD: `f4319ec65d33bf30804b2d447e7692207fd82f0c`.
+- Push CI #45137751765, attempt 1, exact matching SHA: terminal SUCCESS. Jobs: metadata SUCCESS; Windows quality gates SUCCESS; PostgreSQL/RLS SUCCESS; Ollama/local integration SUCCESS; success persistence SUCCESS; conditional failure diagnostics SKIPPED; conditional failure persistence SKIPPED.
+- Factory preflight #45137751684, attempt 1, same exact main SHA: terminal FAILURE in Windows self-hosted project validation; downstream stages SKIPPED.
+- Issue preflight #45138473800: terminal FAILURE in read-only task-plan validation; downstream stages SKIPPED.
+- Latest Recovery #45157756250, attempt 1, same main SHA: terminal SKIPPED; its only job `Verify completed exact-head CI before resetting system breaker` is SKIPPED. Prior Recovery runs repeat this terminal outcome; do not rerun blindly or call this recovery.
+- Main combined commit status is Vercel SUCCESS. Main Actions results and provider status remain separate.
+
+### Current 14 open PRs and exact current-head Actions
+
+| PR | Current exact head SHA | Base SHA | Draft | Mergeable | Exact-head Actions / conclusion |
+|---|---|---|---|---|---|
+| #466 | `a1e0c1f42d4a74f8411931afbaeabebaee247e66` | main `f4319ec...` | No | true | Run #45157743584 PENDING; jobs endpoint 0 jobs; check-runs endpoint 0. Vercel FAILURE: build-rate-limit. |
+| #448 | `ccccf9c5e46285426a3c269bd066e6fa47c65cb8` | main `f4319ec...` | No | true | #45147570005 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED. |
+| #468 | `588967ee9563a8896752eacce02aa7a14473d5d8` | main `f4319ec...` | No | true | #45151541188 SUCCESS; 4 substantive Windows jobs SUCCESS, 3 conditional jobs SKIPPED; Linux fixture job absent. |
+| #467 | `3c802c9f206721fdcc71ec96e2bb178590fb9990` | main `f4319ec...` | Yes | true | #45151506039 SUCCESS; 4 substantive Windows jobs SUCCESS, 3 conditional jobs SKIPPED; Linux fixture job absent. |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | main `f622c852...` (stale) | Yes | true | #45137849234 FAILURE in Windows quality gates; downstream integration jobs SKIPPED. |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | main `f4319ec...` | No | true | #45137959652 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED. |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main `a1c1b58...` (stale) | Yes | false | #44949425719 SUCCESS on stale base; not current-main integration acceptance. |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main `93e7ac35...` (stale) | Yes | false | #45052753388 SUCCESS on stale base; not current-main integration acceptance. |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main `93e7ac35...` (stale) | Yes | false | No exact-head Actions run established. |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main `25d5ed51...` (stale) | Yes | false | #45056447505 FAILURE; old-base candidate. |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main `480f22e...` (stale) | Yes | false | #45100493731 SUCCESS on stale base; not current-main integration acceptance. |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | security branch `7d90d059...` | Yes | true | #45132200910 FAILURE in build/unit/type/lint/production quality gate; 361 passed / 1 failed. |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | security integration branch `df841a9a...` | Yes | true | #45108427275 SUCCESS on non-main integration branch; does not validate #462 or main. |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main `f622c852...` (stale) | Yes | true | #45117595636 FAILURE in Windows quality gates; downstream integration jobs SKIPPED. |
+
+Formal review submissions remain 0 APPROVED across the 14 open PRs; returned submissions are COMMENTED or absent. No PR has independent approval evidence sufficient for merge. No Draft removal, merge, or branch-protection bypass was performed.
+
+### Newly confirmed PR #466 queue state
+
+- The previous #466 head `df379756...` run #45157494046 is CANCELLED; jobs endpoint returned 0 jobs.
+- Current exact head advanced to `a1e0c1f42d4a74f8411931afbaeabebaee247e66` in commit `docs(ops): refresh exact-head CI and PR inspection`, parent `df379756...`.
+- Current run #45157743584, attempt 1, pull_request event: PENDING; jobs endpoint returns **0 jobs**; commit check-runs endpoint returns **0**.
+- Current combined status is Vercel FAILURE with provider build-rate-limit. This is distinct from GitHub Actions and is not a test failure or a pass.
+- PR is OPEN, Ready (not Draft), mergeable=true; formal review remains COMMENTED only.
+- Do not blindly re-dispatch the same workflow. Runner/scheduler job assignment is an external Factory/platform owner issue; Vercel quota is a separate provider/account-owner issue.
+
+### Owner routing and GPT5 work continuation
+
+1. GPT1 / Factory: #117 task/system failure classification and #465 offline Git fixture remain Factory-owned. #465 requires a pinned Git executable or hermetic fixture plus `git --version` assertion inside the same offline, read-only, non-root, capability-restricted container; full unit/type/lint evidence must bind to exact SHA.
+2. GPT1 / Factory: #467 remains Draft; #468 workflow prerequisite has not demonstrated a Linux fixture run. Owner-controlled workflow integration followed by a new exact-head Linux run and independent review are required.
+3. GPT1 / Factory: #457 stale-base quality-gate failure and #450 stale-base CI failure require owner-controlled refresh and retest.
+4. GPT2 / F owner, with GPT1 on the A-owned failing test: #462 must resolve the exact 1-test regression; #442's different integration branch success is not a substitute.
+5. Owners of #259/#373/#376/#417/#438 must resolve stale base, conflicts, missing current-head run and review requirements. GPT5 does not retarget or overwrite their branches.
+6. GPT5 has completed this current-main evidence refresh in its own existing report path. Because the new commit itself changes PR #466 HEAD and CI currently assigns zero jobs, stop further report-only commits in this cycle to avoid generating needless CI churn. Continue read-only monitoring and independent Global Intelligence & Operations work; resume report changes only when a materially new state or deliverable exists.
+
+### Evidence links
+
+- Main: https://github.com/X84657465/global-citizen-ai-network/commit/f4319ec65d33bf30804b2d447e7692207fd82f0c
+- Main push CI: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751765
+- Main Factory preflight failure: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684
+- Latest Recovery skipped: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45157756250
+- Current #466 PENDING / 0 jobs: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45157743584
+- GPT5 PR: https://github.com/X84657465/global-citizen-ai-network/pull/466
