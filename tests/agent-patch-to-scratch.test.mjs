@@ -136,20 +136,29 @@ test("keeps scratch manifest write failures system-scoped", (t) => {
   assert.match(result.stderr, /Unable to write the scratch workspace manifest/);
 });
 
-test("keeps malformed plan artifact JSON system-scoped", (t) => {
+test("records task scope for malformed plan JSON as a typed plan validation failure", (t) => {
   const data = fixture(t, { invalidPlanJson: true });
   const result = runScript(data);
   assert.notEqual(result.status, 0);
-  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
   assert.match(result.stderr, /Validated plan contains invalid JSON/);
 });
 
-test("keeps malformed patch artifact JSON system-scoped", (t) => {
+test("records task scope for malformed patch JSON as a typed patch validation failure", (t) => {
   const data = fixture(t, { invalidPatchJson: true });
   const result = runScript(data);
   assert.notEqual(result.status, 0);
-  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
   assert.match(result.stderr, /Validated patch proposal contains invalid JSON/);
+});
+
+test("keeps missing patch artifact I/O system-scoped", (t) => {
+  const data = fixture(t);
+  rmSync(join(data.root, "artifacts", "agent-patch.json"));
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.match(result.stderr, /Validated patch proposal is missing or unreadable/);
 });
 
 test("keeps patch rejection system-scoped when task identity is invalid", (t) => {
