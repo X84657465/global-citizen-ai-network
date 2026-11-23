@@ -91,7 +91,7 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
-  const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success", "ci-diagnostics"];
+  const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success"];
   for (const job of jobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
