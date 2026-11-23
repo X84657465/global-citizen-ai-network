@@ -167,7 +167,8 @@ test("keeps patch rejection system-scoped when task identity is invalid", (t) =>
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
-  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
+  assert.match(result.stderr, /valid fetched Issue identity/);
+  assert.doesNotMatch(result.stderr, /AGENT_FACTORY_FAILURE_SCOPE=task/);
 });
 
 test("guards task marker persistence behind successful scratch cleanup", () => {
