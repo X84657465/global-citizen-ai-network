@@ -150,3 +150,22 @@ test("still rejects explicit mutating operations in sensitive domains", () => {
     assert.equal(result.decision, "reject_and_replan", title);
   }
 });
+
+test("read-only deployment, billing-change, and release-process descriptions are not mutations", () => {
+  const result = evaluateAgentDecision(withImplementerText("Verify production deployment status and review billing changes; document the release process"), task);
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
+  assert.equal(result.decision, "approve_for_sandbox_validation");
+});
+
+test("modal and infinitive mutating instructions remain high-risk", () => {
+  for (const title of [
+    "The plan must enable live billing for production",
+    "We will modify production authentication settings",
+    "The agent needs to rotate credentials",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
