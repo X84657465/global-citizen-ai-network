@@ -112,7 +112,7 @@ try {
     trackedPaths,
   );
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Patch manifest revalidation failed.");
+  fail(error instanceof Error ? error.message : "Patch manifest revalidation failed.", { taskScoped: true });
 }
 
 const root = realpathSync(process.cwd());
