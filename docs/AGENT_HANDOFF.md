@@ -1782,3 +1782,49 @@ This snapshot records the execution-charter/homepage proposal branch. It does no
 3. Obtain GPT3 independent review against the final PR HEAD.
 4. Verify Vercel Preview and responsive homepage after provider quota/build capacity recovers.
 5. Re-check main/base/head, mergeability, required checks and reviews before any merge.
+
+
+---
+
+## GPT5 live operations checkpoint — 2026-11-23 (fresh GitHub observation)
+
+This section supersedes earlier live-state snapshots in this file wherever the main SHA, PR inventory, or CI status differs. It is an evidence snapshot, not an acceptance or deployment statement.
+
+### Main / CI
+
+- Current main HEAD: `4225a244407f7a323262c4d6e17b2749193d6476`.
+- The exact-main Actions inventory returned no workflow runs for this SHA.
+- The only exact-main check-run currently visible is **“Verify completed exact-head CI before resetting system breaker” = SKIPPED**.
+- Combined commit status reports Vercel **FAILURE**. This is an external deployment-provider status and must not be conflated with GitHub Actions CI.
+- Main is therefore **NOT VERIFIED / BLOCKED**, not PASS. No substantive main quality-gate run was observed for this SHA.
+
+### Issue #117 / Linux scratch fixture
+
+- PR #470 was merged into main at `4225a244407f7a323262c4d6e17b2749193d6476`; its earlier exact-head preflight had failed the Linux offline fixture and skipped downstream jobs.
+- PR #472 is the current expanded follow-up, exact HEAD `12a5f1f447b11c75c787e9e70652c88e3e53500e`, base `4225a244407f7a323262c4d6e17b2749193d6476`, Draft=true.
+- Exact-head AI Agent Task Preflight run [#45167491993](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45167491993), attempt 1: **FAILURE**. Linux offline scratch fixture job #137668114180: **FAILURE**; six downstream jobs: **SKIPPED**.
+- Exact-head standard CI run [#45167491793](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45167491793): **CANCELLED**, with 0 jobs.
+- Linux job steps endpoint returned an empty list, log download returned 404 `BlobNotFound`, and the run artifact inventory returned 0 artifacts, despite the PR's intended diagnostic-artifact step.
+- Combined PR status reports Vercel **FAILURE**.
+- PR #471 was closed without merge as a duplicate after #472 was identified as the expanded follow-up. Its closure is not a defect fix or acceptance.
+- Keep #472 Draft. The local Node syntax reproduction is not a substitute for the full pinned-container test; the Linux failure remains undiagnosed from retrievable GitHub logs.
+
+### Open PR inventory — exact observed HEADs
+
+| PR | HEAD | Base | Draft / mergeability | Exact-head Actions evidence | Review / blocker |
+|---|---|---|---|---|---|
+| [#472](https://github.com/X84657465/global-citizen-ai-network/pull/472) | `12a5f1f447b11c75c787e9e70652c88e3e53500e` | `4225a244407f7a323262c4d6e17b2749193d6476` | Draft; mergeable=true | Preflight FAILURE; standard CI CANCELLED / 0 jobs | No formal review; Linux fixture blocker |
+| [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | `480f22e484dfa80d301f136cedd5504fbde41407` | Ready; mergeable=false / dirty | CI #45100493731 SUCCESS | No formal review; stale base/conflict |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Draft; mergeable=false / dirty | CI #44949425719 SUCCESS | COMMENTED only; stale base |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | Draft; mergeable=false / dirty | CI #45052753388 SUCCESS | COMMENTED only; stale base |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | Draft; mergeable=false / dirty | No exact-head Actions run found | COMMENTED only; 1 unresolved review thread; Master Charter remains PROPOSED |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | Draft; mergeable=false / dirty | CI #45056447505 FAILURE; dependent integration jobs SKIPPED | No formal review; stale base |
+
+### GPT5 action / handoff
+
+- Re-read current main `PROJECT_COORDINATION.md` (blob `d3ee1881aa67861fc42a2b568b26020945b0c218`) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`). Master Charter remains PROPOSED; GPT5 does not own A–P core modules or replace GPT3 independent review.
+- Closed duplicate PR #471 without merge after documenting that #472 supersedes its one-file patch.
+- Added evidence-only comments to #472 and #471; no Factory source, workflow, Runner, permission, secret, database/RLS, durable state, or deployment changes were made by GPT5 in this checkpoint.
+- Next P0 handoff: Issue #117 owner / GPT1 must retrieve or reproduce the failing pinned Linux job output, diagnose the actual failure, and provide terminal exact-head Linux + required CI SUCCESS. GPT3 must independently review before acceptance.
+- Main remains NOT VERIFIED until a substantive exact-SHA Actions run executes and all required jobs reach terminal SUCCESS. Vercel failure remains a separate external provider issue.
+- No test or deployment is claimed by this documentation update.
