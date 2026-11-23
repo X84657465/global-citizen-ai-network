@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
 
-function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidRunnerTemp = false } = {}) {
+function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, invalidRunnerTemp = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
@@ -22,7 +22,7 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
   const allowedPath = "docs/generated-fixture.md";
   writeFileSync(join(artifacts, "agent-task.json"), JSON.stringify({
     schema_version: 1, mode: "preflight_only", ai_execution_enabled: false,
-    issue: { number: 117 }, safety: { issue_content_is_untrusted_data: true },
+    issue: { number: invalidTaskIdentity ? "117" : 117 }, safety: { issue_content_is_untrusted_data: true },
     allowed_paths: [allowedPath],
   }));
   const planPath = join(artifacts, "agent-plan.json");
@@ -129,4 +129,22 @@ test("records task scope for malformed patch JSON after the validated task is lo
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\\n");
+});
+
+test("keeps patch rejection system-scoped when task identity is invalid", (t) => {
+  const data = fixture(t, { invalidPatch: true, invalidTaskIdentity: true });
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
+});
+
+test("guards task marker persistence behind successful scratch cleanup", () => {
+  const source = readFileSync(scriptPath, "utf8");
+  const cleanupFailure = source.indexOf("cleanupSucceeded = false");
+  const guardedMarker = source.indexOf("if (taskScoped && cleanupSucceeded && validTaskIdentity");
+  const markerAppend = source.indexOf('appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task');
+  assert.ok(cleanupFailure >= 0);
+  assert.ok(guardedMarker > cleanupFailure);
+  assert.ok(markerAppend > guardedMarker);
 });
