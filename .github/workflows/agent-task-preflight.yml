@@ -29,6 +29,7 @@ on:
       - "scripts/resolve-agent-task-pr.mjs"
       - "lib/agent-factory-policy.mjs"
       - "tests/agent-factory-policy.test.mjs"
+      - "tests/agent-task-failure-marker.test.mjs"
       - "tests/agent-task-queue.test.mjs"
       - "tests/github-api-client.test.mjs"
       - "tests/github-pagination.test.mjs"
