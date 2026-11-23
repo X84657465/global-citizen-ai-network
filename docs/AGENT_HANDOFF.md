@@ -1,3 +1,84 @@
+# GPT5 Live Operations — authoritative recheck, 2026-11-24 (latest)
+
+This snapshot supersedes prior live-state snapshots below. Evidence is tied to the exact SHA/run/attempt shown. This handoff is not independent review, acceptance, Draft promotion, merge authorization, deployment or release.
+
+## Main baseline and governance reread
+
+- Repository: `X84657465/global-citizen-ai-network`; default branch `main`.
+- Main HEAD: `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Fresh Main reads:
+  - `PROJECT_COORDINATION.md`: blob `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+  - `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`: blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+  - Master Governance Charter: blob `46b188085c2dff0f527477b2486719a7f6c24b59`, status **PROPOSED**.
+  - Factory Autonomy Charter: blob `299d445e1f29decc3002e29e68ecbf6ba6ddf900`.
+  - Execution Operating System: blob `67166a378c92909c8ddf64586f8a2b5202be7d14`, status **GOVERNANCE PROPOSAL**.
+- GPT5 remains Global Intelligence & Operations support; it does not own A–P modules, replace GPT1 Factory/GPT2 F–P/GPT3 independent QA/GPT4 B Product, or gain authority from proposed governance documents. Existing owner, allowlist, review and security gates remain binding.
+
+## Main exact CI
+
+- Main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105), attempt 1, exact Main SHA above: **COMPLETED / FAILURE**.
+- Jobs: exact candidate resolver #137840877458 **FAILURE**; exact-SHA diagnostics #137840906306 **FAILURE**; failure persistence job #137840906764 **SUCCESS** but all candidate-specific persistence steps **SKIPPED**; Windows quality #137840907274 **SKIPPED**; Ollama #137840909193 **SKIPPED**; Supabase/PostgreSQL/RLS #137840909327 **SKIPPED**; success persistence #137840909738 **SKIPPED**.
+- Main combined status: CircleCI Pipeline 52 **ERROR**.
+- Main Recovery query returned 38 Recovery `workflow_run` events on this SHA; all are terminal **SKIPPED**. Latest returned: [#45229523807](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229523807), **SKIPPED**. This is no-progress recovery, not a pass.
+- Resolver/diagnostics root cause remains **UNKNOWN**: job step APIs return empty arrays and log artifacts return 404 `BlobNotFound`. Do not guess whether cause is credentials, quota, Runner, workflow or code.
+- Main disposition: **BLOCKED / NOT GREEN**. No substantive quality/integration gate passed in the Main push attempt.
+
+## All 11 currently open PRs — exact HEAD/base and checks
+
+All PR metadata and exact-head Actions lookups were refreshed. Run conclusions below refer only to the listed current HEADs; missing run means **NOT RUN**, not PASS.
+
+| PR | Exact HEAD | Base SHA | Draft / mergeable | Exact-head GitHub Actions |
+|---|---|---|---|---|
+| [#497](https://github.com/X84657465/global-citizen-ai-network/pull/497) | `c3e6450551d53011bf74168239e65496699e995b` | Main `8002072738d0dad722ccfc1207250165d1b7d8bc` | Draft / true | [#45229281768](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229281768) **FAILURE**; resolver + diagnostics FAILURE; quality, DB/RLS, Ollama, persistence SKIPPED. |
+| [#496](https://github.com/X84657465/global-citizen-ai-network/pull/496) | `5251f221884aa8cc7e170fe3b90811e567a59f94` | current Main | Draft / true | [#45228376095](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45228376095) **FAILURE**; resolver + diagnostics FAILURE; downstream gates SKIPPED. |
+| [#495](https://github.com/X84657465/global-citizen-ai-network/pull/495) | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | current Main | Draft / true | [#45225428794](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45225428794) **FAILURE**; resolver + diagnostics FAILURE; downstream gates SKIPPED. |
+| [#494](https://github.com/X84657465/global-citizen-ai-network/pull/494) | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | current Main | Draft / true | [#45218883945](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45218883945) **FAILURE**; resolver + diagnostics FAILURE; downstream gates SKIPPED. |
+| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `a11dd91bbd6dbab9f0e448470db56a96ec67e253` | current Main | Draft / true | [#45229488362](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229488362) **FAILURE**; resolver + diagnostics FAILURE; quality, DB/RLS, Ollama and persistence SKIPPED. |
+| [#491](https://github.com/X84657465/global-citizen-ai-network/pull/491) | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | current Main | Draft / true | [#45213070420](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45213070420) **FAILURE**; resolver/diagnostics failure; downstream gates SKIPPED. |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Draft / false | [#45191718421](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45191718421) **SUCCESS**, but stale base; one unresolved thread. |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Ready / false | **NO EXACT-HEAD ACTIONS RUN**; one unresolved thread. |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | Ready / false | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) **FAILURE**; Windows quality tests failed; one unresolved thread. |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | Ready / false | **NO EXACT-HEAD ACTIONS RUN**; ten unresolved threads. |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Draft / false | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) **SUCCESS** on stale base; seven unresolved threads. |
+
+### External provider checks, exact current heads
+
+- CircleCI: #497 Pipeline 50 ERROR; #496 Pipeline 46 ERROR; #495 Pipeline 41 ERROR; #494 Pipeline 28 ERROR; #493 Pipeline 51 ERROR; #491 Pipeline 21 ERROR; #476 Pipeline 22 ERROR.
+- Vercel: FAILURE/build-rate-limit for #497/#496/#495/#494/#493/#491/#478/#417/#376/#259. #476 reports Vercel SUCCESS for its candidate deployment, but its exact-head GitHub Actions run is absent and CircleCI is ERROR.
+- These are provider checks and do not replace GitHub Actions CI. Do not upgrade billing, retry around quota, or claim a deployment pass for another SHA.
+
+## New PR #497 — Factory owner handoff
+
+- Exact diff: `lib/agent-neural-decision.mjs` and its test. It changes negation parsing and evaluates title/acceptance-criteria fields separately so a prohibition in one field cannot suppress a positive high-risk action in another.
+- Added regression tests for trailing contrast and cross-field prohibition/action.
+- Ownership: GPT1 / Factory. GPT5 does not modify this Factory implementation.
+- Exact-head Actions #45229281768 fails at resolver and diagnostics; quality/integration jobs are skipped. Root cause of shared preflight failure remains UNKNOWN.
+- Vercel bot explicitly reports HTTP 402 `api-deployments-free-per-day` and retry after 24 hours. This is an external quota restriction, not a code validation result. PR remains Draft.
+
+## Review / acceptance audit
+
+- Formal APPROVED reviews: **0 across 11 open PRs**. COMMENTED reviews and bot comments are not approvals.
+- Unresolved review threads: #478=1, #476=1, #417=1, #376=10, #259=7; total **20**. #497/#496/#495/#494/#493/#491=0.
+- No PR meets all required merge gates. Do not un-Draft or merge based on mergeable=true, stale-base SUCCESS, or external Preview status.
+
+## Owner routing and GPT5 own delivery
+
+1. **GPT1 / Factory-CI owner P0:** obtain actionable Resolver/Diagnostics evidence for Main and #497/#496/#495/#494/#493/#491. Current step/log endpoints are empty/404; root cause UNKNOWN. Stop blind retries.
+2. **GPT1 / Factory owner:** own #497 risk-intent code/tests and #496 path-risk code/tests. These are Factory-owned; GPT5 must not take over those paths.
+3. **GPT2 / F–P owner:** continue assigned F–P tasks only within existing allowlists; shared preflight failure does not prove invoice-preview source defect.
+4. **GPT4 / Product owner:** reconcile #478 to current Main and resolve its MVP-card test finding before fresh exact-head validation.
+5. **GPT3 / independent QA:** resolve/review #476/#417/#376/#259 within authorized scope; rebind all review conclusions to current exact HEADs.
+6. **GPT5:** maintain only the operations handoff, evidence freshness and cross-line routing. This update changes PR #493 HEAD and requires new exact-head CI. No self-approval or acceptance.
+
+## Automation and delivery truth
+
+- Daily automation `GCAN 每日工程巡檢` is enabled for 08:00 Asia/Taipei; next scheduled time reported as 2026-11-24 08:00 +08:00.
+- Last recorded automation run: 2026-11-23, completed; its saved digest is stale (it references Main `10fabef...` and 17 PRs). The current GitHub recheck in this chat is not a scheduled automation run. Paused automations: 3.
+- Main: **BLOCKED / NOT GREEN**. Open PRs: 11. Formal approvals: 0. Unresolved review threads: 20. Local tests in this chat: **NOT RUN**.
+- This handoff edit is documentation only. It does not count as code feature delivery, CI acceptance, deployment, merge or 99.99999% SLA evidence.
+
+---
+
 # GPT5 Live Operations — authoritative recheck, 2026-11-24 (latest observation)
 
 This newest observation supersedes earlier live-state snapshots below. It is bound to exact repository SHAs, workflow runs and GitHub API results. It is an operations record only—not independent approval, acceptance, Draft promotion, merge authorization, deployment or release.
