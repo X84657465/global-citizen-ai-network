@@ -136,19 +136,19 @@ test("keeps scratch manifest write failures system-scoped", (t) => {
   assert.match(result.stderr, /Unable to write the scratch workspace manifest/);
 });
 
-test("records task scope for malformed plan JSON after the validated task is loaded", (t) => {
+test("keeps malformed plan artifact JSON system-scoped", (t) => {
   const data = fixture(t, { invalidPlanJson: true });
   const result = runScript(data);
   assert.notEqual(result.status, 0);
-  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
   assert.match(result.stderr, /Validated plan contains invalid JSON/);
 });
 
-test("records task scope for malformed patch JSON after the validated task is loaded", (t) => {
+test("keeps malformed patch artifact JSON system-scoped", (t) => {
   const data = fixture(t, { invalidPatchJson: true });
   const result = runScript(data);
   assert.notEqual(result.status, 0);
-  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
   assert.match(result.stderr, /Validated patch proposal contains invalid JSON/);
 });
 
@@ -168,4 +168,11 @@ test("guards task marker persistence behind successful scratch cleanup", () => {
   assert.ok(cleanupFailure >= 0);
   assert.ok(guardedMarker > cleanupFailure);
   assert.ok(markerAppend > guardedMarker);
+});
+
+test("only typed plan and patch validation errors may request task-scoped markers", () => {
+  const source = readFileSync(scriptPath, "utf8");
+  assert.match(source, /taskScoped:\s*error instanceof AgentPlanValidationError/);
+  assert.match(source, /taskScoped:\s*error instanceof PatchValidationError/);
+  assert.doesNotMatch(source, /invalidJsonTaskScoped|taskScoped:\s*true/);
 });
