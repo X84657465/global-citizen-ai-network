@@ -312,7 +312,7 @@ test("scratch failures require an explicit task-scope marker", () => {
   const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
   const start = workflow.indexOf("      - name: Classify known task-scoped failures before updating factory state");
   assert.ok(start >= 0, "failure classifier step must exist");
-  const next = workflow.indexOf("\\n      - name:", start + 1);
+  const next = workflow.indexOf("\n      - name:", start + 1);
   const section = workflow.slice(start, next < 0 ? workflow.length : next);
 
   assert.match(section, /AGENT_FACTORY_FAILURE_SCOPE -eq "task"/);
