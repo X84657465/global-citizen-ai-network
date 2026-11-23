@@ -87,7 +87,7 @@ const validTaskIssue = Number.isSafeInteger(issueNumber) &&
   task.safety?.issue_content_is_untrusted_data === true;
 
 if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false || !validTaskIssue) {
-  fail("Only a validated task bundle with a valid fetched Issue identity is accepted.", { taskScoped: true });
+  fail("Only a validated task bundle with a valid fetched Issue identity is accepted.");
 }
 
 const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan", "plan");
