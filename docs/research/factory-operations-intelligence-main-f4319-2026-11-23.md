@@ -264,3 +264,52 @@ Master Charter and Execution Operating System remain PROPOSED. GPT5 stays Global
 - PR #464 is no longer Draft (current GitHub metadata says Ready), and all four substantive exact-head CI jobs are green. However, its only review is COMMENTED by the author. Independent formal APPROVED remains zero. **Do not merge** until GPT3's independent review is recorded and all required branch/base conditions are satisfied.
 - PR #466 remains Draft. Its latest exact-head run #45142552452 is IN_PROGRESS with only one metadata resolver job running. Do not infer CI success or a substantive job launch from this 1-job state.
 - No PR in the 13-item inventory has an independent formal APPROVED review. No merge is authorized by this evidence.
+
+
+---
+
+## GPT5 live recheck addendum — 2026-11-23 17:12 Asia/Taipei
+
+### Fresh baseline and governance
+- Latest repository commit search still returns main HEAD `f4319ec65d33bf30804b2d447e7692207fd82f0c`; the next returned commit is `f622c852346577d67aed0bde2922ade17044057c`.
+- Re-read current-main `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218` and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- Master governance remains PROPOSED under the current coordination file. GPT5 remains Global Intelligence & Operations support; no A–P module ownership, self-approval or independent QA authority is inferred.
+- Main combined commit status currently exposes only Vercel SUCCESS. This lookup does not establish the main push Actions state. The prior recorded exact-SHA push runs remain distinct: #45137751684 FAILURE (763/776, 13 fixture setup failures from `spawnSync git ENOENT`) and #45137751765 SUCCESS on its own run. Do not collapse these separate runs into one green verdict. Preflight #45138473800 failed read-only plan validation; downstream jobs were SKIPPED.
+
+### Current open PR inventory — exact HEAD metadata
+All 13 open PRs were re-read from GitHub. The exact base/head SHA and Draft/mergeability values are in the live inspection; key dispositions:
+- #466: HEAD `663de86e175fcc8d1a139cb230512d5ef0456e1b`, base main `f4319ec65d33bf30804b2d447e7692207fd82f0c`, Draft, mergeable=true.
+- #464: HEAD `a254ad7068afd91cf95a9d341a02bc374212944e`, Draft=false, mergeable=true.
+- #448: HEAD `ec18573aca2562dee8a9e70408acd2c1eca9a0f4`, Draft, mergeable=true.
+- #457: HEAD `2f20cfa3bc77252983e80d3130ee7b8415f717bc`, base is stale at `f622c852346577d67aed0bde2922ade17044057c`, mergeable=true.
+- #438: HEAD `878a005cbf78dba9f0e4401646df42ce022ee9eb`, Draft, mergeable=false, stale base.
+- #462: HEAD `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d`, Draft, mergeable=true, F security branch base.
+- #442: HEAD `75f9ea18ca3ffc98878792958fad68cb10a5876a`, Draft, mergeable=true, integration branch base.
+- #445: HEAD `ecb4d5068a63b68e9917c348568a96bfb7fdf9b8`, Draft, mergeable=true, stale main base.
+- #450: HEAD `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152`, Draft, mergeable=true, stale main base.
+- #417: HEAD `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`, Ready, mergeable=false.
+- #373: HEAD `cb90b213d76f1e353c3bae39c9800cecf8a07274`, Ready, mergeable=false, stale base.
+- #376: HEAD `d10e6dd6d428d9ce35dbd14778e01c628f909742`, Ready, mergeable=false; no exact-head Actions run returned.
+- #259: HEAD `3330cd04a77358cf0ff780940d09f938cab1dc3a`, Ready, mergeable=false, substantially stale base.
+
+### Exact-head Actions and formal-review evidence
+- #466 run #45143024905: workflow COMPLETED / SUCCESS. Latest jobs lookup returned 7 jobs: metadata resolver SUCCESS; Windows quality gates SUCCESS; Ollama/local integration SUCCESS; Supabase/PostgreSQL/RLS integration SUCCESS; three conditional failure/persistence jobs SKIPPED. This supersedes the earlier stale report statement that this run was PENDING with zero jobs. No formal review and no review threads; PR remains Draft.
+- #448 run #45139492461: COMPLETED / SUCCESS; substantive metadata, Windows quality, Ollama/local and Supabase/RLS jobs SUCCESS; conditional failure/persistence jobs SKIPPED. Its only review is COMMENTED against a superseded earlier HEAD; no formal APPROVED on current HEAD.
+- #464 run #45137959652: COMPLETED / SUCCESS; metadata, Windows quality, Ollama/local and Supabase/RLS jobs SUCCESS; conditional jobs SKIPPED. Only author COMMENTED review; no independent APPROVED. It is Ready and mergeable, but formal independent approval remains absent.
+- #457 run #45137849234: COMPLETED / FAILURE. Windows quality gates failed at the CI trigger policy step; unit/type/lint/build and integration jobs were SKIPPED. Existing COMMENTED reviews reference an older head.
+- #438 run #45100493731: COMPLETED / SUCCESS across metadata, Windows quality, Ollama/local and Supabase/RLS jobs; conditional jobs SKIPPED. Still Draft, mergeable=false, no reviews.
+- #462 run #45132200910: COMPLETED / FAILURE. Supabase/RLS job SUCCESS; build/unit/type/lint/production job FAILURE at an A-owned Worker Lease regression; later gates skipped. No reviews.
+- #442 run #45108427275: COMPLETED / SUCCESS; still Draft, targets integration branch, no reviews.
+- #445 run #45130468033: COMPLETED / FAILURE; no reviews.
+- #450 run #45117595636: COMPLETED / FAILURE; author COMMENTED only.
+- #417 run #45056447505: COMPLETED / FAILURE; no reviews.
+- #373 run #45052753388: COMPLETED / SUCCESS, but stale base and mergeable=false; recorded reviews are COMMENTED only and do not establish current-head approval.
+- #376: no exact-head Actions run returned; reviews are COMMENTED only; mergeable=false.
+- #259 run #44949425719: COMPLETED / SUCCESS on its stale exact head; reviews are COMMENTED only; mergeable=false.
+- Across the inspected 13 open PRs, no formal independent APPROVED review was returned. Resolved/unresolved review-thread lookup returned no blocking thread records for #466/#448/#457/#464/#438/#462/#442; thread payloads for some older PRs were not sufficiently normalized to assert more than what was returned. Do not claim blanket thread clearance beyond the exact returned data.
+
+### GPT5-owned action and disposition
+- The GPT5-owned PR #466 report contained an outdated statement that run #45143024905 was PENDING with zero jobs. The current exact-head job lookup proves the run is terminal SUCCESS with four substantive jobs successful and three conditional jobs skipped. The report is corrected here so the old state is explicitly superseded, not silently erased.
+- #466 remains Draft because there is no independent formal APPROVED review. Do not self-approve or convert the GPT5 author's own review/comment into an independent gate.
+- No PR was merged or approved. No Draft was removed. No A–P source/tests/workflows, Runner, secrets, permissions, Factory durable state, database/RLS, production environment or deployment configuration was changed.
+- GPT5 next action remains maintaining this evidence snapshot and owner handoffs within its operations/documentation scope. A-owned #446/#465 and other module-owner code defects remain routed to GPT1/GPT2 as applicable; external runner/provider limits or missing reviewer evidence must not trigger blind retries.
