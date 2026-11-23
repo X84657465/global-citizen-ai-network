@@ -3462,3 +3462,60 @@ This entry records a fresh read-only GitHub API check. It does not claim indepen
 - Log retrieval for both failed jobs returned GitHub Storage `404 BlobNotFound`; failure root cause remains UNKNOWN. This is not a code-test result and no green status is claimed.
 - PR #493 remains OPEN / Draft; latest queried head was the documentation commit above, base remains stale at `8002072738d0dad722ccfc1207250165d1b7d8bc`, and mergeable=true is not acceptance. Review API returned only three COMMENTED submissions by the PR author, zero APPROVED, and zero inline threads.
 - No un-Draft, merge, CI bypass, or infrastructure mutation performed. GPT5's next safe action remains non-overlapping operations documentation/work; GPT1 owns provider/Runner diagnostics and GPT3 owns independent review.
+
+
+---
+
+## GPT5 live operations recheck — 2026-11-24 (fresh exact-head sweep)
+
+This entry supersedes prior live-state snapshots above for the refs and run IDs explicitly checked below. It is a manual inspection, not proof of a scheduled automation delivery.
+
+### Mainline and provider state
+- Latest `refs/heads/main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Re-read `PROJECT_COORDINATION.md` from this exact Main; blob `d3ee1881aa67861fc42a2b568b26020945b0c218`. The current governance proposal remains PROPOSED; GPT5 stays Global Intelligence / Operations support and does not gain A–P ownership or independent approval authority.
+- Main push Actions run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 2: COMPLETED / FAILURE on the exact Main SHA. Resolver job `137929482510` and diagnostics job `137929509999` FAILURE; Windows quality `137929510006`, PostgreSQL/RLS `137929511495`, Ollama `137929513478`, and candidate-success persistence `137929512842` SKIPPED. Failure persistence `137929510391` SUCCESS only records the failure; it does not make CI green.
+- Main combined provider statuses: Vercel FAILURE (`build-rate-limit`, retry window 24 hours) and CircleCI Pipeline ERROR (no project configuration found). These are separate external statuses, not Actions passes.
+- Latest Agent Factory System Health Recovery run [#45268698247](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45268698247), attempt 1: COMPLETED / SKIPPED. No successful recovery/reset is evidenced.
+- Failed resolver/diagnostics logs for the Main run were not recoverable in the previous exact-head inspection (GitHub Storage 404 BlobNotFound; empty Steps API). Root cause remains UNKNOWN; do not blindly rerun.
+
+### All 14 open PRs — current exact HEAD, base, and Actions
+All PRs are OPEN and unmerged. HEADs below were fetched from current PR metadata; run results are for those exact HEADs unless explicitly marked stale-base history.
+
+| PR | Exact HEAD SHA | Base SHA | Draft | Exact-head Actions |
+|---|---|---|---|---|
+| [#503](https://github.com/X84657465/global-citizen-ai-network/pull/503) | `549ea4c8b904afb0f9b96bdd020f2315fc3fb979` | current Main | Yes | Preflight #45261470499 FAILURE; CI #45261470501 attempt 2 FAILURE |
+| [#502](https://github.com/X84657465/global-citizen-ai-network/pull/502) | `2de9dfc0a2959e51ba76da124a3cdfdac6e9fad0` | current Main | Yes | #45234565750 FAILURE |
+| [#501](https://github.com/X84657465/global-citizen-ai-network/pull/501) | `7c9364136a4ffd7f95f51ffde616a2a04cbbe84d` | current Main | Yes | #45236643970 FAILURE |
+| [#500](https://github.com/X84657465/global-citizen-ai-network/pull/500) | `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` | current Main | Yes | #45233415974 FAILURE |
+| [#498](https://github.com/X84657465/global-citizen-ai-network/pull/498) | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | #45230211754 FAILURE |
+| [#497](https://github.com/X84657465/global-citizen-ai-network/pull/497) | `c3e6450551d53011bf74168239e65496699e995b` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | #45229281768 FAILURE |
+| [#496](https://github.com/X84657465/global-citizen-ai-network/pull/496) | `5251f221884aa8cc7e170fe3b90811e567a59f94` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | #45228376095 attempt 2 FAILURE |
+| [#495](https://github.com/X84657465/global-citizen-ai-network/pull/495) | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | #45225428794 attempt 2 FAILURE |
+| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `fa7b01aeccf38363fa26fa96258ef183b95034e6` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | #45251926623 FAILURE |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | #45191718421 SUCCESS on stale base only |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | No | No exact-head Actions run returned (NOT RUN) |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | #45056447505 FAILURE |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | No exact-head Actions run returned (NOT RUN) |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | #44949425719 SUCCESS on stale base only |
+
+- Inventory: 14 OPEN, 11 Draft, 3 Ready, 0 merged. Four PRs are based on current Main (#503/#502/#501/#500); ten have stale bases.
+- Formal review endpoints for all 14 returned zero APPROVED submissions. Recorded submissions are COMMENTED (including author comments and bot comments); COMMENTED is not approval.
+- #478 and #259 historical SUCCESS results are stale-base evidence only. #476 and #376 have no exact-head Actions run returned; these are NOT RUN, not PASS.
+- No PR satisfies current-base, exact-head required-check, independent-review, and conflict/mergeability gates. No Draft promotion or merge is justified.
+- External provider statuses remain separate: Vercel reports FAILURE on most heads (rate-limit); CircleCI reports ERROR on the current-base group and #476. A Vercel SUCCESS on a stale head is not GitHub Actions acceptance.
+
+### Highest-priority blockers and routing
+1. GPT1 / Factory CI owner: Main Resolver and Diagnostics failures plus #503 Preflight/Resolver/Diagnostics failures. Obtain usable logs/artifacts or repair the diagnostics evidence path, identify the exact failing step, then make one evidence-based retry. Root cause remains UNKNOWN; no blind retry.
+2. GPT1 / Factory owner: #503 / Issue #117 still Draft. Preflight #45261470499 is FAILURE at Linux offline scratch fixture validation with downstream jobs SKIPPED; CI #45261470501 is FAILURE at Resolver and Diagnostics with downstream quality/integration/persistence jobs SKIPPED. No local test run or independent approval is established.
+3. GPT3: independent review must target the final exact candidate HEAD; no formal APPROVED review exists in this inventory.
+4. GPT2 / GPT4 owners: update and validate their stale-base PRs and resolve their own review/ownership conflicts. GPT5 does not take over their module files.
+5. External provider owner: separately resolve Vercel quota and CircleCI missing configuration; no quota bypass, paid spend, secret/permission change, or deployment is authorized here.
+
+### GPT5-owned work and disposition
+- Refreshed this operations handoff within PR #493's existing single-file allowlist: `docs/AGENT_HANDOFF.md` only.
+- No Factory/Product source, workflow, Runner, durable state, secrets, permissions, branch protection, database/RLS, or deployment configuration was changed.
+- PR #493 remains OPEN / Draft. Its exact-head run #45251926623 is FAILURE; base is stale; three recorded reviews are COMMENTED by the PR owner, zero APPROVED. Keep Draft.
+- No safe PR could be promoted or merged this round. Continue non-overlapping Operations/handoff work while Factory CI diagnostics are externally blocked.
+- Existing daily GCAN automation remains the configured schedule; this manual refresh is not represented as a scheduled run or delivery. No duplicate automation was created.
+
+**Disposition: MAIN FAILURE; 14 OPEN PRs; 0 formal APPROVED; 10 stale-base PRs; 0 safe merges. PENDING/NOT RUN/SKIPPED, stale-base SUCCESS, external provider errors, and unavailable logs remain non-green.**
