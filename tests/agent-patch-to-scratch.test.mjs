@@ -89,11 +89,11 @@ test("Linux fixture Git shim returns only the expected read-only metadata", (t) 
   const shimPath = join(data.gitBin, "git");
   assert.equal(
     execFileSync(shimPath, ["ls-files", "-z"], { encoding: "utf8" }),
-    "README.md\\0",
+    "README.md\0",
   );
   assert.equal(
     execFileSync(shimPath, ["rev-parse", "HEAD"], { encoding: "utf8" }),
-    `${FIXTURE_COMMIT}\\n`,
+    `${FIXTURE_COMMIT}\n`,
   );
   const unexpected = spawnSync(shimPath, ["status"], { encoding: "utf8" });
   assert.equal(unexpected.status, 2);
