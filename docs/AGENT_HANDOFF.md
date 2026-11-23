@@ -1825,3 +1825,43 @@ Review submission counts are not equivalent to APPROVED reviews. The PRs with st
 - No Factory source, Runner registration, repository permissions, secrets, database/RLS, durable state, or deployment configuration was changed in this checkpoint.
 - The next P0 action remains obtaining an actual self-hosted Runner execution or a separately authorized runner owner to restore capacity, then collecting exact Linux fixture output and required CI terminal SUCCESS. Independent review must evaluate the final PR head.
 - B line remains preparation-only; do not advance B runtime while Factory acceptance and A→B contract gates remain unresolved.
+
+
+---
+
+## GPT5 live delta — 2026-11-23 (post-checkpoint revalidation)
+
+This delta supersedes earlier rows above wherever exact PR heads, run IDs, or open/closed states differ. It does not change any module ownership or acceptance authority.
+
+### Main exact SHA
+- Main remains `4225a244407f7a323262c4d6e17b2749193d6476`.
+- Main push CI [#45166790416](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45166790416), attempt 1: **PENDING**, 0 jobs.
+- Four exact-main breaker verification checks are **SKIPPED**: #137670371693, #137670153858, #137668336109, #137665724688.
+- Exact-main workflow inventory has no other substantive completed Actions run. Main is **NOT VERIFIED**, not PASS.
+- Main combined Vercel status remains FAILURE (external provider status; not GitHub Actions CI).
+
+### Current open PR inventory
+| PR | Exact HEAD | Base | State / exact-head CI | Review / blocker |
+|---|---|---|---|---|
+| [#473](https://github.com/X84657465/global-citizen-ai-network/pull/473) | `4feb4007ddeb8e2c181f65dd11f79064c625cde4` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft; CI [#45168071511](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45168071511) PENDING, 0 jobs | No formal APPROVED review |
+| [#472](https://github.com/X84657465/global-citizen-ai-network/pull/472) | `4008a39041d59efd1f728bdff7b4aceffc6c286c` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft; Preflight #45167525335 FAILURE; standard CI #45167525440 PENDING, 0 jobs | No formal APPROVED review; Linux fixture failure |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | OPEN / Draft; exact-head CI #44949425719 SUCCESS | Two COMMENTED reviews; stale base / dirty |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | OPEN / Draft; exact-head CI #45052753388 SUCCESS | Nine COMMENTED reviews; stale base / dirty |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | OPEN / Draft; no exact-head Actions run found | One unresolved review thread; COMMENTED reviews only; stale base / dirty |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | OPEN / Draft; exact-head CI #45056447505 FAILURE | No formal review; stale base / dirty |
+
+### Closed duplicates / stale branch cleanup
+- PR #471 was closed without merge as a duplicate of the expanded Issue #117 follow-up #472.
+- PR #438 was closed without merge because its handoff snapshot was stale-base and conflicted; the refreshed documentation work is carried by #473.
+- Closure is cleanup only, not acceptance of the related Factory or documentation changes.
+
+### Issue #117 exact current blocker
+- PR #472's latest exact-head Preflight #45167525335 / attempt 1: **FAILURE** in Linux offline scratch fixture job #137668231821; six dependent jobs **SKIPPED**.
+- Linux steps endpoint returned an empty list, log retrieval returned 404 `BlobNotFound`, and artifact inventory returned zero artifacts.
+- Standard CI #45167525440 remains **PENDING / 0 jobs**.
+- The underlying Linux failure cause remains UNKNOWN from retrievable GitHub evidence. Keep Draft; GPT1 / Issue #117 DRI must provide reproducible pinned-runner failure output and exact-head terminal SUCCESS. GPT3 must independently review the final HEAD.
+
+### GPT5-owned documentation delivery
+- This delta updates only `docs/AGENT_HANDOFF.md` on the existing GPT5 documentation branch.
+- It records current exact metadata and does not claim test, acceptance, merge, or deployment success.
+- No A–P source, workflow permissions, Runner administration, Secrets, database/RLS, durable Factory state, or deployment settings were changed.
