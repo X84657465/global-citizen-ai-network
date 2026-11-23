@@ -37,10 +37,12 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
     }],
   }));
   if (invalidPlanJson) writeFileSync(planPath, "{");
-  writeFileSync(join(artifacts, "agent-patch.json"), JSON.stringify({
+  const patchPath = join(artifacts, "agent-patch.json");
+  writeFileSync(patchPath, JSON.stringify({
     schema_version: 1,
-    files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\n" }],
+    files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\\n" }],
   }));
+  if (invalidPatchJson) writeFileSync(patchPath, "{");
   const githubEnv = join(root, "github-env.txt");
   writeFileSync(githubEnv, "");
   const runnerTemp = invalidRunnerTemp ? join(root, "missing-runner-temp") : join(root, "runner-temp");
@@ -121,14 +123,16 @@ test("records task scope for malformed plan JSON after the validated task is loa
   const data = fixture(t, { invalidPlanJson: true });
   const result = runScript(data);
   assert.notEqual(result.status, 0);
-  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\\n");
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
+  assert.match(result.stderr, /Validated plan contains invalid JSON/);
 });
 
 test("records task scope for malformed patch JSON after the validated task is loaded", (t) => {
   const data = fixture(t, { invalidPatchJson: true });
   const result = runScript(data);
   assert.notEqual(result.status, 0);
-  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\\n");
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
+  assert.match(result.stderr, /Validated patch proposal contains invalid JSON/);
 });
 
 test("keeps patch rejection system-scoped when task identity is invalid", (t) => {
