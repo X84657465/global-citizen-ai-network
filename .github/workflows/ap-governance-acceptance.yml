@@ -1,0 +1,73 @@
+name: A-P Governance Acceptance
+run-name: A-P governance acceptance — ${{ github.event.pull_request.head.sha || github.sha }}
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+  push:
+    branches: [main]
+    paths:
+      - 'docs/GCAN_AP_UNIFIED_DELIVERY_ACCEPTANCE_STANDARD.md'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - 'PROJECT_COORDINATION.md'
+      - '.github/workflows/ap-governance-acceptance.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ap-governance-acceptance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  governance-document-integrity:
+    name: A-P governance document integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Verify shared standard, PR template and coordination entry
+        shell: bash
+        run: |
+          set -euo pipefail
+          standard='docs/GCAN_AP_UNIFIED_DELIVERY_ACCEPTANCE_STANDARD.md'
+          template='.github/PULL_REQUEST_TEMPLATE.md'
+          coordination='PROJECT_COORDINATION.md'
+
+          test -s "$standard" || { echo "::error::Missing or empty shared A-P standard"; exit 1; }
+          test -s "$template" || { echo "::error::Missing or empty PR acceptance template"; exit 1; }
+          test -s "$coordination" || { echo "::error::Missing or empty project coordination entry"; exit 1; }
+
+          grep -Fq 'GCAN_AP_UNIFIED_DELIVERY_ACCEPTANCE_STANDARD.md' "$coordination" || {
+            echo "::error::Project coordination does not link the shared A-P standard"; exit 1;
+          }
+
+          for gate in G0 G1 G2 G3 G4 G5; do
+            grep -Fq "$gate" "$standard" || {
+              echo "::error::Shared standard is missing gate $gate"; exit 1;
+            }
+            grep -Fq "$gate" "$template" || {
+              echo "::error::PR template is missing gate $gate"; exit 1;
+            }
+          done
+
+          for state in PLANNED IN_PROGRESS BLOCKED 'NOT RUN' PENDING FAIL VERIFIED ACCEPTED MERGED PREVIEW RELEASED STALE; do
+            grep -Fq "$state" "$standard" || {
+              echo "::error::Shared standard is missing delivery state: $state"; exit 1;
+            }
+          done
+
+          for workstream in A B C D E F G H I J K L M N O P; do
+            grep -Eq "^\\| ${workstream} — " "$standard" || {
+              echo "::error::Shared standard is missing workstream overlay ${workstream}"; exit 1;
+            }
+          done
+
+          echo "PASS: shared A-P standard, G0-G5 gates, delivery states, PR template and coordination link are present."
+          echo "NOTE: this integrity check does not replace independent review, required branch protection, runtime tests or release verification."
