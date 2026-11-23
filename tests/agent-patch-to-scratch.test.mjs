@@ -73,7 +73,7 @@ if (args[0] === "ls-files" && args[1] === "-z") {
   writeFileSync(githubEnv, "");
   const runnerTemp = invalidRunnerTemp ? join(root, "missing-runner-temp") : join(root, "runner-temp");
   if (!invalidRunnerTemp) mkdirSync(runnerTemp);
-  return { root, githubEnv, runnerTemp };
+  return { root, githubEnv, runnerTemp, gitBin };
 }
 
 function runScript(data) {
@@ -124,6 +124,7 @@ test("leaves Runner scratch-directory failures unmarked for system-scope classif
 
 test("applies an authorized patch only to scratch and emits no failure marker", (t) => {
   const data = fixture(t);
+  assert.equal(data.gitBin, join(data.root, "git-bin"));
   const result = runScript(data);
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
