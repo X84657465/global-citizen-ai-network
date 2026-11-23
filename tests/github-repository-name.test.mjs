@@ -12,6 +12,7 @@ test("accepts valid GitHub owner and repository identifiers", () => {
     "owner/repo-name",
     "owner/-repo",
     "owner/-repo-name",
+    "owner/-repo-",
   ]) {
     assert.equal(isSafeGitHubRepositoryName(repository), true, repository);
   }
@@ -44,6 +45,7 @@ test("rejects malformed, ambiguous, and URL-altering repository identifiers", ()
     "_owner/repo",
     "owner/-",
     "owner/--",
+    "owner/---",
     "owner/" + "r".repeat(101),
     "o".repeat(40) + "/repo",
   ]) {
