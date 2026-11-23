@@ -900,7 +900,7 @@ test("post-completion recovery guard compares stable repository IDs from workflo
   const recoveryWorkflow = readFileSync(
     new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url),
     "utf8",
-  ).replace(/\\r\\n/g, "\\n");
+  ).replace(/\r\n/g, "\n");
 
   assert.ok(recoveryWorkflow.includes(
     "github.event.workflow_run.pull_requests[0].base.repo.id == github.event.repository.id",
