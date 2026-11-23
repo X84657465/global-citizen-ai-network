@@ -833,3 +833,68 @@ Full PR metadata, including titles, base refs and complete SHAs, remains availab
 - This is a GPT5-owned operations-intelligence report only. No A–P module code, test, workflow, Runner, secret, database/RLS, permission, production-state or deployment changes were made.
 - No PR was approved or merged by GPT5. No skipped job was counted as success. No CI rerun was triggered to evade an existing blocker.
 - The earlier report sections are historical snapshots; this corrective section is the latest live evidence as of 2026-11-23 18:52 Asia/Taipei.
+
+
+---
+
+## GPT5 live recheck — 2026-11-23 19:30 Asia/Taipei
+
+This addendum supersedes earlier PR and CI snapshots where they conflict. All evidence below is bound to the exact SHA/run listed. No skipped or pending job is counted as PASS.
+
+### Main and Factory pipeline
+
+- Main HEAD: `f4319ec65d33bf30804b2d447e7692207fd82f0c`.
+- `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` was re-read from main. Master Governance Charter remains PROPOSED; no GPT5 authority expansion is inferred.
+- Main push CI run [#45137751765](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751765), attempt 1, exact main SHA: **COMPLETED / SUCCESS**. Metadata, Windows quality gates, Supabase/PostgreSQL/RLS, Ollama/local integration and success-evidence persistence succeeded. Conditional diagnostics and failure-persistence jobs were SKIPPED.
+- Separate Factory preflight run [#45137751684](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684), attempt 1, same SHA: **COMPLETED / FAILURE** in Windows self-hosted project validation. The previously captured log identified 13 offline candidate-test failures with `spawnSync git ENOENT`; planning, publishing and dispatch were SKIPPED.
+- Issue-triggered preflight [#45138473800](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45138473800): **COMPLETED / FAILURE** in read-only plan validation; downstream stages SKIPPED.
+- Latest System Health Recovery [#45164540884](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45164540884), attempt 1: **COMPLETED / SKIPPED**, one job skipped. Recovery/breaker reset is NOT VERIFIED.
+- Main combined status is Vercel SUCCESS only; it is separate from the Actions and Factory preflight results.
+
+### All 15 open PRs — current exact metadata and latest evidence
+
+| PR | Exact head (short) | Base (short) | Draft | Mergeable | Exact-head Actions / other evidence |
+|---|---|---|---|---|---|
+| #469 | `b261d8dc` | `f4319ec6` | Yes | true | #45163992706 IN_PROGRESS; metadata + Windows quality + PostgreSQL/RLS SUCCESS; Ollama/local IN_PROGRESS; Vercel SUCCESS; no review |
+| #468 | `c0c46c50` | `f4319ec6` | No | true | #45161310999 SUCCESS (4 substantive jobs; 3 conditional SKIPPED); separate preflight #45161310722 attempt 3 FAILURE in Linux offline fixture job; six other jobs SKIPPED; Vercel build-rate-limit FAILURE; no review |
+| #467 | `3c802c9f` | `f4319ec6` | Yes | true | #45151506039 SUCCESS (4 substantive Windows jobs; 3 conditional SKIPPED); Linux fixture not included; Vercel build-rate-limit FAILURE; no review |
+| #466 | `c6abcfc5` | `f4319ec6` | No | true | #45160592974 SUCCESS (4 substantive jobs; 3 conditional SKIPPED); Vercel build-rate-limit FAILURE; one COMMENTED review, zero APPROVED, zero unresolved threads |
+| #464 | `a254ad70` | `f4319ec6` | No | true | #45137959652 SUCCESS (4 substantive jobs; 3 conditional SKIPPED); Vercel SUCCESS; one COMMENTED review, zero APPROVED, zero threads |
+| #448 | `ccccf9c5` | `f4319ec6` | No | true | #45147570005 SUCCESS (4 substantive jobs; 3 conditional SKIPPED); Vercel SUCCESS; two COMMENTED reviews, zero APPROVED, zero threads |
+| #457 | `2f20cfa3` | `f622c852` stale | Yes | true | #45137849234 FAILURE in Windows quality gates; integration/persistence jobs SKIPPED; Vercel SUCCESS; COMMENTED reviews only |
+| #450 | `a7c96e08` | `f622c852` stale | Yes | true | #45117595636 FAILURE in Windows quality gates; integration/persistence jobs SKIPPED; Vercel build-rate-limit FAILURE; one COMMENTED review |
+| #259 | `3330cd04` | `a1c1b58e` stale | Yes | false | #44949425719 SUCCESS on stale base; Vercel build-rate-limit FAILURE; two COMMENTED reviews |
+| #373 | `cb90b213` | `93e7ac35` stale | Yes | false | #45052753388 SUCCESS on stale base; Vercel build-rate-limit FAILURE; nine COMMENTED reviews; one resolved thread |
+| #376 | `d10e6dd6` | `93e7ac35` stale | Yes | false | No exact-head Actions run; Vercel build-rate-limit FAILURE; 13 COMMENTED reviews; one unresolved thread |
+| #417 | `0dd4a088` | `25d5ed51` stale | Yes | false | #45056447505 FAILURE; downstream jobs SKIPPED; Vercel build-rate-limit FAILURE; no review |
+| #438 | `878a005c` | `480f22e4` stale | Yes | false | #45100493731 SUCCESS on stale base; Vercel build-rate-limit FAILURE; no review |
+| #462 | `4d0ae0b5` | `7d90d059` security branch | Yes | true | #45132200910 FAILURE (361 passed / 1 A-owned lease-recovery test failed; Supabase/RLS SUCCESS; later gates SKIPPED); Vercel build-rate-limit FAILURE; no review |
+| #442 | `75f9ea18` | `df841a9a` integration branch | Yes | true | #45108427275 SUCCESS on non-main integration branch (4 substantive jobs; 3 conditional SKIPPED); Vercel build-rate-limit FAILURE; no review |
+
+Across all 15 open PRs, formal APPROVED review count is **zero**. Returned reviews are COMMENTED or absent. The only unresolved review thread found in this inventory is on #376; #373's returned thread is resolved. No PR is accepted or merge-authorized by this evidence.
+
+### New actionable handoff — PR #468 / Issue #117
+
+- PR #468 current HEAD is `c0c46c503fbd14c291fc2e2732b35631ce13e8fd`. Its standard CI run #45161310999 passed the substantive Windows/integration jobs, but the separate pull-request-triggered AI Agent Task Preflight run #45161310722 (attempt 3) failed the `Linux offline scratch fixture validation` job; the remaining six jobs were SKIPPED.
+- Run #45161310722 reports `head_sha=c0c46c503fbd14c291fc2e2732b35631ce13e8fd`, matching the PR's current HEAD, while nested `pull_requests[0].head.sha` reports `ed1956b2b2e60f33c471ab36a1e79c73eee4cee7`. Preserve this identity discrepancy.
+- The job-steps endpoint returned an empty list and log download returned 404 `BlobNotFound`; the exact Linux failure cause remains UNKNOWN / NOT VERIFIED.
+- The actual PR patch changes both `.github/workflows/agent-task-preflight.yml` and `tests/agent-patch-to-scratch.test.mjs`, although the PR description says the change is confined to the workflow file. Scope/description reconciliation is required.
+- GPT5 posted an evidence-only handoff comment on PR #468 (comment ID 7099736302). No code or workflow was modified by GPT5. Keep acceptance blocked pending owner diagnosis, corrected scope description, successful exact-head Linux validation and independent formal approval.
+
+### Owner routing / current disposition
+
+1. GPT1 / Factory: #117 Linux fixture failure and main preflight `git ENOENT` are Factory-owned; diagnose from accessible runner logs or rerun only after an owner-approved repair. Preserve offline/read-only isolation.
+2. GPT1 / Factory: #176 PR #469 is still running; wait for the Ollama/local job to reach a terminal state, then require independent formal review and exact-head evidence.
+3. GPT1 / Factory: Issue #204 PR #450 is stale-base and quality-gate FAILURE; no GPT5 ownership or self-assignment is inferred.
+4. GPT1 / Factory: Issue #446 PR #464 has substantive exact-head CI success but no formal APPROVED review; GPT5 does not take over its test-file owner.
+5. GPT2 / F owner: #462 fails one A-owned lifecycle test; #442's success on a different integration branch does not validate #462 or main.
+6. GPT3 / independent QA: all PRs still lack formal APPROVED evidence; review responsibility remains separate from author self-review.
+7. GPT5: own PR #466 remains Ready, exact-head substantive CI SUCCESS, but Vercel provider rate limit FAILURE and no independent APPROVED review. Continue read-only intelligence/operations work; do not self-approve, merge, or generate another report-only commit absent a material state change.
+
+### Scheduled checks
+
+Three relevant daily automations already exist and are enabled: GPT5 main/CI/PR operations at 09:00 Asia/Taipei, GPT3 project operations at 13:00, and daily re-read of coordination rules at 09:00. No duplicate schedule was created. Existing scheduled execution records do not prove that a future run has completed; next scheduled checks are 2026-11-24.
+
+### Scope and safety
+
+This update changes only the existing GPT5-owned operations-intelligence report path. No A–P source, test, workflow, Runner, secret, permission, database/RLS, machine-managed Factory state, production data, branch protection or deployment was changed. No PR was approved, accepted, marked ready, merged or deployed. This report is not independent GPT3 review.
