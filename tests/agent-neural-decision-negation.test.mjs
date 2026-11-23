@@ -290,3 +290,19 @@ test("modal requests to inspect production evidence remain non-mutating", () => 
     assert.equal(result.decision, "approve_for_sandbox_validation", title);
   }
 });
+
+
+test("observational references to proposed operations do not become actionable risk", () => {
+  for (const title of [
+    "Review the plan to deploy to production",
+    "Discuss whether to deploy to production",
+    "Update the notes about changing billing policy",
+    "Document how to rotate credentials",
+    "Inspect the proposal to migrate the production database",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
