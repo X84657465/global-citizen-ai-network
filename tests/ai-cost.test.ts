@@ -1,4 +1,5 @@
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { estimateCostTwd, getAiRuntimeConfig, type AiRuntimeConfig } from "../lib/ai/config.ts";
 
@@ -185,4 +186,24 @@ test("invoice reconciliation never treats missing billed-cost evidence as a veri
     { ...baseRequest, provider_billed_cost: "0" },
   ]);
   assert.equal(verifiedZero.rows[0].disposition, "matched_actual");
+});
+
+
+const invoicePreviewRouteSource = readFileSync(
+  new URL("../app/api/admin/ai-costs/route.ts", import.meta.url),
+  "utf8",
+);
+
+test("invoice preview route rejects null and array JSON before reading csv fields", () => {
+  const parsePosition = invoicePreviewRouteSource.indexOf("payload = JSON.parse");
+  const guardPosition = invoicePreviewRouteSource.indexOf(
+    "typeof payload !== \"object\" || payload === null || Array.isArray(payload)",
+    parsePosition,
+  );
+  const csvAccessPosition = invoicePreviewRouteSource.indexOf("invoicePayload.csv", parsePosition);
+  const guardBlock = invoicePreviewRouteSource.slice(guardPosition, csvAccessPosition);
+  assert.ok(parsePosition >= 0, "route must parse the request JSON");
+  assert.ok(guardPosition > parsePosition, "route must reject null and arrays after parsing");
+  assert.ok(csvAccessPosition > guardPosition, "route must validate the top-level object before reading csv");
+  assert.match(guardBlock, /status:\s*400/, "invalid JSON object shape must return HTTP 400");
 });
