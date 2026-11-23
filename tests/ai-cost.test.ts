@@ -157,3 +157,24 @@ test("invoice CSV rejects stray quote characters in unquoted fields", () => {
   assert.throws(() => parseProviderInvoiceCsv(invoiceCsv.replace("openai,gpt-test", 'open"ai,gpt-test')), /雙引號/);
 });
 
+
+test("invoice reconciliation never treats missing billed-cost evidence as a verified zero charge", () => {
+  const zeroCsv = invoiceCsv.replace(",USD,1.25", ",USD,0");
+  const parsed = parseProviderInvoiceCsv(zeroCsv);
+  const baseRequest = {
+    id: "request-zero", provider: "openai", model: "gpt-test",
+    provider_request_id: "provider-req-1", created_at: "2026-11-10T12:00:00.000Z",
+    provider_billed_currency: "USD",
+  };
+  for (const missingCost of [null, undefined, ""]) {
+    const preview = previewProviderInvoiceReconciliation(parsed, [
+      { ...baseRequest, provider_billed_cost: missingCost },
+    ]);
+    assert.notEqual(preview.rows[0].disposition, "matched_actual");
+    assert.equal(preview.rows[0].disposition, "variance");
+  }
+  const verifiedZero = previewProviderInvoiceReconciliation(parsed, [
+    { ...baseRequest, provider_billed_cost: "0" },
+  ]);
+  assert.equal(verifiedZero.rows[0].disposition, "matched_actual");
+});
