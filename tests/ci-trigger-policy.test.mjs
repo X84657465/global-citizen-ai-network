@@ -835,8 +835,18 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
   assert.equal(prepareSection.includes("pull-requests: write"), false);
   assert.equal(prepareSection.includes("Create a draft PR after isolated tests pass"), false);
   assert.ok(prepareSection.includes("artifacts/agent-scratch-publication.json"), "publication evidence must include the sanitized scratch manifest");
-  assert.equal(prepareSection.slice(prepareSection.indexOf("      - name: Upload exact validated publication bundle"), prepareSection.indexOf("      - name: Classify known task-scoped failures")).includes("artifacts/agent-scratch.json"), false,
-    "the machine-local scratch directory path must never be uploaded");
+  const uploadStep = findNamedStepBlock(jobsSource, "Upload exact validated publication bundle", prepare.start, prepare.end);
+  assert.ok(uploadStep.includes("artifacts/agent-scratch-publication.json"),
+    "the upload allowlist must include the sanitized scratch publication manifest");
+  assert.equal(uploadStep.includes("artifacts/agent-scratch.json"), false,
+    "the raw machine-local scratch manifest must never be in the upload step");
+
+  const cleanupStep = findNamedStepBlock(jobsSource, "Clean disposable scratch workspace", prepare.start, prepare.end);
+  assert.ok(cleanupStep.includes('Remove-Item -LiteralPath $manifestPath -Force'),
+    "scratch cleanup must remove the raw machine-local manifest");
+  const classifyStep = findNamedStepBlock(jobsSource, "Classify known task-scoped failures before updating factory state", prepare.start, prepare.end);
+  assert.ok(prepareSection.indexOf(cleanupStep) < prepareSection.indexOf(classifyStep),
+    "scratch cleanup must complete before failure classification");
 
   const begin = findJobSection(jobsSource, "begin-publication");
   const beginSection = jobsSource.slice(begin.start, begin.end);
