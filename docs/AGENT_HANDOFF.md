@@ -1,3 +1,41 @@
+# GPT5 exact-HEAD operations delta — 2026-11-24 (verified latest)
+
+This is the newest live-state correction and supersedes prior #493 HEAD/run statements below wherever they differ. Older snapshots remain historical only.
+
+## Current refs and governance
+- Main SHA: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Current Main governance blobs: `PROJECT_COORDINATION.md` = `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` = `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` = `67166a378c92909c8ddf64586f8a2b5202be7d14`.
+- The current coordination policy says the Master Governance Charter remains PROPOSED; it does not expand GPT5 authority. GPT5 remains limited to existing authorized Operations/document scope.
+
+## Main exact-SHA CI
+- Main remains at the SHA above. The known Main push run `45233037163`, attempt 2, is COMPLETED / FAILURE: resolver and diagnostics FAILURE; Windows quality, PostgreSQL/RLS, Ollama and candidate-success persistence SKIPPED; failure-persistence SUCCESS only records failure evidence.
+- Latest Main Recovery runs observed in the current listing include `45278781059` and `45278687085`; both COMPLETED / SKIPPED. Other recent recovery runs are likewise SKIPPED. No recovery PASS is established.
+- Resolver/diagnostics root cause remains UNKNOWN where logs/step evidence are unavailable. Do not blind-retry or infer a cause.
+
+## PR #493 current exact HEAD
+- PR #493 is OPEN / DRAFT; branch `docs/gpt5-live-ops-checkpoint-8002072738-20261124`; exact HEAD `e633ee44057dfa2ef3a8831ffb38de9af5028d96`; base `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Exact-head PR Actions run [#45278751013](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45278751013), attempt 1, event pull_request, exact SHA `e633ee44057dfa2ef3a8831ffb38de9af5028d96`: COMPLETED / FAILURE.
+- Resolver job #138057311640 and diagnostics job #138057331887: FAILURE.
+- Windows quality #138057332585, Ollama #138057333363, PostgreSQL/RLS #138057334583, candidate-success persistence #138057335498, and failure-persistence #138057335502: SKIPPED.
+- Combined commit status: CircleCI ERROR (`No configuration was found in your project`); Vercel SUCCESS. Vercel success does not override failed Actions.
+- Three formal review submissions are COMMENTED; zero APPROVED. No independent approval or acceptance exists.
+- GitHub reports mergeable=true but mergeable_state=unstable; this does not satisfy required CI/review/base gates.
+- The PR still targets stale base `8002072738d0dad722ccfc1207250165d1b7d8bc`, not current Main. The PR remains documentation-only within the GPT5-owned `docs/AGENT_HANDOFF.md` allowlist.
+
+## Current open PR inventory
+- 14 OPEN, unmerged PRs: 11 Draft, 3 Ready.
+- Current Main base: #503, #502, #501, #500. The other ten target older base SHAs.
+- This inventory is a live PR listing; exact-head Actions/reviews for every other PR were not all re-fetched in this delta. Do not extrapolate #493's run or historical outcomes to another PR.
+
+## Disposition and routing
+- No safe Draft transition, acceptance, or merge is supported for #493: exact-head Actions FAILURE, required jobs SKIPPED, no APPROVED review, stale base.
+- Main Resolver/Diagnostics and Factory P0 remediation route to GPT1/Factory; F–P to GPT2; independent QA to GPT3; Product to GPT4. CircleCI configuration remains an external provider/project setup gap.
+- GPT5 made no Factory, Runner, workflow, permissions, production, or protected-state changes; no retry, deployment, Draft transition, or merge was performed.
+
+**Disposition: MAIN FAILURE; PR #493 exact HEAD FAILURE; 14 OPEN; zero safe merges.**
+
+---
+
 # GPT5 live operations correction — 2026-11-24 (latest verified snapshot)
 
 This entry supersedes every earlier live-state statement below where the current Main SHA, PR #493 HEAD, CI run, or open-PR inventory differs. Historical snapshots are retained for audit only.
