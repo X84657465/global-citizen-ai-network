@@ -88,3 +88,101 @@ test("runtime config caps provider timeout at sixty seconds", () => {
     }
   }
 });
+
+import { parseProviderInvoiceCsv, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
+
+const invoiceCsv = [
+  "provider,model,billing_period_start,billing_period_end,source_reference,currency,amount",
+  "openai,gpt-test,2026-11-01,2026-11-30,provider-req-1,USD,1.25",
+].join("\n");
+
+test("invoice CSV accepts the bounded contract and fingerprints the exact source", () => {
+  const parsed = parseProviderInvoiceCsv(invoiceCsv);
+  assert.equal(parsed.rowCount, 1);
+  assert.equal(parsed.rows[0].sourceReference, "provider-req-1");
+  assert.match(parsed.sourceFingerprint, /^[a-f0-9]{64}$/);
+  assert.equal(parseProviderInvoiceCsv(invoiceCsv).sourceFingerprint, parsed.sourceFingerprint);
+});
+
+test("invoice CSV rejects malformed headers, unsupported currencies, invalid amounts and malformed rows", () => {
+  assert.throws(() => parseProviderInvoiceCsv("provider,model\nopenai,gpt"));
+  assert.throws(() => parseProviderInvoiceCsv(invoiceCsv.replace(",USD,", ",XYZ,")), /不支援的幣別/);
+  assert.throws(() => parseProviderInvoiceCsv(invoiceCsv.replace(",1.25", ",1e3")), /金額必須/);
+  assert.throws(() => parseProviderInvoiceCsv(invoiceCsv.replace("provider-req-1,USD,1.25", "provider-req-1,USD")), /欄位數不一致/);
+});
+
+test("invoice CSV detects repeated rows and conflicting source references without double counting", () => {
+  const parsed = parseProviderInvoiceCsv(invoiceCsv.replace(
+    "provider-req-1,USD,1.25",
+    "provider-req-1,USD,1.25\nopenai,gpt-test,2026-11-01,2026-11-30,provider-req-1,USD,1.25\nopenai,gpt-test,2026-11-01,2026-11-30,provider-req-1,USD,1.50",
+  ));
+  const preview = previewProviderInvoiceReconciliation(parsed, []);
+  assert.deepEqual(preview.rows.map((row) => row.disposition), [
+    "unmatched_estimate", "duplicate_row", "duplicate_reference",
+  ]);
+  assert.equal(preview.counts.duplicate_row, 1);
+  assert.equal(preview.counts.duplicate_reference, 1);
+});
+
+test("invoice reconciliation requires exact provider reference, provider, model, period, currency and amount", () => {
+  const parsed = parseProviderInvoiceCsv(invoiceCsv);
+  const request = {
+    id: "request-1", provider: "openai", model: "gpt-test",
+    provider_request_id: "provider-req-1", created_at: "2026-11-10T12:00:00.000Z",
+    provider_billed_cost: "1.25", provider_billed_currency: "USD",
+  };
+  const matched = previewProviderInvoiceReconciliation(parsed, [request]);
+  assert.equal(matched.rows[0].disposition, "matched_actual");
+  assert.equal(matched.rows[0].match.requestId, "request-1");
+  const variance = previewProviderInvoiceReconciliation(parsed, [{ ...request, provider_billed_cost: "1.26" }]);
+  assert.equal(variance.rows[0].disposition, "variance");
+  const unmatched = previewProviderInvoiceReconciliation(parsed, [{ ...request, provider_request_id: "different" }]);
+  assert.equal(unmatched.rows[0].disposition, "unmatched_estimate");
+});
+
+test("invoice TWD normalization requires an explicit valid rate and timestamp", () => {
+  const parsed = parseProviderInvoiceCsv(invoiceCsv);
+  const request: Array<{
+    id: string;
+    provider: string;
+    model: string;
+    provider_request_id: string;
+    created_at: string;
+    provider_billed_cost?: number | string | null;
+    provider_billed_currency?: string | null;
+  }> = [];
+  assert.equal(previewProviderInvoiceReconciliation(parsed, request).rows[0].normalizedTwd, null);
+  const normalized = previewProviderInvoiceReconciliation(parsed, request, {
+    fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "2026-11-23T00:00:00.000Z",
+  });
+  assert.equal(normalized.rows[0].normalizedTwd.amount, 40);
+  assert.equal(previewProviderInvoiceReconciliation(parsed, request, {
+    fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "not-a-date",
+  }).rows[0].normalizedTwd, null);
+});
+
+test("invoice CSV rejects stray quote characters in unquoted fields", () => {
+  assert.throws(() => parseProviderInvoiceCsv(invoiceCsv.replace("openai,gpt-test", 'open"ai,gpt-test')), /雙引號/);
+});
+
+
+test("invoice reconciliation never treats missing billed-cost evidence as a verified zero charge", () => {
+  const zeroCsv = invoiceCsv.replace(",USD,1.25", ",USD,0");
+  const parsed = parseProviderInvoiceCsv(zeroCsv);
+  const baseRequest = {
+    id: "request-zero", provider: "openai", model: "gpt-test",
+    provider_request_id: "provider-req-1", created_at: "2026-11-10T12:00:00.000Z",
+    provider_billed_currency: "USD",
+  };
+  for (const missingCost of [null, undefined, ""]) {
+    const preview = previewProviderInvoiceReconciliation(parsed, [
+      { ...baseRequest, provider_billed_cost: missingCost },
+    ]);
+    assert.notEqual(preview.rows[0].disposition, "matched_actual");
+    assert.equal(preview.rows[0].disposition, "variance");
+  }
+  const verifiedZero = previewProviderInvoiceReconciliation(parsed, [
+    { ...baseRequest, provider_billed_cost: "0" },
+  ]);
+  assert.equal(verifiedZero.rows[0].disposition, "matched_actual");
+});
