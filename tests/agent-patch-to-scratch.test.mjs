@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
 
-function fixture(t, { invalidPatch = false, invalidPlan = false, invalidRunnerTemp = false } = {}) {
+function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidRunnerTemp = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
@@ -25,7 +25,8 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidRunnerTe
     issue: { number: 117 }, safety: { issue_content_is_untrusted_data: true },
     allowed_paths: [allowedPath],
   }));
-  writeFileSync(join(artifacts, "agent-plan.json"), JSON.stringify({
+  const planPath = join(artifacts, "agent-plan.json");
+  writeFileSync(planPath, JSON.stringify({
     schema_version: 1, execution_mode: "validated_plan_only", ai_execution_enabled: false,
     safety: { no_commands_or_model_code_executed: true },
     tasks: [{
@@ -35,6 +36,7 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidRunnerTe
       acceptance_criteria: ["The patch remains within its approved path."], max_output_bytes: 1024,
     }],
   }));
+  if (invalidPlanJson) writeFileSync(planPath, "{");
   writeFileSync(join(artifacts, "agent-patch.json"), JSON.stringify({
     schema_version: 1,
     files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\n" }],
@@ -113,4 +115,18 @@ test("keeps scratch manifest write failures system-scoped", (t) => {
   assert.notEqual(result.status, 0);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
   assert.match(result.stderr, /Unable to write the scratch workspace manifest/);
+});
+
+test("records task scope for malformed plan JSON after the validated task is loaded", (t) => {
+  const data = fixture(t, { invalidPlanJson: true });
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\\n");
+});
+
+test("records task scope for malformed patch JSON after the validated task is loaded", (t) => {
+  const data = fixture(t, { invalidPatchJson: true });
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\\n");
 });
