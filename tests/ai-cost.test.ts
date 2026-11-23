@@ -89,7 +89,7 @@ test("runtime config caps provider timeout at sixty seconds", () => {
   }
 });
 
-import { parseProviderInvoiceCsv, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
+import { parseProviderInvoiceCsv, parseProviderInvoicePreviewPayload, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
 
 const invoiceCsv = [
   "provider,model,billing_period_start,billing_period_end,source_reference,currency,amount",
@@ -185,4 +185,42 @@ test("invoice reconciliation never treats missing billed-cost evidence as a veri
     { ...baseRequest, provider_billed_cost: "0" },
   ]);
   assert.equal(verifiedZero.rows[0].disposition, "matched_actual");
+});
+
+
+test("invoice preview payload rejects null, arrays, and primitive JSON values", () => {
+  for (const payload of [null, [], ["csv"], "text", 42, true]) {
+    assert.throws(() => parseProviderInvoicePreviewPayload(payload), /JSON 物件格式/);
+  }
+});
+
+test("invoice preview payload requires a CSV string", () => {
+  for (const payload of [{}, { csv: null }, { csv: 42 }]) {
+    assert.throws(() => parseProviderInvoicePreviewPayload(payload), /缺少 CSV 文字/);
+  }
+});
+
+test("invoice preview payload accepts CSV and normalizes explicit FX evidence", () => {
+  const payload = parseProviderInvoicePreviewPayload({
+    csv: invoiceCsv,
+    fxConversion: {
+      fromCurrency: "usd", toCurrency: "twd", rate: 32,
+      timestamp: "2026-11-23T00:00:00.000Z",
+    },
+  });
+  assert.equal(payload.csv, invoiceCsv);
+  assert.deepEqual(payload.fxConversion, {
+    fromCurrency: "USD", toCurrency: "TWD", rate: 32,
+    timestamp: "2026-11-23T00:00:00.000Z",
+  });
+});
+
+test("invoice preview payload rejects malformed FX evidence", () => {
+  for (const fxConversion of [
+    [], "32",
+    { fromCurrency: "USD", toCurrency: "TWD", rate: 0, timestamp: "2026-11-23T00:00:00.000Z" },
+    { fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "not-a-date" },
+  ]) {
+    assert.throws(() => parseProviderInvoicePreviewPayload({ csv: invoiceCsv, fxConversion }), /匯率資訊/);
+  }
 });
