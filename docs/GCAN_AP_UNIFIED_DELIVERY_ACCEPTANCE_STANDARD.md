@@ -14,7 +14,18 @@ The canonical governance hierarchy remains: platform/security/branch-protection 
 
 This document operationalizes the existing `GCAN_UNIFIED_EXECUTION_CONSTITUTION_V3.md`, `GCAN_EXECUTION_OPERATING_SYSTEM.md`, `PROJECT_COORDINATION.md` and `GCAN_F_TO_P_ACCEPTANCE.md`; it does not create a competing role charter.
 
-## 2. Common delivery states
+## 2. Existing GPT role boundaries
+
+This standard applies uniformly across A–P without redistributing ownership. Preserve the existing approved responsibility map:
+- **GPT1:** A–E / Agent Factory engineering and integration owner.
+- **GPT2:** F–P specialist workstream owner; each module still has its named owner.
+- **GPT3:** independent architecture, integration, security and QA reviewer; does not review work it authored or led.
+- **GPT4:** B Product direction, requirements, UX, product contract and product acceptance; product acceptance never replaces GPT3 technical QA.
+- **GPT5:** global engineering operations, research and explicitly authorized execution support; no automatic A–P module ownership and no self-approval.
+
+For each task, record the accountable module owner, one DRI, developer, product/domain acceptor where applicable, and independent reviewer. The role map is grounded in the existing repository governance documents; this proposal does not promote itself above currently approved charters. If an existing approved module charter differs, stop and resolve the conflict with the relevant owner and GPT3 before changing ownership.
+
+## 3. Common delivery states
 
 Use these states consistently in Issues, PRs, handoffs and reports:
 
