@@ -1,3 +1,8 @@
+## 0.3.138 — 2026-11-23
+
+- A: invoke the Node-only system-health recovery controller through Windows `cmd` to avoid the self-hosted Runner's blocked PowerShell profile/script policy.
+- Add a focused regression test for the workflow shell selection; preserve all existing provenance and breaker safeguards.
+
 ## 0.3.137 — 2026-11-23
 
 - F: reject canonical array-index properties outside the declared array length in security evidence snapshots.
