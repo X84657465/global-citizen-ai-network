@@ -479,3 +479,54 @@ All shortened SHAs above are prefixes of the exact values recorded in the contem
 - PR #445 remains documentation-only and Draft. This refresh updates only its already-authorized evidence document; it does not modify Factory source, tests, workflow, Runner, database/RLS, secrets, permissions, branch protection, durable Factory state or deployment settings.
 - PR #458 still needs a separately authorized independent formal APPROVED review. GPT5 has not self-approved, removed Draft, merged, or bypassed branch protection.
 - Next: wait for authorized independent review on #458; after normal merge, refresh Main SHA and re-run the dependent exact-head checks on #459, #445, #450, #448 and #457. Reconcile stale-base PRs only with their actual owners.
+
+
+---
+
+## Live delta — 2026-11-23 (latest re-read)
+
+This delta supersedes prior status statements where they conflict. Source: fresh GitHub reads in this session. No code or Factory-owned files were changed.
+
+### Governance files re-read from current main
+
+| File | Current blob SHA |
+|---|---|
+| `PROJECT_COORDINATION.md` | `d3ee1881aa67861fc42a2b568b26020945b0c218` |
+| `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` | `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31` |
+| `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` | `46b188085c2dff0f527477b2486719a7f6c24b59` |
+| `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` | `67166a378c92909c8ddf64586f8a2b5202be7d14` |
+| `docs/AGENT_FACTORY_AUTONOMY_CHARTER.md` | `299d445e1f29decc3002e29e68ecbf6ba6ddf900` |
+
+Main remains `f622c852346577d67aed0bde2922ade17044057c`. The current combined commit status reports Vercel FAILURE; the target identifies `build-rate-limit`. The commit-run lookup used in this refresh returned no workflow runs because this connector wrapper filters to PR-triggered runs. Therefore the known main push run `45106600175` remains the last verified exact-main Actions evidence, not a fresh run: COMPLETED/FAILURE, quality gates FAILURE, diagnostics and failure persistence SUCCESS, PostgreSQL/RLS and Ollama integrations SKIPPED, success persistence SKIPPED. The policy test result remains 42/43 at `tests/ci-trigger-policy.test.mjs:838`.
+
+### Current open PR inventory and exact-head evidence
+
+The fresh open-PR query returned 12 PRs: #458, #461, #445, #450, #448, #457, #442, #417, #438, #373, #376 and #259. PRs #459 and #460 are no longer present in that open list; their current closed/merged state was not inferred from absence alone.
+
+| PR | Current exact HEAD | Base | Draft | Exact-head CI evidence in this refresh |
+|---|---|---|---|---|
+| #458 | `a4a3194c2c60e6b7950dee848bd87c6add0732fc` | main at `f622c852...` | No | Run `45126296524` COMPLETED/SUCCESS. Resolver, Windows quality gates, Ollama/local integration and Supabase/PostgreSQL/RLS integration all SUCCESS; conditional diagnostics/persistence jobs SKIPPED. Reviews: 0; review threads: 0. Mergeable=true, but no independent APPROVED review. |
+| #461 | `7b67e1612447cdbda336e2253ea22c4567a2ee15` | stacked on #458 HEAD `a4a3194c...` | Yes | 0 exact-head workflow runs returned. Combined status shows Vercel FAILURE. This is NOT CI PASS; keep Draft. |
+| #445 | `1b4a67805dfb833dc283ed1ed6ea445b9f1046fd` | main at `f622c852...` | Yes | Run `45128595233` COMPLETED/FAILURE. Metadata resolver SUCCESS; Windows quality gates FAILURE; diagnostics SUCCESS; Ollama, PostgreSQL/RLS and persistence jobs SKIPPED. Reviews: 0; review threads: 0. Failure reproduces the shared scratch-manifest upload assertion, 42/43 at `tests/ci-trigger-policy.test.mjs:838`. |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main at `f622c852...` | Yes | Exact-head run not re-queried in this delta; prior recorded failure is not represented as a fresh poll. |
+| #448 | `d81a22fa91ed8ff38f23aa76dedf322ab86c6c30` | main at `f622c852...` | Yes | Exact-head run not re-queried in this delta. |
+| #457 | `bf64ecdd7e0e61303a5514703a03ea028947d96c` | main at `f622c852...` | Yes | Exact-head run not re-queried in this delta. |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | feature branch `df841a9a...` | Yes | Exact-head run not re-queried in this delta; a non-main base cannot establish current-main acceptance. |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main at `25d5ed51...` | No | Exact-head run not re-queried in this delta; mergeable=false, stale base. |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main at `480f22e4...` | Yes | Exact-head run not re-queried in this delta; mergeable=false, stale base. |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main at `93e7ac35...` | No | Exact-head run not re-queried in this delta; mergeable=false, stale base. |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main at `93e7ac35...` | No | Exact-head run not re-queried in this delta; mergeable=false, stale base. |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main at `a1c1b58e...` | No | Exact-head run not re-queried in this delta; mergeable=false, stale base. |
+
+Do not reuse older CI outcomes as this delta's current poll for rows marked not re-queried. The fresh metadata confirms old-base PRs remain stale; mergeability=false blocks them independently of historical green runs.
+
+### Root cause and owner routing
+
+- Main and #445 both fail the same test assertion at `tests/ci-trigger-policy.test.mjs:838`. The test currently inspects a source interval that includes the cleanup step; the cleanup legitimately references the local scratch manifest. The safe fix is to scope the assertion to the upload step and separately assert cleanup removes the local manifest. Do not weaken the artifact allowlist.
+- PR #461 contains that test-scope correction, but it is Draft, stacked on #458, and has 0 exact-head Actions runs. GPT1/Factory owner must decide the integration/rebase sequence and obtain exact-head CI.
+- PR #458 has all four required validation jobs SUCCESS but still has 0 formal reviews. Independent GPT3 APPROVED remains a separate gate. GPT5 will not self-approve or merge.
+- GPT5 Operations PR #445 remains Draft because its exact-head quality gate fails on the inherited Factory test issue. This refresh is limited to this GPT5-owned evidence document; no Factory implementation, workflow, Runner, database/RLS, secrets, permissions, branch protection or deployment settings were changed.
+
+### Daily automation
+
+The existing `GCAN 每日工程巡檢` automation remains enabled, daily at 08:00 Asia/Taipei; next scheduled run is 2026-11-24 08:00 +08:00. Its recorded last run is historical and is not represented as this manual live refresh.
