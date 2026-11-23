@@ -1865,3 +1865,37 @@ This delta supersedes earlier rows above wherever exact PR heads, run IDs, or op
 - This delta updates only `docs/AGENT_HANDOFF.md` on the existing GPT5 documentation branch.
 - It records current exact metadata and does not claim test, acceptance, merge, or deployment success.
 - No A–P source, workflow permissions, Runner administration, Secrets, database/RLS, durable Factory state, or deployment settings were changed.
+
+
+---
+
+## GPT5 live delta — 2026-11-23 (latest exact-head recheck)
+
+This is the latest observed inventory for this work session and supersedes earlier PR/run tables in this document. It is an operational evidence snapshot only; it does not grant ownership, acceptance, or merge approval.
+
+### Main
+- Exact main HEAD: `4225a244407f7a323262c4d6e17b2749193d6476`.
+- Main push Actions run [#45166790416](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45166790416), attempt 1, exact SHA above: **PENDING**, jobs endpoint returns **0 jobs**.
+- Five exact-main breaker-verification checks are **SKIPPED**: #137670989562, #137670371693, #137670153858, #137668336109, #137665724688.
+- Combined commit status: Vercel **FAILURE**; this is an external provider status, not a GitHub Actions result.
+- Main status: **NOT VERIFIED / BLOCKED**, not PASS.
+
+### All currently open PRs
+| PR | Exact HEAD | Base | Draft / mergeability | Exact-head Actions | Review / outstanding issue |
+|---|---|---|---|---|---|
+| [#473](https://github.com/X84657465/global-citizen-ai-network/pull/473) | `34e9889faa24929a38bc8ae44a4b4dbf3b4c6a7b` | `4225a244407f7a323262c4d6e17b2749193d6476` | Draft / mergeable=true / clean | [#45168315634](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45168315634) PENDING, 0 jobs | No formal review; documentation-only GPT5 handoff update |
+| [#472](https://github.com/X84657465/global-citizen-ai-network/pull/472) | `4008a39041d59efd1f728bdff7b4aceffc6c286c` | `4225a244407f7a323262c4d6e17b2749193d6476` | Draft / mergeable=true / unstable | Preflight [#45167525335](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45167525335) FAILURE; standard CI [#45167525440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45167525440) PENDING, 0 jobs | No formal review; Linux fixture failure, six downstream jobs SKIPPED, no retrievable steps/logs/artifacts |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Draft / mergeable=false / dirty | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) COMPLETED / SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | Two COMMENTED reviews; stale base/conflict; no APPROVED |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | Draft / mergeable=false / dirty | [#45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388) COMPLETED / SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | Nine COMMENTED reviews; stale base/conflict; no APPROVED |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | Draft / mergeable=false / dirty | No exact-head run found | Thirteen COMMENTED reviews; one unresolved P2 thread re release metadata/changelog; stale base/conflict; no APPROVED |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | Draft / mergeable=false / dirty | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) COMPLETED / FAILURE; quality gates FAILURE, diagnostic job SUCCESS, dependent integration/persistence jobs SKIPPED | No formal review; stale base/conflict |
+
+All six PRs remain Draft. No PR has a formal APPROVED review in the retrieved review submissions. Historical successful CI on old-base PRs does not override stale-base conflicts or substitute for independent approval.
+
+### GPT5-owned work and next action
+- PR #473 changes exactly one path: `docs/AGENT_HANDOFF.md` (83 additions, 0 deletions at HEAD `34e9889...`).
+- This latest delta updates the handoff's main and open-PR inventory using the exact observations above.
+- PR #473 remains Draft because its exact-head CI is PENDING / 0 jobs and it has no independent review.
+- PR #472's Linux failure root cause remains UNKNOWN because steps/logs/artifacts are unavailable. GPT1 / Issue #117 DRI owns the Factory repair; GPT3 owns independent QA.
+- PR #376's unresolved review finding belongs to that PR's author/owner; GPT5 does not rewrite the product/governance proposal to clear it.
+- No A–P source, workflow, Runner, permissions, Secrets, DB/RLS, durable Factory state, or deployment settings were modified.
