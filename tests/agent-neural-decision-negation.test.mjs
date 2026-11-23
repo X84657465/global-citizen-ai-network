@@ -317,3 +317,27 @@ test("production migration commands must be the actionable clause head", () => {
     assert.equal(result.decision, "reject_and_replan", title);
   }
 });
+
+test("negating a prohibition on a high-impact operation remains positive risk", () => {
+  for (const title of [
+    "Do not block deployment to production",
+    "Do not prevent production migration",
+    "Don't disallow deployment to production",
+    "Never prohibit production deployment",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+
+  for (const title of [
+    "Do not deploy to production",
+    "Do not block the production deployment history review",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
