@@ -1,3 +1,51 @@
+# GPT5 Live Operations Recheck — 2026-11-24 latest
+
+This section supersedes earlier branch-head and PR status snapshots in this file where they conflict. Exact evidence is based on the current GitHub read results.
+
+## Mainline
+
+- Current `main`: `8002072738d0dad722ccfc1207250165d1b7d8bc`; recent commit search confirms no newer main commit.
+- Main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105): **FAILURE**. Resolver #137840877458 FAILURE; diagnostics #137840906306 FAILURE; failure persistence #137840906764 SUCCESS; Windows quality #137840907274, Ollama #137840909193, Supabase/RLS #137840909327, success persistence #137840909738 SKIPPED.
+- Resolver/diagnostics logs remain unavailable (GitHub 404 `BlobNotFound`). Root cause **UNKNOWN**. Main quality/integration tests have not run in this workflow attempt.
+- Main commit-run lookup returned no PR-triggered runs (wrapper filters to PR-triggered runs); this is not evidence that no push run exists. The exact-main push run above is the evidence available.
+- CircleCI Pipeline 24 previously reported ERROR (no configuration found); not converted into PASS.
+
+## All 8 open PRs — exact candidate comparisons against current main
+
+| PR | Candidate HEAD | Ahead / behind | Exact-head Actions evidence | Formal APPROVED |
+|---|---|---:|---|---:|
+| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `2db9ddfe09f9087948ad9e3d70bb569b5755cd87` | 7 / 0 | No workflow run returned for current HEAD. Previous HEAD `8f0ffdf6...` run #45222178659 FAILURE; resolver/diagnostics FAILURE; downstream quality/integrations SKIPPED; failure logs 404. | 0 |
+| [#494](https://github.com/X84657465/global-citizen-ai-network/pull/494) | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | 1 / 0 | Run #45218883945 FAILURE; resolver/diagnostics FAILURE; quality, DB/RLS, Ollama, persistence SKIPPED. | 0 |
+| [#491](https://github.com/X84657465/global-citizen-ai-network/pull/491) | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | 4 / 0 | Run #45213070420 FAILURE; resolver/diagnostics FAILURE; quality, DB/RLS, Ollama, persistence SKIPPED. | 0 |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `9a696398fb8c3acf7152649207d3a4489a59c75c` | 17 / 107 | Run #45191718421: resolver, Windows quality, Supabase/RLS, Ollama SUCCESS. Evidence is for this old candidate; base is diverged. | 0 |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | 9 / 107 | Run #45180036170: resolver, Windows quality, DB/RLS, Ollama SUCCESS. Governance acceptance run #45180036135 previously FAILURE; candidate is diverged. | 0 |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | 4 / 353 | Run #45056447505: Windows quality FAILURE (738/739); diagnostics SUCCESS; integrations SKIPPED. Old candidate; #429 later corrected the specific fixture on main. | 0 |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | 111 / 1177 | Run #44949425719 SUCCESS on this old candidate; not mergeable due severe divergence; no independent approval. | 0 |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | 50 / 439 | No current exact-head Actions run evidenced; heavily diverged. | 0 |
+
+Review API recheck: all eight PRs have **zero formal APPROVED reviews**. Existing records are COMMENTED (including author-identity and CodeRabbit comments); these are not approvals. The open PR search returned exactly these eight open PRs.
+
+## GPT5 support branch
+
+- Branch: `docs/gpt5-live-ops-checkpoint-8002072738-20261124`.
+- Latest commit: `2db9ddfe09f9087948ad9e3d70bb569b5755cd87`.
+- Compare against main: 7 commits ahead / 0 behind; only `docs/AGENT_HANDOFF.md` differs.
+- No workflow run returned for latest branch commit. Exact-head CI remains **NOT YET EVIDENCED**, not PASS. The preceding HEAD's failure remains relevant only to that preceding SHA.
+- The branch is documentation-only. Keep PR #493 Draft; do not self-approve, mark accepted, or merge.
+
+## Factory-first disposition
+
+1. **Factory/CI owner:** obtain actionable evidence for the resolver/diagnostics failures in main run #45211976105. Same failure stage on #494/#491 and prior #493 candidate suggests a shared CI metadata-resolution/diagnostics path, but does not establish root cause. Logs are unavailable; no speculative code repair, permission change, Runner change, or blind rerun is justified.
+2. **Factory owner:** continue from current main's merged #429 fixture correction; do not re-open the obsolete #417 fixture defect as a current-main blocker. Current main quality is still SKIPPED due resolver failure.
+3. **GPT2 / GPT4 / Governance owners:** resolve their respective exact-head CI, independent review, stale-base, and provider blockers. Do not merge old successful candidates or wholesale rebase overlapping multi-owner diffs.
+4. **GPT5:** no independent code task is safe while the shared CI evidence resolver is failing and no new current-head CI can be established. Keep the handoff current and wait for actionable Factory/CI evidence.
+
+No workflow rerun, local test, Runner intervention, permissions/secrets change, database/RLS change, Draft transition, review approval, merge, or deployment was performed in this recheck. No green status is claimed.
+
+**Disposition:** main BLOCKED; 3 recent candidate PRs have resolver/diagnostics FAILURE and downstream SKIPPED; #478/#476 have old-candidate green substantive jobs but stale bases/review gaps; #417 old test failure corrected by #429 but its PR is stale; #259/#376 heavily diverged. No PR is merge-authorized.
+
+---
+
 # GPT5 Live Operations Correction — 2026-11-24 latest recheck
 
 **Supersedes the 00:55 live snapshot below where it conflicts.** Evidence is bound to exact SHAs and run IDs; no acceptance, merge, deployment, or release is implied.
