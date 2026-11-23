@@ -1,40 +1,65 @@
-# GPT5 Live Recheck — 2026-11-24 latest exact-head correction
+# GPT5 Live Operations — 2026-11-24 current verified snapshot
 
-This section supersedes earlier live-state summaries below wherever they conflict. Candidate SHA and workflow evidence are explicitly bound to the same exact commit; historical snapshots remain below for audit only.
+This section supersedes all older live-state entries below wherever they conflict. Every CI result is bound to the exact SHA and run ID shown. This is an operations handoff, not independent approval, acceptance, Draft promotion, merge authorization, deployment, or release.
 
-## Latest support branch exact-head result
+## Mainline — exact current SHA and terminal CI
 
-- Branch / PR: `docs/gpt5-live-ops-checkpoint-8002072738-20261124` / [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493).
-- Current candidate HEAD: `af717730b20de078a2758a40517f44511c92d9ec`.
-- Base: current `main` `8002072738d0dad722ccfc1207250165d1b7d8bc`.
-- Exact-head run [#45223486216](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45223486216): terminal **FAILURE**.
-- Resolver job #137863680386: **FAILURE**; diagnostics job #137863702918: **FAILURE**.
-- Windows quality #137863703680, Ollama #137863704077, Supabase/RLS #137863704716, success persistence #137863705787, and failure persistence #137863706522: **SKIPPED**.
-- Both failed jobs' log retrieval returns 404 `BlobNotFound`; no diagnostic artifact is available. Root cause remains **UNKNOWN**. No token, permission, quota, endpoint, or code-root-cause inference is justified.
-- PR #493 remains **Draft**. Mergeable=true is not acceptance: exact-head CI failed and formal APPROVED review count is zero.
+- Repository: `X84657465/global-citizen-ai-network`; default branch: `main`.
+- Current `main` SHA: `8002072738d0dad722ccfc1207250165d1b7d8bc` (re-read after the PR sweep; unchanged).
+- Exact-main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105), attempt 1: **COMPLETED / FAILURE**.
+  - Resolve exact candidate PR metadata #137840877458: **FAILURE**.
+  - Exact-SHA CI diagnostics #137840906306: **FAILURE**.
+  - Persist candidate/system failure evidence #137840906764: **SUCCESS**.
+  - Windows quality gates #137840907274, Ollama/local integration #137840909193, Supabase/PostgreSQL/RLS #137840909327, and success persistence #137840909738: **SKIPPED**.
+- The resolver and diagnostics jobs expose no steps/logs (`logs_url=null`); previous log retrieval returned 404 `BlobNotFound`. No diagnostic artifacts were exposed in the prior artifact audit. Root cause remains **UNKNOWN**; do not infer a token, permission, quota, Runner, provider, or application-code cause.
+- Exact-SHA check-runs include 31 entries, primarily the run's terminal jobs and 25 Recovery workflow_run check entries; the Recovery events on this main SHA are **SKIPPED**, not successful recovery.
+- Combined commit status: CircleCI Pipeline **ERROR**. This is separate from GitHub Actions.
+- Main disposition: **BLOCKED / NOT GREEN**. Substantive test, type, lint, build and integration evidence is **NOT RUN / SKIPPED** for this main push attempt.
 
-## Mainline and PR inventory
+## All 8 open PRs — exact HEAD, base, CI and review
 
-- Current `main`: `8002072738d0dad722ccfc1207250165d1b7d8bc`.
-- Exact-main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105): terminal **FAILURE**. Resolver #137840877458 and diagnostics #137840906306 **FAILURE**; failure persistence #137840906764 **SUCCESS**; Windows quality #137840907274, Ollama #137840909193, Supabase/RLS #137840909327 and success persistence #137840909738 **SKIPPED**. Failed-job logs remain unavailable (404 `BlobNotFound`); root cause **UNKNOWN**.
-- Eight open PRs remain: #493, #494, #491, #478, #417, #476, #259 and #376.
-- #493, #494 and #491 are Drafts based on current main; latest verified exact-head runs are FAILURE. #478, #476, #417, #259 and #376 target older base SHAs and are not safe to merge without owner-led reconciliation.
-- Formal independent APPROVED review evidence is absent for the candidates checked; COMMENTED reviews and author/bot comments are not approvals.
+The repository open-pulls endpoint returned exactly these eight open PRs. The listed HEAD and base SHAs are from the live PR inventory.
 
-## Diagnostic boundary and owner routing
+| PR | Exact HEAD | Base SHA | Draft | Exact-head Actions / other checks | Formal APPROVED |
+|---|---|---|---|---|---:|
+| [#494](https://github.com/X84657465/global-citizen-ai-network/pull/494) | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | current main `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | Run #45218883945 attempt 1 **FAILURE**; resolver + diagnostics **FAILURE**; Windows quality, Ollama, Supabase/RLS and persistence jobs **SKIPPED**. | 0 |
+| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `7a13efa16b95147794b17adf90033dabf732f18d` | current main `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | Run #45224343049 attempt 1 **FAILURE**; resolver #137866698737 + diagnostics #137866733031 **FAILURE**; Windows quality #137866727877, Supabase/RLS #137866732120, Ollama #137866732941, success persistence #137866736014 and failure persistence #137866736468 **SKIPPED**. Failed-job logs unavailable; root cause UNKNOWN. | 0 |
+| [#491](https://github.com/X84657465/global-citizen-ai-network/pull/491) | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | current main `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | Run #45213070420 attempt 3 **FAILURE**; resolver + diagnostics **FAILURE**; Windows quality, Ollama, Supabase/RLS and persistence jobs **SKIPPED**. | 0 |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | Run #45191718421 attempt 1 **SUCCESS**: resolver, Windows quality, Supabase/RLS and Ollama jobs **SUCCESS**. This is an old-base candidate; not validation against current main. | 0 |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | No | No Actions workflow run returned for this exact HEAD. Available checks: Summary + CodeRabbit **SUCCESS**, Vercel Preview Comments **SUCCESS**, Mergify **NEUTRAL**; these do not constitute the required test matrix. | 0 |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | Run #45056447505 attempt 1 **FAILURE**: Windows quality **FAILURE**; Supabase/RLS and Ollama **SKIPPED**; resolver/diagnostics **SUCCESS**. Old-base candidate; the historical test failure is not proof of current-main test failure. | 0 |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | Run #44949425719 attempt 1 **SUCCESS** on this candidate: resolver, Windows quality, Supabase/RLS and Ollama **SUCCESS**. Severely diverged from current main; old SHA evidence is not merge validation. | 0 |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | No Actions workflow run returned for this exact HEAD. Available checks are Summary + CodeRabbit **SUCCESS** and Mergify **NEUTRAL** only; not a substantive CI matrix. | 0 |
 
-The available evidence does not expose failed step names or actionable redacted error output: failed-job log downloads return 404 and no diagnostics artifact is available. Source inspection can identify possible stages but does not prove which runtime stage failed.
+Review API audit: all eight PRs have **zero formal APPROVED reviews**. Returned review records are COMMENTED by the author identity and/or bots; these are not independent approvals. #478, #476, #417, #376 and #259 also target older bases and require owner-led reconciliation. No PR is currently proven merge-ready. GitHub mergeability is not used as an acceptance substitute.
 
-1. Factory/CI owner: recover failed-step evidence for main run #45211976105 and PR #493 run #45223486216: failed step, redacted error/status, resolver stage, and diagnostics capture outcome. If GitHub log storage remains unavailable, escalate through the authorized Actions/CI owner.
-2. Keep Factory breaker and quarantined task state fail-closed. Issue #100 is machine-managed; do not manually edit or reset it, and do not blindly rerun.
-3. GPT5 support remains documentation/evidence coordination only; no Factory/Runner or A–P module execution authority is inferred.
-4. Continue B-line preparation only; no B production, integration, or deployment is authorized by this evidence.
+## GPT5-owned support delivery — PR #493
 
-## Scope and disposition
+- PR #493 is explicitly GPT5-owned and limited to `docs/AGENT_HANDOFF.md`; its PR description confirms no Factory/Product source, workflow, Runner, permission, secret, DB/RLS, branch-protection or deployment mutation.
+- Current PR HEAD at the time of this snapshot is `7a13efa16b95147794b17adf90033dabf732f18d`; exact-head run #45224343049 is **FAILURE** as detailed above.
+- The previous opening snapshot in this file incorrectly treated `af717730b20de078a2758a40517f44511c92d9ec` / run #45223486216 as current. That evidence is now superseded and retained only in the historical sections below.
+- This commit updates the existing GPT5-owned handoff only. No local checkout or shell/test runtime is attached, so local tests are **NOT RUN**. Exact-head CI and independent review remain required.
+- Keep PR #493 **Draft**. Do not self-approve, un-Draft, merge, or claim acceptance.
 
-This is a documentation-only refresh of the GPT5-owned handoff file. No Factory/Product source, workflow, Runner, permission, secret, database/RLS, branch-protection or deployment setting is changed. No workflow rerun, state mutation, Draft transition, approval, merge or deployment is performed.
+## Blockers and owner routing
 
-**Status:** Main BLOCKED; PR #493 exact-head CI FAILURE; Resolver/Diagnostics root cause UNKNOWN; downstream quality/integration jobs SKIPPED. No green claim.
+1. **Factory / CI owner — P0:** recover actionable resolver and diagnostics evidence for main run #45211976105 and exact-head candidate runs #45224343049, #45218883945 and #45213070420. The logs/artifacts are unavailable; root cause is UNKNOWN. Do not blindly rerun, alter Runner authority, or reset machine-managed breaker/quarantine/retry state.
+2. **GPT2 owner:** diagnose #491 and #494 within their own task allowlists; do not infer code defects from missing logs.
+3. **GPT4 / Product owner:** #478 has a successful old-base Actions matrix but is stale, Draft, and has no independent approval; reconcile against current main and resolve outstanding review findings before revalidation.
+4. **Governance owner / GPT3:** #476 lacks a current exact-head Actions matrix, is stale, and has no independent approval.
+5. **Factory owner:** #417 is stale and its historical quality run failed; reconcile with current main before deciding whether any defect remains.
+6. **GPT1 / GPT4 / GPT3:** #376 and #259 are heavily stale/diverged; no wholesale transplant or merge.
+7. **GPT5:** maintain the one-file handoff and evidence coordination; no safe basis exists to modify Factory, Product, workflow, Runner or shared owner paths from this evidence.
+
+## Final disposition
+
+- **OBSERVED:** main exact SHA and push run are known; main CI terminal FAILURE; 8 open PRs enumerated; 0 formal APPROVED reviews.
+- **BLOCKED:** main quality/integration gates; PR #493/#494/#491 resolver and diagnostics; stale-base PRs and review gaps.
+- **UNKNOWN:** root cause of resolver/diagnostics failures due missing logs/artifacts.
+- **NOT RUN:** local test execution; main Windows quality, type, lint, build, Ollama and Supabase/RLS jobs in run #45211976105.
+- **IMPLEMENTED:** this one-file operations handoff correction only, once the commit is created.
+- **NOT CLAIMED:** independent acceptance, merge, release, deployment, or successful Factory recovery.
+
 
 ---
 
