@@ -1,5 +1,5 @@
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
-import { validateAndBuildTask } from "../lib/agent-task-validation.mjs";
+import { TaskValidationError, validateAndBuildTask } from "../lib/agent-task-validation.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
 
@@ -48,7 +48,13 @@ let task;
 try {
   task = validateAndBuildTask(issue, repository);
 } catch (error) {
-  markTaskScopedFailure();
+  if (error instanceof TaskValidationError) {
+    try {
+      markTaskScopedFailure();
+    } catch {
+      // Marker persistence failure remains system-scoped.
+    }
+  }
   fail(error instanceof Error ? error.message : "Unknown task validation error.");
 }
 

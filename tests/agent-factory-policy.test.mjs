@@ -209,7 +209,7 @@ test("preserves the reserved lease environment for the task-failure recorder", (
   const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
   const start = workflow.indexOf("      - name: Record failed task and activate cooldown after three consecutive failures");
   assert.ok(start >= 0, "factory failure recorder step must exist");
-  const next = workflow.indexOf("\n      - name:", start + 1);
+  const next = workflow.indexOf("      - name:", start + 10);
   const section = workflow.slice(start, next < 0 ? workflow.length : next);
 
   assert.doesNotMatch(
@@ -305,4 +305,60 @@ test("unclassified candidate container outcomes fail closed to system scope", ()
   assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "9007199254740992" }), "system");
   assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "0" }), "none");
   assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: "2" }), "task");
+});
+
+
+test("scratch failures require an explicit task-scope marker", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("      - name: Classify known task-scoped failures before updating factory state");
+  assert.ok(start >= 0, "failure classifier step must exist");
+  const next = workflow.indexOf("\n      - name:", start + 1);
+  const section = workflow.slice(start, next < 0 ? workflow.length : next);
+
+  assert.match(section, /AGENT_FACTORY_FAILURE_SCOPE -eq "task"/);
+  assert.doesNotMatch(section, /APPLY_SCRATCH_OUTCOME|steps.*apply-scratch.*outcome/);
+  assert.match(section, /defaulting to system-scoped/);
+});
+
+test("scratch cleanup completes before failure classification and recording", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
+  const cleanup = workflow.indexOf("      - name: Clean disposable scratch workspace");
+  const classifier = workflow.indexOf("      - name: Classify known task-scoped failures before updating factory state");
+  const recorder = workflow.indexOf("      - name: Record failed task and activate cooldown after three consecutive failures");
+  assert.ok(cleanup >= 0);
+  assert.ok(classifier > cleanup);
+  assert.ok(recorder > classifier);
+
+  const cleanupSection = workflow.slice(cleanup, classifier);
+  assert.ok(cleanupSection.includes("id: cleanup-scratch"));
+  assert.ok(cleanupSection.includes("if: always()"));
+  assert.ok(cleanupSection.includes('$ErrorActionPreference = "Stop"'));
+
+  const classifierNext = workflow.indexOf("\n      - name:", classifier);
+  const classifierSection = workflow.slice(classifier, classifierNext < 0 ? workflow.length : classifierNext);
+  assert.ok(classifierSection.includes("SCRATCH_CLEANUP_OUTCOME: ${{ steps.cleanup-scratch.outcome }}"));
+  assert.ok(classifierSection.includes('Write-Host "Scratch cleanup failed; effective failure scope is system."'));
+
+  const recorderNext = workflow.indexOf("\n      - name:", recorder);
+  const recorderSection = workflow.slice(recorder, recorderNext < 0 ? workflow.length : recorderNext);
+  assert.ok(recorderSection.includes("SCRATCH_CLEANUP_OUTCOME: ${{ steps.cleanup-scratch.outcome }}"));
+  assert.ok(recorderSection.includes('if ($env:SCRATCH_CLEANUP_OUTCOME -eq "failure")'));
+  assert.ok(recorderSection.includes('$env:AGENT_FACTORY_FAILURE_SCOPE = "system"'));
+});
+
+test("task preflight marks only typed validation errors after successful GitHub issue lookup", () => {
+  const source = readFileSync(new URL("../scripts/prepare-agent-task.mjs", import.meta.url), "utf8");
+  assert.match(source, /import \{ TaskValidationError, validateAndBuildTask \}/);
+  const lookup = source.indexOf('issue = await githubApi.request("/repos/" + repository + "/issues/" + issueNumber)');
+  const validation = source.indexOf("task = validateAndBuildTask(issue, repository)");
+  const validationCatch = source.indexOf("catch (error)", validation);
+  const typedGuard = source.indexOf("if (error instanceof TaskValidationError)", validationCatch);
+  const markerCall = source.indexOf("markTaskScopedFailure()", typedGuard);
+  assert.ok(lookup >= 0);
+  assert.ok(validation > lookup);
+  assert.ok(validationCatch > validation);
+  assert.ok(typedGuard > validationCatch);
+  assert.ok(markerCall > typedGuard);
+  assert.equal(source.slice(lookup, validation).includes("markTaskScopedFailure()"), false);
+  assert.match(source.slice(typedGuard, source.indexOf("fail(", typedGuard)), /try\s*\{\s*markTaskScopedFailure\(\);\s*\}\s*catch/);
 });
