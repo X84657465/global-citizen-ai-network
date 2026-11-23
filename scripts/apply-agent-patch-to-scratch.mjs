@@ -1,4 +1,5 @@
 import {
+  appendFileSync,
   copyFileSync,
   existsSync,
   lstatSync,
@@ -16,27 +17,33 @@ import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { buildScratchPatchEvidence } from "../lib/agent-scratch-evidence.mjs";
 import { validatePatchManifest, PatchValidationError } from "../lib/agent-patch-validation.mjs";
 import { AgentPlanValidationError } from "../lib/agent-plan-validation.mjs";
-import { cleanupThenWriteTaskFailureScopeMarker } from "../lib/agent-task-failure-marker.mjs";
 
 let scratchDir;
 let task = null;
 
 const fail = (message, { taskScoped = false } = {}) => {
-  const cleanupScratch = () => {
-    if (scratchDir && existsSync(scratchDir)) {
-      rmSync(scratchDir, { recursive: true, force: true });
-    }
-  };
-  if (taskScoped) {
-    if (!cleanupThenWriteTaskFailureScopeMarker(task, process.env.GITHUB_ENV, cleanupScratch)) {
-      console.error("Task marker unavailable or scratch cleanup failed; failure remains system-scoped.");
-    }
-  } else {
+  let cleanupSucceeded = true;
+  if (scratchDir && existsSync(scratchDir)) {
     try {
-      cleanupScratch();
+      rmSync(scratchDir, { recursive: true, force: true });
     } catch {
-      // Preserve the primary infrastructure failure and never emit a task marker.
+      cleanupSucceeded = false;
     }
+  }
+  const issueNumber = task?.issue?.number;
+  const validTaskIdentity = Number.isSafeInteger(issueNumber) && issueNumber >= 1 && issueNumber <= 99_999_999;
+  let markerWritten = false;
+  if (taskScoped && cleanupSucceeded && validTaskIdentity &&
+      typeof process.env.GITHUB_ENV === "string" && process.env.GITHUB_ENV.length > 0) {
+    try {
+      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
+      markerWritten = true;
+    } catch {
+      // Marker persistence failure must remain system-scoped.
+    }
+  }
+  if (taskScoped && !markerWritten) {
+    console.error("Task marker unavailable or scratch cleanup failed; failure remains system-scoped.");
   }
   console.error("Scratch patch validation failed: " + message);
   process.exit(1);
