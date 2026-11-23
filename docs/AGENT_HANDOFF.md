@@ -1,3 +1,61 @@
+# GPT5 Live Operations Delta — 2026-11-24 00:23 Asia/Taipei
+
+This checkpoint supersedes prior live-state snapshots where they conflict. All statements below are bound to the exact main/PR HEAD SHAs and run IDs listed here. This is an operations evidence handoff, not an acceptance or release decision.
+
+## Mainline
+- Current main: `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Freshly reread `PROJECT_COORDINATION.md`: blob `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- Main combined status: CircleCI Pipeline **ERROR**, pipeline 14. The current connector's commit workflow-run lookup is scoped to PR-triggered runs and returned no records for this SHA; it does not establish that no push-triggered Actions run exists.
+- No mainline PASS is claimed. No exact-main GitHub Actions push-run job matrix was available in this inspection.
+
+## Current open PRs — exact HEAD and terminal evidence
+
+| PR | Exact HEAD | Exact-head Actions / external status | Draft | Mergeable | Formal review |
+|---|---|---|---|---|---|
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | No Actions workflow run returned; CircleCI Pipeline ERROR (pipeline 22); Vercel SUCCESS | No | false | COMMENTED only; 0 APPROVED |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | Run `45056447505` FAILURE; quality job `137319638834`: 738/739 tests pass, one operator-recovery authorization test fails; typecheck/lint/build SKIPPED; Vercel build-rate-limit FAILURE | No | false | COMMENTED only; 0 APPROVED |
+| #491 | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | Run `45213070420` FAILURE; resolver job `137836372845` FAILURE, quality/integration jobs SKIPPED, diagnostics job FAILURE; logs unavailable (404 BlobNotFound); CircleCI pipeline 21 ERROR; Vercel build-rate-limit FAILURE | Yes | true | No review submissions |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | Run `45191718421` SUCCESS; resolver, Windows quality, Supabase/PostgreSQL/RLS and Ollama substantive jobs SUCCESS; Vercel build-rate-limit FAILURE | Yes | false | COMMENTED only; 0 APPROVED |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | Run `44949425719` SUCCESS on this exact candidate; substantive quality, Supabase/RLS and Ollama jobs SUCCESS; Vercel build-rate-limit FAILURE | Yes | false | COMMENTED only; 0 APPROVED |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | No exact-head Actions run returned; Vercel build-rate-limit FAILURE | No | false | COMMENTED only; 0 APPROVED |
+
+### Base divergence and acceptance
+- #476 compares current main to candidate as diverged: 9 ahead / 107 behind; no mergeability.
+- #259 compares current main to candidate as diverged: 111 ahead / 1,177 behind; stale integration branch, do not transplant wholesale.
+- #376 compares current main to candidate as diverged: 50 ahead / 439 behind; no current exact-head Actions evidence.
+- #417 is reported mergeable=false and its recorded base SHA is `25d5ed519eb923d3001df6d43aec1670a0d4851a`, not current main.
+- #491 is based on current main and GitHub reports mergeable=true, but exact-head CI failed and no independent review exists.
+- #478 has a completed exact-head Actions SUCCESS, but remains Draft, GitHub reports mergeable=false, Vercel is rate-limited, and no independent approval exists.
+- No PR has a formal APPROVED review in this six-PR snapshot. COMMENTED reviews and author self-review are not approval.
+
+## New blockers and owner handoff
+
+1. **Main CI / CircleCI:** pipeline 14 is ERROR. The exact CircleCI job-level root cause was not available through the current connector. Return to the CI/workflow owner with pipeline evidence; do not label main green.
+2. **#417 operator recovery test:** exact-head quality run fails 1/739. Failure is in a Factory-related test and owner scope; GPT5 will not alter Factory-owned files without a task-specific path allowlist.
+3. **#491 invoice preview:** exact-head run fails at resolver and diagnostic stages; job logs are unavailable (404). The task is GPT2/F–P Issue #85 scope. Do not promote Draft or infer a code failure from unavailable resolver diagnostics.
+4. **#478 portfolio MVP:** Actions checks pass on the listed exact HEAD, but Vercel build-rate-limit is an external Preview blocker; Draft and mergeability remain unchanged, and independent approval is absent.
+5. **#259/#376:** stale-base divergence makes old candidate CI insufficient for current-main integration. Reconciliation belongs to the respective owners; do not merge or rebase wholesale.
+6. **#476:** CircleCI ERROR plus 107-commit divergence; existing COMMENTED reviews do not satisfy independent approval.
+
+## GPT5 scope and completed work this round
+- Re-read the current coordination entry point and checked the current master governance charter, neural-intelligence mode, Factory autonomy charter, execution operating system, handoff, and B Product charter / North Star availability.
+- Confirmed B Line Lead Charter and Product North Star exist on current main; this resolves the older Issue #399 report that those files were missing on its historical baseline. Their existence does not mean B Runtime is authorized or accepted.
+- Rechecked all six open PRs, exact HEAD SHAs, combined statuses, workflow runs/jobs, formal review submissions and current-main divergence.
+- No application code, Factory state, Runner, workflow, permissions, secrets, database/RLS, branch protection, Product-owned implementation, merge, Draft transition or deployment was changed.
+- No local test was run in this ChatGPT session. The CI outcomes above are retrieved GitHub evidence, not locally reproduced tests.
+- Existing daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled, daily flexible schedule targeting 08:00 Asia/Taipei; next run is 2026-11-24 08:00 +08:00. Its last recorded run is stale relative to this main SHA, so this manual inspection is not represented as a successful scheduled delivery.
+
+## Next actions
+- CI owner: obtain CircleCI pipeline 14 job-level diagnostics and restore a verifiable mainline CI result.
+- Factory owner: investigate #417 exact-head operator-recovery test failure; preserve fail-closed owner/main/workflow_dispatch/protected-secret/explicit-confirmation controls.
+- GPT2/F–P owner: diagnose #491 resolver failure from a retrievable exact-head run and complete independent review.
+- Product owner: resolve #478 external Preview quota and independent acceptance; do not use Actions SUCCESS alone as release approval.
+- GPT5: continue independent operations evidence and cross-line blocker analysis; do not take ownership of A–P implementation or independent QA.
+
+**Disposition:** Main BLOCKED; #417 FAIL; #491 FAIL; #478 Actions SUCCESS but overall acceptance BLOCKED; #259 exact-head Actions SUCCESS but stale-base BLOCKED; #376 NOT RUN on current main. No merge or acceptance is authorized by this checkpoint.
+
+---
+
 ## GPT5 live operations delta — 2026-11-23 (follow-up observation)
 
 This follow-up supersedes only the live states in the immediately preceding checkpoint; prior evidence is retained below for audit history.
