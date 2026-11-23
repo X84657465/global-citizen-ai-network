@@ -392,3 +392,66 @@ The job endpoint for run #45137751765 returned seven terminal jobs (five SUCCESS
 - Exact association of run #45137751765 to main HEAD `f4319ec65d33bf30804b2d447e7692207fd82f0c`: **UNKNOWN / NOT VERIFIED**.
 - Main combined status lookup returned Vercel SUCCESS only; it did not return a GitHub Actions status context.
 - Do not label exact-main-SHA CI PASS until the workflow run's head SHA and attempt are independently confirmed.
+
+
+---
+
+## Live recheck — 2026-11-23 (subsequent pass)
+
+### Baseline
+
+- Current main HEAD remains `f4319ec65d33bf30804b2d447e7692207fd82f0c`.
+- Current `PROJECT_COORDINATION.md` blob remains `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- 14 PRs remain open; the full inventory below reflects the current metadata response.
+- Main HEAD query returned no GitHub Actions workflow run for this exact SHA. Combined status returned Vercel SUCCESS only. Thus exact-main GitHub Actions result is **UNKNOWN / NOT VERIFIED**, not PASS.
+
+### Exact-head PR state (current metadata + CI/status)
+
+| PR | Head SHA | Base | Draft | Mergeable | Exact-head Actions | Vercel |
+|---|---|---|---|---|---|---|
+| #466 | `6165794a1c4e3259207f2ababb68d27cf849f943` | main `f4319ec6` | no | true | #45154050226 PENDING; **0 jobs** | FAILURE |
+| #468 | `588967ee9563a8896752eacce02aa7a14473d5d8` | main `f4319ec6` | no | true | #45151541188 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | FAILURE |
+| #467 | `3c802c9f206721fdcc71ec96e2bb178590fb9990` | main `f4319ec6` | yes | true | #45151506039 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | FAILURE |
+| #448 | `ccccf9c5e46285426a3c269bd066e6fa47c65cb8` | main `f4319ec6` | no | true | #45147570005 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | SUCCESS |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | main `f622c852` (stale) | yes | true | #45137849234 FAILURE; Windows quality gates FAILURE; diagnostics SUCCESS; 4 downstream jobs SKIPPED | SUCCESS |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | main `f4319ec6` | no | true | #45137959652 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | SUCCESS |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main `a1c1b58e` (stale) | yes | false | #44949425719 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | FAILURE |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main `93e7ac35` (stale) | yes | false | #45052753388 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | FAILURE |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main `93e7ac35` (stale) | yes | false | NO exact-head Actions run returned | FAILURE |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main `25d5ed51` (stale) | yes | false | #45056447505 FAILURE; Windows quality gates FAILURE; diagnostics SUCCESS; 4 downstream jobs SKIPPED | FAILURE |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main `480f22e4` (stale) | yes | false | #45100493731 SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | FAILURE |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | `feat/cyber-security-defense` `7d90d059` | yes | true | #45132200910 FAILURE; build/unit/type/lint/production job FAILURE; Supabase/RLS SUCCESS; 2 jobs SKIPPED | FAILURE |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | `feat/cyber-security-defense-integration` `df841a9a` | yes | true | #45108427275 SUCCESS; build and Supabase/RLS SUCCESS; 2 conditional jobs SKIPPED | FAILURE |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main `f622c852` (stale) | yes | true | #45117595636 FAILURE; Windows quality gates FAILURE; diagnostics SUCCESS; 4 downstream jobs SKIPPED | FAILURE |
+
+### Review evidence and merge decisions
+
+- Current formal review submissions: **zero APPROVED** across all 14 PRs. Returned submissions are COMMENTED by repository owner / connector identity only; comments are not approvals.
+- No PR is independently accepted for merge in this pass. #448 and #464 have successful substantive CI and Vercel SUCCESS, but no formal independent APPROVED review. #466 is GPT5's own documentation PR and has PENDING/0 jobs plus Vercel FAILURE; it cannot be self-approved or merged.
+- PR #468 has a successful Windows workflow run, but the job list does not contain the new Linux fixture validation job. The PR body correctly states that its newly introduced pull_request workflow cannot be used to validate itself until it is present on base main.
+- PR #467 has a successful Windows workflow run, but no Linux fixture job appears in the run. Keep Draft until the Linux path actually executes, required CI is terminal, and independent review is approved.
+- Vercel is a separate status provider. FAILURE on multiple PR heads is not a GitHub Actions conclusion and is not bypassed by retrying builds.
+
+### Issue identity / scope clarification
+
+- Issue #117 is titled **"[AI Task] Separate task-level failures from factory-wide cooldown"**, priority P0, and has the `factory-control-plane-approved` label. Its allowed paths include the Factory policy/controller/preparation/scratch-apply scripts, tests, and preflight workflow. It remains OPEN and assigned to the repository owner.
+- PR #467 and #468 explicitly declare themselves as the bounded offline Linux fixture / safe PR-validation work for Issue #117. Their stated scope is test fixture and workflow path respectively. Do not mislabel Issue #117 itself as the separate missing-Git executable ticket.
+- Issue #465 is a distinct P1 issue titled **"Provide Git in the isolated offline unit-test container"**. It documents `spawnSync git ENOENT` in the pinned offline test container and remains OPEN. Its current issue text does not assign an owner.
+- Issue #446 remains OPEN and concerns scoping the scratch-manifest upload assertion to the artifact upload step. PR #464 exact-head Actions is SUCCESS and Vercel SUCCESS, but independent formal approval is still absent.
+- Mainline preflight failure #45137751684 remains a separate known failure; do not conflate it with the successful PR-head runs above.
+
+### GPT5 action and stop conditions
+
+- Re-read main coordination policy and refreshed the exact 14-PR metadata, exact-head workflow/status lookups, job lists for success/failure/pending runs, formal review submissions, and Issue #117/#465/#446.
+- GPT5 has no operative permission to modify A–E/Factory core code, workflows, Runner image/permissions, F–P modules, secrets, database/RLS, or production state. The Master Charter's GPT5 execution-support role remains PROPOSED until formally accepted; it does not grant extra ownership.
+- GPT5-owned PR #466 remains the only current authorized write surface for this task (single documentation report path). Its exact-head run #45154050226 remains PENDING with zero jobs; Vercel remains FAILURE. No retry/dispatch or false pass is claimed.
+- No safe merge, draft removal, independent acceptance, or production action was available under the current review/CI/ownership gates. Continue non-overlapping GPT5 intelligence/reporting work; route Factory changes to GPT1, F–P fixes to GPT2, and independent acceptance to GPT3.
+
+Evidence links:
+- Main: https://github.com/X84657465/global-citizen-ai-network/commit/f4319ec65d33bf30804b2d447e7692207fd82f0c
+- PR #466: https://github.com/X84657465/global-citizen-ai-network/pull/466
+- PR #467: https://github.com/X84657465/global-citizen-ai-network/pull/467
+- PR #468: https://github.com/X84657465/global-citizen-ai-network/pull/468
+- Issue #117: https://github.com/X84657465/global-citizen-ai-network/issues/117
+- Issue #465: https://github.com/X84657465/global-citizen-ai-network/issues/465
+- Issue #446: https://github.com/X84657465/global-citizen-ai-network/issues/446
