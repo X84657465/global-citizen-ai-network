@@ -20,20 +20,22 @@ import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 let scratchDir;
 
 const fail = (message, { taskScoped = false } = {}) => {
+  let cleanupSucceeded = true;
+  if (scratchDir && existsSync(scratchDir)) {
+    try {
+      rmSync(scratchDir, { recursive: true, force: true });
+    } catch {
+      cleanupSucceeded = false;
+    }
+  }
   let taskScopeRecorded = false;
-  if (taskScoped && typeof process.env.GITHUB_ENV === "string" && process.env.GITHUB_ENV.length > 0) {
+  if (taskScoped && cleanupSucceeded &&
+      typeof process.env.GITHUB_ENV === "string" && process.env.GITHUB_ENV.length > 0) {
     try {
       appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
       taskScopeRecorded = true;
     } catch {
       // A marker-write failure must remain system-scoped.
-    }
-  }
-  if (scratchDir && existsSync(scratchDir)) {
-    try {
-      rmSync(scratchDir, { recursive: true, force: true });
-    } catch {
-      // Preserve the primary validation error.
     }
   }
   console.error("Scratch patch validation failed: " + message);
