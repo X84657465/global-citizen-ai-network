@@ -823,22 +823,12 @@ jobs:
             Write-Host "No explicit task-scoped marker was identified; defaulting to system-scoped."
           }
 
-      - name: Record failed task and activate cooldown after three consecutive failures
-        if: failure()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: failure
-          FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
-          FAILURE_STAGE: preflight
-          FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number || inputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-v2-controller.mjs
-
       - name: Clean disposable scratch workspace
+        id: cleanup-scratch
         if: always()
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
+          $ErrorActionPreference = "Stop"
           $manifestPath = "artifacts/agent-scratch.json"
           if (Test-Path $manifestPath) {
             try {
@@ -851,6 +841,26 @@ jobs:
               Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
             }
           }
+
+      - name: Record failed task and activate cooldown after three consecutive failures
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: failure
+          FAILED_ISSUE_NUMBER: ${{ steps.select-task.outputs.issue_number || inputs.issue_number }}
+          FAILURE_STAGE: preflight
+          FAILURE_SUMMARY: 'Task workflow failed for issue #${{ steps.select-task.outputs.issue_number || inputs.issue_number }} in run ${{ github.run_id }}. Inspect the Actions run logs.'
+          SCRATCH_CLEANUP_OUTCOME: ${{ steps.cleanup-scratch.outcome }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          if ($env:SCRATCH_CLEANUP_OUTCOME -eq "failure") {
+            # A cleanup failure is infrastructure-scoped and overrides any
+            # earlier candidate-test task marker before the controller runs.
+            $env:AGENT_FACTORY_FAILURE_SCOPE = "system"
+            Write-Host "Scratch cleanup failed; overriding failure scope to system."
+          }
+          node scripts/agent-factory-v2-controller.mjs
 
       - name: Upload validated task, plan, and patch proposal
         if: always()
