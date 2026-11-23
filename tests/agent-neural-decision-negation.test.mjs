@@ -56,12 +56,14 @@ test("sensitive target paths remain fail-closed even when surrounding wording is
 });
 
 test("mixed negative and positive clauses are classified conservatively", () => {
-  const result = evaluateAgentDecision(
-    withImplementerText("Do not deploy to production, but update billing rules"),
-    task,
-  );
-  assert.equal(result.signals.no_high_risk_scope, false);
-  assert.equal(result.decision, "reject_and_replan");
+  for (const title of [
+    "Do not deploy to production, but update billing rules",
+    "Do not deploy to production and update billing rules",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
 });
 
 test("ordinary words such as author do not match the auth risk token", () => {
@@ -119,4 +121,10 @@ test("a direct prohibition still suppresses prose-only risk while keeping the de
   assert.equal(result.evidence.high_risk_scope_detected, false);
   assert.equal(result.authority.may_execute_code, false);
   assert.equal(result.authority.may_publish_changes, false);
+});
+
+test("coordinated objects remain under the preceding prohibition", () => {
+  const result = evaluateAgentDecision(withImplementerText("Do not modify billing or payout settings"), task);
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
 });
