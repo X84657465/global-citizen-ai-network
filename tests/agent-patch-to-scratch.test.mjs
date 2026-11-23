@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
@@ -166,7 +166,8 @@ test("keeps patch rejection system-scoped when task identity is invalid", (t) =>
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
-  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
+  assert.match(result.stderr, /Only a validated task bundle with a valid fetched Issue identity is accepted/);
+  assert.doesNotMatch(result.stderr, /AGENT_FACTORY_FAILURE_SCOPE=task/);
 });
 
 test("guards task marker persistence behind successful scratch cleanup", () => {
