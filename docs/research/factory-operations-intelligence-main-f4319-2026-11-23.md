@@ -514,3 +514,69 @@ Formal review submissions freshly queried for all 14 open PRs: **zero APPROVED**
 
 - Enabled daily automation: `GCAN 每日工程巡檢`, ID `6b0333fe43d48191a35a1c83fd72fe6c`, flexible daily schedule in `Asia/Taipei`, next scheduled occurrence `2026-11-24T08:00:00+08:00`.
 - This pass explicitly invoked that enabled automation for immediate execution; its instructions were carried out in this turn. Two duplicate schedules remain disabled.
+
+
+---
+
+## Live recheck correction — 2026-11-23 18:30 Asia/Taipei
+
+This section supersedes earlier statements in this report where the same SHA/run/PR has since advanced. The current main SHA is unchanged at `f4319ec65d33bf30804b2d447e7692207fd82f0c`; current-main coordination blob is `d3ee1881aa67861fc42a2b568b26020945b0c218`; Neural Intelligence Agent Mode blob is `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+
+### Mainline CI — distinct runs, not one blended status
+
+- Push CI run #45137751765, attempt 1, exact main SHA `f4319ec65d33bf30804b2d447e7692207fd82f0c`: COMPLETED / SUCCESS. Exact jobs: metadata resolver SUCCESS; Windows quality gates SUCCESS; Supabase/PostgreSQL/RLS SUCCESS; Ollama/local execution SUCCESS; success persistence SUCCESS; diagnostics and failure-persistence jobs SKIPPED.
+- Push preflight run #45137751684, attempt 1, same exact main SHA: COMPLETED / FAILURE. `Windows self-hosted project validation` failed; read-only AI plan, publish/dispatch and state-persistence downstream jobs were SKIPPED. The job-log retrieval endpoint returned BlobNotFound/404, so the failure root cause is UNKNOWN from available logs. Do not treat this as passing or retry blindly.
+- Issue-triggered run #45138473800, attempt 1, same SHA: COMPLETED / FAILURE in `Validate task and generate read-only AI plan`; subsequent self-hosted validation, publish, dispatch and state-recording jobs were SKIPPED. This is a separate run from push CI and preflight.
+- Current-main check-runs endpoint returned 39 records: 5 SUCCESS, 2 FAILURE, 32 SKIPPED. These records span multiple workflows/events and repeated system-health-recovery attempts; they must not be represented as one CI run. The 32 SKIPPED checks are not passes.
+- Combined commit status contains Vercel SUCCESS only. It is deployment-provider status, not a replacement for Actions results.
+- System Health Recovery runs repeatedly terminate SKIPPED; the repeated skipped runs do not establish a recovered breaker or healthy scheduler.
+
+### All 14 open PRs — latest metadata and exact-head Actions lookup
+
+| PR | Current head SHA | Base / base SHA | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|---|
+| #466 | `2dbe77c2a659d31bf16b3bca035b4d8b97e8f4c5` | main / `f4319ec65d33bf30804b2d447e7692207fd82f0c` | no | true | #45154984024 COMPLETED / SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED |
+| #448 | `ccccf9c5e46285426a3c269bd066e6fa47c65cb8` | main / `f4319ec65d33bf30804b2d447e7692207fd82f0c` | no | true | #45147570005 COMPLETED / SUCCESS |
+| #468 | `588967ee9563a8896752eacce02aa7a14473d5d8` | main / `f4319ec65d33bf30804b2d447e7692207fd82f0c` | no | true | #45151541188 COMPLETED / SUCCESS; its run did not include the newly introduced Linux self-validation job |
+| #467 | `3c802c9f206721fdcc71ec96e2bb178590fb9990` | main / `f4319ec65d33bf30804b2d447e7692207fd82f0c` | yes | true | #45151506039 COMPLETED / SUCCESS; Linux self-validation is not present in this run |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | main / `f622c852346577d67aed0bde2922ade17044057c` | yes | true | #45137849234 COMPLETED / FAILURE |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | main / `f4319ec65d33bf30804b2d447e7692207fd82f0c` | no | true | #45137959652 COMPLETED / SUCCESS |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main / `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | yes | false | #44949425719 COMPLETED / SUCCESS; base stale, mergeability false |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main / `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | yes | false | #45052753388 COMPLETED / SUCCESS; base stale, mergeability false |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main / `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | yes | false | NO exact-head run returned |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main / `25d5ed519eb923d3001df6d43aec1670a0d4851a` | yes | false | #45056447505 COMPLETED / FAILURE |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main / `480f22e484dfa80d301f136cedd5504fbde41407` | yes | false | #45100493731 COMPLETED / SUCCESS; base stale, mergeability false |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | feat/cyber-security-defense / `7d90d05942f589f657e88069b58a19e0e3ec26ca` | yes | true | #45132200910 COMPLETED / FAILURE |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | feat/cyber-security-defense-integration / `df841a9a89b0526477543b76667d99ae4554a7f7` | yes | true | #45108427275 COMPLETED / SUCCESS |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main / `f622c852346577d67aed0bde2922ade17044057c` | yes | true | #45117595636 COMPLETED / FAILURE |
+
+Exact-head run conclusions above are workflow-level conclusions. Where the job-level evidence was fetched, conditional jobs remain SKIPPED and are not counted as substantive validation. For PR #466, the current head is `2dbe77c2...`; its run #45154984024 has metadata, Windows quality gates, Supabase/RLS and Ollama/local SUCCESS. Three conditional diagnostics/persistence jobs are SKIPPED. Current PR metadata is open, Ready (not Draft), mergeable=true. Its available review submission is COMMENTED and references an earlier head; formal APPROVED review count is 0, unresolved review threads returned 0. This is not accepted for merge and is not self-approved.
+
+### Current actionable blockers and owner routing
+
+1. **Main preflight / self-hosted validation** — GPT1 / Factory owner. Exact main push run #45137751684 failed its Windows self-hosted project validation job; downstream stages skipped. The job-log endpoint returned BlobNotFound/404, so request the owner to inspect the run in GitHub UI or restore accessible job logs, then fix the actual root cause. No repeated rerun without diagnosis.
+2. **Issue #446 / PR #464** — GPT1 owns the scratch-manifest policy test. PR #464 now has exact-head run #45137959652 SUCCESS on `a254ad7068afd91cf95a9d341a02bc374212944e`, Ready, mergeable=true. Independent formal review remains a separate gate; GPT5 does not edit A-owned tests/workflows or self-approve.
+3. **Issue #117 / PR #467/#468** — GPT1 owns Factory policy/controller/workflow scope. #467 is Draft and #468 Ready; both exact-head Windows CI runs succeeded, but neither run includes the Linux fixture validation job introduced by #468. The new Linux workflow cannot validate itself until its workflow definition exists on base main. Do not claim Linux validation passed or remove #467 Draft based on Windows-only results.
+4. **Issue #465** — separate missing-Git executable in the isolated offline test container; GPT1/Factory infrastructure owner. Keep distinct from Issue #117. GPT5 may report/route but not edit Runner image, workflow, or Factory tests.
+5. **PR #457/#259/#373/#376/#417/#438/#450** — stale base, failed CI, no exact-head run, or mergeability false as shown in the matrix; return each to its module owner. Do not mass-retarget or transplant stacked work.
+6. **PR #462/#442** — GPT2/F owns the credential-redaction changes. #462 has exact-head FAILURE; #442 exact-head SUCCESS but remains Draft and targets a non-main integration branch. No cross-branch merge inference.
+7. **Vercel** — provider status must remain separate from Actions. Current main Vercel status is SUCCESS; earlier rate-limited PR deployments are not proof of GitHub CI failure or success.
+
+### GPT5 own-scope disposition
+
+- PR #466 is the GPT5-owned operations intelligence report and the only current authorized write surface in this task. This addendum corrects stale claims without changing Factory code, workflows, Runner, F–P modules, secrets, database/RLS, permissions, or deployment.
+- PR #466 remains Ready and mergeable=true, but it has no formal APPROVED independent review. Do not merge or mark accepted. Request GPT3 review against the new report commit after its exact-head CI result is available.
+- No Draft was removed, no PR was approved or merged, no deployment was triggered, and no CI was rerun to force a green state.
+
+Evidence:
+- Main commit: https://github.com/X84657465/global-citizen-ai-network/commit/f4319ec65d33bf30804b2d447e7692207fd82f0c
+- Main push CI: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751765
+- Main push preflight failure: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684
+- Main issue-triggered failure: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45138473800
+- PR #466: https://github.com/X84657465/global-citizen-ai-network/pull/466
+- PR #464: https://github.com/X84657465/global-citizen-ai-network/pull/464
+- PR #467: https://github.com/X84657465/global-citizen-ai-network/pull/467
+- PR #468: https://github.com/X84657465/global-citizen-ai-network/pull/468
+- Issue #117: https://github.com/X84657465/global-citizen-ai-network/issues/117
+- Issue #465: https://github.com/X84657465/global-citizen-ai-network/issues/465
+- Issue #446: https://github.com/X84657465/global-citizen-ai-network/issues/446
