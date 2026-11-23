@@ -1809,7 +1809,7 @@ This checkpoint supersedes the previous appended checkpoint in this section. It 
 ### Open PR inventory — exact observed metadata
 | PR | HEAD | Base | State | Reviews / blocker |
 |---|---|---|---|---|
-| [#473](https://github.com/X84657465/global-citizen-ai-network/pull/473) | `9485a548d10cd9be2d144715106bce752e9f4dea` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true | 0 formal reviews; this handoff-only change has no recorded exact-head CI evidence |
+| [#473](https://github.com/X84657465/global-citizen-ai-network/pull/473) | `9485a548d10cd9be2d144715106bce752e9f4dea` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true | 0 formal reviews; exact-head CI run #45168011978 is PENDING with 0 jobs and no artifacts |
 | [#472](https://github.com/X84657465/global-citizen-ai-network/pull/472) | `4008a39041d59efd1f728bdff7b4aceffc6c286c` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true | 0 formal reviews; Linux fixture and CI blocked |
 | [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | `480f22e484dfa80d301f136cedd5504fbde41407` | OPEN / Ready / mergeable=false | 0 formal reviews; stale base/conflict; same handoff file |
 | [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | OPEN / Draft / mergeable=false | 0 formal reviews; stale base |
