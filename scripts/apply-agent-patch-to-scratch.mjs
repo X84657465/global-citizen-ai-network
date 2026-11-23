@@ -22,15 +22,22 @@ let scratchDir;
 let task = null;
 
 const fail = (message, { taskScoped = false } = {}) => {
-  if (taskScoped && !writeTaskFailureScopeMarker(task, process.env.GITHUB_ENV)) {
-    console.error("Task-scope marker unavailable; failure remains system-scoped.");
-  }
-  if (scratchDir && existsSync(scratchDir)) {
-    try {
+  const cleanupScratch = () => {
+    if (scratchDir && existsSync(scratchDir)) {
       rmSync(scratchDir, { recursive: true, force: true });
-    } catch {
-      // Preserve the primary validation error.
     }
+  };
+  let cleanupSucceeded = true;
+  try {
+    cleanupScratch();
+  } catch {
+    cleanupSucceeded = false;
+  }
+  if (taskScoped && cleanupSucceeded &&
+      !writeTaskFailureScopeMarker(task, process.env.GITHUB_ENV)) {
+    console.error("Task-scope marker unavailable; failure remains system-scoped.");
+  } else if (taskScoped && !cleanupSucceeded) {
+    console.error("Scratch cleanup failed; failure remains system-scoped.");
   }
   console.error("Scratch patch validation failed: " + message);
   process.exit(1);
