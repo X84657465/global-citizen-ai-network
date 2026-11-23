@@ -328,15 +328,22 @@ test("scratch cleanup completes before failure classification and recording", ()
   assert.ok(cleanup >= 0);
   assert.ok(classifier > cleanup);
   assert.ok(recorder > classifier);
+
   const cleanupSection = workflow.slice(cleanup, classifier);
-  assert.match(cleanupSection, /id: cleanup-scratch/);
-  assert.match(cleanupSection, /if: always\\(\\)/);
-  assert.match(cleanupSection, /\\$ErrorActionPreference = "Stop"/);
-  const recorderNext = workflow.indexOf("\\n      - name:", recorder);
+  assert.ok(cleanupSection.includes("id: cleanup-scratch"));
+  assert.ok(cleanupSection.includes("if: always()"));
+  assert.ok(cleanupSection.includes('$ErrorActionPreference = "Stop"'));
+
+  const classifierNext = workflow.indexOf("\n      - name:", classifier);
+  const classifierSection = workflow.slice(classifier, classifierNext < 0 ? workflow.length : classifierNext);
+  assert.ok(classifierSection.includes("SCRATCH_CLEANUP_OUTCOME: ${{ steps.cleanup-scratch.outcome }}"));
+  assert.ok(classifierSection.includes('Write-Host "Scratch cleanup failed; effective failure scope is system."'));
+
+  const recorderNext = workflow.indexOf("\n      - name:", recorder);
   const recorderSection = workflow.slice(recorder, recorderNext < 0 ? workflow.length : recorderNext);
   assert.ok(recorderSection.includes("SCRATCH_CLEANUP_OUTCOME: ${{ steps.cleanup-scratch.outcome }}"));
-  assert.match(recorderSection, /if \\(\\$env:SCRATCH_CLEANUP_OUTCOME -eq "failure"\\)/);
-  assert.match(recorderSection, /\\$env:AGENT_FACTORY_FAILURE_SCOPE = "system"/);
+  assert.ok(recorderSection.includes('if ($env:SCRATCH_CLEANUP_OUTCOME -eq "failure")'));
+  assert.ok(recorderSection.includes('$env:AGENT_FACTORY_FAILURE_SCOPE = "system"'));
 });
 
 test("task preflight marks only typed validation errors after successful GitHub issue lookup", () => {
