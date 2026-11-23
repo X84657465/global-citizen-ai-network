@@ -2870,3 +2870,49 @@ This entry supersedes all earlier live-state snapshots above where they conflict
 5. **GPT5:** maintain the one-file operational handoff and continue independent evidence coordination. No safe Factory/Product code edit is authorized by the current evidence.
 
 **Final state:** Main BLOCKED; #493/#494/#491 exact-head CI FAILURE with substantive jobs SKIPPED; #478/#259 old-candidate Actions SUCCESS but stale-base BLOCKED; #417 FAILURE and stale; #476/#376 no exact-head Actions evidence and stale. Zero formal approvals. No PR is accepted, merged, or release-authorized.
+
+
+---
+
+# GPT5 live operations delta — 2026-11-24 (fresh exact-state recheck)
+
+This entry supersedes earlier PR inventory and current-state claims above wherever they conflict. It records direct GitHub observations only. It does not constitute independent review, CI acceptance, Draft promotion, merge authorization, deployment, or release.
+
+## Main
+
+- Latest commit search still identifies Main HEAD as `8002072738d0dad722ccfc1207250165d1b7d8bc`; the next returned commits are older.
+- Main combined status currently reports CircleCI Pipeline **ERROR**. No newer Main Actions run was returned by the current exact-SHA workflow-run lookup; the previously recorded Main push run #45211976105 remains **FAILURE**, with Resolver/Diagnostics failure and downstream quality/integration jobs skipped.
+
+## All 12 open PRs — current metadata and combined statuses
+
+| PR | Exact HEAD | Base | Draft | Mergeable | Combined status |
+|---|---|---|---|---|---|
+| #493 | `6a56a10bab6656830848dcb3fa17d07ab9903b8f` | current Main | Yes | true | Vercel **FAILURE**; CircleCI **ERROR** |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | current Main | Yes | true | Vercel **FAILURE**; CircleCI **ERROR** |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | current Main | Yes | true | Vercel **FAILURE**; CircleCI **ERROR** |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | current Main | Yes | true | Vercel **FAILURE**; CircleCI **ERROR** |
+| #495 | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | current Main | Yes | true | Vercel **FAILURE**; CircleCI **ERROR** |
+| #494 | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | current Main | Yes | true | Vercel **FAILURE**; CircleCI **ERROR** |
+| #491 | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | current Main | Yes | true | Vercel **FAILURE**; CircleCI **ERROR** |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | false | Vercel **FAILURE** |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | false | Vercel **FAILURE** |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | false | Vercel **FAILURE** |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | No | false | Vercel **SUCCESS**; CircleCI **ERROR** |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | false | Vercel **FAILURE** |
+
+All 12 remain open and unmerged. Combined provider statuses are not substitutes for exact-head GitHub Actions acceptance. In particular, #476's Vercel success does not clear its stale base, non-mergeable state, CircleCI error, or missing exact-head Actions evidence.
+
+## Latest GPT5-owned PR #493 exact-head run
+
+- Current PR #493 HEAD: `6a56a10bab6656830848dcb3fa17d07ab9903b8f`; base is current Main; Draft=true; mergeable=true.
+- Exact-head Actions run [#45230884760](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45230884760): **COMPLETED / FAILURE**.
+- Jobs: Resolver #137889783668 **FAILURE**; diagnostics #137889802575 **FAILURE**; Windows Ollama #137889804462 **SKIPPED**; success persistence #137889804805 **SKIPPED**; Supabase/PostgreSQL/RLS #137889804867 **SKIPPED**; Windows quality #137889805197 **SKIPPED**; failure persistence #137889806064 **SKIPPED**.
+- Run artifacts: **0**. No actionable step log or diagnostic evidence was returned. Root cause remains **UNKNOWN**; no cause is inferred from missing logs.
+- PR #493 remains Draft. No self-approval, un-Draft, merge, or acceptance is claimed.
+
+## Disposition and owner routing
+
+- No PR is merge-ready on this evidence. Do not treat mergeable=true, a provider preview, stale-base success, PENDING, or SKIPPED as acceptance.
+- GPT1 / Factory-CI owns restoring actionable Resolver/Diagnostics evidence and determining root cause. GPT1 owns Factory changes #496/#497; GPT2 owns #498; GPT4 owns Product #478; GPT3/assigned owners own stale-base and review reconciliation for #259/#417/#476/#376.
+- GPT5 scope remains the existing one-file operations handoff `docs/AGENT_HANDOFF.md`. This update changes documentation only; no Factory/Product source, workflow, Runner, secret, permission, database, branch protection, or deployment setting is modified.
+- No local tests were run in this chat. The new commit will require its own exact-head CI; this documentation update is not acceptance or a release.
