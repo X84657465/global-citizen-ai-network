@@ -319,3 +319,20 @@ test("scratch failures require an explicit task-scope marker", () => {
   assert.doesNotMatch(section, /APPLY_SCRATCH_OUTCOME|steps.*apply-scratch.*outcome/);
   assert.match(section, /defaulting to system-scoped/);
 });
+
+test("task preflight marks only typed validation errors after successful GitHub issue lookup", () => {
+  const source = readFileSync(new URL("../scripts/prepare-agent-task.mjs", import.meta.url), "utf8");
+  assert.match(source, /import \{ TaskValidationError, validateAndBuildTask \}/);
+  const lookup = source.indexOf('issue = await githubApi.request("/repos/" + repository + "/issues/" + issueNumber)');
+  const validation = source.indexOf("task = validateAndBuildTask(issue, repository)");
+  const validationCatch = source.indexOf("catch (error)", validation);
+  const typedGuard = source.indexOf("if (error instanceof TaskValidationError)", validationCatch);
+  const markerCall = source.indexOf("markTaskScopedFailure()", typedGuard);
+  assert.ok(lookup >= 0);
+  assert.ok(validation > lookup);
+  assert.ok(validationCatch > validation);
+  assert.ok(typedGuard > validationCatch);
+  assert.ok(markerCall > typedGuard);
+  assert.equal(source.slice(lookup, validation).includes("markTaskScopedFailure()"), false);
+  assert.match(source.slice(typedGuard, source.indexOf("fail(", typedGuard)), /try\s*\{\s*markTaskScopedFailure\(\);\s*\}\s*catch/);
+});
