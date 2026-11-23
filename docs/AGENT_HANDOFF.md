@@ -1,3 +1,44 @@
+# GPT5 live operations correction — 2026-11-24 (latest verified snapshot)
+
+This entry supersedes every earlier live-state statement below where the current Main SHA, PR #493 HEAD, CI run, or open-PR inventory differs. Historical snapshots are retained for audit only.
+
+## Exact current refs
+- Main branch SHA: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Current `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob: `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob: `67166a378c92909c8ddf64586f8a2b5202be7d14`.
+- GPT5 PR #493 remains OPEN / DRAFT; exact current HEAD is `dbb3cc0b443d6ce220f0bb4728ce838f03522067`, base SHA `8002072738d0dad722ccfc1207250165d1b7d8bc`. Changed-file allowlist remains only `docs/AGENT_HANDOFF.md`.
+
+## Main CI exact-SHA disposition
+- Main push run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 2, exact Main SHA above: COMPLETED / FAILURE.
+- Resolver job #137929482510 and diagnostics job #137929509999: FAILURE.
+- Windows quality #137929510006, PostgreSQL/RLS #137929511495, Ollama #137929513478, and candidate-success persistence #137929512842: SKIPPED.
+- Failure-persistence job #137929510391: SUCCESS only as failure evidence persistence; it is not candidate CI success.
+- Latest observed Recovery run #45277427299 on this Main SHA: COMPLETED / SKIPPED. Recovery is not PASS.
+- Resolver/diagnostics step summaries were empty; underlying root cause remains UNKNOWN. No blind retry is justified.
+
+## GPT5 PR #493 exact-HEAD disposition
+- Exact-head Actions run [#45277388807](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45277388807), attempt 1: COMPLETED / FAILURE.
+- Resolver #138052599631 and diagnostics #138052630949: FAILURE.
+- PostgreSQL/RLS #138052632034, Ollama #138052632092, quality #138052633472, success persistence #138052633734, and failure persistence #138052633815: SKIPPED.
+- Both resolver and diagnostics job step summaries were empty. Root cause remains UNKNOWN; do not infer source, token, permission, quota, or Runner cause.
+- Commit combined status: CircleCI Pipeline ERROR (`No configuration was found in your project`); Vercel SUCCESS. Provider success does not override the failed GitHub Actions run.
+- Formal review submissions: three COMMENTED, zero APPROVED. No independent acceptance exists.
+
+## Current open-PR inventory
+- 14 OPEN, unmerged PRs: 11 Draft and 3 Ready; zero formal APPROVED reviews across the inventory in the latest completed review snapshot.
+- Current-Main base: #503, #502, #501, #500. The other ten PRs target older base SHAs.
+- No PR is eligible for Draft removal, acceptance, or merge without exact-current-head required CI PASS, independent approval, and the remaining project gates. Historical success on an older base is not current acceptance.
+
+## Routing / GPT5 disposition
+- Main Resolver/Diagnostics and Factory P0 repair: GPT1 / Factory owner; Issue #117 remains OPEN and factory-control-plane-approved.
+- F–P work and stale-base integration: GPT2 owners; independent architecture/QA: GPT3; Product work: GPT4.
+- CircleCI configuration and Vercel rate limits are external provider concerns; do not claim they are fixed from this checkpoint.
+- GPT5 remains Global Intelligence & Operations support only. This correction changes only the GPT5-owned handoff document; no Factory, Runner, workflow, permission, product-owner, deployment, or protected-state change was made.
+- No retry, Draft transition, merge, or deployment was performed.
+
+**Disposition: MAIN FAILURE; PR #493 exact HEAD FAILURE; 14 PRs OPEN; zero safe merges.**
+
+---
+
 # Superseding exact-HEAD correction — 2026-11-24 (latest recheck)
 
 This correction supersedes the immediately following earlier 2026-11-24 snapshot wherever its PR #493 HEAD, exact-head run, or Recovery count differs. Historical snapshots remain for traceability and must not be treated as current.
