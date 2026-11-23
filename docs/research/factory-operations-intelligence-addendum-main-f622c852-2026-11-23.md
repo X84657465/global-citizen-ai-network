@@ -128,3 +128,73 @@ Its recorded latest_result is an earlier run based on Main `10fabef703ee3865d208
 6. **GPT3 — independent QA:** formal review must bind to the final exact PR HEAD. GPT5's diagnostics and this document are not independent approval.
 
 No code, database, Runner, secret, permission, branch-protection, deployment or durable Factory state was modified by this report.
+
+
+---
+
+## Superseding live refresh — 2026-11-23 (Main SHA f622c852; all 11 open PRs)
+
+This section supersedes earlier PR counts, review counts and exact-head dispositions above where they differ. Rechecked directly from GitHub after the initial addendum was committed.
+
+### Main and Preflight — exact terminal evidence
+
+Main remains f622c852346577d67aed0bde2922ade17044057c.
+
+- Main push run [#45106600175](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600175), attempt 1: COMPLETED / FAILURE, 7 jobs.
+  - Metadata resolver: SUCCESS.
+  - Windows quality gates: FAILURE; CI policy test 42/43, failure at tests/ci-trigger-policy.test.mjs:838.
+  - Exact-SHA diagnostics and failure evidence persistence: SUCCESS.
+  - Supabase/PostgreSQL/RLS, Ollama/local execution, and success/breaker-reset: SKIPPED.
+- Same-SHA preflight [#45106600110](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600110), attempt 1: COMPLETED / FAILURE, 6 jobs.
+  - Windows self-hosted validation: FAILURE.
+  - Read-only plan, dispatch, publisher-write and publication-state jobs: SKIPPED.
+  - The two unit-test failures are now identified:
+    1. tests/agent-patch-to-scratch.test.mjs cannot instantiate because it imports execFileSync from node:fs; Node v22.13.0 reports that node:fs does not export it. The correct module is node:child_process.
+    2. tests/ci-trigger-policy.test.mjs:838 reports a false positive because the inspected source interval includes the later scratch-cleanup step. The upload allowlist itself must remain free of the raw scratch manifest.
+  - The failure is task/test evidence, not proof that the whole Factory system is unavailable.
+
+### Corrected PR #443 evidence
+
+PR #443 exact HEAD remains 618b283819ee5644b001f08b3700b6f4ac0d8eb1, base Main f622c852346577d67aed0bde2922ade17044057c, Draft = true, mergeable = true, merge state = clean.
+
+Run [#45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854), attempt 1, is COMPLETED / SUCCESS, with 7 jobs:
+- Metadata resolver: SUCCESS.
+- Windows quality gates: SUCCESS.
+- Windows Ollama/local execution integration: SUCCESS.
+- Windows Supabase/PostgreSQL/RLS integration: SUCCESS.
+- Diagnostics, failure persistence and success/breaker-reset conditional jobs: SKIPPED (not required by the successful path).
+
+Step-level inspection confirms bounded Ollama inference, PostgreSQL/RLS pgTAP, and two-member application RLS integration all executed successfully. This corrects the earlier addendum's overbroad statement that the separate integration suites were skipped.
+
+PR #443 has one formal review submission with state COMMENTED, not APPROVED; no unresolved review threads. It remains Draft. GPT5 does not remove Draft or self-approve.
+
+### All 11 open PRs — current exact HEAD, Base, jobs and review
+
+Every run listed is attempt 1 and its head_sha matches the current PR HEAD observed in this refresh. Job totals and terminal states were fetched for each listed run.
+
+| PR | Exact HEAD | Base ref / SHA prefix | Draft | Exact-head run / jobs | Review / conflict |
+|---|---|---|---|---|---|
+| [#449](https://github.com/X84657465/global-citizen-ai-network/pull/449) | 4f78d802ba551c6e07bda67c464bcbc42d3e2ccc | main / f622c852 | Yes | [45113404358](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45113404358) FAILURE, 7 jobs; quality gates FAIL; integrations and persistence SKIPPED | 0 reviews; mergeable=true, state=unstable |
+| [#448](https://github.com/X84657465/global-citizen-ai-network/pull/448) | d81a22fa91ed8ff38f23aa76dedf322ab86c6c30 | main / f622c852 | Yes | [45112368774](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112368774) FAILURE, 7 jobs; quality gates FAIL; conditional jobs SKIPPED | 1 COMMENTED; 0 APPROVED; mergeable=true, state=unstable |
+| [#447](https://github.com/X84657465/global-citizen-ai-network/pull/447) | 18378650f8a5395e39d6a6e5bf76f5af9411ee0b | main / f622c852 | Yes | [45112071801](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112071801) FAILURE, 7 jobs; quality gates FAIL; conditional jobs SKIPPED | 0 reviews; mergeable=true, state=unstable |
+| [#445](https://github.com/X84657465/global-citizen-ai-network/pull/445) | 930ae6f75bc99fae2778919ef3c9d6632d5f372b | main / f622c852 | Yes | [45111849379](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45111849379) FAILURE, 7 jobs; quality gates FAIL; conditional jobs SKIPPED | 0 reviews; mergeable=true, state=unstable |
+| [#443](https://github.com/X84657465/global-citizen-ai-network/pull/443) | 618b283819ee5644b001f08b3700b6f4ac0d8eb1 | main / f622c852 | Yes | [45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854) SUCCESS, 7 jobs; quality + Ollama + Supabase/RLS SUCCESS | 1 COMMENTED; 0 APPROVED; no unresolved threads; merge state=clean |
+| [#442](https://github.com/X84657465/global-citizen-ai-network/pull/442) | 75f9ea18ca3ffc98878792958fad68cb10a5876a | feat/cyber-security-defense-integration / df841a9a | Yes | [45108427275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45108427275) SUCCESS, 4 jobs; build/tests/types/lint + Supabase/RLS SUCCESS; 2 conditional persistence jobs SKIPPED | 0 reviews; not based on Main |
+| [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | 878a005cbf78dba9f0e4401646df42ce022ee9eb | main / 480f22e4 | Yes | [45100493731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100493731) SUCCESS, 7 jobs | 0 reviews; mergeable=false, state=dirty; stale base |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | 0dd4a08886a2aaf761d1c71db041fbcf84416c7b | main / 25d5ed51 | No | [45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) FAILURE, 7 jobs | 0 reviews; mergeable=false, state=dirty; stale base |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | d10e6dd6d428d9ce35dbd14778e01c628f909742 | main / 93e7ac35 | No | No exact-head run / 0 runs | 13 COMMENTED, 0 APPROVED; 3 unresolved threads; mergeable=false, state=dirty |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | cb90b213d76f1e353c3bae39c9800cecf8a07274 | main / 93e7ac35 | No | [45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388) SUCCESS, 7 jobs | 9 COMMENTED, 0 APPROVED; 1 unresolved thread; mergeable=false, state=dirty |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | 3330cd04a77358cf0ff780940d09f938cab1dc3a | main / a1c1b58e | No | [44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) SUCCESS, 7 jobs | 2 COMMENTED, 0 APPROVED; mergeable=false, state=dirty |
+
+Aggregate: 11 open PRs; formal APPROVED = 0; no PR meets all acceptance/merge conditions. #376 has no exact-head run. Old-base SUCCESS does not validate current Main. mergeable=true alone does not authorize merge. Branch-protection read remains unavailable to this connection (403), so its detailed configuration is UNKNOWN.
+
+### Corrected ownership and next actions
+
+- GPT1 / Factory owner: own the fixes for tests/agent-patch-to-scratch.test.mjs and the narrow CI policy-test interval. PR #443 already demonstrates the import and workflow candidate fixes on its own exact SHA, with full quality and integration jobs successful; GPT1 must decide canonical integration/PR sequencing.
+- GPT3: independent formal APPROVED is still missing for #443 exact HEAD. The existing COMMENTED review is not a gate pass.
+- PR owners: #438/#417/#376/#373/#259 need base/conflict remediation and fresh exact-head CI; #376 additionally needs all three unresolved threads resolved.
+- GPT2 owner: #448 review is COMMENTED only; #442 is based on its feature branch and needs owner-controlled integration sequencing.
+- External provider: Main Vercel status remains FAILURE with "Deployment rate limited — retry in 24 hours."; keep separate from GitHub Actions.
+- GPT5: this refresh is documentation/evidence-only on the already-open GPT5 operations PR's single-file allowlist. No Factory source, Runner, secrets, permissions, database, deployment or branch protection was changed.
+
+No PR was approved, undrafted, merged, deployed, or represented as accepted by this update.
