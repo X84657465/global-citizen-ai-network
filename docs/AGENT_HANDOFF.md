@@ -1651,3 +1651,51 @@ Issue #204 remains OPEN and unassigned. Its two-file allowlist and acceptance cr
 - Daily automation records: GCAN main/CI/PR check enabled at 09:00 Asia/Taipei (next 2026-11-24 09:00); additional GCAN check enabled at 13:00; coordination re-read enabled at 09:00. All three currently report `last_run_time: null`; no completed scheduled execution is evidenced yet. No duplicate automation was created.
 
 **Current disposition:** Main FAIL (746/747, operator-recovery negative test); PR #431 new head PENDING (run in progress); #432/#422 exact-head CI PASS but not independently accepted; #433/#430/#434/#426 fail. No merge, deployment, Factory runtime operation, task-state mutation, secret/permission change, or production-data operation was performed.
+
+
+---
+
+## GPT5 live delta — 2026-11-23（mainline eecfc051）
+
+### 1. 本輪基準與治理狀態
+- Repository：`X84657465/global-citizen-ai-network`
+- 本輪 main HEAD：`eecfc0515adc9f5eb821241ca69e6efd8de204b5`（Merge PR #427）
+- `PROJECT_COORDINATION.md` blob：`bfcfd20135e88a4126d63cf9d0790fb5ddd89aaa`
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob：`02a49adf7a7ccdc7a813a25254266939a2aed533`
+- `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` blob：`8f8f06091466ba504088ae8577fb9b312ab4ba4f`；狀態仍為 **PROPOSED**。正式核准前，現行已核准 GPT5 權限仍以情報研究、風險分析及工程營運支援為主；不得以 PROPOSED §2.5 作為新增程式碼寫入權。
+- A–P 責任：GPT1=A–E／Factory（A Factory、B Factory-side A→B、C Predictive Coding、D Deep Neural、E Deep Research）；GPT2=F–P（F Cyber Security、G Release/QA/Integration、H Observability/Telemetry/Cost、I Connectors/Workflow、J Self-Healing/Chaos、K Knowledge/Docs/Governance、L Federation/Cluster、M Compliance/Risk、N Productization/Growth、O Lifecycle/Deprecation、P Governance/Ethics/Trust）；GPT3=A–P 獨立架構審查與 QA；GPT4=B Product；GPT5=Global Intelligence／Operations。GPT5 不擁有 A–P 模組，不能自我指派為模組 DRI，也不能取代 GPT3 獨立驗收。
+
+### 2. Main、CI 與外部狀態
+- Main push CI：[#45096472706](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45096472706)，對應 SHA `eecfc0515adc9f5eb821241ca69e6efd8de204b5`，觀測時為 **PENDING**；不得標記 PASS 或 FAIL，需待該 run 完成後再讀取每個必要 job。
+- Main combined commit status 目前僅顯示 Vercel `failure`，連結指向 build-rate-limit／deployment rate limit；這是外部部署供應商狀態，不是 GitHub Actions 測試結果。
+- 前一個 main SHA `10fabef703ee3865d208196f46ee71ddd1b7e149` 的 Push CI #45057390077 曾為 FAILURE（746/747，Operator Recovery negative fixture：`Missing expected rejection`）。該 SHA 已被新 main 取代；只能作歷史證據，不得當成 eecfc 的最新 CI 結論。
+- PR #431（handoff）、#430（B Product baseline）、#433（scheduler workflow exact-path allowlist）已合併；但其各自 exact-head Windows quality job 均為 FAILURE，後續 Ollama／PostgreSQL/RLS jobs 為 SKIPPED。合併事實不會把失敗或 Skipped 轉成 PASS；以目前 main SHA 的 #45096472706 完成結果重新驗證整合狀態。
+
+### 3. 目前仍開啟的 PR（以 exact-head 為準）
+| PR | HEAD | Exact-head 檢查 | Review／整合判斷 |
+|---|---|---|---|
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | Windows quality、Ollama/local、PostgreSQL/RLS 均 SUCCESS | 2 筆 COMMENTED，無 APPROVED；mergeable=false，base 已落後 |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | Windows quality、Ollama/local、PostgreSQL/RLS 均 SUCCESS | 多筆 COMMENTED，無 APPROVED；mergeable=false，base 已落後 |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | 無 exact-head check-runs | Master Charter 仍 PROPOSED；不得把提案文件當成已生效權限 |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | Windows quality gate FAILURE；整合 jobs SKIPPED | 無 Review；不得視為 GPT5 寫入權限已生效 |
+| [#422](https://github.com/X84657465/global-citizen-ai-network/pull/422) | `ad3126023b239526a2a6aafa57a1254b2515db78` | Windows quality、Ollama/local、PostgreSQL/RLS 均 SUCCESS | 4 筆 COMMENTED，無 APPROVED；mergeable=false；Issue #117 的 DRI／allowlist／no-merge-no-deploy 限制仍未解除 |
+| [#424](https://github.com/X84657465/global-citizen-ai-network/pull/424) | `444da48f8c32db850603b2e5e87adc628ea6fa20` | 僅 PR metadata SUCCESS；quality、Ollama/local、PostgreSQL/RLS 均 SKIPPED | Draft；不能以 metadata job 通過宣稱候選驗收 |
+
+### 4. 新增／持續阻塞
+- **Issue #204（P0 neuro-symbolic risk gate）**：仍 OPEN、無 assignee；`factory-control-plane-approved` label 不等於 DRI 指派。最新 Issue 留言明確要求 GPT1 A–E scope confirmation，並要求 GPT5 不得自我指派／修改，直到專案負責人指定唯一 DRI 並確認 GPT5 Developer 身分。allowlist 僅 `lib/agent-neural-decision.mjs` 與 `tests/agent-neural-decision-negation.test.mjs`；必須先在實際 checkout 執行完整離線 `npm run test:unit`，通過後才可發 PR。
+- #204 的既有候選 branches 均已相對目前 main 過期：`gpt5/issue-204-modal-request-fix` HEAD `b1e34ffce2f2a8f988eef85e5a6679432c0daa6a`（14 ahead／140 behind）；`gpt5/issue-204-reminder-grammar-20261123` HEAD `bc05febb9edbf19fdd1a0c06da6b5391bf3ee683`（17 ahead／140 behind）。不得沿用舊 SHA 或直接開 PR。
+- 本次曾在舊候選 branch `fix/204-negation-scope-boundary-20261123` 做隔離探索，最新 HEAD `16d872a63e03e56fd7ff366f8dec0914c50e9bf8`，僅修改上述兩個 allowlist 路徑；相對目前 main 為 30 ahead／140 behind，**STALE／NOT FOR PR**。本地 matcher mirror 15/15 只驗證了所複製的規則片段，不是 Repository Node test，也不是完整 `npm run test:unit`；沒有建立 PR。此 branch 不可作為目前 main 的候選交付。
+- **Issue #117（P0 task/system failure separation）**：仍 OPEN、無 assignee。#422 exact-head CI 雖全綠，但沒有正式 APPROVED，base 落後且 mergeable=false；Issue 明確禁止 merge／deploy，不能以 CI 綠燈推定接受。
+- **Mainline 整合風險**：#431/#430/#433 已合併，但其 exact-head quality gate 失敗、整合 job skipped；須等待 main #45096472706 完成並檢查新 main 的必要工作，不能以 PR merged 代替驗收。
+- **治理風險**：Master Charter 仍 PROPOSED；GPT5 執行型開發權限未正式切換。PR #417 的失敗也未能建立任何權限授予。
+
+### 5. 排程狀態
+- `GCAN 每日 main／CI／PR 營運檢查`：enabled；下次 2026-11-24 09:00 Asia/Taipei；`last_run_time=null`，尚無已完成排程執行紀錄。
+- `每日檢查 Global Citizen AI Network`：enabled；下次 2026-11-23 13:00 Asia/Taipei；`last_run_time=null`。
+- `每日重讀專案協作規範`：enabled；最近執行 2026-11-23 09:51 Asia/Taipei。
+- 未新增重複排程。
+
+### 6. 本輪交付與停止條件
+- 已重新讀取 current main 的協調規範、Master Charter、Neural Intelligence Mode、handoff，並重新核對 main HEAD、CI、開啟 PR、merged PR、Issue #204/#117 與相關候選 branch。
+- 本輪只新增此營運 handoff 快照；沒有修改 main、Factory runtime、Issue #100、secrets、permissions、branch protection、資料庫／RLS 或正式環境。
+- 下一步：等待 main #45096472706 完成；由專案負責人／GPT1 明確處理 #204 唯一 DRI 與 scope confirmation；由 GPT3 對需要獨立驗收的 exact SHA 提供正式 review。任何未通過或未執行檢查仍維持 BLOCKED／PENDING／NOT RUN。
