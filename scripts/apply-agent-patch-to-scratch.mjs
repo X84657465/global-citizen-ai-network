@@ -53,7 +53,7 @@ const fail = (message, { taskScoped = false } = {}) => {
   process.exit(1);
 };
 
-const readJson = (path, label) => {
+const readJson = (path, label, parseErrorScope = null) => {
   let raw;
   try {
     raw = readFileSync(path, "utf8");
@@ -62,7 +62,15 @@ const readJson = (path, label) => {
   }
   try {
     return JSON.parse(raw);
-  } catch (error) {
+  } catch {
+    if (parseErrorScope === "plan") {
+      const error = new AgentPlanValidationError(label + " contains invalid JSON.");
+      fail(error.message, { taskScoped: error instanceof AgentPlanValidationError });
+    }
+    if (parseErrorScope === "patch") {
+      const error = new PatchValidationError(label + " contains invalid JSON.");
+      fail(error.message, { taskScoped: error instanceof PatchValidationError });
+    }
     fail(label + " contains invalid JSON.");
   }
 };
@@ -80,11 +88,12 @@ if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false || !
   fail("Only a validated task bundle with a valid fetched Issue identity is accepted.");
 }
 
-const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan");
+const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan", "plan");
 if (planArtifact?.execution_mode !== "validated_plan_only" ||
     planArtifact?.ai_execution_enabled !== false ||
     planArtifact?.safety?.no_commands_or_model_code_executed !== true) {
-  fail("Only a validated read-only plan is accepted.");
+  const error = new AgentPlanValidationError("Only a validated read-only plan is accepted.");
+  fail(error.message, { taskScoped: error instanceof AgentPlanValidationError });
 }
 
 let validatedPlan;
@@ -99,7 +108,7 @@ try {
   });
 }
 
-const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal");
+const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal", "patch");
 
 const plannedPaths = new Set(
   validatedPlan.tasks
