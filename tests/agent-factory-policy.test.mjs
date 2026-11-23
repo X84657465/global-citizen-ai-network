@@ -320,6 +320,24 @@ test("scratch failures require an explicit task-scope marker", () => {
   assert.match(section, /defaulting to system-scoped/);
 });
 
+test("scratch cleanup completes before failure recording and overrides task scope on cleanup failure", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
+  const cleanup = workflow.indexOf("      - name: Clean disposable scratch workspace");
+  const classifier = workflow.indexOf("      - name: Classify known task-scoped failures before updating factory state");
+  const recorder = workflow.indexOf("      - name: Record failed task and activate cooldown after three consecutive failures");
+  assert.ok(cleanup >= 0);
+  assert.ok(classifier > cleanup);
+  assert.ok(recorder > classifier);
+  const cleanupSection = workflow.slice(cleanup, classifier);
+  assert.match(cleanupSection, /id: cleanup-scratch/);
+  assert.match(cleanupSection, /if: always\(\)/);
+  assert.match(cleanupSection, /\$ErrorActionPreference = "Stop"/);
+  const recorderSection = workflow.slice(recorder, workflow.indexOf("\\n      - name:", recorder));
+  assert.match(recorderSection, /SCRATCH_CLEANUP_OUTCOME: \\$\{\\{ steps\\.cleanup-scratch\\.outcome \\}\\}/);
+  assert.match(recorderSection, /if \(\$env:SCRATCH_CLEANUP_OUTCOME -eq "failure"\)/);
+  assert.match(recorderSection, /\$env:AGENT_FACTORY_FAILURE_SCOPE = "system"/);
+});
+
 test("task preflight marks only typed validation errors after successful GitHub issue lookup", () => {
   const source = readFileSync(new URL("../scripts/prepare-agent-task.mjs", import.meta.url), "utf8");
   assert.match(source, /import \{ TaskValidationError, validateAndBuildTask \}/);
