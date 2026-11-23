@@ -218,6 +218,23 @@ test("rejects malformed IDs, unsupported states, reviewer identities, timestamps
   );
 });
 
+test("accepts GitHub App bot reviewer logins and keeps permission verification scoped", async () => {
+  let verifiedLogin = "";
+  const result = await collectFPGovernanceReviewEvidence(makeInput(responseMap([
+    [prPath, pull()],
+    [reviewsPath(), [review({ user: { login: "copilot-pull-request-reviewer[bot]" } })]],
+  ]), {
+    verifyReviewerPermission: async (login) => {
+      verifiedLogin = login;
+      return { permission: "pull", evidenceRef: "permissions/copilot-bot/pull" };
+    },
+  }));
+  assert.equal(verifiedLogin, "copilot-pull-request-reviewer[bot]");
+  assert.equal(result.length, 1);
+  assert.equal(result[0].reviewerRef, "github:copilot-pull-request-reviewer[bot]");
+  assert.equal(result[0].reviewerAuthorizationStatus, "unverified");
+});
+
 test("rejects duplicate review IDs and non-array review responses", async () => {
   const duplicateResponses = new Map<string, unknown>();
   duplicateResponses.set(prPath, pull());
