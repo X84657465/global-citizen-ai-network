@@ -55,16 +55,6 @@ const readJson = (path, label) => {
 
 const task = readJson("artifacts/agent-task.json", "Validated task bundle");
 const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan");
-let patchCandidate;
-try {
-  patchCandidate = JSON.parse(readFileSync("artifacts/agent-patch.json", "utf8"));
-} catch (error) {
-  if (error instanceof SyntaxError) {
-    fail("Validated patch proposal contains invalid JSON.", { taskScoped: true });
-  }
-  fail("Validated patch proposal is missing or unreadable.");
-}
-
 if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false ||
     (task.issue && task.safety?.issue_content_is_untrusted_data !== true)) {
   fail("Only a validated, AI-disabled task bundle is accepted.");
@@ -93,6 +83,18 @@ const plannedPaths = new Set(
 const patchablePaths = task.allowed_paths.filter((path) => plannedPaths.has(path.toLowerCase()));
 if (patchablePaths.length === 0) {
   fail("The validated plan did not authorize any patch paths.", { taskScoped: true });
+}
+
+// Parse the candidate only after the task guards and plan revalidation succeed.
+// A malformed patch is task-scoped only once those prerequisites are established.
+let patchCandidate;
+try {
+  patchCandidate = JSON.parse(readFileSync("artifacts/agent-patch.json", "utf8"));
+} catch (error) {
+  if (error instanceof SyntaxError) {
+    fail("Validated patch proposal contains invalid JSON.", { taskScoped: true });
+  }
+  fail("Validated patch proposal is missing or unreadable.");
 }
 
 const scopedTask = { ...task, allowed_paths: patchablePaths };
