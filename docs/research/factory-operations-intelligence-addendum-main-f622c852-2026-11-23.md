@@ -140,7 +140,7 @@ This section supersedes earlier PR counts, review counts and exact-head disposit
 
 Main remains f622c852346577d67aed0bde2922ade17044057c.
 
-- Main push run [#45106600175](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600175), attempt 1: COMPLETED / FAILURE, 7 jobs.
+- Main push run [#45106600175](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600175), attempt 1: COMPLETED / FAILURE, 7 jobs. The newest System Health Recovery run [#45116548240](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45116548240), attempt 1, is COMPLETED / SKIPPED (not a health pass).
   - Metadata resolver: SUCCESS.
   - Windows quality gates: FAILURE; CI policy test 42/43, failure at tests/ci-trigger-policy.test.mjs:838.
   - Exact-SHA diagnostics and failure evidence persistence: SUCCESS.
@@ -155,7 +155,7 @@ Main remains f622c852346577d67aed0bde2922ade17044057c.
 
 ### Corrected PR #443 evidence
 
-PR #443 exact HEAD remains 618b283819ee5644b001f08b3700b6f4ac0d8eb1, base Main f622c852346577d67aed0bde2922ade17044057c, Draft = true, mergeable = true, merge state = clean.
+PR #443 exact HEAD remains 618b283819ee5644b001f08b3700b6f4ac0d8eb1, base Main f622c852346577d67aed0bde2922ade17044057c, Draft = false (Ready for review), mergeable = true. This does not waive the missing formal independent APPROVED review.
 
 Run [#45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854), attempt 1, is COMPLETED / SUCCESS, with 7 jobs:
 - Metadata resolver: SUCCESS.
@@ -166,27 +166,31 @@ Run [#45110602854](https://github.com/X84657465/global-citizen-ai-network/action
 
 Step-level inspection confirms bounded Ollama inference, PostgreSQL/RLS pgTAP, and two-member application RLS integration all executed successfully. This corrects the earlier addendum's overbroad statement that the separate integration suites were skipped.
 
-PR #443 has one formal review submission with state COMMENTED, not APPROVED; no unresolved review threads. It remains Draft. GPT5 does not remove Draft or self-approve.
+PR #443 has one formal review submission with state COMMENTED, not APPROVED; no unresolved review threads. It is no longer Draft, but remains blocked from merge pending formal independent APPROVED review and all repository gates. GPT5 does not self-approve.
 
-### All 11 open PRs — current exact HEAD, Base, jobs and review
+### All 11 open PRs — refreshed exact HEAD, Base, jobs and review
 
-Every run listed is attempt 1 and its head_sha matches the current PR HEAD observed in this refresh. Job totals and terminal states were fetched for each listed run.
+Rechecked live PR metadata, formal review submissions, review-thread resolution, exact-head Actions runs and (for #447) Git commit ancestry. Runs below are matched to the listed HEAD SHA; attempt numbers are explicit.
 
-| PR | Exact HEAD | Base ref / SHA prefix | Draft | Exact-head run / jobs | Review / conflict |
+| PR | Exact HEAD | Base ref / SHA prefix | Draft | Exact-head Actions | Formal review / merge state |
 |---|---|---|---|---|---|
-| [#449](https://github.com/X84657465/global-citizen-ai-network/pull/449) | 4f78d802ba551c6e07bda67c464bcbc42d3e2ccc | main / f622c852 | Yes | [45113404358](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45113404358) FAILURE, 7 jobs; quality gates FAIL; integrations and persistence SKIPPED | 0 reviews; mergeable=true, state=unstable |
-| [#448](https://github.com/X84657465/global-citizen-ai-network/pull/448) | d81a22fa91ed8ff38f23aa76dedf322ab86c6c30 | main / f622c852 | Yes | [45112368774](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112368774) FAILURE, 7 jobs; quality gates FAIL; conditional jobs SKIPPED | 1 COMMENTED; 0 APPROVED; mergeable=true, state=unstable |
-| [#447](https://github.com/X84657465/global-citizen-ai-network/pull/447) | 18378650f8a5395e39d6a6e5bf76f5af9411ee0b | main / f622c852 | Yes | [45112071801](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112071801) FAILURE, 7 jobs; quality gates FAIL; conditional jobs SKIPPED | 0 reviews; mergeable=true, state=unstable |
-| [#445](https://github.com/X84657465/global-citizen-ai-network/pull/445) | 930ae6f75bc99fae2778919ef3c9d6632d5f372b | main / f622c852 | Yes | [45111849379](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45111849379) FAILURE, 7 jobs; quality gates FAIL; conditional jobs SKIPPED | 0 reviews; mergeable=true, state=unstable |
-| [#443](https://github.com/X84657465/global-citizen-ai-network/pull/443) | 618b283819ee5644b001f08b3700b6f4ac0d8eb1 | main / f622c852 | Yes | [45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854) SUCCESS, 7 jobs; quality + Ollama + Supabase/RLS SUCCESS | 1 COMMENTED; 0 APPROVED; no unresolved threads; merge state=clean |
-| [#442](https://github.com/X84657465/global-citizen-ai-network/pull/442) | 75f9ea18ca3ffc98878792958fad68cb10a5876a | feat/cyber-security-defense-integration / df841a9a | Yes | [45108427275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45108427275) SUCCESS, 4 jobs; build/tests/types/lint + Supabase/RLS SUCCESS; 2 conditional persistence jobs SKIPPED | 0 reviews; not based on Main |
-| [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | 878a005cbf78dba9f0e4401646df42ce022ee9eb | main / 480f22e4 | Yes | [45100493731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100493731) SUCCESS, 7 jobs | 0 reviews; mergeable=false, state=dirty; stale base |
-| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | 0dd4a08886a2aaf761d1c71db041fbcf84416c7b | main / 25d5ed51 | No | [45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) FAILURE, 7 jobs | 0 reviews; mergeable=false, state=dirty; stale base |
-| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | d10e6dd6d428d9ce35dbd14778e01c628f909742 | main / 93e7ac35 | No | No exact-head run / 0 runs | 13 COMMENTED, 0 APPROVED; 3 unresolved threads; mergeable=false, state=dirty |
-| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | cb90b213d76f1e353c3bae39c9800cecf8a07274 | main / 93e7ac35 | No | [45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388) SUCCESS, 7 jobs | 9 COMMENTED, 0 APPROVED; 1 unresolved thread; mergeable=false, state=dirty |
-| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | 3330cd04a77358cf0ff780940d09f938cab1dc3a | main / a1c1b58e | No | [44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) SUCCESS, 7 jobs | 2 COMMENTED, 0 APPROVED; mergeable=false, state=dirty |
+| [#443](https://github.com/X84657465/global-citizen-ai-network/pull/443) | 618b283819ee5644b001f08b3700b6f4ac0d8eb1 | main / f622c852 | No | [45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854) attempt 1 SUCCESS; quality gates, Ollama and Supabase/PostgreSQL/RLS jobs SUCCESS; 3 conditional jobs SKIPPED | 1 COMMENTED, 0 APPROVED; 0 unresolved threads; mergeable=true |
+| [#447](https://github.com/X84657465/global-citizen-ai-network/pull/447) | 18378650f8a5395e39d6a6e5bf76f5af9411ee0b | fix/117-preflight-regressions-20261123 / 618b2838 | Yes | [45112071801](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112071801) attempt 2 FAILURE; quality job 137499764880, 761/762 tests; module-load error for execFileSync imported from node:fs | 0 reviews; mergeable=true, but base/head graph diverged |
+| [#445](https://github.com/X84657465/global-citizen-ai-network/pull/445) | 8efc06ef43adce3837e6777bfcb26110a4038301 | main / f622c852 | Yes | [45114525379](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45114525379) attempt 1 FAILURE; Windows quality gate fails at the same #446 policy assertion; downstream integration/persistence jobs SKIPPED | 0 reviews; mergeable=true |
+| [#448](https://github.com/X84657465/global-citizen-ai-network/pull/448) | d81a22fa91ed8ff38f23aa76dedf322ab86c6c30 | main / f622c852 | Yes | [45112368774](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45112368774) attempt 1 FAILURE; Windows quality gate fails; conditional jobs SKIPPED | 1 COMMENTED, 0 APPROVED; mergeable=true |
+| [#449](https://github.com/X84657465/global-citizen-ai-network/pull/449) | 4f78d802ba551c6e07bda67c464bcbc42d3e2ccc | main / f622c852 | Yes | [45113404358](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45113404358) attempt 1 FAILURE; same #446 CI policy assertion; downstream jobs SKIPPED | 0 reviews; mergeable=true |
+| [#442](https://github.com/X84657465/global-citizen-ai-network/pull/442) | 75f9ea18ca3ffc98878792958fad68cb10a5876a | feat/cyber-security-defense-integration / df841a9a | Yes | [45108427275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45108427275) attempt 1 SUCCESS | 0 reviews; not based on main |
+| [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | 878a005cbf78dba9f0e4401646df42ce022ee9eb | main / 480f22e4 | Yes | [45100493731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100493731) attempt 1 SUCCESS | 0 reviews; mergeable=false; stale base |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | 0dd4a08886a2aaf761d1c71db041fbcf84416c7b | main / 25d5ed51 | No | [45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) attempt 1 FAILURE | 0 reviews; mergeable=false; stale base |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | d10e6dd6d428d9ce35dbd14778e01c628f909742 | main / 93e7ac35 | No | No exact-head Actions run (0 runs / NOT RUN) | 13 COMMENTED, 0 APPROVED; 1 unresolved thread; mergeable=false; stale base |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | cb90b213d76f1e353c3bae39c9800cecf8a07274 | main / 93e7ac35 | No | [45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388) attempt 1 SUCCESS | 9 COMMENTED, 0 APPROVED; 0 unresolved threads; mergeable=false; stale base |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | 3330cd04a77358cf0ff780940d09f938cab1dc3a | main / a1c1b58e | No | [44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) attempt 1 SUCCESS | 2 COMMENTED, 0 APPROVED; mergeable=false; stale base |
 
-Aggregate: 11 open PRs; formal APPROVED = 0; no PR meets all acceptance/merge conditions. #376 has no exact-head run. Old-base SUCCESS does not validate current Main. mergeable=true alone does not authorize merge. Branch-protection read remains unavailable to this connection (403), so its detailed configuration is UNKNOWN.
+Aggregate: 11 open PRs; formal APPROVED = 0. No PR meets all acceptance/merge conditions. COMMENTED is not APPROVED. Historical SUCCESS on an old base or a different branch does not validate current main. mergeable=true alone does not authorize merge. Branch-protection configuration remains UNKNOWN because this connection's read returned 403.
+
+### PR #447 stacked-branch root cause — exact comparison
+
+The declared base is PR #443's branch at 618b283819ee5644b001f08b3700b6f4ac0d8eb1, but comparing that base to #447 HEAD 18378650f8a5395e39d6a6e5bf76f5af9411ee0b returns status=diverged, ahead_by=1, behind_by=3, merge base f622c852346577d67aed0bde2922ade17044057c. At the base SHA, tests/agent-patch-to-scratch.test.mjs correctly imports execFileSync from node:child_process; at #447 HEAD, it still imports from node:fs. The #447 run therefore does not contain the prerequisite #443 fix. Owner action: rebase/recreate the one-file #447 test change on top of the current #443 base, then obtain a new exact-head CI run. GPT5 recorded this dependency evidence in [PR #447](https://github.com/X84657465/global-citizen-ai-network/pull/447); no branch or owner code was changed.
 
 ### Corrected ownership and next actions
 
