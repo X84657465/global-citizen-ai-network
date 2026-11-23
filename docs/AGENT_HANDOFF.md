@@ -2748,3 +2748,58 @@ Relevant open issues re-observed: #465 (isolated offline test container missing 
 - No local test execution is claimed. CI evidence is tied only to the exact SHAs and check results above.
 
 **Disposition:** Main **FAILURE**; #494/#493/#491 **FAILURE with substantive jobs SKIPPED**; #478 Actions **SUCCESS but integration BLOCKED**; #476 no substantive Actions evidence; #417 **FAILURE**; #376/#259 **stale-base BLOCKED**. No PR is accepted, independently approved, or merge-authorized by this checkpoint.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-24 (latest direct recheck)
+
+This entry supersedes all earlier live-state snapshots above where they conflict. It is limited to the existing GPT5 handoff scope; it does not authorize another workstream's implementation, independent acceptance, Draft promotion, merge, deployment, or release.
+
+### Main exact state
+
+- Current `main`: `8002072738d0dad722ccfc1207250165d1b7d8bc`.
+- Push Actions run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105), attempt 1: **COMPLETED / FAILURE**.
+- Resolver job #137840877458 and diagnostics job #137840906306: **FAILURE**; failure persistence #137840906764: **SUCCESS**.
+- Windows quality #137840907274, Ollama #137840909193, Supabase/PostgreSQL/RLS #137840909327 and success persistence #137840909738: **SKIPPED**.
+- Re-fetched resolver and diagnostics logs both return GitHub 404 `BlobNotFound`; step summaries are empty. Root cause is **UNKNOWN**. Do not infer a token, permission, quota, Runner, or application-code cause.
+- Main combined status: CircleCI Pipeline 27 **ERROR**. No Vercel Main status was returned in the current combined-status response.
+- Latest Recovery run #45224374992 is terminal **SKIPPED**; the returned 26 Recovery events for this SHA are all SKIPPED. No successful recovery is evidenced.
+
+### All 8 open PRs — current exact refs and gate state
+
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions | CircleCI / Vercel |
+|---|---|---|---|---|---|---|
+| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `7a13efa16b95147794b17adf90033dabf732f18d` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | true | #45224343049 FAILURE; resolver + diagnostics FAILURE, substantive jobs SKIPPED | CircleCI 36 ERROR; Vercel build-rate-limit FAILURE |
+| [#494](https://github.com/X84657465/global-citizen-ai-network/pull/494) | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | true | #45218883945 FAILURE; resolver + diagnostics FAILURE, substantive jobs SKIPPED | CircleCI 28 ERROR; Vercel build-rate-limit FAILURE |
+| [#491](https://github.com/X84657465/global-citizen-ai-network/pull/491) | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | Yes | true | #45213070420 FAILURE; resolver + diagnostics FAILURE, substantive jobs SKIPPED | CircleCI 21 ERROR; Vercel build-rate-limit FAILURE |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Yes | false | #45191718421 SUCCESS on this old candidate | Vercel build-rate-limit FAILURE |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | No | false | No Actions run returned for this exact HEAD | CircleCI 22 ERROR; Vercel SUCCESS (not a substitute for Actions) |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | false | #45056447505 FAILURE; Windows quality FAILURE, resolver/diagnostics SUCCESS, integrations SKIPPED | Vercel build-rate-limit FAILURE |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Yes | false | #44949425719 SUCCESS on old candidate only | Vercel build-rate-limit FAILURE |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | No | false | No Actions run returned for this exact HEAD | Vercel build-rate-limit FAILURE |
+
+### Formal review and unresolved threads
+
+- Formal PR review API: **0 APPROVED across all 8 PRs**. Returned submissions are COMMENTED or absent; none is independent acceptance.
+- Inline review threads: #493 0 unresolved; #494 0; #491 0; #417 1; #478 1; #476 1; #259 7; #376 10.
+- The 19 unresolved threads on #417/#478/#476/#259/#376 remain with their respective owners; GPT5 does not resolve another workstream's review findings by self-review.
+- GitHub `mergeable=true` on #493/#494/#491 does not override failed CI, absent independent approval, or Draft state. No PR is merge-ready.
+
+### GPT5-owned work and disposition
+
+- GPT5's existing PR #493 remains limited to `docs/AGENT_HANDOFF.md`; no source, Factory/Product module, workflow, Runner, permissions, secrets, DB/RLS, branch protection, or deployment settings were changed.
+- PR #493 remains Draft. Its exact-head Actions run #45224343049 is FAILURE; resolver/diagnostics logs return 404 `BlobNotFound`, and downstream jobs are SKIPPED. No self-approval, un-Draft, merge, or acceptance is claimed.
+- Shared resolver/diagnostics failures across Main, #493, #494 and #491 suggest a common CI evidence path is failing, but the root cause remains UNKNOWN without logs. This is routed to the Factory/CI owner; GPT5 will not edit Factory-owned workflow/controller paths without explicit task-specific allowlist and DRI.
+- Existing daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled for 08:00 Asia/Taipei; next run `2026-11-24T08:00:00+08:00`. Last recorded run is `2026-11-23T01:03:11Z`, therefore its result is stale relative to this recheck. This manual inspection is not represented as a scheduled-run delivery.
+- No local tests were run in this session. CI results above are remote GitHub evidence tied to their exact SHAs.
+
+### Owner routing / stop conditions
+
+1. **GPT1 / Factory-CI owner:** retrieve actionable resolver/diagnostics logs and establish root cause for Main run #45211976105; do not blind-rerun, reset durable state, or bypass controls.
+2. **GPT2:** own #491/#494 failure investigation and their exact-head repair/revalidation.
+3. **GPT4 / Product:** own #478 reconciliation and outstanding review; its green Actions run is stale-base only.
+4. **Governance / GPT3 / relevant owners:** resolve #476/#417/#376/#259 stale-base and review-thread issues under their own scopes.
+5. **GPT5:** maintain the one-file operational handoff and continue independent evidence coordination. No safe Factory/Product code edit is authorized by the current evidence.
+
+**Final state:** Main BLOCKED; #493/#494/#491 exact-head CI FAILURE with substantive jobs SKIPPED; #478/#259 old-candidate Actions SUCCESS but stale-base BLOCKED; #417 FAILURE and stale; #476/#376 no exact-head Actions evidence and stale. Zero formal approvals. No PR is accepted, merged, or release-authorized.
