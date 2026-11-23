@@ -30,7 +30,25 @@ const statusLabel: Record<string,string> = { pending: "待對帳", matched: "已
 export default function AiCostDashboardClient() {
   const [data, setData] = useState<Data | null>(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);\n  const [invoiceCsv, setInvoiceCsv] = useState("");\n  const [invoicePreview, setInvoicePreview] = useState<InvoicePreview | null>(null);\n  const [invoiceError, setInvoiceError] = useState("");\n  const [invoiceLoading, setInvoiceLoading] = useState(false);\n  const [fxCurrency, setFxCurrency] = useState("USD");\n  const [fxRate, setFxRate] = useState("");\n  const [fxTimestamp, setFxTimestamp] = useState("");\n  async function previewInvoice() {\n    setInvoiceLoading(true); setInvoiceError(""); setInvoicePreview(null);\n    try {\n      const fx = fxRate.trim() && fxTimestamp.trim() ? { fromCurrency: fxCurrency, toCurrency: "TWD", rate: Number(fxRate), timestamp: fxTimestamp } : undefined;\n      const response = await fetch("/api/admin/ai-costs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csv: invoiceCsv, fxConversion: fx }) });\n      const result = await response.json() as { preview?: InvoicePreview; error?: string };\n      if (!response.ok || !result.preview) throw new Error(result.error ?? "帳單預覽失敗。");\n      setInvoicePreview(result.preview);\n    } catch (reason) { setInvoiceError(reason instanceof Error ? reason.message : "帳單預覽失敗。"); }\n    finally { setInvoiceLoading(false); }\n  }
+  const [loading, setLoading] = useState(true);
+  const [invoiceCsv, setInvoiceCsv] = useState("");
+  const [invoicePreview, setInvoicePreview] = useState<InvoicePreview | null>(null);
+  const [invoiceError, setInvoiceError] = useState("");
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [fxCurrency, setFxCurrency] = useState("USD");
+  const [fxRate, setFxRate] = useState("");
+  const [fxTimestamp, setFxTimestamp] = useState("");
+  async function previewInvoice() {
+    setInvoiceLoading(true); setInvoiceError(""); setInvoicePreview(null);
+    try {
+      const fx = fxRate.trim() && fxTimestamp.trim() ? { fromCurrency: fxCurrency, toCurrency: "TWD", rate: Number(fxRate), timestamp: fxTimestamp } : undefined;
+      const response = await fetch("/api/admin/ai-costs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csv: invoiceCsv, fxConversion: fx }) });
+      const result = await response.json() as { preview?: InvoicePreview; error?: string };
+      if (!response.ok || !result.preview) throw new Error(result.error ?? "帳單預覽失敗。");
+      setInvoicePreview(result.preview);
+    } catch (reason) { setInvoiceError(reason instanceof Error ? reason.message : "帳單預覽失敗。"); }
+    finally { setInvoiceLoading(false); }
+  }
   async function load() {
     setLoading(true);
     try {
