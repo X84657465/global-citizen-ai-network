@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { execFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
@@ -115,7 +115,7 @@ test("keeps a patch-validation rejection system-scoped when the task marker cann
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.deepEqual(readdirSync(data.githubEnv), []);
-  assert.match(result.stderr, /Only a validated task bundle with a valid fetched Issue identity is accepted/);
+  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
 });
 
 test("keeps missing tracked repository files system-scoped", (t) => {
