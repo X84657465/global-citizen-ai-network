@@ -640,3 +640,64 @@ Formal review submissions were re-read on all 14 PRs: **zero formal APPROVED**. 
 - No A–P source, tests, workflow, Runner, permissions, secrets, database/RLS, production state or deployment was changed.
 - No self-review, Draft removal, merge, CI bypass or blind rerun was performed.
 - Next independent action: continue exact-head monitoring of #466's new report commit, and maintain owner handoffs for Factory preflight/Linux fixture blockers while keeping GPT5 work inside Global Intelligence & Operations.
+
+
+---
+
+## Live exact-head refresh — 2026-11-23 18:36 Asia/Taipei
+
+This refresh supersedes any earlier statement about the same SHA or run. Current main is still `f4319ec65d33bf30804b2d447e7692207fd82f0c`; current `PROJECT_COORDINATION.md` blob is `d3ee1881aa67861fc42a2b568b26020945b0c218`; current `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob is `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+
+### Main exact SHA and Actions
+
+- Actions API now independently confirms push run #45137751765, attempt 1, event `push`, exact main SHA `f4319ec65d33bf30804b2d447e7692207fd82f0c`: COMPLETED / SUCCESS. Substantive Windows quality gates, PostgreSQL/RLS integration and Ollama/local integration are SUCCESS. Two conditional diagnostics/failure-persistence jobs are SKIPPED; one success-persistence job is SUCCESS.
+- Separate push preflight run #45137751684, attempt 1, same exact main SHA: COMPLETED / FAILURE in `Windows self-hosted project validation`; downstream plan/publish/dispatch/state-write jobs SKIPPED.
+- Separate issue-triggered preflight run #45138473800, attempt 1, same exact main SHA: COMPLETED / FAILURE in `Validate task and generate read-only AI plan`; downstream self-hosted validation/publish/dispatch/state jobs SKIPPED.
+- Current exact-SHA check-runs query returned 40 records spanning multiple workflows and events: 5 SUCCESS, 2 FAILURE, 33 SKIPPED. This is a mixed aggregate, not one CI run. Recovery workflow runs repeatedly end SKIPPED and do not prove recovery executed.
+- Combined status on main is Vercel SUCCESS only. Keep provider deployment status separate from Actions.
+
+### All 14 open PRs — current head/base and exact-head Actions query
+
+| PR | Head SHA | Base SHA (target) | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|---|
+| #466 | `df379756089fc97927062148622ce079f9dabb42` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | no | true | #45157494046 PENDING, 0 jobs |
+| #448 | `ccccf9c5e46285426a3c269bd066e6fa47c65cb8` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | no | true | #45147570005 SUCCESS |
+| #468 | `588967ee9563a8896752eacce02aa7a14473d5d8` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | no | true | #45151541188 SUCCESS; no Linux fixture job in run |
+| #467 | `3c802c9f206721fdcc71ec96e2bb178590fb9990` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | yes | true | #45151506039 SUCCESS; no Linux fixture job in run |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | main `f622c852346577d67aed0bde2922ade17044057c` | yes | true | #45137849234 FAILURE |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | main `f4319ec65d33bf30804b2d447e7692207fd82f0c` | no | true | #45137959652 SUCCESS |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | main `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | yes | false | #44949425719 SUCCESS (stale base) |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | main `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | yes | false | #45052753388 SUCCESS (stale base) |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | main `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | yes | false | No exact-head run returned |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | main `25d5ed519eb923d3001df6d43aec1670a0d4851a` | yes | false | #45056447505 FAILURE |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | main `480f22e484dfa80d301f136cedd5504fbde41407` | yes | false | #45100493731 SUCCESS (stale base) |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | `feat/cyber-security-defense` `7d90d05942f589f657e88069b58a19e0e3ec26ca` | yes | true | #45132200910 FAILURE |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | `feat/cyber-security-defense-integration` `df841a9a89b0526477543b76667d99ae4554a7f7` | yes | true | #45108427275 SUCCESS |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | main `f622c852346577d67aed0bde2922ade17044057c` | yes | true | #45117595636 FAILURE |
+
+All PRs remain open and unmerged at this snapshot. Exact-head workflow-level conclusions are shown; conditional SKIPPED jobs are never counted as passes. Stale-base PRs need owner-controlled rebase/integration; no automatic retargeting or mass update was done.
+
+### GPT5-owned PR #466 — current exact state
+
+- Current head `df379756089fc97927062148622ce079f9dabb42`, parent `dfa0d0a5fc0b653db35864ff85d252971e1d3e5a`; only changed file is the existing GPT5 report path.
+- Exact-head Actions run #45157494046, attempt 1, pull_request event: PENDING; jobs endpoint returns 0 jobs. No validation has started; this is not PASS.
+- Exact-head combined status: Vercel FAILURE, description `Deployment rate limited — retry in 24 hours`. This is an external provider limit, not an Actions failure and not a CI pass.
+- PR metadata: open, Ready (not Draft), mergeable=true.
+- Latest formal review submission returned is COMMENTED by repository owner; no independent APPROVED review is recorded. Review-thread endpoint returned zero threads. No self-approval or merge authorization.
+- Do not blindly dispatch/re-run while Actions has assigned zero jobs or provider rate-limit remains. Escalate scheduler/runner assignment to Factory owner and Vercel quota to provider/account owner; continue GPT5-owned documentation/evidence work meanwhile.
+
+### Action routing / next independent work
+
+1. GPT1 / Factory: diagnose the exact main preflight self-hosted validation failure in #45137751684. Its job-log API returned BlobNotFound/404 in the prior inspection; inspect via GitHub UI or restore logs before selecting a repair. Keep the separate issue-triggered plan failure #45138473800 distinct.
+2. GPT1 / Factory: #467/#468 are still not Linux-validated. #468 is a prerequisite workflow change; Linux job cannot self-validate while workflow exists only on PR branch. Merge requires independent review and repository policy; then observe a subsequent exact-head run on base.
+3. GPT1 / Factory: #465 missing Git executable in offline test container is distinct from #117's task/system failure classification; do not conflate.
+4. GPT2 / F owner: #462 credential-redaction PR exact-head Actions FAILURE; #442 targets a non-main integration branch and its SUCCESS does not validate #462.
+5. GPT1 / GPT2 respective owners: stale/failed/no-run PRs #457/#259/#373/#376/#417/#438/#450 require their own owner to reconcile base and conflicts.
+6. GPT5: continue only Global Intelligence & Operations evidence/reporting in this existing report path. No A–P source/test/workflow/Runner/permission/secret/database/RLS/production changes; no Draft removal, merge, CI bypass, self-approval or blind rerun.
+
+Evidence:
+- Main commit: https://github.com/X84657465/global-citizen-ai-network/commit/f4319ec65d33bf30804b2d447e7692207fd82f0c
+- Main push CI: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751765
+- Main push preflight failure: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684
+- Main issue preflight failure: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45138473800
+- GPT5 PR #466: https://github.com/X84657465/global-citizen-ai-network/pull/466
