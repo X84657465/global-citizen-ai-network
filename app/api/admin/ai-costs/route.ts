@@ -144,13 +144,26 @@ export async function POST(request: Request) {
   }
   let payload: { csv?: unknown; fxConversion?: unknown };
   try {
-    const raw = await request.text();
-    if (new TextEncoder().encode(raw).byteLength > 1_100_000) {
-      return NextResponse.json({ error: "上傳內容不可超過 1 MB。" }, { status: 413 });
+    const reader = request.body?.getReader();
+    if (!reader) return NextResponse.json({ error: "缺少上傳內容。" }, { status: 400 });
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > 1_100_000) {
+        await reader.cancel();
+        return NextResponse.json({ error: "上傳內容不可超過 1 MB。" }, { status: 413 });
+      }
+      chunks.push(value);
     }
-    payload = JSON.parse(raw) as { csv?: unknown; fxConversion?: unknown };
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+    payload = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as { csv?: unknown; fxConversion?: unknown };
   } catch {
-    return NextResponse.json({ error: "請提供有效的 JSON 與 CSV 文字。" }, { status: 400 });
+    return NextResponse.json({ error: "請提供有效的 UTF-8 JSON 與 CSV 文字。" }, { status: 400 });
   }
   if (typeof payload.csv !== "string") {
     return NextResponse.json({ error: "缺少 CSV 文字內容。" }, { status: 400 });
