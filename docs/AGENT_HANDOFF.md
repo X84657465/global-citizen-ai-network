@@ -2253,3 +2253,49 @@ The combined Vercel status for each inspected PR head is FAILURE / build-rate-li
 - PR #472 remains failed because the fix is not merged into main or present in its current candidate; no false clearance.
 - #474 needs the release/version owner to reconcile the planning baseline before its quality gate can pass; #476 needs accessible failure diagnostics, exact-head CI success, and GPT3 review.
 - Continue GPT5 operations/handoff work; do not take over A–P module fixes, self-approve, bypass required CI/review, or claim deployment/recovery success.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-23 13:46 UTC (fresh exact-head recheck)
+
+This section supersedes earlier same-day PR/run snapshots above. All states below are observations from the current GitHub API responses; no historical green result is transferred to a different SHA.
+
+### Mainline
+- Main HEAD: `4225a244407f7a323262c4d6e17b2749193d6476`.
+- Main push CI [#45166790416](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45166790416), attempt 1: **FAILURE**.
+- Windows quality job #137682759367: **FAILURE**, 778/779 tests passed. Test 565 at `tests/fp/mainline-integration.test.ts:82` fails because `docs/ai-agent-scheduler-operations.md` lacks the required sentence `does not approve the candidate, authorize a merge, or deploy production`.
+- Type check, lint, production build, Supabase/PostgreSQL/RLS and Ollama jobs: **SKIPPED** after the unit-test failure. They are not PASS.
+- Exact-main Vercel status: **FAILURE / build-rate-limit**, separate from Actions.
+- Main is **NOT VERIFIED / BLOCKED**.
+
+### Current open PR inventory — exact HEADs and Actions
+| PR | Exact HEAD | Base | Draft | Exact-head Actions state |
+|---|---|---|---|---|
+| [#484](https://github.com/X84657465/global-citizen-ai-network/pull/484) | `cea2d33de8414ed11833ee5fbf59274a4209b95d` | main `4225a244...` | Draft | Run #45186548279 **PENDING**, 0 jobs |
+| [#481](https://github.com/X84657465/global-citizen-ai-network/pull/481) | `10e22464c6a2fdacf6d2b24347827ffee1e575b4` | main `4225a244...` | Draft | Run #45183428390 **PENDING**; metadata resolver #137728837354 PENDING |
+| [#475](https://github.com/X84657465/global-citizen-ai-network/pull/475) | `8f7a922e2c2b97b6d390b52015b76da202204b7c` | main `4225a244...` | Ready | Run #45174503526 **SUCCESS**; resolver, Windows quality, Supabase/RLS and Ollama jobs SUCCESS |
+| [#473](https://github.com/X84657465/global-citizen-ai-network/pull/473) | `f8a935bd86e94337ada8c0b6990dd6a728606750` | main `4225a244...` | Draft | Prior run #45185244593 belongs to old HEAD `aab1c1b...` and is **not valid** for this new HEAD; fresh run not yet observed |
+| [#474](https://github.com/X84657465/global-citizen-ai-network/pull/474) | `4dd87aabe7370e441ba05f0adc18aeaabc25fd1f` | main `4225a244...` | Draft | Run #45185325566 **PENDING**, 0 jobs |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `2c4e22aa39c6400cc0f318dc5325828e9b0d70ed` | main `4225a244...` | Draft | Run #45181112254 **PENDING**; Windows quality job #137726951394 PENDING |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `8a307b61e76dfe0e5b3ae3fdd8337b206c0300dd` | main `4225a244...` | Draft | Run #45180036170 **IN_PROGRESS**; Windows quality and Supabase/RLS SUCCESS; Ollama job #137726015619 IN_PROGRESS |
+| [#477](https://github.com/X84657465/global-citizen-ai-network/pull/477) | `8c109fe6a6f6fd05a882c533baaf1ed0521aebfe` | main `4225a244...` | Ready | Run #45179820953 **SUCCESS**; quality, Supabase/RLS and Ollama jobs SUCCESS |
+| [#472](https://github.com/X84657465/global-citizen-ai-network/pull/472) | `670723f8065e307b1251e81fe331bd037b60bf06` | main `4225a244...` | Draft | Latest exact-head runs #45171686357 and #45171686278 **FAILURE**; Linux fixture root cause UNKNOWN due unavailable log |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58...` | Draft | No current-base exact-head evidence; GitHub mergeable=false |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | stale `93e7ac3...` | Draft | No current-base exact-head evidence; GitHub mergeable=false |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac3...` | Draft | No current-base exact-head evidence; GitHub mergeable=false; unresolved review thread exists |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed5...` | Draft | Historical exact-head CI failure; GitHub mergeable=false |
+
+### Formal review and external checks
+- Review endpoints for #475, #477, #473, #474 and #484 returned **zero formal review submissions**. No independent APPROVED is established for these candidates.
+- Vercel status for main, #475 and #477 remains **FAILURE / build-rate-limit**. It is not a GitHub Actions pass or failure and no deployment was claimed.
+- #477 is no longer Draft, but its successful Actions matrix and Ready-for-review state do not replace independent formal approval.
+- #475's required Actions matrix is SUCCESS and it contains the runbook sentence required by Main test 565; it remains unapproved and the external Vercel status remains failed.
+
+### GPT5 scope correction and disposition
+- PR #473's declared allowlist is `docs/AGENT_HANDOFF.md` only. Its branch had also carried a one-line change to `docs/ai-agent-scheduler-operations.md`, overlapping the focused #475 runbook repair.
+- Reverted that out-of-scope runbook change on the GPT5-owned #473 branch to the exact current-main file content. Scope is now one file, `docs/AGENT_HANDOFF.md`; cleanup commit: `f8a935bd86e94337ada8c0b6990dd6a728606750`.
+- This creates a new PR #473 HEAD. Earlier CI for `aab1c1b...` is stale and cannot validate the new HEAD. Keep Draft until fresh exact-head CI and independent review.
+- No Factory source, Runner state, permissions, secrets, database/RLS, durable state, branch protection or deployment settings were changed.
+- Daily automation remains enabled: one GCAN sweep at 08:00 Asia/Taipei; next scheduled run `2026-11-24T08:00:00+08:00`. Do not create a duplicate.
+
