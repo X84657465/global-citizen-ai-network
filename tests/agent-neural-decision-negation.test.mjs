@@ -128,3 +128,103 @@ test("coordinated objects remain under the preceding prohibition", () => {
   assert.equal(result.signals.no_high_risk_scope, true);
   assert.equal(result.evidence.high_risk_scope_detected, false);
 });
+
+test("allows read-only billing and production-control verification language", () => {
+  const result = evaluateAgentDecision(withImplementerText("Verify billing visibility and document production kill-switch behavior", [
+    "Use mock provider fixtures to verify invoice reconciliation and usage alerts",
+    "Confirm quota reservations and hard-stop behavior without live billable calls",
+  ]), task);
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
+  assert.equal(result.decision, "approve_for_sandbox_validation");
+});
+
+test("still rejects explicit mutating operations in sensitive domains", () => {
+  for (const title of [
+    "Enable live billing for production",
+    "Publish credentials to production",
+    "Modify production authentication settings",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("read-only deployment, billing-change, and release-process descriptions are not mutations", () => {
+  const result = evaluateAgentDecision(withImplementerText("Verify production deployment status and review billing changes; document the release process"), task);
+  assert.equal(result.signals.no_high_risk_scope, true);
+  assert.equal(result.evidence.high_risk_scope_detected, false);
+  assert.equal(result.decision, "approve_for_sandbox_validation");
+});
+
+test("progressive and passive mutating instructions remain high-risk", () => {
+  for (const title of [
+    "We are enabling live billing for production",
+    "The agent is rotating credentials",
+    "Credentials are being published to production",
+    "The plan has modified production authentication settings",
+    "The agent is transferring payouts",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("modal and infinitive mutating instructions remain high-risk", () => {
+  for (const title of [
+    "The plan must enable live billing for production",
+    "We will modify production authentication settings",
+    "The agent needs to rotate credentials",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+
+test("common write/create/set/apply/execute instructions remain high-risk", () => {
+  for (const title of [
+    "Write credentials to production",
+    "Create a production authentication user",
+    "Set billing limits",
+    "Apply production migration",
+    "Execute a production payout",
+    "The agent is writing production credentials",
+    "The plan has created a production authentication user",
+    "The agent is setting billing limits",
+    "The plan is applying production migration",
+    "The agent will execute a production payout",
+    "The plan writes credentials to production",
+    "The agent wrote production credentials",
+    "The agent has written production credentials",
+    "The plan creates a production authentication user",
+    "The plan created a production authentication user",
+    "The plan applies production migration",
+    "The plan applied production migration",
+    "The plan executes a production payout",
+    "The plan executed a production payout",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("new mutating verbs remain suppressed by explicit prohibitions", () => {
+  for (const title of [
+    "Do not write credentials to production",
+    "Do not create a production authentication user",
+    "Do not set billing limits",
+    "Do not apply production migration",
+    "Do not execute a production payout",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
