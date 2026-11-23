@@ -43,7 +43,7 @@ function fixture(t, {
     ? "{ invalid json"
     : JSON.stringify({
         schema_version: 1,
-        files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\\n" }],
+        files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\n" }],
       });
   writeFileSync(join(artifacts, "agent-patch.json"), patchContent);
   const githubEnv = join(root, "github-env.txt");
