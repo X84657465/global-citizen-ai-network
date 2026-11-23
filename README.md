@@ -67,6 +67,12 @@
 - [Master Charter §24](docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md)
 - [五 GPT 協調與派工規範](PROJECT_COORDINATION.md)
 
+
+### A–P 全線都要有自己的產品級 MVP
+
+**不是只有 B。A、B、C……P 共 16 條工作線，每條都要交付一個可實際使用、可展示、可測試、可驗收的最小產品。** B 是整合型 GCAN 使用者產品；A 是 Agent Factory；C–P 依各自領域交付可被使用者或下游系統消費的 API、CLI、SDK、Connector、Dashboard、Gate 或工作流。每線各有 owner、核心旅程、版本化契約、測試與獨立狀態；不能用 B 的首頁或工作區代替其他線成果。詳細 A–P 產品 MVP 目錄見 [完整交付章程 §2.4](docs/GCAN_MVP_FIRST_DELIVERY_CHARTER.md)。
+
+
 ---
 
 ## 🏛️ GCAN 公開入口｜願景、架構與進度一眼看懂
