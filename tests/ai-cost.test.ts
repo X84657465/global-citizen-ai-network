@@ -152,3 +152,7 @@ test("invoice TWD normalization requires an explicit valid rate and timestamp", 
     fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "not-a-date",
   }).rows[0].normalizedTwd, null);
 });
+
+test("invoice CSV rejects stray quote characters in unquoted fields", () => {
+  assert.throws(() => parseProviderInvoiceCsv(invoiceCsv.replace("openai,gpt-test", 'open"ai,gpt-test')), /雙引號/);
+});
