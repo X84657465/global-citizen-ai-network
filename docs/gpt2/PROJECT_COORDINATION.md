@@ -2,8 +2,8 @@
 
 > **Owner：** GPT2 — F–P workstream owner  
 > **工作範圍：** F、G、H、I、J、K、L、M、N、O、P  
-> **文件狀態：** 本文件已由 PR #434 加入 main，但 main 版本仍標記為 Draft candidate。本 PR 僅校正文案與證據狀態，不代表工作流程已正式採納或獨立驗收。  
-> **建立基準：** main 10fabef703ee3865d208196f46ee71ddd1b7e149（2026-11-23）  
+> **文件狀態：** GPT2 F–P Neural Intelligence Agent Mode 採納紀錄；DOCUMENTED：YES、ADOPTED：YES（限 GPT2 文件與工作流程採納），IMPLEMENTED：NOT CLAIMED。此紀錄不等於 GPT3 獨立驗收、PR 合併或背景 Runtime 部署。  
+> **本次核對基準：** main `4225a244407f7a323262c4d6e17b2749193d6476`（2026-11-23）  
 > **任務：** Issue #384 — GPT2 adoption of Neural Intelligence Agent Mode  
 > **治理依據：** Repository 根目錄 PROJECT_COORDINATION.md、GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md、各 F–P 工作線文件及相關 Issue／PR 的最新有效紀錄。
 
@@ -148,11 +148,23 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 
 ## 6. 採納成熟度與目前狀態
 
-- **DOCUMENTED：YES（文件存在）；內容狀態仍為 Draft candidate。** PR #434 已合併至 main，merge commit `0aef1cee19abac9503052565856fcc25c47a085a`；本文件位於 `docs/gpt2/PROJECT_COORDINATION.md`，main blob `c832e876f14b49330ee9a579a9d01c15f00fb7cb`。目前 main 上該 blob 的實際文字仍明確標記為「Draft candidate」，不能把檔案存在誤寫成採納已完成。
-- **WORKFLOW EXERCISE：OBSERVED；ADOPTED：NOT ACCEPTED。** Issue #144／PR #442 的候選 head `75f9ea18ca3ffc98878792958fad68cb10a5876a`，exact-head Actions run #45108427275 attempt 1 為 COMPLETED / SUCCESS；Build/unit/type/lint/production build、Supabase migrations/PostgreSQL/RLS 與 credential-redaction regression step 均 SUCCESS，兩個 conditional circuit-breaker jobs 為 SKIPPED。惟 PR #442 仍為 OPEN / Draft，正式 reviews 為 0，且其目標是 legacy F security branch，並非 main 整合。因此這只證明候選分支在該 SHA 的 CI 驗證結果，不證明工作流程已被 main 採納、獨立驗收或批准合併。
-- **IMPLEMENTED：NOT CLAIMED。** 不代表已部署持續運作的 neural runtime、背景監控或持久化自主能力；這些仍需獨立程式、部署、權限隔離、監控、測試與驗收證據。
+### 6.1 GPT2 採納聲明 — 2026-11-23
 
-本文件建立時的 main 基準為 10fabef703ee3865d208196f46ee71ddd1b7e149。此為歷史快照；每次接手任務都必須重新讀取 main、Issue、PR、CI、review 與精確 SHA，不得沿用過期狀態。
+- **DOCUMENTED：YES。** 本文件位於 `docs/gpt2/PROJECT_COORDINATION.md`；共同規範位於根目錄 `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`，並由根目錄 `PROJECT_COORDINATION.md` 引用。此次核對的 main SHA 為 `4225a244407f7a323262c4d6e17b2749193d6476`。
+- **ADOPTED：YES（GPT2 文件與工作流程層級）。** GPT2 正式採用感知、記憶、認知、規劃、執行、驗證／反思六層閉環，並依本文件第 2 節將其映射至 F–P 工作流程；第 3 節記錄 F–P 內部依賴，第 4 節記錄與 GPT1、GPT3、GPT4、GPT5 的責任邊界及交接方式。此採納聲明由 GPT2 在自身協調文件中明確記錄，符合 Issue #384 對角色自有證據的要求。
+- **INDEPENDENT ACCEPTANCE：PENDING。** GPT2 的自我採納紀錄不是 GPT3 的獨立審查或正式 GitHub APPROVED；相關 PR 仍須依最新 main、exact-head CI、正式獨立 Review 及分支規則驗收。
+- **IMPLEMENTED：NOT CLAIMED。** 文件與工作流程採納不代表已部署持續運作的 neural runtime、背景監控、跨對話即時通訊或持久化自主能力；這些能力仍須獨立程式、基礎設施、權限隔離、監控、測試及驗收證據。
+
+### 6.2 F–P 採納範圍與驗證
+
+- 感知：每次任務開始重新讀取 main、Issue、PR、review、CI、精確 SHA、owner、allowlist 與依賴。
+- 記憶：將核實知識寫入版本化工作線文件、Issue、ADR、PR 與測試紀錄，保留來源／SHA／時間／版本並標記過期資訊。
+- 認知：分析根因、信任邊界、依賴、失敗模式、替代方案及不確定性；不以模型信心取代測試。
+- 規劃：指定唯一 DRI、目標與 non-goals、allowlist、相依、風險、驗收、停止及回復條件，遵守 Factory-first。
+- 執行：僅在 GPT2 的 F–P owner 範圍與明確授權內工作，不接管 GPT1 A–E／Factory、GPT4 B Product 或 GPT3 獨立 QA。
+- 驗證／反思：對精確候選 SHA 核對測試、CI run／attempt、正式 Review、回復方式與未解阻塞；PENDING／SKIPPED／NOT RUN 不算 PASS。
+
+本次為文件採納更新，未宣稱執行程式測試或 Runtime 驗證。PR 的 exact-head CI 與 GPT3 獨立審查狀態須以該 PR 最新 GitHub 證據為準。
 
 ## 7. 不可違反的底線
 
