@@ -813,16 +813,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - name: Classify known task-scoped failures before updating factory state
-        if: failure()
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: |
-          if ($env:AGENT_FACTORY_FAILURE_SCOPE -eq "task") {
-            Write-Host "Preserved explicit task-scoped validation marker."
-          } else {
-            Write-Host "No explicit task-scoped marker was identified; defaulting to system-scoped."
-          }
-
       - name: Clean disposable scratch workspace
         id: cleanup-scratch
         if: always()
@@ -840,6 +830,20 @@ jobs:
             } finally {
               Remove-Item -LiteralPath $manifestPath -Force -ErrorAction SilentlyContinue
             }
+          }
+
+      - name: Classify known task-scoped failures before updating factory state
+        if: failure()
+        env:
+          SCRATCH_CLEANUP_OUTCOME: ${{ steps.cleanup-scratch.outcome }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          if ($env:SCRATCH_CLEANUP_OUTCOME -eq "failure") {
+            Write-Host "Scratch cleanup failed; effective failure scope is system."
+          } elseif ($env:AGENT_FACTORY_FAILURE_SCOPE -eq "task") {
+            Write-Host "Preserved explicit task-scoped validation marker."
+          } else {
+            Write-Host "No explicit task-scoped marker was identified; defaulting to system-scoped."
           }
 
       - name: Record failed task and activate cooldown after three consecutive failures
