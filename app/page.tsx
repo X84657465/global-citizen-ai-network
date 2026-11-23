@@ -53,7 +53,7 @@ export default function HomePage() {
   <a className={styles.skipLink} href="#main-content">跳至主要內容</a>
   <header className={styles.header}><div className={styles.headerInner}>
    <Link href="/" className={styles.brand} aria-label="Global Citizen AI Network 首頁"><span className={styles.brandMark}><Globe2 size={22}/></span><span className={styles.brandText}><strong>GLOBAL CITIZEN</strong><small>AI NETWORK</small></span></Link>
-   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#evolution-roadmap">進化路線</a><a href="#workstreams">A–O 工作線</a><a href="#neural-intelligence">神經智慧體</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
+   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#evolution-roadmap">進化路線</a><a href="#workstreams">A–O 工作線</a><a href="#execution-command">最高執行總綱</a><a href="#neural-intelligence">神經智慧體</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
    <div className={styles.headerActions}><Link href="/login" className={styles.loginLink}>會員登入</Link><Link href="/workspace" className={styles.headerCta}>進入平台 <ArrowUpRight size={15}/></Link></div>
   </div></header>
   <main id="main-content" tabIndex={-1}>
@@ -68,6 +68,49 @@ export default function HomePage() {
     <div className={styles.heroVisual}><div className={styles.visualGlow}/><div className={styles.visualFrame}><Image src="/brand/gcan-hero.svg" alt="GCAN 全球 AI 協作網路品牌主視覺" width={1600} height={520} priority className={styles.heroImage} sizes="(max-width: 900px) 100vw, 52vw"/></div><div className={styles.visualTagTop}><span className={styles.liveDot}/> A–O 十五條工作線 + P 治理層</div><div className={styles.visualTagBottom}><Network size={15}/> INDEPENDENT · CONNECTED · REVIEWED</div></div>
    </div><div className={styles.heroBottom}><div className={styles.heroBottomLabel}>THE GCAN OPERATING MODEL</div><div className={styles.heroFact}><b>15 + 1</b><span>十五條工作線 + 一個治理層</span></div><div className={styles.heroFact}><b>01</b><span>共用證據協作閉環</span></div><div className={styles.heroFact}><b>A–O OWNED</b><span>十五條工作線獨立負責與版本管理</span></div><div className={styles.heroFact}><b>P GOVERNANCE</b><span>整合前審核、測試與治理</span></div></div></section>
    <section className={styles.stageBar} aria-label="專案狀態"><div className={styles.stageLabel}><span/> EARLY DEVELOPMENT / MVP · 早期建置與預覽階段 · A–P ARCHITECTURE · 平台 {releaseManifest.overall} · A 線 {releaseManifest.tracks.A.version} · B 產品 {releaseManifest.tracks.B.version}</div><p>目前為早期建置與預覽階段；任何功能成熟度、正式部署與驗收均須以同一精確 SHA 的 CI、Preview、接收線確認及必要人工審查為準。展示資料不代表正式營運或生產成熟度。</p><div className={styles.stageLinks}><a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">查看版本紀錄 <ArrowUpRight size={14}/></a><a href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">查看 CI 執行紀錄 <ArrowUpRight size={14}/></a></div></section>
+   <section className={styles.executionSection} id="execution-command" aria-labelledby="execution-command-title">
+    <div className={styles.executionHeader}>
+     <div className={styles.sectionEyebrow}>GCAN EXECUTION COMMAND · FACTORY FIRST</div>
+     <h2 id="execution-command-title">最高執行總綱：<em>五 GPT、單一任務責任、可驗收交付</em></h2>
+     <p>工程順序固定為 A Factory 優先、必要 A→B 銜接、B 產品準備與接棒。其他工作線只處理直接阻擋 A 穩定或 A→B 的卡點；不平均灑資源，不以文件更新冒充功能完成。</p>
+    </div>
+    <div className={styles.executionStatus}>
+     <div><span>REPOSITORY BASELINE</span><b>480f22e4</b><small>治理提案建立時 main SHA · 非即時 main 狀態</small></div>
+     <div><span>RELEASE REGISTRY</span><b>{releaseManifest.overall}</b><small>A {releaseManifest.tracks.A.version} · B {releaseManifest.tracks.B.version}</small></div>
+     <div><span>LIVE CI / DEPLOYMENT</span><b>即時狀態以 GitHub 為準</b><small>本頁不快取或冒充 CI PASS／Production READY</small></div>
+    </div>
+    <div className={styles.executionLiveSnapshot}>
+     <div className={styles.executionLiveHeading}><b>最新工程快照 · 2026-11-23 10:59（Asia/Taipei）</b><span>以下是本次查證紀錄，不是即時串流</span></div>
+     <div className={styles.executionLiveGrid}>
+      <article><span>MAIN · 480f22e4</span><b>CI IN_PROGRESS</b><p>Windows Runner quality gates 已 SUCCESS；Supabase/PostgreSQL/RLS 與 Ollama/local execution 仍 PENDING。System Health Recovery 為 SKIPPED，不代表健康恢復成功。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100393869" target="_blank" rel="noreferrer">查看 main CI #45100393869 <ArrowUpRight size={13}/></a></article>
+      <article><span>GOVERNANCE PR · #440</span><b>OPEN · NOT MERGED</b><p>提案分支最後查證 HEAD：c1522e33。GPT3 獨立 Review 尚未出現。</p><a href="https://github.com/X84657465/global-citizen-ai-network/pull/440" target="_blank" rel="noreferrer">查看 PR #440 <ArrowUpRight size={13}/></a></article>
+      <article><span>PR EXACT-HEAD CI</span><b>0 JOBS · NOT PASS</b><p>目前 HEAD check-runs 回傳 0 checks；較早的 Run #45102694706 亦回傳 0 jobs。不得標示 CI 通過。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions/runs/45102694706" target="_blank" rel="noreferrer">查看候選 CI #45102694706 <ArrowUpRight size={13}/></a></article>
+      <article><span>VERCEL PREVIEW</span><b>NOT FOUND · RATE LIMITED</b><p>此分支尚未找到 Preview deployment；Vercel provider 回報 build-rate-limit，與 GitHub Actions CI 分開判定。</p><a href="https://vercel.com/acmes-projects-3dfbdf35?upgradeToPro=build-rate-limit" target="_blank" rel="noreferrer">查看 Vercel 專案配額 <ArrowUpRight size={13}/></a></article>
+     </div>
+     <small>快照來源：GitHub exact-SHA check-runs／workflow jobs／PR metadata 與 Vercel preview lookup。主線或 PR HEAD 前進後，必須重新查證；歷史快照不自動代表最新狀態。</small>
+    </div>
+    <div className={styles.executionPriority}>
+     <article><span>P0 · FIRST</span><h3>A｜Agent Factory V2</h3><p>Scheduler、task state、lease/fencing、Runner、sandbox、preflight、retry/recovery、task/global breaker 隔離，以及自動實作→測試→修復→候選 PR。</p></article>
+     <article><span>P1 · HANDOFF</span><h3>A → B｜必要銜接</h3><p>只處理公開介面、版本相容、資料契約、安全邊界與驗收阻塞；B 持續準備需求、UX、API 與測試規格。</p></article>
+     <article><span>P2 · BLOCKER ONLY</span><h3>F / G / H / K / P</h3><p>只補直接阻擋 Factory 或 A→B 的安全、Release/QA、真實觀測、知識與治理能力；L 多節點擴張延後。</p></article>
+    </div>
+    <div className={styles.executionRoles}>
+     {[
+      {id:"GPT1",name:"Factory Chief Engineer",scope:"A–E / Factory 核心",output:"程式、regression tests、exact-SHA CI、A→B 介面"},
+      {id:"GPT2",name:"Specialist Engineering Lead",scope:"F–P 必要支援",output:"可執行 security、Release Gate、telemetry、整合能力"},
+      {id:"GPT3",name:"Independent Architecture & QA",scope:"跨線審查與高風險驗收",output:"綁定 exact HEAD SHA 的 PASS / FAIL / BLOCKED 結論"},
+      {id:"GPT4",name:"B Product Lead",scope:"B 產品需求、UX、契約",output:"API／資料契約、產品缺口、測試與驗收規格"},
+      {id:"GPT5",name:"Engineering Operations + Second Execution Seat",scope:"派工、阻塞清理、非衝突開發",output:"Issue/PR/CI 管理、根因處理、受授權程式／測試交付"}
+     ].map(role=><article key={role.id}><span>{role.id}</span><h3>{role.name}</h3><b>{role.scope}</b><p>{role.output}</p></article>)}
+    </div>
+    <div className={styles.executionFlow}>
+     <b>ZERO IDLE LOOPS · 任務狀態與阻塞處置</b>
+     <p>每項任務必須有 Task ID、P0–P4、唯一 DRI、Developer、Reviewer、Objective、Allowlist、Acceptance、Dependencies、Tests、Deadline、Fallback。狀態：READY → IN_PROGRESS → REVIEW → VERIFY → ACCEPTED → MERGED → RELEASED；例外為 BLOCKED／DEFERRED。</p>
+     <p>同一根因連續失敗 2 次停止盲重試；阻塞超過 1 個工作週期必須拆解、改派、升級或暫緩。不依賴阻塞的工作必須繼續推進。</p>
+     <p><b>品質閘門：</b>PENDING、0 Job、SKIPPED、CANCELLED、UNKNOWN、Rate Limit 都不是 PASS。所有 CI 綁定精確 SHA；Vercel 與 GitHub Actions 分開判定；開發者不得自我批准。</p>
+    </div>
+    <a className={styles.executionLink} href="https://github.com/X84657465/global-citizen-ai-network/blob/main/docs/GCAN_EXECUTION_OPERATING_SYSTEM.md" target="_blank" rel="noreferrer">閱讀完整最高執行制度 <ArrowUpRight size={15}/></a>
+   </section>
    <section className={styles.evolutionSection} id="evolution-roadmap" aria-labelledby="evolution-title">
     <div className={styles.evolutionHeader}>
      <div className={styles.sectionEyebrow}>GCAN LONG-TERM EVOLUTION · EVIDENCE-DRIVEN</div>
@@ -115,7 +158,7 @@ export default function HomePage() {
      ].map(({title,text,icon:Icon})=><article className={styles.trustCard} key={title}><span><Icon size={20}/></span><div><h3>{title}</h3><p>{text}</p></div></article>)}
     </div>
     <div className={styles.governanceHeader} style={{marginTop:34}}>
-     <div className={styles.sectionEyebrow}>FOUR-GPT COORDINATION · CLEAR OWNERSHIP</div>
+     <div className={styles.sectionEyebrow}>FIVE-GPT COORDINATION · CLEAR OWNERSHIP</div>
      <h2>五個 GPT，各有責任；共同使用一套工程閉環</h2>
      <p>GPT 之間不假設能直接讀取彼此對話。共同事實以 Repository、Issue、PR、Commit、CI 與正式交接紀錄為準。</p>
     </div>
@@ -125,7 +168,7 @@ export default function HomePage() {
       {title:"GPT2 · F–P",text:"主責 F–P 平行專業能力建設；先確認介面與依賴，不任意覆蓋 A–E 核心。",icon:Layers3},
       {title:"GPT3 · INDEPENDENT QA",text:"負責跨 A–P 獨立架構審查、整合與 QA；以可重現證據驗收，不取代功能 owner。",icon:ShieldCheck},
       {title:"GPT4 · B PRODUCT",text:"負責 GCAN B 產品方向、需求、產品契約與產品生命週期；遵守 Factory→B 交接及獨立驗收門檻。",icon:Globe2},
-      {title:"GPT5 · GLOBAL INTELLIGENCE & OPERATIONS",text:"全域情報研究與營運支援：搜尋最新 AI／工程資訊、比較技術方案、查核來源、追蹤漏洞與版本變更、整理 Issues／PR／CI，並將可追溯研究交付 GPT1–GPT4。",icon:SearchCheck}
+      {title:"GPT5 · ENGINEERING OPERATIONS + SECOND EXECUTION SEAT",text:"全域情報、Issue／PR／CI／Runner 營運、任務拆解、阻塞根因分析、跨線整合，以及受授權且不衝突的程式、測試與修復工作；不取得模組 owner 權，也不審查自己的成果。",icon:SearchCheck}
      ].map(({title,text,icon:Icon})=><article className={styles.trustCard} key={title}><span><Icon size={20}/></span><div><h3>{title}</h3><p>{text}</p></div></article>)}
     </div>
     <div className={styles.loopPrinciple} style={{marginTop:20}}>

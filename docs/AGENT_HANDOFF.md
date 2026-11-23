@@ -1728,3 +1728,57 @@ Issue #204 remains OPEN and unassigned. Its two-file allowlist and acceptance cr
 - **本輪排程**：`GCAN 每日 main／CI／PR 營運檢查` 與 `每日檢查 Global Citizen AI Network` 均為 enabled；尚無完成執行紀錄（last_run_time=null）。`每日重讀專案協作規範` 已啟用並有最近執行紀錄。未建立重複排程。
 - **本輪工程處置**：只更新營運交接文件以校正已合併 PR、最新 main SHA、CI 與 Issue 指派狀態；未修改 Factory runtime、A–P 模組程式碼、workflow、secrets、權限、資料庫/RLS、branch protection 或正式環境。未執行程式碼測試；文件更新不能替代功能驗收。
 - **停止／接手條件**：main CI 尚 PENDING 時不宣稱主線健康；#204 在 owner/scope/DRI 與有效授權未釐清前不寫入 allowlist 程式碼；#117 在唯一 DRI、fresh base、完整測試與獨立 review 完成前不合併、不部署。
+
+
+---
+
+## Governance execution charter rollout snapshot — 2026-11-23 10:53 Asia/Taipei
+
+This snapshot records the execution-charter/homepage proposal branch. It does not supersede mainline state and must be refreshed before merge or further engineering work.
+
+### Repository baseline and proposal
+- Observed main baseline: `480f22e484dfa80d301f136cedd5504fbde41407`.
+- Proposal branch: `governance/execution-charter-v2-homepage`.
+- PR: [#440 — GCAN five-GPT execution operating system](https://github.com/X84657465/global-citizen-ai-network/pull/440).
+- At snapshot time, PR head: `c9ac093835aa623e183671619ad3daf00ecff416`; PR open, not merged; GitHub reports mergeable=true / mergeable_state=unstable.
+- The PR changes seven files: new execution operating system; Master Charter addendum; PROJECT_COORDINATION addendum; Neural Intelligence role addendum; README summary; homepage execution-command section; responsive homepage CSS.
+- Governance state remains PROPOSED. This does not mean the five GPT roles are all running or that the proposal is formally adopted.
+
+### Exact-head validation
+- GitHub Actions run [#45102647704](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45102647704) is PENDING.
+- Its only visible job at this observation, `Resolve exact candidate PR metadata` (#137456763036), is PENDING and has no runner name. No unit-test, typecheck, lint, build, or Windows quality job has been observed for this exact SHA yet.
+- Combined commit status has a Vercel `build-rate-limit` failure (provider quota / retry in 24 hours). This is not a GitHub Actions CI result and is not evidence that the app build failed.
+- No local build/test command was run by this authoring session. Do not mark the PR as CI PASS or homepage deployment complete.
+
+### Required next actions
+1. Wait for exact-head Actions resolver to finish; inspect whether required jobs actually start. If it remains pending or only metadata resolution runs, mark CI as incomplete.
+2. Obtain GPT3/independent review for the exact latest PR HEAD; no review was present at this snapshot.
+3. Run or obtain actual Next.js typecheck/lint/unit/build evidence; check homepage at desktop/mobile sizes.
+4. Vercel deployment requires provider quota recovery or another authorized build path; keep this separate from Actions.
+5. Re-fetch main, PR head/base, checks, reviews, and deployment before merge. Do not merge while required CI or independent review is incomplete.
+
+### Human action
+- None required to continue repository-side work at this snapshot. If GitHub/Vercel later requires an account-owner approval or quota/billing action, provide a precise click-by-click request rather than claiming it was completed.
+
+
+---
+
+## Updated governance PR and main CI snapshot — 2026-11-23 11:00 Asia/Taipei
+
+- Main baseline remains `480f22e484dfa80d301f136cedd5504fbde41407`.
+- Main exact-SHA run [#45100393869](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45100393869):
+  - Windows Runner quality gates job #137455618076: **SUCCESS**. Steps verified locked dependency install, Windows/Docker/Ollama preflight, bounded Ollama inference, migration/schema guards, production and full dependency audits, Factory script syntax, CI trigger/Runner policy, unit tests, type check, lint and production build. The build completed; one unrelated CSS autoprefixer warning and an existing unused import warning were logged.
+  - Supabase/PostgreSQL/RLS integration job #137457178293: **PENDING** at observation.
+  - Ollama/local execution integration job #137457178509: **PENDING** at observation.
+  - System Health Recovery run #45102208922: **SKIPPED**; not a recovery success.
+- PR #440 remains OPEN / NOT MERGED. At the observation before this handoff append, head was `606513983c068ed72d09fcd0781e10c5a2563e29`; re-fetch exact head after this commit.
+- Candidate exact-head check-runs were not available for the then-current PR head; earlier branch run #45102694706 returned 0 jobs and run #45102647704 remained PENDING. Neither constitutes PASS.
+- No GPT3 independent review had been submitted.
+- Vercel preview lookup for this branch found no deployment; Vercel combined status reported `build-rate-limit`, distinct from Actions CI.
+
+### Immediate next actions
+1. Wait for main run #45100393869 Supabase/PostgreSQL/RLS and Ollama/local execution jobs to finish; do not mark full main CI PASS until all required jobs complete successfully.
+2. Re-fetch PR #440 exact HEAD and ensure its own required jobs execute; current PR has no valid exact-head CI evidence yet.
+3. Obtain GPT3 independent review against the final PR HEAD.
+4. Verify Vercel Preview and responsive homepage after provider quota/build capacity recovers.
+5. Re-check main/base/head, mergeability, required checks and reviews before any merge.

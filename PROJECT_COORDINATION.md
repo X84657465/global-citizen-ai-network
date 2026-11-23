@@ -1141,3 +1141,34 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 8. 每輪向專案負責人報告四 GPT 核心角色、GPT5 支援角色、A–P 狀態、main／CI／PR、重大缺陷、安全風險、整合阻塞、技術債、交付證據及待決策事項。
 9. Factory-first：優先處理 A Factory P0 與必要 A→B 銜接；不得為了新增工作領域、文件數量或提交數量而重複建置系統。
 10. 本節不得解讀為 GPT3 或 GPT5 的模組 owner 變更；任何治理變更仍須依現行核准流程正式接受。
+
+
+---
+
+## 21. 最新執行制度補充（Execution Operating System）
+
+本節為本文件較早通用敘述的操作補充；如角色工作方式或任務推進規則有衝突，以 Master Charter §23 及 [GCAN Execution Operating System](docs/GCAN_EXECUTION_OPERATING_SYSTEM.md) 為準。安全、權限、Branch Protection 與模組 owner charter 不受此補充放寬。
+
+### 21.1 五 GPT 的本輪硬性交付
+
+| GPT | 本輪唯一主導任務上限 | 必須交付 | 不可自我放行 |
+|---|---:|---|---|
+| GPT1 | 1 項 A–E / Factory 核心 | 可執行程式、regression tests、exact-SHA CI、A→B 交接證據 | GPT1 不批准自身高風險變更 |
+| GPT2 | 1 項直接阻擋 A/B 的 F–P 能力 | 可執行 security / release gate / telemetry / integration 能力 | GPT2 不批准自身高風險變更 |
+| GPT3 | 依風險排程 | 獨立架構／安全／整合審查，精確 SHA 結論 | 不審查自己主導的實作 |
+| GPT4 | 1 項 B 準備／產品任務 | 產品需求、API／資料契約、UX、驗收規格 | 產品接受不取代技術 QA |
+| GPT5 | 1 項不衝突的支援任務 | 派工、阻塞清理，或受授權的程式／測試／整合成果 | 不取得模組 owner 權，不批准自己開發成果 |
+
+### 21.2 零空轉規則
+
+- 每項任務必須有 Task ID、Priority、唯一 DRI、Developer、Reviewer、Objective、Allowlist、Acceptance、Dependencies、Tests、Deadline、Fallback 與 Evidence。
+- 標準狀態只用 `READY`、`IN_PROGRESS`、`BLOCKED`、`REVIEW`、`VERIFY`、`ACCEPTED`、`MERGED`、`RELEASED`、`DEFERRED`。
+- 同一原因連續失敗兩次，停止原樣重試並做根因分析；阻塞超過一個工作週期，必須拆分、改派、升級或 DEFERRED。
+- 阻塞期間繼續所有不依賴該阻塞的工作；不得只重複報告等待。
+- SLA 只在實際排程／Agent Runtime 有執行紀錄時才可宣稱已達成。
+
+### 21.3 當前快照與資料新鮮度
+
+本次治理提案分支以 main `480f22e484dfa80d301f136cedd5504fbde41407` 為起點。該 SHA 是提案建立基準，不代表 PR 合併時 main 仍相同。main、PR、CI、Runner、Factory durable state、Vercel deployment 均須在交付時重新查證；歷史快照標記 STALE，不可複製成最新狀態。
+
+**本文件只定義協作規範，不代表 GPT1–GPT5 已同時啟動，也不代表尚未觸發的工作已派工成功。** 跨 GPT 交接以 GitHub Issue、PR、commit、CI 與 handoff 為準。

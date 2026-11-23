@@ -1188,3 +1188,23 @@ F13–F19 是 F12 生產級 Factory 完成獨立驗收後的擴展階段。F0–
 6. **人類核准：** 合併、正式部署、付費資源、憑證／權限變更、正式資料寫入、外部承諾及不可逆操作依專案 owner 與政策明確核准；本路線圖本身不授權任何上述行為。
 7. **停止條件：** 安全／隱私事件、資料權利不明、身分或權限不符、成本超限、無法重現、測試／CI 失敗、審查缺席、回滾不可行或依賴未達標時，停止受影響工作包並回報 BLOCKED，列出解除條件。
 8. **Factory-first：** 所有能力先盤點既有元件，REUSE→EXTEND／REPAIR→（具 ADR 才）REPLACE；不得為了階段數量增加 GPT 席位、重複服務、模型、Runner 或付費資源。每一階段以真實任務閉環及量測證據驗收。
+
+
+---
+
+## 23. 強制執行作業制度（Execution Operating System）
+
+本節與 `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` 共同構成五 GPT 的任務派工、並行開發、阻塞處置、SLA 與交付規範。若既有一般協作說明與本節衝突，執行流程以本節及 Execution Operating System 為準；安全政策、Branch Protection、已核准治理與模組 owner charter 的限制仍優先。
+
+1. **唯一任務責任：** 每個任務必須有 Task ID、Priority、唯一 DRI、唯一主導 Developer、Reviewer、Objective/Non-goals、Allowlist、Acceptance、Dependencies、Tests、Deadline、Fallback 及 Evidence。非必要欄位可填 N/A 並說明理由。
+2. **有限 WIP：** GPT1 同時主導一項 Factory 核心任務；GPT2 一項必要專業能力任務；GPT4 一項 B 準備任務；GPT5 一項不衝突的支援開發／整合任務。GPT3 依風險排程獨立審查，不作低風險工作的常態瓶頸。
+3. **零空轉：** 阻塞時先收集根因證據並繼續不依賴工作；同一原因連續失敗兩次停止盲目重試；超過一個工作週期必須拆分、改派、升級或 DEFERRED，附解除條件與替代路徑。
+4. **角色硬交付：** GPT1 必須交付可執行 Factory 程式／測試／CI 證據；GPT2 必須交付可執行的必要安全、QA、觀測或整合能力；GPT3 必須交付綁定精確 SHA 的獨立審查結論；GPT4 必須交付 B 產品契約／需求／驗收規格；GPT5 必須交付任務派工、阻塞解除或受授權的獨立程式／測試／整合成果。
+5. **GPT5 執行席位：** GPT5 可依明確 task card、allowlist、工具權限及單一檔案 owner 規則執行程式修改、測試、修復與 PR；不取得 A–P owner 權，不可審查或批准自己開發的成果。
+6. **證據與放行：** 所有 PASS 綁定精確 SHA、workflow run/attempt、必要 jobs 終態與測試輸出。PENDING、0 Job、SKIPPED、CANCELLED、UNKNOWN、provider rate limit 均非 PASS。開發者不得自我批准。
+7. **合併／部署界線：** 只有在 branch protection、必要 CI、Review、mergeability 及現行授權政策全部允許時才合併。正式部署、正式資料破壞性操作、Secrets／權限、付費支出及不可逆正式環境變更仍依原核准政策。
+8. **SLA 真實性：** 工作週期與回應目標是工程管理標準；只有實際排程器／Agent Runtime 觸發並留下持久化紀錄，才能宣稱自動執行 SLA 已達成。不得將聊天對話等同背景常駐 Agent。
+9. **產能指標：** 以 Accepted/Merged/Released 交付、Lead Time、Review Latency、Blocked Age、Rework、CI first-pass、回歸缺陷及實際成本衡量；Issue 數、commit 數、巡檢次數與文件數不代表產能。
+10. **本輪基準：** 本提案分支建立時 main SHA 為 `480f22e484dfa80d301f136cedd5504fbde41407`。合併前及每輪作業均須重新讀取最新 main 與 exact SHA；此快照不得當作未來的最新狀態。
+
+完整操作卡、狀態機、SLA、WIP 與工作週期見 [GCAN Execution Operating System](GCAN_EXECUTION_OPERATING_SYSTEM.md)。
