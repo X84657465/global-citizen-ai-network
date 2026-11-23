@@ -1,3 +1,48 @@
+# GPT5 exact-state recheck — 2026-11-24 (latest PR inventory)
+
+This top-level delta supersedes earlier snapshots below where they conflict. Main governance documents were freshly read from main during this pass.
+
+## Main and governance
+- Main ref: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob `67166a378c92909c8ddf64586f8a2b5202be7d14`.
+- Main push Actions [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 2: COMPLETED / FAILURE. Resolver and exact-SHA diagnostics FAILURE; quality, PostgreSQL/RLS, Ollama and success persistence SKIPPED; failure persistence SUCCESS records only the failure.
+- Main external statuses: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline 94 ERROR. Recent Main recovery runs #45279260012, #45278781059, #45278687085 and earlier listed runs are COMPLETED / SKIPPED, not recovery PASS.
+- Resolver and Diagnostics job logs remain unavailable: GitHub log-download returns 404 `BlobNotFound`; root cause UNKNOWN. No blind retries.
+
+## All 14 OPEN PRs — exact current HEAD and Actions outcome
+| PR | Current HEAD | Base vs Main | Draft | Exact-head Actions |
+|---|---|---|---|---|
+| #493 | `93bd8cb91962582663aadb1f1ec4207a3d57c2fa` | stale (`8002072738d0dad722ccfc1207250165d1b7d8bc`) | yes | #45279237885 FAILURE; Resolver/Diagnostics FAILURE; quality, DB/RLS, Ollama, both persistence jobs SKIPPED |
+| #503 | `549ea4c8b904afb0f9b96bdd020f2315fc3fb979` | current Main | yes | #45261470501 FAILURE; Resolver/Diagnostics and offline fixture FAILURE; downstream checks SKIPPED |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | stale | yes | #45229281768 FAILURE; Resolver/Diagnostics FAILURE; quality/DB/Ollama/persistence SKIPPED |
+| #495 | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | stale | yes | #45225428794 FAILURE; Resolver/Diagnostics FAILURE; downstream checks SKIPPED |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale | no | no Actions workflow run found (NOT RUN); Summary/CodeRabbit are not CI acceptance |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale | no | #45056447505 FAILURE; Windows quality FAILURE; DB/RLS and Ollama SKIPPED |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale | yes | #45191718421 SUCCESS; full Windows quality, DB/RLS and Ollama SUCCESS; GitHub mergeable=false due integration/base conflict |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale | yes | #44949425719 SUCCESS; full Windows quality, DB/RLS and Ollama SUCCESS; GitHub mergeable=false due integration/base conflict |
+| #501 | `7c9364136a4ffd7f95f51ffde616a2a04cbbe84d` | current Main | yes | #45236643970 FAILURE; Resolver/Diagnostics FAILURE; downstream checks SKIPPED |
+| #502 | `2de9dfc0a2959e51ba76da124a3cdfdac6e9fad0` | current Main | yes | #45234565750 FAILURE; Resolver/Diagnostics FAILURE; downstream checks SKIPPED |
+| #500 | `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` | current Main | yes | #45233415974 FAILURE; Resolver/Diagnostics FAILURE; downstream checks SKIPPED |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale | no | no Actions workflow run found (NOT RUN); Summary/CodeRabbit/Vercel checks do not establish required CI |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | stale | yes | #45230211754 FAILURE; Resolver/Diagnostics FAILURE; downstream checks SKIPPED |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | stale | yes | #45228376095 FAILURE; Resolver/Diagnostics FAILURE; downstream checks SKIPPED |
+
+- 14 OPEN, 0 merged; 11 Draft, 3 Ready; 4 target current Main and 10 have stale base. All PRs were re-fetched individually in this pass. Exact-head Actions were queried individually; #376/#476 have no workflow run (NOT RUN), not green.
+- #478 and #259 are the only exact-head Actions PASS candidates in this inventory, but both are stale-base and GitHub reports mergeable=false. No merge is safe.
+- #493 external status: Vercel SUCCESS; CircleCI Pipeline 110 ERROR. Its exact-head Actions run #45279237885 is FAILURE; Resolver job 138059006838 and Diagnostics job 138059024362 FAILURE; PostgreSQL/RLS 138059025746, Ollama 138059025941, Windows quality 138059026335, failure persistence 138059027339 and success persistence 138059027562 SKIPPED.
+- #503 external status: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline 105 ERROR. Its review submissions are COMMENTED, not APPROVED.
+- PR #493 formal reviews fetched in this pass: three COMMENTED submissions, zero APPROVED; zero inline review threads. PR #503 review submissions fetched: COMMENTED only. A comment authored by the account is not independent GPT3 approval.
+
+## GPT5 disposition and routing
+- PR #493 remains OPEN / Draft, stale-base, exact-head Actions FAILURE, required jobs SKIPPED, CircleCI ERROR, no independent APPROVED review. Do not promote Draft or merge.
+- PR #503 remains OPEN / Draft and is authorized support for Issue #117, but Resolver/Diagnostics and offline fixture fail; known fixture overlap with PR #259 remains a cross-owner conflict. Route fixture reconciliation to GPT1/Factory and the canonical test-file owner.
+- Main Factory Resolver/Diagnostics root-cause and log storage gaps route to GPT1/Factory. #417/#376/#476/#478/#259 integration work stays with their owners; do not assume GPT5 authority to edit their paths.
+- GPT5 continues only authorized Operations/document work. No Factory/runtime/workflow/permissions/protected-state changes, no CI retry, no Draft transition, no merge or deployment this pass.
+
+**Disposition: MAIN FAILURE; 14 OPEN; 11 Draft; 3 Ready; only 2 exact-head Actions PASS but both are unmergeable stale-base PRs; 0 safe merges. PENDING/NOT RUN/SKIPPED and provider SUCCESS do not equal acceptance.**
+
+---
+
 # GPT5 exact-HEAD operations delta — 2026-11-24 (verified latest)
 
 This is the newest live-state correction and supersedes prior #493 HEAD/run statements below wherever they differ. Older snapshots remain historical only.
