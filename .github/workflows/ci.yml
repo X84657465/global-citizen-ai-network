@@ -58,6 +58,7 @@ jobs:
           node-version: "22.13.0"
       - name: Resolve current PR head and task marker
         id: resolve
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
