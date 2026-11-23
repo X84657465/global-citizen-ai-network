@@ -83,6 +83,30 @@ function runScript(data) {
   });
 }
 
+test("runs the Linux offline fixture suite in the pinned container from Windows CI", {
+  skip: process.platform !== "win32" || process.env.CI !== "true" ||
+    process.env.GCAN_LINUX_FIXTURE_CONTAINER === "1",
+}, () => {
+  const image = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a";
+  const inspect = spawnSync("docker", ["image", "inspect", image], { encoding: "utf8" });
+  if (inspect.status !== 0) {
+    const pull = spawnSync("docker", ["pull", image], { encoding: "utf8", timeout: 180000 });
+    assert.equal(pull.status, 0, pull.stderr || pull.stdout || "Unable to pull the pinned Linux Node image.");
+  }
+  const mount = `type=bind,source=${process.cwd()},target=/workspace,readonly`;
+  const result = spawnSync("docker", [
+    "run", "--rm", "--pull", "never", "--network", "none", "--read-only",
+    "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+    "--pids-limit", "64", "--memory", "256m", "--cpus", "1",
+    "--user", "1000:1000",
+    "--tmpfs", "/tmp:rw,nosuid,size=64m,uid=1000,gid=1000",
+    "--mount", mount, "--workdir", "/workspace",
+    "-e", "GCAN_LINUX_FIXTURE_CONTAINER=1",
+    image, "node", "--test", "tests/agent-patch-to-scratch.test.mjs",
+  ], { encoding: "utf8", timeout: 240000, maxBuffer: 4 * 1024 * 1024 });
+  assert.equal(result.status, 0, result.stderr || result.stdout || "Pinned Linux fixture container failed.");
+});
+
 test("Linux fixture Git shim returns only the expected read-only metadata", (t) => {
   if (process.platform === "win32") return;
   const data = fixture(t);
