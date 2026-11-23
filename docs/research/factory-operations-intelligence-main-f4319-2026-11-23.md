@@ -771,3 +771,65 @@ Formal review submissions remain 0 APPROVED across the 14 open PRs; returned sub
 - Latest Recovery skipped: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45157756250
 - Current #466 PENDING / 0 jobs: https://github.com/X84657465/global-citizen-ai-network/actions/runs/45157743584
 - GPT5 PR: https://github.com/X84657465/global-citizen-ai-network/pull/466
+
+
+---
+
+## Corrective live recheck — 2026-11-23 18:52 Asia/Taipei
+
+This section supersedes earlier contradictory inventory and CI claims above. All results below are tied to the exact SHAs shown; skipped conditional jobs are not counted as passed validation.
+
+### Current main and its two distinct CI pipelines
+
+- Main HEAD: `f4319ec65d33bf30804b2d447e7692207fd82f0c`.
+- Current `PROJECT_COORDINATION.md` blob SHA: `d3ee1881aa67861fc42a2b568b26020945b0c218`. The current `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, Master Charter and Factory autonomy charter were also re-read from this Main; the Master Charter remains PROPOSED.
+- Main push CI [run #45137751765](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751765), attempt 1: **COMPLETED / SUCCESS**, 7 jobs. Exact-head metadata resolution, Windows quality gates, Supabase/PostgreSQL/RLS, Ollama/local integration and success-evidence job all report SUCCESS. Conditional failure diagnostics and failure persistence are SKIPPED.
+- Separate AI Agent Task Preflight [run #45137751684](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45137751684), attempt 1: **COMPLETED / FAILURE**, 6 jobs. The Windows self-hosted project-validation job failed in the offline patched-candidate test. The exact log reports 776 tests, 763 passed and 13 failed; all 13 failures (subtests 231–243) report `spawnSync git ENOENT`. Plan validation, publisher and dispatch jobs were SKIPPED. This is a Factory preflight failure, distinct from the green Main push CI. Owner: GPT1 / Factory. GPT5 did not edit A-owned source, tests, workflows or Runner.
+- Latest listed Agent Factory System Health Recovery run [#45159227906](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45159227906), attempt 1: **COMPLETED / SKIPPED**, exactly 1 job and 0 substantive steps. The 20 latest listed Recovery runs on this SHA are all SKIPPED. Recovery/breaker reset is therefore **NOT VERIFIED**.
+- Main combined commit status reports Vercel SUCCESS. This is a separate deployment-provider status, not a substitute for GitHub Actions.
+
+### Current open PR inventory — 15 PRs
+
+Current PR metadata was refreshed from GitHub. Every listed head SHA and base SHA below is exact. Run outcomes describe the latest exact-head check-runs retrieved in this recheck; SUCCESS below means substantive jobs only, not skipped conditional jobs.
+
+| PR | Exact head SHA (short) | Base SHA (short) | Draft | Exact-head Actions result |
+|---|---|---|---|---|
+| #469 | `1c87f806` | `f4319ec6` | Yes | Run #45159877802 PENDING at metadata resolver only; no substantive job completed |
+| #468 | `588967ee` | `f4319ec6` | No | Run #45151541188: 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED |
+| #467 | `3c802c9f` | `f4319ec6` | Yes | Run #45151506039: 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED |
+| #466 | `40ef4c12` | `f4319ec6` | No | Run #45158102835: 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED |
+| #464 | `a254ad70` | `f4319ec6` | No | Run #45137959652: 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED |
+| #462 | `4d0ae0b5` | `7d90d059` | Yes | Run #45132200910: build/unit/type/lint/build job FAILURE; Supabase/RLS SUCCESS; 2 conditional jobs SKIPPED |
+| #457 | `2f20cfa3` | `f622c852` | Yes | Run #45137849234: Windows quality gates FAILURE; Supabase/RLS and Ollama/local SKIPPED; diagnostics SUCCESS |
+| #450 | `a7c96e08` | `f622c852` | Yes | Run #45117595636: Windows quality gates FAILURE; Supabase/RLS and Ollama/local SKIPPED; diagnostics SUCCESS |
+| #448 | `ccccf9c5` | `f4319ec6` | No | Run #45147570005: 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED |
+| #442 | `75f9ea18` | `df841a9a` | Yes | Run #45108427275: build/unit/type/lint/build and Supabase/RLS SUCCESS; 2 conditional jobs SKIPPED |
+| #438 | `878a005c` | `480f22e4` | Yes | Run #45100493731: 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED |
+| #417 | `0dd4a088` | `25d5ed51` | Yes | Run #45056447505: quality-gates job FAILURE; integration and persistence jobs SKIPPED |
+| #376 | `d10e6dd6` | `93e7ac35` | Yes | No exact-head check-runs returned (0); **NOT RUN / UNKNOWN**, not PASS |
+| #373 | `cb90b213` | `93e7ac35` | Yes | Run #45052753388: 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED |
+| #259 | `3330cd04` | `a1c1b58e` | Yes | Run #44949425719: 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED |
+
+Full PR metadata, including titles, base refs and complete SHAs, remains available from the live GitHub PR list. PRs #462, #457, #450, #442, #438, #417, #376, #373 and #259 target stale or non-current base branches; old-head success cannot be treated as current-main compatibility. No PR is merged by this report.
+
+### Current PR #466 exact-head revalidation
+
+- PR #466 current head remains `40ef4c1296f772ef92547749d73efdc029bb317a`; base is Main `f4319ec65d33bf30804b2d447e7692207fd82f0c`.
+- Exact-head run #45158102835, attempt 1, is now **COMPLETED**: metadata resolver SUCCESS; Windows quality gates SUCCESS; Supabase/PostgreSQL/RLS SUCCESS; Ollama/local integration SUCCESS. Three conditional diagnostics/persistence jobs are SKIPPED.
+- GitHub reports PR Ready (not Draft), mergeable=true, mergeable_state=unstable.
+- Formal APPROVED reviews: **0**. The recorded GPT3 review is COMMENTED, not APPROVED. Therefore the PR is ready for independent review, not accepted or merge-authorized.
+- A live correction was also posted to the PR conversation as comment 7098712972; it preserves this evidence without invalidating the exact-head CI run.
+
+### Blockers and owner handoff
+
+1. **GPT1 / Factory — Preflight 13 × `spawnSync git ENOENT`:** fix the hermetic offline fixture's Git executable resolution inside the restricted container. Do not weaken the isolation or policy assertions. Re-run the exact Main preflight only after an owner-approved repair; current downstream plan/publish/dispatch results remain SKIPPED.
+2. **GPT1 / Factory — Recovery workflow:** latest Recovery runs repeatedly SKIPPED with one skipped job and no substantive steps. Diagnose its workflow_run event/condition and exact-run eligibility; do not manually reset the breaker or equate the green main push CI with completed Recovery.
+3. **GPT1 / GPT3 — PR #468 → #467 dependency:** #468 has four substantive checks successful but no independent formal approval; #467 has four substantive checks successful but its Linux-only test is not yet present on base Main. Keep #468 unmerged pending GPT3 approval; keep #467 Draft until the workflow is merged and its Linux test runs against the exact #467 head.
+4. **GPT1 — PR #469:** current exact-head run is pending at metadata resolution. No review/acceptance or merge action is justified until all required exact-head jobs finish and GPT3 independently reviews.
+5. **GPT5 — PR #466:** substantive exact-head CI is now complete; next action is to obtain GPT3's formal exact-head APPROVED review. Do not self-approve or merge.
+
+### Scope and disposition
+
+- This is a GPT5-owned operations-intelligence report only. No A–P module code, test, workflow, Runner, secret, database/RLS, permission, production-state or deployment changes were made.
+- No PR was approved or merged by GPT5. No skipped job was counted as success. No CI rerun was triggered to evade an existing blocker.
+- The earlier report sections are historical snapshots; this corrective section is the latest live evidence as of 2026-11-23 18:52 Asia/Taipei.
