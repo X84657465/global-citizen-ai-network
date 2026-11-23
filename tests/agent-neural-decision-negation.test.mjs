@@ -105,6 +105,8 @@ test("absence of a prohibition or restriction remains positive high-risk intent"
     "Without any restriction on production deployment",
     "Credentials are not prevented from being rotated",
     "Deployment is not disallowed to production",
+    "Deployment is not prohibited to production",
+    "Deployment is not forbidden to production",
   ]) {
     const result = evaluateAgentDecision(withImplementerText(title), task);
     assert.equal(result.signals.no_high_risk_scope, false, title);
