@@ -16,7 +16,7 @@ import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { buildScratchPatchEvidence } from "../lib/agent-scratch-evidence.mjs";
 import { validatePatchManifest, PatchValidationError } from "../lib/agent-patch-validation.mjs";
 import { AgentPlanValidationError } from "../lib/agent-plan-validation.mjs";
-import { writeTaskFailureScopeMarker } from "../lib/agent-task-failure-marker.mjs";
+import { cleanupThenWriteTaskFailureScopeMarker } from "../lib/agent-task-failure-marker.mjs";
 
 let scratchDir;
 let task = null;
@@ -27,17 +27,16 @@ const fail = (message, { taskScoped = false } = {}) => {
       rmSync(scratchDir, { recursive: true, force: true });
     }
   };
-  let cleanupSucceeded = true;
-  try {
-    cleanupScratch();
-  } catch {
-    cleanupSucceeded = false;
-  }
-  if (taskScoped && cleanupSucceeded &&
-      !writeTaskFailureScopeMarker(task, process.env.GITHUB_ENV)) {
-    console.error("Task-scope marker unavailable; failure remains system-scoped.");
-  } else if (taskScoped && !cleanupSucceeded) {
-    console.error("Scratch cleanup failed; failure remains system-scoped.");
+  if (taskScoped) {
+    if (!cleanupThenWriteTaskFailureScopeMarker(task, process.env.GITHUB_ENV, cleanupScratch)) {
+      console.error("Task marker unavailable or scratch cleanup failed; failure remains system-scoped.");
+    }
+  } else {
+    try {
+      cleanupScratch();
+    } catch {
+      // Preserve the primary infrastructure failure and never emit a task marker.
+    }
   }
   console.error("Scratch patch validation failed: " + message);
   process.exit(1);
