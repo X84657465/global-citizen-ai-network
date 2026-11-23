@@ -64,7 +64,7 @@ test("does not classify malformed plan JSON without a valid fetched Issue identi
   const result = runScript(data);
   assert.notEqual(result.status, 0);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
-  assert.match(result.stderr, /valid fetched Issue identity/);
+  assert.match(result.stderr, /Task marker unavailable or scratch cleanup failed; failure remains system-scoped/);
 });
 
 test("does not classify malformed plan JSON without the Issue safety attestation", (t) => {
