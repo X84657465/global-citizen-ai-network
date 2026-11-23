@@ -437,3 +437,45 @@ This delta supersedes the PR #458 / #459 job-level states in the preceding refre
   - No terminal quality-gates result yet.
 - GPT5 operations documentation PR #445 has been refreshed on its own branch. New documentation commit: `5ff4f6cb70731245e05d8656a5b106700387781a`; current PR HEAD equals this commit, base remains main `f622c852...`, Draft remains true. No exact-head GitHub Actions run was returned for this commit at the time of this poll. Combined status shows only Vercel FAILURE `build-rate-limit`; this is not an Actions result.
 - No formal independent review was created by GPT5. No Draft was removed, no PR approved or merged, and no deployment or protected resource was changed.
+
+
+---
+
+## Live operations delta — 2026-11-23 (latest exact-head refresh)
+
+This section supersedes older job-state snapshots above where they conflict. All PR statuses below were refreshed against each PR's current exact HEAD in this poll.
+
+### Main
+
+- Main remains `f622c852346577d67aed0bde2922ade17044057c` (no newer main commit observed).
+- Exact-main push run [#45106600175](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45106600175), attempt 1: **COMPLETED / FAILURE**.
+- Jobs: metadata resolver SUCCESS; Windows quality gates FAILURE at `Verify CI trigger and Runner policy`; exact-SHA diagnostics SUCCESS; failure persistence SUCCESS; Supabase/PostgreSQL/RLS integration SKIPPED; Ollama/local integration SKIPPED; candidate-success/system-breaker reset SKIPPED.
+- Main policy suite: 42 passed / 1 failed. Failing assertion remains `tests/ci-trigger-policy.test.mjs:838`, caused by the source inspection interval including the legitimate scratch cleanup reference after the upload step. Issue #446 describes the narrow test correction; GPT5 did not edit Factory-owned code or workflow files.
+- Exact-main preflight run [#45109084561](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45109084561), attempt 1: **COMPLETED / FAILURE**. Windows self-hosted validation failed during offline candidate test; planning, dispatch and publication jobs were SKIPPED. This task-level preflight failure is not a separate proof of a system-wide outage.
+- Combined status: Vercel FAILURE due to `build-rate-limit`. The current exact-main workflow-run lookup returned 0 runs; the known exact-main run above is historical evidence for this unchanged SHA, not a fresh rerun.
+
+### Open PR exact-head snapshot (12 PRs)
+
+| PR | Current base SHA | Current HEAD SHA | Exact-head Actions | Draft | Mergeability / disposition |
+|---|---|---|---|---|---|
+| #459 | `f622c852` | `c52f49e9` | #45126318408 FAILURE | Yes | Do not ready; CI failure |
+| #445 | `f622c852` | `50faf623` | #45126964953 FAILURE | Yes | Documentation handoff; shared policy failure |
+| #458 | `f622c852` | `a4a3194c` | #45126296524 SUCCESS | No | Mergeable, but formal independent reviews = 0; BLOCKED |
+| #450 | `f622c852` | `a7c96e08` | #45117595636 FAILURE | Yes | Do not ready; CI failure |
+| #448 | `f622c852` | `d81a22fa` | #45112368774 FAILURE | Yes | Do not ready; CI failure |
+| #457 | `f622c852` | `bf64ecdd` | #45122214293 FAILURE | Yes | Do not ready; CI failure |
+| #442 | `df841a9a` | `75f9ea18` | #45108427275 SUCCESS | Yes | Separate legacy F branch; no independent approval |
+| #417 | `25d5ed51` | `0dd4a088` | #45056447505 FAILURE | No | mergeable=false; stale base/conflict |
+| #438 | `480f22e4` | `878a005c` | #45100493731 SUCCESS | Yes | mergeable=false; stale base/conflict |
+| #373 | `93e7ac35` | `cb90b213` | #45052753388 SUCCESS | No | mergeable=false; stale base/conflict |
+| #376 | `93e7ac35` | `d10e6dd6` | No runs | No | mergeable=false; NOT RUN; stale base/conflict |
+| #259 | `a1c1b58e` | `3330cd04` | #44949425719 SUCCESS | No | mergeable=false; stale base/conflict |
+
+All shortened SHAs above are prefixes of the exact values recorded in the contemporaneous GitHub PR metadata. A green run on a non-current base is not current-main acceptance. SKIPPED jobs are not counted as passes. PR #458's four required validation jobs (resolver, Windows quality gates, Ollama/local integration, Supabase/PostgreSQL/RLS integration) are SUCCESS, but no formal APPROVED review exists and no merge is authorized yet.
+
+### Governance and GPT5 disposition
+
+- Re-read current `PROJECT_COORDINATION.md` (blob `d3ee1881aa67861fc42a2b568b26020945b0c218`) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`). Current GPT5 scope remains global intelligence/operations support; the proposed charter does not expand write authority or module ownership.
+- PR #445 remains documentation-only and Draft. This refresh updates only its already-authorized evidence document; it does not modify Factory source, tests, workflow, Runner, database/RLS, secrets, permissions, branch protection, durable Factory state or deployment settings.
+- PR #458 still needs a separately authorized independent formal APPROVED review. GPT5 has not self-approved, removed Draft, merged, or bypassed branch protection.
+- Next: wait for authorized independent review on #458; after normal merge, refresh Main SHA and re-run the dependent exact-head checks on #459, #445, #450, #448 and #457. Reconcile stale-base PRs only with their actual owners.
