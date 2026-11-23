@@ -1184,7 +1184,7 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 
 - GPT1 維持 A–E／Factory P0 核心穩定與必要 A→B 介面。
 - GPT4 對 B Product MVP 負唯一產品 DRI，先收斂可操作的核心使用者旅程。
-- Factory 建置與 B MVP 並行；B 可先完成首頁、登入導引、工作區 UX、API／資料契約、測試 fixture 及已就緒介面整合。
+- **Factory 與 B MVP 並行。** Factory 建置與 B MVP 並行；B 可先完成首頁、登入導引、工作區 UX、API／資料契約、測試 fixture 及已就緒介面整合。
 - Factory 尚未提供的依賴明確標記 BLOCKED；不得停止所有不依賴該卡點的產品工作。
 - 不得把 Factory-first 解讀為 B 必須等待 A–P 全部完工；也不得把 MVP-first 解讀為可跳過身份驗證、RLS、成本、CI、Review 或正式環境核准。
 
