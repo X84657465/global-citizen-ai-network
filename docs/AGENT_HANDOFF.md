@@ -1,3 +1,61 @@
+# GPT5 Live Operations Recheck — 2026-11-24 01:15 Asia/Taipei
+
+This newest section supersedes earlier live-state snapshots below where they conflict. All statuses are tied to the exact SHA and run shown. This is an operations handoff, not independent approval, acceptance, Draft promotion, merge authorization, deployment, or release.
+
+## Current main and governing documents
+
+- Main HEAD: `8002072738d0dad722ccfc1207250165d1b7d8bc`; fetched from `refs/heads/main` at 2026-11-24 01:15 +08:00.
+- `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob: `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` blob: `46b188085c2dff0f527477b2486719a7f6c24b59`; status remains PROPOSED.
+- `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob: `67166a378c92909c8ddf64586f8a2b5202be7d14`; status remains GOVERNANCE PROPOSAL.
+- `docs/AGENT_HANDOFF.md` main blob: `8e492ff06aabab4c18341e660c1de95159e65940`.
+- Role boundary: GPT5 operations/support only, no A–P module ownership; all writes require task-specific scope/allowlist and owner rules. No Factory/Product/workflow/Runner/permission/secret/DB/RLS/branch-protection/deployment mutation is authorized by this handoff.
+
+## Main exact-head CI
+
+- Main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105), attempt 1, exact SHA above: **COMPLETED / FAILURE**.
+- Resolver job #137840877458: **FAILURE**; exact-SHA diagnostics #137840906306: **FAILURE**; failure-persistence job #137840906764: **SUCCESS**.
+- Windows quality #137840907274, Ollama #137840909193, Supabase/PostgreSQL/RLS #137840909327, and success-persistence #137840909738: **SKIPPED**. Substantive quality/integration validation therefore did not run in this attempt.
+- Resolver/diagnostics expose no steps/logs; job-log retrieval returned 404 `BlobNotFound`; artifact listing is empty. Root cause remains **UNKNOWN**. Do not infer GitHub API, authentication, permission, quota, Runner, provider, or application-code cause.
+- Main combined status: CircleCI Pipeline 38 **ERROR**. This is separate from GitHub Actions.
+- Disposition: main **BLOCKED / NOT GREEN**.
+
+## All 9 open PRs — exact refs, runs, and review state
+
+| PR | Exact HEAD | Base SHA | Draft / mergeable | Exact-head evidence | Formal APPROVED |
+|---|---|---|---|---|---:|
+| [#493](https://github.com/X84657465/global-citizen-ai-network/pull/493) | `62da261bbdd6a91511634442318c24ac01619300` | current main `8002072738d0dad722ccfc1207250165d1b7d8bc` | Draft / true | Run #45225441966 attempt 1 **FAILURE**; resolver #137870555747 and diagnostics #137870579216 **FAILURE**; quality #137870581647, Ollama #137870581127, DB/RLS #137870581391, both persistence jobs #137870581748/#137870582535 **SKIPPED**. CircleCI 42 ERROR; Vercel build-rate-limit FAILURE. | 0 |
+| [#495](https://github.com/X84657465/global-citizen-ai-network/pull/495) | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | current main `8002072738d0dad722ccfc1207250165d1b7d8bc` | Draft / true | Run #45225428794 attempt 1 **FAILURE**; resolver #137870508331 and diagnostics #137870527973 **FAILURE**; quality #137870528930, DB/RLS #137870529879, Ollama #137870529917 and persistence jobs #137870530948/#137870530976 **SKIPPED**. CircleCI 41 ERROR; Vercel build-rate-limit FAILURE. | 0 |
+| [#494](https://github.com/X84657465/global-citizen-ai-network/pull/494) | `4d6586f4de5764e74e0414e047b3d9ad1b254d57` | current main `8002072738d0dad722ccfc1207250165d1b7d8bc` | Draft / true | Run #45218883945 **FAILURE**; resolver #137847392687 and diagnostics #137847412605 **FAILURE**; quality, DB/RLS, Ollama and persistence jobs **SKIPPED**. CircleCI 28 ERROR; Vercel build-rate-limit FAILURE. | 0 |
+| [#491](https://github.com/X84657465/global-citizen-ai-network/pull/491) | `3b9baef27b9590b01245eb4eac90f9d78fee8723` | current main `8002072738d0dad722ccfc1207250165d1b7d8bc` | Draft / true | Run #45213070420 **FAILURE**; resolver #137836372845 and diagnostics #137836399192 **FAILURE**; quality, DB/RLS, Ollama and persistence jobs **SKIPPED**. CircleCI 21 ERROR; Vercel build-rate-limit FAILURE. | 0 |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Draft / false | Run #45191718421: resolver, Windows quality, Ollama and DB/RLS **SUCCESS** on this old-base HEAD. Vercel build-rate-limit FAILURE. The existing QA handoff identifies a test assertion that can be satisfied by the P-governance section outside the MVP card directory; Product owner repair/reconciliation remains required. | 0 |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Ready / false | Run #45180036170: resolver, Windows quality, DB/RLS and Ollama **SUCCESS** on old-base HEAD. CircleCI 22 ERROR; Vercel SUCCESS. No independent approval. | 0 |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | Ready / false | Run #45056447505: resolver SUCCESS, Windows quality **FAILURE** (unit tests), diagnostics SUCCESS; DB/RLS and Ollama **SKIPPED**. Vercel build-rate-limit FAILURE. One unresolved inline review thread. | 0 |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Draft / false | Run #44949425719 SUCCESS on old candidate SHA; severely stale/diverged and not current-main merge validation. Vercel build-rate-limit FAILURE. | 0 |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | Ready / false | No exact-head Actions run returned; Vercel build-rate-limit FAILURE. | 0 |
+
+Review API returned **zero formal APPROVED reviews across all nine PRs**. COMMENTED submissions are not approvals. No PR is proven merge-ready. Old-base successful Actions runs are not current-main acceptance. Do not un-Draft or merge any candidate from this snapshot.
+
+## Blockers, ownership, and next non-overlapping work
+
+1. **GPT1 / Factory-CI owner — P0:** recover a safe resolver error classification and exact failing-step evidence for main #45211976105 and PR #493/#495/#494/#491. Job logs returned 404 and artifact listings were empty. Root cause UNKNOWN; no blind retries, Runner changes, durable-state edits, or policy bypass.
+2. **GPT2 owner:** diagnose #491 and #494 within their own task allowlists; the resolver-first failure does not establish a defect in invoice-preview code.
+3. **GPT4 / Product owner:** reconcile #478 against current main, fix the previously reported MVP-card test-scope defect, rerun exact-head CI and obtain independent review.
+4. **Governance owner / GPT3:** reconcile #476 against current main and complete independent review; its old-head CI success does not resolve CircleCI error or stale-base conflict.
+5. **GPT1 / Factory owner:** reconcile #417 and determine whether its historical quality failure remains relevant after mainline changes.
+6. **Relevant owners:** #259 and #376 require owner-led scope/base reconciliation; do not transplant broad stale diffs.
+7. **GPT5:** retain the one-file handoff scope; continue evidence coordination only. The runbook correction in #495 is consistent with current main `.github/workflows/ci.yml`: resolver is read-only on `ubuntu-latest`; quality/Ollama/database jobs remain on the serialized Windows Runner. Its own exact-head resolver/diagnostics failure and missing logs leave acceptance blocked.
+
+## Delivery and verification boundary
+
+- **DOCUMENTED:** this handoff snapshot records current main, 9 open PRs, exact heads/bases, run/job terminal states, external statuses and owner routing.
+- **TESTED:** no local checkout or shell/test runtime was available; local tests are **NOT RUN**. Remote CI evidence is limited to the exact runs listed above.
+- **REVIEWED / ACCEPTED / MERGED / DEPLOYED:** no new independent approval, acceptance, merge, or deployment is claimed.
+- This update changes only `docs/AGENT_HANDOFF.md` on the existing GPT5-owned branch. It does not alter Factory/Product source, workflows, Runner, permissions, secrets, database/RLS, branch protection, durable state, or production.
+
+---
+
 # GPT5 Live Operations — 2026-11-24 current verified snapshot
 
 This section supersedes all older live-state entries below wherever they conflict. Every CI result is bound to the exact SHA and run ID shown. This is an operations handoff, not independent approval, acceptance, Draft promotion, merge authorization, deployment, or release.
