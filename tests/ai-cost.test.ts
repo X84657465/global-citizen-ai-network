@@ -233,7 +233,7 @@ test("invoice source references are deduplicated within provider namespaces", ()
     "provider,model,billing_period_start,billing_period_end,source_reference,currency,amount",
     "openai,gpt-test,2026-11-01,2026-11-30,shared-request-id,USD,1.25",
     "anthropic,claude-test,2026-11-01,2026-11-30,shared-request-id,USD,2.50",
-  ].join("\\n");
+  ].join("\n");
   const parsed = parseProviderInvoiceCsv(sharedReferenceCsv);
   const requests = [
     {
