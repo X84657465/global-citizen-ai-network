@@ -11,10 +11,8 @@ jobs:
     # Only one trusted, same-repository, non-task PR targeting main may
     # request system-health recovery after its source CI run has completed.
     # All other workflow_run events skip before queue acquisition.
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      cancel-in-progress: false
-      queue: max
+    # Recovery is a GitHub API/state operation; keep it off the Windows
+    # execution runner so Factory health recovery cannot queue behind workloads.
     if: >-
       github.event.workflow_run.path == '.github/workflows/ci.yml' &&
       github.event.workflow_run.conclusion == 'success' &&
@@ -28,7 +26,7 @@ jobs:
       github.event.workflow_run.pull_requests[0].head.ref == github.event.workflow_run.head_branch &&
       !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
       !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       actions: read
