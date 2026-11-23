@@ -108,7 +108,8 @@ const plannedPaths = new Set(
 );
 const patchablePaths = task.allowed_paths.filter((path) => plannedPaths.has(path.toLowerCase()));
 if (patchablePaths.length === 0) {
-  fail("The validated plan did not authorize any patch paths.", { taskScoped: true });
+  const error = new AgentPlanValidationError("The validated plan did not authorize any patch paths.");
+  fail(error.message, { taskScoped: error instanceof AgentPlanValidationError });
 }
 
 
@@ -207,8 +208,8 @@ for (const file of validatedPatch.files) {
   }
   mkdirSync(dirname(destinationPath), { recursive: true });
   const exists = existsSync(destinationPath);
-  if (file.operation === "add" && exists) fail("An add patch unexpectedly targets an existing scratch file.", { taskScoped: true });
-  if (file.operation === "modify" && !exists) fail("A modify patch target is missing from the scratch copy.", { taskScoped: true });
+  if (file.operation === "add" && exists) fail("An add patch unexpectedly targets an existing scratch file.");
+  if (file.operation === "modify" && !exists) fail("A modify patch target is missing from the scratch copy.");
   writeFileSync(destinationPath, file.content, "utf8");
 }
 
