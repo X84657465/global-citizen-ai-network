@@ -36,16 +36,23 @@ Operational consequences:
 - Pull-request CI can validate code without proving that the default-branch scheduler or state writer is operational.
 - Any migration of the durable state format requires exact-SHA regression evidence and a read-back proving schema version and preserved task/system history.
 
-## Candidate metadata resolver and Windows queue boundary
+## Candidate metadata resolver and Windows execution boundary
 
-The current mainline CI resolver `resolve-candidate` performs GitHub PR/Issue metadata verification and reads the Factory state Issue for authorized AI-task candidates. It is currently configured on the Windows self-hosted Runner and takes the same shared concurrency group as machine-dependent CI. This means metadata-only work can wait behind the Windows execution lane before the quality, Ollama and database jobs even become eligible.
+The current mainline `.github/workflows/ci.yml` runs the read-only `resolve-candidate` metadata job on `ubuntu-latest`. It resolves the exact PR head, validates the task marker and reads the Factory state Issue when needed. This job has read-only repository/issue/PR permissions and does not share the Windows self-hosted Runner concurrency group. Metadata resolution therefore does not need to wait for the Windows execution lane.
 
-The hosted separation experiment was attempted in [PR #243](https://github.com/X84657465/global-citizen-ai-network/pull/243) and closed without merge:
+The machine-dependent jobs remain on the Windows self-hosted Runner:
 
-- PR #243's exact-head run #44929303631 failed before recording any resolver steps; the job had no runner assignment and no retrievable log artifact. The available evidence does not establish the failure cause.
-- The PR was closed without merge. No downstream Windows job ran, so this did not validate the hosted resolver or unblock the Windows queue.
-- Keep the current resolver on the Windows self-hosted Runner until hosted-runner availability can be confirmed through an authorized minimal diagnostic and the usage/billing boundary is known.
-- Do not move candidate execution, privileged writes or state mutation to a hosted runner.
+- `quality` runs unit tests, type checks, lint, dependency audits and the production build.
+- `build` performs the bounded local Ollama execution checks.
+- `database` runs disposable Supabase/PostgreSQL migrations and RLS integration checks.
+- These jobs retain the shared `global-citizen-ai-network-self-hosted-runner` concurrency group with `cancel-in-progress: false` and `queue: max` where configured. Preserve this serialization for host-dependent execution and durable state writers.
+
+Operational boundaries:
+
+- Treat the hosted resolver as metadata-only. Do not move candidate code execution, privileged publication, or durable Factory state mutation to `ubuntu-latest`.
+- A successful resolver is not CI acceptance: quality, Ollama and database jobs must each complete successfully on the exact candidate SHA.
+- If the resolver fails, inspect its exact run/job logs and redacted diagnostic artifact before retrying. If logs or artifacts are unavailable, record the cause as unverified rather than inferring Runner failure.
+- A PENDING job with no job record is not proof of a healthy or unhealthy Windows Runner. Verify assignment and job-level evidence independently.
 
 ## Recovery queue scope and state-writer serialization
 
