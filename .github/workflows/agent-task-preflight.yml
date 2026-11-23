@@ -437,7 +437,7 @@ jobs:
           $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
           $workspaceMount = "type=bind,source=$env:GITHUB_WORKSPACE,target=/workspace,readonly"
           $testLog = Join-Path $env:RUNNER_TEMP "linux-agent-patch-to-scratch.log"
-          $testOutput = & docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 512m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,nosuid,size=128m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace $imageDigest node --test tests/agent-patch-to-scratch.test.mjs 2>&1
+          $testOutput = & docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 512m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,exec,nosuid,size=128m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace $imageDigest node --test tests/agent-patch-to-scratch.test.mjs 2>&1
           $testExitCode = $LASTEXITCODE
           $testOutput | ForEach-Object { Write-Host "$_" }
           $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
