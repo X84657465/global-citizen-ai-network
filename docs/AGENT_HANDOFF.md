@@ -19,7 +19,7 @@ This snapshot supersedes prior live-state snapshots below. Evidence is tied to t
 - Main push run [#45211976105](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45211976105), attempt 1, exact Main SHA above: **COMPLETED / FAILURE**.
 - Jobs: exact candidate resolver #137840877458 **FAILURE**; exact-SHA diagnostics #137840906306 **FAILURE**; failure persistence job #137840906764 **SUCCESS** but all candidate-specific persistence steps **SKIPPED**; Windows quality #137840907274 **SKIPPED**; Ollama #137840909193 **SKIPPED**; Supabase/PostgreSQL/RLS #137840909327 **SKIPPED**; success persistence #137840909738 **SKIPPED**.
 - Main combined status: CircleCI Pipeline 52 **ERROR**.
-- Main Recovery query returned 38 Recovery `workflow_run` events on this SHA; all are terminal **SKIPPED**. Latest returned: [#45229523807](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229523807), **SKIPPED**. This is no-progress recovery, not a pass.
+- Main Recovery query returned 39 Recovery `workflow_run` events on this SHA; all are terminal **SKIPPED**. Latest returned: [#45229523807](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45229523807), **SKIPPED**. This is no-progress recovery, not a pass.
 - Resolver/diagnostics root cause remains **UNKNOWN**: job step APIs return empty arrays and log artifacts return 404 `BlobNotFound`. Do not guess whether cause is credentials, quota, Runner, workflow or code.
 - Main disposition: **BLOCKED / NOT GREEN**. No substantive quality/integration gate passed in the Main push attempt.
 
