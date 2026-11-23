@@ -646,11 +646,20 @@ test("preflight captures and uploads both synthetic and real candidate offline-t
     assert.ok(section.includes("retention-days: 7"));
   }
 
-  for (const match of offlineSteps) {
+  for (const [index, match] of offlineSteps.entries()) {
     const next = preflight.indexOf("\n      - name:", match.index + match[0].length);
     const section = preflight.slice(match.index, next < 0 ? preflight.length : next);
-    assert.ok(section.includes("$testExitCode = $LASTEXITCODE"), "preserve the native Docker exit code");
+    const exitEvidence = index === 0
+      ? "$testExitCode = $LASTEXITCODE"
+      : "$startExitCode = $LASTEXITCODE";
+    assert.ok(section.includes(exitEvidence), "preserve the native Docker process exit evidence");
     assert.ok(section.includes("Out-File -LiteralPath $testLog"), "persist stdout and stderr before raising failure");
+
+    if (index === 1) {
+      assert.ok(section.includes("docker inspect --format '{{json .State}}'"), "inspect the candidate container after attached start");
+      assert.ok(section.includes("candidateContainerFailureScope(state)"), "classify the inspected process result with the shared fail-closed policy");
+      assert.ok(section.includes("$classificationExitCode"), "preserve classifier execution failure as system evidence");
+    }
   }
 });
 
