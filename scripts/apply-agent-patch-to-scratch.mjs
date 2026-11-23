@@ -66,17 +66,17 @@ const readJson = (path, label, { invalidJsonTaskScoped = false } = {}) => {
 };
 
 task = readJson("artifacts/agent-task.json", "Validated task bundle");
-const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan", { invalidJsonTaskScoped: true });
-const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal", { invalidJsonTaskScoped: true });
 
 if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false ||
     (task.issue && task.safety?.issue_content_is_untrusted_data !== true)) {
   fail("Only a validated, AI-disabled task bundle is accepted.");
 }
+
+const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan", { invalidJsonTaskScoped: true });
 if (planArtifact?.execution_mode !== "validated_plan_only" ||
     planArtifact?.ai_execution_enabled !== false ||
     planArtifact?.safety?.no_commands_or_model_code_executed !== true) {
-  fail("Only a validated read-only plan is accepted.");
+  fail("Only a validated read-only plan is accepted.", { taskScoped: true });
 }
 
 let validatedPlan;
@@ -90,6 +90,8 @@ try {
     taskScoped: error instanceof AgentPlanValidationError,
   });
 }
+
+const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal", { invalidJsonTaskScoped: true });
 
 const plannedPaths = new Set(
   validatedPlan.tasks
