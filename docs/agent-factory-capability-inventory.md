@@ -62,7 +62,7 @@ No merge, deployment, state mutation, lease override, breaker reset, or permissi
 
 ## 4. Cross-document consistency finding
 
-The mainline workflow currently defines the preflight cron as `3-59/5 * * * *` in `.github/workflows/agent-task-preflight.yml`. The mainline `docs/ai-agent-scheduler-operations.md` also records that exact expression. However, `docs/agent-factory-operations-runbook.md` describes the scheduler as `*/5 * * * *`. These are not identical schedules. Treat the checked-in workflow as the executable source of truth and reconcile the stale runbook wording in a separate, narrowly scoped documentation change after confirming the owner and desired schedule.
+The mainline workflow currently defines the preflight cron as `3-59/5 * * * *` in `.github/workflows/agent-task-preflight.yml`. The mainline `docs/ai-agent-scheduler-operations.md` also records that exact expression. However, `docs/agent-factory-operations-runbook.md` describes the scheduler as `*/5 * * * *`. These were not identical schedules. The runbook wording has now been corrected in this candidate branch to match the executable workflow expression and explicitly document its minute offsets. This is a documentation-only consistency repair; the workflow schedule itself was not changed.
 
 ## 5. Prioritized bottleneck queue
 
