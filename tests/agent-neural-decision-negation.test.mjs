@@ -36,6 +36,33 @@ test("negated high-risk prohibitions do not independently trigger positive-risk 
   assert.equal(result.decision, "approve_for_sandbox_validation");
 });
 
+test("affirmative reminder constructions retain positive high-impact intent", () => {
+  for (const title of [
+    "Please don't forget to deploy to production",
+    "Don't forget to rotate credentials",
+    "Never forget to change billing settings",
+    "Please remember to deploy to production",
+    "Do not forget to deploy to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("ordinary prohibitions remain non-positive-risk prose", () => {
+  for (const title of [
+    "Do not deploy to production",
+    "Never rotate credentials",
+    "Do not change billing settings",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+  }
+});
+
 test("positive actionable high-impact intent remains rejected", () => {
   for (const title of ["Deploy to production", "Change billing policy", "Rotate credentials"]) {
     const result = evaluateAgentDecision(withImplementerText(title), task);
