@@ -1986,3 +1986,40 @@ No open PR currently has a formal APPROVED review in the retrieved review record
 - PR #473 itself remains Draft / PENDING and has no independent formal review. Keep Draft; do not self-approve or merge.
 - While #117's Linux diagnostic path is unavailable, GPT5's independent safe task is to maintain evidence and owner handoff rather than repeat the failing run or alter GPT1-owned Factory code.
 
+---
+
+## GPT5 live operations delta — 2026-11-23 12:06 UTC
+
+This snapshot supersedes the 12:01 UTC observation above where newer live evidence differs. It does not represent acceptance, independent approval, or merge authorization.
+
+### Main / current CI
+- Main HEAD remains `4225a244407f7a323262c4d6e17b2749193d6476`.
+- Exact-main push run [#45166790416](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45166790416), attempt 1, remains **PENDING**. Unlike the earlier 0-job observation, its latest jobs endpoint now exposes one job: `Resolve exact candidate PR metadata` (#137679885993), **PENDING**. No substantive validation job has started.
+- Latest visible exact-main check-runs: 10 **SKIPPED**, 3 **PENDING**, 2 **FAILURE**. The failures are the System Health Recovery verification jobs [#45169659298](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45169659298) and [#45169371754](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45169371754); neither is a green mainline quality gate. One more breaker-verification check [#45170915511](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45170915511) is SKIPPED.
+- Combined commit status remains **FAILURE** from Vercel: `Deployment rate limited — retry in 24 hours`. Keep provider quota separate from GitHub Actions.
+- Main remains **NOT VERIFIED / BLOCKED**.
+
+### PR #473 — this GPT5 operations handoff
+- Exact HEAD: `59a0692ee19310216413706c6ac6d948f73b6922`; base SHA: `4225a244407f7a323262c4d6e17b2749193d6476`.
+- OPEN / Draft / mergeable=true. Exact-head run [#45170600989](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45170600989) is **PENDING**; its only job, metadata resolver #137679447649, is **PENDING**.
+- Formal review submissions: none. Keep Draft; do not self-approve or merge.
+
+### PR #472 / Issue #117 — updated exact-head CI state
+- PR HEAD remains `4008a39041d59efd1f728bdff7b4aceffc6c286c`; base remains current main `4225a244407f7a323262c4d6e17b2749193d6476`. PR is OPEN / Draft / mergeable=true.
+- Exact-head Preflight [#45167525335](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45167525335), latest attempt 3: **FAILURE** in Linux offline scratch fixture job #137675032090; six dependent jobs **SKIPPED**. Steps remain unavailable; log download returns 404 `BlobNotFound`; no artifacts. The failure is before observable test output, so Linux test assertion outcome/root cause remains **UNKNOWN**.
+- Exact-head standard CI [#45167525440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45167525440) has progressed from the earlier 0-job PENDING state: resolver job #137674545242 **SUCCESS**; Windows self-hosted quality-gates job #137678795052 **IN_PROGRESS** at Node.js setup. Unit tests, typecheck, lint and build have not yet run in the surfaced step list. Overall CI is **IN_PROGRESS**, not PASS.
+- The standard workflow's Windows job is the existing validation path; it must reach terminal state before disposition. Do not trigger another duplicate run while this job is active.
+- Issue #117 explicitly records GPT5 as delegated implementation support, with existing accountable DRI `X84657465`; delegation does not transfer Factory ownership or independent review. The only allowed paths remain `lib/agent-factory-policy.mjs`, `scripts/agent-factory-controller.mjs`, `scripts/prepare-agent-task.mjs`, `scripts/apply-agent-patch-to-scratch.mjs`, `tests/agent-factory-policy.test.mjs`, `tests/agent-patch-to-scratch.test.mjs`, and `.github/workflows/agent-task-preflight.yml`. PR #472 currently changes only the workflow and `tests/agent-patch-to-scratch.test.mjs`, both within that allowlist.
+- GPT5 may assist within this explicit Issue #117 delegation/allowlist, but may not alter unrelated Factory code, approve its own work, or replace GPT3's independent exact-head review.
+
+### Other open PRs — unchanged exact-head blockers
+- #417: HEAD `0dd4a08886a2aaf761d1c71db041fbcf84416c7b`; exact-head run #45056447505 **FAILURE** (Windows quality-gates job failure; dependent integration/persistence jobs skipped); no formal review; stale base and mergeable=false.
+- #376: HEAD `d10e6dd6d428d9ce35dbd14778e01c628f909742`; no exact-head Actions run found; only COMMENTED reviews; one unresolved release metadata/changelog thread; stale base and mergeable=false.
+- #373: HEAD `cb90b213d76f1e353c3bae39c9800cecf8a07274`; exact-head run #45052753388 **SUCCESS** for this SHA only; only COMMENTED reviews; stale base and mergeable=false.
+- #259: HEAD `3330cd04a77358cf0ff780940d09f938cab1dc3a`; exact-head run #44949425719 **SUCCESS** for this SHA only; COMMENTED findings remain; stale base and mergeable=false.
+- All six open PRs remain Draft; no formal APPROVED review was returned for the six current open PRs. Do not infer approval from COMMENTED review records or automated Codex receipts.
+
+### Work disposition
+- No new Factory source change was made in this delta. The delegated #117 code support is waiting on the already-running standard CI result; the Linux preflight's missing job diagnostics are an external evidence gap, not a basis for speculative code edits.
+- GPT5's independently closable task remains current-main/PR evidence maintenance and owner handoff. No Runner, Factory durable state, Secrets, permissions, database/RLS, branch protection, deployment configuration, or production data was changed.
+
