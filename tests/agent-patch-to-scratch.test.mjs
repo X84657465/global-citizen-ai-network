@@ -5,6 +5,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { candidateContainerFailureScope } from "../lib/agent-factory-policy.mjs";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
 const FIXTURE_COMMIT = "0123456789abcdef0123456789abcdef01234567";
@@ -234,4 +235,20 @@ test("only typed plan and patch validation errors may request task-scoped marker
   assert.match(source, /taskScoped:\s*error instanceof AgentPlanValidationError/);
   assert.match(source, /taskScoped:\s*error instanceof PatchValidationError/);
   assert.doesNotMatch(source, /invalidJsonTaskScoped|taskScoped:\s*true/);
+});
+
+
+test("classifies Docker OOM-killed and dead candidate containers as system failures", () => {
+  const healthyRuntimeFailure = {
+    Status: "exited",
+    Error: "",
+    ExitCode: 137,
+    OOMKilled: false,
+    Dead: false,
+  };
+
+  assert.equal(candidateContainerFailureScope(healthyRuntimeFailure), "task");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: true }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, Dead: true }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: true, Dead: true }), "system");
 });
