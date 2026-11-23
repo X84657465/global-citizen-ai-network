@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { parseProviderInvoiceCsv, previewProviderInvoiceReconciliation } from "@/lib/ai-cost-reconciliation.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -121,4 +122,69 @@ export async function GET() {
       currency: row.currency.trim(), total: Number(row.invoice_total), status: row.reconciliation_status, createdAt: row.created_at,
     })),
   }, { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
+}
+
+
+export async function POST(request: Request) {
+  const auth = await getAuthenticatedClient();
+  if (!auth) return NextResponse.json({ error: "請先登入。" }, { status: 401 });
+  const { data: profile, error: profileError } = await auth.supabase.from("profiles")
+    .select("role,account_status").eq("id", auth.user.id).maybeSingle();
+  if (profileError) return NextResponse.json({ error: "無法驗證管理員權限。" }, { status: 503 });
+  if (!profile || profile.role !== "admin" || profile.account_status !== "active") {
+    return NextResponse.json({ error: "只有有效管理員可以預覽供應商帳單。" }, { status: 403 });
+  }
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: "伺服器尚未設定管理端資料庫金鑰。" }, { status: 503 });
+  }
+
+  const declaredLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declaredLength) && declaredLength > 1_100_000) {
+    return NextResponse.json({ error: "上傳內容不可超過 1 MB。" }, { status: 413 });
+  }
+  let payload: { csv?: unknown; fxConversion?: unknown };
+  try {
+    const raw = await request.text();
+    if (new TextEncoder().encode(raw).byteLength > 1_100_000) {
+      return NextResponse.json({ error: "上傳內容不可超過 1 MB。" }, { status: 413 });
+    }
+    payload = JSON.parse(raw) as { csv?: unknown; fxConversion?: unknown };
+  } catch {
+    return NextResponse.json({ error: "請提供有效的 JSON 與 CSV 文字。" }, { status: 400 });
+  }
+  if (typeof payload.csv !== "string") {
+    return NextResponse.json({ error: "缺少 CSV 文字內容。" }, { status: 400 });
+  }
+
+  let parsed;
+  let preview;
+  try {
+    parsed = parseProviderInvoiceCsv(payload.csv);
+    const starts = parsed.rows.map((row) => row.billingPeriodStart).sort();
+    const ends = parsed.rows.map((row) => row.billingPeriodEnd).sort();
+    const startAt = starts[0] + "T00:00:00.000Z";
+    const endAt = ends[ends.length - 1] + "T23:59:59.999Z";
+    const admin = createAdminClient();
+    const { data: requests, error } = await admin.from("ai_requests")
+      .select("id,provider,model,provider_request_id,created_at,provider_billed_cost,provider_billed_currency")
+      .gte("created_at", startAt).lte("created_at", endAt)
+      .not("provider_request_id", "is", null)
+      .order("created_at", { ascending: true }).limit(5001);
+    if (error) return NextResponse.json({ error: "AI 請求證據讀取失敗，無法安全產生預覽。" }, { status: 503 });
+    if ((requests ?? []).length > 5000) {
+      return NextResponse.json({ error: "指定帳單期間涵蓋超過 5,000 筆請求；請縮小期間後重新預覽。" }, { status: 413 });
+    }
+    const fx = payload.fxConversion && typeof payload.fxConversion === "object"
+      ? payload.fxConversion as { fromCurrency?: string; toCurrency?: string; rate?: number; timestamp?: string }
+      : null;
+    preview = previewProviderInvoiceReconciliation(parsed, requests ?? [], fx);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "CSV 預覽失敗。";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+
+  return NextResponse.json(
+    { preview, note: "唯讀預覽；不會寫入帳本、保存發票、調整預算或執行付款。" },
+    { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
+  );
 }
