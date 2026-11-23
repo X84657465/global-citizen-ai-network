@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
 
-function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, invalidRunnerTemp = false } = {}) {
+function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, missingIssueSafety = false, invalidRunnerTemp = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
@@ -22,7 +22,8 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
   const allowedPath = "docs/generated-fixture.md";
   writeFileSync(join(artifacts, "agent-task.json"), JSON.stringify({
     schema_version: 1, mode: "preflight_only", ai_execution_enabled: false,
-    issue: { number: invalidTaskIdentity ? "117" : 117 }, safety: { issue_content_is_untrusted_data: true },
+    issue: { number: invalidTaskIdentity ? "117" : 117, title: "Factory failure isolation", url: "https://github.com/X84657465/global-citizen-ai-network/issues/117", author: "X84657465" },
+    safety: missingIssueSafety ? {} : { issue_content_is_untrusted_data: true },
     allowed_paths: [allowedPath],
   }));
   const planPath = join(artifacts, "agent-plan.json");
@@ -56,6 +57,22 @@ function runScript(data) {
     env: { ...process.env, GITHUB_ENV: data.githubEnv, RUNNER_TEMP: data.runnerTemp },
   });
 }
+
+test("does not classify malformed plan JSON without a valid fetched Issue identity", (t) => {
+  const data = fixture(t, { invalidPlanJson: true, invalidTaskIdentity: true });
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.match(result.stderr, /valid fetched Issue identity/);
+});
+
+test("does not classify malformed plan JSON without the Issue safety attestation", (t) => {
+  const data = fixture(t, { invalidPlanJson: true, missingIssueSafety: true });
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.match(result.stderr, /valid fetched Issue identity/);
+});
 
 test("records task scope for a typed patch validation rejection after cleanup", (t) => {
   const data = fixture(t, { invalidPatch: true });

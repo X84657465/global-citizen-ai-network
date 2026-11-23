@@ -31,7 +31,12 @@ const fail = (message, { taskScoped = false } = {}) => {
     }
   }
   const issueNumber = task?.issue?.number;
-  const validTaskIdentity = Number.isSafeInteger(issueNumber) && issueNumber >= 1 && issueNumber <= 99_999_999;
+  const validTaskIdentity = Number.isSafeInteger(issueNumber) && issueNumber >= 1 &&
+    issueNumber <= 99_999_999 &&
+    typeof task.issue.title === "string" && task.issue.title.trim().length > 0 &&
+    typeof task.issue.url === "string" && task.issue.url.trim().length > 0 &&
+    typeof task.issue.author === "string" && task.issue.author.trim().length > 0 &&
+    task.safety?.issue_content_is_untrusted_data === true;
   let markerWritten = false;
   if (taskScoped && cleanupSucceeded && validTaskIdentity &&
       typeof process.env.GITHUB_ENV === "string" && process.env.GITHUB_ENV.length > 0) {
@@ -66,10 +71,16 @@ const readJson = (path, label, { invalidJsonTaskScoped = false } = {}) => {
 };
 
 task = readJson("artifacts/agent-task.json", "Validated task bundle");
+const issueNumber = task?.issue?.number;
+const validTaskIssue = Number.isSafeInteger(issueNumber) &&
+  issueNumber >= 1 && issueNumber <= 99_999_999 &&
+  typeof task.issue.title === "string" && task.issue.title.trim().length > 0 &&
+  typeof task.issue.url === "string" && task.issue.url.trim().length > 0 &&
+  typeof task.issue.author === "string" && task.issue.author.trim().length > 0 &&
+  task.safety?.issue_content_is_untrusted_data === true;
 
-if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false ||
-    (task.issue && task.safety?.issue_content_is_untrusted_data !== true)) {
-  fail("Only a validated, AI-disabled task bundle is accepted.");
+if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false || !validTaskIssue) {
+  fail("Only a validated task bundle with a valid fetched Issue identity is accepted.");
 }
 
 const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan", { invalidJsonTaskScoped: true });
@@ -102,6 +113,8 @@ const patchablePaths = task.allowed_paths.filter((path) => plannedPaths.has(path
 if (patchablePaths.length === 0) {
   fail("The validated plan did not authorize any patch paths.", { taskScoped: true });
 }
+
+
 
 const scopedTask = { ...task, allowed_paths: patchablePaths };
 let trackedPaths;
