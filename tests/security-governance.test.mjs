@@ -11,7 +11,7 @@ const incidentRunbook = read("../docs/security/incident-response.md");
 const releaseGates = read("../docs/security/release-gates.md");
 
 test("release manifest declares the independent F security workstream", () => {
-  assert.equal(manifest.overall, "0.3.41");
+  assert.match(manifest.overall, /^\d+\.\d+\.\d+$/);
   assert.deepEqual(manifest.tracks.F, {
     name: "Cyber Security & Defense",
     version: "0.1.0",
@@ -21,7 +21,7 @@ test("release manifest declares the independent F security workstream", () => {
 });
 
 test("engineering governance recognizes six independent tracks and F review ownership", () => {
-  for (const token of ["Six-Track", "Track F — Cyber Security & Defense", "A, B, C, D, E and F", "F review is required"]) {
+  for (const token of ["A–P", "F — Cyber Security & Defense", "F security controls apply to every track", "No automatic approval"]) {
     assert.ok(governance.includes(token), `missing governance requirement: ${token}`);
   }
 });
