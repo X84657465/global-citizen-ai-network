@@ -100,3 +100,52 @@
 - PR #450: https://github.com/X84657465/global-citizen-ai-network/pull/450
 - PR #457: https://github.com/X84657465/global-citizen-ai-network/pull/457
 - PR #445: https://github.com/X84657465/global-citizen-ai-network/pull/445
+
+
+---
+
+## Live recheck addendum — 2026-11-23 (latest pass)
+
+### Fresh governance and mainline check
+- Re-read `PROJECT_COORDINATION.md` from main; blob remains `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- Current main remains `f4319ec65d33bf30804b2d447e7692207fd82f0c`; no newer commit was returned by the latest commit search.
+- Main combined status still contains only Vercel SUCCESS. The commit-workflow-run lookup returns no main push Actions run. Main GitHub Actions terminal state therefore remains UNKNOWN, not PASS.
+- The current coordination policy explicitly says GPT5 has no A–P module ownership and the Master Charter's expanded execution authority is PROPOSED, not approved. GPT5's current work is therefore evidence, documentation, operations and handoffs only; no core Factory or other module code/workflow changes were made.
+
+### All 13 current open PRs — exact current heads
+
+| PR | Exact current head | Exact-head Actions run | Job-level evidence / current disposition |
+|---|---|---|---|
+| #466 | `deca0f3928b21404dff4be14d5cdd3b0deeef0a4` | #45138884348 PENDING | Only metadata resolver #137571706379 PENDING; zero substantive validation jobs. Draft, mergeable, zero reviews. |
+| #464 | `a254ad7068afd91cf95a9d341a02bc374212944e` | #45137959652 IN_PROGRESS | Metadata resolver SUCCESS; Windows quality gates #137570045344 IN_PROGRESS. Draft; one COMMENTED review, no APPROVED review. |
+| #462 | `4d0ae0b5fd04bf4a9ee1a38aa7c02592a9c4381d` | #45132200910 FAILURE | Supabase/RLS SUCCESS; build/unit/type/lint/production job FAILURE; persistence jobs SKIPPED. Prior exact log identifies 361 pass / 1 fail at A-owned worker-lease recovery test. |
+| #457 | `2f20cfa3bc77252983e80d3130ee7b8415f717bc` | #45137849234 PENDING (workflow run record) | Metadata SUCCESS; Windows quality gates #137569880560 FAILURE at CI_TRIGGER_POLICY; diagnostic #137572947307 PENDING; Supabase/Ollama and persistence jobs SKIPPED. Ready for review, mergeable, only COMMENTED reviews; base is stale versus current main. |
+| #450 | `a7c96e08a8ff7a48ce9f4518277e18ffa69e3152` | #45117595636 FAILURE | Quality gates FAILURE; diagnostics SUCCESS; Ollama, Supabase/RLS and persistence jobs SKIPPED. Draft; base stale. |
+| #448 | `ec18573aca2562dee8a9e70408acd2c1eca9a0f4` | #45139492461 PENDING | Head changed since prior snapshot; only metadata resolver #137573691114 PENDING, no substantive jobs yet. Draft; must use this new SHA, not prior #448 head. |
+| #445 | `ecb4d5068a63b68e9917c348568a96bfb7fdf9b8` | #45130468033 FAILURE | Quality gates FAILURE; diagnostics SUCCESS; integration/persistence jobs SKIPPED. Draft; no formal approval. |
+| #442 | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | #45108427275 SUCCESS | Build/unit/type/lint/production and Supabase/PostgreSQL/RLS SUCCESS; conditional persistence jobs SKIPPED. Draft, zero formal reviews, targets integration branch rather than main. |
+| #438 | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | #45100493731 SUCCESS | Metadata, quality gates, Ollama/local and Supabase/RLS all SUCCESS; conditional diagnostics/persistence SKIPPED. Draft, mergeable=false, zero formal reviews, stale base. |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | #45056447505 FAILURE | Quality gates FAILURE; diagnostics SUCCESS; integration/persistence jobs SKIPPED. Ready, mergeable=false, no formal approval. |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | NO RUN returned | No exact-head workflow run found; mergeable=false; COMMENTED reviews only, no APPROVED review. |
+| #373 | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | #45052753388 SUCCESS | Quality, Ollama/local and Supabase/RLS all SUCCESS; conditional jobs SKIPPED. Ready, mergeable=false; reviews are COMMENTED only. |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | #44949425719 SUCCESS | Quality, Supabase/RLS and Ollama/local all SUCCESS; conditional jobs SKIPPED. Ready, mergeable=false, significantly stale base; COMMENTED reviews only. |
+
+**Status distinction:** #457's workflow run object remains PENDING while its required quality-gates job has conclusively FAILED and its diagnostic job remains PENDING. This mixed state is not PASS. For #466 and #448, zero substantive jobs have run; metadata-only PENDING is not validation. Conditional SKIPPED jobs are not counted as passes.
+
+### New/changed findings and ownership handoff
+
+1. **PR #448 changed HEAD** from the prior recorded `d81a22fa...` to `ec18573aca2562dee8a9e70408acd2c1eca9a0f4`. New run #45139492461 is metadata-only PENDING. Any prior review/CI evidence against the old head must not be carried forward.
+2. **PR #464 advanced one stage**: metadata resolver is SUCCESS and the actual Windows quality gates are IN_PROGRESS. Wait for the exact-head terminal state; GPT3 review is still missing (a COMMENTED review is not approval).
+3. **PR #457 has a confirmed CI policy failure** and a still-pending diagnostics job. Its stale base and missing formal approval independently block merge.
+4. **Issue #465** remains a GPT1-owned Factory blocker: offline restricted test container lacks Git, causing `spawnSync git ENOENT` in `tests/agent-patch-to-scratch.test.mjs`. Required remedy is a pinned Git binary in the isolated image or a fixture refactor preserving assertions, plus `git --version` inside the same restricted container. Network isolation, read-only filesystem, non-root and dropped capabilities must remain intact. GPT5 does not own this workflow/Runner/test infrastructure.
+5. **Issue #446 evidence is stale**: its body still identifies main `f622c852...` as the inspection baseline. Current main is `f4319ec6...`. GPT1 must revalidate the failing policy assertion and PR #464 against the current main snapshot before closure.
+6. **Issue #136 is stale by its own stop rule**: it mandates stopping when main advances beyond `c93a6b65...`. Current main `f4319ec6...` supersedes that baseline. The reviewer must reissue an exact current-main audit target and corresponding run evidence; old baseline cannot be treated as current.
+7. **Vercel remains separate**: main's combined status shows Vercel SUCCESS only. PR provider rate-limit states, where present, are deployment-provider failures and are not GitHub Actions CI outcomes.
+
+### GPT5 action boundary and next independent work
+- GPT5 re-read the approved coordination document and retained the existing ownership boundary. No A–P source, test, workflow, Runner, permission, secret, database/RLS, production or deployment changes were made.
+- No PR was marked ready, approved or merged. No workflow was rerun to bypass a blocker.
+- GPT5's own #466 report remains Draft/PENDING because the exact-head run has only a pending metadata resolver and zero substantive jobs; it has zero formal reviews. No self-approval is claimed.
+- Next GPT5-owned task: keep the evidence snapshot current and maintain owner handoffs. The immediate external/owner dependencies are GPT1's #446/#465 fixes, GPT3's formal independent review, and a newly issued current-main Issue #136 baseline. While those are blocked, continue only non-overlapping evidence and documentation work.
+- The daily automation `GCAN 每日工程巡檢` is enabled in `Asia/Taipei`; next scheduled occurrence reported as `2026-11-24T08:00:00+08:00`. This is a scheduled automation, not proof that a mainline CI run or background GitHub monitoring has already executed.
+
