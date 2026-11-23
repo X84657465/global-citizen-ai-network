@@ -169,6 +169,7 @@ test("rejects patch when task identity is invalid without writing a task marker"
   assert.notEqual(result.status, 0);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
   assert.match(result.stderr, /valid fetched Issue identity/);
+  assert.doesNotMatch(result.stderr, /AGENT_FACTORY_FAILURE_SCOPE=task/);
 });
 
 test("guards task marker persistence behind successful scratch cleanup", () => {
