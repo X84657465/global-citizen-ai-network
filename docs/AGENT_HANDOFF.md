@@ -3748,3 +3748,55 @@ This delta supersedes only the older ref/run/status values explicitly corrected 
 - GPT5 action this pass: documentation-only operations evidence appended to this GPT5-owned handoff file on PR #493's existing branch. No Factory/runtime code, other role's files, workflow, Runner, secrets, permissions, database/RLS, deployment, quota, Draft state, or merge state was changed. This handoff commit itself still requires exact-head CI and independent review; no validation is implied.
 
 **Disposition: MAIN CI FAILURE; 14 OPEN PRs; 11 Draft; 3 Ready; 0 merged; external CircleCI errors and Vercel rate-limit failures persist; exact failing main CI root cause UNKNOWN; 0 safe merges. Keep blocked items blocked and do not count PENDING, SKIPPED, NOT RUN, stale-base success, or COMMENTED review as acceptance.**
+
+
+
+---
+
+## GPT5 live exact-state audit — 2026-11-24 (latest session)
+
+This addendum supersedes older snapshots only for the exact refs and run IDs below. It is an Operations evidence refresh; it does not claim code validation or independent approval.
+
+### Main
+- Current `main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99` — commit `fix(ai-cost): extract testable invoice preview payload validation`.
+- Exact Main push run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163): COMPLETED / FAILURE.
+- Resolver job `137929482510`: FAILURE; Exact-SHA Diagnostics job `137929509999`: FAILURE.
+- Windows Runner quality `137929510006`, PostgreSQL/RLS `137929511495`, Ollama `137929513478`, and success persistence `137929512842`: SKIPPED. Failure persistence `137929510391`: SUCCESS only for recording the system failure.
+- Re-read job step endpoints for Resolver and Diagnostics: both returned empty arrays. Root cause remains UNKNOWN; no blind retry.
+- Main combined external statuses: Vercel FAILURE (deployment rate-limited; retry in 24 hours) and CircleCI Pipeline ERROR (no project configuration). Neither is a GitHub Actions pass.
+- Numerous System Health Recovery runs on this SHA are COMPLETED / SKIPPED; none is a successful recovery.
+
+### All 14 currently open PRs — exact current HEAD and CI evidence
+
+| PR | Exact HEAD | Base | State | Exact-head evidence observed |
+|---|---|---|---|---|
+| #503 | `549ea4c8b904afb0f9b96bdd020f2315fc3fb979` | current main | OPEN / Draft | Actions FAILURE; Linux offline fixture preflight FAILURE; Resolver/Diagnostics FAILURE; downstream SKIPPED; Vercel FAILURE; CircleCI ERROR |
+| #502 | `2de9dfc0a2959e51ba76da124a3cdfdac6e9fad0` | current main | OPEN / Draft | Actions FAILURE; Resolver/Diagnostics FAILURE; downstream SKIPPED; Vercel FAILURE; CircleCI ERROR |
+| #501 | `7c9364136a4ffd7f95f51ffde616a2a04cbbe84d` | current main | OPEN / Draft | Actions FAILURE; Resolver/Diagnostics FAILURE; downstream SKIPPED; Vercel FAILURE; CircleCI ERROR |
+| #500 | `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` | current main | OPEN / Draft | Actions FAILURE; Resolver/Diagnostics FAILURE; downstream SKIPPED; Vercel FAILURE; CircleCI ERROR |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | OPEN / Draft | Actions FAILURE; Resolver/Diagnostics FAILURE; downstream SKIPPED; Vercel FAILURE; CircleCI ERROR |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | OPEN / Draft | Actions FAILURE; Resolver/Diagnostics FAILURE; downstream SKIPPED; GPT3 COMMENT finding on negation false-negative; Vercel FAILURE; CircleCI ERROR |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | OPEN / Draft | Actions FAILURE; Resolver/Diagnostics FAILURE; downstream SKIPPED; Vercel FAILURE; CircleCI ERROR |
+| #495 | `ea12e53d5e341022175e4fcf7f7154c2f8a1afa1` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | OPEN / Draft | Actions FAILURE; Resolver/Diagnostics FAILURE; downstream SKIPPED; GPT3 COMMENT flags stale runbook evidence; Vercel FAILURE; CircleCI ERROR |
+| #493 | `4af3bad4decc8a01aa8ddc84f7893d47ed058072` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | OPEN / Draft | Actions run [#45283017251](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45283017251) FAILURE; Resolver `138072059365` and Diagnostics `138072076527` FAILURE; quality, RLS, Ollama and persistence SKIPPED; Vercel SUCCESS; CircleCI ERROR |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft | Windows quality, PostgreSQL/RLS, Ollama and resolver checks SUCCESS on this HEAD; Vercel FAILURE; CodeRabbit and GPT3 COMMENT findings; one unresolved inline thread; stale base blocks acceptance |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Ready | Only summary/CodeRabbit/Mergify checks in current check-run snapshot; no exact-head Actions run returned; CircleCI ERROR, Vercel SUCCESS; prior review findings remain comments |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | OPEN / Ready | Exact-head Actions quality gate FAILURE (739 tests, 738 pass, 1 fail in recorded review); downstream checks SKIPPED; Vercel FAILURE; unresolved review thread |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | OPEN / Ready | No exact-head Actions run/check suite returned (NOT RUN, not PASS); Vercel FAILURE; eight unresolved review threads |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | OPEN / Draft | Windows quality, PostgreSQL/RLS, Ollama and resolver checks SUCCESS on this HEAD; Vercel FAILURE; 7 unresolved review threads; stale base and integration comments block acceptance |
+
+- Inventory: 14 OPEN, 11 Draft, 3 Ready, 0 merged. Four PRs target current Main (#503/#502/#501/#500); ten use stale base SHAs.
+- Formal review submissions returned zero APPROVED across the 14 PRs. COMMENTED reviews, author comments, and CodeRabbit comments are not approvals.
+- Exact-head Actions SUCCESS on #478 and #259 does not make either PR mergeable: both bases are stale, and external/review blockers remain. #476 and #376 have no current exact-head Actions evidence. Do not infer PASS from absent checks or summary jobs.
+- #478 has one unresolved inline review thread; #417 one; #376 eight; #259 seven. #493 has zero unresolved inline threads.
+
+### GPT5-owned Operations work and disposition
+- Re-read the Main branch ref, all 14 open PR refs, current combined statuses, exact-head check runs, formal review submissions, and #493 review threads. Re-read Main workflow job outcomes and step endpoints.
+- GPT5 scope remains Global Intelligence & Operations support. This pass made no Factory/Product source, workflow, Runner, lease/state, database/RLS, secret, permission, branch-protection, deployment, or quota changes.
+- No Draft promotion or merge is justified. #493 remains Draft: its current exact-head Actions failed, its base is stale, and its three formal review submissions are COMMENTED by repository owner `X84657465`, not independent approval.
+- Shared Resolver/Diagnostics failures and unavailable step evidence route to GPT1/Factory. #503's offline fixture failure and overlap with #259's test fixture remain with GPT1/Factory and the canonical test-file owner; GPT5 does not take over those paths.
+- GPT2/GPT4 own their stale-base work and review-thread remediation on #495/#498/#496/#497/#478/#476/#417/#376/#259 as applicable. No cross-owner edits were made.
+- External CircleCI configuration error and Vercel rate limit require their respective provider/project owners. No paid spend, quota bypass, or blind retry.
+- The existing daily automation remains enabled at 19:00 Asia/Taipei per the current automation record. Its run history is empty and delivery is UNKNOWN; this manual audit is not represented as a scheduled execution.
+
+**Disposition: MAIN FAILURE; 14 OPEN PRs; 11 Draft; 3 Ready; 0 merged; 0 formal APPROVED; 10 stale-base PRs; no safe merge. FAILURE, SKIPPED, NOT RUN, external errors, stale-base success, and UNKNOWN remain non-green.**
