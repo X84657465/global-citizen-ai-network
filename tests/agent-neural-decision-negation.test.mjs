@@ -290,3 +290,28 @@ test("modal requests to inspect production evidence remain non-mutating", () => 
     assert.equal(result.decision, "approve_for_sandbox_validation", title);
   }
 });
+
+test("production migration commands must be the actionable clause head", () => {
+  for (const title of [
+    "Review how to run a production migration",
+    "Can you review how to run a production migration?",
+    "Check whether to perform a production migration",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+
+  for (const title of [
+    "Perform a production migration",
+    "Run a production migration",
+    "Can you run a production migration",
+    "Could you please perform migration to production",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
