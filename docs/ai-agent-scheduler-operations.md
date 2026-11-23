@@ -65,7 +65,7 @@ Some Windows isolation and virtualization capability checks are diagnostic. A hi
 
 The worker validates the Issue, builds a bounded task bundle, generates a read-only plan, proposes a patch, applies it only in a disposable scratch workspace, and runs candidate checks in restricted containers before publishing a **Draft PR**. Candidate dependency installation has a bounded retry. The task's AI execution flag remains disabled in the validated task bundle; the worker does not treat Issue text as executable instructions.
 
-The worker is not a production release system. It does not automatically merge PRs, deploy production, mutate production databases, or make live paid API calls. A Draft PR is only a candidate for later review.
+The worker is not a production release system. It does not automatically merge PRs, deploy production, mutate production databases, or make live paid API calls. A Draft PR is only a candidate for later review. Its generated plan, patch, and checks are advisory candidate evidence only; they do not approve the candidate, authorize a merge, or deploy production.
 
 ## 4. Retry, cooldown, and waiting behavior
 
