@@ -1899,3 +1899,46 @@ All six PRs remain Draft. No PR has a formal APPROVED review in the retrieved re
 - PR #472's Linux failure root cause remains UNKNOWN because steps/logs/artifacts are unavailable. GPT1 / Issue #117 DRI owns the Factory repair; GPT3 owns independent QA.
 - PR #376's unresolved review finding belongs to that PR's author/owner; GPT5 does not rewrite the product/governance proposal to clear it.
 - No A–P source, workflow, Runner, permissions, Secrets, DB/RLS, durable Factory state, or deployment settings were modified.
+
+
+---
+
+## GPT5 live delta — 2026-11-23 (latest revalidation after 11:50Z)
+
+This snapshot supersedes earlier exact-head/run claims in this handoff where they differ. It is a factual operations record, not CI acceptance, independent approval, or permission expansion.
+
+### Governance and execution boundary
+- Re-read from current main: `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob `67166a378c92909c8ddf64586f8a2b5202be7d14`; Master Charter blob `46b188085c2dff0f527477b2486719a7f6c24b59`.
+- Master Charter and Execution Operating System are both **PROPOSED**. The Neural Intelligence Mode explicitly retains GPT5 as Global Intelligence & Operations support, without A–P module ownership or independent QA authority. The proposed execution seat does not by itself grant additional tool, Runner, merge, deployment, Secrets, or repository permissions.
+- Continue only within existing authorized GPT5 documentation / operations scope; do not infer new code allowlists or override module owners.
+
+### Main exact SHA and CI
+- Main remains `4225a244407f7a323262c4d6e17b2749193d6476`.
+- Exact-main push run [#45166790416](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45166790416), attempt 1: **PENDING**, jobs endpoint returns **0 jobs**.
+- Seven exact-main checks named `Verify completed exact-head CI before resetting system breaker` are **SKIPPED**: #137672442456, #137672213382, #137670989562, #137670371693, #137670153858, #137668336109, #137665724688.
+- Main combined commit status: Vercel **FAILURE**; separate provider status, not Actions CI.
+- Main remains **NOT VERIFIED / BLOCKED**.
+
+### All open PRs — latest exact metadata
+| PR | Exact HEAD | Base | Draft / mergeability | Exact-head Actions | Review / blocker |
+|---|---|---|---|---|---|
+| [#473](https://github.com/X84657465/global-citizen-ai-network/pull/473) | `8c8e7960793ef70ac90056ed0ceabb48bfa660c2` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true / unstable | [#45168672213](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45168672213) PENDING; 0 jobs | No formal reviews; docs-only GPT5 handoff |
+| [#472](https://github.com/X84657465/global-citizen-ai-network/pull/472) | `4008a39041d59efd1f728bdff7b4aceffc6c286c` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Draft / mergeable=true / unstable | Preflight [#45167525335](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45167525335) FAILURE; standard CI [#45167525440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45167525440) PENDING / 0 jobs | No formal reviews; Linux fixture job #137671996815 FAILURE, six dependent jobs SKIPPED |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | OPEN / Draft / mergeable=false / dirty | [#44949425719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/44949425719) COMPLETED / SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | Two COMMENTED reviews; stale base / conflict; no APPROVED |
+| [#373](https://github.com/X84657465/global-citizen-ai-network/pull/373) | `cb90b213d76f1e353c3bae39c9800cecf8a07274` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | OPEN / Draft / mergeable=false / dirty | [#45052753388](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45052753388) COMPLETED / SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED | Nine COMMENTED reviews; stale base / conflict; no APPROVED |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | OPEN / Draft / mergeable=false / dirty | No exact-head Actions run found | Thirteen COMMENTED reviews; one unresolved P2 release metadata/changelog thread; stale base / conflict |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | OPEN / Draft / mergeable=false / dirty | [#45056447505](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45056447505) COMPLETED / FAILURE; quality gates FAILURE, diagnostic job SUCCESS, dependent integration jobs SKIPPED | No formal reviews; stale base / conflict |
+
+No PR has a formal APPROVED review in the retrieved review submissions. All six remain Draft. Historical CI successes on stale-base PRs are not current-main acceptance evidence.
+
+### Issue #117 / PR #472 failure evidence
+- Latest exact-head preflight #45167525335: Linux offline scratch fixture job #137671996815 **FAILURE**; six downstream jobs **SKIPPED**.
+- Steps endpoint returned an empty list; log retrieval returned 404 `BlobNotFound`; artifact inventory returned `total_count=0`.
+- Standard exact-head CI #45167525440 remains **PENDING / 0 jobs**.
+- Root cause remains **UNKNOWN** from retrievable GitHub evidence. GPT1 / Issue #117 DRI owns the Factory fix; GPT3 owns independent QA. Keep Draft and do not reset breakers or infer acceptance.
+
+### GPT5-owned work in this cycle
+- Existing PR #473 remains limited to `docs/AGENT_HANDOFF.md`; its current diff is one modified file, 117 additions, 0 deletions.
+- This update records the latest governance state, main CI, exact open-PR heads, job outcomes and review blockers.
+- No A–P source, Factory workflow, Runner registration, permissions, Secrets, database/RLS, durable Factory state, branch protection, or deployment configuration was changed.
+- PR #473 exact-head run is PENDING / 0 jobs and formal review count is zero. Keep Draft; no self-review, approval, or merge claimed.
