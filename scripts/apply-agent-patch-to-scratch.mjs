@@ -22,8 +22,10 @@ let task = null;
 
 const fail = (message, { taskScoped = false } = {}) => {
   let cleanupSucceeded = true;
-  if (scratchDir && existsSync(scratchDir)) {
+  if (scratchDir) {
     try {
+      // force=true makes an already-removed scratch directory a safe no-op;
+      // every other cleanup error must keep the failure system-scoped.
       rmSync(scratchDir, { recursive: true, force: true });
     } catch {
       cleanupSucceeded = false;
