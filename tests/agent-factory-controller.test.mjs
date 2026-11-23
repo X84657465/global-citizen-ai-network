@@ -1615,6 +1615,8 @@ test("system-health success requires verified exact-head CI evidence and resets 
 
   assert.equal(first.outputs.breaker_reset, true);
   assert.equal(first.outputs.duplicate, false);
+  assert.equal(first.outputs.health_head_sha, sha);
+  assert.equal(first.outputs.health_pr_head_sha, pullRequestHeadSha);
   assert.equal(first.outputs.cooldown_active, false);
   assert.equal(first.state.system.consecutive_failures, 0);
   assert.equal(first.state.system.cooldown_until, null);
@@ -1906,6 +1908,16 @@ test("system-health success fails closed for missing or mismatched health eviden
   await assert.rejects(
     controller.run({ AGENT_FACTORY_MODE: "system-health-success" }),
     /System health workflow run ID must be a positive integer/,
+  );
+  await assert.rejects(
+    controller.run({
+      AGENT_FACTORY_MODE: "system-health-success",
+      SYSTEM_HEALTH_RUN_ID: "555010",
+      SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_PULL_REQUEST_NUMBER: "168",
+      SYSTEM_HEALTH_HEAD_SHA: "e".repeat(40),
+    }),
+    /System health pull-request head SHA is required/,
   );
   await assert.rejects(
     controller.run({
