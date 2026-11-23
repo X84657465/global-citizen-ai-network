@@ -1,3 +1,46 @@
+# GPT5 Live Recheck — 2026-11-24 follow-up
+
+This entry supersedes the prior statement that the latest GPT5 support-branch commit had no CI run. A PR-triggered run has now been found and inspected.
+
+## Latest support branch exact-head result
+
+- Branch: `docs/gpt5-live-ops-checkpoint-8002072738-20261124`
+- Candidate commit: `66d466ccd15f678b36a25e5c6e1b318126eb534e`
+- Run [#45222729603](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45222729603), run number 4259: terminal **FAILURE**.
+- Resolver job #137861051322: FAILURE.
+- Diagnostics job #137861067686: FAILURE.
+- Windows quality #137861069132, Supabase/RLS #137861069472, Ollama #137861069709, success persistence #137861070068, failure persistence #137861070864: all **SKIPPED**.
+- Both failed jobs expose empty step summaries; both job-log downloads return 404 `BlobNotFound`; run artifact list is empty. Root cause remains **UNKNOWN**.
+- Branch compare remains 8 ahead / 0 behind current main, with only `docs/AGENT_HANDOFF.md` changed. Documentation-only branch does not validate itself when its own exact-head CI fails.
+
+## Current main and open PR inventory
+
+- Main HEAD remains `8002072738d0dad722ccfc1207250165d1b7d8bc`; recent commit search returned this as the newest repository commit.
+- Main push run #45211976105 remains terminal FAILURE: resolver and diagnostics FAILURE; failure persistence SUCCESS; Windows quality, Ollama, Supabase/RLS and success persistence SKIPPED. Logs are unavailable (404 BlobNotFound); artifacts list empty.
+- The open PR search still returns exactly #493, #478, #417, #494, #491, #476, #259 and #376. Prior exact-head evidence and review matrix remain the last available evidence for those candidates; no new exact-head green run or formal APPROVED review has been established in this recheck.
+- #493 now has a new exact-head run #45222729603, which failed as detailed above. Keep Draft.
+
+## Read-only source inspection — diagnostic boundaries
+
+At current main, `.github/workflows/ci.yml` invokes `scripts/resolve-agent-task-pr.mjs` in the resolver and runs the diagnostics capture step in a separate Ubuntu job. The resolver has explicit stages (`validate_environment`, `parse_event_metadata`, `fetch_pull_request`, optional task/state reads, output writing) and writes redacted stage/status/method/path/rate-limit evidence when it can. Its source path exists at main.
+
+The diagnostics job fetches run metadata, jobs and sibling runs through the GitHub API, then attempts to download the run-log archive. The PowerShell step catches a log-download exception and continues with an empty log string before writing diagnostics. The downstream report validates exact SHA and job metadata. The connector cannot expose the failed job's step summaries or log bytes for the observed runs, and there are no uploaded artifacts to inspect. Therefore source inspection narrows where evidence should be emitted but does **not** establish which runtime stage failed. Do not label this a token, permission, quota, endpoint, or code defect without the missing runtime evidence.
+
+The Factory state Issue #100 is machine-managed and contains durable cooldown/quarantine state; it must not be edited manually. No manual state reset or retry was performed.
+
+## Disposition / owner routing
+
+1. Factory/CI owner: recover the resolver and diagnostics step evidence for run #45222729603 and main run #45211976105. Required minimum: actual failed step name, redacted error/status, resolver stage, and diagnostics capture outcome. If GitHub continues to return 404 for logs/artifacts, escalate through the repository's authorized Actions/CI owner; do not infer root cause.
+2. Keep Factory global breaker and quarantined task state fail-closed; no blind rerun, state mutation, or bypass.
+3. GPT5 support branch is itself CI **FAILURE**; do not mark ready or merge. The handoff update is support documentation only, not an acceptance artifact.
+4. Continue B-line preparation only; no B production or deployment action is authorized by this evidence.
+
+No source/workflow/Runner/permission/secret/database/RLS changes, no state mutation, no rerun, no Draft transition, no approval, no merge, and no deployment were performed.
+
+**Status:** Main BLOCKED; GPT5 handoff candidate CI FAILURE; resolver/diagnostics evidence unavailable; all downstream quality/integration jobs SKIPPED. No green claim.
+
+---
+
 # GPT5 Live Operations Recheck — 2026-11-24 latest
 
 This section supersedes earlier branch-head and PR status snapshots in this file where they conflict. Exact evidence is based on the current GitHub read results.
