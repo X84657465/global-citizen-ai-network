@@ -179,7 +179,8 @@ test("Issue #116 may modify only its two exact existing test paths with control-
       [path],
     );
     assert.equal(accepted.files.length, 1);
-    assert.equal(accepted.safety.issue_116_test_path_exception_exact_and_approval_gated, true);
+    assert.equal(accepted.files[0].path, path);
+    assert.equal(accepted.files[0].operation, "modify");
   }
 
   const rejectedTasks = [
