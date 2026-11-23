@@ -91,3 +91,22 @@ test("keeps a patch-validation rejection system-scoped when the task marker cann
 function requireDirectoryEntries(path) {
   return readdirSync(path);
 }
+
+
+test("keeps missing tracked repository files system-scoped", (t) => {
+  const data = fixture(t);
+  rmSync(join(data.root, "README.md"));
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.match(result.stderr, /A tracked repository file is missing from the checkout/);
+});
+
+test("keeps scratch manifest write failures system-scoped", (t) => {
+  const data = fixture(t);
+  mkdirSync(join(data.root, "artifacts", "agent-scratch.json"));
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.match(result.stderr, /Unable to write the scratch workspace manifest/);
+});
