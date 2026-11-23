@@ -690,8 +690,8 @@ test("system breaker recovery waits for a completed successful exact-head CI wor
   assert.ok(recovery.includes("github.event.workflow_run.pull_requests[1] == null"),
     "ambiguous workflow_run PR associations must skip before acquiring the shared Runner queue");
   assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].base.ref == 'main'"));
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].base.repo.full_name == github.repository"));
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.repo.full_name == github.repository"));
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].base.repo.id == github.event.repository.id"));
+  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.repo.id == github.event.repository.id"));
   assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.ref == github.event.workflow_run.head_branch"));
   assert.ok(recovery.includes("!startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-')"),
     "AI task-candidate PRs must never be treated as independent system-health evidence");
