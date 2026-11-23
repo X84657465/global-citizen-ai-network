@@ -26,6 +26,7 @@ const panel: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", 
 function money(value: number, currency: string) { return new Intl.NumberFormat("zh-TW", { style: "currency", currency, maximumFractionDigits: 4 }).format(value); }
 const kindLabel: Record<string,string> = { actual_invoice: "已核實發票", estimated_allocation: "分攤估算", internal_estimate: "內部成本估算" };
 const statusLabel: Record<string,string> = { pending: "待對帳", matched: "已匹配", variance: "有差異", rejected: "已拒絕" };
+const invoiceDispositionLabel: Record<string, string> = { matched_actual: "已匹配", variance: "有差異", unmatched_estimate: "未匹配", duplicate_row: "重複列", duplicate_reference: "重複參照" };
 
 export default function AiCostDashboardClient() {
   const [data, setData] = useState<Data | null>(null);
@@ -33,13 +34,15 @@ export default function AiCostDashboardClient() {
   const [loading, setLoading] = useState(true);
   const [invoiceCsv, setInvoiceCsv] = useState("");
   const [invoicePreview, setInvoicePreview] = useState<InvoicePreview | null>(null);
+  const [seenInvoiceFingerprints, setSeenInvoiceFingerprints] = useState<string[]>([]);
+  const [invoiceDuplicateFile, setInvoiceDuplicateFile] = useState(false);
   const [invoiceError, setInvoiceError] = useState("");
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [fxCurrency, setFxCurrency] = useState("USD");
   const [fxRate, setFxRate] = useState("");
   const [fxTimestamp, setFxTimestamp] = useState("");
   async function loadInvoiceFile(file: File | undefined) {
-    setInvoiceError(""); setInvoicePreview(null);
+    setInvoiceError(""); setInvoicePreview(null); setInvoiceDuplicateFile(false);
     if (!file) return;
     if (file.size > 1_000_000) { setInvoiceError("CSV 檔案不可超過 1 MB。"); return; }
     if (!file.name.toLowerCase().endsWith(".csv")) { setInvoiceError("請選擇 .csv 檔案。"); return; }
@@ -47,12 +50,15 @@ export default function AiCostDashboardClient() {
     catch { setInvoiceError("無法讀取 CSV 檔案，請確認檔案編碼為 UTF-8。 "); }
   }
   async function previewInvoice() {
-    setInvoiceLoading(true); setInvoiceError(""); setInvoicePreview(null);
+    setInvoiceLoading(true); setInvoiceError(""); setInvoicePreview(null); setInvoiceDuplicateFile(false);
     try {
       const fx = fxRate.trim() && fxTimestamp.trim() ? { fromCurrency: fxCurrency, toCurrency: "TWD", rate: Number(fxRate), timestamp: fxTimestamp } : undefined;
       const response = await fetch("/api/admin/ai-costs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ csv: invoiceCsv, fxConversion: fx }) });
       const result = await response.json() as { preview?: InvoicePreview; error?: string };
       if (!response.ok || !result.preview) throw new Error(result.error ?? "帳單預覽失敗。");
+      const duplicateFile = seenInvoiceFingerprints.includes(result.preview.sourceFingerprint);
+      setInvoiceDuplicateFile(duplicateFile);
+      if (!duplicateFile) setSeenInvoiceFingerprints((previous) => [...previous, result.preview!.sourceFingerprint]);
       setInvoicePreview(result.preview);
     } catch (reason) { setInvoiceError(reason instanceof Error ? reason.message : "帳單預覽失敗。"); }
     finally { setInvoiceLoading(false); }
@@ -140,7 +146,7 @@ export default function AiCostDashboardClient() {
           <label style={{ display: "block", fontSize: 12, fontWeight: 700, margin: "12px 0 6px" }} htmlFor="invoice-csv-file">選擇 CSV 檔案</label>
           <input id="invoice-csv-file" type="file" accept=".csv,text/csv" onChange={(event) => void loadInvoiceFile(event.currentTarget.files?.[0])} style={{ display: "block", maxWidth: "100%", fontSize: 12 }} />
           <label style={{ display: "block", fontSize: 12, fontWeight: 700, margin: "12px 0 6px" }} htmlFor="invoice-csv-text">CSV 內容</label>
-          <textarea id="invoice-csv-text" value={invoiceCsv} onChange={(event) => { setInvoiceCsv(event.target.value); setInvoicePreview(null); setInvoiceError(""); }} rows={6} spellCheck={false} placeholder="provider,model,billing_period_start,billing_period_end,source_reference,currency,amount" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: 11, fontFamily: "ui-monospace,monospace" }} />
+          <textarea id="invoice-csv-text" value={invoiceCsv} onChange={(event) => { setInvoiceCsv(event.target.value); setInvoicePreview(null); setInvoiceDuplicateFile(false); setInvoiceError(""); }} rows={6} spellCheck={false} placeholder="provider,model,billing_period_start,billing_period_end,source_reference,currency,amount" style={{ width: "100%", boxSizing: "border-box", border: "1px solid #cbd5e1", borderRadius: 8, padding: 10, fontSize: 11, fontFamily: "ui-monospace,monospace" }} />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: 8, marginTop: 10 }}>
             <label style={{ fontSize: 11, color: "#64748b" }}>匯率來源幣別<select value={fxCurrency} onChange={(event) => setFxCurrency(event.target.value)} style={{ display: "block", width: "100%", padding: 8, border: "1px solid #cbd5e1", borderRadius: 7, marginTop: 4 }}>{["USD","EUR","GBP","JPY","CNY","HKD","TWD"].map(currency => <option key={currency} value={currency}>{currency}</option>)}</select></label>
             <label style={{ fontSize: 11, color: "#64748b" }}>換算 TWD 匯率（選填）<input type="number" min="0" step="any" value={fxRate} onChange={(event) => setFxRate(event.target.value)} placeholder="例如 32.5" style={{ display: "block", width: "100%", boxSizing: "border-box", padding: 8, border: "1px solid #cbd5e1", borderRadius: 7, marginTop: 4 }} /></label>
@@ -150,12 +156,13 @@ export default function AiCostDashboardClient() {
           <button type="button" onClick={() => void previewInvoice()} disabled={invoiceLoading || !invoiceCsv.trim() || (!!fxRate.trim() !== !!fxTimestamp.trim())} style={{ marginTop: 12, border: 0, borderRadius: 9, background: invoiceLoading || !invoiceCsv.trim() ? "#94a3b8" : "#315d91", color: "#fff", padding: "10px 16px", fontWeight: 700 }}>{invoiceLoading ? "產生預覽中…" : "產生唯讀預覽"}</button>
           {!!fxRate.trim() !== !!fxTimestamp.trim() && <p role="alert" style={{ color: "#9a6700", fontSize: 11 }}>匯率與時間必須同時填寫，或同時留白。</p>}
           {invoicePreview && <>
+            {invoiceDuplicateFile && <p role="alert" style={{ color: "#9a6700", background: "#fff7e6", padding: 10, borderRadius: 8, fontSize: 12 }}>重複來源檔案：本工作階段已預覽過相同 SHA-256 指紋。本次僅供再次檢視，不會作為新的匯入或新增筆數。</p>}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 8, marginTop: 14 }}>
               <div style={{ background: "#f4f7fb", padding: 10, borderRadius: 8 }}><span style={{ fontSize: 10, color: "#64748b" }}>資料列</span><strong style={{ display: "block", fontSize: 20 }}>{invoicePreview.rowCount}</strong></div>
-              {Object.entries(invoicePreview.counts).map(([key,value]) => <div key={key} style={{ background: "#f4f7fb", padding: 10, borderRadius: 8 }}><span style={{ fontSize: 10, color: "#64748b" }}>{({matched_actual:"已匹配實際帳單",variance:"金額／幣別差異",unmatched_estimate:"未匹配",duplicate_row:"重複資料列",duplicate_reference:"重複參照"})[key] ?? key}</span><strong style={{ display: "block", fontSize: 20 }}>{value}</strong></div>)}
+              {Object.entries(invoicePreview.counts).map(([key,value]) => <div key={key} style={{ background: "#f4f7fb", padding: 10, borderRadius: 8 }}><span style={{ fontSize: 10, color: "#64748b" }}>{invoiceDispositionLabel[key] ?? key}</span><strong style={{ display: "block", fontSize: 20 }}>{value}</strong></div>)}
             </div>
             <p style={{ color: "#8793a5", fontSize: 10, overflowWrap: "anywhere" }}>來源指紋 SHA-256：{invoicePreview.sourceFingerprint}</p>
-            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", minWidth: 760, borderCollapse: "collapse", fontSize: 10 }}><thead><tr style={{ textAlign: "left", color: "#64748b" }}>{["列","供應商／模型","參照","金額","判定","對應請求","TWD 換算"].map(label => <th key={label} style={{ padding: 8, borderBottom: "1px solid #e1e7ef" }}>{label}</th>)}</tr></thead><tbody>{invoicePreview.rows.map(row => <tr key={row.rowNumber} style={{ borderBottom: "1px solid #edf1f5" }}><td style={{ padding: 8 }}>{row.rowNumber}</td><td style={{ padding: 8 }}>{row.provider}<br />{row.model}</td><td style={{ padding: 8, overflowWrap: "anywhere" }}>{row.sourceReference}</td><td style={{ padding: 8 }}>{row.rawAmount} {row.currency}</td><td style={{ padding: 8 }}>{({matched_actual:"已匹配",variance:"有差異",unmatched_estimate:"未匹配",duplicate_row:"重複列",duplicate_reference:"重複參照"})[row.disposition] ?? row.disposition}</td><td style={{ padding: 8, overflowWrap: "anywhere" }}>{row.match?.requestId ?? "—"}</td><td style={{ padding: 8 }}>{row.normalizedTwd ? row.normalizedTwd.amount.toFixed(4) + " TWD" : "—"}</td></tr>)}</tbody></table></div>
+            <div style={{ overflowX: "auto" }}><table style={{ width: "100%", minWidth: 760, borderCollapse: "collapse", fontSize: 10 }}><thead><tr style={{ textAlign: "left", color: "#64748b" }}>{["列","供應商／模型","參照","金額","判定","對應請求","TWD 換算"].map(label => <th key={label} style={{ padding: 8, borderBottom: "1px solid #e1e7ef" }}>{label}</th>)}</tr></thead><tbody>{invoicePreview.rows.map(row => <tr key={row.rowNumber} style={{ borderBottom: "1px solid #edf1f5" }}><td style={{ padding: 8 }}>{row.rowNumber}</td><td style={{ padding: 8 }}>{row.provider}<br />{row.model}</td><td style={{ padding: 8, overflowWrap: "anywhere" }}>{row.sourceReference}</td><td style={{ padding: 8 }}>{row.rawAmount} {row.currency}</td><td style={{ padding: 8 }}>{invoiceDispositionLabel[row.disposition] ?? row.disposition}</td><td style={{ padding: 8, overflowWrap: "anywhere" }}>{row.match?.requestId ?? "—"}</td><td style={{ padding: 8 }}>{row.normalizedTwd ? row.normalizedTwd.amount.toFixed(4) + " TWD" : "—"}</td></tr>)}</tbody></table></div>
             <p style={{ color: "#8793a5", fontSize: 10 }}>預覽僅供人工核對，不是會計認列或付款授權。來源指紋不會被保存。</p>
           </>}
         </section>
