@@ -1208,3 +1208,23 @@ F13–F19 是 F12 生產級 Factory 完成獨立驗收後的擴展階段。F0–
 10. **本輪基準：** 本提案分支建立時 main SHA 為 `480f22e484dfa80d301f136cedd5504fbde41407`。合併前及每輪作業均須重新讀取最新 main 與 exact SHA；此快照不得當作未來的最新狀態。
 
 完整操作卡、狀態機、SLA、WIP 與工作週期見 [GCAN Execution Operating System](GCAN_EXECUTION_OPERATING_SYSTEM.md)。
+
+
+---
+
+## 24. P0 MVP First — 最短時間首版產品交付硬規則
+
+本節將「先交付可用產品、持續迭代」納入全域執行總綱，詳細範圍、五 GPT 交付物與驗收清單以 [GCAN MVP First Delivery Charter](GCAN_MVP_FIRST_DELIVERY_CHARTER.md) 為準。
+
+1. **首版優先：** A–P 不得無限期停留於架構建置、能力擴充、內部測試或文件堆疊；必須以最短可行時間交付可操作、可展示核心價值、可驗收的 MVP。
+2. **Factory 與產品並行：** GPT1 維持 Factory P0 核心；GPT4 同步主責 B Product MVP。Factory-first 保護核心資源，不得解讀為 B 必須等 Factory 全部完工；MVP-first 亦不得取消安全閘門。
+3. **核心旅程先行：** 首版優先完成註冊／登入、會員工作區、專案、對話及受控 AI Chat 端到端流程。AI 供應商尚未完成安全設定時，必須明確顯示未啟用且不得發出付費請求。
+4. **非必要功能延後：** 不阻擋核心旅程、安全、資料完整性或必要觀測的功能，全部列入 Post-MVP，不得阻塞首版。
+5. **明確期限：** MVP Issue kickoff 後以 5 個工作日完成首輪端到端驗收為目標；外部依賴阻塞時，必須拆出不依賴工作、記錄根因、期限影響及替代路徑。
+6. **五 GPT 閉環：** GPT1 主責 A–E／Factory；GPT2 主責 F–P 必要專業能力；GPT3 獨立架構／品質放行；GPT4 主責 B Product MVP；GPT5 負責全域營運、阻塞清理及明確授權範圍內的第二執行席。各角色單次主導一項任務；GPT3 不得審查自己開發成果。
+7. **精確證據：** MVP 驗收綁定同一 PR HEAD SHA，包含實際測試、Lint、TypeScript、Production Build、身份／資料隔離、AI 成本與冪等性檢查、必要 CI、Preview smoke test（若要求）及獨立審查。
+8. **失敗處置：** 同一根因連續失敗兩次停止盲目重試；阻塞超過一個工作週期，必須拆解、改派、升級或 DEFERRED。PENDING、0 Job、SKIPPED、CANCELLED、UNKNOWN、Rate Limit 均非 PASS。
+9. **權限不因文件擴張：** 本節及其附屬章程不自動授予 GitHub、Runner、資料庫、Secrets、部署或付費權限；GPT5 執行型支援仍受現行核准政策、task allowlist 及獨立 Reviewer 約束。
+10. **狀態分層：** IMPLEMENTED、TESTED、VERIFIED、ACCEPTED、RELEASED 必須逐級提供證據；不得以程式碼存在、文件完成或舊 SHA 的 CI 綠燈冒充最新版本驗收。
+
+**本輪程式基線（僅代表 main `4225a244407f7a323262c4d6e17b2749193d6476`）：** 已有登入閘門、會員工作區、專案／對話 API、AI Chat API、成本預檢及冪等請求恢復程式。這些程式存在不代表已部署、供應商已啟用或最新 SHA 已驗收；每輪均須重新核對。
