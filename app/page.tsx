@@ -53,7 +53,7 @@ export default function HomePage() {
   <a className={styles.skipLink} href="#main-content">跳至主要內容</a>
   <header className={styles.header}><div className={styles.headerInner}>
    <Link href="/" className={styles.brand} aria-label="Global Citizen AI Network 首頁"><span className={styles.brandMark}><Globe2 size={22}/></span><span className={styles.brandText}><strong>GLOBAL CITIZEN</strong><small>AI NETWORK</small></span></Link>
-   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#evolution-roadmap">進化路線</a><a href="#workstreams">A–O 工作線</a><a href="#execution-command">最高執行總綱</a><a href="#neural-intelligence">神經智慧體</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
+   <nav className={styles.nav} aria-label="主要導覽"><Link href="/workspace">AI 工作空間</Link><Link href="/factory">A 線工廠</Link><a href="#pillars">平台價值</a><a href="#evolution-roadmap">進化路線</a><a href="#workstreams">A–O 工作線</a><a href="#mvp-first">MVP 首版</a><a href="#execution-command">最高執行總綱</a><a href="#neural-intelligence">神經智慧體</a><a href="#learning-loop">協作閉環</a><a href="#p-governance">P 治理</a><a href="#documentation">技術文件</a></nav>
    <div className={styles.headerActions}><Link href="/login" className={styles.loginLink}>會員登入</Link><Link href="/workspace" className={styles.headerCta}>進入平台 <ArrowUpRight size={15}/></Link></div>
   </div></header>
   <main id="main-content" tabIndex={-1}>
@@ -68,6 +68,33 @@ export default function HomePage() {
     <div className={styles.heroVisual}><div className={styles.visualGlow}/><div className={styles.visualFrame}><Image src="/brand/gcan-hero.svg" alt="GCAN 全球 AI 協作網路品牌主視覺" width={1600} height={520} priority className={styles.heroImage} sizes="(max-width: 900px) 100vw, 52vw"/></div><div className={styles.visualTagTop}><span className={styles.liveDot}/> A–O 十五條工作線 + P 治理層</div><div className={styles.visualTagBottom}><Network size={15}/> INDEPENDENT · CONNECTED · REVIEWED</div></div>
    </div><div className={styles.heroBottom}><div className={styles.heroBottomLabel}>THE GCAN OPERATING MODEL</div><div className={styles.heroFact}><b>15 + 1</b><span>十五條工作線 + 一個治理層</span></div><div className={styles.heroFact}><b>01</b><span>共用證據協作閉環</span></div><div className={styles.heroFact}><b>A–O OWNED</b><span>十五條工作線獨立負責與版本管理</span></div><div className={styles.heroFact}><b>P GOVERNANCE</b><span>整合前審核、測試與治理</span></div></div></section>
    <section className={styles.stageBar} aria-label="專案狀態"><div className={styles.stageLabel}><span/> EARLY DEVELOPMENT / MVP · 早期建置與預覽階段 · A–P ARCHITECTURE · 平台 {releaseManifest.overall} · A 線 {releaseManifest.tracks.A.version} · B 產品 {releaseManifest.tracks.B.version}</div><p>目前為早期建置與預覽階段；任何功能成熟度、正式部署與驗收均須以同一精確 SHA 的 CI、Preview、接收線確認及必要人工審查為準。展示資料不代表正式營運或生產成熟度。</p><div className={styles.stageLinks}><a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">查看版本紀錄 <ArrowUpRight size={14}/></a><a href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">查看 CI 執行紀錄 <ArrowUpRight size={14}/></a></div></section>
+   <section className={styles.executionSection} id="mvp-first" aria-labelledby="mvp-first-title">
+    <div className={styles.executionHeader}>
+     <div className={styles.sectionEyebrow}>P0 DELIVERY · MVP FIRST · PARALLEL WITH FACTORY</div>
+     <h2 id="mvp-first-title">最短時間先交付：<em>第一版真正可操作的 GCAN 產品</em></h2>
+     <p>Factory 核心持續由 GPT1 優先穩定；B Product 由 GPT4 同步收斂首版。工廠未全數完工，不得成為安全產品工作無限期延後的理由；MVP 也不得跳過身份驗證、資料隔離、成本控制或獨立驗收。</p>
+    </div>
+    <div className={styles.executionStatus}>
+     <div><span>MVP CORE JOURNEY</span><b>登入 → 專案 → 對話 → AI</b><small>既有工作區與 API 作為首版基線</small></div>
+     <div><span>DELIVERY TARGET</span><b>Kickoff + 5 工作日</b><small>首輪端到端驗收目標；外部阻塞須列明解除條件</small></div>
+     <div><span>ACCEPTANCE STATE</span><b>尚待本輪驗收</b><small>程式存在不等於 CI、Preview 或正式服務已通過</small></div>
+    </div>
+    <div className={styles.executionLiveGrid}>
+     <article><span>01 · ACCOUNT</span><b>會員登入與身份閘門</b><p>未登入不可讀取會員工作區；資料存取依既有 Supabase 身份與權限邊界。</p><a href="/login">前往會員登入 <ArrowUpRight size={13}/></a></article>
+     <article><span>02 · WORKSPACE</span><b>專案與對話工作區</b><p>已存在專案、對話清單與訊息操作程式；首版須以實際帳號驗證完整流程。</p><a href="/workspace">開啟 AI 工作空間 <ArrowUpRight size={13}/></a></article>
+     <article><span>03 · AI SERVICE</span><b>受控 AI 對話</b><p>AI 供應商、伺服器端金鑰與預算尚未完成安全設定時，系統必須拒絕付費請求並明確提示。</p><a href="https://github.com/X84657465/global-citizen-ai-network/tree/main/app/api/ai/chat" target="_blank" rel="noreferrer">查看 AI Chat API <ArrowUpRight size={13}/></a></article>
+     <article><span>04 · DELIVERY</span><b>精確 SHA 驗收</b><p>測試、TypeScript、Lint、Build、必要 CI 與獨立 Review 必須對應同一候選 SHA；PENDING／0 Job／SKIPPED 都不是 PASS。</p><a href="https://github.com/X84657465/global-citizen-ai-network/actions" target="_blank" rel="noreferrer">查看 GitHub Actions <ArrowUpRight size={13}/></a></article>
+    </div>
+    <div className={styles.executionLiveHeading}><b>五 GPT 交付閉環</b><span>每個角色單次主導一項任務；權限仍以現行核准政策與工具設定為準</span></div>
+    <div className={styles.executionLiveGrid}>
+     <article><span>GPT1 · P0</span><b>Factory 首席工程</b><p>A–E／Factory 核心、執行閉環、必要 A→B 介面。</p></article>
+     <article><span>GPT2 · P2</span><b>專業能力工程</b><p>F–P 只處理直接阻擋 MVP／Factory 的必要安全、QA、觀測與整合能力。</p></article>
+     <article><span>GPT3 · QA</span><b>獨立架構與放行</b><p>依風險分級審查精確 SHA；不得審查自己開發的成果。</p></article>
+     <article><span>GPT4 · P1</span><b>B Product 負責人</b><p>首版範圍、使用者旅程、產品實作、驗收與 Post-MVP 排序。</p></article>
+     <article><span>GPT5 · OPS</span><b>營運總控與第二執行席</b><p>狀態／SHA、派工、阻塞清理與受明確授權的支援開發；不取得模組 owner 權。</p></article>
+    </div>
+    <div className={styles.stageLinks}><a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/docs/GCAN_MVP_FIRST_DELIVERY_CHARTER.md" target="_blank" rel="noreferrer">閱讀完整 MVP First 交付章程 <ArrowUpRight size={14}/></a><a href="https://github.com/X84657465/global-citizen-ai-network/blob/main/PROJECT_COORDINATION.md" target="_blank" rel="noreferrer">查看五 GPT 協調規範 <ArrowUpRight size={14}/></a></div>
+   </section>
    <section className={styles.executionSection} id="execution-command" aria-labelledby="execution-command-title">
     <div className={styles.executionHeader}>
      <div className={styles.sectionEyebrow}>GCAN EXECUTION COMMAND · FACTORY FIRST</div>
