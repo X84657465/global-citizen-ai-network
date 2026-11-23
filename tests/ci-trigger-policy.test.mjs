@@ -91,7 +91,7 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
-  const jobs = ["resolve-candidate", "quality", "build", "database", "circuit-breaker", "circuit-breaker-success", "ci-diagnostics"];
+  const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success", "ci-diagnostics"];
   for (const job of jobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
@@ -110,14 +110,14 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
   assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 });
 
-test("read-only PR metadata resolution uses the available shared Windows Runner", () => {
+test("read-only PR metadata resolution runs on hosted Linux without occupying the Windows Runner queue", () => {
   const { start, end } = findJobSection(workflow, "resolve-candidate");
   const resolverJob = workflow.slice(start, end);
-  assert.ok(resolverJob.includes("runs-on: [self-hosted, Windows, X64]"));
-  assert.ok(resolverJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
-  assert.ok(resolverJob.includes("queue: max"));
-  assert.ok(resolverJob.includes("cancel-in-progress: false"));
-  assert.equal(resolverJob.includes("shell: bash"), false);
+  assert.ok(resolverJob.includes("runs-on: ubuntu-latest"));
+  assert.equal(resolverJob.includes("group: global-citizen-ai-network-self-hosted-runner"), false);
+  assert.equal(resolverJob.includes("queue: max"), false);
+  assert.ok(resolverJob.includes("cancel-in-progress: false") === false);
+  assert.ok(resolverJob.includes("shell: bash"), "resolver command must override the workflow's Windows PowerShell default");
   assert.ok(resolverJob.includes("contents: read"));
   assert.ok(resolverJob.includes("issues: read"));
   assert.ok(resolverJob.includes("pull-requests: read"));
