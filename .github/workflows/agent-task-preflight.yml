@@ -6,6 +6,7 @@ on:
       - main
       - codex/ai-runner-foundation
       - feat/agent-factory-v2
+      - fix/117-linux-shim-escape-and-runner-proof-20261123
     paths:
       - "lib/agent-task-validation.mjs"
       - "lib/agent-patch-validation.mjs"
