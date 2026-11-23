@@ -14,11 +14,17 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { buildScratchPatchEvidence } from "../lib/agent-scratch-evidence.mjs";
-import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { validatePatchManifest, PatchValidationError } from "../lib/agent-patch-validation.mjs";
+import { AgentPlanValidationError } from "../lib/agent-plan-validation.mjs";
+import { writeTaskFailureScopeMarker } from "../lib/agent-task-failure-marker.mjs";
 
 let scratchDir;
+let task = null;
 
-const fail = (message) => {
+const fail = (message, { taskScoped = false } = {}) => {
+  if (taskScoped && !writeTaskFailureScopeMarker(task, process.env.GITHUB_ENV)) {
+    console.error("Task-scope marker unavailable; failure remains system-scoped.");
+  }
   if (scratchDir && existsSync(scratchDir)) {
     try {
       rmSync(scratchDir, { recursive: true, force: true });
@@ -38,7 +44,7 @@ const readJson = (path, label) => {
   }
 };
 
-const task = readJson("artifacts/agent-task.json", "Validated task bundle");
+task = readJson("artifacts/agent-task.json", "Validated task bundle");
 const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan");
 const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal");
 
@@ -59,7 +65,9 @@ try {
     task,
   );
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Plan revalidation failed.");
+  fail(error instanceof Error ? error.message : "Plan revalidation failed.", {
+    taskScoped: error instanceof AgentPlanValidationError,
+  });
 }
 
 const plannedPaths = new Set(
@@ -68,7 +76,9 @@ const plannedPaths = new Set(
     .flatMap((item) => item.allowed_paths.map((path) => String(path).toLowerCase())),
 );
 const patchablePaths = task.allowed_paths.filter((path) => plannedPaths.has(path.toLowerCase()));
-if (patchablePaths.length === 0) fail("The validated plan did not authorize any patch paths.");
+if (patchablePaths.length === 0) {
+  fail("The validated plan did not authorize any patch paths.", { taskScoped: true });
+}
 
 const scopedTask = { ...task, allowed_paths: patchablePaths };
 let trackedPaths;
@@ -89,7 +99,9 @@ try {
     trackedPaths,
   );
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Patch manifest revalidation failed.");
+  fail(error instanceof Error ? error.message : "Patch manifest revalidation failed.", {
+    taskScoped: error instanceof PatchValidationError,
+  });
 }
 
 const root = realpathSync(process.cwd());
