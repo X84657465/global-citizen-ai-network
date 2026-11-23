@@ -26,6 +26,8 @@ test("MVP-first charter defines a bounded scope, deadline, and exact-SHA accepta
   assert.match(charter, /成本預檢/);
   assert.match(charter, /資料隔離/);
   assert.match(charter, /Post-MVP/);
+  assert.match(charter, /A–P 全工作線都必須各自交付產品級 MVP/);
+  for (const track of "ABCDEFGHIJKLMNOP".split("")) assert.match(charter, new RegExp(`\\| ${track} \\|`));
 });
 
 test("README and homepage expose the MVP entry points and delivery status", () => {
