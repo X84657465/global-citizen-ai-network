@@ -815,15 +815,12 @@ jobs:
 
       - name: Classify known task-scoped failures before updating factory state
         if: failure()
-        env:
-          APPLY_SCRATCH_OUTCOME: ${{ steps.apply-scratch.outcome }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
-          if ($env:AGENT_FACTORY_FAILURE_SCOPE -eq "task" -or $env:APPLY_SCRATCH_OUTCOME -eq "failure") {
-            [System.IO.File]::AppendAllText($env:GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task`n", [System.Text.UTF8Encoding]::new($false))
-            Write-Host "Preserved or confirmed task-scoped validation failure."
+          if ($env:AGENT_FACTORY_FAILURE_SCOPE -eq "task") {
+            Write-Host "Preserved explicit task-scoped validation marker."
           } else {
-            Write-Host "No task-scoped failure was identified; defaulting to system-scoped."
+            Write-Host "No explicit task-scoped marker was identified; defaulting to system-scoped."
           }
 
       - name: Record failed task and activate cooldown after three consecutive failures
