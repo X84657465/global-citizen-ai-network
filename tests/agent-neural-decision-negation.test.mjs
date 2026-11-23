@@ -228,3 +228,23 @@ test("new mutating verbs remain suppressed by explicit prohibitions", () => {
     assert.equal(result.decision, "approve_for_sandbox_validation", title);
   }
 });
+
+test("underscore-delimited sensitive path terms remain fail-closed without matching author", () => {
+  const sensitivePath = "lib/billing_service.mjs";
+  const sensitiveTask = { allowed_paths: [sensitivePath] };
+  const result = evaluateAgentDecision(
+    withImplementerText("Document a harmless change", [], sensitivePath),
+    sensitiveTask,
+  );
+  assert.equal(result.signals.no_high_risk_scope, false);
+  assert.equal(result.evidence.high_risk_scope_detected, true);
+  assert.equal(result.decision, "reject_and_replan");
+
+  const authorTask = { allowed_paths: ["docs/author-guide.md"] };
+  const authorResult = evaluateAgentDecision(
+    withImplementerText("Author the documentation", [], "docs/author-guide.md"),
+    authorTask,
+  );
+  assert.equal(authorResult.signals.no_high_risk_scope, true);
+  assert.equal(authorResult.evidence.high_risk_scope_detected, false);
+});
