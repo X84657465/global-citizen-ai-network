@@ -2,7 +2,7 @@
 
 > **Owner：** GPT2 — F–P workstream owner  
 > **工作範圍：** F、G、H、I、J、K、L、M、N、O、P  
-> **文件狀態：** 已合併至 main；GPT2 的文件化與工作流程採納已有 repository evidence。此狀態不代表 runtime 已實作、其他 GPT 角色已採納或 GPT3 已獨立驗收。  
+> **文件狀態：** 本文件已由 PR #434 加入 main，但 main 版本仍標記為 Draft candidate。本 PR 僅校正文案與證據狀態，不代表工作流程已正式採納或獨立驗收。  
 > **建立基準：** main 10fabef703ee3865d208196f46ee71ddd1b7e149（2026-11-23）  
 > **任務：** Issue #384 — GPT2 adoption of Neural Intelligence Agent Mode  
 > **治理依據：** Repository 根目錄 PROJECT_COORDINATION.md、GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md、各 F–P 工作線文件及相關 Issue／PR 的最新有效紀錄。
@@ -148,8 +148,8 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 
 ## 6. 採納成熟度與目前狀態
 
-- **DOCUMENTED：YES。** PR #434 已合併至 main，merge commit `0aef1cee19abac9503052565856fcc25c47a085a`；本文件位於 `docs/gpt2/PROJECT_COORDINATION.md`，main blob `c832e876f14b49330ee9a579a9d01c15f00fb7cb`。
-- **ADOPTED（文件／工作流程）：YES。** GPT2 已在後續 F 工作中依六層閉環執行並留下可追溯證據：Issue #144／PR #442，候選 head `75f9ea18ca3ffc98878792958fad68cb10a5876a`，exact-head Actions run #45108427275 attempt 1 為 COMPLETED / SUCCESS；Build/unit/type/lint/production build 與 Supabase migrations/PostgreSQL/RLS 均 SUCCESS，credential-redaction regression step SUCCESS。兩個 conditional circuit-breaker jobs 為 SKIPPED，不計為通過。PR #442 仍為 Draft、formal reviews=[]，所以這是工作流程採納證據，不是獨立驗收或合併批准。
+- **DOCUMENTED：YES（文件存在）；內容狀態仍為 Draft candidate。** PR #434 已合併至 main，merge commit `0aef1cee19abac9503052565856fcc25c47a085a`；本文件位於 `docs/gpt2/PROJECT_COORDINATION.md`，main blob `c832e876f14b49330ee9a579a9d01c15f00fb7cb`。目前 main 上該 blob 的實際文字仍明確標記為「Draft candidate」，不能把檔案存在誤寫成採納已完成。
+- **WORKFLOW EXERCISE：OBSERVED；ADOPTED：NOT ACCEPTED。** Issue #144／PR #442 的候選 head `75f9ea18ca3ffc98878792958fad68cb10a5876a`，exact-head Actions run #45108427275 attempt 1 為 COMPLETED / SUCCESS；Build/unit/type/lint/production build、Supabase migrations/PostgreSQL/RLS 與 credential-redaction regression step 均 SUCCESS，兩個 conditional circuit-breaker jobs 為 SKIPPED。惟 PR #442 仍為 OPEN / Draft，正式 reviews 為 0，且其目標是 legacy F security branch，並非 main 整合。因此這只證明候選分支在該 SHA 的 CI 驗證結果，不證明工作流程已被 main 採納、獨立驗收或批准合併。
 - **IMPLEMENTED：NOT CLAIMED。** 不代表已部署持續運作的 neural runtime、背景監控或持久化自主能力；這些仍需獨立程式、部署、權限隔離、監控、測試與驗收證據。
 
 本文件建立時的 main 基準為 10fabef703ee3865d208196f46ee71ddd1b7e149。此為歷史快照；每次接手任務都必須重新讀取 main、Issue、PR、CI、review 與精確 SHA，不得沿用過期狀態。
