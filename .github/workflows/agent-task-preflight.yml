@@ -815,8 +815,6 @@ jobs:
 
       - name: Classify known task-scoped failures before updating factory state
         if: failure()
-        env:
-          APPLY_SCRATCH_OUTCOME: ${{ steps.apply-scratch.outcome }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           if ($env:AGENT_FACTORY_FAILURE_SCOPE -eq "task") {
