@@ -1685,7 +1685,7 @@ Issue #204 remains OPEN and unassigned. Its two-file allowlist and acceptance cr
 - **Issue #204（P0 neuro-symbolic risk gate）**：仍 OPEN、無 assignee；`factory-control-plane-approved` label 不等於 DRI 指派。最新 Issue 留言明確要求 GPT1 A–E scope confirmation，並要求 GPT5 不得自我指派／修改，直到專案負責人指定唯一 DRI 並確認 GPT5 Developer 身分。allowlist 僅 `lib/agent-neural-decision.mjs` 與 `tests/agent-neural-decision-negation.test.mjs`；必須先在實際 checkout 執行完整離線 `npm run test:unit`，通過後才可發 PR。
 - #204 的既有候選 branches 均已相對目前 main 過期：`gpt5/issue-204-modal-request-fix` HEAD `b1e34ffce2f2a8f988eef85e5a6679432c0daa6a`（14 ahead／140 behind）；`gpt5/issue-204-reminder-grammar-20261123` HEAD `bc05febb9edbf19fdd1a0c06da6b5391bf3ee683`（17 ahead／140 behind）。不得沿用舊 SHA 或直接開 PR。
 - 本次曾在舊候選 branch `fix/204-negation-scope-boundary-20261123` 做隔離探索，最新 HEAD `16d872a63e03e56fd7ff366f8dec0914c50e9bf8`，僅修改上述兩個 allowlist 路徑；相對目前 main 為 30 ahead／140 behind，**STALE／NOT FOR PR**。本地 matcher mirror 15/15 只驗證了所複製的規則片段，不是 Repository Node test，也不是完整 `npm run test:unit`；沒有建立 PR。此 branch 不可作為目前 main 的候選交付。
-- **Issue #117（P0 task/system failure separation）**：仍 OPEN、無 assignee。#422 exact-head CI 雖全綠，但沒有正式 APPROVED，base 落後且 mergeable=false；Issue 明確禁止 merge／deploy，不能以 CI 綠燈推定接受。
+- **Issue #117（P0 task/system failure separation）**：仍 OPEN；最新 Issue metadata 顯示 assignee 為 `X84657465`（先前無 assignee 的狀態已變更）。#422 exact-head CI 雖全綠，但沒有正式 APPROVED，base 落後且 mergeable=false；Issue 明確禁止 merge／deploy，不能以 CI 綠燈推定接受。
 - **Mainline 整合風險**：#431/#430/#433 已合併，但其 exact-head quality gate 失敗、整合 job skipped；須等待 main #45096472706 完成並檢查新 main 的必要工作，不能以 PR merged 代替驗收。
 - **治理風險**：Master Charter 仍 PROPOSED；GPT5 執行型開發權限未正式切換。PR #417 的失敗也未能建立任何權限授予。
 
@@ -1699,3 +1699,12 @@ Issue #204 remains OPEN and unassigned. Its two-file allowlist and acceptance cr
 - 已重新讀取 current main 的協調規範、Master Charter、Neural Intelligence Mode、handoff，並重新核對 main HEAD、CI、開啟 PR、merged PR、Issue #204/#117 與相關候選 branch。
 - 本輪只新增此營運 handoff 快照；沒有修改 main、Factory runtime、Issue #100、secrets、permissions、branch protection、資料庫／RLS 或正式環境。
 - 下一步：等待 main #45096472706 完成；由專案負責人／GPT1 明確處理 #204 唯一 DRI 與 scope confirmation；由 GPT3 對需要獨立驗收的 exact SHA 提供正式 review。任何未通過或未執行檢查仍維持 BLOCKED／PENDING／NOT RUN。
+
+
+### 7. 觀測更新（2026-11-23 09:xx Asia/Taipei）
+- 再次讀取 main 的 `PROJECT_COORDINATION.md`（blob `bfcfd20135e88a4126d63cf9d0790fb5ddd89aaa`）、`GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`（blob `02a49adf7a7ccdc7a813a25254266939a2aed533`）及 Master Charter（blob `8f8f06091466ba504088ae8577fb9b312ab4ba4f`）；Master Charter 仍為 PROPOSED。
+- main HEAD 仍為 `eecfc0515adc9f5eb821241ca69e6efd8de204b5`；CI #45096472706 仍 PENDING，System Health Recovery #45096478675 為 SKIPPED。不可將 SKIPPED 當成健康恢復成功。
+- Issue #204 仍 OPEN、無 assignee；最新留言仍要求 GPT1 A–E scope confirmation，並要求在完整離線 `npm run test:unit` 通過前不得發 PR。歷史候選仍過期。
+- Issue #117 最新 metadata 現為 assignee `X84657465`；此更新已回寫本 handoff，修正前一節的舊狀態。
+- PR #435 仍為 Draft，head `079129010cda4428998c8fc525370a38a7e765fa`，base `eecfc0515adc9f5eb821241ca69e6efd8de204b5`；PR metadata check 仍 PENDING，未取得完整 CI 結果。
+- 本次未執行程式碼測試，未修改 main 或任何 runtime／workflow／權限／資料庫／正式環境；只更新營運交接文件。任何後續合併仍須滿足正式 CI 與 GPT3 獨立審查。
