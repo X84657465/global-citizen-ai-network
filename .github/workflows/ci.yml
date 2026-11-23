@@ -685,10 +685,8 @@ jobs:
           retention-days: 90
 
   ci-diagnostics:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
+    # Diagnostics are GitHub API / artifact work only; never queue behind
+    # the scarce Windows/Ollama execution runner.
     name: Exact-SHA CI failure diagnostics and evidence
     needs: [resolve-candidate, quality, build, database]
     if: >-
@@ -697,11 +695,14 @@ jobs:
        needs.quality.result == 'failure' ||
        needs.build.result == 'failure' ||
        needs.database.result == 'failure')
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       actions: read
       contents: read
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
