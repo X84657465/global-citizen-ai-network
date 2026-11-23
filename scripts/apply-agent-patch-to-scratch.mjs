@@ -1,4 +1,5 @@
 import {
+  appendFileSync,
   copyFileSync,
   existsSync,
   lstatSync,
@@ -12,44 +13,89 @@ import {
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
-import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+import { AgentPlanValidationError, validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { buildScratchPatchEvidence } from "../lib/agent-scratch-evidence.mjs";
-import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
+import { validatePatchManifest, PatchValidationError } from "../lib/agent-patch-validation.mjs";
 
 let scratchDir;
+let task = null;
 
-const fail = (message) => {
-  if (scratchDir && existsSync(scratchDir)) {
+const fail = (message, { taskScoped = false } = {}) => {
+  let cleanupSucceeded = true;
+  if (scratchDir) {
     try {
+      // force=true makes an already-removed scratch directory a safe no-op;
+      // every other cleanup error must keep the failure system-scoped.
       rmSync(scratchDir, { recursive: true, force: true });
     } catch {
-      // Preserve the primary validation error.
+      cleanupSucceeded = false;
     }
+  }
+  const issueNumber = task?.issue?.number;
+  const validTaskIdentity = Number.isSafeInteger(issueNumber) && issueNumber >= 1 &&
+    issueNumber <= 99_999_999 &&
+    typeof task.issue.title === "string" && task.issue.title.trim().length > 0 &&
+    typeof task.issue.url === "string" && task.issue.url.trim().length > 0 &&
+    typeof task.issue.author === "string" && task.issue.author.trim().length > 0 &&
+    task.safety?.issue_content_is_untrusted_data === true;
+  let markerWritten = false;
+  if (taskScoped && cleanupSucceeded && validTaskIdentity &&
+      typeof process.env.GITHUB_ENV === "string" && process.env.GITHUB_ENV.length > 0) {
+    try {
+      appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
+      markerWritten = true;
+    } catch {
+      // Marker persistence failure must remain system-scoped.
+    }
+  }
+  if (taskScoped && !markerWritten) {
+    console.error("Task marker unavailable or scratch cleanup failed; failure remains system-scoped.");
   }
   console.error("Scratch patch validation failed: " + message);
   process.exit(1);
 };
 
-const readJson = (path, label) => {
+const readJson = (path, label, parseErrorScope = null) => {
+  let raw;
   try {
-    return JSON.parse(readFileSync(path, "utf8"));
+    raw = readFileSync(path, "utf8");
   } catch {
-    fail(label + " is missing or invalid JSON.");
+    fail(label + " is missing or unreadable.");
+  }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    if (parseErrorScope === "plan") {
+      const error = new AgentPlanValidationError(label + " contains invalid JSON.");
+      fail(error.message, { taskScoped: error instanceof AgentPlanValidationError });
+    }
+    if (parseErrorScope === "patch") {
+      const error = new PatchValidationError(label + " contains invalid JSON.");
+      fail(error.message, { taskScoped: error instanceof PatchValidationError });
+    }
+    fail(label + " contains invalid JSON.");
   }
 };
 
-const task = readJson("artifacts/agent-task.json", "Validated task bundle");
-const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan");
-const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal");
+task = readJson("artifacts/agent-task.json", "Validated task bundle");
+const issueNumber = task?.issue?.number;
+const validTaskIssue = Number.isSafeInteger(issueNumber) &&
+  issueNumber >= 1 && issueNumber <= 99_999_999 &&
+  typeof task.issue.title === "string" && task.issue.title.trim().length > 0 &&
+  typeof task.issue.url === "string" && task.issue.url.trim().length > 0 &&
+  typeof task.issue.author === "string" && task.issue.author.trim().length > 0 &&
+  task.safety?.issue_content_is_untrusted_data === true;
 
-if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false ||
-    (task.issue && task.safety?.issue_content_is_untrusted_data !== true)) {
-  fail("Only a validated, AI-disabled task bundle is accepted.");
+if (task?.mode !== "preflight_only" || task?.ai_execution_enabled !== false || !validTaskIssue) {
+  fail("Only a validated task bundle with a valid fetched Issue identity is accepted.");
 }
+
+const planArtifact = readJson("artifacts/agent-plan.json", "Validated plan", "plan");
 if (planArtifact?.execution_mode !== "validated_plan_only" ||
     planArtifact?.ai_execution_enabled !== false ||
     planArtifact?.safety?.no_commands_or_model_code_executed !== true) {
-  fail("Only a validated read-only plan is accepted.");
+  const error = new AgentPlanValidationError("Only a validated read-only plan is accepted.");
+  fail(error.message, { taskScoped: error instanceof AgentPlanValidationError });
 }
 
 let validatedPlan;
@@ -59,8 +105,12 @@ try {
     task,
   );
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Plan revalidation failed.");
+  fail(error instanceof Error ? error.message : "Plan revalidation failed.", {
+    taskScoped: error instanceof AgentPlanValidationError,
+  });
 }
+
+const patchCandidate = readJson("artifacts/agent-patch.json", "Validated patch proposal", "patch");
 
 const plannedPaths = new Set(
   validatedPlan.tasks
@@ -68,7 +118,12 @@ const plannedPaths = new Set(
     .flatMap((item) => item.allowed_paths.map((path) => String(path).toLowerCase())),
 );
 const patchablePaths = task.allowed_paths.filter((path) => plannedPaths.has(path.toLowerCase()));
-if (patchablePaths.length === 0) fail("The validated plan did not authorize any patch paths.");
+if (patchablePaths.length === 0) {
+  const error = new AgentPlanValidationError("The validated plan did not authorize any patch paths.");
+  fail(error.message, { taskScoped: error instanceof AgentPlanValidationError });
+}
+
+
 
 const scopedTask = { ...task, allowed_paths: patchablePaths };
 let trackedPaths;
@@ -89,7 +144,9 @@ try {
     trackedPaths,
   );
 } catch (error) {
-  fail(error instanceof Error ? error.message : "Patch manifest revalidation failed.");
+  fail(error instanceof Error ? error.message : "Patch manifest revalidation failed.", {
+    taskScoped: error instanceof PatchValidationError,
+  });
 }
 
 const root = realpathSync(process.cwd());
