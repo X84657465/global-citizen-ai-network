@@ -197,6 +197,15 @@ test("common write/create/set/apply/execute instructions remain high-risk", () =
     "The agent is setting billing limits",
     "The plan is applying production migration",
     "The agent will execute a production payout",
+    "The plan writes credentials to production",
+    "The agent wrote production credentials",
+    "The agent has written production credentials",
+    "The plan creates a production authentication user",
+    "The plan created a production authentication user",
+    "The plan applies production migration",
+    "The plan applied production migration",
+    "The plan executes a production payout",
+    "The plan executed a production payout",
   ]) {
     const result = evaluateAgentDecision(withImplementerText(title), task);
     assert.equal(result.signals.no_high_risk_scope, false, title);
