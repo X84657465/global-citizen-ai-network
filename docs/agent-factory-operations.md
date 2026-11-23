@@ -13,6 +13,10 @@ The scheduler workflow `.github/workflows/agent-task-preflight.yml` is part of t
 - Sibling workflows, arbitrary `.github` paths, case variants, traversal, symlinks, secrets, credentials, and protected roots remain prohibited.
 - The task must explicitly include the path in its own allowed-path list. The label does not expand that list.
 
+## Issue #116 regression-test write exception
+
+Issue #116 may modify only these two existing test files: `tests/agent-task-validation.test.mjs` and `tests/agent-patch-validation.test.mjs`. The exception is accepted only when the validated task is Issue #116, the `factory-control-plane-approved` label is present, and the exact path remains in the task's own allowlist. Every other existing test file remains immutable to task agents. Scratch application and publisher revalidation use the same patch validator, so the exception does not widen either stage independently.
+
 ## Required review and verification
 
 The exception enables a narrowly scoped future task; it does not approve a workflow change. Any actual workflow edit still requires isolated scratch application and tests, exact-head CI, a Draft PR, normal independent review, and existing branch protection. No change may weaken Runner permissions, secrets handling, production database settings, deployment behavior, auto-merge, or approval requirements under this exception.
