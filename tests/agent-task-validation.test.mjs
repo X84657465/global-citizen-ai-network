@@ -171,6 +171,42 @@ test("requires a human approval label before allowing factory control-plane path
 });
 
 
+
+test("allows only the exact existing scheduler workflow path when the control-plane label is present", () => {
+  const body = validIssue().body.replace("app/settings/page.tsx", ".github/workflows/agent-task-preflight.yml");
+  assert.throws(
+    () => validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network"),
+    /factory-control-plane-approved/,
+  );
+  const task = validateAndBuildTask(validIssue({
+    body,
+    labels: [{ name: "factory-control-plane-approved" }],
+  }), "X84657465/global-citizen-ai-network");
+  assert.deepEqual(task.allowed_paths, [".github/workflows/agent-task-preflight.yml", "tests/settings-page.test.ts"]);
+  assert.equal(task.control_plane_authorized, true);
+});
+
+test("rejects every non-exact scheduler workflow path, case variant, and traversal", () => {
+  for (const unsafePath of [
+    ".github/workflows/build.yml",
+    ".github/workflows/other.yml",
+    ".GITHUB/workflows/agent-task-preflight.yml",
+    ".github/Workflows/agent-task-preflight.yml",
+    ".github/workflows/AGENT-TASK-PREFLIGHT.yml",
+    ".github/workflows/../agent-task-preflight.yml",
+  ]) {
+    const body = validIssue().body.replace("app/settings/page.tsx", unsafePath);
+    assert.throws(
+      () => validateAndBuildTask(validIssue({
+        body,
+        labels: [{ name: "factory-control-plane-approved" }],
+      }), "X84657465/global-citizen-ai-network"),
+      TaskValidationError,
+      unsafePath,
+    );
+  }
+});
+
 test("section parsing ignores headings inside matching Markdown fences", () => {
   const body = [
     "## Goal",
