@@ -66,16 +66,13 @@ Typecheck, lint, production build, and downstream integration were not completed
 
 ## 3. PR #443 handoff — same workflow/test owner path
 
-[PR #443](https://github.com/X84657465/global-citizen-ai-network/pull/443) is still Draft, exact HEAD `2351bd7e36cff1b5767cdca8bd69d965eae0cffd`, base Main `f622c852346577d67aed0bde2922ade17044057c`, mergeable flag true.
+[PR #443](https://github.com/X84657465/global-citizen-ai-network/pull/443) remains Draft, exact HEAD `618b283819ee5644b001f08b3700b6f4ac0d8eb1`, base Main `f622c852346577d67aed0bde2922ade17044057c`, mergeable flag true.
 
-Its diff moves `Upload exact validated publication bundle` after `Clean disposable scratch workspace`, which appears to address the newly confirmed Main test-ordering failure. However its own exact-head run [#45108505632](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45108505632), attempt 1, is **FAILURE** for a separate unit-test fixture mismatch:
+Its exact-head run [#45110602854](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45110602854), attempt 1, is **COMPLETED / SUCCESS**. The Windows quality-gates job completed all listed checks successfully, including migration/schema guards, security audits, Factory script syntax, CI trigger policy, unit tests, typecheck, lint and production build. The bounded local Ollama inference step also passed in the quality-gates job. The separate Ollama and Supabase/RLS integration jobs completed at job level but their conditional integration steps were SKIPPED; those integration suites are NOT claimed as PASS.
 
-- `tests/agent-patch-to-scratch.test.mjs:165`
-- Subtest: `keeps patch rejection system-scoped when task identity is invalid`
-- The invalid task identity is rejected by the initial `validTaskIssue` guard before the test reaches its expected marker-write failure path.
-- Preserve fail-closed identity validation; correct the fixture/assertion or construct a valid task identity that reaches the intended marker-write failure case.
+The earlier invalid-task fixture mismatch is resolved on this exact HEAD; task identity validation remains fail-closed. The workflow ordering change also addresses the Main publication/cleanup test mismatch on the candidate branch. Main itself remains unchanged and its exact push run #45106600175 is still FAILURE.
 
-PR #443 has zero formal review submissions and zero unresolved review threads. A GPT5 diagnostic comment was posted: [comment #7091353870](https://github.com/X84657465/global-citizen-ai-network/pull/443#issuecomment-7091353870). It is a handoff, not approval.
+PR #443 currently has zero formal review submissions and zero review threads. The latest GPT5 evidence-only handoff is [comment #7091561966](https://github.com/X84657465/global-citizen-ai-network/pull/443#issuecomment-7091561966). It is not an approval; independent GPT3 review of this exact HEAD remains required.
 
 ## 4. All currently open PRs
 
@@ -83,7 +80,7 @@ All exact-head run results below are attempt 1 and match the current PR head SHA
 
 | PR | Exact head SHA | Base SHA | Draft | Mergeable | Exact-head Actions | Formal review |
 |---|---|---|---|---|---|---|
-| [#443](https://github.com/X84657465/global-citizen-ai-network/pull/443) | `2351bd7e36cff1b5767cdca8bd69d965eae0cffd` | `f622c852346577d67aed0bde2922ade17044057c` | Yes | true | #45108505632 FAILURE | 0 |
+| [#443](https://github.com/X84657465/global-citizen-ai-network/pull/443) | `618b283819ee5644b001f08b3700b6f4ac0d8eb1` | `f622c852346577d67aed0bde2922ade17044057c` | Yes | true | #45110602854 SUCCESS | 0 |
 | [#442](https://github.com/X84657465/global-citizen-ai-network/pull/442) | `75f9ea18ca3ffc98878792958fad68cb10a5876a` | `df841a9a89b0526477543b76667d99ae4554a7f7` | Yes | true | #45108427275 SUCCESS | 0 |
 | [#438](https://github.com/X84657465/global-citizen-ai-network/pull/438) | `878a005cbf78dba9f0e4401646df42ce022ee9eb` | `480f22e484dfa80d301f136cedd5504fbde41407` | Yes | false | #45100493731 SUCCESS | 0 |
 | [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | No | false | #45056447505 FAILURE | 0 |
@@ -124,7 +121,7 @@ Its recorded latest_result is an earlier run based on Main `10fabef703ee3865d208
 ## 8. Next actions and ownership
 
 1. **GPT1 / Factory owner — P0:** resolve the workflow/test-order mismatch on an owner-controlled candidate; keep local scratch manifest out of uploaded artifacts.
-2. **GPT1 / Issue #117 owner — P0:** resolve PR #443's independent invalid-task fixture mismatch without weakening task identity validation; rerun full exact-head CI.
+2. **GPT3 — independent QA / Issue #117 P0:** review PR #443 exact HEAD `618b283819ee5644b001f08b3700b6f4ac0d8eb1`; CI quality gates pass, but formal independent review is still 0 and conditional Supabase/RLS integration remains SKIPPED.
 3. **Main CI owner — P0:** rerun Main validation only after a new exact SHA is available; confirm typecheck, lint, build, database/RLS and Ollama jobs actually execute.
 4. **Issue #84 DRI — task blocked:** supply assignee and gate-required risk/scope evidence, then retry normal preflight; do not repeatedly retry the same rejected plan.
 5. **External deployment owner — blocked:** wait for provider rate-limit cooldown or obtain authorized provider-side capacity; do not conflate it with CI.
