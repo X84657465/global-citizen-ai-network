@@ -16,11 +16,11 @@ const validInput = () => ({
   packageVersion: "0.3.134",
   lockfileVersion: "0.3.134",
   lockfileRootVersion: "0.3.134",
-  readme: "**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` ·",
+  readme: "**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` · P 線 Governance `" + manifest.tracks.P.version + "` ·",
   governance: "**Repository release baseline: 0.3.134**",
   workstreams: "**Planning baseline:** repository release 0.3.134",
   changelog: "## 0.3.134 — 2026-11-22\n\n- P governance validator.",
-  pChangelog: "## P 0.1.3 — 2026-11-22\n\n- Enforce version contract.",
+  pChangelog: "## P " + manifest.tracks.P.version + " — 2026-11-22\n\n- Enforce version contract.",
   trackChangelogs: Object.fromEntries(WORKSTREAM_IDS.slice(5).map((id) => [
     id,
     `## ${manifest.tracks[id].version} — 2026-11-22\n`,
@@ -97,4 +97,105 @@ test("requires an independently versioned F–P changelog entry for every track,
     stale.trackChangelogs[id] = "## 0.0.9 — 2026-11-22\n";
     assert.ok(validateWorkstreamVersionContract(stale).errors.some((error) => error.includes(`Track ${id} changelog`)), id);
   }
+});
+
+
+test("requires the first/latest changelog entry to match the current version", () => {
+  const input = validInput();
+  input.changelog = "## 0.3.133 — 2026-11-22\n\n## 0.3.134 — 2026-11-22";
+  input.pChangelog = "## P 0.1.2 — 2026-11-22\n\n## P " + manifest.tracks.P.version + " — 2026-11-22";
+  const rootAndP = validateWorkstreamVersionContract(input).errors;
+  assert.ok(rootAndP.some((error) => error.includes("CHANGELOG.md")));
+  assert.ok(rootAndP.some((error) => error.includes("P workstream changelog")));
+  for (const id of WORKSTREAM_IDS.slice(5)) {
+    const stale = validInput();
+    stale.trackChangelogs[id] = "## 0.0.9 — 2026-11-22\n\n## " + manifest.tracks[id].version + " — 2026-11-22";
+    assert.ok(
+      validateWorkstreamVersionContract(stale).errors.some((error) => error.includes("Track " + id + " changelog")),
+      id,
+    );
+  }
+});
+
+test("rejects impossible calendar dates in current changelog headings", () => {
+  const input = validInput();
+  input.changelog = "## 0.3.134 — 2026-02-30";
+  input.pChangelog = "## P " + manifest.tracks.P.version + " — 2026-02-30";
+  input.trackChangelogs.F = "## 0.1.0 — 2026-02-30";
+  const errors = validateWorkstreamVersionContract(input).errors;
+  assert.ok(errors.some((error) => error.includes("CHANGELOG.md")));
+  assert.ok(errors.some((error) => error.includes("P workstream changelog")));
+  assert.ok(errors.some((error) => error.includes("Track F changelog")));
+});
+
+
+test("accepts a workstream-labelled latest entry after a descriptive title", () => {
+  const input = validInput();
+  input.trackChangelogs.K = "# K changelog\n\n## K 0.1.0 — 2026-11-22\n";
+  const result = validateWorkstreamVersionContract(input);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.errors, []);
+});
+
+
+test("rejects drift in the README P workstream version summary", () => {
+  const input = validInput();
+  input.readme = input.readme.replace("P 線 Governance `" + manifest.tracks.P.version + "`", "P 線 Governance `0.1.2`");
+  assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("README P workstream version")));
+});
+
+
+test("ignores Markdown fenced examples when finding the latest F–P changelog heading", () => {
+  const input = validInput();
+  input.trackChangelogs.F = [
+    "```md",
+    "## 0.0.9 — 2026-11-22",
+    "```",
+    "",
+    "## 0.1.0 — 2026-11-22",
+    "",
+    "- Current F release entry.",
+  ].join("\n");
+  const result = validateWorkstreamVersionContract(input);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.errors, []);
+});
+
+test("ignores tilde-fenced examples and still rejects a stale real latest heading", () => {
+  const input = validInput();
+  input.trackChangelogs.G = [
+    "~~~markdown",
+    "## 0.1.0 — 2026-11-22",
+    "~~~",
+    "",
+    "## 0.0.9 — 2026-11-22",
+  ].join("\n");
+  assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("Track G changelog")));
+});
+
+
+test("does not accept a latest heading hidden by an unterminated Markdown fence", () => {
+  const input = validInput();
+  input.trackChangelogs.F = [
+    "~~~markdown",
+    "## 0.1.0 — 2026-11-22",
+    "## 0.0.9 — 2026-11-22",
+  ].join("\n");
+  assert.ok(validateWorkstreamVersionContract(input).errors.some((error) => error.includes("Track F changelog")));
+});
+
+test("does not close a Markdown fence with a shorter delimiter or the wrong character", () => {
+  const input = validInput();
+  input.trackChangelogs.G = [
+    "````markdown",
+    "## 0.0.9 — 2026-11-22",
+    "```",
+    "~~~",
+    "## 0.0.8 — 2026-11-22",
+    "````",
+    "",
+    "## 0.1.0 — 2026-11-22",
+  ].join("\n");
+  assert.equal(validateWorkstreamVersionContract(input).valid, true);
+  assert.deepEqual(validateWorkstreamVersionContract(input).errors, []);
 });
