@@ -1,6 +1,6 @@
 # AI Task Scheduler Operations Runbook
 
-**Baseline inspected:** `main` at `f622c852346577d67aed0bde2922ade17044057c`  
+**Baseline inspected:** `main` at `f4319ec65d33bf30804b2d447e7692207fd82f0c`  
 **Scope:** repository-owner-operated AI task worker. This runbook describes the checked-in workflow; it does not promise that a self-hosted Runner is online.  
 **Sources of truth:** `.github/workflows/agent-task-preflight.yml`, `lib/agent-task-validation.mjs`, `scripts/select-agent-task.mjs`, `lib/agent-factory-state-machine.mjs`, and `scripts/agent-factory-v2-controller.mjs`.
 
