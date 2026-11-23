@@ -183,3 +183,39 @@ test("modal and infinitive mutating instructions remain high-risk", () => {
     assert.equal(result.decision, "reject_and_replan", title);
   }
 });
+
+
+test("common write/create/set/apply/execute instructions remain high-risk", () => {
+  for (const title of [
+    "Write credentials to production",
+    "Create a production authentication user",
+    "Set billing limits",
+    "Apply production migration",
+    "Execute a production payout",
+    "The agent is writing production credentials",
+    "The plan has created a production authentication user",
+    "The agent is setting billing limits",
+    "The plan is applying production migration",
+    "The agent will execute a production payout",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
+});
+
+test("new mutating verbs remain suppressed by explicit prohibitions", () => {
+  for (const title of [
+    "Do not write credentials to production",
+    "Do not create a production authentication user",
+    "Do not set billing limits",
+    "Do not apply production migration",
+    "Do not execute a production payout",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, true, title);
+    assert.equal(result.evidence.high_risk_scope_detected, false, title);
+    assert.equal(result.decision, "approve_for_sandbox_validation", title);
+  }
+});
