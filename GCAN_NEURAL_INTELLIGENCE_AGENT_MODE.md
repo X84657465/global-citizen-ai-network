@@ -661,3 +661,18 @@ F13–F19 是 F12 生產級 Factory 完成獨立驗收後的擴展階段。F0–
 6. **人類核准：** 合併、正式部署、付費資源、憑證／權限變更、正式資料寫入、外部承諾及不可逆操作依專案 owner 與政策明確核准；本路線圖本身不授權任何上述行為。
 7. **停止條件：** 安全／隱私事件、資料權利不明、身分或權限不符、成本超限、無法重現、測試／CI 失敗、審查缺席、回滾不可行或依賴未達標時，停止受影響工作包並回報 BLOCKED，列出解除條件。
 8. **Factory-first：** 所有能力先盤點既有元件，REUSE→EXTEND／REPAIR→（具 ADR 才）REPLACE；不得為了階段數量增加 GPT 席位、重複服務、模型、Runner 或付費資源。每一階段以真實任務閉環及量測證據驗收。
+
+
+---
+
+## 13. 五 GPT 執行責任與零空轉閉環（2026-11-23 提案）
+
+本節補足舊版神經智慧體模式的執行型角色責任。任務狀態、WIP、SLA、阻塞處置與 CI 閘門以 [GCAN Execution Operating System](docs/GCAN_EXECUTION_OPERATING_SYSTEM.md) 為準。
+
+- **GPT1 — Factory Chief Engineer：** A–E、Factory 核心、task state、Scheduler、lease/fencing、Runner、sandbox、preflight、retry/recovery、task/global breaker 隔離及 A→B Factory-side 介面。硬交付是可執行程式、regression tests、exact-SHA CI 與交接證據。
+- **GPT2 — Specialist Engineering Lead：** F–P；不平均擴張，優先做直接阻擋 A/B 的 F 安全、G Release/QA Gate、H 真實觀測，再補必要 K/P。硬交付是可執行 scanner、gate、monitor、adapter 或整合測試。
+- **GPT3 — Independent Architecture Director & QA：** 跨線架構、資料契約、安全與獨立驗收；依風險分級，結論綁定 exact HEAD SHA；不得審查自己主導的實作。
+- **GPT4 — B Product Lead：** B 產品方向、需求、UX、API／資料契約、Tenant、會員、工作空間、知識貢獻、產品 Roadmap 與驗收規格。A gate 未開時可準備契約與測試，不啟動未就緒 Runtime／正式資料操作。
+- **GPT5 — Global Engineering Operations & Second Execution Seat：** 全域技術研究、Issue/PR/CI/Runner 營運、任務拆解、阻塞排除、跨線整合，以及受授權、不與 owner 衝突的獨立程式／測試／修復任務。不得取得模組 owner 權或審查自己成果。
+
+**五角色不是五個必然常駐的背景程序。** 只有透過實際 Agent Runtime、排程器、事件觸發與持久化任務紀錄，才能宣稱角色已啟動或 SLA 已執行。無法觸發的角色應留下待接手 Issue／PR，不得虛構已派工。
