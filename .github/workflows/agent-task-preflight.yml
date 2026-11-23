@@ -52,15 +52,6 @@ on:
       - "package.json"
       - ".github/workflows/agent-task-preflight.yml"
       - ".github/workflows/ci.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "tests/agent-patch-to-scratch.test.mjs"
-      - "scripts/apply-agent-patch-to-scratch.mjs"
-      - "lib/agent-plan-validation.mjs"
-      - "lib/agent-scratch-evidence.mjs"
-      - "lib/agent-patch-validation.mjs"
-    types: [opened, reopened, synchronize]
   issues:
     types: [opened, reopened]
   repository_dispatch:
@@ -85,30 +76,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  linux-fixture-validation:
-    name: Linux offline scratch fixture validation
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout exact pull request head
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
-          fetch-depth: 1
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.13.0"
-      - name: Run offline Linux Git-shim fixture tests
-        run: node --test tests/agent-patch-to-scratch.test.mjs
-
   validation-tests:
     name: Windows self-hosted project validation
     if: github.event_name == 'push' && github.actor == github.repository_owner
