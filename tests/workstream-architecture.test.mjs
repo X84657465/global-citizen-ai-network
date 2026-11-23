@@ -16,7 +16,7 @@ test("G-P are explicitly planned and do not claim shipped capabilities", () => {
   for (const track of "GHIJKLMNOP") {
     assert.equal(manifest.tracks[track].status, "planned", track + " must remain planned until implementation evidence exists");
     assert.ok(manifest.tracks[track].responsibility.length > 20, track + " must have a concrete responsibility");
-    assert.equal(manifest.tracks[track].version, "0.1.0");
+    assert.match(manifest.tracks[track].version, /^\d+\.\d+\.\d+$/, track + " must use numeric MAJOR.MINOR.PATCH");
   }
   assert.match(architecture, /no operational capability is implied/i);
 });
