@@ -17,6 +17,8 @@ test("MVP-first policy is linked from the master charter and coordination entry 
   assert.match(master, /GCAN_MVP_FIRST_DELIVERY_CHARTER\.md/);
   assert.match(coordination, /## 22\. P0 MVP First/);
   assert.match(coordination, /Factory 與 B MVP 並行/);
+  assert.match(master, /A–P 全部 16 條工作線/);
+  assert.match(coordination, /A–P 全線產品級 MVP/);
 });
 
 test("MVP-first charter defines a bounded scope, deadline, and exact-SHA acceptance", () => {
