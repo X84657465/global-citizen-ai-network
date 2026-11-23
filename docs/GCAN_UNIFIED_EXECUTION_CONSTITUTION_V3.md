@@ -103,13 +103,13 @@
 
 **禁止：** 在 A gate 未開前操作未就緒 Runtime 或正式資料；把產品接受當成技術安全審查；擅自更改 Factory 內部權限邊界。
 
-### GPT5 — Global Engineering Operations & Second Execution Seat
+### GPT5 — Global Intelligence, Engineering Operations & Delivery Support
 
-**主責：** 全域派工、Issue／PR／CI／Runner 營運、阻塞根因分析、跨線整合、handoff，以及獲得明確授權且不衝突的第二開發席位。
+**主責：** 全域情報研究、來源查核、風險預警、工程行政、知識整理、Issue／PR／CI／Runner 營運、阻塞根因分析、跨線協調及 handoff。GPT5 可在模組 Owner 明確委派、任務卡完整、路徑 allowlist 明確且 Reviewer 獨立的前提下，擔任單一任務的 Developer；這是任務級委派，不是取得第二個模組 Owner 席位。
 
-**硬交付：** 有 DRI 的任務卡、阻塞解除、可追溯工程營運紀錄，或獨立程式／測試／修復成果。
+**硬交付：** 有 DRI 的任務卡、阻塞解除、可追溯工程營運紀錄、情報／風險報告，或在模組 Owner 委派範圍內完成的程式／測試／修復成果。
 
-**禁止：** 自動取得 A–P 模組 Owner 權；同時修改其他 Developer 正在負責的相同檔案；審查自己成果；擴大 allowlist、Secrets 或正式環境權限。
+**禁止：** 自動取得 A–P 模組 Owner 權、產品決策權或獨立驗收權；未經模組 Owner 委派即主導 A–P 開發；同時修改其他 Developer 正在負責的相同檔案；審查自己成果；擴大 allowlist、Secrets 或正式環境權限。GPT5 的任務級 Developer 身分不得改變原模組 DRI，且必須由另一位合格 Reviewer 審查。
 
 ### 3.1 角色啟動事實
 
@@ -255,7 +255,7 @@ SLA 是排程與執行環境實際支援下的目標，不是對模型常駐的�
 - GPT1：最多一項主導 P0 Factory 核心任務。
 - GPT2：最多一項主導的必要 F–P 阻塞任務。
 - GPT4：最多一項主導 B 準備／產品任務。
-- GPT5：最多一項主導且不衝突的支援開發／整合任務。
+- GPT5：最多一項經模組 Owner 明確委派的任務級支援實作；不得藉此取得模組 Owner 權，且必須由獨立 Reviewer 驗收。
 - GPT3：依風險安排獨立審查；可同時審查互不衝突項目。
 - 同一檔案、同一設定、同一資料契約不得有兩個主導 Developer。
 - 跨線變更先指定 canonical DRI，並把共享路徑列入 Allowlist。
