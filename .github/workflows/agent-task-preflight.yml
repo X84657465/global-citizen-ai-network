@@ -36,6 +36,7 @@ on:
       - "scripts/generate-agent-plan.mjs"
       - "scripts/generate-agent-patch.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
+      - "tests/agent-patch-to-scratch.test.mjs"
       - "scripts/publish-agent-patch.mjs"
       - "tests/agent-task-validation.test.mjs"
       - "tests/agent-patch-validation.test.mjs"
@@ -429,6 +430,28 @@ jobs:
           }
           Remove-Item $outputDir -Recurse -Force
           Write-Host "PASS: host repository remained unchanged; output stayed in isolated scratch directory"
+
+      - name: Run Linux scratch fixture suite inside pinned container
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $imageDigest = "node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a"
+          $workspaceMount = "type=bind,source=$env:GITHUB_WORKSPACE,target=/workspace,readonly"
+          $testLog = Join-Path $env:RUNNER_TEMP "linux-agent-patch-to-scratch.log"
+          $testOutput = & docker run --rm --pull never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 512m --cpus 1 --user 1000:1000 --tmpfs /tmp:rw,nosuid,size=128m,uid=1000,gid=1000 --mount $workspaceMount --workdir /workspace $imageDigest node --test tests/agent-patch-to-scratch.test.mjs 2>&1
+          $testExitCode = $LASTEXITCODE
+          $testOutput | ForEach-Object { Write-Host "$_" }
+          $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
+          if ($testExitCode -ne 0) { throw "Linux scratch fixture suite failed in pinned container (exit $testExitCode)." }
+          Write-Host "PASS: Linux scratch fixture suite ran in the pinned offline container."
+
+      - name: Preserve Linux scratch fixture diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-scratch-fixture-${{ github.run_id }}
+          path: ${{ runner.temp }}/linux-agent-patch-to-scratch.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Transition task to sandbox testing
         if: steps.reserve-task.outcome == 'success'
