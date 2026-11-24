@@ -375,3 +375,10 @@ test("candidate container classification requires Docker start exit to match ins
   assert.equal(candidateContainerFailureScope(clean, "0"), "system");
 });
 
+
+
+test("candidate container classification reads Docker start exit evidence from the state default parameter", () => {
+  const clean = { Status: "exited", Error: "", ExitCode: 0, OOMKilled: false, Dead: false };
+  assert.equal(candidateContainerFailureScope({ ...clean, DockerStartExitCode: 0 }), "none");
+  assert.equal(candidateContainerFailureScope({ ...clean, DockerStartExitCode: 1 }), "system");
+});
