@@ -205,7 +205,7 @@ test("preserves independent unavailable status for each diagnostics source", () 
 test("workflow retains fallback evidence and uploads diagnostics even after failure", () => {
   const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
   assert.match(workflow, /Initialize fallback CI evidence before checkout/);
-  assert.match(workflow, /CI_CAPTURE_STATUS_JSON: \\$\{\{ runner\.temp \/ci-capture-status\.json \}\}/);
+  assert.ok(workflow.includes("CI_CAPTURE_STATUS_JSON: ${{ runner.temp }}/ci-capture-status.json"));
   assert.match(workflow, /- name: Upload redacted CI failure evidence\s+if: always\(\)/);
   assert.match(workflow, /if-no-files-found: error/);
 });
