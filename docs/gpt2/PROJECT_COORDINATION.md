@@ -198,3 +198,16 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **目前 main 的 CI／外部檢查（本次巡檢）：** GitHub main CI run `45366164752` 對此 SHA 結束 SUCCESS，Resolver、Windows quality、Supabase/PostgreSQL/RLS、Ollama/local execution jobs 均 SUCCESS。這只證明該 main push workflow；同 SHA 的 Factory Recovery run `45375327985` 為 FAILURE，另有 Recovery runs `45373974643`、`45372363724`、`45372269044`、`45371934842`、`45370693094`、`45370555262` 為 SKIPPED，不能據此宣稱 Factory Recovery 通過。Vercel status 為 FAILURE（`build-rate-limit`）；CircleCI Pipeline #236 為 ERROR。
 - **GPT2 本次工作界線：** 只更新本角色自有文件的主線快照與交接證據；不接管 GPT1 Factory failure、GPT5 Issue #117／PR #517，亦不修改其他 owner PR。L/Federation 維持停用／延後。
 - **驗證限制：** 本次為文件與 GitHub metadata/CI evidence 更新；未執行本機測試、TypeScript、Lint 或 Build。此新候選仍須以其 exact HEAD 核對 Actions；GPT3 正式獨立 APPROVED 未提供前不得宣稱驗收或合併。
+
+
+## 6.5 最新主線重核與 GPT2 工作狀態 — 2026-11-24（即時巡檢）
+
+- **本次直接核對的 main SHA：** `d2fbbf5aaa9a9323f633fce30603f160729c2a9b`。本紀錄以本次 GitHub main ref 為準，不沿用第 6.3／6.4 節舊 SHA。
+- **GPT2 採納證據：** `docs/gpt2/PROJECT_COORDINATION.md` 已包含六層 F–P 工作閉環、跨 GPT 責任邊界與交接規範；Issue #384 的 GPT2 文件採納已完成。GPT2 自我採納不等於 GPT3 獨立審查，Issue #384 仍 OPEN，其他角色證據仍待各自提交。
+- **Main CI：** push run `45378380658` 對應上述 SHA，狀態 PENDING；截至本次查核 jobs endpoint 回傳 0 jobs，故為 PENDING／證據不足，不得判定 PASS。
+- **Factory Preflight：** run `45378380845` 對應上述 SHA，結論 FAILURE。Windows self-hosted job `138390624675` 的離線測試為 824 tests、816 pass、8 fail。失敗集中於 `tests/agent-patch-to-scratch.test.mjs`（測試 243、246、248–252、260）：其中 Linux fixture Git shim 明確回報 `EACCES`；後續多項測試因無法 inventory tracked repository files 而出現連鎖錯誤。此為觀測到的測試證據，不代表已確認根因修復方案。
+- **System Health：** runs `45380650340` 與 `45380573095` 均 PENDING；run `45378393196` 為 SKIPPED。Recovery 不得宣稱成功。
+- **OPEN PR exact-head 狀態：** #478 HEAD `d32781849befd9be53d3fec7329efa54654a96be`、#476 HEAD `977896a9db756e336405bb2f1956f9377da60038`、#417 HEAD `f08260916d8e3463b3cee363d44f1583954f416d`、#376 HEAD `8e9b14d7a137e5930e9a549c9ff949743689335b`、#259 HEAD `275ff506ba7c43d57826af3b1a5cb0064f62234a`。五個 exact HEAD 的 GitHub Actions workflow-run 查詢均為 0 runs；這不是通過證據。#259 仍為 Draft。
+- **外部檢查：** #478／#417／#259 的 Vercel status 為 FAILURE，目標明示 `build-rate-limit`；#476／#376 的 Vercel status 為 SUCCESS。五個 PR 的 CircleCI status 均為 ERROR。外部供應商狀態與 GitHub Actions 結果分開記錄，不得互相替代。
+- **GPT2 執行界線：** Factory Preflight 的失敗路徑涉及 Factory-owned 測試／控制流程，屬 GPT1/A–E owner 範圍，GPT2 不直接修改。H Issue #364 明確要求待 in-flight F/P exact-head candidates 後再排程，以免加重單一 Windows Runner；本輪不搶先啟動該競爭 CI 任務。GPT2 優先維持 F–P owner 邊界，待可獨立閉環且不與現有候選重疊的任務。
+- **本紀錄驗證範圍：** GitHub ref、PR metadata、combined statuses、workflow runs、job summaries 與 Preflight job logs；未執行本機測試、TypeScript、Lint 或 Build。本文件更新本身不代表 GPT3 獨立批准、PR 合併或部署。
