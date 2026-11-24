@@ -366,3 +366,11 @@ test("only a valid fetched Issue identity with rejected task content writes the 
   assert.equal(readFileSync(githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
   assert.match(result.stderr, /Required section is missing/);
 });
+
+
+test("preflight requires Docker start exit evidence to match inspected container state", () => {
+  const workflowPath = fileURLToPath(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url));
+  const workflow = readFileSync(workflowPath, "utf8");
+  assert.match(workflow, /CANDIDATE_CONTAINER_START_EXIT_CODE = \[string\]\$startExitCode/);
+  assert.match(workflow, /candidateContainerFailureScope\(state, startExitCode\)/);
+});
