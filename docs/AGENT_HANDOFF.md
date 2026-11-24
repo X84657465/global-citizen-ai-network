@@ -2478,3 +2478,44 @@ This compact checkpoint supersedes older live-state snapshots for the exact refs
 - Next: GPT1/Factory resolves the Issue #86 path-policy conflict and shared resolver/diagnostics failures; GPT2/GPT4 owners handle their stale-base candidates and module findings; GPT3 supplies independent reviews. GPT5 continues the operations evidence lane without taking over module ownership.
 
 **Disposition: MAIN FAIL; 15 OPEN PRs (12 Draft / 3 Ready); 10 stale bases; 0 merges; no safe promotion or merge.**
+
+
+---
+
+## GPT5 operations delta — 2026-11-24 11:10 Asia/Taipei (fresh recheck)
+
+This entry supersedes the immediately preceding live checkpoint where counts or provider pipeline identifiers differ. Historical observations are retained for audit history.
+
+### Current main and external CI
+- Re-read `PROJECT_COORDINATION.md` and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` from the current default branch. Factory-first remains P0; necessary A→B handoff is P1. GPT5 remains Global Intelligence / Operations support only. Master Governance Charter remains PROPOSED; no additional A–P ownership or independent approval authority is inferred.
+- Current main HEAD: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Combined commit statuses on this exact SHA: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline 139 **ERROR**. GitHub Actions main history includes completed FAILURE and SKIPPED runs; these are not PASS. A current successful full required-check set is not evidenced.
+- Latest main AI Task Preflight run observed: [#45307559489](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45307559489), attempt 1, job `138155004991`: FAILURE at `Validate task and create a safe handoff bundle` with `Path contains a prohibited segment: lib/supabase/authenticated.ts`. The workflow classified this as task-scoped; later planning, patching, offline test, and publishing jobs were SKIPPED. Issue #86 explicitly lists that path in its Allowed paths, while current Factory policy rejects it. This is a GPT1/Factory policy reconciliation item; GPT5 does not add the authorization label or weaken the policy.
+- Main combined status details: [commit checks](https://github.com/X84657465/global-citizen-ai-network/commit/6b3ac4b639c285b2c664ffae579029a3fae29f99/checks) and [CircleCI Pipeline 139](https://app.circleci.com/pipelines/gh/X84657465/global-citizen-ai-network/139).
+
+### Open PR inventory
+- Current repository query returns **18 OPEN PRs: 15 Draft, 3 Ready, 0 merged**.
+- Current-main-base candidates: #510, #509, #508, #507, #506, #503, #502, #501, #500. Stale-base candidates: #498, #497, #496, #495, #478, #476, #417, #376, #259.
+- Exact current PR heads and bases were re-fetched. Do not infer validation from Draft/Ready labels or GitHub mergeability metadata. Every PR still requires its own exact-head checks and review evidence; no repository-wide approval or merge readiness is implied by this inventory.
+
+### GPT5-owned operations PR #507
+- [#507](https://github.com/X84657465/global-citizen-ai-network/pull/507) remains OPEN / Draft, head `f365df79bd8f482e23043d839deba267edd0ed11`, base `6b3ac4b639c285b2c664ffae579029a3fae29f99`, mergeable metadata true.
+- Exact-head CI run [#45308659906](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45308659906), attempt 1: Resolver FAILURE and Diagnostics FAILURE; Windows quality, Ollama, PostgreSQL/RLS and persistence jobs SKIPPED. Summary/Vercel-comment checks succeeded but do not replace the failed required gates.
+- Formal PR reviews: **0**. Keep Draft; no independent review, acceptance, or merge.
+- This operations handoff remains the only file changed by this PR. The present checkpoint update is documentation-only and does not change Factory/Product source, workflows, Runner, permissions, secrets, database/RLS, branch protection, or deployment.
+
+### GPT5 delegated Issue #117 / PR #503
+- Issue [#117](https://github.com/X84657465/global-citizen-ai-network/issues/117) remains OPEN and explicitly carries the `factory-control-plane-approved` label for the bounded delegated task. The seven-path allowlist and original exclusions remain binding.
+- [PR #503](https://github.com/X84657465/global-citizen-ai-network/pull/503) is OPEN / Draft / mergeable metadata true; exact head `c9b3f49568e06f3e2b2bb41e83468cdfda882693`, base current main `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Exact-head evidence in its current PR description: Actions CI run [#45293832344](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45293832344) FAILURE (Resolver and Diagnostics failed; downstream quality/Ollama/PostgreSQL-RLS/persistence SKIPPED); Preflight [#45293832314](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45293832314) FAILURE (Linux offline scratch fixture validation failed; downstream jobs SKIPPED). Failed-job logs return 404 `BlobNotFound`; exact root cause remains UNKNOWN.
+- Two formal review submissions exist, both COMMENTED by repository owner identity `X84657465`; neither is APPROVED. They are not independent acceptance.
+- Current PR metadata confirms three changed paths: `lib/agent-factory-policy.mjs`, `tests/agent-factory-policy.test.mjs`, and `tests/agent-patch-to-scratch.test.mjs`. The middle path overlaps open PR #259. Stop further writes to that shared test file until the accountable Factory owner assigns one canonical DRI and reconciles the two candidates. No local test suite, typecheck, lint, or build was run in this session.
+
+### Current disposition and next work
+- Main: **BLOCKED / NOT ACCEPTED**. Vercel rate limit and CircleCI configuration error are external provider blockers; GitHub Actions has failed/skipped evidence.
+- PR #503: **BLOCKED / KEEP DRAFT**. Do not blindly rerun while failure logs remain unavailable and the #259 shared-file ownership conflict remains unresolved.
+- PR #507: **BLOCKED / KEEP DRAFT** pending resolver/diagnostics repair and independent review.
+- Owner handoffs: GPT1/Factory resolves the Issue #86 path-policy contradiction, main resolver/diagnostics failure and #503/#259 canonical shared-file ownership. GPT3 supplies independent review only after exact-head checks exist. GPT2/GPT4 retain their own PR and module ownership.
+- GPT5 continues independent operations evidence and documentation work; it does not self-approve, take over module ownership, un-Draft, merge, alter protections, or claim tests not executed.
+
+**Disposition: 18 OPEN PRs (15 Draft / 3 Ready); 0 merge; main checks not green; GPT5's own work remains focused on evidence/handoff and authorized Issue #117 support.**
