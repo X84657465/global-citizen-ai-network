@@ -47,7 +47,7 @@ jobs:
           script: |
             const path = require('path');
             const policyPath = path.join(process.env.GITHUB_WORKSPACE, 'scripts', 'pr-acceptance-policy.cjs');
-            const { evaluateAcceptance } = require(policyPath);
+            const { evaluateAcceptance, REQUIRED_CI_JOBS } = require(policyPath);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const marker = '<!-- pr-acceptance-gate -->';
@@ -94,40 +94,34 @@ jobs:
               core.warning('Stale event SHA ' + eventSha + ' differs from current PR SHA ' + headSha + '; only current SHA is evaluated.');
             }
 
-            async function latestWorkflowRun(workflowId, sha) {
-              const response = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: workflowId, head_sha: sha, event: 'pull_request', per_page: 50
-              });
-              const runs = response.data.workflow_runs
-                .filter(run => run.head_sha === sha && run.event === 'pull_request')
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at) ||
-                  (b.run_attempt || 1) - (a.run_attempt || 1));
-              return runs[0] || null;
+            const checkRuns = await github.paginate(github.rest.checks.listForRef, {
+              owner, repo, ref: headSha, per_page: 100
+            });
+            function latestCheck(name) {
+              return checkRuns
+                .filter(check => check.head_sha === headSha && check.name === name &&
+                  check.app && check.app.slug === 'github-actions')
+                .sort((a, b) => new Date(b.started_at || 0) - new Date(a.started_at || 0))[0] || null;
             }
 
-            async function workflowJobs(run) {
-              if (!run) return [];
-              const response = await github.rest.actions.listJobsForWorkflowRun({
-                owner, repo, run_id: run.id, filter: 'latest', per_page: 100
-              });
-              return response.data.jobs.map(job => ({
-                name: job.name,
-                status: job.status,
-                conclusion: job.conclusion
-              }));
-            }
-
-            const ciRun = await latestWorkflowRun(process.env.REQUIRED_CI_WORKFLOW, headSha);
-            const ci = ciRun ? {
-              headSha: ciRun.head_sha,
-              status: ciRun.status,
-              conclusion: ciRun.conclusion,
-              jobs: await workflowJobs(ciRun)
-            } : {
-              headSha: null,
-              status: 'missing',
-              conclusion: 'missing',
-              jobs: []
+            // Check runs are queried directly from the current PR HEAD SHA.
+            // This avoids accidentally applying an older workflow-run result to a newer commit.
+            const ciJobs = REQUIRED_CI_JOBS.map(name => {
+              const check = latestCheck(name);
+              return {
+                name,
+                status: check ? check.status : 'missing',
+                conclusion: check ? check.conclusion : null
+              };
+            });
+            const ciMissing = ciJobs.some(job => job.status === 'missing');
+            const ciCompleted = ciJobs.every(job => job.status === 'completed');
+            const ciSuccess = ciJobs.every(job => job.status === 'completed' && job.conclusion === 'success');
+            const ci = {
+              headSha: headSha,
+              status: ciMissing ? 'missing' : ciCompleted ? 'completed' : 'in_progress',
+              conclusion: ciSuccess ? 'success' : ciCompleted ? 'failure' : null,
+              jobs: ciJobs
             };
 
             const preflightPaths = new Set([
@@ -179,18 +173,16 @@ jobs:
             const changedFiles = await github.paginate(github.rest.pulls.listFiles, {
               owner, repo, pull_number: prNumber, per_page: 100
             });
-            const preflightApplicable = changedFiles.some(file => preflightPaths.has(file.filename));
-            const preflightRun = preflightApplicable
-              ? await latestWorkflowRun(process.env.REQUIRED_PREFLIGHT_WORKFLOW, headSha)
-              : null;
-            const preflightJobs = await workflowJobs(preflightRun);
-            const preflightJob = preflightJobs.find(job => job.name === 'Linux offline scratch fixture validation');
+            const preflightApplicable = changedFiles.some(file =>
+              preflightPaths.has(file.filename) || (file.previous_filename && preflightPaths.has(file.previous_filename))
+            );
+            const preflightCheck = preflightApplicable ? latestCheck('Linux offline scratch fixture validation') : null;
             const preflight = preflightApplicable ? {
               applicable: true,
-              headSha: preflightRun ? preflightRun.head_sha : null,
-              status: preflightRun ? preflightRun.status : 'missing',
-              conclusion: preflightRun ? preflightRun.conclusion : 'missing',
-              requiredJobConclusion: preflightJob ? (preflightJob.conclusion || preflightJob.status) : 'missing'
+              headSha: preflightCheck ? preflightCheck.head_sha : null,
+              status: preflightCheck ? preflightCheck.status : 'missing',
+              conclusion: preflightCheck ? (preflightCheck.conclusion || null) : 'missing',
+              requiredJobConclusion: preflightCheck ? (preflightCheck.conclusion || preflightCheck.status) : 'missing'
             } : { applicable: false, status: 'not_applicable' };
 
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
@@ -208,12 +200,11 @@ jobs:
             );
 
             const statusResponse = await github.rest.repos.getCombinedStatusForRef({ owner, repo, ref: headSha });
-            const checkResponse = await github.rest.checks.listForRef({ owner, repo, ref: headSha, per_page: 100 });
             const externalSignals = []
               .concat(statusResponse.data.statuses.map(status => ({
                 name: status.context, state: status.state, targetUrl: status.target_url
               })))
-              .concat(checkResponse.data.check_runs.map(check => ({
+              .concat(checkRuns.map(check => ({
                 name: check.name, state: check.conclusion || check.status, targetUrl: check.html_url
               })))
               .filter(signal => /vercel|circleci/i.test(signal.name));
