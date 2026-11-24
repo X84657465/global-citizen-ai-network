@@ -745,8 +745,11 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.equal(recoveryWorkflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false,
     "cancelled/failed workflow_run events must not reserve the shared Runner queue at workflow scope");
   const recoveryJobStart = recovery.indexOf("  reset-system-breaker:\n");
-  const nextRecoveryJob = recovery.indexOf("\n  ", recoveryJobStart + "  reset-system-breaker:\n".length);
-  const recoveryJob = recovery.slice(recoveryJobStart, nextRecoveryJob < 0 ? recovery.length : nextRecoveryJob);
+  const nextRecoveryJobMatch = recovery.slice(recoveryJobStart + 1).match(/\n  [A-Za-z0-9_-]+:\n/);
+  const recoveryJobEnd = nextRecoveryJobMatch
+    ? recoveryJobStart + 1 + nextRecoveryJobMatch.index
+    : recovery.length;
+  const recoveryJob = recovery.slice(recoveryJobStart, recoveryJobEnd);
   assert.ok(recoveryJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
   assert.ok(recoveryJob.includes("queue: max"));
   assert.ok(recoveryJob.includes("cancel-in-progress: false"));
