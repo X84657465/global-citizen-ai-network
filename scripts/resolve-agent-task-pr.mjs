@@ -1,4 +1,4 @@
-import { appendFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
 import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
@@ -24,8 +24,16 @@ function writeResolverDiagnostic(error) {
     /^\/repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/(pulls|issues)\/\d+$/.test(error.path)
     ? error.path
     : "";
+  let fallbackContext = {};
+  try {
+    fallbackContext = JSON.parse(readFileSync(resolverDiagnosticsOutput, "utf8"));
+  } catch {
+    // Preserve context when available; the diagnostic record remains useful without it.
+  }
   const evidence = {
     schemaVersion: 1,
+    event: typeof fallbackContext.event === "string" ? fallbackContext.event.slice(0, 80) : "",
+    ref: typeof fallbackContext.ref === "string" ? fallbackContext.ref.slice(0, 500) : "",
     stage: resolverStage,
     errorName: typeof error?.name === "string" ? error.name.slice(0, 80) : "Error",
     httpStatus: Number.isInteger(error?.status) ? error.status : null,
