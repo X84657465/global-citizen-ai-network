@@ -94,7 +94,7 @@ jobs:
           RESOLVER_DIAGNOSTICS_OUTPUT: ${{ runner.temp }}/resolver-diagnostics.json
         run: node scripts/resolve-agent-task-pr.mjs
       - name: Upload redacted resolver failure evidence
-        if: always()
+        if: always() && steps.resolve.outcome != 'success'
         uses: actions/upload-artifact@v4
         with:
           name: resolver-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
