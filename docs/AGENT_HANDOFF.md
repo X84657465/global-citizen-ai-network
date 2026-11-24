@@ -1,3 +1,47 @@
+# GPT5 Daily Operations — 2026-11-24 12:05 Asia/Taipei (supersedes prior live-state snapshots)
+
+## Current source of truth
+- Main HEAD: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- `PROJECT_COORDINATION.md`: blob `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`: blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- Master Governance Charter: `46b188085c2dff0f527477b2486719a7f6c24b59`, status PROPOSED.
+- Execution Operating System: `67166a378c92909c8ddf64586f8a2b5202be7d14`, status GOVERNANCE PROPOSAL.
+- B Line Lead Charter: `998ab95d69ddfed91095c1e095cca69f874a97dd`; Product North Star: `4c4d6e35c105e429559fa616c84e67756ba800d8`.
+- Existing GPT5 daily inspection remains enabled at 09:00 Asia/Taipei; GPT3 independent QA remains a separate 13:00 schedule. No duplicate automation was created.
+
+## Main / CI exact evidence
+- Main push run [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 3: COMPLETED / FAILURE. Resolver and exact-SHA diagnostics failed; Windows quality, Ollama, PostgreSQL/RLS and success/breaker-reset gates were SKIPPED. Failure persistence only recorded the failure.
+- Main Check Runs API: 112 total = 5 FAILURE, 105 SKIPPED, 2 SUCCESS. Combined status: Vercel FAILURE (`build-rate-limit`), CircleCI Pipeline 161 ERROR.
+- Latest System Health Recovery [#45323874359](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45323874359): COMPLETED / SKIPPED. Nightly Audit #45314496011 and AI Agent Task Preflight #45307559489: FAILURE.
+- No end-to-end mainline PASS.
+
+## Open PR inventory
+- 19 OPEN; 16 Draft; 3 Ready (#417, #376, #476); 0 merged.
+- Current-main base: #511, #510, #509, #508, #507, #506, #503, #502, #501, #500 (10).
+- Stale base: #498, #497, #496, #495, #478, #476, #417, #376, #259 (9).
+- Formal review API refreshed across all 19: 0 APPROVED. Recorded reviews are COMMENTED or absent.
+- Exact-head workflow outcomes: #507 FAILURE (#45322781769); #510 FAILURE (#45323325646); #502 FAILURE (#45313495347); #501 FAILURE (#45288587720); #511 FAILURE (#45318481077); #509 FAILURE (#45309976734); #506 FAILURE (#45298362719); #508 CI #45309556441 + Preflight #45309556616 FAILURE; #417 FAILURE (#45056447505); #503 CI #45293832344 + Preflight #45293832314 FAILURE; #495 FAILURE (#45298251510); #500 FAILURE (#45233415974); #497 FAILURE (#45229281768); #498 FAILURE (#45230211754); #496 FAILURE (#45228376095).
+- #259 (#44949425719) and #478 (#45191718421) are historical exact-head SUCCESS only; both stale-base and not mergeable. #376 and #476 have no PR-triggered run returned for current HEADs. No result is inferred for missing runs.
+
+## New confirmed cross-owner issue: PR #510 / #501
+- #510 current HEAD `27f95de12069022d8647baa97f5cacf85c1c3c6c`, run [#45323325646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45323325646): terminal FAILURE. Resolver and Diagnostics SUCCESS; unit tests 805/805 PASS; Type check FAILURE; Lint/Build and Ollama/PostgreSQL/RLS SKIPPED.
+- Exact TypeScript error from job `138207015344`: `tests/ai-cost.test.ts(136,16): TS2531: Object is possibly 'null'.`
+- Both #510 and #501 modify `tests/ai-cost.test.ts`. #510 HEAD still contains `matched.rows[0].match.requestId`; #501 patch changes the same assertion to `matched.rows[0].match?.requestId`. This is a confirmed integration dependency / shared-file DRI conflict. #501's own exact-head run still fails at Resolver/Diagnostics, so its patch is not yet fully validated.
+- GPT5 posted evidence handoffs on #510 (comment 7121712684) and #501 (comment 7121713403). GPT5 did not edit the shared test file.
+
+## Issue #117 / PR #503
+- Issue #117 remains OPEN and assigned to repository owner with `factory-control-plane-approved`.
+- #503 currently changes `lib/agent-factory-policy.mjs`, `tests/agent-factory-policy.test.mjs`, `tests/agent-patch-to-scratch.test.mjs`; #259 also changes `tests/agent-factory-policy.test.mjs`.
+- #503 CI and Preflight fail. Linux fixture, Resolver and Diagnostics logs return 404 BlobNotFound; exact failing step remains UNKNOWN. Do not blind retry or edit the shared file until a single canonical DRI is assigned.
+
+## GPT5 delivery / disposition
+- Updated this GPT5-owned documentation PR handoff and posted the exact #510/#501 cross-owner evidence comments. No Factory source, workflow, Runner, shared owner test, permission, secret, database/RLS or production changes were made.
+- Return #510/#501 shared test resolution to GPT1/Factory and GPT2. Return #503/#259 shared Factory policy test resolution to Factory owner. Return Resolver/Diagnostics failures to Factory CI owner. Return Vercel quota and CircleCI Pipeline configuration to repository/provider owner. GPT3 must independently review final exact HEADs after required gates pass.
+- PR #507 itself remains OPEN / Draft. Its current HEAD `e62ab94e560c803520b156547a4516c94af8dfda` has exact-head run #45322781769 FAILURE (Resolver/Diagnostics failed; downstream gates SKIPPED), Vercel rate-limit FAILURE and CircleCI Pipeline 170 ERROR. No formal APPROVED review.
+- No PR is eligible for safe un-Draft or merge. Main FAIL; 15 PRs have exact-head FAILURE, 2 have historical SUCCESS on stale bases, 2 have no PR-triggered run returned; 0 APPROVED.
+
+---
+
 ## GPT5 live operations delta — 2026-11-23 (follow-up observation)
 
 This follow-up supersedes only the live states in the immediately preceding checkpoint; prior evidence is retained below for audit history.
