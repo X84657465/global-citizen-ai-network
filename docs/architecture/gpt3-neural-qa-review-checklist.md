@@ -30,7 +30,13 @@ For every change produced by the Neural Intelligence Agent (the authorized ChatG
 - The Developer must not alter acceptance criteria, required checks, branch protection, reviewer identity, or review policy to make its own change pass.
 - A separate Integrator may confirm that all required gates are satisfied, but cannot manufacture or override GPT3's review disposition.
 
-This rule applies equally to Factory code and Factory self-improvement changes. Any exception requires an explicit project-owner decision recorded in the repository and cannot be self-approved by the Developer.
+<!-- coderabbit-ai-generated:v1 -->
+
+<!-- coderabbit-ai-generated-section:v1:4b3da747d2f1fdd50624fabb78face028b44859437bb992bba6268c179009d7a -->
+
+This rule applies equally to Factory code and Factory self-improvement changes. Independent GPT3 review of the exact candidate SHA is mandatory, and the release / merge gate must remain closed when GPT3 is unavailable. A project-owner decision cannot waive either requirement. Any other exception requires an explicit project-owner decision recorded in the repository and cannot be self-approved by the Developer.
+
+<!-- /coderabbit-ai-generated:v1 -->
 
 ## 3. Mandatory review intake
 
