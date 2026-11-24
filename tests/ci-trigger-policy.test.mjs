@@ -600,13 +600,10 @@ test("CI candidate execution is fenced to the exact event head SHA", () => {
   assert.ok(resolver.includes("pull.head?.sha === expectedSha"));
   assert.ok(workflow.includes("github.event.client_payload.head_sha || github.event.pull_request.head.sha"));
 });
-test("CI diagnostics use the available shared Windows Runner with read-only access", () => {
+test("CI diagnostics run independently on hosted Linux and preserve fallback evidence before checkout", () => {
   const x = findJobSection(workflow, "ci-diagnostics");
   const s = workflow.slice(x.start, x.end);
-  assert.ok(s.includes("runs-on: [self-hosted, Windows, X64]"));
-  assert.ok(s.includes("group: global-citizen-ai-network-self-hosted-runner"));
-  assert.ok(s.includes("queue: max"));
-  assert.ok(s.includes("cancel-in-progress: false"));
+  assert.ok(s.includes("runs-on: ubuntu-latest"));
   assert.ok(s.includes("actions: read"));
   assert.ok(s.includes("contents: read"));
   assert.ok(s.includes("Invoke-RestMethod"));
@@ -614,6 +611,23 @@ test("CI diagnostics use the available shared Windows Runner with read-only acce
   assert.ok(s.includes("ci-failure-diagnostics.json"));
   assert.ok(s.includes("retention-days: 90"));
   assert.equal(s.includes("issues: write"), false);
+  const fallback = s.indexOf("Initialize fallback CI evidence before checkout");
+  const checkout = s.indexOf("Checkout exact tested revision");
+  const upload = s.indexOf("Upload redacted CI failure evidence");
+  assert.ok(fallback >= 0 && fallback < checkout, "fallback must be initialized before checkout");
+  assert.ok(upload > checkout && s.slice(upload).includes("if: always()"));
+  assert.ok(s.includes("${{ runner.temp }}/ci-failure-diagnostics.json"));
+});
+
+test("resolver failure evidence is initialized before checkout and always uploaded", () => {
+  const x = findJobSection(workflow, "resolve-candidate");
+  const s = workflow.slice(x.start, x.end);
+  const fallback = s.indexOf("Initialize fallback resolver evidence before checkout");
+  const checkout = s.indexOf("Checkout resolver");
+  const upload = s.indexOf("Upload redacted resolver failure evidence");
+  assert.ok(fallback >= 0 && fallback < checkout);
+  assert.ok(upload > checkout && s.slice(upload).includes("if: always()"));
+  assert.ok(s.includes("resolver-diagnostics.json"));
 });
 
 
