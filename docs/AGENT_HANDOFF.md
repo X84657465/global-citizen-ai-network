@@ -2973,3 +2973,75 @@ This observation supersedes prior live-state snapshots only where the exact refs
 - No local tests, source repair, Draft promotion, merge, deployment, breaker reset or production operation was performed in this documentation-only checkpoint.
 
 **Disposition:** Main FAILURE; no PR independently accepted; no merge. PENDING/IN_PROGRESS, NOT RUN, SKIPPED, provider failures and unavailable logs remain explicit blockers, not PASS.
+
+
+---
+
+## GPT5 live sweep — 2026-11-24 (latest exact-SHA recheck)
+
+This section supersedes earlier live snapshots only where the current GitHub reads below differ. Source: current default branch and all 19 OPEN PR records fetched during this check.
+
+### Main and governance
+- Current main HEAD: 6b3ac4b639c285b2c664ffae579029a3fae29f99.
+- Re-read current-main governance files:
+  - PROJECT_COORDINATION.md: blob d3ee1881aa67861fc42a2b568b26020945b0c218.
+  - GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md: blob b234e684dbc4fe2e6694cf96c6b941f8fd81ec31.
+  - docs/GCAN_EXECUTION_OPERATING_SYSTEM.md: blob 67166a378c92909c8ddf64586f8a2b5202be7d14.
+- Main exact-SHA PR-triggered workflow-runs query returned 0 runs (NOT RUN / UNKNOWN; not PASS). Combined statuses: Vercel FAILURE (build-rate-limit); CircleCI Pipeline ERROR, pipeline 194.
+- GPT5 remains operations/support only. GPT1 owns A–E/Factory; GPT2 owns F–P; GPT3 remains independent reviewer; GPT4 owns B Product. Master Charter / Execution Operating System proposal status does not grant GPT5 new module ownership or write authority.
+
+### All 19 OPEN PRs — current HEAD, base, Draft, mergeability, exact-head Actions
+| PR | HEAD SHA | Base SHA | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|---|
+| #513 | 924208694a30436a15979d44b86a5013dfe994ca | current main | yes | true | #45348464895 FAILURE |
+| #510 | 5e4eff8768ef274318cc4bdd1337189380f79565 | current main | yes | true | #45335398946 SUCCESS |
+| #509 | db4ae6ee75ce2d2d826c46cf637c44320661f2c8 | current main | yes | true | #45309976734 FAILURE |
+| #508 | 823583a247b76f6f5c6efa25df4d0a5239ea8ccf | current main | yes | true | #45309556441 FAILURE; Preflight #45309556616 FAILURE |
+| #507 | 356b8a9d451d5bd5dfe75b8ef0ff2295ea128e03 | current main | yes | true | #45343701098 FAILURE |
+| #506 | d51d2d5f61bec522e7772c64939c493284f97168 | current main | yes | true | #45298362719 FAILURE |
+| #503 | 1969fc4000df79b859721dc7ad572813aa668a3f | current main | yes | true | #45326905063 FAILURE; Preflight #45326905178 FAILURE |
+| #502 | 85a7404f3dd224e8d574ffd0dce49a0bc9ce6c98 | current main | yes | true | #45313495347 FAILURE |
+| #501 | 13f68ef50919a435f67b3d5f8d3559de4e21319d | current main | yes | true | #45288587720 FAILURE |
+| #500 | 9e67c4e9668eb9c1cc674f9445b594cc9c2902ac | current main | yes | true | #45233415974 FAILURE |
+| #498 | 2d13ddd094cbc0dc8c633805b7737c6ea7c49463 | 8002072738d0dad722ccfc1207250165d1b7d8bc (stale) | yes | true | #45230211754 FAILURE |
+| #497 | c3e6450551d53011bf74168239e65496699e995b | 8002072738d0dad722ccfc1207250165d1b7d8bc (stale) | yes | true | #45229281768 FAILURE |
+| #496 | 5251f221884aa8cc7e170fe3b90811e567a59f94 | 8002072738d0dad722ccfc1207250165d1b7d8bc (stale) | yes | true | #45228376095 FAILURE |
+| #495 | cdd7f28c016da3c548e5de27c27ccb03eed967f3 | 8002072738d0dad722ccfc1207250165d1b7d8bc (stale) | yes | true | #45298251510 FAILURE |
+| #478 | 9a696398fb8c3acf7152649207d3a4489a59c75c | 4225a244407f7a323262c4d6e17b2749193d6476 (stale) | yes | false | #45191718421 SUCCESS; Vercel FAILURE |
+| #476 | 977896a9db756e336405bb2f1956f9377da60038 | 4225a244407f7a323262c4d6e17b2749193d6476 (stale) | no | false | No PR-triggered Actions run returned |
+| #417 | 0dd4a08886a2aaf761d1c71db041fbcf84416c7b | 25d5ed519eb923d3001df6d43aec1670a0d4851a (stale) | no | false | #45056447505 FAILURE |
+| #376 | d10e6dd6d428d9ce35dbd14778e01c628f909742 | 93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e (stale) | no | false | No PR-triggered Actions run returned |
+| #259 | 3330cd04a77358cf0ff780940d09f938cab1dc3a | a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582 (stale) | yes | false | #44949425719 SUCCESS; Vercel FAILURE |
+
+- Inventory: 19 OPEN = 16 Draft + 3 Ready; Actions distribution 14 FAILURE, 3 SUCCESS, 2 with no PR-triggered run returned. Two successful runs (#478/#259) do not qualify for acceptance because external Vercel failed and both are stale-base / non-mergeable. #510's Actions success does not override CircleCI pipeline 182 ERROR.
+- Nine stale-base PRs: #498/#497/#496/#495/#478/#476/#417/#376/#259. Five report mergeable=false: #478/#476/#417/#376/#259.
+- Combined statuses on the current-main PR cohort also show CircleCI ERROR on all checked PRs where CircleCI status was present; Vercel is mixed, including provider build-rate-limit failures. External green alone cannot replace required CI.
+
+### Job-level terminal results
+- #507 run #45343701098: Resolver FAILURE; exact-SHA Diagnostics FAILURE; Windows quality, Ollama/local integration, Supabase/PostgreSQL/RLS and both persistence jobs SKIPPED.
+- #510 run #45335398946: Resolver, Windows quality, Ollama/local integration, Supabase/PostgreSQL/RLS SUCCESS; conditional diagnostics/persistence steps SKIPPED. CircleCI pipeline 182 remains ERROR.
+- #513 run #45348464895: Resolver FAILURE; Diagnostics FAILURE; Windows quality, Ollama/local integration, PostgreSQL/RLS and persistence jobs SKIPPED.
+- #508 run #45309556441: Resolver and Diagnostics FAILURE; downstream validation/integration/persistence SKIPPED. Preflight #45309556616: Linux offline scratch fixture FAILURE; remaining jobs SKIPPED.
+- #478 run #45191718421 and #259 run #44949425719: Actions SUCCESS, but stale base / non-mergeable; Vercel FAILURE for both.
+- Remaining listed FAILURE runs are terminal failures; #476/#376 have no returned PR-triggered workflow run. Missing run evidence is UNKNOWN / NOT RUN, not PASS.
+
+### Formal review and unresolved threads
+- Formal review submissions queried for all 19 PRs: 0 APPROVED. Returned submissions are COMMENTED or absent; no self-authored COMMENTED review is an approval.
+- Inline review-thread query: #478 has 1 unresolved thread; #476 has 1; #417 has 1; #376 has 10; #259 has 7. The other 14 PRs returned 0 inline review threads.
+- #507 has one COMMENTED review and no APPROVED review; its current exact-head run failed. Keep OPEN / Draft.
+- No PR is eligible for Draft promotion, acceptance or merge. Ready PRs #417/#376/#476 are all non-mergeable and/or stale, have failed or missing exact-head CI, and have unresolved review threads.
+
+### P0/P1 blockers and routing
+- Issue #505 is OPEN and explicitly assigns DRI to GPT1 / Factory, independent reviewer GPT3, and GPT5 as operations support only. Its proposed allowlist is .github/workflows/ci.yml, scripts/ci-failure-diagnostics.mjs, lib/ci-failure-diagnostics.mjs, tests/ci-failure-diagnostics.test.mjs; it explicitly says BLOCKED pending GPT1 acceptance of that allowlist. No GPT5 write to these paths.
+- PR #513 / #508: Factory Resolver / Diagnostics / preflight failure; route to GPT1 / workflow owner.
+- PR #510: current exact-head Actions gates pass, but CircleCI 182 ERROR; do not promote Draft. Resolve external pipeline and obtain independent formal review.
+- PR #507: GPT5-owned operations handoff remains OPEN / Draft; exact-head run #45343701098 fails Resolver/Diagnostics and skips downstream gates; Vercel FAILURE and CircleCI 193 ERROR. The failed-job log retrieval was previously unavailable (Azure Storage 404 BlobNotFound); root cause remains UNKNOWN. No speculative repair or blind rerun.
+- PR #503/#259 share Factory test scope; #506/#509 overlap CI diagnostics; #501/#510 share AI-cost test scope. Return conflicts to the relevant owners; no cross-owner edits.
+- #478/#476/#417/#376/#259 have unresolved threads and/or stale base; their respective owners must reconcile threads, refresh base and rerun exact-head gates.
+
+### GPT5 work and disposition
+- This is a documentation-only update on GPT5's existing branch docs/gpt5-ops-audit-20261124, restricted to the existing GPT5-owned docs/AGENT_HANDOFF.md scope.
+- No Factory/Product source, CI workflow, Runner, durable state, lease/fencing, secrets, permissions, branch protection, database/RLS, provider quota, production or deployment setting was changed.
+- No local tests were run; no source-code repair, Draft promotion, acceptance, merge or deployment is claimed.
+- Next safe GPT5 work is continued exact-SHA operations evidence and handoff. Factory remediation remains with GPT1; independent QA remains with GPT3.
+- Overall status: BLOCKED. No PR is independently accepted or mergeable under the full required gates. PENDING/SKIPPED/NOT RUN, external provider errors, missing logs and unresolved threads remain explicit blockers, never PASS.
