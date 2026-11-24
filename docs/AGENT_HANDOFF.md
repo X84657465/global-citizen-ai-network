@@ -4684,3 +4684,54 @@ Inventory: **11 OPEN; 5 Draft; 6 Ready; 0 formal APPROVED reviews observed.** Gi
 - This operation is a documentation-only refresh on GPT5's own PR #537 branch. No application code, workflow, Runner, Factory durable state, permissions, secrets, branch protection, provider configuration, production data, Draft state, merge or deployment was changed.
 - Local tests/build/lint: NOT RUN; no repository checkout/shell/test runtime is attached.
 - Evidence labels: OBSERVED = main SHA, API inventory, run/job states, provider statuses and returned review records; PENDING = main recovery #45461632907, #539 run #45460328638, #537 run #45459208820, #536 run #45458711528/PostgreSQL job; FAILURE = main recovery #45460591856 and #538 Preflight #45433006242; SKIPPED = listed conditional persistence/diagnostics and preflight jobs; UNKNOWN = unavailable failure logs/root causes; NOT VERIFIED = old-PR exact-head runs through the PR-filtered wrapper; NOT RUN = local tests. No new code TESTED, INDEPENDENTLY ACCEPTED, MERGED or RELEASED claim is made.
+
+
+---
+
+# GPT5 Daily Operations — LIVE EXACT-HEAD SNAPSHOT (2026-11-25; current API capture)
+
+This addendum supersedes earlier mutable-state snapshots above. It records only the current connector-observed GitHub state; historical sections remain audit history. Repository: `X84657465/global-citizen-ai-network`. Timezone: Asia/Taipei.
+
+## Main / Factory
+
+- Current `main` HEAD: `e37cec78de7131b2c066952500eb739d9dc4c2cd` (re-read immediately before this documentation update).
+- Main push CI [45422061476](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45422061476): terminal SUCCESS. Resolver, Windows quality gates (unit tests, type check, lint, audits, production build), Ollama/local, and PostgreSQL/RLS jobs SUCCESS. The candidate-success job's revalidation, record, JSON-write and artifact-upload steps are SKIPPED; failure-persistence and diagnostics jobs are SKIPPED. These skipped steps are not passes or completed persistence evidence.
+- Latest main Recovery run observed in this capture [45462403940](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45462403940): job [138688259767](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45462403940/job/138688259767) COMPLETED / FAILURE; the Jobs API returns `steps=null`. Exact failing step and root cause remain UNKNOWN because retained step/log evidence is unavailable. Previous Recovery run [45461632907](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45461632907) is also FAILURE. No Recovery PASS is established.
+- Main combined external statuses: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline #380 ERROR. These are distinct from the successful main push workflow and remain external blockers.
+
+## All 11 OPEN PRs — exact current heads
+
+All current PR metadata was fetched individually. All 11 PRs are OPEN and unmerged: **5 Draft (#539, #538, #537, #536, #534), 6 Ready (#535, #478, #476, #417, #376, #259)**.
+
+| PR | Exact HEAD SHA | Base SHA | State / mergeability | Exact-head Actions / provider evidence |
+|---|---|---|---|---|
+| #539 | `c77637896d1e806163fc9985de038eb0079c0306` | current main `e37cec78...` | Draft / mergeable=true | Run [45460328638](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45460328638) PENDING; resolver SUCCESS; Windows quality job IN_PROGRESS. Vercel FAILURE; CircleCI #406 ERROR. |
+| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | current main `e37cec78...` | Draft / mergeable=true | CI [45433006532](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45433006532) SUCCESS for resolver, Windows quality, Ollama/local and PostgreSQL/RLS; three conditional persistence/diagnostics jobs SKIPPED. Separate Preflight [45433006242](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45433006242) FAILURE in Linux offline scratch fixture job `138686942398`; six downstream jobs SKIPPED. Job logs unavailable (Azure 404 BlobNotFound); failing assertion/root cause UNKNOWN. Vercel FAILURE; CircleCI #379 ERROR. |
+| #537 | `7779c1fb016929aa90fb8f2a8b29259018b388bb` | current main `e37cec78...` | Draft / mergeable=true | Run [45462162739](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45462162739) PENDING; Jobs API returns **0 jobs**. Not PASS and no blind rerun. Vercel SUCCESS; CircleCI #407 ERROR. |
+| #536 | `c848ba193417eea9f80dfac0b1d5958a1457ba9f` | current main `e37cec78...` | Draft / mergeable=true | Run [45462687029](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45462687029) PENDING; resolver job PENDING. Vercel FAILURE; CircleCI #408 ERROR. |
+| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | current main `e37cec78...` | Ready / mergeable=true | Run [45425712673](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45425712673) SUCCESS for resolver, Windows quality, Ollama/local and PostgreSQL/RLS; three conditional persistence/diagnostics jobs SKIPPED. Vercel FAILURE; CircleCI #372 ERROR. |
+| #534 | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | current main `e37cec78...` | Draft / mergeable=true | Run [45422733507](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45422733507) SUCCESS for resolver, Windows quality, Ollama/local and PostgreSQL/RLS; three conditional persistence/diagnostics jobs SKIPPED. Vercel FAILURE; CircleCI #369 ERROR. |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Ready / mergeable=false | No PR-triggered Actions run returned by the available commit-run wrapper (NOT VERIFIED, not PASS). Vercel FAILURE; CircleCI #256 ERROR. |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Ready / mergeable=false | No PR-triggered Actions run returned by the available commit-run wrapper (NOT VERIFIED, not PASS). Vercel SUCCESS; CircleCI #22 ERROR. |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | Ready / mergeable=false | No PR-triggered Actions run returned by the available commit-run wrapper (NOT VERIFIED, not PASS). Vercel SUCCESS; CircleCI #367 ERROR. |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | Ready / mergeable=false | No PR-triggered Actions run returned by the available commit-run wrapper (NOT VERIFIED, not PASS). Vercel SUCCESS; CircleCI #259 ERROR. |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Ready / mergeable=false | No PR-triggered Actions run returned by the available commit-run wrapper (NOT VERIFIED, not PASS). Vercel FAILURE; CircleCI #298 ERROR. |
+
+## Reviews, blockers and ownership
+
+- Formal review submissions were re-read for all 11 PRs: **0 APPROVED**. Records returned are COMMENTED only (including author-account and bot comments); they do not satisfy an independent approval gate.
+- #539: exact-head CI remains pending/in progress. Do not promote or merge.
+- #538: preflight fixture failure is terminal; logs are unavailable. GPT1 / Factory DRI must obtain Runner-side evidence or reproduce the failing assertion before modifying code.
+- #537: zero-job pending Actions run; this is a queue/runner evidence gap, not a pass. Vercel currently succeeds, but CircleCI remains ERROR and independent approval is absent.
+- #536: exact-head run pending; resolver itself is pending.
+- #535/#534: core job success does not erase skipped persistence/diagnostics jobs, external CircleCI errors, or missing independent approval.
+- #478/#476/#417/#376/#259: stale base and `mergeable=false`; reconciliation belongs to their existing owners. No blind rebase, branch retarget, or transplant.
+- GPT1 remains DRI for Factory implementation and Issue #505 diagnostics work; GPT3 remains independent reviewer. GPT5 remains Global Intelligence & Operations support and may update this GPT5-owned documentation PR, but does not gain Factory module ownership or independent approval authority.
+- No PR is merge-ready on the evidence above. No Draft promotion, merge, provider/billing change, Runner operation, secret/permission/branch-protection change, or Factory durable-state mutation was performed.
+
+## GPT5 execution record
+
+- This update is documentation-only on GPT5's own PR #537 branch, limited to `docs/AGENT_HANDOFF.md`.
+- Main SHA was rechecked immediately before writing. This appended snapshot records the exact pre-update PR #537 head above; the resulting PR head will advance because this update creates a new commit. Re-read live PR metadata and exact-head CI before treating any subsequent status as current.
+- Local tests/build/lint: NOT RUN; no repository checkout or shell/test runtime is attached.
+- Status vocabulary: SUCCESS / FAILURE / PENDING / SKIPPED / UNKNOWN / NOT VERIFIED are kept distinct. No code implementation, independent acceptance, merge, or deployment claim is made.
