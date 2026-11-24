@@ -26,7 +26,7 @@ jobs:
           SOURCE_EVENT: ${{ github.event.workflow_run.event }}
         run: |
           mkdir -p "$RUNNER_TEMP/recovery-observer"
-          cat > "$RUNNER_TEMP/recovery-observer/evidence.json" <<'JSON'
+          cat > "$RUNNER_TEMP/recovery-observer/evidence.json" <<JSON
           {
             "schemaVersion": 1,
             "captureStatus": "fallback_initialized",
@@ -168,7 +168,9 @@ jobs:
               classification: "LOG_FETCH_EXCEPTION"
             };
           }
-          evidence.failureClassification = evidence.failedSteps.length ? "FAILED_STEP_IDENTIFIED" : "UNKNOWN";
+          evidence.failureClassification = evidence.source?.conclusion === "success" ? "NONE" :
+            evidence.failedSteps.length ? "FAILED_STEP_IDENTIFIED" : "UNKNOWN";
+          if (evidence.source?.conclusion === "success") evidence.failureStage = "completed_success";
           evidence.captureStatus = "complete";
           evidence.capturedAt = new Date().toISOString();
           writeFileSync(path, JSON.stringify(evidence, null, 2) + "\n");
