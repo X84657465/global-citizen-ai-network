@@ -7,7 +7,6 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { candidateContainerFailureScope } from "../lib/agent-factory-policy.mjs";
 
-const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
 const FIXTURE_COMMIT = "0123456789abcdef0123456789abcdef01234567";
 
@@ -50,7 +49,7 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
   const patchPath = join(artifacts, "agent-patch.json");
   writeFileSync(patchPath, JSON.stringify({
     schema_version: 1,
-    files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\\n" }],
+    files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\n" }],
   }));
   if (invalidPatchJson) writeFileSync(patchPath, "{");
   const githubEnv = join(root, "github-env.txt");
@@ -71,8 +70,8 @@ test("Linux fixture Git shim returns only the expected read-only metadata", (t) 
   if (process.platform === "win32") return;
   const data = fixture(t);
   const shimPath = fileURLToPath(new URL("./fixtures/agent-factory-git-shim.mjs", import.meta.url));
-  assert.equal(execFileSync(process.execPath, [shimPath, "ls-files", "-z"], { encoding: "utf8" }), "README.md\\0");
-  assert.equal(execFileSync(process.execPath, [shimPath, "rev-parse", "HEAD"], { encoding: "utf8" }), `${FIXTURE_COMMIT}\\n`);
+  assert.equal(execFileSync(process.execPath, [shimPath, "ls-files", "-z"], { encoding: "utf8" }), "README.md\0");
+  assert.equal(execFileSync(process.execPath, [shimPath, "rev-parse", "HEAD"], { encoding: "utf8" }), `${FIXTURE_COMMIT}\n`);
   const unexpected = spawnSync(process.execPath, [shimPath, "status"], { encoding: "utf8" });
   assert.equal(unexpected.status, 2);
   assert.match(unexpected.stderr, /Unsupported fixture git command/);
