@@ -197,7 +197,6 @@ const SYSTEM_HEALTH_JOB_NAMES = [
   "Windows Runner quality gates — tests, types, lint, audit and production build",
   "Windows Ollama and local execution integration",
   "Windows Supabase migrations, PostgreSQL and RLS integration",
-  "Persist candidate success or reset system breaker",
 ];
 
 function systemHealthJobs(runId, runAttempt, headSha, overrides = {}) {
@@ -210,7 +209,7 @@ function systemHealthJobs(runId, runAttempt, headSha, overrides = {}) {
       run_attempt: runAttempt,
       head_sha: headSha,
       status: "completed",
-      conclusion: name === "Persist candidate success or reset system breaker" ? "skipped" : "success",
+      conclusion: "success",
       ...overrides[name],
     })),
   };
