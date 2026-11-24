@@ -454,3 +454,23 @@ test("invoice preview POST enforces the streamed body limit even without a decla
   assert.equal(response.status, 413);
   assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
+
+test("invoice preview POST preserves 413 when oversized stream cancellation rejects", async () => {
+  const deps = makePreviewRouteDependencies();
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new Uint8Array(1_100_001));
+    },
+    cancel() {
+      return Promise.reject(new Error("stream cancellation failed"));
+    },
+  });
+  const request = {
+    headers: { get: () => null },
+    body,
+  } as unknown as Request;
+
+  const response = await handleProviderInvoicePreviewPost(request, deps);
+  assert.equal(response.status, 413);
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
+});
