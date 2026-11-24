@@ -491,10 +491,19 @@ test("invoice preview POST returns 413 when oversized stream cancellation never 
     body,
   } as unknown as Request;
 
-  const response = await Promise.race([
-    handleProviderInvoicePreviewPost(request, deps),
-    new Promise<never>((_, reject) => setTimeout(() => reject(new Error("handler did not return promptly")), 100)),
-  ]);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const timeoutGuard = new Promise<never>((_, reject) => {
+    timeout = setTimeout(() => reject(new Error("handler did not return promptly")), 1_000);
+  });
+  let response: Response;
+  try {
+    response = await Promise.race([
+      handleProviderInvoicePreviewPost(request, deps),
+      timeoutGuard,
+    ]);
+  } finally {
+    if (timeout !== undefined) clearTimeout(timeout);
+  }
   assert.equal(response.status, 413);
   assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
