@@ -13,9 +13,16 @@ const FIXTURE_COMMIT = "0123456789abcdef0123456789abcdef01234567";
 function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, missingIssueSafety = false, invalidRunnerTemp = false, trackedDirectoryCollision = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  // /tmp may be mounted noexec in the restricted Linux candidate container.
-  // Keep the executable Git shim in the checked-out workspace instead.
-  const gitBin = mkdtempSync(join(process.cwd(), ".gcan-git-bin-"));
+  // The full offline candidate container mounts /tmp with noexec, so prefer
+  // the writable checkout for the executable Git shim. The earlier fixture-only
+  // stage may mount the checkout read-only; only there, fall back to executable /tmp.
+  let gitBin;
+  try {
+    gitBin = mkdtempSync(join(process.cwd(), ".gcan-git-bin-"));
+  } catch (error) {
+    if (!["EACCES", "EPERM", "EROFS"].includes(error?.code)) throw error;
+    gitBin = mkdtempSync(join(tmpdir(), ".gcan-git-bin-"));
+  }
   t.after(() => rmSync(gitBin, { recursive: true, force: true }));
   if (process.platform === "win32") {
     // The Windows host runner has Git installed; retain a real repository fixture there.
@@ -145,7 +152,7 @@ test("leaves Runner scratch-directory failures unmarked for system-scope classif
 
 test("applies an authorized patch only to scratch and emits no failure marker", (t) => {
   const data = fixture(t);
-  assert.equal(data.gitBin.startsWith(process.cwd()), true);
+  assert.equal(data.gitBin.startsWith(process.cwd()) || data.gitBin.startsWith(tmpdir()), true);
   const result = runScript(data);
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
