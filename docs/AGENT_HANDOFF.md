@@ -2923,3 +2923,53 @@ This is a new observation, not a claim that earlier entries were wrong when reco
 - PR #507 remains OPEN / Draft pending fresh exact-head CI and independent approval. This documentation commit does not self-approve or change PR state.
 
 **Disposition:** Main FAILURE; 19 PRs open; 14 Actions failures, one pending, two successful runs (not sufficient evidence of full required gates), two with no PR-triggered run returned; no PR transition, merge, acceptance or release performed.
+
+---
+
+## GPT5 live sweep correction — 2026-11-24 14:07 Asia/Taipei
+
+This observation supersedes prior live-state snapshots only where the exact refs or run states below differ.
+
+### Main / CI
+- Re-read `refs/heads/main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99` (unchanged).
+- Re-read `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218` and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- Latest full main check-run inventory previously paginated on this unchanged SHA: 113 checks = 5 FAILURE, 2 SUCCESS, 106 SKIPPED, 0 PENDING. Main push run `45233037163`, attempt 3, terminal FAILURE; Resolver, Diagnostics, Recovery Verifier, Read-only Audit and Task Preflight are the five failed areas. No complete mainline PASS.
+- Main combined external statuses: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline 161 ERROR. These are not GitHub Actions passes.
+
+### All 19 OPEN PRs — freshly fetched metadata, exact-head workflow and review evidence
+
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|---|
+| #511 | `7e0e2e17049064b519fa987190bc38791209344e` | current main | yes | true | No PR-triggered run returned (NOT RUN) |
+| #510 | `5e4eff8768ef274318cc4bdd1337189380f79565` | current main | yes | true | Run `45335398946` IN_PROGRESS; Resolver job `138256136123` IN_PROGRESS after fallback evidence initialization, checkout and metadata resolution succeeded |
+| #509 | `db4ae6ee75ce2d2d826c46cf637c44320661f2c8` | current main | yes | true | Run `45309976734` FAILURE |
+| #508 | `823583a247b76f6f5c6efa25df4d0a5239ea8ccf` | current main | yes | true | CI `45309556441` and Preflight `45309556616` FAILURE |
+| #507 | `b847ab64f7866b03c04b4a208a4f044df38150f8` | current main | yes | true | Run `45338314899` FAILURE: Resolver and Diagnostics FAILURE; quality, Ollama, PostgreSQL/RLS and persistence jobs SKIPPED |
+| #506 | `d51d2d5f61bec522e7772c64939c493284f97168` | current main | yes | true | Run `45298362719` FAILURE |
+| #503 | `1969fc4000df79b859721dc7ad572813aa668a3f` | current main | yes | true | CI `45326905063` and Preflight `45326905178` FAILURE |
+| #502 | `85a7404f3dd224e8d574ffd0dce49a0bc9ce6c98` | current main | yes | true | Run `45313495347` FAILURE |
+| #501 | `13f68ef50919a435f67b3d5f8d3559de4e21319d` | current main | yes | true | Run `45288587720` FAILURE |
+| #500 | `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` | current main | yes | true | Run `45233415974` FAILURE |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | yes | true | Run `45230211754` FAILURE |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | yes | true | Run `45229281768` FAILURE |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | yes | true | Run `45228376095` FAILURE |
+| #495 | `cdd7f28c016da3c548e5de27c27ccb03eed967f3` | stale `8002072738d0dad722ccfc1207250165d1b7d8bc` | yes | true | Run `45298251510` FAILURE |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | yes | false | Run `45191718421` SUCCESS on stale base; not current-main acceptance |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No PR-triggered run returned (NOT RUN) |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | Run `45056447505` FAILURE |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | No PR-triggered run returned (NOT RUN) |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | yes | false | Run `44949425719` SUCCESS on stale base; not current-main acceptance |
+
+- Inventory: 19 OPEN = 16 Draft + 3 Ready; exact-head workflow distribution = 14 FAILURE, 1 IN_PROGRESS (#510), 2 historical SUCCESS on stale bases (#478/#259), and 2 NOT RUN (#511/#476/#376 actually 3 NOT RUN; see correction below). No PR is safe to promote or merge.
+- Formal review submissions were queried for all 19 PRs: 0 APPROVED; returned reviews are COMMENTED or absent. Self-authored comments are not independent acceptance.
+- External status samples: CircleCI reports ERROR on the current-main PR set; Vercel is mixed SUCCESS/FAILURE, with failures including provider build-rate-limit. A successful Vercel status does not cure failed Actions or missing approval.
+
+### GPT5 support work / blockers
+- Issue #117 remains OPEN. Its latest GPT5 support PR #503 exact-head CI and Preflight are both FAILURE. Resolver and Diagnostics failures are not diagnosed; job-log retrieval returned Azure BlobNotFound (404), and the Linux offline fixture failure's exact step remains UNKNOWN. Do not blind-rerun or infer a code cause.
+- PR #503 changes four paths within Issue #117's repository allowlist, but GPT5's direct edit authority remains limited to the specifically delegated scratch-apply script and its test. No new write was made to shared Factory policy/test or workflow files in this sweep.
+- PR #507's GPT5-owned documentation branch now has exact HEAD `b847ab64f7866b03c04b4a208a4f044df38150f8`; run `45338314899` failed in Resolver and Diagnostics. This is a documentation/evidence delivery only; keep Draft and do not self-approve.
+- #510 remains IN_PROGRESS; its latest resolver job has started and is still running. Do not report a terminal conclusion until the exact run completes.
+- GPT1 / Factory owns Resolver, Diagnostics and Factory core repairs; GPT3 retains independent QA; GPT2 and GPT4 retain F–P and B Product ownership. GPT5 remains operations support and may continue only independently scoped support work.
+- No local tests, source repair, Draft promotion, merge, deployment, breaker reset or production operation was performed in this documentation-only checkpoint.
+
+**Disposition:** Main FAILURE; no PR independently accepted; no merge. PENDING/IN_PROGRESS, NOT RUN, SKIPPED, provider failures and unavailable logs remain explicit blockers, not PASS.
