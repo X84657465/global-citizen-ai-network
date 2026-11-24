@@ -225,18 +225,18 @@ test("classifies ambiguous SIGKILL exit 137 and Docker OOM/dead containers as sy
   assert.equal(candidateContainerFailureScope(healthyRuntimeFailure), "system");
   assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 1 }), "task");
   assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 0 }), "none");
-  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: true }), "system");
-  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, Dead: true }), "system");
-  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: true, Dead: true }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 1, OOMKilled: true }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 1, Dead: true }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 1, OOMKilled: true, Dead: true }), "system");
 
-  const missingOomKilled = { ...healthyRuntimeFailure };
+  const missingOomKilled = { ...healthyRuntimeFailure, ExitCode: 1 };
   delete missingOomKilled.OOMKilled;
-  const missingDead = { ...healthyRuntimeFailure };
+  const missingDead = { ...healthyRuntimeFailure, ExitCode: 1 };
   delete missingDead.Dead;
   assert.equal(candidateContainerFailureScope(missingOomKilled), "system");
   assert.equal(candidateContainerFailureScope(missingDead), "system");
-  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: null }), "system");
-  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, Dead: "false" }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 1, OOMKilled: null }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 1, Dead: "false" }), "system");
 });
 
 test("keeps scratch filesystem collisions system-scoped and removes partial scratch workspaces", (t) => {
