@@ -2551,3 +2551,41 @@ The current pulls endpoint returned 19 open PRs. All 19 exact HEADs were queried
 - No PR meets current-base exact-head required CI plus independent approval. No safe Draft-to-Ready transition or merge. No local tests were run in this chat. GPT5 work remains documentation/evidence support; Factory-owned repairs and owner decisions remain with GPT1/Factory, and independent acceptance remains with GPT3.
 
 **Disposition: MAIN FAILURE; 19 OPEN PRs (16 Draft / 3 Ready); 10 current-base / 9 stale-base; 0 formal approvals; 0 merges; no false-green acceptance.**
+
+
+
+---
+
+## GPT5 operations delta — 2026-11-24 11:52 Asia/Taipei (exact-head recheck)
+
+This entry supersedes earlier observations for the exact PR heads and external statuses listed below. It does not change Factory/Product code or acceptance policy.
+
+### Main baseline and external status
+- Re-read `refs/heads/main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99`; unchanged from the 11:37 snapshot.
+- Current combined statuses on this exact main SHA: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline 161 **ERROR**.
+- The commit-workflow-runs connector returns PR-triggered runs only and returned no main push run for this SHA. The previously recorded main push run #45233037163 was FAILURE (Resolver + Diagnostics FAILURE; downstream quality/integration/persistence SKIPPED); this pass did not obtain a newer main push-run record. Main is therefore **not PASS**.
+
+### Full open-PR inventory recheck
+- 19 OPEN PRs: 16 Draft, 3 Ready, 0 merged.
+- Ten PRs base directly on current main SHA; nine have stale base SHAs.
+- Exact-head Actions inventory: 15 PRs have a completed FAILURE run; #259 and #478 have wrapper SUCCESS but incomplete/skipped required jobs; #376 and #476 returned no PR-triggered run. No missing run or SKIPPED job is PASS.
+- The 10 current-main-base PRs are #502, #501, #507, #511, #510, #509, #506, #508, #503 and #500. The nine stale-base PRs are #417, #495, #259, #497, #376, #478, #476, #498 and #496.
+- Current exact-head identifiers and Actions outcomes are recorded in the immediately preceding 11:37 inventory. Newest exact-head updates:
+  - #507 HEAD `7c33bcc56cf731584652e045d3e2ce9e52c3f0a9`, base SHA `6b3ac4b639c285b2c664ffae579029a3fae29f99`; Actions run #45321386243 completed **FAILURE**.
+  - #511 HEAD `7e0e2e17049064b519fa987190bc38791209344e`; Actions run #45318481077 completed **FAILURE**.
+  - #510 HEAD `633218ea0ed7e6775883510bc5ae7a6d656abe24`; Actions run #45317668866 completed **FAILURE**.
+- #507 external statuses on its exact head: CircleCI Pipeline 167 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+
+### Job-level evidence
+- #507 run #45321386243: Resolver job #138200507003 **FAILURE**; exact-SHA diagnostics job #138200517502 **FAILURE**; Windows quality, Ollama, PostgreSQL/RLS and persistence jobs **SKIPPED**. Both failed-job log retrievals returned GitHub Storage 404 `BlobNotFound`; root cause remains **UNKNOWN**.
+- #511 run #45318481077: Resolver and diagnostics jobs **FAILURE**; all downstream quality/integration/persistence jobs **SKIPPED**. Failed-job logs unavailable; root cause remains **UNKNOWN**.
+- #510 run #45317668866: Resolver **SUCCESS**, diagnostics **SUCCESS**, Windows Runner quality **FAILURE**; Unit tests step failed, and type check, lint and production build were **SKIPPED**. The existing handoff records the known shell assertion mismatch (test expects `cmd`, workflow declares `bash`); #511 proposes a Factory-owned test correction but its own current-head Resolver/Diagnostics failure means the correction remains **UNVERIFIED**. Factory owner must close the loop.
+
+### GPT5-owned PR and execution disposition
+- GPT5's current self-owned delivery remains PR #507, restricted to `docs/AGENT_HANDOFF.md`. This delta is within that documentation-only scope.
+- PR #507 remains OPEN / Draft; current exact-head CI is FAILURE, so do not mark Ready, accept or merge. This pass did not run local tests.
+- No PR meets the complete exact-head CI, independent approval, review-thread and base/mergeability gates. No Draft-to-Ready transition or merge is authorized by the evidence.
+- Existing daily automation `6b0333ddf1548191a7da3cefb9ac7b15` is already enabled for daily 09:00 Asia/Taipei. The separate creation attempt was rejected because the account already has 3 active scheduled tasks (plan limit 3); no duplicate task was created. The existing task prompt already carries the user's daily exact-SHA inspection, no-false-green, own-work-priority and safe-blocker-switching requirements.
+- External provider blockers (Vercel build rate limit and CircleCI errors), unavailable GitHub Storage logs, and Factory-owned resolver/diagnostics/test repairs remain external or owner-routed blockers. GPT5 continues only its own authorized operations/documentation lane; no core modules, workflow, Runner, DB/RLS, secrets, permissions, branch protection, deployment or production state were changed.
+
+**Disposition:** MAIN external CI FAIL/ERROR; 19 OPEN PRs; 15 Actions failures; two incomplete wrapper successes; two PRs without a returned PR-triggered run; zero PRs currently evidenced as safe to un-Draft or merge. GPT5 handoff delta is documented but not independently accepted.
