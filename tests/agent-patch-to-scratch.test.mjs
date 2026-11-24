@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync, chmodSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
-import { delimiter, join } from "node:path";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { candidateContainerFailureScope } from "../lib/agent-factory-policy.mjs";
 
@@ -13,30 +13,11 @@ const FIXTURE_COMMIT = "0123456789abcdef0123456789abcdef01234567";
 function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, missingIssueSafety = false, invalidRunnerTemp = false, trackedDirectoryCollision = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const gitBin = join(root, "git-bin");
-  mkdirSync(gitBin);
   if (process.platform === "win32") {
     // The Windows host runner has Git installed; retain a real repository fixture there.
     execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
     execFileSync("git", ["config", "user.email", "factory-test@example.invalid"], { cwd: root });
     execFileSync("git", ["config", "user.name", "Factory Test"], { cwd: root });
-  } else {
-    // The network-isolated Node container intentionally has no Git package.
-    // Provide only the two read-only Git responses this script consumes.
-    const gitShim = String.raw`#!/usr/bin/env node
-const args = process.argv.slice(2);
-if (args[0] === "ls-files" && args[1] === "-z") {
-  process.stdout.write(${JSON.stringify(trackedDirectoryCollision ? "README.md\0docs\0" : "README.md\0")});
-} else if (args[0] === "rev-parse" && args[1] === "HEAD") {
-  process.stdout.write("${FIXTURE_COMMIT}\n");
-} else {
-  console.error("Unsupported fixture git command: " + args.join(" "));
-  process.exitCode = 2;
-}
-`;
-    const shimPath = join(gitBin, "git");
-    writeFileSync(shimPath, gitShim, { mode: 0o755 });
-    chmodSync(shimPath, 0o755);
   }
   writeFileSync(join(root, "README.md"), "scratch fixture\n");
   if (trackedDirectoryCollision) writeFileSync(join(root, "docs"), "not a directory\n");
@@ -68,36 +49,30 @@ if (args[0] === "ls-files" && args[1] === "-z") {
   const patchPath = join(artifacts, "agent-patch.json");
   writeFileSync(patchPath, JSON.stringify({
     schema_version: 1,
-    files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\\n" }],
+    files: [{ path: invalidPatch ? "docs/outside-allowlist.md" : allowedPath, operation: "add", content: "# Generated fixture\n" }],
   }));
   if (invalidPatchJson) writeFileSync(patchPath, "{");
   const githubEnv = join(root, "github-env.txt");
   writeFileSync(githubEnv, "");
   const runnerTemp = invalidRunnerTemp ? join(root, "missing-runner-temp") : join(root, "runner-temp");
   if (!invalidRunnerTemp) mkdirSync(runnerTemp);
-  return { root, githubEnv, runnerTemp, gitBin };
+  return { root, githubEnv, runnerTemp, trackedDirectoryCollision };
 }
 
 function runScript(data) {
   return spawnSync(process.execPath, [scriptPath], {
     cwd: data.root, encoding: "utf8",
-    env: { ...process.env, ...(process.platform === "win32" ? {} : { PATH: [data.gitBin, process.env.PATH ?? ""].filter(Boolean).join(delimiter) }), GITHUB_ENV: data.githubEnv, RUNNER_TEMP: data.runnerTemp },
+    env: { ...process.env, NODE_ENV: "test", GCAN_TEST_GIT_SHIM: process.platform === "win32" ? "0" : "1", GCAN_TEST_TRACKED_DIRECTORY_COLLISION: data.trackedDirectoryCollision ? "1" : "0", GITHUB_ENV: data.githubEnv, RUNNER_TEMP: data.runnerTemp },
   });
 }
 
 test("Linux fixture Git shim returns only the expected read-only metadata", (t) => {
   if (process.platform === "win32") return;
   const data = fixture(t);
-  const shimPath = join(data.gitBin, "git");
-  assert.equal(
-    execFileSync(shimPath, ["ls-files", "-z"], { encoding: "utf8" }),
-    "README.md\0",
-  );
-  assert.equal(
-    execFileSync(shimPath, ["rev-parse", "HEAD"], { encoding: "utf8" }),
-    `${FIXTURE_COMMIT}\n`,
-  );
-  const unexpected = spawnSync(shimPath, ["status"], { encoding: "utf8" });
+  const shimPath = fileURLToPath(new URL("./fixtures/agent-factory-git-shim.mjs", import.meta.url));
+  assert.equal(execFileSync(process.execPath, [shimPath, "ls-files", "-z"], { encoding: "utf8" }), "README.md\0");
+  assert.equal(execFileSync(process.execPath, [shimPath, "rev-parse", "HEAD"], { encoding: "utf8" }), `${FIXTURE_COMMIT}\n`);
+  const unexpected = spawnSync(process.execPath, [shimPath, "status"], { encoding: "utf8" });
   assert.equal(unexpected.status, 2);
   assert.match(unexpected.stderr, /Unsupported fixture git command/);
 });
@@ -143,7 +118,6 @@ test("leaves Runner scratch-directory failures unmarked for system-scope classif
 
 test("applies an authorized patch only to scratch and emits no failure marker", (t) => {
   const data = fixture(t);
-  assert.equal(data.gitBin, join(data.root, "git-bin"));
   const result = runScript(data);
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");

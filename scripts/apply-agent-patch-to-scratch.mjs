@@ -11,6 +11,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
 import { AgentPlanValidationError, validateAgentPlan } from "../lib/agent-plan-validation.mjs";
@@ -19,6 +20,15 @@ import { validatePatchManifest, PatchValidationError } from "../lib/agent-patch-
 
 let scratchDir;
 let task = null;
+const runGit = (args, options) => {
+  // Test-only static shim: no executable is created on the checkout or /tmp.
+  if (process.env.NODE_ENV === "test" && process.env.GCAN_TEST_GIT_SHIM === "1") {
+    const shimPath = fileURLToPath(new URL("../tests/fixtures/agent-factory-git-shim.mjs", import.meta.url));
+    return execFileSync(process.execPath, [shimPath, ...args], options);
+  }
+  return execFileSync("git", args, options);
+};
+
 
 const fail = (message, { taskScoped = false } = {}) => {
   let cleanupSucceeded = true;
@@ -128,7 +138,7 @@ if (patchablePaths.length === 0) {
 const scopedTask = { ...task, allowed_paths: patchablePaths };
 let trackedPaths;
 try {
-  trackedPaths = execFileSync("git", ["ls-files", "-z"], {
+  trackedPaths = runGit(["ls-files", "-z"], {
     encoding: "utf8",
     maxBuffer: 4 * 1024 * 1024,
   }).split("\0").filter(Boolean);
@@ -242,7 +252,7 @@ for (const file of validatedPatch.files) {
 
 let baseCommit = "unknown";
 try {
-  baseCommit = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  baseCommit = runGit(["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 } catch {
   fail("Unable to record the base commit for the scratch workspace.");
 }
