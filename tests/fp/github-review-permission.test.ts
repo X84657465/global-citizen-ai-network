@@ -11,16 +11,16 @@ test("reads collaborator permission through the supplied authenticated host clie
         return { permission: "write" };
       },
     },
-    repository: "owner/repo",
+    repository: "owner/.github",
   });
 
   const result = await verify("reviewer-one");
   assert.deepEqual(calls, [
-    "/repos/owner/repo/collaborators/reviewer-one/permission",
+    "/repos/owner/.github/collaborators/reviewer-one/permission",
   ]);
   assert.deepEqual(result, {
     permission: "write",
-    evidenceRef: "github:owner/repo:collaborator-permission:reviewer-one:write",
+    evidenceRef: "github:owner/.github:collaborator-permission:reviewer-one:write",
   });
 });
 
@@ -51,7 +51,7 @@ test("rejects invalid repositories, reviewer logins and unsupported permission p
   }), TypeError);
   for (const repository of [
     "owner/..", "./repo", "owner/.", "owner/repo/extra", "/repo", "owner/",
-    ".owner/repo", "owner/.repo", "owner./repo", "owner/repo.",
+    ".owner/repo", "owner/..github", "owner./repo", "owner/repo.",
     "owner/foo..bar", "owner/foo//bar",
   ]) {
     assert.throws(() => createFPGitHubReviewerPermissionVerifier({

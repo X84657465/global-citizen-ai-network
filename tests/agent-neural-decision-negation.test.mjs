@@ -25,6 +25,7 @@ test("negated high-risk prohibitions do not independently trigger positive-risk 
     withImplementerText("Do not deploy to production", [
       "Do not modify billing or payout settings",
       "Secrets are not modified",
+      "Secrets not modified",
       "Credentials remain unchanged",
       "Auth is out of scope",
       "Production remains out of scope",
@@ -132,9 +133,16 @@ test("underscore-delimited path terms are high risk without matching longer word
   }
 });
 
-test("a trailing contrast with documentation does not prohibit changing billing", () => {
-  const result = evaluateAgentDecision(withImplementerText("Update billing not documentation"), task);
-  assert.equal(result.decision, "reject_and_replan");
+test("a trailing contrast or qualifier does not negate a sensitive action", () => {
+  for (const title of [
+    "Update billing not documentation",
+    "Rotate secrets not modified this month",
+    `Rotate${" ".repeat(101)}secrets not modified this month`,
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.evidence.high_risk_scope_detected, true, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
 });
 
 test("negation in one intent field cannot suppress a positive requirement in another", () => {

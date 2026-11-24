@@ -33,7 +33,7 @@ function fakeApi(initialIssues = []) {
 
 test("rejects malformed and dot-segment repository names", () => {
   const fake = fakeApi();
-  for (const repository of ["-owner/repo", "owner/-..repo", "owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo", "owner/..repo", "owner./repo", "owner/foo..bar", "owner/repo.", "owner/repo/extra", "/repo", "owner/", "owner\\\\repo"]) {
+  for (const repository of ["-owner/repo", "owner/-..repo", "owner/..", "./repo", ".owner/repo", "owner/.", "..owner/repo", "owner/..github", "owner./repo", "owner/foo..bar", "owner/repo.", "owner/repo/extra", "/repo", "owner/", "owner\\\\repo"]) {
     assert.throws(
       () => createFactoryStateStore(fake.client, { repository }),
       /A valid repository name is required/,
@@ -43,9 +43,10 @@ test("rejects malformed and dot-segment repository names", () => {
   assert.doesNotThrow(() => createFactoryStateStore(fake.client, { repository: "owner/-repo" }));
 });
 
-test("accepts valid repository names with internal dots", () => {
+test("accepts valid repository names with leading or internal dots", () => {
   const fake = fakeApi();
   assert.doesNotThrow(() => createFactoryStateStore(fake.client, { repository: "owner/repo.v2" }));
+  assert.doesNotThrow(() => createFactoryStateStore(fake.client, { repository: "owner/.repo" }));
 });
 
 test("initializes a versioned state when no state Issue exists", async () => {

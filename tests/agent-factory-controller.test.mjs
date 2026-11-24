@@ -42,7 +42,7 @@ function fakeStore(initialState, options = {}) {
 
 test("rejects malformed and dot-segment repository names before controller use", () => {
   const store = fakeStore(createInitialFactoryState(1000));
-  for (const repository of ["-owner/repo", "owner/-..repo", "owner/..", "./repo", ".owner/repo", "owner/.repo", "..owner/repo", "owner/..repo", "owner./repo", "owner/foo..bar", "owner/repo.", "owner/repo/extra", "/repo", "owner/", "owner\\\\repo"]) {
+  for (const repository of ["-owner/repo", "owner/-..repo", "owner/..", "./repo", ".owner/repo", "owner/.", "..owner/repo", "owner/..github", "owner./repo", "owner/foo..bar", "owner/repo.", "owner/repo/extra", "/repo", "owner/", "owner\\\\repo"]) {
     assert.throws(
       () => createAgentFactoryController({ store, repository }),
       /A valid repository name is required/,
@@ -52,6 +52,7 @@ test("rejects malformed and dot-segment repository names before controller use",
   assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo" }));
   assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/repo.v2" }));
   assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/-repo" }));
+  assert.doesNotThrow(() => createAgentFactoryController({ store, repository: "owner/.github" }));
 });
 
 const leaseEnv = {

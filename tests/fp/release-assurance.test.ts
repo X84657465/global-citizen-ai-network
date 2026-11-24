@@ -43,7 +43,10 @@ test("rejects malformed repository path segments in candidate and run identity",
     "../repo",
     "owner/../repo",
     ".owner/repo",
-    "owner/.repo",
+    "owner/.",
+    "owner/..",
+    "owner/...",
+    "owner/._repo",
     "owner/repo/extra",
     "owner//repo",
   ]) {
@@ -164,15 +167,16 @@ test("rejects duplicate job records and malformed run evidence", () => {
   })), TypeError);
 });
 
-test("accepts a leading repository hyphen in the candidate, run and job URLs", () => {
-  const candidateRepository = "owner/-repo";
-  const original = bundle().run;
-  const run = {
-    ...original,
-    repository: candidateRepository,
-    headRepository: candidateRepository,
-    runUrl: original.runUrl.replace(repo, candidateRepository),
-    jobs: original.jobs.map((item) => ({ ...item, jobUrl: item.jobUrl.replace(repo, candidateRepository) })),
-  };
-  assert.equal(assessGExactHeadEvidence(bundle({ candidateRepository, run })).status, "ready-for-review");
+test("accepts supported repository prefixes in the candidate, run and job URLs", () => {
+  for (const candidateRepository of ["owner/-repo", "owner/.github"]) {
+    const original = bundle().run;
+    const run = {
+      ...original,
+      repository: candidateRepository,
+      headRepository: candidateRepository,
+      runUrl: original.runUrl.replace(repo, candidateRepository),
+      jobs: original.jobs.map((item) => ({ ...item, jobUrl: item.jobUrl.replace(repo, candidateRepository) })),
+    };
+    assert.equal(assessGExactHeadEvidence(bundle({ candidateRepository, run })).status, "ready-for-review");
+  }
 });

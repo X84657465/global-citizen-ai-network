@@ -61,7 +61,8 @@ test("rejects malformed repository path segments before assessing F evidence", (
     "../repo",
     "owner/../repo",
     ".owner/repo",
-    "owner/.repo",
+    "owner/.",
+    "owner/..",
     "owner/repo/extra",
     "owner//repo",
   ]) {
@@ -187,16 +188,17 @@ test("rejects forged run/job URLs, duplicate controls, invalid SHAs, and unregis
   })), TypeError);
 });
 
-test("accepts a leading repository hyphen in evidence bound to the candidate CI run", () => {
-  const candidateRepository = "owner/-repo";
-  const records = bundle().evidence.map((item) => ({
-    ...item,
-    ci: {
-      ...item.ci,
-      repository: candidateRepository,
-      runUrl: item.ci.runUrl.replace(repository, candidateRepository),
-      jobUrl: item.ci.jobUrl.replace(repository, candidateRepository),
-    },
-  }));
-  assert.equal(assessFPSecurityEvidence(bundle({ candidateRepository, evidence: records })).status, "ready-for-review");
+test("accepts supported repository prefixes in evidence bound to the candidate CI run", () => {
+  for (const candidateRepository of ["owner/-repo", "owner/.github", "owner/_repo"]) {
+    const records = bundle().evidence.map((item) => ({
+      ...item,
+      ci: {
+        ...item.ci,
+        repository: candidateRepository,
+        runUrl: item.ci.runUrl.replace(repository, candidateRepository),
+        jobUrl: item.ci.jobUrl.replace(repository, candidateRepository),
+      },
+    }));
+    assert.equal(assessFPSecurityEvidence(bundle({ candidateRepository, evidence: records })).status, "ready-for-review");
+  }
 });
