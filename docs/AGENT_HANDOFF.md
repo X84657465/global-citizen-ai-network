@@ -3831,3 +3831,23 @@ This addendum supersedes the earlier PR #528/#530 head and run snapshots above. 
 - This addendum changes only the GPT5-allowlisted `docs/AGENT_HANDOFF.md`; no source, workflow, Runner, Factory state, secret, permission, branch-protection, DB/RLS, deployment or production mutation. No local tests/build/lint were run.
 
 Disposition: main push CI SUCCESS, Factory Recovery PENDING, combined main provider status BLOCKED; 8 PRs OPEN, 0 formal approvals; no ACCEPTED, MERGED or RELEASED result.
+
+
+---
+
+## GPT5 correction — 2026-11-24 21:3x Asia/Taipei (Recovery terminal-state verification)
+
+This correction supersedes the earlier statement that Recovery run `45402845714` was PENDING. A fresh job query now returns terminal **FAILURE**: job `138475659797`, `Verify completed exact-head CI before resetting system breaker`, completed / FAILURE. Attempting to retrieve its job log returned GitHub `404 BlobNotFound`; the failure cause is therefore **UNKNOWN / evidence unavailable**, not diagnosed. Do not retry blindly or reset breaker/cooldown/quarantine/retry budget.
+
+Main exact SHA remains `3c6fc232ec1d07c56f0ba31d3a690079008f4004`; `VERSION` remains `0.3.137`. Main combined statuses were re-read: Vercel SUCCESS; CircleCI Pipeline 311 ERROR. Main push run `45393056714` remains terminal SUCCESS at run/job level: metadata, Windows quality gates, Supabase/PostgreSQL/RLS, Ollama/local integration and the success-persistence job report SUCCESS; two conditional failure-path jobs report SKIPPED. Important nuance: within job `138450597258` (Persist candidate success or reset system breaker), steps `Revalidate candidate PR head before recording success`, `Record exact candidate CI success`, `Write candidate evidence JSON`, and `Upload machine-readable candidate evidence` were all SKIPPED. Thus its job-level SUCCESS does **not** prove candidate success was persisted or that the breaker was reset.
+
+Latest PR exact-head recheck:
+- #528 HEAD `10ddab1887c1bc3c5af030685755c0b6a92c37df`, base main, Draft, mergeable=true; Actions run `45403673352` PENDING with 0 returned jobs; Vercel FAILURE (build-rate-limit), CircleCI Pipeline 321 ERROR; formal APPROVED=0.
+- #530 HEAD `cddd8e66d8736f2516ff084a229fe77cabdec3e9`, base main, Draft, mergeable=true; run `45402137586` PENDING; metadata job SUCCESS and Windows quality gates job PENDING; Vercel FAILURE (build-rate-limit), CircleCI Pipeline 319 ERROR; formal APPROVED=0.
+- #529 HEAD `42259a07eb07f8faba7c9f86e0c7ace7f5babd43`, base main, non-Draft, mergeable=true; Actions run `45399704599` terminal SUCCESS with substantive Windows quality, Supabase/PostgreSQL/RLS and Ollama/local jobs SUCCESS; three diagnostic/conditional jobs SKIPPED. Vercel FAILURE (build-rate-limit), CircleCI Pipeline 307 ERROR; formal APPROVED=0. Not merge-ready.
+- #478/#476/#417/#376/#259 remain OPEN, stale-base, mergeable=false; no exact-head Actions runs returned; 0 formal APPROVED each. Their owners retain rebase/conflict responsibility.
+- Across all eight open PRs: 0 formal APPROVED. No Draft removal, acceptance, merge or release gate is satisfied.
+
+Factory handoff: GPT1 / Factory DRI must diagnose Recovery job `138475659797` from controller/runner-side evidence because GitHub's log blob is unavailable. Repository/provider admin must repair CircleCI project configuration; Vercel build-rate-limit remains an external quota blocker on #528/#529/#530 and several stale PRs. GPT2 owns #529/#530 workstreams; GPT3 independent review remains required; GPT4 B stays preparation-only until Factory acceptance.
+
+GPT5 scope: this is a documentation-only correction to the existing allowlisted handoff file. No Factory implementation/state, Runner, workflow, secret, permission, branch protection, DB/RLS, production or deployment mutation. No local tests/build/lint were run.
