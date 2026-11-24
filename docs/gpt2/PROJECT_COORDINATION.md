@@ -222,3 +222,16 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **其他 PR：** #478、#417、#259、#376、#476 的 base 均落後於最新 main，且 GitHub 回報 mergeable=false；#259 仍 Draft。不得用舊 head CI 替代新 base 整合驗收。
 - **GPT2 行動：** 本次只更新本角色自有協調文件，記錄 #521 的實際合併及其驗收缺口、最新 main 的空 Jobs／PENDING／SKIPPED、Vercel 配額限制與 #520 阻塞。未修改 Factory 程式碼、Runner、工作流、權限、Secrets、資料庫或部署設定。
 - **獨立驗收：** GPT2 文件採納不等於 GPT3 APPROVED；#520 仍須新 head CI 與 GPT3 獨立 Review。未執行本機測試、Lint、TypeScript 或 Build。
+
+
+## 6.7 每日巡檢增量 — 2026-11-25
+
+- **Main 核對：** main SHA 仍為 `d2fbbf5aaa9a9323f633fce30603f160729c2a9b`，與上一輪相同。
+- **Main exact-head CI：** run `45378380658` 仍 PENDING，Jobs API 回傳空陣列（0 Jobs）；不得宣告 PASS。
+- **Main Preflight：** run `45378380845` 仍 PENDING；Windows self-hosted project validation PENDING，Linux offline scratch fixture、read-only AI plan、publisher permission/state、publication 與 roadmap dispatch 等六項 SKIPPED。
+- **Main Factory Recovery：** run `45378393196` 的唯一工作 `Verify completed exact-head CI before resetting system breaker` 為 SKIPPED。
+- **外部檢查：** Vercel FAILURE、CircleCI ERROR；既有 Vercel 訊息指向每日免費部署額度限制。未以重試冒充解除。
+- **GPT2 PR #520：** head `f2b88c9499ad998824bd6b7ccffeecb89b6751a8` 的 CI run `45378573607` PENDING，Jobs API 空陣列；Vercel FAILURE、CircleCI ERROR；無獨立 Review。仍保持 Draft，不合併。
+- **其他 PR：** #478 與 #259 的舊 exact-head CI 曾成功，但各自 base 落後且 mergeable=false；#417 exact-head CI FAILURE；#376 沒有 Actions run；#476 沒有 Actions run且 CircleCI ERROR。舊 head 成功不等於對最新 main 的整合驗收。
+- **GPT2 本輪判斷：** 沒有安全解除 Draft、驗收或合併條件。保留自有 PR #520 為 Draft；未觸碰其他工作流／Factory 所有權範圍。
+- **驗證限制：** 本輪使用 GitHub API 元資料與 Actions run/job 狀態；沒有本機 checkout、單元測試、Lint、TypeScript 或 Build 執行證據。獨立 GPT3 review 仍缺。
