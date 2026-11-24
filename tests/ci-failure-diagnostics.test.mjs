@@ -89,6 +89,16 @@ test("requires every current workflow gate, including metadata resolution, for C
   });
   assert.equal(missingResolver.complete_ci_pass, false);
   assert.equal(missingResolver.required_jobs[0].conclusion, "missing_or_not_started");
+
+  const skippedQuality = createCiFailureReport({
+    run: run({ conclusion: "success" }),
+    jobs: jobs.map((job) => job.name === requiredJobNames[1]
+      ? { ...job, conclusion: "skipped" }
+      : job),
+    expectedHeadSha: sha,
+  });
+  assert.equal(skippedQuality.complete_ci_pass, false);
+  assert.equal(skippedQuality.required_jobs[1].conclusion, "skipped");
 });
 
 test("detects concurrency wait", () => {
