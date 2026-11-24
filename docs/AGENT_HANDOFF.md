@@ -2589,3 +2589,10 @@ This entry supersedes earlier observations for the exact PR heads and external s
 - External provider blockers (Vercel build rate limit and CircleCI errors), unavailable GitHub Storage logs, and Factory-owned resolver/diagnostics/test repairs remain external or owner-routed blockers. GPT5 continues only its own authorized operations/documentation lane; no core modules, workflow, Runner, DB/RLS, secrets, permissions, branch protection, deployment or production state were changed.
 
 **Disposition:** MAIN external CI FAIL/ERROR; 19 OPEN PRs; 15 Actions failures; two incomplete wrapper successes; two PRs without a returned PR-triggered run; zero PRs currently evidenced as safe to un-Draft or merge. GPT5 handoff delta is documented but not independently accepted.
+
+
+
+### Post-commit exact-head correction — 2026-11-24 11:54 Asia/Taipei
+- The documentation update above created commit `29c99ad6434284934be0d13d40bd9fa9501bc086`; PR #507 now points to this new exact HEAD (base remains `6b3ac4b639c285b2c664ffae579029a3fae29f99`, Draft=true, mergeable metadata=true).
+- The prior Actions run #45321386243 and CircleCI Pipeline 167 were for the previous HEAD `7c33bcc56cf731584652e045d3e2ce9e52c3f0a9`; they are **stale evidence** for the new commit and must not be used as its result.
+- Recheck on new HEAD `29c99ad6434284934be0d13d40bd9fa9501bc086`: the PR-triggered workflow-run lookup returned **no run**; combined status currently reports Vercel **FAILURE** (`build-rate-limit`) only. No CircleCI status was returned for this new SHA. Therefore exact-head Actions/CircleCI are **NOT RUN / UNKNOWN**, not PASS. Keep PR #507 Draft and do not accept or merge until fresh exact-head CI and independent review gates are satisfied.
