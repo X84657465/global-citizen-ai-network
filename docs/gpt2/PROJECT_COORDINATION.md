@@ -240,3 +240,22 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
   - **#259** base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`，head `721c57eeb68af070bb91787ac2d9ebd5a0770019`；base 落後目前 main，mergeable=false。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #298 ERROR，未找到該 head 的 Actions run。
 - **驗收界線：** 目前沒有任何一件 PR 同時具備最新 exact-head 必要檢查成功與正式獨立 APPROVED。PENDING／0 Jobs、SKIPPED、Vercel 額度限制、CircleCI ERROR 均不得標示為成功；未合併、未宣稱完成。
 - **本節範圍：** 僅更新 GPT2 自有協調文件，記錄 GPT3 對 #529 提出的後續即時更正要求；不代表 GPT3 已批准 #529，也不替代 GPT1 Factory 或其他角色的工作。
+
+
+## 6.8 即時重核：main、GPT2 PR 與外部檢查 — 2026-11-24（第五次更新）
+
+> 本節只追加本次觀測；6.6／6.7 保留為歷史快照。以下 SHA、Run、Job、Review 以本次 GitHub API 查詢結果為準。
+
+- **main HEAD：** `3c6fc232ec1d07c56f0ba31d3a690079008f4004`。目前 commit status：Vercel SUCCESS、CircleCI Pipeline ERROR。最新 Agent Factory System Health Recovery run `45407095324` 已結束 SKIPPED，唯一 job `138490633246` SKIPPED；前次 recovery `45405216086` 唯一 job `138483941450` FAILURE。Recovery 不得標示 PASS。Main Push CI `45393056714` 的 Windows quality gates、PostgreSQL/RLS、Ollama/local execution 技術工作成功，但候選成功證據重新驗證、寫入及上傳步驟 SKIPPED，故不能視為完整交付證據鏈。
+- **OPEN PR 共 8 件，精確 HEAD 與檢查：**
+  - **#530** Draft，head `ab77b34ea4a9008368656ad42125b21ccb2ef015`，base 為 main。Actions run `45407074332` PENDING，Jobs API 0 jobs；Vercel FAILURE、CircleCI ERROR。Vercel bot 明確回報 `api-deployments-free-per-day`（免費方案每日部署超過 100 次，請等待 24 小時）。舊 head 的 TypeScript BodyInit 錯誤已有型別修正，但新 head 尚未取得終態 CI；不可把舊 head 測試結果沿用。Draft 維持。
+  - **#529（本 PR）** 非 Draft，head `f8df7aca8281823311fcc1e5333ce0c309eb2916`，base 為 main。Actions run `45407503524` PENDING；目前僅 1 job `138492067902`「Resolve exact candidate PR metadata」仍 PENDING，沒有終態驗收。Vercel FAILURE、CircleCI ERROR。Review 只有 COMMENTED，沒有 APPROVED。
+  - **#528** Draft，head `4755ebb5877a0d97f761833875defec2bd72d319`，base 為 main。Actions run `45406450739` PENDING、Jobs API 0 jobs；Vercel FAILURE、CircleCI ERROR。
+  - **#376** head `8e9b14d7a137e5930e9a549c9ff949743689335b`，base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`，mergeable=false；Vercel SUCCESS、CircleCI ERROR，無目前 head 的 Actions run。
+  - **#417** head `4c175c1b6c635eb5d923f616851078e7ce97afc7`，base `25d5ed519eb923d3001df6d43aec1670a0d4851a`，mergeable=false；Vercel FAILURE、CircleCI ERROR，無目前 head 的 Actions run。
+  - **#259** head `721c57eeb68af070bb91787ac2d9ebd5a0770019`，base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`，mergeable=false；Vercel FAILURE、CircleCI ERROR，無目前 head 的 Actions run。
+  - **#478** head `d32781849befd9be53d3fec7329efa54654a96be`，base `4225a244407f7a323262c4d6e17b2749193d6476`，mergeable=false；Vercel FAILURE、CircleCI ERROR，無目前 head 的 Actions run。
+  - **#476** head `977896a9db756e336405bb2f1956f9377da60038`，base `4225a244407f7a323262c4d6e17b2749193d6476`，mergeable=false；Vercel SUCCESS、CircleCI ERROR，無目前 head 的 Actions run。
+- **正式審查：** 八件 PR 均未取得正式 APPROVED；COMMENTED 不得視為批准。#529／#530 的評論不能替代目前精確 HEAD 的獨立審查。
+- **GPT2 自有交付／界線：** 本次只補正本 GPT2 自有文件的即時狀態快照。#530 程式碼與測試仍屬 GPT2 自有工作，但最新 exact-head Actions 0 jobs，故先保留 Draft；不以 Vercel 額度限制為由跳過必要 CI。#528 為 GPT5 工作，不接管。#376／#417／#259／#478／#476 的 base 落後 main 且 mergeable=false，未經各自 owner 協調不得擅自重定向或改寫。
+- **驗證限制：** 本節為唯讀 API 狀態紀錄；文件變更本身未執行程式測試、TypeScript、Lint 或 Build。此快照不構成 GPT3 APPROVED、不構成 PR 合併授權，也不宣稱部署完成。
