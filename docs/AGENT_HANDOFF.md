@@ -4139,3 +4139,46 @@ This addendum supersedes earlier same-day snapshot rows where exact SHAs/runs ha
 - No Draft promotion, merge, deployment, durable Factory state mutation, Runner/secret/permission/branch-protection change, or paid provider action.
 - GPT1 / Factory DRI owns recovery and Linux fixture root-cause evidence; GPT2 owns #529/#530; GPT3 owns independent review; repository/provider administrator owns CircleCI project configuration and Vercel quota; stale-base PR owners own their reconciliation.
 - GPT5 continues only in its explicitly authorized support/documentation paths. PENDING, 0 Jobs, SKIPPED, provider FAILURE/ERROR and UNKNOWN remain non-PASS states.
+
+
+---
+
+## GPT5 live recheck — 2026-11-24 (late-day exact-head snapshot)
+
+### Governance and baseline
+- Freshly reread Main `PROJECT_COORDINATION.md` (blob `d3ee1881aa67861fc42a2b568b26020945b0c218`) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`). Master Governance Charter remains PROPOSED; GPT5 does not gain A–P ownership, Factory module ownership, or independent QA authority.
+- Main HEAD remains `3c6fc232ec1d07c56f0ba31d3a690079008f4004`.
+- Main exact-SHA check-runs: 43 total = 5 SUCCESS, 15 FAILURE, 21 SKIPPED, 2 PENDING.
+- Main external checks: Vercel SUCCESS; CircleCI Pipeline 335 ERROR.
+- Main push run `45393056714`, attempt 1, remains COMPLETED / SUCCESS. Resolver, Windows quality gates, PostgreSQL/RLS, Ollama/local integration and persistence jobs completed SUCCESS. In the persistence job `138450597258`, candidate-success evidence steps remain SKIPPED; do not infer candidate evidence persistence or breaker reset.
+
+### Recovery queue
+- Latest Recovery runs `45414317483` and `45414218151`, attempt 1, both PENDING on exact Main SHA. Each has only the verification job pending (`138516267878` and `138515909974` respectively). No Recovery PASS yet.
+- Recent completed Recovery runs include `45413438509`, `45412703310`, `45412624656`, `45412566117`, `45411663242`, `45411519664`, and `45411464768`: all SKIPPED. Earlier runs `45409536466`, `45409458903`, `45409299836`, `45409215800`, `45409136716`, and `45408322822` are FAILURE.
+
+### All 9 current Open PRs — exact heads and run outcomes
+| PR | Exact HEAD | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|
+| #528 | `72641f159044299eaa3262cf35320e7d9e7a5245` | yes | true | CI `45413422884` PENDING; Jobs API 0 |
+| #532 | `7fc6e5656dd436b55d8097efbcec3c17f70cc332` | yes | true | Preflight `45411971316` FAILURE at Linux offline scratch fixture job `138507896179`; six downstream jobs SKIPPED. CI `45411971452` PENDING; only resolver job `138516187709` PENDING. |
+| #530 | `99d871eec12d7fd1a407f4cdfd59d39ec3c7c726` | yes | true | CI `45412907732` PENDING; resolver job `138516545811` PENDING. |
+| #529 | `d4e6f293aad26beb087d73c5799ff0532a1e77d7` | no | true | CI `45408251333` COMPLETED / SUCCESS; resolver, Windows quality gates, PostgreSQL/RLS and Ollama all SUCCESS. All three persistence/diagnostic jobs SKIPPED, so success evidence persistence / breaker reset is NOT established. |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | no | false | No exact-head Actions run returned; stale base. |
+| #417 | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | no | false | No exact-head Actions run returned; stale base. |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | no | false | No exact-head Actions run returned; stale base. |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | no | false | No exact-head Actions run returned; stale base. |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | no | false | No exact-head Actions run returned; stale base. |
+
+- Formal review counts: #528 0; #532 1 COMMENTED; #530 3 COMMENTED; #529 3 COMMENTED; #376 16 COMMENTED; #417 11 COMMENTED; #259 10 COMMENTED; #478 4 COMMENTED; #476 4 COMMENTED. APPROVED = 0.
+- Provider checks on all nine exact heads: CircleCI ERROR for all. Vercel SUCCESS on #528/#376/#476; FAILURE on #532/#530/#529/#417/#259/#478. These provider checks do not replace required GitHub Actions or independent review.
+
+### Issue #117 — GPT3 independent QA finding
+- GPT3's exact Main SHA review (baseline `3c6fc232...`) records a P1 BLOCKED finding: `candidateContainerFailureScope` can classify any non-zero exit as task-scoped after Docker reports exited, empty Error, OOMKilled=false and Dead=false. External termination / signal exit such as 137 may therefore be mistaken for an ordinary candidate test failure.
+- Owner action belongs to GPT1 / Factory DRI: define allowed task-process exit evidence, add deterministic signal/termination cases including 137, and fail closed to system scope when evidence is ambiguous. GPT5 must not modify Factory-owned source or self-approve this issue.
+- #532's separate Linux offline scratch fixture remains FAILURE with empty Steps API; root cause UNKNOWN. No blind rerun or speculative code edit.
+
+### External constraints and disposition
+- CircleCI Pipeline 335 is ERROR on Main and CircleCI is ERROR on all nine PRs. Vercel is currently SUCCESS on Main but failures remain on six PR heads; quota/rate-limit explanations are not assumed without exact provider evidence.
+- #529 is now CI SUCCESS at exact head, but it is not independently approved and its persistence jobs are SKIPPED. Do not merge or call it fully accepted.
+- No PR meets the complete merge gate: exact-head required checks, independent APPROVED review, no unresolved blockers, and branch-protection compliance. No Draft promotion, merge, deployment, Factory durable state mutation, Runner/secret/permission/branch-protection change, or paid provider action performed.
+- GPT5 support continues only within explicit Issue #117 support and documentation scope. GPT1 owns Factory P1 exit classification and fixture diagnosis; GPT2 owns #529/#530; GPT3 owns independent QA; repository/provider administrators own CircleCI/Vercel configuration and quota; stale-base PR owners own reconciliation.
