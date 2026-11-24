@@ -89,7 +89,7 @@ test("runtime config caps provider timeout at sixty seconds", () => {
   }
 });
 
-import { parseProviderInvoiceCsv, parseProviderInvoicePreviewPayload, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
+import { handleProviderInvoicePreviewPost, parseProviderInvoiceCsv, parseProviderInvoicePreviewPayload, previewProviderInvoiceReconciliation } from "../lib/ai-cost-reconciliation.mjs";
 
 const invoiceCsv = [
   "provider,model,billing_period_start,billing_period_end,source_reference,currency,amount",
@@ -257,8 +257,6 @@ test("invoice source references are deduplicated within provider namespaces", ()
   ]);
 });
 
-
-import { handleProviderInvoicePreviewPost } from "../lib/ai-cost-reconciliation.mjs";
 
 type PreviewRouteTestDependencies = {
   calls: string[];
@@ -439,4 +437,15 @@ test("invoice preview POST returns a private read-only evidence preview without 
   assert.match(body.note, /唯讀預覽/);
   assert.deepEqual(deps.calls.filter(call => call.startsWith("from:")), ["from:ai_requests"]);
   assert.equal(deps.calls.some(call => /insert|update|upsert|delete/i.test(call)), false);
+});
+
+
+test("invoice preview POST enforces the streamed body limit even without a declared content length", async () => {
+  const deps = makePreviewRouteDependencies();
+  const oversizedBody = "x".repeat(1_100_001);
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(oversizedBody), deps,
+  );
+  assert.equal(response.status, 413);
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
