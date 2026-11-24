@@ -24,15 +24,19 @@ defaults:
 
 jobs:
   resolve-candidate:
-    # Metadata resolution uses only the read-only GitHub API and must not
-    # occupy or wait behind the scarce Windows/Ollama execution runner.
+    # Use the verified Windows self-hosted Runner while hosted Ubuntu
+    # allocation is failing; serialize with other stateful CI work.
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
        (github.event.pull_request.user.login == github.repository_owner ||
         github.event.pull_request.user.login == 'github-actions[bot]'))
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     timeout-minutes: 10
     permissions:
       contents: read
@@ -49,13 +53,28 @@ jobs:
       api_cooldown_until: ${{ steps.resolve.outputs.api_cooldown_until }}
     steps:
       - name: Initialize fallback resolver evidence before checkout
-        shell: bash
         env:
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
           WORKFLOW_EVENT: ${{ github.event_name }}
           WORKFLOW_REF: ${{ github.ref }}
         run: |
-          printf '{\n  "schemaVersion": 1,\n  "stage": "resolver_not_completed",\n  "errorName": "ResolverDidNotComplete",\n  "httpStatus": null,\n  "method": "",\n  "path": "",\n  "rateLimited": false,\n  "retryAfterMs": null,\n  "expectedHeadSha": "%s",\n  "workflowRunId": "%s",\n  "runAttempt": "%s",\n  "event": "%s",\n  "ref": "%s"\n}\n' "$EXPECTED_HEAD_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$WORKFLOW_EVENT" "$WORKFLOW_REF" > "$RUNNER_TEMP/resolver-diagnostics.json"
+          $fallback = [ordered]@{
+            schemaVersion = 1
+            stage = "resolver_not_completed"
+            errorName = "ResolverDidNotComplete"
+            httpStatus = $null
+            method = ""
+            path = ""
+            rateLimited = $false
+            retryAfterMs = $null
+            expectedHeadSha = $env:EXPECTED_HEAD_SHA
+            workflowRunId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            event = $env:WORKFLOW_EVENT
+            ref = $env:WORKFLOW_REF
+          }
+          $json = $fallback | ConvertTo-Json -Depth 10
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "resolver-diagnostics.json"), $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
       - name: Checkout resolver
         uses: actions/checkout@v5
         with:
@@ -66,7 +85,6 @@ jobs:
           node-version: "22.13.0"
       - name: Resolve current PR head and task marker
         id: resolve
-        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -693,8 +711,8 @@ jobs:
           retention-days: 90
 
   ci-diagnostics:
-    # Diagnostics are GitHub API / artifact work only; never queue behind
-    # the scarce Windows/Ollama execution runner.
+    # Use the verified Windows self-hosted Runner while hosted Ubuntu
+    # allocation is failing; serialize with other CI jobs.
     name: Exact-SHA CI failure diagnostics and evidence
     needs: [resolve-candidate, quality, build, database]
     if: >-
@@ -703,7 +721,11 @@ jobs:
        needs.quality.result == 'failure' ||
        needs.build.result == 'failure' ||
        needs.database.result == 'failure')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     timeout-minutes: 10
     permissions:
       actions: read
@@ -713,13 +735,23 @@ jobs:
         shell: pwsh
     steps:
       - name: Initialize fallback CI evidence before checkout
-        shell: bash
         env:
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
           WORKFLOW_EVENT: ${{ github.event_name }}
           WORKFLOW_REF: ${{ github.ref }}
         run: |
-          printf '{\n  "schemaVersion": 1,\n  "captureStatus": "incomplete",\n  "failureStage": "checkout_or_diagnostics_not_completed",\n  "workflowRunId": "%s",\n  "runAttempt": "%s",\n  "expectedHeadSha": "%s",\n  "event": "%s",\n  "ref": "%s"\n}\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$EXPECTED_HEAD_SHA" "$WORKFLOW_EVENT" "$WORKFLOW_REF" > "$RUNNER_TEMP/ci-failure-diagnostics.json"
+          $fallback = [ordered]@{
+            schemaVersion = 1
+            captureStatus = "incomplete"
+            failureStage = "checkout_or_diagnostics_not_completed"
+            workflowRunId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            expectedHeadSha = $env:EXPECTED_HEAD_SHA
+            event = $env:WORKFLOW_EVENT
+            ref = $env:WORKFLOW_REF
+          }
+          $json = $fallback | ConvertTo-Json -Depth 10
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-failure-diagnostics.json"), $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
         with:
