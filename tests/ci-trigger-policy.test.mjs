@@ -109,7 +109,7 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
 
 test("CI keeps stateful quality and integration jobs serialized on the Windows Runner", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
-  assert.ok(workflowLevelConcurrency.includes("cancel-in-progress: false"));
+  assert.ok(workflowLevelConcurrency.includes("cancel-in-progress:") && workflowLevelConcurrency.includes("ai-task/issue-") && workflowLevelConcurrency.includes("codex/issue-"), "only superseded non-task runs may be cancelled");
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
   const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success"];
   for (const job of jobs) {
@@ -146,6 +146,7 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
   assert.ok(preflight.includes('      - "lib/agent-failure-scope.mjs"\n'), "changes to the task-failure scope helper must trigger factory validation");
   assert.ok(preflight.includes('      - "tests/agent-failure-scope.test.mjs"\n'), "changes to the helper regression tests must trigger factory validation");
+  assert.equal(preflight.includes('      - ".github/workflows/agent-task-preflight.yml"\n'), false, "workflow-only changes are validated by CI policy tests, not by the unrelated Linux scratch fixture");
   assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must remain runnable on the active development branch");
 
   const workflowHeader = preflight.slice(0, preflight.indexOf("\njobs:"));
@@ -159,7 +160,8 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   const validationSection = jobsSource.slice(validationStart, prepareStart);
   const prepareBounds = findJobSection(jobsSource, "prepare-task");
   const prepareSection = jobsSource.slice(prepareBounds.start, prepareBounds.end);
-  assert.ok(validationSection.includes("if: github.event_name == 'push' && github.actor == github.repository_owner"));
+  assert.ok(validationSection.includes("if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner"));
+  assert.ok(validationSection.includes("manual to avoid duplicate Runner work"));
   const ciQualityBounds = findJobSection(workflow, "quality");
   const ciQualitySection = workflow.slice(ciQualityBounds.start, ciQualityBounds.end);
   assert.ok(ciQualitySection.includes("uses: actions/setup-node@v5"),

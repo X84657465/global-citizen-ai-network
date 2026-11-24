@@ -54,7 +54,6 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - ".github/workflows/agent-task-preflight.yml"
       - "tests/agent-patch-to-scratch.test.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
       - "lib/agent-plan-validation.mjs"
@@ -129,7 +128,9 @@ jobs:
 
   validation-tests:
     name: Windows self-hosted project validation
-    if: github.event_name == 'push' && github.actor == github.repository_owner
+    # CI already runs the full exact-SHA quality, Ollama and database gates on pushes.
+    # Keep this heavier synthetic Factory smoke test manual to avoid duplicate Runner work.
+    if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max

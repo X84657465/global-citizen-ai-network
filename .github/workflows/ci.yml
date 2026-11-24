@@ -1,10 +1,11 @@
 name: CI
 run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}
-# Keep one active run per PR/ref; GitHub coalesces pending runs. Never cancel an active state writer.
+# Superseded main/non-task PR runs are safe to cancel: only the newest exact SHA matters.
+# Never cancel task PR or task-dispatch runs because their CI jobs can write durable Factory state.
 
 concurrency:
   group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ !(startsWith(github.event.pull_request.head.ref, 'ai-task/issue-') || startsWith(github.event.pull_request.head.ref, 'codex/issue-') || startsWith(github.event.client_payload.head_ref, 'ai-task/issue-') || startsWith(github.event.client_payload.head_ref, 'codex/issue-')) }}
 
 on:
   push:
