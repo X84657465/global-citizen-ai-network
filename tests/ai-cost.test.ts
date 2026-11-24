@@ -269,6 +269,14 @@ type PreviewRouteTestDependencies = {
 };
 
 type PreviewRequestResult = { data: unknown[] | null; error: unknown };
+type PreviewQuery = {
+  select: (columns: string) => PreviewQuery;
+  gte: (column: string, value: string) => PreviewQuery;
+  lte: (column: string, value: string) => PreviewQuery;
+  not: (column: string, operator: string, value: null) => PreviewQuery;
+  order: (column: string, options: { ascending: boolean }) => PreviewQuery;
+  limit: (count: number) => Promise<PreviewRequestResult>;
+};
 
 function makePreviewRouteDependencies(
   overrides: Partial<Omit<PreviewRouteTestDependencies, "calls">> = {},
@@ -287,14 +295,7 @@ function makePreviewRouteDependencies(
     hasServiceRoleKey: () => true,
     createAdminClient: () => {
       calls.push("admin-client");
-      let query: {
-        select: (columns: string) => typeof query;
-        gte: (column: string, value: string) => typeof query;
-        lte: (column: string, value: string) => typeof query;
-        not: (column: string, operator: string, value: null) => typeof query;
-        order: (column: string, options: { ascending: boolean }) => typeof query;
-        limit: (count: number) => Promise<PreviewRequestResult>;
-      };
+      let query: PreviewQuery;
       query = {
         select: (columns) => { calls.push("select:" + columns); return query; },
         gte: (column) => { calls.push("gte:" + column); return query; },
@@ -329,9 +330,9 @@ function makeInvoicePreviewRequest(body: string | Uint8Array, headers: Record<st
 
 test("invoice preview POST returns 401 before profile or database access", async () => {
   const deps = makePreviewRouteDependencies({
-    getAuthenticatedClient: async () => { throw new Error("not used"); },
+    getAuthenticatedClient: async () => null,
   });
-  deps.getAuthenticatedClient = async () => { deps.calls.push("auth"); return null; };
+  deps.calls.push("auth");
   const response = await handleProviderInvoicePreviewPost(
     makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
   );
