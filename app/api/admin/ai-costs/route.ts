@@ -128,7 +128,7 @@ export async function GET() {
 export async function POST(request: Request) {
   return handleProviderInvoicePreviewPost(request, {
     getAuthenticatedClient,
-    getProfile: async (auth) => auth.supabase.from("profiles")
+    getProfile: async (auth: NonNullable<Awaited<ReturnType<typeof getAuthenticatedClient>>>) => auth.supabase.from("profiles")
       .select("role,account_status").eq("id", auth.user.id).maybeSingle(),
     hasServiceRoleKey: () => Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
     createAdminClient,
