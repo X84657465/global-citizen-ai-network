@@ -29,7 +29,7 @@ const startCandidate = (state, issueNumber, evidence, now = Date.now()) =>
 
 test("creates a valid versioned empty state", () => {
   const state = createInitialFactoryState(1000);
-  assert.equal(state.schema_version, 2);
+  assert.equal(state.schema_version, 3);
   assert.equal(state.state_version, 0);
   assert.equal(validateFactoryState(state), true);
 });
