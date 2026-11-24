@@ -52,8 +52,10 @@ jobs:
         shell: bash
         env:
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+          WORKFLOW_EVENT: ${{ github.event_name }}
+          WORKFLOW_REF: ${{ github.ref }}
         run: |
-          printf '{\n  "schemaVersion": 1,\n  "stage": "resolver_not_completed",\n  "errorName": "ResolverDidNotComplete",\n  "httpStatus": null,\n  "method": "",\n  "path": "",\n  "rateLimited": false,\n  "retryAfterMs": null,\n  "expectedHeadSha": "%s",\n  "workflowRunId": "%s",\n  "runAttempt": "%s"\n}\n' "$EXPECTED_HEAD_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > "$RUNNER_TEMP/resolver-diagnostics.json"
+          printf '{\n  "schemaVersion": 1,\n  "stage": "resolver_not_completed",\n  "errorName": "ResolverDidNotComplete",\n  "httpStatus": null,\n  "method": "",\n  "path": "",\n  "rateLimited": false,\n  "retryAfterMs": null,\n  "expectedHeadSha": "%s",\n  "workflowRunId": "%s",\n  "runAttempt": "%s",\n  "event": "%s",\n  "ref": "%s"\n}\n' "$EXPECTED_HEAD_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$WORKFLOW_EVENT" "$WORKFLOW_REF" > "$RUNNER_TEMP/resolver-diagnostics.json"
       - name: Checkout resolver
         uses: actions/checkout@v5
         with:
@@ -714,8 +716,10 @@ jobs:
         shell: bash
         env:
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+          WORKFLOW_EVENT: ${{ github.event_name }}
+          WORKFLOW_REF: ${{ github.ref }}
         run: |
-          printf '{\n  "schemaVersion": 1,\n  "captureStatus": "incomplete",\n  "failureStage": "checkout_or_diagnostics_not_completed",\n  "workflowRunId": "%s",\n  "runAttempt": "%s",\n  "expectedHeadSha": "%s"\n}\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$EXPECTED_HEAD_SHA" > "$RUNNER_TEMP/ci-failure-diagnostics.json"
+          printf '{\n  "schemaVersion": 1,\n  "captureStatus": "incomplete",\n  "failureStage": "checkout_or_diagnostics_not_completed",\n  "workflowRunId": "%s",\n  "runAttempt": "%s",\n  "expectedHeadSha": "%s",\n  "event": "%s",\n  "ref": "%s"\n}\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$EXPECTED_HEAD_SHA" "$WORKFLOW_EVENT" "$WORKFLOW_REF" > "$RUNNER_TEMP/ci-failure-diagnostics.json"
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
         with:
