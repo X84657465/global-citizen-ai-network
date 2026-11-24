@@ -676,47 +676,59 @@ test("Ollama output truncation is classified as task-scoped, not a system breake
 });
 
 
-test("system breaker recovery waits for a completed successful exact-head CI workflow run", () => {
+test("system breaker recovery resolves one trusted main PR from the completed CI exact SHA", () => {
   const recovery = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
   const ci = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
   assert.equal(ci.includes("AGENT_FACTORY_MODE: success"), false,
     "the in-progress CI workflow must not invoke the legacy non-mutating success callback");
   assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
-  assert.ok(recovery.includes("github.event.workflow_run.conclusion == 'success'"));
-  assert.ok(recovery.includes("github.event.workflow_run.event == 'pull_request'"));
-  assert.ok(recovery.includes("github.event.workflow_run.path == '.github/workflows/ci.yml'"));
-  assert.ok(recovery.includes("github.event.workflow_run.head_repository.full_name == github.repository"));
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].number > 0"));
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[1] == null"),
-    "ambiguous workflow_run PR associations must skip before acquiring the shared Runner queue");
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].base.ref == 'main'"));
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].base.repo.id == github.event.repository.id"));
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.repo.id == github.event.repository.id"));
-  assert.ok(recovery.includes("github.event.workflow_run.pull_requests[0].head.ref == github.event.workflow_run.head_branch"));
-  assert.ok(recovery.includes("!startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-')"),
-    "AI task-candidate PRs must never be treated as independent system-health evidence");
-  assert.ok(recovery.includes("!startsWith(github.event.workflow_run.head_branch, 'codex/issue-')"),
-    "Codex task-candidate PRs must never be treated as independent system-health evidence");
+  for (const guard of [
+    "github.event.workflow_run.conclusion == 'success'",
+    "github.event.workflow_run.event == 'pull_request'",
+    "github.event.workflow_run.path == '.github/workflows/ci.yml'",
+    "github.event.workflow_run.head_repository.full_name == github.repository",
+  ]) assert.ok(recovery.includes(guard), "recovery trigger must retain " + guard);
+  assert.equal(recovery.includes("workflow_run.pull_requests"), false,
+    "PR association must be resolved from the completed workflow's exact SHA, not optional workflow_run metadata");
+
+  for (const guard of [
+    "commits/${sha}/pulls",
+    'pr.state === "open"',
+    'pr.base?.ref === "main"',
+    "pr.base?.repo?.full_name === process.env.GITHUB_REPOSITORY",
+    "pr.head?.repo?.full_name === process.env.GITHUB_REPOSITORY",
+    "pr.head?.sha === sha",
+    "pr.head?.ref === ref",
+    "matches.length !== 1",
+    'pr.head.ref.startsWith("ai-task/issue-")',
+    'pr.head.ref.startsWith("codex/issue-")',
+  ]) assert.ok(recovery.includes(guard), "exact-SHA PR resolver must retain " + guard);
+
+  const resolveStart = recovery.indexOf("- name: Resolve and verify the unique exact-head main PR");
+  const verifyStart = recovery.indexOf("- name: Verify completed CI provenance and reset global breaker");
+  assert.ok(resolveStart >= 0 && verifyStart > resolveStart,
+    "the unique PR resolution must complete before the privileged Factory state mutation");
+  assert.ok(recovery.includes("WORKFLOW_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"));
+  assert.ok(recovery.includes("WORKFLOW_HEAD_REF: " + "$" + "{{ github.event.workflow_run.head_branch }}"));
+  assert.ok(recovery.includes("SYSTEM_HEALTH_PULL_REQUEST_NUMBER: " + "$" + "{{ steps.resolve-pr.outputs.number }}"));
+  assert.ok(recovery.includes("SYSTEM_HEALTH_PR_HEAD_SHA: " + "$" + "{{ steps.resolve-pr.outputs.head_sha }}"));
   const recoveryWorkflowHeader = recovery.slice(0, recovery.indexOf("\njobs:"));
   assert.equal(recoveryWorkflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false,
     "cancelled/failed workflow_run events must not reserve the shared Runner queue at workflow scope");
-  const recoveryJobStart = recovery.indexOf("  reset-system-breaker:\n");
+  const recoveryJobStart = recovery.indexOf("  reset-system-breaker:\\n");
   const recoveryJob = recovery.slice(recoveryJobStart);
   assert.ok(recoveryJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
   assert.ok(recoveryJob.includes("queue: max"));
   assert.ok(recoveryJob.includes("cancel-in-progress: false"));
   assert.ok(recovery.includes("runs-on: ubuntu-latest"),
     "the state recovery job must stay on hosted Linux while retaining the shared cross-process queue");
-  assert.ok(recovery.includes("actions: read"));
-  assert.ok(recovery.includes("contents: read"));
-  assert.ok(recovery.includes("issues: write"));
-  assert.ok(recovery.includes("pull-requests: read"));
+  for (const permission of ["actions: read", "contents: read", "issues: write", "pull-requests: read"])
+    assert.ok(recovery.includes(permission));
   assert.ok(recovery.includes("ref: main"));
   assert.ok(recovery.includes("persist-credentials: false"));
   assert.ok(recovery.includes("AGENT_FACTORY_MODE: system-health-success"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ID: " + "$" + "{{ github.event.workflow_run.id }}"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ATTEMPT: " + "$" + "{{ github.event.workflow_run.run_attempt }}"));
-  assert.ok(recovery.includes("SYSTEM_HEALTH_PULL_REQUEST_NUMBER: " + "$" + "{{ github.event.workflow_run.pull_requests[0].number }}"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"));
   assert.ok(recovery.includes("run: node scripts/agent-factory-v2-controller.mjs"));
   assert.equal(recovery.includes("ref: " + "$" + "{{ github.event.workflow_run.head_sha }}"), false,
@@ -907,65 +919,28 @@ test("Agent Factory isolates candidate generation, PR publication, state writes,
 });
 
 
-test("post-completion recovery guard compares stable repository IDs from workflow_run PR metadata", () => {
+test("post-completion recovery resolver rejects forks, stale heads, wrong bases, and ambiguous PRs", () => {
   const recoveryWorkflow = readFileSync(
     new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url),
     "utf8",
   ).replace(/\r\n/g, "\n");
-
-  assert.ok(recoveryWorkflow.includes(
-    "github.event.workflow_run.pull_requests[0].base.repo.id == github.event.repository.id",
-  ));
-  assert.ok(recoveryWorkflow.includes(
-    "github.event.workflow_run.pull_requests[0].head.repo.id == github.event.repository.id",
-  ));
-  assert.equal(recoveryWorkflow.includes("pull_requests[0].base.repo.full_name"), false);
-  assert.equal(recoveryWorkflow.includes("pull_requests[0].head.repo.full_name"), false);
-
-  // GitHub's workflow_run PR association contains repository id/url/name;
-  // full_name is not guaranteed on these nested repository objects.
-  const sameRepositoryPayload = {
-    repository: { id: 1460944830 },
-    workflow_run: {
-      pull_requests: [{
-        base: { ref: "main", repo: { id: 1460944830, name: "global-citizen-ai-network" } },
-        head: { ref: "feature/recovery-fix", repo: { id: 1460944830, name: "global-citizen-ai-network" } },
-      }],
-    },
-  };
-  const associated = sameRepositoryPayload.workflow_run.pull_requests[0];
-  assert.equal(associated.base.repo.id === sameRepositoryPayload.repository.id, true);
-  assert.equal(associated.head.repo.id === sameRepositoryPayload.repository.id, true);
-
-  const forkPayload = structuredClone(sameRepositoryPayload);
-  forkPayload.workflow_run.pull_requests[0].head.repo.id = 999;
-  assert.equal(
-    forkPayload.workflow_run.pull_requests[0].head.repo.id === forkPayload.repository.id,
-    false,
-  );
-
-  const wrongBasePayload = structuredClone(sameRepositoryPayload);
-  wrongBasePayload.workflow_run.pull_requests[0].base.repo.id = 999;
-  assert.equal(
-    wrongBasePayload.workflow_run.pull_requests[0].base.repo.id === wrongBasePayload.repository.id,
-    false,
-  );
-
-  const missingRepositoryPayload = structuredClone(sameRepositoryPayload);
-  delete missingRepositoryPayload.workflow_run.pull_requests[0].head.repo.id;
-  assert.equal(
-    missingRepositoryPayload.workflow_run.pull_requests[0].head.repo.id === missingRepositoryPayload.repository.id,
-    false,
-  );
-
+  const resolverStart = recoveryWorkflow.indexOf("const matches = prs.filter(");
+  const resolverEnd = recoveryWorkflow.indexOf("if (matches.length !== 1)", resolverStart);
+  assert.ok(resolverStart >= 0 && resolverEnd > resolverStart,
+    "recovery must explicitly filter all PR candidates before accepting one");
+  const resolver = recoveryWorkflow.slice(resolverStart, resolverEnd);
   for (const requiredGuard of [
-    "github.event.workflow_run.pull_requests[0].number > 0",
-    "github.event.workflow_run.pull_requests[1] == null",
-    "github.event.workflow_run.pull_requests[0].base.ref == 'main'",
-    "github.event.workflow_run.pull_requests[0].head.ref == github.event.workflow_run.head_branch",
-    "!startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-')",
-    "!startsWith(github.event.workflow_run.head_branch, 'codex/issue-')",
-  ]) {
-    assert.ok(recoveryWorkflow.includes(requiredGuard), "recovery guard must retain " + requiredGuard);
-  }
+    'pr.state === "open"',
+    'pr.base?.ref === "main"',
+    "pr.base?.repo?.full_name === process.env.GITHUB_REPOSITORY",
+    "pr.head?.repo?.full_name === process.env.GITHUB_REPOSITORY",
+    "pr.head?.sha === sha",
+    "pr.head?.ref === ref",
+  ]) assert.ok(resolver.includes(requiredGuard), "exact-head resolver must retain " + requiredGuard);
+  assert.ok(recoveryWorkflow.includes("matches.length !== 1"),
+    "zero or multiple PR matches must fail closed");
+  assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("ai-task/issue-")'));
+  assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("codex/issue-")'));
+  assert.equal(recoveryWorkflow.includes("workflow_run.pull_requests"), false,
+    "recovery must not trust optional workflow_run PR associations");
 });
