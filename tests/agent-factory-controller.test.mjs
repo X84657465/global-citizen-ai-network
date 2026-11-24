@@ -1544,6 +1544,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
     cooldown_until: new Date(120_000).toISOString(),
     last_error_code: "RUNNER_UNAVAILABLE",
     last_error: "Shared Runner is still unavailable.",
+    last_failure_at: new Date(2000).toISOString(),
     last_success_at: new Date(500).toISOString(),
   };
   initial.tasks["99"] = {
