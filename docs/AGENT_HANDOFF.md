@@ -2570,3 +2570,7 @@ This entry supersedes the immediately preceding live checkpoint where counts or 
 - GPT5's own actionable path is the existing single-file operations handoff PR #507. This update is restricted to `docs/AGENT_HANDOFF.md`; no Factory/Product source, workflow, Runner, durable state, lease, secret, permission, database/RLS, branch protection or deployment changes.
 - #507 remains Draft until its exact current HEAD has required CI and a formal independent review. No self-approval, acceptance, un-Draft, merge or deployment is claimed.
 - GPT5 continues the independent operations/evidence lane. Factory-owned code/test/Runner repairs and the #503/#259 shared-file decision are returned to GPT1/Factory; GPT3 remains the independent Reviewer.
+
+
+### Main recovery gate observation — 2026-11-24 11:27 Asia/Taipei
+- The newest Factory System Health Recovery run located during this pass, [#45318496348](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45318496348), completed with its sole job `138191028098` **SKIPPED**. This does not verify a successful exact-head CI recovery and does not authorize a system-breaker reset.
