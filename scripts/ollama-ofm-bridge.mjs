@@ -1,4 +1,6 @@
 import http from "node:http";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const MAX_REQUEST_BYTES = 1024 * 1024;
 const MAX_RESPONSE_BYTES = 1024 * 1024;
@@ -104,11 +106,10 @@ async function streamChatCompletion(upstream, downstream, controller) {
       const { done, value } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
-      let boundary = buffer.indexOf("\n\n");
-      while (boundary !== -1) {
-        consumeFrame(buffer.slice(0, boundary));
-        buffer = buffer.slice(boundary + 2);
-        boundary = buffer.indexOf("\n\n");
+      let separator;
+      while ((separator = /\\r?\\n\\r?\\n/.exec(buffer)) !== null) {
+        consumeFrame(buffer.slice(0, separator.index));
+        buffer = buffer.slice(separator.index + separator[0].length);
       }
       if (Buffer.byteLength(buffer, "utf8") > 65536) throw new Error("upstream_event_too_large");
     }
@@ -256,7 +257,7 @@ export function createOllamaOfmBridge(options = {}) {
   return server;
 }
 
-if (process.argv[1] && import.meta.url === new URL("file://" + process.argv[1]).href) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   const server = createOllamaOfmBridge();
   const port = Number(process.env.OFM_BRIDGE_PORT ?? 11435);
   server.listen(port, "127.0.0.1", () => {
