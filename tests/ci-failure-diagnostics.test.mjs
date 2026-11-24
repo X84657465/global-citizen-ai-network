@@ -139,3 +139,43 @@ test("redacts credentials", () => {
   assert.doesNotMatch(value, /ghp_abcdefghijklmnopqrstuvwxyz|Bearer abcdefghijklmnopqrstuvwxyz/);
   assert.match(value, /REDACTED/);
 });
+
+
+test("records each diagnostics source independently when APIs and logs are unavailable", () => {
+  const capture = {
+    run_metadata: { status: "UNAVAILABLE", error_class: "HttpRequestError", http_status: 503 },
+    jobs: { status: "UNAVAILABLE", error_class: "HttpRequestError", http_status: 503 },
+    sibling_runs: { status: "UNAVAILABLE", error_class: "HttpRequestError", http_status: 503 },
+    logs: { status: "UNAVAILABLE", error_class: "BlobNotFound", http_status: 404 },
+  };
+  const report = createCiFailureReport({
+    run: run({ status: "unknown", conclusion: null }),
+    jobs: [],
+    siblingRuns: [],
+    expectedHeadSha: sha,
+    capture,
+  });
+  assert.equal(report.complete_ci_pass, false);
+  assert.equal(report.failure_category, null);
+  assert.deepEqual(report.capture_sources, capture);
+  assert.equal(report.required_jobs.every((job) => job.conclusion === "missing_or_not_started"), true);
+  assert.equal(report.blocker, "run_metadata_unavailable");
+});
+
+test("keeps missing job payloads unknown instead of fabricating successful jobs", () => {
+  const report = createCiFailureReport({
+    run: run({ conclusion: "success" }),
+    jobs: [],
+    expectedHeadSha: sha,
+    capture: {
+      run_metadata: { status: "SUCCESS" },
+      jobs: { status: "UNAVAILABLE", error_class: "MalformedPayload" },
+      sibling_runs: { status: "SUCCESS" },
+      logs: { status: "UNAVAILABLE", error_class: "BlobNotFound" },
+    },
+  });
+  assert.equal(report.complete_ci_pass, false);
+  assert.equal(report.blocker, "jobs_metadata_unavailable");
+  assert.equal(report.capture_sources.logs.status, "UNAVAILABLE");
+  assert.equal(report.required_jobs.every((job) => job.conclusion === "missing_or_not_started"), true);
+});
