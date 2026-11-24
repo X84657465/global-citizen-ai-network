@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   classifyCiFailure,
   createCiFailureReport,
@@ -178,4 +179,33 @@ test("keeps missing job payloads unknown instead of fabricating successful jobs"
   assert.equal(report.blocker, "jobs_metadata_unavailable");
   assert.equal(report.capture_sources.logs.status, "UNAVAILABLE");
   assert.equal(report.required_jobs.every((job) => job.conclusion === "missing_or_not_started"), true);
+});
+
+
+test("preserves independent unavailable status for each diagnostics source", () => {
+  for (const source of ["run_metadata", "jobs", "sibling_runs", "logs"]) {
+    const capture = {
+      run_metadata: { status: "SUCCESS" },
+      jobs: { status: "SUCCESS" },
+      sibling_runs: { status: "SUCCESS" },
+      logs: { status: "SUCCESS" },
+    };
+    capture[source] = { status: "UNAVAILABLE", error_class: "InjectedFailure", http_status: 503 };
+    const report = createCiFailureReport({
+      run: run({ status: "completed", conclusion: "failure" }),
+      jobs: [],
+      expectedHeadSha: sha,
+      capture,
+    });
+    assert.equal(report.complete_ci_pass, false, source);
+    assert.equal(report.capture_sources[source].status, "UNAVAILABLE", source);
+  }
+});
+
+test("workflow retains fallback evidence and uploads diagnostics even after failure", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+  assert.match(workflow, /Initialize fallback CI evidence before checkout/);
+  assert.match(workflow, /CI_CAPTURE_STATUS_JSON: \\$\{\{ runner\.temp \/ci-capture-status\.json \}\}/);
+  assert.match(workflow, /- name: Upload redacted CI failure evidence\s+if: always\(\)/);
+  assert.match(workflow, /if-no-files-found: error/);
 });
