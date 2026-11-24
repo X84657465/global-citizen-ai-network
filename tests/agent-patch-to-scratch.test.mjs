@@ -13,7 +13,10 @@ const FIXTURE_COMMIT = "0123456789abcdef0123456789abcdef01234567";
 function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, missingIssueSafety = false, invalidRunnerTemp = false, trackedDirectoryCollision = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const gitBin = join(root, "git-bin");
+  // /tmp may be mounted noexec in the restricted Linux candidate container.
+  // Keep the executable Git shim in the checked-out workspace instead.
+  const gitBin = mkdtempSync(join(process.cwd(), ".gcan-git-bin-"));
+  t.after(() => rmSync(gitBin, { recursive: true, force: true }));
   mkdirSync(gitBin);
   if (process.platform === "win32") {
     // The Windows host runner has Git installed; retain a real repository fixture there.
