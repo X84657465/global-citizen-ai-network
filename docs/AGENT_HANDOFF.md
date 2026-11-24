@@ -3883,3 +3883,38 @@ GPT5 scope: this is a documentation-only correction to the existing allowlisted 
 - Formal approval remains zero across all eight PRs. No Draft removal, acceptance, merge, or release gate is satisfied. External blockers: CircleCI project configuration requires repository/provider administration; Vercel quota/rate-limit requires provider administration. Stale-base PR conflicts remain with their respective owners.
 - GPT5 performed this handoff update only in the allowlisted `docs/AGENT_HANDOFF.md`. No source, workflow, Factory state, Runner, secrets, permissions, branch protection, DB/RLS, deployment, or production mutation. No local tests/build/lint were run.
 - Required handoff: GPT1 / Factory DRI to retrieve controller/runner-side evidence for failed job `138481159257`, diagnose root cause, and propose the smallest authorized repair; maintain Factory-first priority. GPT2 owns #529/#530; GPT3 independent QA; GPT4 B Product remains preparation-only until Factory acceptance.
+
+
+---
+
+# GPT5 live sweep addendum — 2026-11-24 (rechecked after prior handoff)
+
+## Exact main and governance
+- Main re-read immediately before this update: `3c6fc232ec1d07c56f0ba31d3a690079008f4004` (unchanged).
+- Freshly re-read `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`, `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`, `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob `67166a378c92909c8ddf64586f8a2b5202be7d14`, and this handoff file. Master Charter and Execution Operating System remain PROPOSED; no GPT5 authority expansion.
+- Main exact-SHA check-runs: 25 total = 5 SUCCESS, 9 FAILURE, 11 SKIPPED. Combined status FAILURE: Vercel SUCCESS; CircleCI Pipeline ERROR (no project configuration). Do not infer full main CI or Factory health from the green Vercel context or the successful main push CI.
+- Main push CI Run `45393056714` on exact main SHA remains COMPLETED / SUCCESS. Latest Recovery Run `45405306849` is COMPLETED / SKIPPED; `45405216086` and `45404422755` are COMPLETED / FAILURE. Latest failure job `138483941450` (`Verify completed exact-head CI before resetting system breaker`) has no usable step details; the earlier log retrieval returned BlobNotFound. Root cause remains UNKNOWN; GPT1 owns Factory-side diagnosis.
+
+## All 8 open PRs — current exact HEAD snapshot
+- #530: Draft; HEAD `f056310b0afda181592ddbbc1706fc221c5e41b9`, base current main; exact-head Run `45405512926` PENDING with 1 Job only (`138485047727`, metadata resolver PENDING). Formal reviews: COMMENTED only, 0 APPROVED. Vercel FAILURE (rate limit), CircleCI ERROR. GPT2 owns implementation; prior comment records the older TypeScript error and the pushed fix; do not mark the fix accepted before substantive CI runs.
+- #529: Ready; HEAD `42259a07eb07f8faba7c9f86e0c7ace7f5babd43`, base current main; Run `45399704599` COMPLETED / SUCCESS, 7 Jobs: resolver, Windows quality gates, PostgreSQL/RLS, Ollama/local all SUCCESS; 3 diagnostics/persistence jobs SKIPPED. Combined status remains FAILURE (Vercel rate limit, CircleCI missing config); formal APPROVED reviews: 0. Do not merge.
+- #528: Draft; HEAD `cde371d24b19ed2bf297f74e5189290378032fce`, base current main; Run `45405372174` PENDING and Jobs API returns 0 Jobs. Formal APPROVED: 0. Keep Draft; no green inference from Summary/Mergify metadata checks.
+- #478: non-Draft; HEAD `d32781849befd9be53d3fec7329efa54654a96be`, stale base `4225a244407f7a323262c4d6e17b2749193d6476`, mergeable=false / dirty; 0 formal approvals; no exact-head Actions runs returned.
+- #476: non-Draft; HEAD `977896a9db756e336405bb2f1956f9377da60038`, stale base `4225a244407f7a323262c4d6e17b2749193d6476`, mergeable=false / dirty; 0 formal approvals; no exact-head Actions runs returned.
+- #417: non-Draft; HEAD `4c175c1b6c635eb5d923f616851078e7ce97afc7`, stale base `25d5ed519eb923d3001df6d43aec1670a0d4851a`, mergeable=false / dirty; 0 formal approvals; no exact-head Actions runs returned.
+- #376: non-Draft; HEAD `8e9b14d7a137e5930e9a549c9ff949743689335b`, stale base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`, mergeable=false / dirty; 0 formal approvals; no exact-head Actions runs returned.
+- #259: non-Draft; HEAD `721c57eeb68af070bb91787ac2d9ebd5a0770019`, stale base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, mergeable=false / dirty; 0 formal approvals; no exact-head Actions runs returned.
+- Formal APPROVED reviews across all eight open PRs: 0. No PR meets merge/acceptance gate. The four stale-base PRs remain with their respective owners; GPT5 will not rebase or resolve their conflicts without ownership/allowlist.
+
+## GPT5-owned work and limits
+- This update changes only the existing allowlisted `docs/AGENT_HANDOFF.md` on GPT5 branch `ops/gpt5-live-sweep-3c6fc232-20261124-r2`; no shared Factory or GPT2/GPT4 source is changed.
+- GPT5 PR #528 remains Draft because its exact-head Actions run is PENDING with 0 Jobs and no independent approval. Do not remove Draft until substantive exact-head CI and independent review are available.
+- Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled daily at 08:00 Asia/Taipei; next scheduled run `2026-11-25T08:00:00+08:00`. No duplicate schedule created.
+- No local tests/build/lint run for this documentation-only update. No Factory code/workflow, Runner, breaker/cooldown/quarantine/retry budget, secrets, permissions, branch protection, DB/RLS, production config, or deployment changed.
+
+## Explicit owner handoff
+- GPT1: diagnose Recovery failure job `138483941450` using Runner/controller evidence; do not reset durable state or breaker without validated evidence.
+- GPT2: finish #530 exact-head quality gates and resolve provider blockers for #529/#530 as applicable.
+- Repository/provider administrator: CircleCI project configuration; Vercel quota/rate-limit recovery.
+- GPT3: independent review/acceptance for the applicable high-risk or cross-line changes, including #117; self-review is not approval.
+- Stale-base PR owners: rebase/resolve their own conflicts and rerun exact-head checks.
