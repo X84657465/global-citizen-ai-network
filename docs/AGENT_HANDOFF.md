@@ -1,3 +1,50 @@
+# GPT5 Daily Operations — LIVE SNAPSHOT (2026-11-25; main 80d10dd46b52)
+
+> Fresh GitHub snapshot. Supersedes older live snapshots below; historical records remain audit history only.
+
+## Current main and governing evidence
+- Main HEAD: 80d10dd46b522014d4e9ce879f156b09ab6a517f (latest commit search result; no newer commit returned).
+- PROJECT_COORDINATION.md blob: d3ee1881aa67861fc42a2b568b26020945b0c218.
+- GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md: re-read from current main.
+- Master Charter blob: 65becc6bb1bcc667694b7c99e02f405792066429, status PROPOSED.
+- Execution Operating System blob: 67166a378c92909c8ddf64586f8a2b5202be7d14, status GOVERNANCE PROPOSAL.
+- docs/AGENT_HANDOFF.md current blob before this update: 5bde530ec7d319d2998849d96d5fa6362a706dcd.
+- VERSION: 0.3.137; manifest overall 0.3.137, A 2.0.84, B 0.1.20.
+- Main combined provider statuses: CircleCI Pipeline #490 ERROR; Vercel FAILURE (build-rate-limit). The Actions wrapper available in this sweep filters PR-triggered runs and does not establish the main push Actions terminal state; main Actions exact-head terminal state remains NOT VERIFIED.
+- Overall main disposition: BLOCKED; no complete exact-main CI PASS established.
+
+## Current open PR inventory — 6 PRs
+All rows were refreshed from the open-PR listing. Provider statuses and reviews were queried for the exact HEAD SHA shown.
+
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | CircleCI | Vercel | Formal review |
+|---|---|---|---:|---:|---|---|---|
+| [#552](https://github.com/X84657465/global-citizen-ai-network/pull/552) | 8c38b01380befd854b9a57b60be8e8bea522cf34 | 80d10dd46b522014d4e9ce879f156b09ab6a517f | yes | true | #503 ERROR | SUCCESS | 0 reviews |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | e10878764d161a960ef258022e936f0717ad75a2 | 4225a244407f7a323262c4d6e17b2749193d6476 | no | false | #475 ERROR | SUCCESS | COMMENTED only |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | 977896a9db756e336405bb2f1956f9377da60038 | 4225a244407f7a323262c4d6e17b2749193d6476 | no | false | #22 ERROR | SUCCESS | COMMENTED only |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | c0567805a5a032a1925f7e783caca4b1b5ce27ab | 25d5ed519eb923d3001df6d43aec1670a0d4851a | no | false | #367 ERROR | SUCCESS | COMMENTED only |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | 8e9b14d7a137e5930e9a549c9ff949743689335b | 93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e | no | false | #259 ERROR | SUCCESS | COMMENTED only |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | 1badb7ce38cd7a7bd7ca3345500bed81a46206a3 | a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582 | no | false | #489 ERROR | FAILURE (build-rate-limit) | COMMENTED only |
+
+GitHub Actions wrapper returned no PR-triggered workflow runs for #259/#376/#417/#476/#478 exact heads in this query; their Actions terminal states are UNKNOWN / NOT VERIFIED, not 0 jobs and not PASS. For #552:
+- CI run 45498686969: terminal SUCCESS. Resolver, Windows quality gates, Windows Ollama/local integration, and Windows Supabase/PostgreSQL/RLS integration SUCCESS; three bookkeeping/diagnostics jobs SKIPPED.
+- Preflight run 45498686808: terminal FAILURE. Linux offline scratch fixture validation FAILURE; six downstream jobs SKIPPED. Failed job log fetch returned Azure Storage 404 BlobNotFound and steps API returned an empty array; exact failing command/assertion and root cause remain UNKNOWN.
+- #552 remains Draft. Mergeable=true is not acceptance. No formal review exists. Do not promote or merge until preflight root cause is resolved, required exact-head checks pass, and required independent approval exists.
+
+## Current blocker disposition and handoffs
+1. P0 — #552 Linux offline fixture / missing diagnostic evidence: DRI GPT1 / Factory owner; GPT3 independent QA. Failed job 138815866351 has unavailable log (404) and empty steps. Owner must recover runner-side evidence or make a justified evidence-preserving rerun; do not infer a code root cause from the job name.
+2. P0 — main provider checks: CircleCI #490 ERROR and Vercel build-rate-limit FAILURE. External/provider owner required; no blind retry, billing upgrade, or settings change by GPT5.
+3. P1 — stale branches / conflicts: #478/#476/#417/#376/#259 base SHAs predate current main and all report mergeable=false. Their owners must reconcile overlapping changes and exact-head checks; GPT5 will not retarget or rebase another owner's branch without explicit task scope.
+4. Independent review: #478/#476/#417/#376/#259 show COMMENTED submissions only; #552 has no reviews. COMMENTED is not APPROVED.
+5. GPT5 action this cycle: refresh evidence ledger and record this snapshot only in the GPT5-owned docs/AGENT_HANDOFF.md path. No Factory source, workflow, Runner, durable state, secrets, permissions, branch protection, production data, provider setting, billing, or deployment was modified.
+6. Local validation: NOT RUN; this connector-only documentation update has no local checkout/test environment. The PR must remain Draft pending exact-head CI and independent review.
+
+## Automation / execution record
+- Existing daily main/CI/PR automation 6b0333ddf1548191a7da3cefb9ac7b15 is enabled. A run-now request was accepted for inline execution in this conversation; this is not proof of a completed scheduled run. Persistent last-run / delivery SLA is NOT VERIFIED.
+- Separate enabled daily automations also cover broader GCAN inspection and daily coordination-document reread. No duplicate schedule was created.
+- Do not claim background execution or SLA completion unless the automation runtime records a completed run.
+
+---
+
 # GPT5 Operations — POST-MERGE SAFETY ADDENDUM (2026-11-25)
 
 A further closed-PR query shows [PR #543](https://github.com/X84657465/global-citizen-ai-network/pull/543) is now CLOSED / MERGED at 2026-11-24 20:50:00 UTC. This supersedes its OPEN row in the historical table below.
