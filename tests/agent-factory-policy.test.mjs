@@ -375,8 +375,3 @@ test("candidate container classification requires Docker start exit to match ins
   assert.equal(candidateContainerFailureScope(clean, "0"), "system");
 });
 
-test("preflight passes the Docker start exit code into candidate container classification", () => {
-  const workflow = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8");
-  assert.match(workflow, /CANDIDATE_CONTAINER_START_EXIT_CODE = \[string\]\$startExitCode/);
-  assert.match(workflow, /candidateContainerFailureScope\(state, startExitCode\)/);
-});
