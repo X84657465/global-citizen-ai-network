@@ -4182,3 +4182,52 @@ This addendum supersedes earlier same-day snapshot rows where exact SHAs/runs ha
 - #529 is now CI SUCCESS at exact head, but it is not independently approved and its persistence jobs are SKIPPED. Do not merge or call it fully accepted.
 - No PR meets the complete merge gate: exact-head required checks, independent APPROVED review, no unresolved blockers, and branch-protection compliance. No Draft promotion, merge, deployment, Factory durable state mutation, Runner/secret/permission/branch-protection change, or paid provider action performed.
 - GPT5 support continues only within explicit Issue #117 support and documentation scope. GPT1 owns Factory P1 exit classification and fixture diagnosis; GPT2 owns #529/#530; GPT3 owns independent QA; repository/provider administrators own CircleCI/Vercel configuration and quota; stale-base PR owners own reconciliation.
+
+
+---
+
+## GPT5 live recheck — 2026-11-24 (22:50 Asia/Taipei, exact API snapshot)
+
+### Governance / Main
+- Re-read current Main PROJECT_COORDINATION.md (blob d3ee1881aa67861fc42a2b568b26020945b0c218, 1,175 lines) and GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md (blob b234e684dbc4fe2e6694cf96c6b941f8fd81ec31, 679 lines).
+- Main HEAD remains 3c6fc232ec1d07c56f0ba31d3a690079008f4004.
+- Main exact-head GitHub check-runs: 49 total = 5 SUCCESS, 18 FAILURE, 26 SKIPPED. Main combined statuses: Vercel SUCCESS; CircleCI Pipeline 335 ERROR.
+- Main push CI 45393056714, attempt 1, remains COMPLETED / SUCCESS. Earlier evidence confirms resolver, Windows quality gates, PostgreSQL/RLS and Ollama/local integration jobs succeeded. Candidate-success persistence steps in job 138450597258 were SKIPPED; do not infer durable candidate evidence or breaker reset.
+- Latest Recovery run 45417954556, attempt 1, exact Main SHA, COMPLETED / SKIPPED; its only verification job 138529319762 was SKIPPED. Recent Recovery runs 45417504370 and 45417026913 also SKIPPED. No Recovery PASS established.
+- Main branch reports protected=false, protection disabled, and required status-check enforcement off. This is a governance risk; GPT5 did not alter branch protection or permissions.
+
+### All 9 currently open PRs — exact heads
+| PR | Exact HEAD | Base | Draft | Mergeable | Exact-head Actions / Jobs | External checks |
+|---|---|---|---|---|---|---|
+| #528 | d902c7d0a366c81686ae6780c48c51958a31b077 | Main | yes | true | CI 45414719136: resolver SUCCESS, Windows quality gates SUCCESS, Supabase/RLS PENDING, Ollama/local PENDING. | Vercel FAILURE (build-rate-limit URL); CircleCI Pipeline 351 ERROR |
+| #532 | 4847a7adbfc23c8f795e753cd0a4ff8b0316be4f | Main | yes | true | CI 45417481265: PENDING; at inspection only resolver job 138529201314 PENDING. Preflight 45417481401: FAILURE; Linux offline scratch fixture 138527556560 FAILURE; six downstream jobs SKIPPED. | Vercel FAILURE; CircleCI Pipeline 354 ERROR |
+| #529 | d4e6f293aad26beb087d73c5799ff0532a1e77d7 | Main | no | true | CI 45408251333: COMPLETED / SUCCESS; resolver, Windows quality gates, Supabase/PostgreSQL/RLS, and Ollama/local integration all SUCCESS; three persistence/diagnostic jobs SKIPPED. | Vercel FAILURE; CircleCI Pipeline 338 ERROR |
+| #530 | 99d871eec12d7fd1a407f4cdfd59d39ec3c7c726 | Main | yes | true | CI 45412907732: PENDING; resolver and Windows quality gates SUCCESS; Supabase/RLS 138525650171 IN_PROGRESS; Ollama/local 138525650676 PENDING. | Vercel FAILURE; CircleCI Pipeline 349 ERROR |
+| #417 | 4c175c1b6c635eb5d923f616851078e7ce97afc7 | stale 25d5ed519eb923d3001df6d43aec1670a0d4851a | no | false | No PR-triggered workflow run returned for exact HEAD. | Vercel FAILURE; CircleCI Pipeline 297 ERROR |
+| #376 | 8e9b14d7a137e5930e9a549c9ff949743689335b | stale 93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e | no | false | No PR-triggered workflow run returned for exact HEAD. | Vercel SUCCESS; CircleCI Pipeline 259 ERROR |
+| #259 | 721c57eeb68af070bb91787ac2d9ebd5a0770019 | stale a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582 | no | false | No PR-triggered workflow run returned for exact HEAD. | Vercel FAILURE; CircleCI Pipeline 298 ERROR |
+| #478 | d32781849befd9be53d3fec7329efa54654a96be | stale 4225a244407f7a323262c4d6e17b2749193d6476 | no | false | No PR-triggered workflow run returned for exact HEAD. | Vercel FAILURE; CircleCI Pipeline 256 ERROR |
+| #476 | 977896a9db756e336405bb2f1956f9377da60038 | stale 4225a244407f7a323262c4d6e17b2749193d6476 | no | false | No PR-triggered workflow run returned for exact HEAD. | Vercel SUCCESS; CircleCI Pipeline 22 ERROR |
+
+- Formal review submissions: APPROVED = 0 across all nine open PRs. All returned review records are COMMENTED; no independent acceptance.
+- #529's GitHub Actions success does not clear its provider errors or three SKIPPED persistence/diagnostic jobs. It is not eligible for merge.
+- #532's failing fixture log remains inaccessible: Steps API empty and log endpoint 404 BlobNotFound. Root cause UNKNOWN. No speculative code edit or blind retry.
+- #417/#376/#259/#478/#476 remain stale-base and non-mergeable; branch owners must reconcile their own overlapping changes.
+
+### Issue #117 — GPT5 scope and owner boundary
+- Issue #117 remains OPEN, assigned to X84657465, label factory-control-plane-approved, with GPT5 delegated support but unchanged accountable DRI.
+- PR #532 exact HEAD remains 4847a7adbfc23c8f795e753cd0a4ff8b0316be4f; only the two Issue #117 allowlisted files are modified.
+- GPT3's latest independent QA finding identifies a P1 risk in candidateContainerFailureScope: an external termination/signal exit (for example 137) may be misclassified as a task-scoped candidate failure. Required owner action: GPT1 / Factory DRI defines allowed task-process exit evidence, adds deterministic signal/termination tests including 137, and fails closed to system scope when evidence is ambiguous.
+- This P1 finding is outside GPT5's authority to self-resolve in Factory-owned implementation. GPT5 does not modify Factory-owned source or approve its own work. The Linux fixture failure is a separate unresolved failure; do not claim the previous test edits fixed it.
+- Local unit suite, TypeScript check and lint remain NOT RUN in this connector-only environment.
+
+### Automation / execution truth
+- The existing GCAN 每日工程巡檢 automation remains enabled; next scheduled run 2026-11-25T08:00:00+08:00 (Asia/Taipei). Three duplicate sweep automations remain disabled.
+- An inline run was explicitly triggered in this conversation. This report is the live recheck; it is not a claim of always-on background monitoring.
+- No Draft promotion, merge, deployment, durable Factory-state mutation, Runner/secret/permission/branch-protection change, or paid provider action was performed.
+
+### Handoff
+- GPT1 / Factory DRI: resolve the P1 exit-classification finding and diagnose Recovery / Linux fixture failures using retained Runner/Controller evidence.
+- GPT2: own #529/#530 and complete the pending exact-head integration work; GPT3: independent QA; stale-base PR owners: reconcile their own branches.
+- Repository/provider administrator: resolve CircleCI configuration errors and Vercel deployment quota/rate limit; no billing or provider-setting change is authorized.
+- GPT5: continue only in explicitly authorized operations/documentation support paths; do not treat PENDING, SKIPPED, 0 Jobs, provider ERROR/FAILURE, or UNKNOWN as PASS.
