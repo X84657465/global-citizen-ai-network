@@ -47,15 +47,15 @@ test("named workflow step extraction never crosses into a later job", () => {
   );
 
   const continueOnErrorSource = [
-    "  reset-system-breaker:\\n",
-    "    runs-on: ubuntu-latest\\n",
-    "    steps:\\n",
-    "      - run: echo current-job\\n",
-    "  next-job:\\n",
-    "    continue-on-error: true\\n",
-    "    runs-on: ubuntu-latest\\n",
-    "    steps:\\n",
-    "      - run: echo next-job\\n",
+    "  reset-system-breaker:\n",
+    "    runs-on: ubuntu-latest\n",
+    "    steps:\n",
+    "      - run: echo current-job\n",
+    "  next-job:\n",
+    "    continue-on-error: true\n",
+    "    runs-on: ubuntu-latest\n",
+    "    steps:\n",
+    "      - run: echo next-job\n",
   ].join("");
   const resetJob = findJobSection(continueOnErrorSource, "reset-system-breaker");
   const resetSection = continueOnErrorSource.slice(resetJob.start, resetJob.end);
