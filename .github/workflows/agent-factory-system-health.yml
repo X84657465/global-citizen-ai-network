@@ -67,14 +67,20 @@ jobs:
             pr.base?.repo?.full_name === process.env.GITHUB_REPOSITORY &&
             pr.head?.repo?.full_name === process.env.GITHUB_REPOSITORY &&
             pr.head?.sha === sha && pr.head?.ref === ref);
-          if (matches.length !== 1) throw new Error(`Expected exactly one open same-repository main PR for exact SHA; found ${matches.length}.`);
+          if (matches.length === 0) {
+            await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\n"));
+            console.log(`No open PR matches completed CI SHA ${sha}; treating stale or closed-PR CI as a no-op.`);
+            process.exit(0);
+          }
+          if (matches.length > 1) throw new Error(`Ambiguous exact-head PR resolution; found ${matches.length} matches.`);
           const pr = matches[0];
           if (pr.head.ref.startsWith("ai-task/issue-") || pr.head.ref.startsWith("codex/issue-")) throw new Error("Task PRs cannot reset the system breaker.");
-          await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `number=${pr.number}\nhead_sha=${pr.head.sha}\n`));
+          await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `should_recover=true\nnumber=${pr.number}\nhead_sha=${pr.head.sha}\n`));
           console.log(`Verified PR #${pr.number} at exact SHA ${sha}.`);
           NODE
 
       - name: Verify completed CI provenance and reset global breaker
+        if: steps.resolve-pr.outputs.should_recover == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
