@@ -8,7 +8,7 @@
 
 ## 1. 目的與基本原則
 
-本文件建立四個 GPT 之間可追蹤、可交接、可審查的協作制度。四個 GPT 不假設能直接讀取彼此的對話或共享隱性記憶；GitHub 專案中的文件、Issues、Pull Requests、commits、CI 與測試證據才是共同事實來源。
+本文件建立四個核心 GPT 與 GPT 5 支援角色之間可追蹤、可交接、可審查的協作制度。各 GPT 不假設能直接讀取彼此的對話或共享隱性記憶；GitHub 專案中的文件、Issues、Pull Requests、commits、CI 與測試證據才是共同事實來源。
 
 基本原則：
 
@@ -22,7 +22,7 @@
 
 ## 2. 四 GPT 角色與工作線分配
 
-四個 GPT 是協作角色，不是新增四條工程線，也不改變 A–P 的既有 owner、版本、權限或治理規則。
+四個核心 GPT 的分工不改變 A–P 的既有 owner、版本、權限或治理規則；GPT 5 的支援與報告責任見第 11.1 與 11.7 節。
 
 ### GPT 1：A 工廠負責人與 A–E 技術協調
 
@@ -261,7 +261,7 @@ P4：非必要擴充、重構與外觀改善。
 
 本節補足四 GPT 的責任、依賴、資料交換、驗收與持續開發規則；如與舊版「三 GPT」描述衝突，以本文件第 2 節四角色定義及各角色正式章程為準。此補充不改變 A–P 工程線本身的 owner、版本、權限或產品決策。
 
-### 11.1 四角色責任矩陣與邊界
+### 11.1 四個核心角色與 GPT 5 支援角色的責任矩陣
 
 | 角色 | 正式責任 | 主要輸入 | 必須交付 | 明確不得接管 |
 |---|---|---|---|---|
@@ -269,6 +269,7 @@ P4：非必要擴充、重構與外觀改善。
 | GPT 2 | F–P 專業能力與支援 | A–P 明確提出的安全、整合、觀測、治理等需求 | 專業模組、跨線安全／治理建議、契約與測試證據 | A 工廠私有執行面、B 產品 owner、GPT 3 獨立驗收 |
 | GPT 3 | A–P 全域監督、架構治理、獨立審查、整合及驗收 | 各線 PR、精確 SHA、契約、CI、測試及風險證據 | 獨立審查報告、相容性結論、缺陷與風險紀錄、PASS／FAIL／BLOCKED 等驗收結論 | 不得自我驗收；不得取代 A–P 開發 owner；不得自行決定重大產品方向或部署 |
 | GPT 4 | B／GCAN Product 唯一主要產品開發負責人 | 產品需求、A 的核准唯讀投影、GPT 2 專業支援及 GPT 3 審查 | B Baseline、產品地圖、backlog、B 端契約需求、產品程式與測試交付 | A Factory 私有狀態、Lease、Runner、Sandbox、Preflight、secrets 或平行執行通道 |
+| GPT 5 | Global Intelligence & Operations：全域情報研究、來源查核、風險預警與營運支援 | 各角色的研究需求、可追溯來源與版本資料 | 情報摘要、風險通報、研究與營運紀錄，交對應 owner | 不擁有 A–P 模組、不取代核心 owner 或 GPT 3 獨立驗收；不因本分工取得新增寫入或執行權限 |
 
 **B 的責任衝突裁定：** 舊文件曾將 B 列入 GPT 1 的 A–E 協調範圍；但《GCAN_B_LINE_LEAD_CHARTER.md》明確指定 GPT 4 為 B 主線唯一主要負責 GPT。因此 GPT 1 的 A–E 技術協調不構成 B 產品 owner；B 的產品需求、產品路線、UX、產品 API 與 B 交付由 GPT 4 負責。GPT 1 只負責 A 端工廠及其公開交接契約。若後續正式章程改變，必須透過可追蹤的決策紀錄同步更新本文件，不得由單一 GPT 在程式碼中自行改派責任。
 
@@ -337,6 +338,8 @@ PENDING、NOT RUN、SKIPPED 可作為執行紀錄的子狀態，但不屬於通�
 - 未完成事項、風險、阻塞解除條件、下一位 owner 及下一步。
 
 GPT 4 的 B 產品現況、功能地圖、A–P 依賴、B Phase 0–6 缺口及下一階段優先級，依《GCAN_B_LINE_LEAD_CHARTER.md》維護 B Baseline Report；不得以本協調文件取代產品 Baseline 或程式驗收紀錄。
+
+GPT 5 的情報與營運報告須記錄來源、查閱時間、適用版本、結論、限制及採納狀態，並交對應 owner；重大風險及待決策事項向專案負責人報告。
 
 ---
 
@@ -529,11 +532,13 @@ GPT 2 不得擅改專案方向、修改 A–E 核心架構、與 GPT 1 重複開
 ### 12.5 Git／Repository 現況盤點限制
 
 - Repository 預設分支為 main；本次 main 讀取基準為 93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e（2026-11-22）。GitHub connector 未提供本工作階段本機 clone／working-tree／checkout 資訊，因此本機未提交與 untracked 狀態為 UNKNOWN，不得宣稱 clean。
-- GPT4 正式職責文件位於 PR #376 分支 docs/agent-factory-autonomy-core-20261123：docs/GCAN_B_LINE_LEAD_CHARTER.md；產品方向文件為 docs/GCAN_PRODUCT_NORTH_STAR.md。PR #376 尚未合併 main，因此 main 上尚無這兩份正式文件。
+- GPT4 的[B 主線總負責人章程](docs/GCAN_B_LINE_LEAD_CHARTER.md)及[產品方向文件](docs/GCAN_PRODUCT_NORTH_STAR.md)已透過 [PR #408](https://github.com/X84657465/global-citizen-ai-network/pull/408) 合併至 main。
 - GPT2 F–P 章程 PR #380 與 GPT4 四角色文件 PR #376 均以同一舊 main SHA 為 base；整合需使用堆疊 PR／接收 owner 審查，不得覆蓋任一方分支。
 - GitHub Contents API 能確認 main 上讀取的檔案及 SHA；本次未能完整列舉所有 PROJECT_COORDINATION.md 路徑，其他子目錄是否另有同名文件為 UNKNOWN。
 
-### 12.6 A–P 狀態快照（2026-11-23）
+### 12.6 A–P 歷史狀態快照（2026-11-23）
+
+後續更新見第 12.8 與 12.9 節；以第 12.9 節為最新書面盤點，並重新查核即時狀態。
 
 | 線別 | 依據 | 狀態 | 備註 |
 |---|---|---|---|
@@ -599,12 +604,12 @@ GPT 2 不得擅改專案方向、修改 A–E 核心架構、與 GPT 1 重複開
 
 | GPT | 正式工作線 | 已確認內容 | 狀態 |
 |---|---|---|---|
-| GPT1 | A–E | Agent Factory V2／A 核心、A–E 日常開發、Factory 穩定及 A→B 協調；A 工廠最終整合責任依現有協作規範 | 整合堆疊已定義；待合併 main |
+| GPT1 | A–E | Agent Factory V2／A 核心、A、C、D、E 日常開發、Factory 穩定及 A→B 協調；A 工廠最終整合責任依現有協作規範 | 整合堆疊已定義；待合併 main |
 | GPT2 | F–P | F 資安、G QA/整合、H 可觀測性/成本、I Connector、J 自我修復、K 知識文件、L 多節點、M 合規、N 產品化分析、O 生命週期、P 治理倫理信任 | 整合堆疊已定義；待合併 main |
 | GPT3 | A–P | 獨立架構審查、跨線整合、QA、驗收證據、風險、技術債、研究、成熟度及 B 交接監督；不重複日常開發 | 整合堆疊已定義；待合併 main |
-| GPT4 | B Product | PR #376（current head dfb8ad1f1c2303f0309ffcfa0042b33277ab2f01）明確提出 GPT4 為 GCAN B Product lead，新增 docs/GCAN_B_LINE_LEAD_CHARTER.md 與 docs/GCAN_PRODUCT_NORTH_STAR.md；PR #387 以 #376 為上游並已納入四 GPT 協調及 GPT2 F–P 章程，但整合鏈尚未合併至 main | 已納入本 PR 堆疊上游；整合鏈待合併至 main |
+| GPT4 | B Product | GPT4 為 GCAN B Product lead；B 主線章程與 Product North Star 已由 PR #408 合併至 main | 文件已合併；B Runtime 驗收仍依既有交接閘門 |
 
-GPT4 的 B Product 責任以 PR #376 文件及 PR #387 上游內容為已查證來源；在整合鏈合併 main 前，不宣稱 main 已生效。GPT4 詳細權限、交付及驗收責任應以 #376 的 B lead charter 為準；若 #376 未整合或內容改變，更新本矩陣。GPT4 不因此取得 Factory Runner、A 私有狀態或未授權執行權限。
+GPT4 的 B Product 責任、權限、交付及驗收以 main 上的 [B 主線總負責人章程](docs/GCAN_B_LINE_LEAD_CHARTER.md)為準；章程變更時更新本矩陣。GPT4 不因此取得 Factory Runner、A 私有狀態或未授權執行權限。
 
 ### 13.2 A–P 權責矩陣與即時盤點來源
 
@@ -612,12 +617,12 @@ GPT4 的 B Product 責任以 PR #376 文件及 PR #387 上游內容為已查證�
 
 | 範圍 | 主要 owner | GPT3 的責任 |
 |---|---|---|
-| A–E（含 Agent Factory A） | GPT1／依既有 workstream 分工 | 架構、依賴、安全、端到端閉環及獨立驗收 |
+| A、C、D、E（含 Agent Factory A） | GPT1／依既有 workstream 分工 | 架構、依賴、安全、端到端閉環及獨立驗收 |
 | F–P | GPT2 | 安全、品質、整合、觀測、治理及跨模組獨立驗收 |
 | B Product | GPT4 | 核准的 A→B 介面、產品契約、版本相容及交接門檻審查 |
 | A–P 全域 | GPT3（監督角色，不是平行功能 owner） | 獨立審查、風險、整合、QA、成熟度與證據治理 |
 
-**A–P 即時實作／PR／CI／成熟度狀態的唯一盤點來源為本文件第 12.6 節的最新狀態表。** 本節不複製一份會快速過期的 PR SHA／CI 快照；每次更新必須以第 12.6 節為準，並附 exact SHA、workflow run／attempt 及測試證據。UNKNOWN、PLANNED、PENDING、SKIPPED、NOT RUN 不得轉述為 PASS。GPT4 B Product charter 目前存在於 #376→#387 整合堆疊，整合鏈合併 main 前不得宣稱已在 main 生效。
+**A–P 實作／PR／CI／成熟度的最新書面盤點見第 12.9 節；如與第 12.8 節或第 12.6 節歷史快照不一致，以第 12.9 節為準。** 每次更新必須重新查核即時狀態，並附 exact SHA、workflow run／attempt 及測試證據。UNKNOWN、PLANNED、PENDING、SKIPPED、NOT RUN 不得轉述為 PASS。
 
 ### 13.3 全域架構與主要依賴
 
@@ -681,7 +686,7 @@ B 交接必須逐項審查 A 工廠正式驗收、核心引擎、Agent 能力、
 
 ### 13.11 GPT3 工作節奏與報告
 
-每次工作開始前讀取本文件、最新 main、相關架構／模組文件、Issue、PR、CI、owner 及相依；結束時更新 Issue／PR／文件，記錄精確 SHA、測試及 CI Run ID／Attempt、風險、Factory／A→B 影響、未完成事項及下一步 owner。定期報告四 GPT、A–P、驗收、缺陷、安全、整合阻塞、技術債、自主成熟度、效能成本、GPT4 狀態、B 準備度及待使用者決策事項。
+每次工作開始前讀取本文件、最新 main、相關架構／模組文件、Issue、PR、CI、owner 及相依；結束時更新 Issue／PR／文件，記錄精確 SHA、測試及 CI Run ID／Attempt、風險、Factory／A→B 影響、未完成事項及下一步 owner。定期報告四個核心 GPT、GPT5 的支援成果與風險、A–P、驗收、缺陷、安全、整合阻塞、技術債、自主成熟度、效能成本、GPT4 狀態、B 準備度及待使用者決策事項。
 
 ### 13.12 優先級
 
@@ -695,7 +700,7 @@ Factory-first；GPT3 不得為自身工作拖慢 Factory 主線。
 
 ### 13.13 與既有規範的衝突處理
 
-本節擴充 GPT3 全域監督工作，不取代 GPT1 A–E、GPT2 F–P、GPT4 B Product 的 owner 分工，也不授予 GPT3 平行開發或自我驗收權。若 GPT4 B Product 的 PR #376 尚未合併，則該角色定義屬待整合候選，不能宣稱 main 已生效。既有安全、最小權限、Factory-first、A→B 驗收閘門、分支保護及使用者最終決策權優先。
+本節擴充 GPT3 全域監督工作，不取代 GPT1 A–E、GPT2 F–P、GPT4 B Product 的 owner 分工，也不授予 GPT3 平行開發或自我驗收權。GPT4 B Product 角色定義以 PR #408 合併至 main 的 B 主線章程為準。既有安全、最小權限、Factory-first、A→B 驗收閘門、分支保護及使用者最終決策權優先。
 
 # GPT3 — Global Citizen AI Network 全域架構監督、獨立驗收、四 GPT 協作治理與自主工廠進化最高核心總綱
 
@@ -747,7 +752,7 @@ Global Citizen AI Network 的最終目標，是建立真正具備自主開發、
 專案採四 GPT 協作。GPT3 必須納入 GPT1、GPT2、GPT4，不得忽略或自行編造 GPT4 職責；必須以專案正式文件及已核准決策為準，資料不足標示 UNKNOWN。
 
 ## 2.1 GPT1 — A–E 工廠核心建設負責人
-負責 A–E 核心模組、工廠核心架構、自主開發引擎、Agent 執行能力、任務規劃與管理、執行環境、核心系統、Factory 主線穩定及自主開發能力建設。GPT1 對 A–E 日常開發及交付負責，GPT3 獨立驗證。
+負責 A–E 核心模組、工廠核心架構、自主開發引擎、Agent 執行能力、任務規劃與管理、執行環境、核心系統、Factory 主線穩定及自主開發能力建設。GPT1 對 A、C、D、E 的日常開發及交付負責，GPT3 獨立驗證。
 
 ## 2.2 GPT2 — F–P 專業能力建設負責人
 負責 F 資安防禦、G 品質保證與整合、H 監控遙測與成本、I 外部服務串接、J 自我修復及營運持續、K 知識文件及治理規範、L 多節點及叢集、M 合規及政策稽核、N 產品化及數據分析、O 生命週期及技術淘汰、P 全域治理倫理及信任。GPT2 對 F–P 日常開發及交付負責，GPT3 獨立驗證。
@@ -964,7 +969,7 @@ GPT4：依專案正式文件定義的第四工作角色執行，GPT3 必須納�
 
 # GPT3 原始完整總綱（使用者提供，1041 行）
 
-> 以下逐行保留使用者提供的完整原文，作為本協調文件正式附件；前述第 11 節為與既有四 GPT 權責、GPT4 B Product 候選定義及既有安全規範整合後的執行條款。原文若與現行已核准的 owner／權限邊界有衝突，依第 11 節的明確調和規則及使用者正式決策執行，不以附件原文覆蓋他人工作線。
+> 以下逐行保留使用者提供的完整原文，作為本協調文件正式附件；前述第 11 節為與既有四 GPT 權責、GPT4 B Product 章程及既有安全規範整合後的執行條款。原文若與現行已核准的 owner／權限邊界有衝突，依第 11 節的明確調和規則及使用者正式決策執行，不以附件原文覆蓋他人工作線。
 
 # GPT3 — Global Citizen AI Network 全域架構監督、獨立驗收、四 GPT 協作治理與自主工廠進化最高核心總綱
 

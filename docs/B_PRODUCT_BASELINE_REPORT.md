@@ -93,7 +93,7 @@ Status vocabulary in this report:
 - `scripts/run-unit-tests.mjs` discovers these tests and defers `tests/security/two-member-rls.test.mjs` to the isolated Supabase CI job.
 - The package scripts expose `test:unit`, `lint`, and `build`; the `test:unit` script first validates workstream versions and then runs discovered unit tests.
 - This report did not execute local tests, lint, build, Supabase migrations, RLS integration, browser E2E or Preview smoke checks.
-- No Actions run was returned for exact main SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` by the queried API endpoint. The Vercel build-rate-limit status is not a test pass or fail.
+- A GitHub Actions recheck for exact baseline main SHA `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` found [CI run 45039544346, attempt 1](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45039544346/attempts/1) completed with SUCCESS, including the quality gates, Supabase/PostgreSQL/RLS, and Ollama/local execution jobs. The Vercel build-rate-limit status is not a test pass or fail.
 
 ## 5. Product roadmap Phase 0–6
 

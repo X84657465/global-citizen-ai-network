@@ -220,7 +220,7 @@ B Runtime 狀態：PREPARATION ONLY / BLOCKED / READY（須附證據）
 
 ## 11. 第一次啟動時的工作順序
 
-1. 先完整閱讀第 8 節文件，不修改任何程式碼。
+1. 先完整閱讀第 9 節文件，不修改任何程式碼。
 2. 重新查詢目前 GitHub main、B PR／Issue 與 CI；不沿用舊 SHA。
 3. 建立 B Baseline Report。
 4. 對照實際程式碼與文件，找出 B 已完成、未完成、重複、過時及未驗收項目。
