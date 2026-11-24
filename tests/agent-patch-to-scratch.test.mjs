@@ -258,3 +258,31 @@ test("successful task publication does not invoke the non-mutating legacy succes
   assert.equal(workflow.includes("AGENT_FACTORY_SUCCESS_SCOPE: task"), false);
   assert.equal(workflow.includes("COMPLETED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}"), false);
 });
+
+
+test("task preflight rejects invalid fetched issue identity before marking content validation as task-scoped", () => {
+  const source = readFileSync(new URL("../scripts/prepare-agent-task.mjs", import.meta.url), "utf8");
+  const identityHelper = source.indexOf("const isValidFetchedTaskIdentity =");
+  const lookup = source.indexOf('issue = await githubApi.request("/repos/" + repository + "/issues/" + issueNumber)');
+  const identityCheck = source.indexOf("const validFetchedTaskIdentity = isValidFetchedTaskIdentity(issue);");
+  const identityReject = source.indexOf("if (!validFetchedTaskIdentity)");
+  const validation = source.indexOf("task = validateAndBuildTask(issue, repository)");
+  const validationCatch = source.indexOf("catch (error)", validation);
+  const typedGuard = source.indexOf("if (validFetchedTaskIdentity && error instanceof TaskValidationError)", validationCatch);
+
+  assert.ok(identityHelper >= 0);
+  assert.ok(lookup >= 0);
+  assert.ok(identityCheck > lookup);
+  assert.ok(identityReject > identityCheck);
+  assert.ok(validation > identityReject);
+  assert.ok(validationCatch > validation);
+  assert.ok(typedGuard > validationCatch);
+
+  const identitySection = source.slice(identityHelper, lookup);
+  assert.match(identitySection, /candidate\.number !== requestedNumber/);
+  assert.match(identitySection, /candidate\.state !== "open"/);
+  assert.match(identitySection, /candidate\.pull_request/);
+  assert.match(identitySection, /candidate\.html_url !== expectedUrl/);
+  assert.match(identitySection, /ownerAuthored \|\| plannerAuthored/);
+  assert.match(source.slice(typedGuard, source.indexOf("fail(", typedGuard)), /markTaskScopedFailure\(\)/);
+});
