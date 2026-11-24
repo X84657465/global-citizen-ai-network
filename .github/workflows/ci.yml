@@ -741,6 +741,10 @@ jobs:
             schemaVersion = 1
             captureStatus = "incomplete"
             failureStage = "checkout_or_diagnostics_not_completed"
+            runMetadata = "UNAVAILABLE"
+            jobs = "UNAVAILABLE"
+            siblingRuns = "UNAVAILABLE"
+            logs = "UNAVAILABLE"
             workflowRunId = $env:GITHUB_RUN_ID
             runAttempt = $env:GITHUB_RUN_ATTEMPT
             expectedHeadSha = $env:EXPECTED_HEAD_SHA
