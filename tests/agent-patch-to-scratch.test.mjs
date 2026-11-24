@@ -11,7 +11,18 @@ const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratc
 const FIXTURE_COMMIT = "0123456789abcdef0123456789abcdef01234567";
 
 function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, missingIssueSafety = false, invalidRunnerTemp = false, trackedDirectoryCollision = false } = {}) {
-  const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
+  // Prefer the writable scratch checkout over /tmp. The full offline test
+  // container deliberately mounts /tmp with noexec, so a fixture Git shim
+  // created there cannot be launched. The initial fixture-only container
+  // mounts the checkout read-only, so fall back to its explicitly executable
+  // /tmp tmpfs in that phase.
+  let root;
+  try {
+    root = mkdtempSync(join(process.cwd(), ".gcan-scratch-apply-test-"));
+  } catch (error) {
+    if (!["EACCES", "EPERM", "EROFS"].includes(error?.code)) throw error;
+    root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
+  }
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const gitBin = join(root, "git-bin");
   mkdirSync(gitBin);
