@@ -278,3 +278,36 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **合併與驗收結論：** 沒有 PR 同時具備最新 exact-head 必要檢查成功及正式獨立 APPROVED。PENDING／0 Jobs、無 workflow run、SKIPPED、Vercel build-rate-limit FAILURE、CircleCI ERROR 均不是 PASS。未解除 Draft、未合併任何 PR。
 - **本次可閉環修補：** 只修改 GPT2 自有文件，將 #529 在 §6.7／§6.8 的舊 head 狀態明確標示為歷史快照，並追加本節最新狀態；未修改其他 owner 路徑或 Factory 核心。文件更新不等於 GPT3 核准。
 - **待外部／獨立處理：** Main CircleCI #335 根因需 CircleCI 管理端或可讀取 pipeline job logs 的權限；Vercel build-rate-limit 需等待額度恢復或由專案管理者處理方案限制。GPT3 必須對 #529 最新 head 進行獨立複審；本次文件修正不代替該審查。
+
+
+## 6.10 即時巡檢與 GPT2/F–P 工作交付 — 2026-11-25
+
+> 本節為本次即時 API 觀測；前述 6.1–6.9 均保留為歷史快照。所有判定綁定下列 exact SHA；HEAD 改變必須重查。
+
+### Main 與 workflow 終態
+
+- **main HEAD：** `80d10dd46b522014d4e9ce879f156b09ab6a517f`。
+- **Main push CI：** run `45490935111`，event=push，completed/SUCCESS。Resolver、Windows quality gates（tests/types/lint/audit/build）、PostgreSQL/RLS、Ollama/local integration 等主要技術工作成功。
+- **成功證據持久化：** 同 run 的 `Persist candidate success or reset system breaker` job 為 SUCCESS，但其 revalidate、record、evidence JSON、artifact upload steps 全部 SKIPPED；不得宣稱完整 evidence persistence 已完成。
+- **Main Preflight：** run `45492019381` FAILURE；job `138792541608` 在 `Validate task and create a safe handoff bundle` 失敗，plan/patch/test/publication 下游步驟 SKIPPED；Linux offline scratch fixture、Windows project validation 及 publication downstream jobs 亦 SKIPPED。
+- **Main Recovery：** run `45500090059` FAILURE；唯一 job `138820743614`（Verify completed exact-head CI before resetting system breaker）無 steps，根因 UNKNOWN。另有多個 Recovery runs 為 SKIPPED；均非 PASS。
+- **外部 required/status checks：** Vercel FAILURE（build-rate-limit）；CircleCI Pipeline #504 ERROR。故 main 不是全綠，不能把 push CI SUCCESS 擴張成全流程 PASS。
+
+### 全部 OPEN PR（本次搜尋共 7 件）
+
+- **#553** Draft；base `80d10dd46b522014d4e9ce879f156b09ab6a517f`；HEAD `570ea112f5c12f448040e9adb0e5a7c71c004a37`。Exact-head Actions run `45503285193` 仍 IN_PROGRESS（Windows Runner quality gates）；Vercel build-rate-limit FAILURE；CircleCI Pipeline #507 ERROR；尚無正式 review。不可解除 Draft。
+- **#552** Draft；base `80d10dd46b522014d4e9ce879f156b09ab6a517f`；HEAD `8c38b01380befd854b9a57b60be8e8bea522cf34`。主 CI run `45498686969` SUCCESS，但 Preflight run `45498686808` FAILURE；Linux offline scratch fixture validation FAILURE，六個下游步驟／jobs SKIPPED；CircleCI #503 ERROR；Vercel SUCCESS。無正式 APPROVED；不可解除 Draft。
+- **#259** 非 Draft；base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`；HEAD `1badb7ce38cd7a7bd7ca3345500bed81a46206a3`。compare main 顯示 DIVERGED、ahead 114、behind 1466、mergeable=false；涉及跨 owner 的 41 個檔案。Exact-head Actions run 未取得；Vercel build-rate-limit FAILURE；CircleCI #489 ERROR。Review 記錄均為 COMMENTED，未有正式 APPROVED，且有未解 review threads。禁止機械 rebase/cherry-pick/合併。
+- **#417** 非 Draft；base `25d5ed519eb923d3001df6d43aec1670a0d4851a`；HEAD `c0567805a5a032a1925f7e783caca4b1b5ce27ab`。mergeable=false；無 exact-head Actions run；Vercel SUCCESS、CircleCI #367 ERROR；review 只有 COMMENTED；有未解 threads。
+- **#478** 非 Draft；base `4225a244407f7a323262c4d6e17b2749193d6476`；HEAD `e10878764d161a960ef258022e936f0717ad75a2`。mergeable=false；無 exact-head Actions run；Vercel SUCCESS、CircleCI #475 ERROR；review 只有 COMMENTED；有未解 thread。
+- **#376** 非 Draft；base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`；HEAD `8e9b14d7a137e5930e9a549c9ff949743689335b`。mergeable=false；無 exact-head Actions run；Vercel SUCCESS、CircleCI #259 ERROR；review 只有 COMMENTED；有未解 threads。
+- **#476** 非 Draft；base `4225a244407f7a323262c4d6e17b2749193d6476`；HEAD `977896a9db756e336405bb2f1956f9377da60038`。mergeable=false；無 exact-head Actions run；Vercel SUCCESS、CircleCI #22 ERROR；review 只有 COMMENTED；有未解 thread。
+
+### GPT2/F–P 自有工作、阻塞與交付
+
+- **Issue #375（G）** 仍 OPEN：duplicate GitHub job-run URL 可冒充多份獨立 evidence。#259 已變更 `lib/fp/release-assurance.ts` 與其測試，與本任務重疊；暫不修改該路徑。
+- **Issue #364（H）** 仍 OPEN：需在讀取不可信 observability event 欄位前建立安全 snapshot。#259 已變更 `lib/fp/observability.ts` 與測試，亦與本任務重疊；暫不修改該路徑。
+- **替代閉環任務：** 本次沒有找到另一個已核實 owner/allowlist、且不與現有 OPEN PR 重疊的 F–P 程式碼任務。為避免空轉及跨 owner 競爭，本次改做 GPT2 自有協調文件的即時證據刷新；本文件路徑不在 #259 的變更檔案中，#553 只改 `docs/AGENT_HANDOFF.md`。
+- **本次文件交付：** 追加本節至 `docs/gpt2/PROJECT_COORDINATION.md`，記錄 main push/preflight/recovery 的精確 run/job 終態、七個 OPEN PR 的 exact base/head 與外部狀態、正式 review 缺口，以及 G/H overlap blocker。此為文件-only 交付，不宣稱 runtime implementation、程式測試或 GPT3 acceptance。
+- **驗收界線：** 本輪沒有任何 PR 同時具備 exact-head 必要 CI 全成功、正式獨立 APPROVED、無未解阻塞及可合併狀態。沒有解除 Draft 或合併 PR；未繞過任何 owner、branch protection 或 CI gate。
+- **下一步：** 追蹤 #259 owner 對重疊檔案的整合處置；待路徑解除衝突後，分別處理 #375、#364。#553/#552 等待各自 owner 完成精確 HEAD CI 與獨立正式審查。Recovery 的空 steps 與 Preflight failure 交回 Factory/相關 owner 診斷，不由 GPT2 接管。
