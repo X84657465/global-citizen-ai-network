@@ -68,11 +68,13 @@ let task;
 try {
   task = validateAndBuildTask(issue, repository);
 } catch (error) {
-  if (validFetchedTaskIdentity && error instanceof TaskValidationError) {
-    try {
-      markTaskScopedFailure();
-    } catch {
-      // Marker persistence failure remains system-scoped.
+  if (validFetchedTaskIdentity) {
+    if (error instanceof TaskValidationError) {
+      try {
+        markTaskScopedFailure();
+      } catch {
+        // Marker persistence failure remains system-scoped.
+      }
     }
   }
   fail(error instanceof Error ? error.message : "Unknown task validation error.");
