@@ -231,7 +231,7 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **目前 main：** `3c6fc232ec1d07c56f0ba31d3a690079008f4004`。Main Vercel SUCCESS；CircleCI Pipeline #329 ERROR。這不是全綠狀態。
 - **OPEN PR 清單（共 8 件）：**
   - **#530** Draft；base 為目前 main，head `ab77b34ea4a9008368656ad42125b21ccb2ef015`。Actions run `45407074332` PENDING，Jobs API 回傳 0；Vercel FAILURE（build-rate-limit），CircleCI Pipeline #331 ERROR。GPT3 對前一個 head `812520373930e75c4883ded90b540723aa969a80` 的意見為 COMMENTED／NOT APPROVED；新 head 尚無獨立複審。
-  - **#529** 非 Draft；base 為目前 main，head `42259a07eb07f8faba7c9f86e0c7ace7f5babd43`。Actions run `45399704599` 結束 SUCCESS；四個技術工作成功，但 exact-SHA failure diagnostics、candidate/system failure evidence persistence、candidate success/reset-breaker 三個工作 SKIPPED。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #307 ERROR。GPT3 對此 head 的意見為 COMMENTED／NOT APPROVED。
+  - **#529（歷史 head）**：以下 Actions `45399704599` SUCCESS（其中三個證據持久化工作 SKIPPED）、Vercel FAILURE、CircleCI Pipeline #307 ERROR 與 GPT3 COMMENTED／NOT APPROVED，全部只對應舊 head `42259a07eb07f8faba7c9f86e0c7ace7f5babd43`；不得當作後續 head 的現況。請以第 6.9 節列出的目前 exact HEAD 與最新檢查重新判定。
   - **#528** Draft；base 為目前 main，head `4755ebb5877a0d97f761833875defec2bd72d319`。Actions run `45406450739` PENDING，Jobs API 回傳 0；Vercel FAILURE（build-rate-limit），CircleCI Pipeline #326 ERROR。
   - **#478** base `4225a244407f7a323262c4d6e17b2749193d6476`，head `d32781849befd9be53d3fec7329efa54654a96be`；base 落後目前 main，mergeable=false。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #256 ERROR，未找到該 head 的 Actions run。
   - **#476** base `4225a244407f7a323262c4d6e17b2749193d6476`，head `977896a9db756e336405bb2f1956f9377da60038`；base 落後目前 main，mergeable=false。Vercel SUCCESS，CircleCI Pipeline #22 ERROR，未找到該 head 的 Actions run。
@@ -249,7 +249,7 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **main HEAD：** `3c6fc232ec1d07c56f0ba31d3a690079008f4004`。目前 commit status：Vercel SUCCESS、CircleCI Pipeline ERROR。最新 Agent Factory System Health Recovery run `45407095324` 已結束 SKIPPED，唯一 job `138490633246` SKIPPED；前次 recovery `45405216086` 唯一 job `138483941450` FAILURE。Recovery 不得標示 PASS。Main Push CI `45393056714` 的 Windows quality gates、PostgreSQL/RLS、Ollama/local execution 技術工作成功，但候選成功證據重新驗證、寫入及上傳步驟 SKIPPED，故不能視為完整交付證據鏈。
 - **OPEN PR 共 8 件，精確 HEAD 與檢查：**
   - **#530** Draft，head `ab77b34ea4a9008368656ad42125b21ccb2ef015`，base 為 main。Actions run `45407074332` PENDING，Jobs API 0 jobs；Vercel FAILURE、CircleCI ERROR。Vercel bot 明確回報 `api-deployments-free-per-day`（免費方案每日部署超過 100 次，請等待 24 小時）。舊 head 的 TypeScript BodyInit 錯誤已有型別修正，但新 head 尚未取得終態 CI；不可把舊 head 測試結果沿用。Draft 維持。
-  - **#529（本 PR）** 非 Draft，head `f8df7aca8281823311fcc1e5333ce0c309eb2916`，base 為 main。Actions run `45407503524` PENDING；目前僅 1 job `138492067902`「Resolve exact candidate PR metadata」仍 PENDING，沒有終態驗收。Vercel FAILURE、CircleCI ERROR。Review 只有 COMMENTED，沒有 APPROVED。
+  - **#529（前一輪 head 快照）**：本段記錄的 head `f8df7aca8281823311fcc1e5333ce0c309eb2916`、Actions run `45407503524` PENDING、Vercel FAILURE、CircleCI ERROR 均為當時快照；後續 head 與最新狀態見第 6.9 節。
   - **#528** Draft，head `4755ebb5877a0d97f761833875defec2bd72d319`，base 為 main。Actions run `45406450739` PENDING、Jobs API 0 jobs；Vercel FAILURE、CircleCI ERROR。
   - **#376** head `8e9b14d7a137e5930e9a549c9ff949743689335b`，base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`，mergeable=false；Vercel SUCCESS、CircleCI ERROR，無目前 head 的 Actions run。
   - **#417** head `4c175c1b6c635eb5d923f616851078e7ce97afc7`，base `25d5ed519eb923d3001df6d43aec1670a0d4851a`，mergeable=false；Vercel FAILURE、CircleCI ERROR，無目前 head 的 Actions run。
@@ -259,3 +259,22 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **正式審查：** 八件 PR 均未取得正式 APPROVED；COMMENTED 不得視為批准。#529／#530 的評論不能替代目前精確 HEAD 的獨立審查。
 - **GPT2 自有交付／界線：** 本次只補正本 GPT2 自有文件的即時狀態快照。#530 程式碼與測試仍屬 GPT2 自有工作，但最新 exact-head Actions 0 jobs，故先保留 Draft；不以 Vercel 額度限制為由跳過必要 CI。#528 為 GPT5 工作，不接管。#376／#417／#259／#478／#476 的 base 落後 main 且 mergeable=false，未經各自 owner 協調不得擅自重定向或改寫。
 - **驗證限制：** 本節為唯讀 API 狀態紀錄；文件變更本身未執行程式測試、TypeScript、Lint 或 Build。此快照不構成 GPT3 APPROVED、不構成 PR 合併授權，也不宣稱部署完成。
+
+
+## 6.9 即時重核：main、八件 OPEN PR 與 GPT2 文件審查 — 2026-11-24（第六次更新）
+
+> 本節為最新查核快照；6.6–6.8 保留其歷史觀測。任何 PR 狀態均以本節所列 exact HEAD 為準，HEAD 改變即須重新查核。
+
+- **main HEAD：** `3c6fc232ec1d07c56f0ba31d3a690079008f4004`。Combined status：Vercel SUCCESS；CircleCI Pipeline #335 ERROR。Main 不是全綠；本次可用 GitHub connector 未提供 CircleCI job/step log 讀取能力，因此 #335 的具體失敗步驟與根因仍 UNKNOWN，不得臆測或重試代替診斷。
+- **OPEN PR 共 8 件：**
+  - **#530** Draft；base 為 main；head `ab77b34ea4a9008368656ad42125b21ccb2ef015`。Actions run `45407074332` PENDING，Jobs API 0；Vercel build-rate-limit FAILURE；CircleCI Pipeline #331 ERROR。GPT3 對此 exact HEAD 的靜態 QA 為 COMMENTED／NOT APPROVED，並指出 100 ms race timeout 可考慮放寬及清除 timer；尚無正式 APPROVED。
+  - **#529** 非 Draft；base 為 main；目前 head `a669e0432b67debef6403469c84665185f3c68b6`。Actions run `45407942932` PENDING，Jobs API 0；Vercel build-rate-limit FAILURE；CircleCI Pipeline #334 ERROR。GPT3 的 COMMENTED／NOT APPROVED 僅對舊 head `42259a07eb07f8faba7c9f86e0c7ace7f5babd43`；CodeRabbit 對中間 head `f8df7aca8281823311fcc1e5333ce0c309eb2916` 指出應明確標記舊狀態為歷史快照。該標示已在本文件修正；CodeRabbit 對目前 head `a669e0432b67debef6403469c84665185f3c68b6` 的新一輪審查當時仍顯示 processing，不能視為完成。無目前 head 的 GPT3 APPROVED。
+  - **#528** Draft；base 為 main；head `4755ebb5877a0d97f761833875defec2bd72d319`。Actions run `45406450739` PENDING，Jobs API 0；Vercel build-rate-limit FAILURE；CircleCI Pipeline #326 ERROR；尚無獨立正式核准。
+  - **#478** 非 Draft；head `d32781849befd9be53d3fec7329efa54654a96be`；base `4225a244407f7a323262c4d6e17b2749193d6476`，落後 main，mergeable=false。Vercel FAILURE；CircleCI Pipeline #256 ERROR；無目前 head 的 Actions run 證據。
+  - **#476** 非 Draft；head `977896a9db756e336405bb2f1956f9377da60038`；base `4225a244407f7a323262c4d6e17b2749193d6476`，落後 main，mergeable=false。Vercel SUCCESS；CircleCI Pipeline #22 ERROR；無目前 head 的 Actions run 證據。
+  - **#417** 非 Draft；head `4c175c1b6c635eb5d923f616851078e7ce97afc7`；base `25d5ed519eb923d3001df6d43aec1670a0d4851a`，落後 main，mergeable=false。Vercel FAILURE；CircleCI Pipeline #297 ERROR；無目前 head 的 Actions run 證據。
+  - **#376** 非 Draft；head `8e9b14d7a137e5930e9a549c9ff949743689335b`；base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`，落後 main，mergeable=false。Vercel SUCCESS；CircleCI Pipeline #259 ERROR；無目前 head 的 Actions run 證據。
+  - **#259** 非 Draft；head `721c57eeb68af070bb91787ac2d9ebd5a0770019`；base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`，落後 main，mergeable=false。Vercel FAILURE；CircleCI Pipeline #298 ERROR；無目前 head 的 Actions run 證據。
+- **合併與驗收結論：** 沒有 PR 同時具備最新 exact-head 必要檢查成功及正式獨立 APPROVED。PENDING／0 Jobs、無 workflow run、SKIPPED、Vercel build-rate-limit FAILURE、CircleCI ERROR 均不是 PASS。未解除 Draft、未合併任何 PR。
+- **本次可閉環修補：** 只修改 GPT2 自有文件，將 #529 在 §6.7／§6.8 的舊 head 狀態明確標示為歷史快照，並追加本節最新狀態；未修改其他 owner 路徑或 Factory 核心。文件更新不等於 GPT3 核准。
+- **待外部／獨立處理：** Main CircleCI #335 根因需 CircleCI 管理端或可讀取 pipeline job logs 的權限；Vercel build-rate-limit 需等待額度恢復或由專案管理者處理方案限制。GPT3 必須對 #529 最新 head 進行獨立複審；本次文件修正不代替該審查。
