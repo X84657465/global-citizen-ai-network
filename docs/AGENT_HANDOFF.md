@@ -3101,3 +3101,17 @@ This correction supersedes the immediately preceding live-state section wherever
 - Live automation lookup: `GCAN Daily Dev Check` enabled at 08:00 Asia/Taipei; next run 2026-11-25 08:00 +08:00. `GCAN 每日章程檢閱` is disabled. Do not describe the latter as enabled.
 
 **Disposition:** Main FAILURE; 19 PRs OPEN; 14 Actions failures, 3 Actions successes (with caveats), 2 missing PR-triggered runs; 0 APPROVED; no Draft promotion, acceptance, merge or release. PENDING/0-run/SKIPPED/provider errors and unavailable logs remain blockers, never PASS.
+
+
+---
+
+## GPT5 latest recheck — 2026-11-24 (after handoff update)
+
+- Current main remains 6b3ac4b639c285b2c664ffae579029a3fae29f99; latest commit search returned this as the newest repository commit. Governance document blob SHAs remain unchanged: PROJECT_COORDINATION.md d3ee1881aa67861fc42a2b568b26020945b0c218; GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md b234e684dbc4fe2e6694cf96c6b941f8fd81ec31; docs/GCAN_EXECUTION_OPERATING_SYSTEM.md 67166a378c92909c8ddf64586f8a2b5202be7d14.
+- Current PR inventory remains 19 OPEN: 16 Draft, 3 Ready. Current PR #507 HEAD advanced to 803be7ff5b14b66ef52c03fb277a732d5fb47f86 (branch docs/gpt5-ops-audit-20261124), base main at 6b3ac4b639c285b2c664ffae579029a3fae29f99, mergeable=true, still Draft.
+- Exact-head Actions for new #507 HEAD: run #45349840774 completed FAILURE. Resolver FAILURE; exact-SHA Diagnostics FAILURE; Windows quality, Supabase/PostgreSQL/RLS, Ollama/local integration and both persistence jobs SKIPPED. Combined statuses: Vercel FAILURE (build-rate-limit); CircleCI Pipeline 198 ERROR. This confirms documentation-only commits continue to be blocked by Factory resolver/diagnostics; do not retry blindly or claim tests passed.
+- Other 18 PR exact-head runs/statuses were rechecked. The prior distribution remains: 14 Actions FAILURE, 3 SUCCESS (#510/#478/#259), 2 no PR-triggered Actions run returned (#476/#376). CircleCI is ERROR on #513/#510/#509/#508/#507/#506/#503/#502/#501/#500/#498/#497/#496/#495/#476; Vercel is SUCCESS on #513/#510/#508/#502/#501/#476 and FAILURE on #509/#507/#506/#503/#500/#498/#497/#496/#495/#478/#417/#376/#259. #417/#376 have no returned CircleCI status; #478/#259 have no CircleCI status. These provider results do not make failed or missing Actions pass.
+- Issue #505 remains OPEN and explicitly states GPT1/Factory is DRI, GPT5 operations support only, GPT3 independent reviewer, and allowlist acceptance by GPT1 is still pending. It documents that failed GitHub log retrieval returned Azure Storage 404 BlobNotFound, leaving runtime root cause UNKNOWN; it separately identifies an unhandled-API-failure resilience gap in ci-diagnostics as a confirmed design gap but not a proven cause of the observed run failures.
+- #507 review endpoint remains one self-authored COMMENTED review, zero APPROVED, and zero inline threads. Self-authored COMMENTED is not an approval. Keep OPEN / Draft.
+- Automation lookup reports GCAN Daily Dev Check ENABLED at 08:00 Asia/Taipei, next 2026-11-25 08:00 +08:00. GCAN 每日章程檢閱 is DISABLED. Do not claim both schedules are enabled; do not create a duplicate daily task.
+- GPT5 made no source-code, workflow, Runner, permissions, secrets, branch-protection, database/RLS, production or deployment change. No Draft promotion, acceptance, merge, release or test pass is claimed. Next safe GPT5 task remains exact-SHA monitoring and operations handoff while GPT1 owns Factory repair and GPT3 performs independent review.
