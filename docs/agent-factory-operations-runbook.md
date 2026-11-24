@@ -38,20 +38,20 @@ Operational consequences:
 
 ## Candidate metadata resolver and Windows execution boundary
 
-The current mainline `.github/workflows/ci.yml` runs the read-only `resolve-candidate` metadata job on `ubuntu-latest`. It resolves the exact PR head, validates the task marker and reads the Factory state Issue when needed. This job has read-only repository/issue/PR permissions and does not share the Windows self-hosted Runner concurrency group. Metadata resolution therefore does not need to wait for the Windows execution lane.
+The current mainline `.github/workflows/ci.yml` runs the read-only `resolve-candidate` metadata job on `ubuntu-latest`. It resolves the exact PR head, validates task metadata and reads the Factory state Issue when needed. Its job permissions are read-only (`contents`, `issues`, and `pull-requests`) and it does not reserve the Windows self-hosted Runner concurrency group. Metadata resolution therefore does not wait behind the Windows execution lane.
 
-The machine-dependent jobs remain on the Windows self-hosted Runner:
+Machine-dependent jobs remain on the Windows self-hosted Runner:
 
 - `quality` runs unit tests, type checks, lint, dependency audits and the production build.
-- `build` performs the bounded local Ollama execution checks.
+- `build` performs bounded local Ollama execution checks.
 - `database` runs disposable Supabase/PostgreSQL migrations and RLS integration checks.
-- These jobs retain the shared `global-citizen-ai-network-self-hosted-runner` concurrency group with `cancel-in-progress: false` and `queue: max` where configured. Preserve this serialization for host-dependent execution and durable state writers.
+- Preserve the shared `global-citizen-ai-network-self-hosted-runner` concurrency group with `cancel-in-progress: false` and `queue: max` wherever configured. This serialization protects host-dependent execution and durable state writers.
 
 Operational boundaries:
 
 - Treat the hosted resolver as metadata-only. Do not move candidate code execution, privileged publication, or durable Factory state mutation to `ubuntu-latest`.
-- A successful resolver is not CI acceptance: quality, Ollama and database jobs must each complete successfully on the exact candidate SHA.
-- If the resolver fails, inspect its exact run/job logs and redacted diagnostic artifact before retrying. If logs or artifacts are unavailable, record the cause as unverified rather than inferring Runner failure.
+- Resolver success is not CI acceptance. Quality, Ollama and database jobs must each complete successfully on the exact candidate SHA.
+- On resolver failure, inspect its exact run/job logs and redacted diagnostic artifact before retrying. If logs or artifacts are unavailable, record the cause as unverified; do not infer Runner failure or an application defect.
 - A PENDING job with no job record is not proof of a healthy or unhealthy Windows Runner. Verify assignment and job-level evidence independently.
 
 ## Recovery queue scope and state-writer serialization
@@ -209,16 +209,3 @@ All state writers share the serialized Windows Runner concurrency group. The dur
 
 The workflow does not itself dispatch the task. The normal scheduler may select it only after the bounded retry deadline and under the existing lease, cooldown, path-allowlist, scratch, test and publication gates. Do not edit Issue #100, reset global cooldowns, clear event history, or create a lease manually.
 
-
-
-## Verification addendum (2026-11-24)
-
-This addendum supersedes any older statement above when describing the current repository snapshot; older run IDs and SHA values remain historical evidence only.
-
-- Latest observed default-branch HEAD: `8002072738d0dad722ccfc1207250165d1b7d8bc`. The connected commit search returned this as the newest commit; the next returned commits were older.
-- The combined GitHub commit status for that SHA reports CircleCI Pipeline 38 as `error`: https://app.circleci.com/pipelines/gh/X84657465/global-citizen-ai-network/38. The connected GitHub integration does not expose CircleCI job details, so the failing CircleCI step and cause remain unverified.
-- PR #495 initial documentation-correction HEAD `2933e95b07258a576ef6200b1626a3deaa477fea` was tested by Actions run #45225139195 and failed. Its `Resolve exact candidate PR metadata` job failed, the exact-SHA diagnostics job also failed, and Windows quality, Supabase/PostgreSQL/RLS, Ollama and outcome-persistence jobs were skipped. The run exposes no artifact; the connected job-log retrieval returned 404. The PR was subsequently updated with this verification addendum; its current head is `5729525138c92ddf00bcd2587a317963b74a739d`, for which no exact-head run was visible at the time of this addendum. Do not infer a root cause from missing diagnostics.
-- The same resolver-first failure pattern is present on PR #494 HEAD `4d6586f4de5764e74e0414e047b3d9ad1b254d57` (run #45218883945), PR #493 HEAD `e53acf3124a96dd81ba9167990fa887ac0a9bd6d` (run #45225044275), and PR #491 HEAD `3b9baef27b9590b01245eb4eac90f9d78fee8723` (run #45213070420). In each case resolver and diagnostics failed; downstream validation was skipped. PR #493 has only a COMMENTED review, not an approval. PRs #495, #494 and #491 have no submitted formal reviews in the retrieved review records.
-- PR #478 exact-head run #45191718421 succeeded, but its base is old (`4225a244407f7a323262c4d6e17b2749193d6476`) and GitHub reports it non-mergeable against current main. Its green result is not current-main acceptance. PR #476 and #376 had no exact-head Actions runs in the retrieved results and are non-mergeable. PR #417 run #45056447505 failed and is non-mergeable. PR #259 run #44949425719 succeeded on its old candidate head, but it is non-mergeable and must not be transplanted as a broad diff.
-- The current evidence does not establish whether the shared resolver failure is caused by GitHub API availability, authentication/permissions, workflow configuration, or another provider-side condition. The next diagnostic must capture a safe resolver error classification and exact failing step output before any blind retry. Do not mark Factory green, lift Draft status, or merge based on downstream SKIPPED jobs.
-- No Factory durable state, lease, cooldown, quarantine, secrets, branch protection, database, or Production deployment was changed as part of this verification.
