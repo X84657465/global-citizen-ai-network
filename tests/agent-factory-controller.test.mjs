@@ -1577,6 +1577,7 @@ test("system-health success requires verified exact-head CI evidence and resets 
             head_sha: sha,
             status: "completed",
             conclusion: "success",
+            updated_at: new Date(2500).toISOString(),
             path: ".github/workflows/ci.yml",
             event: "pull_request",
             head_repository: { id: 42, full_name: "owner/repo" },
