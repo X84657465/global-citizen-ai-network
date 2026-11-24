@@ -195,14 +195,17 @@ jobs:
               owner, repo, state: 'open', per_page: 100
             });
             const existing = existingIssues.find(issue => !issue.pull_request && issue.body && issue.body.includes(marker));
+            let incidentNumber;
             if (existing) {
               await github.rest.issues.update({ owner, repo, issue_number: existing.number, body });
-              core.info('Updated existing merge acceptance incident #' + existing.number);
+              incidentNumber = existing.number;
+              core.info('Updated existing merge acceptance incident #' + incidentNumber);
             } else {
               const created = await github.rest.issues.create({
                 owner, repo,
                 title: 'Merge acceptance incident: PR #' + prNumber,
                 body
               });
-              core.setFailed('Acceptance breach detected for merged PR #' + prNumber + '; incident #' + created.data.number + ' created.');
+              incidentNumber = created.data.number;
             }
+            core.setFailed('Acceptance breach detected for merged PR #' + prNumber + '; incident #' + incidentNumber + ' recorded.');
