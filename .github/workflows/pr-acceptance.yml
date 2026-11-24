@@ -173,7 +173,12 @@ jobs:
             const changedFiles = await github.paginate(github.rest.pulls.listFiles, {
               owner, repo, pull_number: prNumber, per_page: 100
             });
-            const preflightApplicable = changedFiles.some(file =>
+            const preflightCheckExists = checkRuns.some(check =>
+              check.head_sha === headSha &&
+              check.name === 'Linux offline scratch fixture validation' &&
+              check.app && check.app.slug === 'github-actions'
+            );
+            const preflightApplicable = preflightCheckExists || changedFiles.some(file =>
               preflightPaths.has(file.filename) || (file.previous_filename && preflightPaths.has(file.previous_filename))
             );
             const preflightCheck = preflightApplicable ? latestCheck('Linux offline scratch fixture validation') : null;
