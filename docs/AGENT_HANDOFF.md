@@ -4523,3 +4523,64 @@ Formal review and thread caveat: #543 has one COMMENTED CodeRabbit review and th
 - This run completed the fresh main/document read, exact 12-PR inventory, exact-head status checks, review/thread checks for active #543/#538/#539, and recovered the full #543 failing job log.
 - No Factory source/workflow/state, Runner, secret, permission, branch protection, production data, provider setting, or deployment was changed. No local test suite was run in this connector-only execution.
 - Keep #544 Draft: it has 0 jobs and pending Actions plus external provider failures. Keep all other PR dispositions unchanged until their own gates pass.
+
+
+---
+
+# GPT5 Daily Operations — LIVE RECHECK (2026-11-25; exact evidence)
+
+This is the newest operations snapshot and supersedes earlier live snapshots in this file. Historical entries remain for audit only. This is a documentation-only handoff; it does not change ownership, governance, acceptance gates, or permissions.
+
+## Main and governance
+- Current main HEAD, rechecked after the PR inventory: `a36238cad79d2d55ba12b36bb6181919d103ceff`.
+- Freshly read current-main documents:
+  - `PROJECT_COORDINATION.md`: blob `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+  - `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`: blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+  - `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md`: blob `67166a378c92909c8ddf64586f8a2b5202be7d14`; still GOVERNANCE PROPOSAL, not effective.
+- Main combined statuses: Vercel SUCCESS; CircleCI Pipeline #453 ERROR.
+- Main push Actions run `45480273645`, attempt 1, exact SHA above: overall IN_PROGRESS (no conclusion). Resolver `138756005374` SUCCESS; Windows quality gates `138756459951` FAILURE; Ollama `138760107775` SKIPPED; Supabase/PostgreSQL/RLS `138760108862` SKIPPED; diagnostics `138760107820` PENDING; failure persistence `138760107914` PENDING; success persistence `138760109577` SKIPPED. Recovery run `45480288058` is COMPLETED / SKIPPED. No main CI PASS.
+- Exact main failure: Windows job failed at **Verify CI trigger and Runner policy**. Subtest `system breaker recovery resolves one trusted main PR from the completed CI exact SHA` fails because the test requires the literal `matches.length !== 1`, while `.github/workflows/agent-factory-system-health.yml` implements the equivalent fail-closed cardinality guard using separate `matches.length === 0` and `matches.length > 1` branches. This is a source-text assertion / workflow-contract mismatch; it does not prove the runtime resolver accepts ambiguous PRs. The failing test/workflow are GPT1-owned; GPT5 did not modify them.
+
+## All 12 open PRs — exact refs and available checks
+
+| PR | HEAD SHA | BASE SHA | Draft | Mergeable | Exact-head Actions / external statuses |
+|---|---|---|---|---|---|
+| #544 | `1c044df33f5616852846155426b4f181ea4eb7fd` | `a36238cad79d2d55ba12b36bb6181919d103ceff` | yes | true | Run `45482216621` PENDING (resolver job PENDING); CircleCI #454 ERROR; Vercel build-rate-limit FAILURE. |
+| #543 | `8f61d98dc940e9467d77a749389518dd77c8fadd` | `a36238cad79d2d55ba12b36bb6181919d103ceff` | no | true | Run `45481551842` remains PENDING overall; resolver SUCCESS, Windows quality FAILURE, DB/RLS and Ollama SKIPPED, diagnostics PENDING. CircleCI #452 ERROR; Vercel daily deployment quota FAILURE. |
+| #541 | `15948c4407ddad6796c2123195abc9853380752f` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | true | Run `45473655684` SUCCESS; CircleCI #434 ERROR; Vercel build-rate-limit FAILURE. |
+| #539 | `8452e5b5fd416e2f9e76c841b089fe7ce0d9a1e0` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | true | Run `45464675765` SUCCESS; CircleCI #419 ERROR; Vercel build-rate-limit FAILURE. |
+| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | true | Core CI `45433006532` SUCCESS; separate Preflight `45433006242` FAILURE in Linux offline scratch fixture job `138686942398`; six downstream jobs SKIPPED; steps unavailable and log download returns Azure 404 BlobNotFound, so root cause UNKNOWN. CircleCI #379 ERROR; Vercel build-rate-limit FAILURE. |
+| #536 | `865392cde037fa78bb32e81adf6caa584eade5bf` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | true | Run `45469820623` SUCCESS; CircleCI #424 ERROR; Vercel SUCCESS. |
+| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | no | true | Run `45425712673` SUCCESS; CircleCI #372 ERROR; Vercel FAILURE. |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No run returned by the PR-filtered commit-runs endpoint (Actions UNKNOWN); CircleCI ERROR; Vercel FAILURE. |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No run returned by the PR-filtered commit-runs endpoint (Actions UNKNOWN); CircleCI ERROR; Vercel SUCCESS. |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | No run returned by the PR-filtered commit-runs endpoint (Actions UNKNOWN); CircleCI ERROR; Vercel SUCCESS. |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | No run returned by the PR-filtered commit-runs endpoint (Actions UNKNOWN); CircleCI ERROR; Vercel SUCCESS. |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | no | false | No run returned by the PR-filtered commit-runs endpoint (Actions UNKNOWN); CircleCI ERROR; Vercel FAILURE. |
+
+PRs #541/#539/#538/#536/#535 and all older PRs except #543/#544 record base SHAs older than current main. Reconcile each branch against current main under its accountable owner's control and re-run exact-head gates; do not infer acceptance from mergeable metadata.
+
+## Review and blocker disposition
+- #543: one CodeRabbit COMMENTED formal review; no APPROVED review; three unresolved inline review threads. In addition to the failing exact-SHA assertion, the threads flag owner-push isolation/container-fixture coverage being skipped, repository_dispatch cancellation protection, and source-string-only cancellation tests. GPT1 / PR owner owns these workflow and test paths. GPT5 added operations-only evidence comments; neither is a review or approval.
+- #538: formal reviews are COMMENTED only; no independent APPROVED review. Keep Draft. The failed Linux fixture log is unavailable; do not retry unchanged or speculate.
+- #541: no formal review records returned.
+- #539/#536/#535: formal reviews returned are COMMENTED only; no APPROVED review. #539 has two unresolved inline threads.
+- #544: no formal review records returned. It is GPT5's documentation-only handoff PR; keep Draft while its exact-head checks are pending. GPT5 cannot approve its own work.
+- No PR is eligible for merge on the evidence above. No Draft promotion or merge was performed.
+
+## Issue #117 and GPT5 WIP
+- Issue #117 remains OPEN, assigned to `X84657465`; GPT5 is delegated support only and DRI/module ownership remain unchanged.
+- Related PR #538 changes only the Issue #117 allowlisted paths. Its core CI success does not clear the separate failed Preflight gate. The failed job's steps are unavailable and logs return BlobNotFound; the cause is UNKNOWN. GPT1 / Factory DRI must recover Runner/Controller evidence or provide an independently reproducible diagnosis and bounded fix, then obtain fresh exact-head gates and independent GPT3 approval.
+- GPT5's safe independent work this cycle: exact-SHA CI triage, read-only workflow/test contract comparison, and operations handoff update. No Factory source/workflow, Runner, durable state, secrets, permissions, branch protection, production data, provider settings, or deployment was changed.
+- Local tests/build/lint: NOT RUN in this connector-only session.
+- Automation `GCAN 每日工程巡檢` ID `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled, daily at 08:00 Asia/Taipei; next scheduled run `2026-11-25T08:00:00+08:00`. This live manual audit is not proof of continuous background monitoring or a completed scheduled run.
+
+## Next actions
+1. GPT1 / Factory owner: repair the main/#543 CI trigger-policy regression test and resolve all three #543 inline findings; do not weaken sandbox or state-writer safety to save Runner time.
+2. GPT1 / Factory owner: recover #538 Linux fixture evidence; no blind retry while logs remain unavailable.
+3. Repository/CircleCI administrator: diagnose CircleCI project configuration errors; Vercel administrator: resolve free-tier daily deployment quota. GPT5 will not change billing or provider settings.
+4. GPT5: retain #544 as the single documentation/operations WIP; wait for exact-head checks and independent review. Do not self-approve.
+5. Owners of stale-base PRs: reconcile against current main and rerun exact-head required checks.
+
+## Disposition
+Main is BLOCKED: exact-head Actions has a failed Windows quality job and pending diagnostics/persistence, CircleCI is ERROR, while Vercel alone is SUCCESS. #543 is BLOCKED despite Ready/mergeable metadata; #538 is BLOCKED by failed Preflight with UNKNOWN root cause; remaining PRs are pending, provider-blocked, stale-base, non-mergeable, or lack independent review. No code delivery, merge, Draft promotion, deployment, or local test execution is claimed in this snapshot.
