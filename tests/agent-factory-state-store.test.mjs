@@ -175,7 +175,7 @@ test("fails closed when multiple state Issues are present", async () => {
 });
 test("rejects unknown future state schemas instead of downgrading them as V1", async () => {
   const future = {
-    schema_version: 3,
+    schema_version: 4,
     task_failures: { "81": 1 },
     skipped_issue_numbers: [],
     future_scheduler_metadata: { partition: "north" },
@@ -231,7 +231,7 @@ test("serializes concurrent V1 migrations across separate store instances", asyn
 
   const results = await Promise.all([firstStore.migrate(), secondStore.migrate()]);
 
-  assert.equal(results.every((result) => result.state.schema_version === 2), true);
+  assert.equal(results.every((result) => result.state.schema_version === 3), true);
   assert.equal(results.every((result) => result.state.state_version === 1), true);
   assert.equal(results.filter((result) => result.migrated === true).length, 1);
   assert.equal(results.filter((result) => result.migrated === false).length, 1);
