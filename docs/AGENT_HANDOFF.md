@@ -4043,3 +4043,50 @@ This entry supersedes any conflicting PR/run rows above. Evidence below is bound
 - Main HEAD 3c6fc232ec1d07c56f0ba31d3a690079008f4004; main push CI SUCCESS, but CircleCI ERROR and Recovery failure/skipped evidence remain unresolved.
 - 9 OPEN PRs; 0 formal APPROVED reviews; 0 merge-ready PRs.
 - GPT5 completed a scoped handoff correction only. No Draft promotion, merge, deployment, or release.
+
+---
+
+## GPT5 superseding live recheck — 2026-11-24 22:20 Asia/Taipei
+
+This addendum supersedes earlier same-day snapshot rows where exact SHAs/runs have advanced. Main remains unchanged; PR #532 advanced after the previous note.
+
+### Main exact state
+- Main HEAD: `3c6fc232ec1d07c56f0ba31d3a690079008f4004`.
+- Combined statuses: Vercel SUCCESS; CircleCI Pipeline 335 ERROR. Main is not globally green.
+- Exact-head GitHub check-runs: 37 total = 5 SUCCESS, 15 FAILURE, 17 SKIPPED.
+- Push run `45393056714`, attempt 1, COMPLETED / SUCCESS. Jobs: metadata resolver, Windows quality gates, PostgreSQL/RLS, Ollama/local integration and persistence job all job-level SUCCESS. But persistence job `138450597258` has all four meaningful candidate-success steps SKIPPED: revalidate candidate, record candidate CI success, write evidence JSON, upload evidence. The job's SUCCESS does not establish candidate evidence persistence or breaker reset.
+- Latest Recovery run is `45411663242`, attempt 1, COMPLETED / SKIPPED on the same Main SHA. Recent Recovery runs `45411519664` and `45411464768` also SKIPPED; `45409536466`, `45409458903`, `45409299836`, `45409215800`, `45409136716` and `45408322822` FAILED. No Recovery PASS is established; no manual state/breaker mutation.
+
+### All 9 Open PRs — latest metadata and exact-head evidence
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions / Jobs | Provider statuses |
+|---|---|---|---|---|---|---|
+| #532 | `7fc6e5656dd436b55d8097efbcec3c17f70cc332` | Main | yes | true | Preflight run `45411971316`: FAILURE; Linux offline scratch fixture Job `138507896179` FAILURE, six downstream jobs SKIPPED, steps empty and log download 404 BlobNotFound. CI run `45411971452`: PENDING, Jobs API 0. | Vercel FAILURE (free-tier deployment rate limit); CircleCI Pipeline 345 ERROR |
+| #528 | `0631a1d9dee57f395eb234cacd71d4078aeda5f7` | Main | yes | true | run `45411787673`: PENDING, Jobs API 0. | Vercel FAILURE (rate limit); CircleCI Pipeline 344 ERROR |
+| #530 | `4e53fa60b89fc63ca687af5e2020bbbf33bbc60c` | Main | yes | true | run `45409272154`: IN_PROGRESS; metadata resolver SUCCESS, Windows Runner quality gates Job `138502349446` IN_PROGRESS. | Vercel FAILURE (rate limit); CircleCI Pipeline 339 ERROR |
+| #529 | `d4e6f293aad26beb087d73c5799ff0532a1e77d7` | Main | no | true | run `45408251333`: PENDING overall; metadata resolver SUCCESS, Windows Runner quality gates SUCCESS, Supabase/PostgreSQL/RLS Job `138506306728` PENDING, Ollama/local integration Job `138506307443` PENDING. | Vercel FAILURE (rate limit); CircleCI Pipeline 338 ERROR |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | No PR-triggered run returned. | Vercel SUCCESS; CircleCI ERROR |
+| #417 | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | No PR-triggered run returned. | Vercel FAILURE; CircleCI ERROR |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | no | false | No PR-triggered run returned. | Vercel FAILURE; CircleCI ERROR |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No PR-triggered run returned. | Vercel FAILURE; CircleCI ERROR |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No PR-triggered run returned. | Vercel SUCCESS; CircleCI ERROR |
+
+- Current formal review submissions across all nine PRs: zero APPROVED. #530/#529/#376/#417/#259/#478/#476 have COMMENTED only; #532/#528 have no formal reviews. No independent acceptance.
+- #532's latest commit `7fc6e565...` is a narrow regression-test assertion correction. The preflight failure remains unlocalized: Steps API empty, log endpoint 404 BlobNotFound. Do not claim the test repair fixes the failing fixture; do not rerun blindly. PR remains Draft.
+- #528 CI is not a real pass: PENDING with zero jobs. #530 has not completed quality gates. #529's database and Ollama jobs are still pending despite Windows quality gate SUCCESS. No PR is eligible for acceptance, Draft promotion, or merge.
+
+### GPT5 authorized task and current action
+- Issue #117 remains OPEN, assignee/DRI `X84657465`, label `factory-control-plane-approved`; the issue explicitly delegates GPT5 implementation support while retaining DRI and independent review.
+- #532 changes only the Issue #117 allowlisted `scripts/prepare-agent-task.mjs` and `tests/agent-patch-to-scratch.test.mjs`; no other open PR overlaps those paths. Latest head is `7fc6e565...`; no local checkout/runtime is attached, so local unit suite/typecheck/lint are NOT RUN.
+- This turn performed fresh reads of current `PROJECT_COORDINATION.md` (blob `d3ee1881aa67861fc42a2b568b26020945b0c218`) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`). Master governance proposal remains PROPOSED; no expanded GPT5 A–P ownership or independent QA authority.
+- Handoff update itself is a documentation evidence refresh only; it does not count as code implementation, CI acceptance or Factory recovery.
+
+### Handoff / owner disposition
+- GPT1 / Factory DRI: diagnose main Recovery failure and #532 Linux offline fixture failure from retained Runner/Controller evidence; report exact step/root cause before another targeted run.
+- GPT3: independently review final exact #532 HEAD only after required checks terminate; no self-review substitution.
+- GPT2: own #529/#530 and complete their outstanding exact-head integration checks.
+- Repository/provider administrator: CircleCI project configuration is consistently ERROR; Vercel deployment quota/rate limit blocks preview evidence. Do not modify provider billing/settings without owner authority.
+- Owners of #376/#417/#259/#478/#476: reconcile stale base/conflict on their own branches; GPT5 will not rebase or overwrite their work.
+- No Draft removal, merge, deployment, release, durable-state mutation, Runner/secret/permission/branch-protection change was performed.
+
+### Automation
+- Existing `GCAN 每日工程巡檢` automation is enabled; next scheduled run `2026-11-25T08:00:00+08:00`. Its recorded last run is `2026-11-24T00:23:51Z`–`00:37:58Z`; that scheduled run's report was for an older Main SHA and is not this inline live recheck. Delivery status is UNKNOWN.
