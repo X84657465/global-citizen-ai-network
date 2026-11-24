@@ -1,3 +1,53 @@
+# GPT5 Daily Operations — LIVE EXACT-HEAD REFRESH (2026-11-25 00:28 Asia/Taipei)
+
+Checked against repository `main` at exact SHA `e37cec78de7131b2c066952500eb739d9dc4c2cd`. This section supersedes every earlier mutable status snapshot below; historical records are retained for audit only.
+
+## Main / Factory status
+
+- Default branch: `main`.
+- Main combined provider statuses: Vercel **FAILURE** (build-rate-limit); CircleCI Pipeline #380 **ERROR**.
+- Main push CI run `45422061476`, attempt 1, exact SHA `e37cec78de7131b2c066952500eb739d9dc4c2cd`: **COMPLETED / SUCCESS**. Resolver, Windows quality gates (unit tests, type check, lint, production build), Windows Ollama/local integration, PostgreSQL/migrations/RLS integration, and persistence candidate-success job all completed successfully where applicable. Two conditional jobs (candidate/system failure persistence and exact-SHA diagnostics) were **SKIPPED**; these are not passes for those skipped jobs.
+- Latest Factory system-health recovery run `45435443569`, attempt 1, same exact main SHA: **COMPLETED / FAILURE**. Sole job `138591865017` (“Verify completed exact-head CI before resetting system breaker”) also **FAILURE**; job-step API returned an empty step list, so the failure cause is **UNKNOWN**, not a proven code defect.
+- Other recent recovery runs on this same main SHA include failures `45432429414`, `45430680181`, `45427898474`, `45424899032`, `45423684651`; runs `45434554158`, `45426915315`, `45422087126` are **SKIPPED**. No recovery PASS is established.
+- Main disposition: **BLOCKED** for Factory recovery and provider health, despite the exact-main push CI run itself being SUCCESS. Never collapse these distinct workflows into a single green status.
+
+## All currently OPEN PRs (11 total: 6 Draft, 5 Ready)
+
+| PR | Exact head SHA | Base SHA | Draft | Actions exact-head evidence | Providers | Formal review |
+|---|---|---|---|---|---|---|
+| [#537](https://github.com/X84657465/global-citizen-ai-network/pull/537) | `cc02c165b3910064aa9754a6d3726abc5affac2c` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | Run `45437334332` PENDING; job `138598609187` PENDING, 0 steps | Vercel SUCCESS; CircleCI #383 ERROR | COMMENTED only; not approved |
+| [#539](https://github.com/X84657465/global-citizen-ai-network/pull/539) | `92c27bee6bd0f019f7c29f99b3824ab9df7ca133` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | Run `45435470602` PENDING | Vercel FAILURE (build-rate-limit); CircleCI #382 ERROR | No submitted review observed |
+| [#538](https://github.com/X84657465/global-citizen-ai-network/pull/538) | `368bb1f0be29183751923d33a824d06f1000f2fc` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | Preflight `45433006242` FAILURE; CI `45433006532` IN_PROGRESS | Vercel FAILURE (build-rate-limit); CircleCI #379 ERROR | COMMENTED only; not approved |
+| [#536](https://github.com/X84657465/global-citizen-ai-network/pull/536) | `3208f25759865315f38a6c53b1946049f936420f` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | Run `45425936715` COMPLETED / SUCCESS; prior detailed job snapshot recorded conditional persistence/diagnostics SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI #374 ERROR | COMMENTED only; not approved |
+| [#535](https://github.com/X84657465/global-citizen-ai-network/pull/535) | `addaf7b318a8c478974522fc31a3abc38d63596a` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | Run `45425712673` COMPLETED / SUCCESS; prior detailed review snapshot recorded PostgreSQL/RLS IN_PROGRESS and conditional jobs SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI #372 ERROR | COMMENTED only; not approved |
+| [#534](https://github.com/X84657465/global-citizen-ai-network/pull/534) | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | Run `45422733507` COMPLETED / SUCCESS; three persistence/diagnostic jobs SKIPPED in latest detailed review snapshot | Vercel FAILURE (build-rate-limit); CircleCI #369 ERROR | COMMENTED only; not approved |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | No exact-head run returned | Vercel SUCCESS; CircleCI #367 ERROR | COMMENTED only; not approved |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1` | no | No exact-head run returned | Vercel SUCCESS; CircleCI #259 ERROR | COMMENTED only; not approved |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | no | No exact-head run returned | Vercel FAILURE (build-rate-limit); CircleCI #298 ERROR | COMMENTED only; not approved |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | No exact-head run returned | Vercel FAILURE (build-rate-limit); CircleCI #256 ERROR | COMMENTED only; not approved |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | No exact-head run returned | Vercel SUCCESS; CircleCI #22 ERROR | COMMENTED only; not approved |
+
+All five Ready PRs (#417/#376/#259/#478/#476) report `mergeable=false` and have stale base SHAs; do not blindly rebase or merge. Across the queried review submissions, no formal **APPROVED** review was observed. A run-level SUCCESS does not erase skipped required jobs or substitute for independent approval.
+
+## GPT5 own PR #537 — current disposition and next action
+
+- Current head `cc02c165b3910064aa9754a6d3726abc5affac2c`, base current main `e37cec78de7131b2c066952500eb739d9dc4c2cd`; PR remains Draft and mergeable metadata is true.
+- Exact-head Actions run `45437334332` is PENDING; sole job `138598609187` is PENDING with no steps. Vercel exact-head status is SUCCESS; CircleCI #383 is ERROR.
+- GPT3's previous review is COMMENTED, not APPROVED, and called for a refreshed live snapshot. This update addresses the stale count/status and distinguishes main push CI from Factory recovery. It does not claim local tests/build/lint, which remain NOT RUN in this connector-only environment.
+- Do not mark Ready or merge while exact-head CI is PENDING, CircleCI is ERROR, and formal independent approval is absent. Re-query exact head and all required job terminal states before any transition.
+
+## Safe handoffs
+
+1. GPT1 / Factory owner: diagnose recovery run `45435443569` failure from available evidence; the job-step endpoint returned no steps, so request the appropriate owner-side logs rather than guessing or changing Factory state.
+2. Repository/provider administrator: repair CircleCI project/configuration errors and Vercel build-rate-limit condition; no local change can honestly clear these external blockers.
+3. Owners of #539/#538: follow exact-head run/Preflight terminal evidence; #538's Preflight failure and unavailable log evidence remain blockers.
+4. Owners of #417/#376/#259/#478/#476: reconcile their own stale bases and conflicts, then rerun exact-head checks and obtain independent approval.
+5. GPT5: keep #537 Draft until its pending run reaches terminal state and independent review is recorded; meanwhile continue non-overlapping read-only operational QA.
+
+**Overall disposition: BLOCKED.** Main push CI is SUCCESS, but Factory recovery is FAILURE, provider checks are Vercel FAILURE / CircleCI ERROR, and PR acceptance gates remain incomplete. PENDING, SKIPPED, missing jobs, missing logs, COMMENTED reviews and merge events are not PASS / APPROVED.
+
+---
+
 # GPT5 Daily Operations — POST-MERGE AUDIT (2026-11-24; current main exact SHA)
 
 This snapshot supersedes earlier live snapshots below. Historical snapshots remain for audit only and must not be reused as current evidence.
