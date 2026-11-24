@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createFactoryStateStore, FACTORY_STATE_ISSUE_TITLE, MAX_STATE_ISSUE_BODY_CHARS, inspectFactoryStateCapacity } from "../lib/agent-factory-state-store.mjs";
-import { createInitialFactoryState, recordSystemFailure } from "../lib/agent-factory-state-machine.mjs";
+import { createInitialFactoryState, recordSystemFailure, recordSystemSuccess } from "../lib/agent-factory-state-machine.mjs";
 
 function fakeApi(initialIssues = []) {
   const issues = structuredClone(initialIssues); let nextNumber = 100;
@@ -175,7 +175,7 @@ test("fails closed when multiple state Issues are present", async () => {
 });
 test("rejects unknown future state schemas instead of downgrading them as V1", async () => {
   const future = {
-    schema_version: 3,
+    schema_version: 4,
     task_failures: { "81": 1 },
     skipped_issue_numbers: [],
     future_scheduler_metadata: { partition: "north" },
@@ -195,13 +195,13 @@ test("migrates the existing Issue #100 V1 payload without losing failure and qua
   const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
   const migrated = await store.read();
-  assert.equal(migrated.state.schema_version, 2);
+  assert.equal(migrated.state.schema_version, 3);
   assert.equal(migrated.state.system.consecutive_failures, 2);
   assert.equal(migrated.state.tasks["81"].failures, 1);
   assert.equal(migrated.state.tasks["95"].quarantined, true);
   assert.equal(migrated.state.tasks["95"].status, "quarantined");
 });
-test("persists a V1-to-V2 migration on the existing state Issue", async () => {
+test("persists a V1-to-V3 migration on the existing state Issue", async () => {
   const legacy = { consecutive_failures: 1, cooldown_until: null, task_failures: { "81": 1 }, skipped_issue_numbers: [], last_error: "old", updated_at: "2026-11-19T05:00:00.000Z" };
   const body = "Machine-managed scheduler state. <!-- agent-factory-state:" + Buffer.from(JSON.stringify(legacy)).toString("base64") + " -->";
   const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
@@ -209,7 +209,7 @@ test("persists a V1-to-V2 migration on the existing state Issue", async () => {
   assert.equal((await store.read()).migrated, true);
   const result = await store.migrate();
   assert.equal(result.migrated, true);
-  assert.equal(result.state.schema_version, 2);
+  assert.equal(result.state.schema_version, 3);
   assert.equal(result.state.state_version, 1);
   assert.equal((await store.read()).migrated, false);
 });
@@ -231,7 +231,7 @@ test("serializes concurrent V1 migrations across separate store instances", asyn
 
   const results = await Promise.all([firstStore.migrate(), secondStore.migrate()]);
 
-  assert.equal(results.every((result) => result.state.schema_version === 2), true);
+  assert.equal(results.every((result) => result.state.schema_version === 3), true);
   assert.equal(results.every((result) => result.state.state_version === 1), true);
   assert.equal(results.filter((result) => result.migrated === true).length, 1);
   assert.equal(results.filter((result) => result.migrated === false).length, 1);
@@ -453,7 +453,7 @@ test("migrates the configured production state-Issue path without creating a rep
 
   assert.equal(migrated.migrated, true);
   assert.equal(migrated.issue.number, 100);
-  assert.equal(migrated.state.schema_version, 2);
+  assert.equal(migrated.state.schema_version, 3);
   assert.equal(migrated.state.state_version, 1);
   assert.equal(migrated.state.system.consecutive_failures, 1);
   assert.equal(migrated.state.tasks["81"].failures, 1);
@@ -556,4 +556,35 @@ test("fails closed on malformed V1 skipped Issue history", async () => {
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
   await assert.rejects(store.read(), /invalid Issue number/);
   assert.equal(fake.issues[0].body, body, "invalid legacy state must not be rewritten");
+});
+
+test("migrates V2 active breakers conservatively and rejects pre-boundary success evidence", async () => {
+  const legacyV2 = createInitialFactoryState(1000);
+  legacyV2.schema_version = 2;
+  legacyV2.state_version = 7;
+  legacyV2.updated_at = "2026-11-24T18:00:00.000Z";
+  legacyV2.system.consecutive_failures = 2;
+  legacyV2.system.last_error_code = "RUNNER_UNAVAILABLE";
+  delete legacyV2.system.last_failure_at;
+  const body = "Machine-managed V2 factory state. <!-- agent-factory-state:" +
+    Buffer.from(JSON.stringify(legacyV2)).toString("base64") + " -->";
+  const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const store = createFactoryStateStore(fake.client, { repository: "owner/repo" });
+  const read = await store.read();
+  assert.equal(read.migrated, true);
+  assert.equal(read.state.schema_version, 3);
+  assert.equal(read.state.state_version, 7);
+  assert.equal(read.state.system.last_failure_at, legacyV2.updated_at);
+  const stale = recordSystemSuccess(read.state, "pre-migration-success-123",
+    Date.parse("2026-11-24T18:01:00.000Z"), Date.parse("2026-11-24T17:59:00.000Z"));
+  assert.equal(stale.stale, true);
+  assert.equal(stale.state.system.consecutive_failures, 2);
+  const migrated = await store.migrate();
+  assert.equal(migrated.state.schema_version, 3);
+  assert.equal(migrated.state.state_version, 8);
+  assert.equal((await store.read()).migrated, false);
+  const fresh = recordSystemSuccess(migrated.state, "post-migration-success-123",
+    Date.parse("2026-11-24T18:03:00.000Z"), Date.parse("2026-11-24T18:02:00.000Z"));
+  assert.equal(fresh.stale, undefined);
+  assert.equal(fresh.state.system.consecutive_failures, 0);
 });
