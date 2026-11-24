@@ -750,10 +750,21 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
     "pr.head?.repo?.full_name === process.env.GITHUB_REPOSITORY",
     "pr.head?.sha === sha",
     "pr.head?.ref === ref",
-    "matches.length !== 1",
     'pr.head.ref.startsWith("ai-task/issue-")',
     'pr.head.ref.startsWith("codex/issue-")',
   ]) assert.ok(recovery.includes(guard), "exact-SHA PR resolver must retain " + guard);
+
+  const zeroMatchStart = recovery.indexOf("if (matches.length === 0)");
+  const ambiguousMatchStart = recovery.indexOf("if (matches.length > 1)");
+  assert.ok(zeroMatchStart >= 0 && ambiguousMatchStart > zeroMatchStart,
+    "zero exact-head matches must be handled before the multiple-match rejection");
+  const zeroMatchBranch = recovery.slice(zeroMatchStart, ambiguousMatchStart);
+  assert.ok(zeroMatchBranch.includes("should_recover=false"),
+    "zero exact-head matches must produce a safe no-recovery output");
+  assert.ok(zeroMatchBranch.includes("process.exit(0)"),
+    "zero exact-head matches must finish as a no-op");
+  assert.ok(recovery.slice(ambiguousMatchStart).includes("Ambiguous exact-head PR resolution"),
+    "multiple exact-head matches must fail closed as ambiguous");
 
   const resolveStart = recovery.indexOf("- name: Resolve and verify the unique exact-head main PR");
   const verifyStart = recovery.indexOf("- name: Verify completed CI provenance and reset global breaker");
