@@ -210,7 +210,7 @@ function systemHealthJobs(runId, runAttempt, headSha, overrides = {}) {
       run_attempt: runAttempt,
       head_sha: headSha,
       status: "completed",
-      conclusion: "success",
+      conclusion: name === "Persist candidate success or reset system breaker" ? "skipped" : "success",
       ...overrides[name],
     })),
   };
