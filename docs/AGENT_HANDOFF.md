@@ -31,10 +31,16 @@ All six non-reporting PR branches have base SHAs older than current Main and rep
 - Issue #87 is GPT4-owned B Product task content. Its malformed headings require GPT4 to rewrite the issue using `Goal`, `Allowed paths`, `Acceptance criteria`, and `Explicit exclusions`; GPT5 must not take over the task.
 - Recovery failure diagnostics and Factory durable state are Factory owner responsibilities. Do not manually edit machine-managed Issue #100 or claim the breaker was reset.
 
+## Current GPT5 handoff PR status — live recheck 2026-11-25
+- Current exact PR #553 HEAD: `075ae3fe8969a8bfb187c669e3363afe6fe0460b`; base is current main `80d10dd46b522014d4e9ce879f156b09ab6a517f`; PR remains OPEN / Draft.
+- Exact-head GitHub Actions run [45503000661](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45503000661): IN_PROGRESS at recheck. No completed exact-head PASS is established.
+- The prior-head run [45502448179](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45502448179) is COMPLETED / CANCELLED after the correction commit advanced the PR head; it is not PASS.
+- Current exact-head external statuses: CircleCI Pipeline #506 ERROR; Vercel FAILURE (`build-rate-limit`). Formal PR reviews: 0. Keep Draft; do not self-approve or merge.
+
 ## Automation
-- Existing automation: `GCAN 每日工程巡檢`, ID `6b0333fe43d48191a35a1c83fd72fe6c`, enabled, timezone Asia/Taipei, daily 08:00.
-- Last recorded run: 2026-11-24 08:38 Asia/Taipei, completed. Next scheduled run at capture: 2026-11-25 08:00 Asia/Taipei.
-- No duplicate schedule was created. A scheduled run is not represented as complete until its runtime records completion.
+- Existing automation: `GCAN Daily Dev Check`, ID `6b0334c033b481919ee5a3aefdc8e3b6`, ENABLED, timezone Asia/Taipei, daily schedule with an approximate 08:00 local target.
+- Last recorded run: `2026-11-24T00:57:56.724891Z` (2026-11-24 08:57:56 Asia/Taipei), recorded completed. Next scheduled run reported by the automation service: `2026-11-25T08:00:00+08:00`.
+- The automation's latest stored result is an older snapshot and is not this live recheck. No duplicate schedule was created; scheduled completion must be established from the automation runtime record.
 
 ## Execution disposition
 - No source code or Factory workflow was changed in this correction. Only this GPT5 operations handoff snapshot was corrected.
