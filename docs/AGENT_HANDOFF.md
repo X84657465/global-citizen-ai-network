@@ -4456,3 +4456,53 @@ Formal review submissions inspected for these PRs were COMMENTED only or absent;
 
 ## Disposition
 Main `a36238cad79d2d55ba12b36bb6181919d103ceff` is BLOCKED by CircleCI #446 ERROR; Vercel is SUCCESS. Main Actions terminal evidence is NOT VERIFIED. Eleven PRs are open; no PR is fully accepted on the evidence queried. PR #543 is the newest candidate but remains IN_PROGRESS / blocked by provider quota and CircleCI error, with independent review pending. No source-code or Factory state change was made in this GPT5 audit.
+
+
+## GPT5 live recheck — 2026-11-25 (current exact API evidence)
+
+### Main and governance
+- Latest main HEAD: `a36238cad79d2d55ba12b36bb6181919d103ceff` (latest commit: `fix(ci): avoid AI preflight for workflow-policy-only edits`).
+- Re-read current `PROJECT_COORDINATION.md` (blob `d3ee1881aa67861fc42a2b568b26020945b0c218`) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`). GPT5 remains operations support only; GPT1 owns A–E/Factory, GPT2 F–P, GPT3 independent QA, GPT4 B Product. Master Charter / execution OS remain PROPOSED, not effective.
+- Main combined status: Vercel SUCCESS; CircleCI Pipeline #453 ERROR. Main Actions terminal state is NOT VERIFIED by the PR-filtered workflow-run endpoint; do not infer PASS.
+- Current `docs/AGENT_HANDOFF.md` on main has blob `545db8df4d6961460f44681d5e34877bad837f98`; this update is being recorded on the existing GPT5 audit branch, not main.
+
+### All 12 open PRs — exact current head/base and provider status
+| PR | HEAD SHA | BASE SHA | Draft | Mergeable | GitHub Actions / external checks |
+|---|---|---|---|---|---|
+| #544 | `66bb1f589c6b4079ee6a50498d02d74b1003dfa5` | `a36238cad79d2d55ba12b36bb6181919d103ceff` | yes | false | Run 45482661196 PENDING; jobs endpoint returned 0 jobs. CircleCI #455 ERROR; Vercel build-rate-limit FAILURE. |
+| #543 | `8f61d98dc940e9467d77a749389518dd77c8fadd` | `a36238cad79d2d55ba12b36bb6181919d103ceff` | no | true | Run 45481551842 completed with Windows quality gate FAILURE; resolver SUCCESS; DB/Ollama integration SKIPPED; diagnostics PENDING; failure details below. CircleCI #452 ERROR; Vercel build-rate-limit FAILURE. |
+| #541 | `15948c4407ddad6796c2123195abc9853380752f` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | true | Run 45473655684 SUCCESS. CircleCI #434 ERROR; Vercel build-rate-limit FAILURE. |
+| #539 | `8452e5b5fd416e2f9e76c841b089fe7ce0d9a1e0` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | true | Run 45464675765 SUCCESS for resolver, Windows quality, PostgreSQL/RLS, Ollama/local integration; three state/diagnostic jobs SKIPPED. CircleCI #419 ERROR; Vercel build-rate-limit FAILURE. Formal reviews COMMENTED only; 1 unresolved thread. |
+| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | true | CI run 45433006532 SUCCESS, but Preflight run 45433006242 FAILURE (Linux offline scratch fixture); failure logs/artifacts unavailable, root cause UNKNOWN; other preflight jobs SKIPPED. CircleCI #379 ERROR; Vercel build-rate-limit FAILURE. Formal reviews COMMENTED only. |
+| #536 | `865392cde037fa78bb32e81adf6caa584eade5bf` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | yes | true | Run 45469820623 SUCCESS (quality, Ollama/local and PostgreSQL/RLS); diagnostics/state jobs SKIPPED. CircleCI #424 ERROR; Vercel SUCCESS. |
+| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | no | true | Run 45425712673 SUCCESS. CircleCI #372 ERROR; Vercel build-rate-limit FAILURE. |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No PR-triggered Actions run returned for exact head. CircleCI #256 ERROR; Vercel build-rate-limit FAILURE. |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No PR-triggered Actions run returned for exact head. CircleCI #22 ERROR; Vercel SUCCESS. |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | No PR-triggered Actions run returned for exact head. CircleCI #367 ERROR; Vercel SUCCESS. |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | No PR-triggered Actions run returned for exact head. CircleCI #259 ERROR; Vercel SUCCESS. |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | no | false | No PR-triggered Actions run returned for exact head. CircleCI #298 ERROR; Vercel build-rate-limit FAILURE. |
+
+Formal review and thread caveat: #543 has one COMMENTED CodeRabbit review and three unresolved inline threads; no APPROVED review. #538 formal reviews are COMMENTED only, no unresolved inline threads. #539 has COMMENTED reviews only and one unresolved thread. For other PRs, this pass did not re-query every formal review/thread; prior audit had no formal APPROVED evidence. No Draft promotion or merge is authorized by the evidence.
+
+### Newly recovered exact failure evidence — PR #543
+- Actions run `45481551842`, candidate SHA `8f61d98dc940e9467d77a749389518dd77c8fadd`: resolver job SUCCESS; Windows Runner quality job FAILURE.
+- Failing step: `Verify CI trigger and Runner policy`. Its test output reports 47 passed / 1 failed out of 48.
+- Failing test: `system breaker recovery resolves one trusted main PR from the completed CI exact SHA` at `tests/ci-trigger-policy.test.mjs:730`; assertion at line 756: `exact-SHA PR resolver must retain matches.length !== 1` (expected true, actual false).
+- Downstream Unit tests, Type check, Lint and Production build were SKIPPED; PostgreSQL/RLS and Ollama/local integration jobs SKIPPED; exact-SHA diagnostics job remained PENDING. Do not call this a green run.
+- CodeRabbit review has three unresolved findings: owner pushes currently skip the container-isolation and Linux scratch-fixture steps; `repository_dispatch` concurrency can cancel a task PR run; the trigger-policy test checks source strings rather than evaluated cancellation decisions.
+- This PR changes Factory-owned `.github/workflows/agent-task-preflight.yml`, `.github/workflows/ci.yml` and `tests/ci-trigger-policy.test.mjs`. GPT5 did not modify these overlapping owner paths. GPT1 / PR owner must resolve the test failure and three review threads, then obtain fresh exact-head CI and independent approval.
+
+### P0 / owner handoff
+- Issue #117 remains GPT1 / Factory DRI scope. PR #538's preflight Linux offline scratch fixture is terminal FAILURE with unavailable step/log/artifact evidence; root cause UNKNOWN. Do not blindly rerun or speculate.
+- PR #539 has successful GitHub Actions quality/integration jobs but CircleCI #419 ERROR, Vercel quota FAILURE, three intentional SKIPPED state/diagnostic jobs, and one unresolved thread. It is not accepted and remains Draft.
+- Stale-base PRs #259/#376/#417/#476/#478 remain non-mergeable; their owners must reconcile base/head and re-run checks. Do not blind-rebase or retarget.
+- CircleCI errors across main and PRs require project administrator diagnosis. Vercel failures explicitly point to build-rate-limit; provider/project administrator must resolve quota/plan limits. GPT5 will not change billing, provider settings, or retry repeatedly.
+
+### Daily automation truth
+- Existing GPT5 daily automation `6b0333ddf1548191a7da3cefb9ac7b15` remains enabled (daily, Asia/Taipei; configured DTSTART 09:00). No duplicate automation created.
+- `run_now` accepted this turn and returned `inline_run`; this live audit is the inline execution. Persistent automation `last_run` / `latest_result` were null at the time of peek, so scheduled execution history / delivery SLA remains NOT VERIFIED.
+
+### GPT5 work disposition
+- This run completed the fresh main/document read, exact 12-PR inventory, exact-head status checks, review/thread checks for active #543/#538/#539, and recovered the full #543 failing job log.
+- No Factory source/workflow/state, Runner, secret, permission, branch protection, production data, provider setting, or deployment was changed. No local test suite was run in this connector-only execution.
+- Keep #544 Draft: it has 0 jobs and pending Actions plus external provider failures. Keep all other PR dispositions unchanged until their own gates pass.
