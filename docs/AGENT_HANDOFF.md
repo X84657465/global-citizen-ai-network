@@ -4634,3 +4634,53 @@ The available workflow-runs wrapper filters to pull_request events and returns t
 - No Draft was removed, no PR merged, no independent review self-issued, and no CI/recovery state was manually reset.
 - Evidence labels: #539 SUCCESS with SKIPPED acceptance/persistence jobs; #537 IN_PROGRESS; #536 PENDING; #538 Preflight FAILURE; old PR Actions NOT VERIFIED; main recovery FAILURE; provider Vercel FAILURE / CircleCI ERROR; local tests NOT RUN.
 - Next: GPT1 owns Factory recovery and #538 Preflight root-cause investigation; GPT3 independently reviews exact final candidate SHAs; GPT2 retains F–P ownership; stale-base PR owners reconcile their own branches; provider administrator resolves CircleCI/Vercel. GPT5 continues non-overlapping operations support only.
+
+
+---
+
+# GPT5 LIVE EXACT-HEAD RECHECK — 2026-11-25 02:xx Asia/Taipei
+
+This newest addendum supersedes all earlier mutable-state snapshots above for the fields re-queried in this session. It is a GitHub API evidence snapshot, not acceptance or release approval.
+
+## Main / CI
+
+- Current `refs/heads/main` was re-read immediately before this update: `e37cec78de7131b2c066952500eb739d9dc4c2cd`.
+- Direct all-event Actions query for this exact SHA returned 27 runs and the check-runs endpoint returned 33 check runs. Main push CI run `45422061476`, attempt 1, is COMPLETED / SUCCESS. Its resolver, Windows quality, Ollama/local, PostgreSQL/RLS, and candidate-success persistence jobs are SUCCESS; failure-persistence and exact-SHA diagnostics jobs are SKIPPED. Within the candidate-success persistence job, revalidation/evidence-record/write/upload steps were SKIPPED. The workflow SUCCESS is not evidence that those skipped steps ran.
+- Separate Factory Recovery: latest run `45461632907` is PENDING, attempt 1; sole job `138685465190` (“Verify completed exact-head CI before resetting system breaker”) is PENDING. Previous run `45460591856`, job `138681767194`, is FAILURE. Additional recent recovery verifiers on this SHA are terminal FAILURE or SKIPPED; no recovery PASS is observed.
+- Main combined provider statuses: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline #380 ERROR. These are external provider checks and do not override GitHub Actions results.
+- Do not rerun the same failed recovery/log path blindly, reset the Factory breaker, or claim Factory recovery success.
+
+## All 11 OPEN PRs — exact API snapshot
+
+| PR | Exact HEAD | Base | Draft | Exact-head Actions / latest job evidence | Vercel | CircleCI |
+|---|---|---|---|---|---|---|
+| #539 | `c77637896d1e806163fc9985de038eb0079c0306` | current main | Draft | Run `45460328638` PENDING; sole returned resolver job `138685424998` PENDING | FAILURE | #406 ERROR |
+| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | current main | Draft | CI `45433006532` SUCCESS: resolver, quality, Ollama/local, PostgreSQL/RLS SUCCESS; 3 persistence/diagnostics jobs SKIPPED. Separate Preflight `45433006242` FAILURE; Linux offline scratch fixture failure, downstream jobs SKIPPED; logs/steps unavailable, root cause UNKNOWN | FAILURE | #379 ERROR |
+| #537 | `9f82bd386da9fdbd881c39bf0f412b282389e36e` | current main | Draft | Run `45459208820` PENDING; resolver `138681682198` SUCCESS; Windows quality `138685679565` PENDING | FAILURE | #403 ERROR |
+| #536 | `2c257709e5bccb1e2b6ccb3a686fdc6369a1d0a7` | current main | Draft | Run `45458711528` QUEUED; resolver and Windows quality SUCCESS, Ollama/local SUCCESS, PostgreSQL/RLS job `138685101400` IN_PROGRESS | FAILURE | #402 ERROR |
+| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | current main | Ready | Run `45425712673` SUCCESS: resolver, quality, Ollama/local, PostgreSQL/RLS SUCCESS; 3 persistence/diagnostics jobs SKIPPED | FAILURE | #372 ERROR |
+| #534 | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | current main | Draft | Run `45422733507` SUCCESS: resolver, quality, Ollama/local, PostgreSQL/RLS SUCCESS; 3 persistence/diagnostics jobs SKIPPED | FAILURE | #369 ERROR |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Ready | PR-filtered commit-run wrapper returned none; exact-head Actions NOT VERIFIED by that wrapper | FAILURE | #256 ERROR |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | Ready | PR-filtered commit-run wrapper returned none; exact-head Actions NOT VERIFIED by that wrapper | SUCCESS | #22 ERROR |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | Ready | PR-filtered commit-run wrapper returned none; exact-head Actions NOT VERIFIED by that wrapper | SUCCESS | #367 ERROR |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | Ready | PR-filtered commit-run wrapper returned none; exact-head Actions NOT VERIFIED by that wrapper | SUCCESS | #259 ERROR |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Ready | PR-filtered commit-run wrapper returned none; exact-head Actions NOT VERIFIED by that wrapper | FAILURE | #298 ERROR |
+
+Inventory: **11 OPEN; 5 Draft; 6 Ready; 0 formal APPROVED reviews observed.** GitHub review submissions returned COMMENTED or were absent. The review records shown under the author identity `X84657465` are not independent approvals; bot comments are not approvals either. The PR-filtered workflow-run connector returning no runs for the five older PR heads is NOT VERIFIED, not PASS and not proof that no other event runs exist.
+
+## Blockers and ownership
+
+- **#539 / Factory recovery:** current head moved to `c776378...`; its exact-head CI is still PENDING with only the metadata resolver job pending. Earlier review comments refer to older heads and cannot be carried forward as approval. The schema-v2 durable-state compatibility finding remains an explicit owner/reviewer handoff; GPT1 owns Factory implementation, GPT3 must independently review the resulting exact SHA.
+- **#538:** completed substantive CI does not erase the separate Preflight FAILURE. Fixture logs/steps are unavailable; root cause UNKNOWN. GPT1 / issue owner must investigate using retained evidence.
+- **#537 / GPT5 handoff:** current exact head is `9f82bd...`; its exact-head CI is PENDING (quality job pending). This addendum is itself being appended to the GPT5-owned documentation branch; do not hard-code a self-referential post-commit HEAD. Re-read PR metadata and exact-head CI after the commit.
+- **#536:** run QUEUED and PostgreSQL/RLS integration IN_PROGRESS; not terminal.
+- **#535 / #534:** four substantive jobs passed, but persistence/diagnostics jobs are SKIPPED. #535 is Ready, not accepted; its formal review API has no APPROVED state.
+- **#478/#476/#417/#376/#259:** stale base SHAs and historical ownership overlap. Keep owner-led reconciliation; no blind rebase, force update, or transplant.
+- CircleCI project configuration and Vercel build-rate limits are external provider blockers. No provider, billing, secrets, permissions, branch-protection, Runner or Factory durable-state change is authorized.
+
+## GPT5 work / verification boundary
+
+- Re-read current main role and execution documents. GPT5 remains Global Intelligence & Operations support, not an A–P owner, Factory DRI or independent reviewer. Issue #505 remains OPEN: GPT1 is DRI, GPT5 operations support only, GPT3 independent reviewer; its allowlist and explicit non-goals remain binding. No GPT5 Factory source implementation is authorized by that issue.
+- This operation is a documentation-only refresh on GPT5's own PR #537 branch. No application code, workflow, Runner, Factory durable state, permissions, secrets, branch protection, provider configuration, production data, Draft state, merge or deployment was changed.
+- Local tests/build/lint: NOT RUN; no repository checkout/shell/test runtime is attached.
+- Evidence labels: OBSERVED = main SHA, API inventory, run/job states, provider statuses and returned review records; PENDING = main recovery #45461632907, #539 run #45460328638, #537 run #45459208820, #536 run #45458711528/PostgreSQL job; FAILURE = main recovery #45460591856 and #538 Preflight #45433006242; SKIPPED = listed conditional persistence/diagnostics and preflight jobs; UNKNOWN = unavailable failure logs/root causes; NOT VERIFIED = old-PR exact-head runs through the PR-filtered wrapper; NOT RUN = local tests. No new code TESTED, INDEPENDENTLY ACCEPTED, MERGED or RELEASED claim is made.
