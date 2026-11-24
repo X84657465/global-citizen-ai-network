@@ -1,3 +1,16 @@
+# GPT5 Operations — MAIN ADVANCE ADDENDUM (2026-11-25)
+
+The previous live snapshot below was prepared against main `3c5c601ca8da0b069208ef6dfe87611fc54665b5`. Before this handoff PR completed, main advanced again:
+
+- Current main HEAD: `167e18325449276ab6d1db20a8161df33d0d496e`, merge commit for [PR #545](https://github.com/X84657465/global-citizen-ai-network/pull/545).
+- PR #545 is now CLOSED / MERGED. Its governance documents remain proposals and do not independently expand GPT5 authority.
+- Current main combined status: Vercel FAILURE (`build-rate-limit`), CircleCI Pipeline #465 ERROR. Main PR-filtered Actions endpoint returned no runs; main Actions state NOT VERIFIED.
+- This GPT5 handoff PR is [#546](https://github.com/X84657465/global-citizen-ai-network/pull/546), exact head `7df82a9f3917695d632a726eb0ef53668c36b24d`, based originally on `3c5c601...`; current compare to main is ahead 1 / behind 9, mergeable metadata true. Exact-head Actions run `45485253701` is PENDING and Jobs API currently exposes only one job, `Resolve exact candidate PR metadata`, also PENDING. Vercel build-rate-limit FAILURE; CircleCI #467 ERROR. No formal review exists. Keep Draft; do not merge or treat the single pending job as a pass.
+- The table below is a snapshot taken before #545 merged; #545 is no longer open. The other PR rows remain as recorded there pending the next live sweep.
+- GPT5 updated this addendum only within `docs/AGENT_HANDOFF.md`; no Factory source or infrastructure was modified. The PR is behind current main and requires fresh exact-head checks and independent review.
+
+---
+
 # GPT5 Daily Operations — LIVE SNAPSHOT (2026-11-25, main 3c5c601ca8da)
 
 > This snapshot supersedes prior live snapshots below. It is evidence-only; it does not approve, own, or reassign another GPT's work. Re-query GitHub before reuse.
