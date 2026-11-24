@@ -3454,3 +3454,43 @@ This correction supersedes the immediately preceding live-state section wherever
 - GPT1: restore Resolver/Diagnostics evidence and repair Factory gates; GPT3: independently review final exact SHA only after all required checks pass; repo/provider owner: CircleCI config and Vercel quota.
 - No PR can safely be marked Ready or merged. No tests were run locally; no implementation, independent acceptance, merge or release is claimed.
 - Disposition: OBSERVED main FAILURE; exact PR #510 workflow IN_PROGRESS; log retrieval BLOCKED/UNKNOWN; NOT TESTED locally; NOT ACCEPTED; NOT MERGED; NOT RELEASED.
+
+
+---
+
+# GPT5 Daily Operations — 2026-11-24 (latest exact-head refresh)
+
+## Source of truth
+- Main HEAD re-confirmed: `d2fbbf5aaa9a9323f633fce30603f160729c2a9b`.
+- Current-main governance blobs re-read: `PROJECT_COORDINATION.md` `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; Master Charter `46b188085c2dff0f527477b2486719a7f6c24b59` remains PROPOSED; Execution Operating System `67166a378c92909c8ddf64586f8a2b5202be7d14` remains GOVERNANCE PROPOSAL. Current-main handoff blob `b187ba7bc53010a13be56de91d255e2b8daf443d`.
+- Main package version remains `0.3.137`.
+- Main combined status: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline 274 ERROR; exact-main Actions run lookup returned 0 runs. Main CI is BLOCKED, not green.
+
+## All open PRs — exact latest metadata and HEAD checks
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head checks / Actions | Reviews |
+|---|---|---|---|---|---|---|
+| #525 | `5986cc94a30b30f531a205bcc62b8dd51c1c43a5` | current main | yes | true | Vercel FAILURE; CircleCI ERROR; run 45386641385 PENDING, one job `Resolve exact candidate PR metadata` PENDING | 0 reviews |
+| #522 | `47c3712043375813d5ca342d379ad60c48ea796d` | current main | no | true | Vercel FAILURE; CircleCI ERROR; run 45386405981 FAILURE; run 45386405831 PENDING | four COMMENTED, no APPROVED |
+| #524 | `f33ffae0c45081f98af8a52ce107659b7e6b11f1` | current main | yes | true | Vercel FAILURE; CircleCI ERROR; run 45383711282 PENDING; Resolver job SUCCESS, Windows Runner quality gates job PENDING | 0 reviews |
+| #417 | `f08260916d8e3463b3cee363d44f1583954f416d` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | Vercel FAILURE; CircleCI ERROR; no exact-head Actions run returned | nine COMMENTED, no APPROVED |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | Vercel SUCCESS; CircleCI ERROR; no exact-head Actions run returned | sixteen COMMENTED, no APPROVED |
+| #259 | `275ff506ba7c43d57826af3b1a5cb0064f62234a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | yes | false | Vercel FAILURE; CircleCI ERROR; no exact-head Actions run returned | eight COMMENTED, no APPROVED |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | Vercel FAILURE; CircleCI ERROR; no exact-head Actions run returned | four COMMENTED, no APPROVED |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | Vercel SUCCESS; CircleCI ERROR; no exact-head Actions run returned | four COMMENTED, no APPROVED |
+
+### Exact failed / pending jobs
+- #522 run 45386405981 failed job 138420678567: `Linux offline scratch fixture validation`.
+- Six downstream jobs were SKIPPED: Validate task and generate read-only AI plan; Windows self-hosted project validation; Dispatch a newly planned roadmap task; Record publishing state before granting publisher write access; Publish the validated candidate with isolated write permissions; Record publication state with issue-only write permissions.
+- #522 run 45386405831 remains PENDING; its only returned job 138419299876 `Resolve exact candidate PR metadata` is PENDING.
+- #525 run 45386641385 remains PENDING; its only returned job 138419583206 `Resolve exact candidate PR metadata` is PENDING.
+- #524 run 45383711282: resolver 138409080943 SUCCESS; Windows Runner quality gates 138416915093 PENDING.
+- No exact-head Actions result returned for #417/#376/#259/#478/#476; absence is UNKNOWN/NOT RUN, not PASS.
+- No formal APPROVED review exists on any of the eight PRs. Review thread listing returned thread objects without reliable resolved-state fields; do not claim all threads resolved.
+
+## GPT5 disposition
+- This update is limited to the existing GPT5-owned `docs/AGENT_HANDOFF.md` branch/PR #525. No Factory, F–P, Product, workflow, Runner, secrets, permissions, branch-protection, DB/RLS, production or deployment files changed.
+- #525 remains Draft: Actions pending, Vercel rate-limit failure, CircleCI error, and no independent formal approval. Do not mark Ready or merge.
+- #522 failure belongs to GPT1/Factory. Return the exact failing job and six skipped downstream jobs to GPT1; the present evidence does not establish the root cause. Do not edit Factory-owned files.
+- Stale-base PRs remain blocked by stale base and mergeable=false. No retarget/rebase performed because ownership and integration scope are not GPT5's.
+- No local tests/build/lint were run. No code fix, independent acceptance, merge, or deployment is claimed.
+- Disposition: main BLOCKED; #522 FAILURE + downstream SKIPPED; #525/#524 PENDING; remaining PR CI without exact Actions run UNKNOWN; no PR accepted or merged.
