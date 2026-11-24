@@ -58,8 +58,13 @@ test("AI MVP path fails closed and retains idempotency and cost preflight contro
 
 
 test("homepage exposes a separate MVP product card for every A-P track", () => {
-  assert.match(homepage, /A–P 全線產品 MVP 交付目錄/);
-  for (const track of "ABCDEFGHIJKLMNOP".split("")) {
-    assert.match(homepage, new RegExp(`${track} ·`));
-  }
+  const directory = homepage.match(/A–P 全線產品 MVP 交付目錄<\/b><span>[^<]*<\/span><\/div>\s*<div className=\{styles\.executionLiveGrid\}>([\s\S]*?)<\/div>/);
+  assert.ok(directory, "MVP track directory grid is missing");
+
+  const tracks = [...directory[1].matchAll(/<article\b[^>]*>([\s\S]*?)<\/article>/g)].map(([, article]) => {
+    const markers = [...article.matchAll(/<span>\s*([A-P]) ·/g)];
+    assert.equal(markers.length, 1, "Each MVP article must have exactly one track marker");
+    return markers[0][1];
+  });
+  assert.deepEqual(tracks.sort(), [..."ABCDEFGHIJKLMNOP"]);
 });
