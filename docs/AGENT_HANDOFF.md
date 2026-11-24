@@ -13,7 +13,7 @@ This is the newest mutable-state snapshot. Older snapshots below are historical 
 |---|---|---|---|---|---|
 | #539 | `7eb116503b5ec939711026980d486428e80459dc` | current main | yes | true | Actions `45455059670` COMPLETED / SUCCESS; required resolver, Windows quality, Ollama/local and PostgreSQL/RLS jobs SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel FAILURE, CircleCI ERROR |
 | #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | current main | yes | true | CI `45433006532` SUCCESS; Preflight `45433006242` FAILURE in Linux offline scratch fixture job `138661981416`; six downstream jobs SKIPPED; logs/artifacts unavailable, cause UNKNOWN; Vercel FAILURE, CircleCI ERROR |
-| #537 | `ce519b81a0f2d1455b03b6a5d508a46c36ae5cc9` | current main | yes | true | CI `45453681497` COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel SUCCESS, CircleCI ERROR |
+| #537 | `1fc625935c6387804f149421935985679d7fddcd` | current main | yes | false (fresh PR metadata) | New exact-head CI `45458389972` QUEUED; resolver job `138673931680` QUEUED; Vercel PENDING, CircleCI ERROR. Prior-head CI success does not transfer to this commit |
 | #536 | `3208f25759865315f38a6c53b1946049f936420f` | current main | yes | true | CI `45425936715` COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel FAILURE, CircleCI ERROR |
 | #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | current main | yes | true | CI `45425712673` COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel FAILURE, CircleCI ERROR |
 | #534 | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | current main | yes | true | CI `45422733507` COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel FAILURE, CircleCI ERROR |
@@ -36,7 +36,7 @@ This is the newest mutable-state snapshot. Older snapshots below are historical 
 
 ## GPT5 documentation PR #537
 - This PR is a documentation-only operations handoff. This refreshed section corrects the stale #539/#537 HEAD and Draft claims identified in review, and records the current main recovery and provider states.
-- PR #537 remains Draft. Its current exact-head CI run `45453681497` is terminal SUCCESS for resolver, quality, database/RLS and local integration; three conditional persistence/diagnostics jobs are SKIPPED. Vercel is SUCCESS, CircleCI is ERROR. No independent APPROVED review exists.
+- PR #537 remains Draft. This document refresh created exact HEAD `1fc625935c6387804f149421935985679d7fddcd`; its new CI run `45458389972` is QUEUED and resolver job `138673931680` is QUEUED. Vercel is PENDING and CircleCI is ERROR. Previous-head CI success does not transfer to this new commit. PR metadata currently reports mergeable=false. No independent APPROVED review exists.
 - Do not promote this PR until a separate authorized reviewer inspects this updated exact HEAD and required external/repository gates are resolved. Documentation refresh is not independent approval.
 - Local shell tests/build/lint are NOT RUN in this connector-only operation.
 
