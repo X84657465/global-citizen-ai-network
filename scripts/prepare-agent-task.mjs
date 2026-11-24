@@ -22,6 +22,21 @@ const issueNumber = process.env.ISSUE_NUMBER ?? "";
 const repository = process.env.GITHUB_REPOSITORY ?? "";
 const token = process.env.GITHUB_TOKEN ?? "";
 
+const isValidFetchedTaskIdentity = (candidate) => {
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return false;
+  const requestedNumber = Number(issueNumber);
+  if (!Number.isSafeInteger(requestedNumber) || requestedNumber < 1 || candidate.number !== requestedNumber) return false;
+  if (candidate.state !== "open" || candidate.pull_request) return false;
+  const author = candidate.user?.login;
+  if (typeof author !== "string" || author.trim().length === 0) return false;
+  const expectedUrl = "https://github.com/" + repository + "/issues/" + requestedNumber;
+  if (candidate.html_url !== expectedUrl) return false;
+  const ownerAuthored = author.toLowerCase() === repository.split("/")[0].toLowerCase();
+  const plannerAuthored = author.toLowerCase() === "github-actions[bot]" &&
+    typeof candidate.body === "string" && candidate.body.includes("<!-- ai-task-generated-by-planner -->");
+  return ownerAuthored || plannerAuthored;
+};
+
 if (!/^\d{1,8}$/.test(issueNumber) || Number(issueNumber) < 1) {
   fail("issue_number must be a positive integer.");
 }
@@ -44,11 +59,16 @@ try {
   fail("GitHub issue lookup failed (" + reason + ").", error);
 }
 
+const validFetchedTaskIdentity = isValidFetchedTaskIdentity(issue);
+if (!validFetchedTaskIdentity) {
+  fail("GitHub issue response did not match the requested open task identity.");
+}
+
 let task;
 try {
   task = validateAndBuildTask(issue, repository);
 } catch (error) {
-  if (error instanceof TaskValidationError) {
+  if (validFetchedTaskIdentity && error instanceof TaskValidationError) {
     try {
       markTaskScopedFailure();
     } catch {
