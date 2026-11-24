@@ -4321,3 +4321,46 @@ This addendum supersedes earlier same-day snapshot rows where exact SHAs/runs ha
 - GPT2: own #529/#530 and complete the pending exact-head integration work; GPT3: independent QA; stale-base PR owners: reconcile their own branches.
 - Repository/provider administrator: resolve CircleCI configuration errors and Vercel deployment quota/rate limit; no billing or provider-setting change is authorized.
 - GPT5: continue only in explicitly authorized operations/documentation support paths; do not treat PENDING, SKIPPED, 0 Jobs, provider ERROR/FAILURE, or UNKNOWN as PASS.
+
+
+# GPT5 Daily Operations — LIVE SWEEP (2026-11-24 23:50 Asia/Taipei)
+
+This snapshot supersedes earlier live-state snapshots above. It is an operations handoff, not acceptance or release approval.
+
+## Main exact-head
+- Branch: `main`
+- Exact SHA: `e37cec78de7131b2c066952500eb739d9dc4c2cd`
+- Combined commit status: **FAILURE** (Vercel: `failure`, deployment rate limited; CircleCI Pipeline: `error`, no project configuration found).
+- Exact-SHA check-runs: 7 total. Pending: Windows Runner quality gates job `138568809507`; Factory recovery verification job `138564808002`. Completed failure: Factory recovery verification `138554106474`. Completed skipped: recovery verification `138561301739`. Metadata resolver `138561246779` succeeded. These states do not establish main CI PASS.
+- Main push workflow run `45422061476`, attempt 1: PENDING; job `138561246779` SUCCESS; job `138568809507` PENDING (no steps emitted yet).
+- Latest Factory recovery run `45427898474`, attempt 1: PENDING; job `138564808002` PENDING (no steps emitted yet). Previous recovery run `45424899032` failed at job `138554106474`; its job response contains no steps/log evidence. Run `45426915315` completed SKIPPED at job `138561301739`.
+- Disposition: **BLOCKED / NOT PASS**. Do not rerun the same path blindly or reset Factory breaker, cooldown, quarantine, durable state or retry budget.
+
+## All 8 OPEN PRs — exact current heads
+| PR | Exact HEAD | Base SHA | Draft | Exact-head Actions/checks | External status | Formal review |
+|---|---|---|---|---|---|---|
+| [#536](https://github.com/X84657465/global-citizen-ai-network/pull/536) | `3208f25759865315f38a6c53b1946049f936420f` | main `e37cec78de7131b2c066952500eb739d9dc4c2cd` | YES | Run `45425936715` IN_PROGRESS; Windows quality gates `138561539866` IN_PROGRESS; metadata + summary SUCCESS; Mergify NEUTRAL | Vercel FAILURE (24h build rate limit); CircleCI ERROR (missing project config) | COMMENTED only; no APPROVED |
+| [#535](https://github.com/X84657465/global-citizen-ai-network/pull/535) | `addaf7b318a8c478974522fc31a3abc38d63596a` | main `e37cec78de7131b2c066952500eb739d9dc4c2cd` | YES | Run `45425712673` PENDING; Windows Supabase/RLS `138568488978` PENDING; Windows Ollama/local `138568488314` PENDING; quality gates SUCCESS; summary/metadata SUCCESS; Mergify NEUTRAL | Vercel FAILURE (24h build rate limit); CircleCI ERROR (missing project config) | COMMENTED only; no APPROVED |
+| [#534](https://github.com/X84657465/global-citizen-ai-network/pull/534) | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | main `e37cec78de7131b2c066952500eb739d9dc4c2cd` | YES | Run `45422733507` SUCCESS, but persistence success/failure + diagnostics jobs `138564757063`, `138564756931`, `138564756106` all SKIPPED; 3 Windows integration/quality jobs SUCCESS; Mergify NEUTRAL | Vercel FAILURE (24h build rate limit); CircleCI ERROR (missing project config) | COMMENTED only; no APPROVED |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` (stale) | NO | No exact-head GitHub Actions run observed; 3 check-runs (CodeRabbit/Summary SUCCESS; Mergify IN_PROGRESS) | Vercel FAILURE (rate limit); CircleCI ERROR (missing config) | COMMENTED only; no APPROVED |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` (stale) | NO | No exact-head GitHub Actions run observed; 4 check-runs (Vercel Preview/Summary/CodeRabbit SUCCESS; Mergify IN_PROGRESS) | Vercel SUCCESS; CircleCI ERROR (missing config) | COMMENTED only; no APPROVED |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` (stale) | NO | No exact-head GitHub Actions run observed; 4 check-runs (Vercel Preview/Summary/CodeRabbit SUCCESS; Mergify NEUTRAL) | Vercel SUCCESS; CircleCI ERROR (missing config) | COMMENTED only; no APPROVED |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` (stale) | NO | No exact-head GitHub Actions run observed; 4 check-runs (Vercel Preview/Summary/CodeRabbit SUCCESS; Mergify IN_PROGRESS) | Vercel SUCCESS; CircleCI ERROR (missing config) | COMMENTED only; no APPROVED |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` (stale) | NO | No exact-head GitHub Actions run observed; 3 check-runs (Summary/CodeRabbit SUCCESS; Mergify NEUTRAL) | Vercel FAILURE (rate limit); CircleCI ERROR (missing config) | COMMENTED only; no APPROVED |
+
+- Open PR count: **8**. Formal APPROVED reviews: **0/8**. Every observed formal review state is COMMENTED; bot summaries are not approvals. Old PR base SHAs are behind current main; do not rebase or transplant without each accountable owner and overlap review.
+- No PR is eligible for Draft-to-Ready or merge: #536/#535 are still in progress/pending; #534 has skipped required recovery/diagnostic jobs; older PRs have stale bases, no exact-head Actions evidence and/or provider errors; none has independent APPROVED review.
+
+## GPT5 disposition and handoffs
+- Role boundary re-read from current main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`: GPT5 is Global Intelligence & Operations support; GPT1 owns A–E/Factory, GPT2 F–P, GPT3 independent QA, GPT4 B Product. This document does not grant GPT5 module ownership, independent approval, merge, deployment, branch-protection, secrets, Runner or provider-administration authority.
+- Current work performed: exact main SHA and all 8 open PR heads enumerated; exact-head check-runs/statuses and formal review submissions inspected; no code, workflow, Factory state, provider configuration, Draft status or merge state changed.
+- No repository checkout or shell/test runtime is attached. Local tests/build/lint are **NOT RUN**. Connector evidence only; no test claim.
+- Handoffs: (1) GPT1/Factory owner: diagnose main recovery pending/failure and preserve fail-closed state; inspect unavailable failure evidence for `45424899032`. (2) GPT2/PR #535 owner: resolve pending Supabase/RLS and Ollama/local jobs; address provider failures through authorized administrator. (3) #536/#534 accountable owner: complete exact-head validation and request GPT3 independent review after all required jobs terminal. (4) GPT3: independently review exact candidate heads; do not treat COMMENTED as APPROVED. (5) Repository/provider administrator: repair CircleCI project configuration and resolve Vercel 24-hour build rate limit; GPT5 cannot change provider plan/configuration. (6) Owners of #478/#476/#417/#376/#259: reconcile their stale bases on their own branches and obtain fresh exact-head Actions plus independent review.
+- Next GPT5-owned closeable action: maintain this evidence handoff and perform read-only regression/dependency analysis on current main while owner-controlled CI and provider work is blocked. Do not create activity-only issues or retry identical failing paths.
+
+## Evidence classification
+- OBSERVED: main SHA, 7 exact-head check-runs, run IDs/attempts/statuses, 8 open PRs and exact head/base SHAs, 8 PR review lists, provider statuses above.
+- BLOCKED: main exact-head CI; #535/#536 CI; #534 skipped recovery/diagnostics; older PR exact-head validation and stale-base reconciliation; Vercel quota and CircleCI config.
+- UNKNOWN: underlying cause of Factory recovery failure where job steps/logs are absent; local tests and actual checkout behavior.
+- NOT RUN: local test/build/lint.
+- IMPLEMENTED / TESTED / INDEPENDENTLY-ACCEPTED / MERGED / RELEASED: **none by this sweep**.
