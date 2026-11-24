@@ -2804,3 +2804,15 @@ Summary: 19 OPEN = 16 Draft + 3 Ready. Exact-head Actions inventory: 14 PRs with
 - Stop repeating unavailable log retrieval paths; prior audit/recovery logs returned Azure BlobNotFound. Exact failing step remains UNKNOWN where no usable log exists.
 
 **Disposition:** Main FAILURE; no PR independently accepted, no PR merged, no tests executed locally by GPT5 in this turn. This handoff update is IMPLEMENTED as documentation/evidence only, not functional TESTED, CI-PASSING, INDEPENDENTLY-ACCEPTED, MERGED or RELEASED.
+
+
+### GPT5 follow-up delta — 2026-11-24 (latest main observation)
+
+- Re-read main after the full open-PR inventory: `6b3ac4b639c285b2c664ffae579029a3fae29f99` unchanged.
+- Main Actions query now reports 100 runs on the first page, all terminal: 5 FAILURE, 1 SUCCESS, 94 SKIPPED. Page 2 returned 0; no pending/in-progress Actions runs observed.
+- Main Check Runs total 118: first page 100, second page 18; page 2 contains 18 SKIPPED. Combined full count: 6 FAILURE, 2 SUCCESS, 110 SKIPPED; no pending/in-progress check-runs observed.
+- Latest run #45328968440, Agent Factory System Health Recovery, terminal SKIPPED. Its only job, "Verify completed exact-head CI before resetting system breaker", is SKIPPED. This is not a recovery, breaker reset, or green state.
+- External combined statuses remain Vercel FAILURE and CircleCI Pipeline ERROR.
+- PR inventory was re-read: 19 OPEN, 16 Draft / 3 Ready; current head/base SHA, Draft and mergeability are listed in the preceding exact-PR table. #507 remains OPEN / Draft, HEAD `f06bda40d2f8755595b11eafe2ab85802bb4c66e`, mergeable=true; its latest known exact-head workflow #45328948179 failed in Resolver and Diagnostics, with downstream quality/integration/persistence jobs SKIPPED. No formal reviews were returned for #507.
+- No new source or test execution. No additional changes to Factory/Product source, workflow, Runner, state, permissions, security policy, database, production or deployment.
+- Disposition remains Main FAILURE; no PR accepted or merged. Latest recovery workflow being SKIPPED is explicitly not counted as PASS.
