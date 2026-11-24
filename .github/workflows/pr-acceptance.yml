@@ -1,0 +1,288 @@
+name: PR Acceptance Gate
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]
+  workflow_run:
+    workflows: ["CI", "AI Agent Task Preflight"]
+    types: [completed]
+
+permissions:
+  actions: read
+  checks: read
+  contents: read
+  issues: write
+  pull-requests: write
+  statuses: read
+
+concurrency:
+  group: pr-acceptance-${{ github.event.pull_request.number || github.event.workflow_run.head_sha || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    name: PR Acceptance Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted policy from default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Evaluate exact-head acceptance policy
+        uses: actions/github-script@v7
+        env:
+          REQUIRED_CI_WORKFLOW: ci.yml
+          REQUIRED_PREFLIGHT_WORKFLOW: agent-task-preflight.yml
+        with:
+          script: |
+            const path = require('path');
+            const policyPath = path.join(process.env.GITHUB_WORKSPACE, 'scripts', 'pr-acceptance-policy.cjs');
+            const { evaluateAcceptance } = require(policyPath);
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const marker = '<!-- pr-acceptance-gate -->';
+            const holdLabel = 'merge-hold';
+
+            let prNumber = context.payload.pull_request && context.payload.pull_request.number;
+            let eventSha = context.payload.pull_request && context.payload.pull_request.head && context.payload.pull_request.head.sha;
+            if (context.eventName === 'workflow_run') {
+              eventSha = context.payload.workflow_run && context.payload.workflow_run.head_sha;
+              const payloadPrs = context.payload.workflow_run && context.payload.workflow_run.pull_requests;
+              if (Array.isArray(payloadPrs) && payloadPrs.length === 1) {
+                prNumber = payloadPrs[0].number;
+              } else if (eventSha) {
+                const associated = await github.request(
+                  'GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls',
+                  { owner, repo, commit_sha: eventSha, headers: { accept: 'application/vnd.github+json' } }
+                );
+                const matches = associated.data.filter(item =>
+                  item.state === 'open' &&
+                  item.base && item.base.ref === 'main' &&
+                  item.head && item.head.sha === eventSha &&
+                  item.base.repo && item.base.repo.full_name === owner + '/' + repo
+                );
+                if (matches.length === 1) prNumber = matches[0].number;
+              }
+            }
+
+            if (!prNumber) {
+              core.notice('No unique open main-target PR is associated with this workflow event; no PR was changed.');
+              return;
+            }
+
+            const prResponse = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            const pr = prResponse.data;
+            if (pr.state !== 'open' || pr.base.ref !== 'main') {
+              core.notice('PR #' + prNumber + ' is not an open PR targeting main; no action taken.');
+              return;
+            }
+            const headSha = pr.head.sha;
+            if (eventSha && eventSha !== headSha) {
+              core.warning('Stale event SHA ' + eventSha + ' differs from current PR SHA ' + headSha + '; only current SHA is evaluated.');
+            }
+
+            async function latestWorkflowRun(workflowId, sha) {
+              const response = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: workflowId, head_sha: sha, event: 'pull_request', per_page: 50
+              });
+              const runs = response.data.workflow_runs
+                .filter(run => run.head_sha === sha && run.event === 'pull_request')
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at) ||
+                  (b.run_attempt || 1) - (a.run_attempt || 1));
+              return runs[0] || null;
+            }
+
+            async function workflowJobs(run) {
+              if (!run) return [];
+              const response = await github.rest.actions.listJobsForWorkflowRun({
+                owner, repo, run_id: run.id, filter: 'latest', per_page: 100
+              });
+              return response.data.jobs.map(job => ({
+                name: job.name,
+                status: job.status,
+                conclusion: job.conclusion
+              }));
+            }
+
+            const ciRun = await latestWorkflowRun(process.env.REQUIRED_CI_WORKFLOW, headSha);
+            const ci = ciRun ? {
+              headSha: ciRun.head_sha,
+              status: ciRun.status,
+              conclusion: ciRun.conclusion,
+              jobs: await workflowJobs(ciRun)
+            } : {
+              headSha: null,
+              status: 'missing',
+              conclusion: 'missing',
+              jobs: []
+            };
+
+            const preflightPaths = new Set([
+              'lib/agent-task-validation.mjs',
+              'lib/agent-patch-validation.mjs',
+              'lib/agent-plan-validation.mjs',
+              'scripts/prepare-agent-task.mjs',
+              'scripts/select-agent-task.mjs',
+              'scripts/agent-factory-controller.mjs',
+              'scripts/agent-factory-v2-controller.mjs',
+              'lib/agent-factory-controller.mjs',
+              'lib/agent-failure-scope.mjs',
+              'tests/agent-failure-scope.test.mjs',
+              'lib/agent-factory-state-machine.mjs',
+              'lib/agent-factory-state-store.mjs',
+              'lib/agent-task-queue.mjs',
+              'lib/github-api-client.mjs',
+              'lib/github-pagination.mjs',
+              'lib/agent-path-safety.mjs',
+              'lib/agent-scratch-evidence.mjs',
+              'lib/agent-publisher-branch.mjs',
+              'lib/agent-task-pr-metadata.mjs',
+              'scripts/resolve-agent-task-pr.mjs',
+              'lib/agent-factory-policy.mjs',
+              'tests/agent-factory-policy.test.mjs',
+              'tests/agent-task-queue.test.mjs',
+              'tests/github-api-client.test.mjs',
+              'tests/github-pagination.test.mjs',
+              'scripts/generate-agent-plan.mjs',
+              'scripts/generate-agent-patch.mjs',
+              'scripts/apply-agent-patch-to-scratch.mjs',
+              'tests/agent-patch-to-scratch.test.mjs',
+              'scripts/publish-agent-patch.mjs',
+              'tests/agent-task-validation.test.mjs',
+              'tests/agent-patch-validation.test.mjs',
+              'tests/agent-plan-validation.test.mjs',
+              'tests/agent-factory-controller.test.mjs',
+              'tests/agent-factory-lifecycle.integration.test.mjs',
+              'tests/agent-factory-state-machine.test.mjs',
+              'tests/agent-factory-state-store.test.mjs',
+              'tests/agent-path-safety.test.mjs',
+              'tests/agent-scratch-evidence.test.mjs',
+              'tests/agent-publisher-branch.test.mjs',
+              'tests/agent-task-pr-metadata.test.mjs',
+              'eslint.config.mjs',
+              'package.json',
+              '.github/workflows/ci.yml'
+            ]);
+            const changedFiles = await github.paginate(github.rest.pulls.listFiles, {
+              owner, repo, pull_number: prNumber, per_page: 100
+            });
+            const preflightApplicable = changedFiles.some(file => preflightPaths.has(file.filename));
+            const preflightRun = preflightApplicable
+              ? await latestWorkflowRun(process.env.REQUIRED_PREFLIGHT_WORKFLOW, headSha)
+              : null;
+            const preflightJobs = await workflowJobs(preflightRun);
+            const preflightJob = preflightJobs.find(job => job.name === 'Linux offline scratch fixture validation');
+            const preflight = preflightApplicable ? {
+              applicable: true,
+              headSha: preflightRun ? preflightRun.head_sha : null,
+              status: preflightRun ? preflightRun.status : 'missing',
+              conclusion: preflightRun ? preflightRun.conclusion : 'missing',
+              requiredJobConclusion: preflightJob ? (preflightJob.conclusion || preflightJob.status) : 'missing'
+            } : { applicable: false, status: 'not_applicable' };
+
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner, repo, pull_number: prNumber, per_page: 100
+            });
+            const latestReviewByUser = new Map();
+            reviews.sort((a, b) => new Date(a.submitted_at || 0) - new Date(b.submitted_at || 0));
+            for (const review of reviews) {
+              if (review.user && review.user.login) latestReviewByUser.set(review.user.login, review);
+            }
+            const hasCurrentHeadApproval = Array.from(latestReviewByUser.values()).some(review =>
+              review.user.login !== pr.user.login &&
+              review.state === 'APPROVED' &&
+              review.commit_id === headSha
+            );
+
+            const statusResponse = await github.rest.repos.getCombinedStatusForRef({ owner, repo, ref: headSha });
+            const checkResponse = await github.rest.checks.listForRef({ owner, repo, ref: headSha, per_page: 100 });
+            const externalSignals = []
+              .concat(statusResponse.data.statuses.map(status => ({
+                name: status.context, state: status.state, targetUrl: status.target_url
+              })))
+              .concat(checkResponse.data.check_runs.map(check => ({
+                name: check.name, state: check.conclusion || check.status, targetUrl: check.html_url
+              })))
+              .filter(signal => /vercel|circleci/i.test(signal.name));
+
+            const evaluation = evaluateAcceptance({
+              currentHeadSha: headSha,
+              ci,
+              preflight,
+              hasCurrentHeadApproval,
+              mergeable: pr.mergeable,
+              draft: pr.draft
+            });
+
+            const externalSummary = externalSignals.length
+              ? externalSignals.map(item => '- ' + item.name + ': ' + item.state + ' (' + (item.targetUrl || 'no URL') + ')').join('\n')
+              : '- No Vercel/CircleCI signal found on the current SHA.';
+            const failureSummary = evaluation.failures.length
+              ? evaluation.failures.map(item => '- **' + item.code + '**: ' + item.detail).join('\n')
+              : '- All configured acceptance checks passed.';
+            const body = [
+              marker,
+              '## PR Acceptance Gate',
+              '- PR: #' + prNumber,
+              '- Evaluated HEAD SHA: ' + headSha,
+              '- Result: **' + (evaluation.accepted ? 'ACCEPTED' : 'HOLD') + '**',
+              '- Preflight: ' + evaluation.preflight,
+              '',
+              '### Acceptance findings',
+              failureSummary,
+              '',
+              '### External service signals (informational; not classified as code failures)',
+              externalSummary,
+              '',
+              '> Advisory only: without Branch Protection/Rulesets, this workflow cannot technically prevent a user with merge permission from bypassing it. A merge-hold label or Draft state is not a server-side merge lock.'
+            ].join('\n');
+
+            const labelResponse = await github.rest.issues.listLabelsOnIssue({
+              owner, repo, issue_number: prNumber, per_page: 100
+            });
+            const hasHoldLabel = labelResponse.data.some(label => label.name === holdLabel);
+
+            if (!evaluation.accepted) {
+              if (!hasHoldLabel) {
+                try {
+                  await github.rest.issues.createLabel({
+                    owner, repo, name: holdLabel, color: 'B60205',
+                    description: 'Advisory hold: PR acceptance gate has not passed.'
+                  });
+                } catch (error) {
+                  if (error.status !== 422) throw error;
+                }
+                await github.rest.issues.addLabels({ owner, repo, issue_number: prNumber, labels: [holdLabel] });
+              }
+              if (!pr.draft) {
+                try {
+                  await github.graphql(
+                    'mutation($pullRequestId: ID!) { convertPullRequestToDraft(input: {pullRequestId: $pullRequestId}) { pullRequest { isDraft } } }',
+                    { pullRequestId: pr.node_id }
+                  );
+                } catch (error) {
+                  core.warning('Could not convert PR to Draft; advisory label/comment remains: ' + error.message);
+                }
+              }
+            } else if (hasHoldLabel) {
+              await github.rest.issues.removeLabel({ owner, repo, issue_number: prNumber, name: holdLabel });
+            }
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: prNumber, per_page: 100
+            });
+            const previous = comments.find(comment => comment.body && comment.body.includes(marker));
+            if (previous) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: previous.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number: prNumber, body });
+            }
+
+            core.info('PR #' + prNumber + ' evaluated at exact SHA ' + headSha + ': ' + (evaluation.accepted ? 'ACCEPTED' : 'HOLD'));
+            if (!evaluation.accepted) {
+              core.setFailed('PR #' + prNumber + ' failed acceptance: ' + evaluation.failures.map(item => item.code).join(', '));
+            }
