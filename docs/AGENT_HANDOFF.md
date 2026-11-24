@@ -3796,3 +3796,38 @@ All six are OPEN. No PR has a formal APPROVED review. CircleCI is ERROR on all s
 - No source implementation, tests, typecheck, lint, or local build was run in this refresh. This is an operations evidence update only.
 - Next closeable GPT5 action: maintain this handoff and continue non-overlapping evidence triage. Factory recovery failure diagnosis remains with GPT1/Factory DRI; CircleCI project configuration with repository/provider administrator; stale-base and implementation review findings with each accountable owner; GPT3 supplies independent QA.
 - Disposition: main push CI SUCCESS but overall main BLOCKED (CircleCI ERROR + recovery PENDING/historical FAILURE/SKIPPED). Six PRs OPEN; zero APPROVED; #528 CI IN_PROGRESS and Draft; remaining five stale-base/non-mergeable. NOT ACCEPTED, NOT MERGED, NOT RELEASED.
+
+
+---
+
+## GPT5 live correction — 2026-11-24 21:26 Asia/Taipei (exact-head recheck)
+
+This addendum supersedes the earlier PR #528/#530 head and run snapshots above. Main SHA remained `3c6fc232ec1d07c56f0ba31d3a690079008f4004`; VERSION remains `0.3.137`.
+
+### Main / Factory
+- Main combined status: Vercel SUCCESS; CircleCI Pipeline 311 ERROR. The successful main push run `45393056714` is terminal SUCCESS with 7 jobs: metadata, Windows quality gates, Supabase/PostgreSQL/RLS, Ollama/local execution, and candidate-success persistence SUCCESS; the two conditional failure-path jobs SKIPPED. This run does not clear the separate Recovery blocker.
+- Latest Recovery run observed in the current main handoff: `45402845714` PENDING; its only job `138475659797` (Verify completed exact-head CI before resetting system breaker) is PENDING. Do not reset the breaker or blind-rerun. Recovery failures/skips remain distinct from the successful push CI.
+- The GitHub commit-workflow lookup used in this sweep filters PR-triggered runs only; an empty result for main is NOT evidence that main has no Actions runs. Use the run/job evidence above instead.
+
+### All 8 open PRs — latest exact heads
+| PR | Exact HEAD | Base | Draft | Mergeable | Exact-head Actions / job evidence | Combined status | Formal APPROVED |
+|---|---|---|---|---|---|---|---|
+| #530 | `cddd8e66d8736f2516ff084a229fe77cabdec3e9` | current main | YES | YES | run `45402137586` PENDING; one job `138475570012` Resolve exact candidate PR metadata PENDING | Vercel FAILURE (build-rate-limit); CircleCI Pipeline 319 ERROR | 0 |
+| #529 | `42259a07eb07f8faba7c9f86e0c7ace7f5babd43` | current main | NO | YES | run `45399704599` terminal SUCCESS; 7 jobs: metadata, Windows quality, Supabase/PostgreSQL/RLS, Ollama/local execution SUCCESS; diagnostics and two conditional persistence jobs SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI Pipeline 307 ERROR | 0 |
+| #528 | `0d58fbcceb8673cfec1aa1ae80c75391baffa760` | current main | YES | YES | run `45403028788` PENDING; job query returned 0 jobs | Vercel FAILURE (build-rate-limit); CircleCI Pipeline 320 ERROR | 0 |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale | NO | NO | no exact-head Actions run returned | Vercel FAILURE; CircleCI Pipeline 256 ERROR | 0 |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale | NO | NO | no exact-head Actions run returned | Vercel SUCCESS; CircleCI Pipeline 22 ERROR | 0 |
+| #417 | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | stale | NO | NO | no exact-head Actions run returned | Vercel FAILURE; CircleCI Pipeline 297 ERROR | 0 |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale | NO | NO | no exact-head Actions run returned | Vercel SUCCESS; CircleCI Pipeline 259 ERROR | 0 |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | stale | NO | NO | no exact-head Actions run returned | Vercel FAILURE; CircleCI Pipeline 298 ERROR | 0 |
+
+- #478/#476/#417/#376/#259 remain stale-base and mergeable=false. #259 current compare against main is diverged, 113 commits ahead / 1337 behind, touching 41 paths including Factory controller/state machine/store and F–P/database surfaces. No wholesale rebase/transplant is safe; GPT1 and affected owners must reconcile their own code.
+- Formal review submissions checked for all eight open PRs: 0 APPROVED. COMMENTED reviews and bot summaries are not approvals. No Draft promotion, acceptance, merge or release is authorized by this evidence.
+
+### Ownership / next handoff
+- GPT1 / Factory DRI: diagnose Recovery run `45402845714` and prior failure/skip evidence using controller/log evidence; preserve durable Factory state, breaker, cooldown, quarantine and retry budgets. No Factory-owned code was changed by GPT5.
+- Repository/provider administrator: repair CircleCI project configuration; Vercel rate-limit failures remain external provider blockers for #528/#529/#530/#478/#417/#259.
+- GPT2 owns #529/#530; GPT3 remains the independent reviewer. Stale-base PR owners retain rebase/conflict responsibility. GPT4 B Product remains preparation-only until A/Factory acceptance.
+- This addendum changes only the GPT5-allowlisted `docs/AGENT_HANDOFF.md`; no source, workflow, Runner, Factory state, secret, permission, branch-protection, DB/RLS, deployment or production mutation. No local tests/build/lint were run.
+
+Disposition: main push CI SUCCESS, Factory Recovery PENDING, combined main provider status BLOCKED; 8 PRs OPEN, 0 formal approvals; no ACCEPTED, MERGED or RELEASED result.
