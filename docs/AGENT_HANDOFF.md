@@ -4975,3 +4975,53 @@ PR #540 is CLOSED and NOT MERGED; it is no longer in the OPEN inventory. It was 
 - GPT5: maintain exact-head operations handoff; no self-approval or Factory ownership claim.
 
 All statuses are literal evidence labels. PENDING, SKIPPED, NOT VERIFIED, FAILURE and UNKNOWN are not PASS.
+
+
+---
+
+# GPT5 Operations — 2026-11-25 live recheck (main e37cec78de7131b2c066952500eb739d9dc4c2cd)
+
+Checked at 2026-11-25 03:04 Asia/Taipei. This addendum supersedes earlier mutable-state snapshots above for the fields explicitly rechecked below; older snapshots remain historical.
+
+## Source of truth
+- Current default branch: `main`, HEAD `e37cec78de7131b2c066952500eb739d9dc4c2cd`.
+- `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- Master Charter blob `46b188085c2dff0f527477b2486719a7f6c24b59`; status remains PROPOSED. Execution Operating System blob `67166a378c92909c8ddf64586f8a2b5202be7d14`.
+- Current approved coordination rules retain Factory-first, GPT5 operations/support only, one non-conflicting support task, no module-owner transfer, and independent GPT3 review. Pending/Skipped/NOT RUN/BLOCKED are not PASS.
+
+## Main CI and external providers
+- Main combined statuses: Vercel FAILURE (build-rate-limit); CircleCI Pipeline #380 ERROR.
+- Recovery run `45465158595`: PENDING; sole job `138698002068` (“Verify completed exact-head CI before resetting system breaker”) PENDING.
+- Recovery run `45465299979`: COMPLETED / SKIPPED; sole job `138698510064` SKIPPED.
+- Earlier recovery run `45462403940`: job `138688259767` COMPLETED / FAILURE. No Recovery PASS is established by these records.
+
+## All 11 currently OPEN PRs — exact current metadata
+| PR | Current HEAD | Base SHA | Draft | Mergeable | GitHub Actions on exact HEAD | Other commit statuses | Unresolved threads |
+|---|---|---|---|---|---|---|---:|
+| #537 | `732ff6ba6a4def279552c51eb37f97c9f32deed5` | `e37cec78...` | yes | true | Run `45466011603` PENDING; Jobs API returned 0 jobs | Vercel FAILURE; CircleCI #421 ERROR | 0 |
+| #539 | `8452e5b5fd416e2f9e76c841b089fe7ce0d9a1e0` | `e37cec78...` | yes | true | Run `45464675765` PENDING; resolver job `138698466323` PENDING | Vercel FAILURE; CircleCI #419 ERROR | 0 (the observed thread is resolved) |
+| #536 | `c848ba193417eea9f80dfac0b1d5958a1457ba9f` | `e37cec78...` | yes | true | Run `45462687029` PENDING; resolver and Windows quality gates SUCCESS; Ollama/local and PostgreSQL/RLS jobs PENDING | Vercel FAILURE; CircleCI #408 ERROR | 0 |
+| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | `e37cec78...` | no | true | Run `45425712673` COMPLETED / SUCCESS; candidate quality and both integration jobs SUCCESS; three persistence/diagnostics jobs SKIPPED | Vercel FAILURE; CircleCI #372 ERROR | 0 |
+| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | `e37cec78...` | yes | true | Core CI `45433006532` SUCCESS; separate preflight `45433006242` FAILURE (Linux offline scratch fixture job `138686942398`); six downstream preflight jobs SKIPPED | Vercel FAILURE; CircleCI #379 ERROR | 0 |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | no | false | No PR-triggered workflow run returned for this exact HEAD | Vercel FAILURE; CircleCI #298 ERROR | 6 |
+| #534 | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | `e37cec78...` | yes | true | Run `45422733507` COMPLETED / SUCCESS | Vercel FAILURE; CircleCI #369 ERROR | 0 |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | No PR-triggered workflow run returned for this exact HEAD | Vercel SUCCESS; CircleCI #367 ERROR | 1 |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | No PR-triggered workflow run returned for this exact HEAD | Vercel SUCCESS; CircleCI #259 ERROR | 2 |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No PR-triggered workflow run returned for this exact HEAD | Vercel FAILURE; CircleCI #256 ERROR | 1 |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No PR-triggered workflow run returned for this exact HEAD | Vercel SUCCESS; CircleCI #22 ERROR | 0 |
+
+All 11 PRs remain OPEN and unmerged. Formal review submissions observed across the inventory are COMMENTED only; APPROVED count is 0. Self-authored and bot comments do not satisfy independent GPT3 approval. “No PR-triggered workflow run returned” is NOT VERIFIED, not a pass and not proof that no other check source exists. All exact head/base refs above come from current PR metadata, not from older body snapshots.
+
+## Actionable blockers and routing
+- GPT5-owned operations PR #537: keep Draft. Its current exact-head Actions run is PENDING with 0 Jobs; Vercel build-rate-limit and CircleCI #421 ERROR remain external blockers. No self-approval.
+- GPT1 / Factory owner: #539 recovery change remains PENDING and has no formal approval; #538 core CI passes but its separate Linux preflight failed with unavailable step/log evidence (root cause UNKNOWN). Resolve the recovery/preflight failure at the owning workflow/Runner boundary; do not infer green from core CI alone.
+- GPT2 / Issue #85 owner: #536 integration jobs remain PENDING; #535 has successful main test/integration jobs but three evidence-persistence/diagnostics jobs SKIPPED and provider failures; do not promote without the full required gate and independent approval.
+- GPT5 operations documentation PR #534: Actions SUCCESS is insufficient because external contexts fail and no formal independent approval exists.
+- PR owners / GPT3: #259, #417, #376, #478 and #476 are stale-base and mergeable=false; resolve each branch's own overlap/base drift and outstanding review threads. Do not rebase or transplant broad changes without owner-specific conflict review.
+- Provider administrator: resolve CircleCI project/pipeline errors and Vercel quota/build-rate-limit failures. No billing, provider configuration, Runner, permission, secret, or branch-protection change is authorized here.
+
+## GPT5 disposition this run
+- No PR is eligible for promotion/merge: no formal APPROVED review exists anywhere in the open inventory, several exact-head checks are PENDING/FAILURE/NOT VERIFIED, and external provider contexts are failing.
+- No local tests/build/lint were run in this connector-only session. No implementation acceptance, deployment, or production change is claimed.
+- GPT5's next independent work remains a narrowly scoped, non-overlapping operations/QA evidence task; blocked work is handed to the correct owner rather than repeatedly retried.
