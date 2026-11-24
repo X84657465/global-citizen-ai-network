@@ -617,6 +617,10 @@ test("CI diagnostics run independently on hosted Linux and preserve fallback evi
   assert.ok(fallback >= 0 && fallback < checkout, "fallback must be initialized before checkout");
   assert.ok(upload > checkout && s.slice(upload).includes("if: always()"));
   assert.ok(s.includes("${{ runner.temp }}/ci-failure-diagnostics.json"));
+  assert.ok(s.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
+  assert.ok(s.includes("WORKFLOW_REF: ${{ github.ref }}"));
+  assert.ok(s.includes("\\n  \\"event\\": \\"%s\\""));
+  assert.ok(s.includes("\\n  \\"ref\\": \\"%s\\""));
 });
 
 test("resolver failure evidence is initialized before checkout and always uploaded", () => {
@@ -628,6 +632,10 @@ test("resolver failure evidence is initialized before checkout and always upload
   assert.ok(fallback >= 0 && fallback < checkout);
   assert.ok(upload > checkout && s.slice(upload).includes("if: always()"));
   assert.ok(s.includes("resolver-diagnostics.json"));
+  assert.ok(s.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
+  assert.ok(s.includes("WORKFLOW_REF: ${{ github.ref }}"));
+  assert.ok(s.includes("\\n  \\"event\\": \\"%s\\""));
+  assert.ok(s.includes("\\n  \\"ref\\": \\"%s\\""));
 });
 
 
