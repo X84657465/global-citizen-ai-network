@@ -713,6 +713,21 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
+      - name: Initialize fallback CI diagnostic evidence
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $fallback = @{
+            schemaVersion = 1
+            captureStatus = "incomplete"
+            failureStage = "diagnostic_capture_not_completed"
+            workflowRunId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            expectedHeadSha = $env:EXPECTED_HEAD_SHA
+          }
+          $json = $fallback | ConvertTo-Json -Depth 10
+          [System.IO.File]::WriteAllText("artifacts/ci-failure-diagnostics.json", $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
       - name: Capture workflow metadata and failed-step logs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -750,6 +765,7 @@ jobs:
           CI_DIAGNOSTICS_OUTPUT: artifacts/ci-failure-diagnostics.json
         run: node scripts/ci-failure-diagnostics.mjs
       - name: Upload redacted CI failure evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ci-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
