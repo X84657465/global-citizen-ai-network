@@ -1,3 +1,44 @@
+# GPT5 Daily Operations — 2026-11-24 later exact-head recheck
+
+This live delta supersedes earlier snapshots below. Rechecked directly against GitHub; status labels are exact and no pending/skipped/missing job is treated as PASS.
+
+## Current source and governance
+- Main HEAD: `d2fbbf5aaa9a9323f633fce30603f160729c2a9b`.
+- Re-read current-main `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`, `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`, Master Charter blob `46b188085c2dff0f527477b2486719a7f6c24b59` (PROPOSED), and Execution Operating System blob `67166a378c92909c8ddf64586f8a2b5202be7d14` (GOVERNANCE PROPOSAL).
+- GPT1 owns A–E/Factory, GPT2 F–P, GPT3 independent architecture/QA, GPT4 B Product. GPT5 remains operations support; this PR's sole file scope is `docs/AGENT_HANDOFF.md`.
+
+## Main exact SHA
+- Combined status: Vercel FAILURE (build-rate-limit); CircleCI Pipeline 274 ERROR (project configuration issue).
+- Exact-SHA workflow-run query returned 0 runs. This is UNKNOWN/NOT RUN evidence, not PASS.
+- Manifest version remains 0.3.137.
+
+## Eight OPEN PRs — exact current heads
+| PR | Head SHA | Base SHA | Draft | Mergeable | Exact-head Actions / provider status |
+|---|---|---|---|---|---|
+| #525 | `3d7235c341db1532ab506aa01854e415f1f4af4d` | current main | yes | true | Actions run 45385901926 PENDING, 0 jobs; Vercel FAILURE; CircleCI 277 ERROR |
+| #522 | `4863416a19d5b2ab401f278d5856a1918f52608d` | current main | no | true | Run 45384652614 PENDING, 0 jobs; run 45384652618 FAILURE; Linux offline scratch fixture job 138412350656 FAILURE; six downstream jobs SKIPPED; Vercel SUCCESS; CircleCI 273 ERROR |
+| #524 | `f33ffae0c45081f98af8a52ce107659b7e6b11f1` | current main | yes | true | Run 45383711282 PENDING; Vercel FAILURE; CircleCI 271 ERROR |
+| #417 | `f08260916d8e3463b3cee363d44f1583954f416d` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | No exact-head Actions run returned; Vercel FAILURE; CircleCI 260 ERROR |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | No exact-head Actions run returned; Vercel SUCCESS; CircleCI 259 ERROR |
+| #259 | `275ff506ba7c43d57826af3b1a5cb0064f62234a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | yes | false | No exact-head Actions run returned; Vercel FAILURE; CircleCI 258 ERROR |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No exact-head Actions run returned; Vercel FAILURE; CircleCI 256 ERROR |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No exact-head Actions run returned; Vercel SUCCESS; CircleCI 22 ERROR |
+
+- All eight PR review endpoints returned no APPROVED submissions; returned submissions are COMMENTED or empty. No independent approval evidence.
+- #525 remains Draft. Latest exact HEAD is 3d7235c..., not the older ee54dc0 / 819d583 snapshots. Exact-head Actions run 45385901926 is PENDING with 0 jobs; Vercel rate-limit failure and CircleCI 277 ERROR remain. No formal reviews.
+- #522 is not eligible for promotion/merge: Linux fixture failure and downstream SKIPPED jobs; log/root cause unavailable (UNKNOWN). Do not edit its shared test path.
+- #524 remains GPT2-owned Draft; do not take over.
+- Five PRs have stale bases and GitHub mergeable=false. No historical green or provider-only success overrides this.
+
+## GPT5 action and disposition
+- Updated this operations handoff delta only, on the existing GPT5-owned PR branch; no new PR created.
+- No source code, Factory workflow, Runner, secrets, permissions, branch protection, DB/RLS, production, or deployment settings changed.
+- Local tests/build/lint NOT RUN; no independent acceptance, Draft promotion, merge, or release claimed.
+- Main BLOCKED; eight PRs OPEN; no PR meets all gates. External Vercel daily deployment quota and CircleCI configuration errors require repository/provider owner action; Factory fixture failure requires its owning developer.
+- Next safe step: retain #525 Draft pending a real exact-head Actions completion and independent review; continue non-overlapping GPT5 operations support rather than blind reruns.
+
+---
+
 # GPT5 Daily Operations — 2026-11-24 latest live refresh (8 open PRs)
 
 This section supersedes the prior live snapshot immediately below. Historical snapshots are retained for audit. All states here were fetched from GitHub in this run; PENDING, IN_PROGRESS, SKIPPED, NEUTRAL, missing Actions runs, and external-provider statuses are not PASS.
