@@ -1,3 +1,51 @@
+# GPT5 Daily Operations — 2026-11-24 19:42 Asia/Taipei (fresh exact-head recheck)
+
+This live delta supersedes the prior 2026-11-24 snapshots below. GitHub was re-queried during this run; pending, zero-job, skipped, provider failure, and missing runs are not PASS.
+
+## Source of truth and governance
+- Main HEAD: `d2fbbf5aaa9a9323f633fce30603f160729c2a9b`.
+- Re-read current-main `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`, `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`, Master Charter blob `46b188085c2dff0f527477b2486719a7f6c24b59` (PROPOSED), and Execution Operating System blob `67166a378c92909c8ddf64586f8a2b5202be7d14` (GOVERNANCE PROPOSAL). Current-main `docs/AGENT_HANDOFF.md` blob: `b187ba7bc53010a13be56de91d255e2b8daf443d`.
+- GPT1 owns A–E/Factory; GPT2 owns F–P; GPT3 independent architecture/QA; GPT4 B Product. GPT5 remains operations support; this PR's only file scope remains `docs/AGENT_HANDOFF.md`.
+- Recent main commit search still reports HEAD `d2fbbf5...`; no newer main SHA was returned.
+
+## Main CI exact evidence
+- Combined external statuses: Vercel FAILURE (`build-rate-limit`) and CircleCI Pipeline 274 ERROR: https://app.circleci.com/pipelines/gh/X84657465/global-citizen-ai-network/274
+- GitHub Actions workflow-run lookup for exact main SHA returned 0 runs. This is UNKNOWN / no evidence returned, not PASS.
+
+## All 8 OPEN PRs — fresh metadata, exact HEAD and provider/Actions state
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions / provider |
+|---|---|---|---|---|---|
+| [#525](https://github.com/X84657465/global-citizen-ai-network/pull/525) | `2592098fcfc7606177c498fb5015ccf8934ae58b` | current main `d2fbbf5...` | yes | true | run 45386073967 PENDING, 0 jobs; Vercel FAILURE build-rate-limit; CircleCI 278 ERROR |
+| [#522](https://github.com/X84657465/global-citizen-ai-network/pull/522) | `47c3712043375813d5ca342d379ad60c48ea796d` | current main `d2fbbf5...` | no | true | run 45386405981 FAILURE: Linux offline scratch fixture validation FAILURE; six downstream jobs SKIPPED. Run 45386405831 PENDING, 0 jobs. Vercel FAILURE build-rate-limit; CircleCI 279 ERROR |
+| [#524](https://github.com/X84657465/global-citizen-ai-network/pull/524) | `f33ffae0c45081f98af8a52ce107659b7e6b11f1` | current main `d2fbbf5...` | yes | true | run 45383711282 PENDING; no jobs returned. Vercel FAILURE build-rate-limit; CircleCI 271 ERROR |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `f08260916d8e3463b3cee363d44f1583954f416d` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | no exact-head Actions run returned; Vercel FAILURE; CircleCI 260 ERROR |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | no exact-head Actions run returned; Vercel SUCCESS; CircleCI 259 ERROR |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `275ff506ba7c43d57826af3b1a5cb0064f62234a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | yes | false | no exact-head Actions run returned; Vercel FAILURE; CircleCI 258 ERROR |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | no exact-head Actions run returned; Vercel FAILURE; CircleCI 256 ERROR |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | no exact-head Actions run returned; Vercel SUCCESS; CircleCI 22 ERROR |
+
+- Counts: 8 OPEN; 3 Draft / 5 Ready; 3 target current main and 5 stale-base. No PR was merged in this check.
+- Formal review endpoints: no APPROVED review on any of the 8 PRs. Available submissions are COMMENTED or absent; COMMENTED is not approval. PR review submission counts: #525 0, #522 4, #524 0, #417 9, #376 16, #259 8, #478 4, #476 4.
+- #522 run 45386405981 jobs: job 138418344081 Linux offline scratch fixture validation FAILURE; jobs 138418345989, 138418346103, 138418346291, 138418346646, 138418346693, 138418347232 SKIPPED. Attempt to retrieve the failed job log returned 404 BlobNotFound; exact failure root cause remains UNKNOWN.
+- #525 pending run's jobs endpoint returned an empty array. No evidence of execution completion.
+- #522 HEAD advanced from prior observed `4863416...` to `47c3712...`; all earlier SHA evidence is stale and not used for current conclusions.
+
+## GPT5-owned delivery and decision
+- This PR remains limited to `docs/AGENT_HANDOFF.md`; no Factory/F–P/Product source or workflow files were touched.
+- This snapshot records fresh main/PR evidence only. It does not constitute implementation, test pass, independent review, acceptance, merge, or deployment.
+- #525 remains Draft: exact-head Actions is PENDING with 0 jobs; Vercel is blocked by build rate limit; CircleCI reports ERROR; formal APPROVED review count is zero. Do not mark Ready or merge.
+- #522 belongs to Factory owner GPT1. Failure log is unavailable (404); do not edit Factory fixture/workflow files. Return the precise failing job and skipped downstream list to GPT1; parallelize only GPT5-owned work.
+- Stale-base PRs remain with their respective owners; do not update or resolve their conflicts on their behalf.
+- No local tests/build/lint were run in this pass. No branch protection, secrets, permissions, runners, deployment, production data, or machine-managed state was changed.
+
+## Next actionable steps
+1. GPT1: diagnose #522 exact-head Linux fixture failure from a retrievable log or reproducible run; resolve why six downstream jobs skip; push a new head and revalidate exact SHA.
+2. Repository/provider owner: resolve Vercel build-rate-limit and CircleCI pipeline errors; neither is a green CI substitute.
+3. GPT3 / designated independent reviewers: provide formal APPROVED reviews only after inspecting the exact candidate SHA and resolving blocking threads.
+4. GPT5: keep #525 Draft until its own exact-head CI, independent review, and required checks genuinely pass; continue only within this handoff-file allowlist.
+
+---
+
 # GPT5 Daily Operations — 2026-11-24 later exact-head recheck
 
 This live delta supersedes earlier snapshots below. Rechecked directly against GitHub; status labels are exact and no pending/skipped/missing job is treated as PASS.
