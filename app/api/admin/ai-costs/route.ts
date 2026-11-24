@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/lib/supabase/authenticated";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { parseProviderInvoiceCsv, previewProviderInvoiceReconciliation } from "@/lib/ai-cost-reconciliation.mjs";
+import { parseProviderInvoiceCsv, parseProviderInvoicePreviewPayload, previewProviderInvoiceReconciliation } from "@/lib/ai-cost-reconciliation.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -142,7 +142,7 @@ export async function POST(request: Request) {
   if (Number.isFinite(declaredLength) && declaredLength > 1_100_000) {
     return NextResponse.json({ error: "上傳內容不可超過 1 MB。" }, { status: 413 });
   }
-  let payload: { csv?: unknown; fxConversion?: unknown };
+  let payload: unknown;
   try {
     const reader = request.body?.getReader();
     if (!reader) return NextResponse.json({ error: "缺少上傳內容。" }, { status: 400 });
@@ -161,18 +161,25 @@ export async function POST(request: Request) {
     const bytes = new Uint8Array(total);
     let offset = 0;
     for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-    payload = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as { csv?: unknown; fxConversion?: unknown };
+    payload = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as unknown;
   } catch {
     return NextResponse.json({ error: "請提供有效的 UTF-8 JSON 與 CSV 文字。" }, { status: 400 });
   }
-  if (typeof payload.csv !== "string") {
-    return NextResponse.json({ error: "缺少 CSV 文字內容。" }, { status: 400 });
+  let invoicePayload: {
+    csv: string;
+    fxConversion: { fromCurrency: string; toCurrency: string; rate: number; timestamp: string } | null;
+  };
+  try {
+    invoicePayload = parseProviderInvoicePreviewPayload(payload);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "預覽內容格式錯誤。";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   let parsed;
   let preview;
   try {
-    parsed = parseProviderInvoiceCsv(payload.csv);
+    parsed = parseProviderInvoiceCsv(invoicePayload.csv);
     const starts = parsed.rows.map((row) => row.billingPeriodStart).sort();
     const ends = parsed.rows.map((row) => row.billingPeriodEnd).sort();
     const startAt = starts[0] + "T00:00:00.000Z";
@@ -187,10 +194,7 @@ export async function POST(request: Request) {
     if ((requests ?? []).length > 5000) {
       return NextResponse.json({ error: "指定帳單期間涵蓋超過 5,000 筆請求；請縮小期間後重新預覽。" }, { status: 413 });
     }
-    const fx = payload.fxConversion && typeof payload.fxConversion === "object"
-      ? payload.fxConversion as { fromCurrency?: string; toCurrency?: string; rate?: number; timestamp?: string }
-      : null;
-    preview = previewProviderInvoiceReconciliation(parsed, requests ?? [], fx);
+    preview = previewProviderInvoiceReconciliation(parsed, requests ?? [], invoicePayload.fxConversion);
   } catch (error) {
     const message = error instanceof Error ? error.message : "CSV 預覽失敗。";
     return NextResponse.json({ error: message }, { status: 400 });
