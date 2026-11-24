@@ -146,6 +146,7 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
   assert.ok(preflight.includes('      - "lib/agent-failure-scope.mjs"\n'), "changes to the task-failure scope helper must trigger factory validation");
   assert.ok(preflight.includes('      - "tests/agent-failure-scope.test.mjs"\n'), "changes to the helper regression tests must trigger factory validation");
+  assert.equal(preflight.includes('      - ".github/workflows/agent-task-preflight.yml"\n'), false, "workflow-only changes are validated by CI policy tests, not by the unrelated Linux scratch fixture");
   assert.ok(runnerSmoke.includes("      - feat/agent-factory-v2\n"), "Runner smoke must remain runnable on the active development branch");
 
   const workflowHeader = preflight.slice(0, preflight.indexOf("\njobs:"));
