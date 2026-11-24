@@ -2697,3 +2697,48 @@ This entry supersedes prior live-state snapshots for the exact refs and workflow
 - Factory resolver/diagnostics and Factory-owned tests remain GPT1/Factory DRI; formal independent acceptance remains GPT3; Vercel quota and CircleCI configuration remain repository/provider owner responsibilities.
 
 **Disposition:** MAIN FAILURE; 19 OPEN PRs; 14 exact-head Actions failures; #510 substantive Actions improvement but external CircleCI and independent review remain outstanding; 0 formal approvals; 0 merges. GPT5 handoff documentation is an evidence artifact, not functional acceptance.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-24 12:40 Asia/Taipei (new exact-SHA refresh)
+
+### Main / all-event Actions and check-runs
+- Re-read `refs/heads/main` after the PR sweep: still `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Queried GitHub Actions `workflow_runs?head_sha=<main SHA>&per_page=100`: all 97 runs returned (no next page): 5 FAILURE, 1 SUCCESS, 91 SKIPPED; all 97 are terminal COMPLETED. Events: 93 `workflow_run`, 2 `schedule`, 1 `issues`, 1 `push`.
+- Queried exact-SHA check-runs with both pages: 115 total = 6 FAILURE, 2 SUCCESS, 107 SKIPPED; PENDING 0. Page 1 returned 100 and page 2 returned the remaining 15.
+- Main push [#45233037163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45233037163), attempt 3, exact current main SHA: Resolver FAILURE; Diagnostics FAILURE; failure-persistence SUCCESS; Windows quality, Ollama, PostgreSQL/RLS and success-persistence SKIPPED.
+- Main combined status: Vercel FAILURE (`build-rate-limit`, retry window reported as 24 hours); CircleCI Pipeline 161 ERROR (no CircleCI configuration). These are external provider statuses, not GitHub Actions results.
+- Branch-protection read returned 403 `Resource not accessible by integration`; rulesets read returned 403 because repository plan does not expose rulesets. Do not infer protections are absent or bypass them.
+
+### Additional scheduled / recovery failures
+- Nightly Read-Only Audit [#45314496011](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45314496011): terminal FAILURE; sole audit job `138177949272` FAILURE. Its log download returned Azure Storage 404 `BlobNotFound`; root cause UNKNOWN.
+- Scheduled AI Agent Task Preflight [#45307559489](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45307559489): terminal FAILURE; task #86 preflight job `138155004991` FAILURE; downstream validation and publishing jobs SKIPPED. Retrieved log confirms task failure scope, scratch cleanup SUCCESS, controller state version 256 / active task none, and no task/plan/patch artifacts uploaded. Existing issue #86 evidence records the exact conflict: the issue allowlist includes `lib/supabase/authenticated.ts`, while Factory preflight rejects that protected path. GPT1/Factory must resolve the policy conflict; GPT5 must not weaken the path policy or dispatch again.
+- System Health Recovery #45315874229 and #45326125290: terminal FAILURE in their sole exact-head verification job. Latest #45326924142: sole verification job SKIPPED. No breaker reset or recovery is established.
+- Failed-job log downloads for the audit and recovery jobs returned 404 `BlobNotFound`; stop repeating log retrieval. Exact failing steps remain UNKNOWN.
+
+### Current open PR inventory
+- Re-read open PR search: 19 OPEN, 16 Draft, 3 Ready; none merged.
+- All 19 formal review submissions were checked in the current sweep: 0 APPROVED. COMMENTED and bot comments are not independent approval.
+- Current exact-head highlights:
+  - #510 HEAD `3faff6176f6f81acba8bca729d19393369764d54`, run #45324830779 attempt 1: terminal SUCCESS. Resolver, Windows quality, PostgreSQL/RLS and Ollama all SUCCESS; Diagnostics and persistence jobs SKIPPED. Vercel SUCCESS, CircleCI ERROR. Formal reviews COMMENTED only; keep Draft.
+  - #511 HEAD `7e0e2e17049064b519fa987190bc38791209344e`, run #45318481077 attempt 4: FAILURE; Resolver/Diagnostics FAILURE, substantive downstream jobs SKIPPED; no independent approval.
+  - #509 HEAD `db4ae6ee75ce2d2d826c46cf637c44320661f2c8`, run #45309976734: FAILURE; Resolver/Diagnostics FAILURE; downstream jobs SKIPPED.
+  - #508 HEAD `823583a247b76f6f5c6efa25df4d0a5239ea8ccf`: CI #45309556441 and Preflight #45309556616 both FAILURE; downstream gates SKIPPED.
+  - #507 current HEAD before this documentation commit: `4c7fcf6ccb97c201a987cabb97353b7e56f25932`; run #45327629930 attempt 1: FAILURE. Resolver and Diagnostics FAILURE; Windows quality, PostgreSQL/RLS, Ollama and persistence SKIPPED. Formal reviews absent. Vercel/CircleCI status must be refreshed on the new HEAD after this commit.
+  - #503 HEAD `1969fc4000df79b859721dc7ad572813aa668a3f`: two associated runs #45326905063 and #45326905178 both terminal FAILURE; Resolver/Diagnostics FAILURE; downstream jobs SKIPPED.
+  - #502 HEAD `85a7404f3dd224e8d574ffd0dce49a0bc9ce6c98`: #45313495347 FAILURE; Resolver/Diagnostics FAILURE; downstream jobs SKIPPED.
+  - #501 HEAD `13f68ef50919a435f67b3d5f8d3559de4e21319d`: #45288587720 FAILURE; Resolver/Diagnostics FAILURE; downstream jobs SKIPPED.
+- #510 overlaps #506, #509 and #511 on CI diagnostics, workflow/policy, and system-health test paths. Keep all shared-file changes with one canonical owner and do not resolve overlapping hunks independently.
+- #503 and #259 share `tests/agent-factory-policy.test.mjs`; no GPT5 write to this Factory-owned file.
+- #510 and #501 both touch `tests/ai-cost.test.ts`; GPT1/Factory and GPT2 must reconcile the shared assertion before integration. #501's candidate is not independently validated by its own failing exact-head run.
+- Historical successful runs on stale-base #478/#259 and missing PR-triggered runs on #476/#376 are not current-main acceptance evidence.
+
+### GPT5-owned work completed and disposition
+- Updated this GPT5-owned documentation PR only: `docs/AGENT_HANDOFF.md`. No Factory/Product source, workflow, Runner, durable state, lease, secret, permission, database/RLS, branch protection, provider quota, production setting, or deployment was changed.
+- This commit creates a new #507 HEAD; all previous #507 CI/status evidence is for the prior HEAD only. Re-fetch exact new HEAD Actions, check-runs, combined status and formal review before any transition.
+- No local tests were run in this chat. No Draft transition, acceptance, or merge was performed.
+- GPT1/Factory owns resolver/diagnostics, protected-path policy and shared Factory tests; GPT2 owns its F–P module scope; GPT3 provides independent review; GPT4 owns B Product; GPT5 remains operations and explicitly delegated support only.
+- Main remains FAILURE. No PR is eligible for safe un-Draft or merge. The next closeable GPT5 action is to refresh this documentation PR's exact-head CI and attach a precise owner handoff; do not repeat failed runs or unavailable log retrieval.
+
+**Disposition:** OBSERVED main FAILURE; 19 OPEN PRs; 0 formal APPROVED reviews; 0 merges. This documentation update is an operations handoff, not functional TESTED, CI-PASSING, INDEPENDENTLY-ACCEPTED, MERGED or RELEASED delivery.
