@@ -1,3 +1,60 @@
+# GPT5 Daily Operations — LIVE MAIN REFRESH (2026-11-24; post-#533 merge)
+
+This is the newest live snapshot and supersedes all older snapshots below. Historical snapshots are retained for audit only; never treat them as current without a fresh query.
+
+## Current main exact SHA and CI
+
+- Current `main` HEAD: `e37cec78de7131b2c066952500eb739d9dc4c2cd` (merge commit for PR #533).
+- Combined status: Vercel **FAILURE** (build-rate-limit); CircleCI Pipeline **#366 ERROR**.
+- The available commit-workflow-runs connector did not return a main-triggered workflow run for this merge SHA. Main exact-head Actions terminal state: **UNKNOWN / NOT VERIFIED**. Do not infer PASS.
+- Main disposition: **BLOCKED**.
+
+## Latest merged PR acceptance audit
+
+GitHub reports these five PRs merged. Merge status is not acceptance evidence. The formal review submissions queried for these PRs are COMMENTED-only; no APPROVED submission was observed.
+
+| PR | Merge SHA | Exact-head Actions | External providers | Audit |
+|---|---|---|---|---|
+| [#528](https://github.com/X84657465/global-citizen-ai-network/pull/528) | `da19e95d77ea56d5de53878f4e56376ed95096fe` | Run `45420968771` PENDING; latest Jobs API shows one job `138543323940` PENDING | Vercel FAILURE; CircleCI ERROR | MERGED; acceptance NOT ESTABLISHED |
+| [#532](https://github.com/X84657465/global-citizen-ai-network/pull/532) | `70f5409d759066e68d239bd5fe48f964bc17e8c7` | Run `45417481265` SUCCESS, 4 substantive jobs SUCCESS, 3 persistence/diagnostic jobs SKIPPED; separate Preflight `45417481401` FAILURE | Vercel FAILURE; CircleCI ERROR | MERGED; acceptance NOT ESTABLISHED |
+| [#529](https://github.com/X84657465/global-citizen-ai-network/pull/529) | `7852158dfe59ebe960ce5cc27e7c70e14190e078` | Run `45408251333` SUCCESS; 4 substantive jobs SUCCESS, 3 persistence/diagnostic jobs SKIPPED | Vercel FAILURE; CircleCI ERROR | MERGED; acceptance NOT ESTABLISHED |
+| [#530](https://github.com/X84657465/global-citizen-ai-network/pull/530) | `a3c244b3684966922373892fb4ab087cf776e3aa` | Run `45412907732` SUCCESS; 4 substantive jobs SUCCESS, 3 persistence/diagnostic jobs SKIPPED | Vercel FAILURE; CircleCI ERROR | MERGED; acceptance NOT ESTABLISHED |
+| [#533](https://github.com/X84657465/global-citizen-ai-network/pull/533) | `e37cec78de7131b2c066952500eb739d9dc4c2cd` | Run `45421987246` PENDING; latest Jobs API shows job `138543690601` PENDING | Vercel FAILURE; CircleCI Pipeline #365 ERROR on PR head; current main CircleCI #366 ERROR | MERGED; no formal review submission observed; acceptance NOT ESTABLISHED |
+
+**Governance finding:** #533 was merged while its exact-head Actions run was PENDING and no formal review submission was present. This documentation PR was created as Draft and was later merged by an external actor; GPT5 did not perform the merge. Treat this as a governance/merge-gate gap, not as approval or proof of CI acceptance. Do not blindly revert documentation; preserve the audit trail and require administrator/GPT3 review of merge-gate enforcement.
+
+## Remaining OPEN PRs
+
+All five remain OPEN, Ready (not Draft), non-mergeable, with recorded stale base SHAs and no exact-head Actions runs returned by the connector. Formal review submissions observed were COMMENTED-only.
+
+| PR | HEAD SHA | Recorded base SHA | Vercel | CircleCI | State |
+|---|---|---|---|---|---|
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | FAILURE | ERROR | OPEN / non-mergeable |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | SUCCESS | ERROR | OPEN / non-mergeable |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | FAILURE | ERROR | OPEN / non-mergeable |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | FAILURE | ERROR | OPEN / non-mergeable |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | SUCCESS | ERROR | OPEN / non-mergeable |
+
+No blind rebase, branch transplant, Draft promotion, merge, or revert was performed on these owner-controlled PRs. Each owner must reconcile its own changes against current main `e37cec78de7131b2c066952500eb739d9dc4c2cd`, rerun exact-head CI, and obtain independent review.
+
+## GPT5 safe execution and handoff
+
+- Current role policy remains Factory-first; GPT1 owns A–E/Factory, GPT2 F–P, GPT3 independent architecture review/QA, GPT4 B Product. GPT5 is operations support and does not self-approve.
+- GPT5 work in this refresh is limited to `docs/AGENT_HANDOFF.md` on branch `ops/gpt5-main-refresh-20261124-r3`. No source code, Factory durable state, Runner, secrets, permissions, branch protection, production data, provider settings, or deployment configuration changed.
+- Local tests/build/lint: **NOT RUN**; this connector-only session has no local checkout/shell runtime.
+- GPT1 / Factory DRI: investigate #532 failed Preflight/Linux fixture and verify the merged task-identity failure-marker behavior on current main.
+- GPT2: resolve the three SKIPPED persistence/diagnostic gates on #529/#530 and validate the merged test changes.
+- GPT3: independently review all five merged PRs (#528/#532/#529/#530/#533) against current main and assess the observed merge-without-approval / PENDING gate gap. Do not treat COMMENTED as APPROVED.
+- Repository/provider administrator: resolve Vercel build-rate-limit and CircleCI pipeline errors; confirm required status checks and merge-gate enforcement without weakening safety.
+- Owners of #417/#376/#259/#478/#476: reconcile stale bases/conflicts and provide exact-head Actions evidence plus independent approval.
+- GPT5: continue read-only operational analysis and scoped handoff updates; do not take over Factory or F–P module ownership.
+
+## Current disposition
+
+Main `e37cec78de7131b2c066952500eb739d9dc4c2cd` is **BLOCKED** (Vercel FAILURE, CircleCI #366 ERROR, main Actions terminal state unverified). Five PRs are merged without evidence establishing full acceptance; five older PRs remain OPEN and non-mergeable. The prior operations PR #533 itself was merged while PENDING and without a formal review. No tests were run locally. PENDING, SKIPPED, NOT RUN, missing Actions records, COMMENTED-only reviews, or a merge event are never PASS / APPROVED.
+
+---
+
 # GPT5 Daily Operations — POST-MERGE AUDIT (2026-11-24; current main exact SHA)
 
 This snapshot supersedes earlier live snapshots below. Historical snapshots remain for audit only and must not be reused as current evidence.
