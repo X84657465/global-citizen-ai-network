@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSync, chmodSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
-import { delimiter, join } from "node:path";
+import { delimiter, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { candidateContainerFailureScope } from "../lib/agent-factory-policy.mjs";
 
@@ -18,11 +18,19 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
   // the writable checkout for the executable Git shim. The earlier fixture-only
   // stage may mount the checkout read-only; only there, fall back to executable /tmp.
   let gitBin;
+  // PATH entries are separated by `delimiter`; never prepend a shim directory
+  // whose own path contains that delimiter, because it cannot be represented
+  // unambiguously in PATH.
+  const gitBinRoots = [...new Set([repositoryRoot, tmpdir()])]
+    .filter((candidate) => !candidate.includes(delimiter));
+  if (gitBinRoots.length === 0) {
+    throw new Error("No executable Git shim parent has a PATH-safe path.");
+  }
   try {
-    gitBin = mkdtempSync(join(repositoryRoot, ".gcan-git-bin-"));
+    gitBin = mkdtempSync(join(gitBinRoots[0], ".gcan-git-bin-"));
   } catch (error) {
-    if (!["EACCES", "EPERM", "EROFS"].includes(error?.code)) throw error;
-    gitBin = mkdtempSync(join(tmpdir(), ".gcan-git-bin-"));
+    if (!["EACCES", "EPERM", "EROFS"].includes(error?.code) || !gitBinRoots[1]) throw error;
+    gitBin = mkdtempSync(join(gitBinRoots[1], ".gcan-git-bin-"));
   }
   t.after(() => rmSync(gitBin, { recursive: true, force: true }));
   if (process.platform === "win32") {
@@ -153,7 +161,7 @@ test("leaves Runner scratch-directory failures unmarked for system-scope classif
 
 test("applies an authorized patch only to scratch and emits no failure marker", (t) => {
   const data = fixture(t);
-  assert.equal(data.gitBin.startsWith(repositoryRoot) || data.gitBin.startsWith(tmpdir()), true);
+  assert.equal([repositoryRoot, tmpdir()].includes(dirname(data.gitBin)), true);
   const result = runScript(data);
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.equal(readFileSync(data.githubEnv, "utf8"), "");
