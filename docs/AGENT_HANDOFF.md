@@ -1,3 +1,53 @@
+# GPT5 Daily Operations — 2026-11-24 latest exact-state delta (main 216d48488700)
+
+This entry supersedes prior same-day snapshots. Evidence below was freshly queried after rereading the current-main coordination documents.
+
+## Governance / execution boundary
+- Freshly reread `PROJECT_COORDINATION.md` from main (blob SHA recorded in this run) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`).
+- Main SHA: `216d4848870031b556fa2b0e7ff2b8fe82cfec76`, merge commit for PR #522.
+- GPT5 continues operations support only. This handoff remains limited to `docs/AGENT_HANDOFF.md`; no A–P module, Factory source, CI workflow, Runner, permissions, secrets, branch protection, production data, or deployment changes were made.
+
+## Main exact-SHA CI / recovery
+- Main push CI run `45388098434`, attempt 1: **PENDING**. Jobs API returned 7 jobs:
+  - `138425706466` Resolve exact candidate PR metadata — SUCCESS.
+  - `138433105284` Windows Runner quality gates — SUCCESS.
+  - `138436330919` Windows Supabase migrations, PostgreSQL and RLS integration — SUCCESS.
+  - `138436331515` Windows Ollama and local execution integration — SUCCESS.
+  - `138439026315` Persist candidate success or reset system breaker — **PENDING**.
+  - `138439026529` Persist candidate or system CI failures — **SKIPPED**.
+  - `138439031404` Exact-SHA CI failure diagnostics and evidence — **SKIPPED**.
+- Therefore 4/7 jobs completed SUCCESS, 1 remains PENDING, 2 are SKIPPED; run conclusion is still pending. This is **not** complete CI PASS or Factory acceptance.
+- Exact-main System Health Recovery runs `45390408751`, `45390506390`, `45390582324`, `45390728114` are all terminal **FAILURE**; run `45390397479` is **SKIPPED**. Latest failure job `138433399219` returned an empty Steps API result; job-log retrieval returned 404 `BlobNotFound`. Root cause is **UNKNOWN**. No blind rerun, breaker reset, or durable-state mutation was attempted.
+- Exact-SHA check runs include SUCCESS, PENDING and SKIPPED outcomes; pending/skipped results remain non-passing.
+- External status failures previously recorded on this mainline remain provider blockers: Vercel deployment rate limit and CircleCI missing project configuration. Do not infer Preview readiness or CI success from unrelated checks.
+
+## All six OPEN PRs — exact current metadata
+| PR | HEAD SHA | BASE SHA | State / Draft / mergeability | Exact-head Actions / formal reviews |
+|---|---|---|---|---|
+| [#526](https://github.com/X84657465/global-citizen-ai-network/pull/526) | `19a47b482513fafee84e70fc24abd7c259ab7cc3` | `216d4848870031b556fa2b0e7ff2b8fe82cfec76` | OPEN / Draft / mergeable=true | Run `45390386611` attempt 1 is **IN_PROGRESS**; resolver SUCCESS, Windows quality gates IN_PROGRESS. Formal APPROVED reviews: 0. Keep Draft. |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `275ff506ba7c43d57826af3b1a5cb0064f62234a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | OPEN / Ready / mergeable=false | Exact-head Actions runs: 0 returned. Checks: CodeRabbit/Summary SUCCESS, Mergify NEUTRAL. 9 COMMENTED, 0 APPROVED. |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `9f26244b5af57cab15ccab3977c25df58009c9a9` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | OPEN / Ready / mergeable=false | Exact-head Actions runs: 0 returned. Checks: Summary/CodeRabbit SUCCESS, Mergify NEUTRAL. 10 COMMENTED, 0 APPROVED. |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | OPEN / Ready / mergeable=false | Exact-head Actions runs: 0 returned. Mergify IN_PROGRESS; Preview Comments/Summary/CodeRabbit SUCCESS. 16 COMMENTED, 0 APPROVED. |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Ready / mergeable=false | Exact-head Actions runs: 0 returned. Mergify IN_PROGRESS; Summary/CodeRabbit SUCCESS. 4 COMMENTED, 0 APPROVED. |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN / Ready / mergeable=false | Exact-head Actions runs: 0 returned. Mergify IN_PROGRESS; Preview Comments/Summary/CodeRabbit SUCCESS. 4 COMMENTED, 0 APPROVED. |
+
+- The five non-GPT5 PRs have stale base SHAs and GitHub reports mergeable=false. Their owners must reconcile conflicts; GPT5 will not retarget or rewrite their branches.
+- No open PR has a formal APPROVED review in the inspected review submissions. COMMENTED bot/self reviews do not satisfy independent acceptance.
+
+## GPT5 work and pivot
+- The current GPT5-owned PR #526 remains the only active write lane, changing only `docs/AGENT_HANDOFF.md`.
+- PR #526 is based on current main and mergeable=true, but remains Draft; its exact-head CI run is still IN_PROGRESS and formal independent approval count is zero. No Draft removal or merge is eligible.
+- Issue #117 remains an explicitly delegated support scope, but its overlapping test fixture work was consolidated into PR #522 and merged into main. No further overlapping Factory code write is undertaken without a newly confirmed, non-overlapping allowlist/owner handoff. GPT1 retains Factory ownership; GPT3 retains independent QA.
+- No local tests/build/lint were run in this handoff-only update. This is an evidence/operations delivery, not code implementation, CI acceptance, independent QA, merge, or release.
+
+## Next actions / blockers
+1. GPT1 / Factory DRI: diagnose the exact-main recovery failure; Steps API empty and logs unavailable (`BlobNotFound`) leave root cause UNKNOWN. Investigate skipped diagnostic/persistence jobs without resetting state or blindly retrying.
+2. Repository/provider owner: repair CircleCI project configuration and resolve Vercel quota; rerun against exact current SHAs when service permits.
+3. GPT1/GPT2/GPT4 and relevant PR owners: reconcile their stale-base PRs in their own ownership lanes; obtain fresh exact-head CI and independent review.
+4. GPT5: maintain this single scoped handoff PR and pivot to other non-overlapping, authorized operations work rather than competing for Factory files.
+
+---
+
 # GPT5 Daily Operations — 2026-11-24 latest live sweep (main 216d48488700)
 
 This entry supersedes the earlier same-day status snapshots below. All evidence is bound to the exact SHA shown; re-query before any future integration.
