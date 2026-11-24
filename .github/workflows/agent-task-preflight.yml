@@ -1195,17 +1195,6 @@ jobs:
               body: 'The automated candidate passed isolated tests and a draft pull request is awaiting repository CI and human review: ' + process.env.PULL_REQUEST_URL + '\n\nNo merge, source-issue closure, or production deployment was performed. A human must review and explicitly merge the pull request.'
             });
 
-      - name: Reset circuit breaker after successful task publication
-        if: success() && needs.publish-task.result == 'success'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: success
-          AGENT_FACTORY_SUCCESS_SCOPE: task
-          COMPLETED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: node scripts/agent-factory-v2-controller.mjs
-
       - name: Record publication failure and preserve the task lease state
         if: failure() || needs.begin-publication.result != 'success' || needs.publish-task.result != 'success'
         env:
