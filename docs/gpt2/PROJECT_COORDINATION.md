@@ -180,9 +180,11 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 
 ## 6.3 最新主線重核與 GPT2 交付狀態 — 2026-11-24
 
-- **本次直接驗證的 main SHA：** `6b3ac4b639c285b2c664ffae579029a3fae29f99`。
-- **GPT2 文件路徑：** `docs/gpt2/PROJECT_COORDINATION.md`；本次更新前 blob `631c875f78e31bfb822ff6641f3fd08eafcc1101`。
-- **採納範圍：** GPT2 的 F–P；六層工作閉環涵蓋感知、記憶、認知、規劃、執行、驗證與反思；跨角色交接保留 GPT1（A–E／Factory）、GPT3（獨立架構與 QA）、GPT4（B Product）及 GPT5（僅依明確授權支援）的責任界線。
-- **狀態：** DOCUMENTED：YES（基礎文件已存在於 main；本次 2026-11-24 更新僅存在於 PR #502，尚未合併）；ADOPTED：YES（僅 GPT2 文件與工作流程層級）；INDEPENDENT ACCEPTANCE：PENDING；IMPLEMENTED：NOT CLAIMED。
-- **證據界線：** 本次是文件基準重核，不代表此文件本身已取得新的獨立批准，也不轉移任何其他 SHA 的 CI／Review 證據。此變更不修改 Runtime、Factory、資料庫／RLS、Secrets、權限、Runner、分支保護或部署設定。
-- **驗證限制：** 僅完成 GitHub 遠端文件內容核對；未執行本機測試、TypeScript、Lint 或 Build。新 PR 的 exact-head CI 與 GPT3 正式 Review 仍須獨立驗證。
+- **本次直接驗證的 main SHA：** `c8ffa51fed86c8e024297a98c47c8f37cf642a29`。
+- **GPT2 文件路徑：** `docs/gpt2/PROJECT_COORDINATION.md`；更新前 blob `63dc384ee31b713c5e57f9d0470ec989b208f95b`。
+- **Neural Intelligence Agent Mode 採納依據：** 根目錄 `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`（main blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`）及根目錄 `PROJECT_COORDINATION.md`（main blob `d3ee1881aa67861fc42a2b568b26020945b0c218`）。GPT2 自有文件已記錄六層閉環、F–P 工作映射，以及 GPT1／GPT3／GPT4／GPT5 的依賴與交接邊界。
+- **Issue／PR 整合狀態：** Issue #384 仍 OPEN，因為它同時要求 GPT3 與 GPT4 各自提交採納證據；GPT2 的自有文件證據已存在。PR #502 已於 mainline 整合，對應 merge commit `d10d4aec81975e4d833d4a4d1c71f75c36bdb70b`；不得再沿用舊紀錄「PR #502 尚未合併」。
+- **GPT2 狀態：** DOCUMENTED：YES；ADOPTED：YES（僅 GPT2 文件與工作流程層級）；GPT2 自有採納證據：已記錄於本文件第 2–5 節及本節；INDEPENDENT ACCEPTANCE：PENDING（由 GPT3 獨立處理）；IMPLEMENTED：NOT CLAIMED（不代表持續背景 Runtime 或部署能力）。
+- **角色與安全邊界：** GPT2 僅負責 F–P；不接管 GPT1 A–E／Factory、GPT3 獨立審查或 GPT4 B Product；L/Federation 維持既有停用／延後限制。此文件更新不修改 Runtime、Factory、資料庫／RLS、Secrets、權限、Runner、分支保護或部署設定。
+- **驗證限制：** 本次驗證為 GitHub main ref／文件 blob／PR merge 記錄核對；本次文件變更不涉及程式碼，未執行本機測試、TypeScript、Lint 或 Build。新 PR 仍須取得 exact-head CI 與 GPT3 正式 Review，不能把文件自我採納視為獨立批准。
+
