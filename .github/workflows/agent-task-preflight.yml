@@ -825,9 +825,11 @@ jobs:
             }
 
             $env:CANDIDATE_CONTAINER_STATE_JSON = ($stateJson -join [Environment]::NewLine)
-            $classification = & node --input-type=module -e 'import { appendFileSync } from "node:fs"; import { candidateContainerFailureScope } from "./lib/agent-factory-policy.mjs"; const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null"); const scope = candidateContainerFailureScope(state); if (scope === "task") appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8"); process.stdout.write(scope); if (scope === "system") process.exitCode = 1;'
+            $env:CANDIDATE_CONTAINER_START_EXIT_CODE = [string]$startExitCode
+            $classification = & node --input-type=module -e 'import { appendFileSync } from "node:fs"; import { candidateContainerFailureScope } from "./lib/agent-factory-policy.mjs"; const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null"); const rawStartExitCode = process.env.CANDIDATE_CONTAINER_START_EXIT_CODE || ""; const startExitCode = /^(0|[1-9][0-9]*)$/.test(rawStartExitCode) ? Number(rawStartExitCode) : Number.NaN; const scope = candidateContainerFailureScope(state, startExitCode); if (scope === "task") appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8"); process.stdout.write(scope); if (scope === "system") process.exitCode = 1;'
             $classificationExitCode = $LASTEXITCODE
             Remove-Item Env:CANDIDATE_CONTAINER_STATE_JSON -ErrorAction SilentlyContinue
+            Remove-Item Env:CANDIDATE_CONTAINER_START_EXIT_CODE -ErrorAction SilentlyContinue
             if ($classificationExitCode -ne 0 -or $classification -eq "system") {
               throw "Candidate container runtime failed before a normal test-process exit (docker start exit $startExitCode)."
             }
