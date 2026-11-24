@@ -620,6 +620,8 @@ test("CI diagnostics use the verified Windows Runner and preserve fallback evide
   assert.ok(fallback >= 0 && fallback < checkout);
   assert.ok(upload > checkout && section.slice(upload).includes("if: always()"));
   assert.ok(section.includes("${{ runner.temp }}/ci-failure-diagnostics.json"));
+  assert.ok(section.includes("if-no-files-found: error"),
+    "missing CI failure evidence must fail closed");
   assert.ok(section.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
   assert.ok(section.includes("WORKFLOW_REF: ${{ github.ref }}"));
   assert.ok(section.includes("ConvertTo-Json -Depth 10"));
@@ -788,8 +790,8 @@ test("hosted resolver persists redacted failure metadata even when the resolver 
   assert.ok(section.includes("Upload redacted resolver failure evidence"));
   assert.ok(section.includes("if: always()"));
   assert.ok(section.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"));
-  assert.ok(section.includes("if-no-files-found: warn"),
-    "the pre-checkout fallback artifact must not be silently ignored if missing");
+  assert.ok(section.includes("if-no-files-found: error"),
+    "missing resolver fallback evidence must fail closed");
   assert.ok(section.includes("retention-days: 90"));
 });
 
