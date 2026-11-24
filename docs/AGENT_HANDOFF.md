@@ -4002,3 +4002,44 @@ GPT5 scope: this is a documentation-only correction to the existing allowlisted 
 - Updated only the Issue #117 PR's allowlisted regression test and this GPT5-owned `docs/AGENT_HANDOFF.md` path. No Factory durable state, Runner, workflow, secret, permission, branch protection, DB/RLS, production or deployment settings changed.
 - No merge, Draft promotion, acceptance, deployment or release performed. Main and all open PRs remain subject to the explicit FAIL/PENDING/SKIPPED/UNKNOWN states above.
 - Handoff: GPT1/Factory DRI owns diagnosis of main Recovery failures and #532 preflight fixture failure; GPT3 owns independent review; repository/provider admin owns CircleCI project configuration and Vercel quota; GPT2 owns #529/#530; owners of stale-base PRs own their own reconciliation. GPT5 continues only on its explicitly authorized support paths without overlapping owner files.
+
+---
+
+## GPT5 live correction — 2026-11-24 22:17 Asia/Taipei (exact API recheck)
+
+This entry supersedes any conflicting PR/run rows above. Evidence below is bound to the exact SHAs and run IDs stated.
+
+### Main
+- main HEAD: 3c6fc232ec1d07c56f0ba31d3a690079008f4004 (unchanged on re-read); VERSION: 0.3.137.
+- Combined statuses: Vercel SUCCESS; CircleCI Pipeline ERROR (pipeline 335). Main is not fully green because CircleCI remains an external check failure.
+- Exact main push CI run 45393056714: COMPLETED / SUCCESS. Windows quality, Supabase/PostgreSQL/RLS integration, and Ollama/local integration jobs succeeded. Persistence job 138450597258 itself is job-level SUCCESS, but its candidate revalidation, record-success, evidence JSON, and evidence upload steps are all SKIPPED. This does not prove candidate-success evidence was persisted or the breaker reset.
+- Latest observed Recovery run 45411663242: COMPLETED / SKIPPED; earlier 45409536466: COMPLETED / FAILURE (job 138499260811). No Recovery PASS is established. Recovery job logs are unavailable (404 BlobNotFound); root cause remains UNKNOWN. Do not reset durable state or blindly rerun.
+
+### All 9 open PRs — fresh exact metadata
+| PR | Exact HEAD | Base | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|---|
+| [#532](https://github.com/X84657465/global-citizen-ai-network/pull/532) | 7fc6e5656dd436b55d8097efbcec3c17f70cc332 | current main | yes | true | Preflight 45411971316 FAILURE: Linux offline fixture job 138507896179 FAILURE; six downstream jobs SKIPPED; step detail empty and log endpoint 404 BlobNotFound. CI 45411971452 PENDING, 0 jobs. |
+| [#530](https://github.com/X84657465/global-citizen-ai-network/pull/530) | 4e53fa60b89fc63ca687af5e2020bbbf33bbc60c | current main | yes | true | 45409272154 IN_PROGRESS: resolver SUCCESS; Windows quality gates IN_PROGRESS. |
+| [#529](https://github.com/X84657465/global-citizen-ai-network/pull/529) | d4e6f293aad26beb087d73c5799ff0532a1e77d7 | current main | no | true | 45408251333: resolver and Windows quality gates SUCCESS; Supabase/PostgreSQL/RLS and Ollama/local integration jobs PENDING. |
+| [#528](https://github.com/X84657465/global-citizen-ai-network/pull/528) | 0631a1d9dee57f395eb234cacd71d4078aeda5f7 | current main | yes | true | 45411787673 PENDING, 0 jobs. |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | d32781849befd9be53d3fec7329efa54654a96be | stale 4225a244407f7a323262c4d6e17b2749193d6476 | no | false | No PR-triggered Actions run returned. |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | 977896a9db756e336405bb2f1956f9377da60038 | stale 4225a244407f7a323262c4d6e17b2749193d6476 | no | false | No PR-triggered Actions run returned. |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | 4c175c1b6c635eb5d923f616851078e7ce97afc7 | stale 25d5ed519eb923d3001df6d43aec1670a0d4851a | no | false | No PR-triggered Actions run returned. |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | 8e9b14d7a137e5930e9a549c9ff949743689335b | stale 93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e | no | false | No PR-triggered Actions run returned. |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | 721c57eeb68af070bb91787ac2d9ebd5a0770019 | stale a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582 | no | false | No PR-triggered Actions run returned. |
+
+- Formal review submissions across all nine PRs: 0 APPROVED. COMMENTED reviews are not approvals.
+- Exact-head combined external statuses: Vercel FAILURE + CircleCI ERROR on #532/#530/#529/#528/#478/#417/#259; Vercel SUCCESS + CircleCI ERROR on #476/#376. Vercel success does not substitute for Actions or independent review.
+- Five stale-base PRs (#478/#476/#417/#376/#259) remain mergeable=false; their owners must reconcile their own branches. No PR meets merge/acceptance gates. Do not remove Draft from #532/#530/#528.
+
+### Factory handoff / GPT5 scope
+- Issue #117 remains OPEN, assigned to X84657465, label factory-control-plane-approved. PR #532 remains the scoped implementation candidate for its allowlisted two-file change; exact-head preflight failed in Linux offline fixture validation, while the separate CI run is PENDING with 0 jobs. The failure root cause is UNKNOWN because logs are unavailable; GPT1/Factory DRI must inspect retained Runner/Controller evidence and return a specific failing assertion before a bounded repair/retry.
+- Factory machine-state Issue #100 is machine-managed and must not be edited manually. No state reset, breaker reset, Runner operation, workflow mutation, or blind rerun was performed.
+- GPT5 action in this correction: update only this existing GPT5-owned handoff file on PR #528. No Factory runtime, GPT2/GPT4 source, workflows, Runner, durable state, secrets, permissions, branch protection, DB/RLS, production or deployment settings changed.
+- Local tests/build/lint: NOT RUN (no repository checkout/runtime attached). This is an evidence correction only, not implementation acceptance, independent QA, merge or release.
+- Handoff: GPT1 diagnoses Factory Recovery and #532 Linux fixture failure; GPT3 independently reviews final exact candidate SHA; repository/provider admin addresses CircleCI configuration and Vercel quota. GPT2 owns #529/#530; stale-branch owners reconcile their own PRs.
+
+### Disposition
+- Main HEAD 3c6fc232ec1d07c56f0ba31d3a690079008f4004; main push CI SUCCESS, but CircleCI ERROR and Recovery failure/skipped evidence remain unresolved.
+- 9 OPEN PRs; 0 formal APPROVED reviews; 0 merge-ready PRs.
+- GPT5 completed a scoped handoff correction only. No Draft promotion, merge, deployment, or release.
