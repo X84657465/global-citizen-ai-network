@@ -619,8 +619,8 @@ test("CI diagnostics run independently on hosted Linux and preserve fallback evi
   assert.ok(s.includes("${{ runner.temp }}/ci-failure-diagnostics.json"));
   assert.ok(s.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
   assert.ok(s.includes("WORKFLOW_REF: ${{ github.ref }}"));
-  assert.ok(s.includes("\\n  \\"event\\": \\"%s\\""));
-  assert.ok(s.includes("\\n  \\"ref\\": \\"%s\\""));
+  assert.ok(s.includes(String.raw`\"event\": \"%s\"`));
+  assert.ok(s.includes(String.raw`\"ref\": \"%s\"`));
 });
 
 test("resolver failure evidence is initialized before checkout and always uploaded", () => {
@@ -634,8 +634,8 @@ test("resolver failure evidence is initialized before checkout and always upload
   assert.ok(s.includes("resolver-diagnostics.json"));
   assert.ok(s.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
   assert.ok(s.includes("WORKFLOW_REF: ${{ github.ref }}"));
-  assert.ok(s.includes("\\n  \\"event\\": \\"%s\\""));
-  assert.ok(s.includes("\\n  \\"ref\\": \\"%s\\""));
+  assert.ok(s.includes(String.raw`\"event\": \"%s\"`));
+  assert.ok(s.includes(String.raw`\"ref\": \"%s\"`));
 });
 
 
