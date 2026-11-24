@@ -969,3 +969,26 @@ test("post-completion recovery guard compares stable repository IDs from workflo
     assert.ok(recoveryWorkflow.includes(requiredGuard), "recovery guard must retain " + requiredGuard);
   }
 });
+
+
+test("CI diagnostics always retain and upload a minimal fallback artifact when capture or classification fails", () => {
+  const bounds = findJobSection(workflow, "ci-diagnostics");
+  const diagnostics = workflow.slice(bounds.start, bounds.end);
+  const fallback = findNamedStepBlock(diagnostics, "Initialize fallback CI diagnostic evidence");
+  const capture = findNamedStepBlock(diagnostics, "Capture workflow metadata and failed-step logs");
+  const classify = findNamedStepBlock(diagnostics, "Classify failure and write redacted evidence");
+  const upload = findNamedStepBlock(diagnostics, "Upload redacted CI failure evidence");
+
+  assert.ok(diagnostics.indexOf(fallback) < diagnostics.indexOf(capture),
+    "fallback evidence must exist before any GitHub API or log-download request");
+  assert.ok(fallback.includes('captureStatus = "incomplete"'));
+  assert.ok(fallback.includes('failureStage = "diagnostic_capture_not_completed"'));
+  assert.ok(fallback.includes("workflowRunId = $env:GITHUB_RUN_ID"));
+  assert.ok(fallback.includes("expectedHeadSha = $env:EXPECTED_HEAD_SHA"));
+  assert.ok(fallback.includes('artifacts/ci-failure-diagnostics.json'));
+  assert.ok(classify.includes("CI_DIAGNOSTICS_OUTPUT: artifacts/ci-failure-diagnostics.json"));
+  assert.ok(upload.includes("if: always()"),
+    "the evidence upload must execute even after capture or classification fails");
+  assert.ok(upload.includes("path: artifacts/ci-failure-diagnostics.json"));
+  assert.ok(upload.includes("if-no-files-found: error"));
+});
