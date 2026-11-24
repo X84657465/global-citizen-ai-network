@@ -23,7 +23,7 @@ permissions:
   statuses: read
 
 concurrency:
-  group: pr-acceptance-${{ github.event.pull_request.number || github.event.workflow_run.head_sha || github.run_id }}
+  group: global-citizen-ai-network-self-hosted-runner
   cancel-in-progress: false
 
 jobs:
