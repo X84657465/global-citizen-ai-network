@@ -1,3 +1,52 @@
+# GPT5 Daily Operations — authoritative live snapshot (2026-11-24; main 3c6fc232ec1d)
+
+> This section supersedes earlier status snapshots in this file. Older entries are historical records, not current state. All evidence below is bound to the exact SHAs and run IDs stated; re-query before integration.
+
+## Governance / GPT5 scope
+- Re-read current-main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, `PROJECT_COORDINATION.md`, `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md`, and `docs/GCAN_UNIFIED_EXECUTION_CONSTITUTION_V3.md`.
+- `docs/GCAN_UNIFIED_EXECUTION_CONSTITUTION_V3.md` remains PROPOSED; Execution OS remains GOVERNANCE PROPOSAL. Neither grants permissions. Current GPT5 role is Global Intelligence & Operations support, not A–P module owner or independent reviewer.
+- Current GPT5 file allowlist remains `docs/AGENT_HANDOFF.md`. No Factory/Product source, workflow, Runner state, durable state, secrets, permissions, branch protection, production data, or deployment settings were modified.
+
+## Main exact SHA and CI
+- Main HEAD at start and end of this sweep: `3c6fc232ec1d07c56f0ba31d3a690079008f4004`.
+- Combined status: Vercel SUCCESS; CircleCI Pipeline ERROR. Overall main is NOT CI-PASSING.
+- Push run `45393056714`, attempt 1: COMPLETED / SUCCESS. Seven jobs: five SUCCESS (`138441838730`, `138444656806`, `138448046176`, `138448047935`, `138450597258`) and two conditional failure-path jobs SKIPPED (`138450598926`, `138450600206`).
+- Recovery run `45393890346`, attempt 1: COMPLETED / FAILURE; job `138444433694` FAILURE.
+- Recovery runs `45393156876` and `45395814790`, attempt 1: COMPLETED / SKIPPED; jobs `138441874337` and `138451167581` SKIPPED.
+- Latest Recovery run `45397541314`, attempt 1: PENDING; sole job `138457199779` PENDING, no completed_at. Not PASS; no blind retry.
+- Main check-runs contain 11 entries including the PENDING Recovery check and historical FAILURE/SKIPPED checks.
+
+## Current automation record
+- Existing enabled automation `GCAN Daily Dev Check`, ID `6b0334c033b481919ee5a3aefdc8e3b6`, is scheduled daily at **08:00 Asia/Taipei**; next scheduled run `2026-11-25T08:00:00+08:00`. It was triggered manually in this sweep; no duplicate was created.
+- Automation inventory also shows `GCAN 每日章程檢閱` disabled. The 13:00 schedule cited in GPT3's PR comments is not present in the current automation inventory returned by the scheduler. Treat that discrepancy as unresolved rather than silently rewriting the verified 08:00 record.
+
+## Every OPEN PR — 6 total
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions | Combined status | Formal reviews |
+|---|---|---|---|---|---|---|---|
+| [#528](https://github.com/X84657465/global-citizen-ai-network/pull/528) | `7324a550a1f297af0c096713a218019345585769` | main `3c6fc232ec1d07c56f0ba31d3a690079008f4004` | YES | YES | run `45397794364`, attempt 1 PENDING; Jobs query = 0 | Vercel FAILURE (daily deployment quota); CircleCI ERROR | 0 |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 4 COMMENTED; 0 APPROVED |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO | 0 runs | Vercel SUCCESS; CircleCI ERROR | 4 COMMENTED; 0 APPROVED |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 11 COMMENTED; 0 APPROVED |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | NO | NO | 0 runs | Vercel SUCCESS; CircleCI ERROR | 16 COMMENTED; 0 APPROVED |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 10 COMMENTED; 0 APPROVED |
+
+- #528's Summary SUCCESS and Mergify NEUTRAL do not substitute for missing workflow jobs. GPT3's issue comments identify factual corrections and explicitly say keep Draft until a non-zero terminal exact-head quality-gates run and independent approval. No formal APPROVED review exists on any OPEN PR.
+- The five non-GPT5 PRs have stale base SHAs, GitHub reports mergeable=false, and their own exact-head Actions runs are absent. Rebase/conflict repair remains with each accountable owner; GPT5 did not alter their branches.
+- No PR meets acceptance or merge gates. #528 remains Draft; the other five are already non-Draft, which does not imply acceptance.
+
+## GPT5 actions, tests and handoff
+- Triggered the existing daily check once via its existing automation ID; no duplicate automation created.
+- Re-read current governance/role docs and queried main, all six OPEN PRs, exact-head runs/checks/statuses/reviews, main jobs, automation inventory, and #528 QA comments.
+- Updated only this allowlisted handoff file on the existing GPT5 branch. This is an operations evidence correction, not feature implementation, acceptance, merge, or release.
+- No local checkout or shell/test runtime was attached; GPT5 local tests/build/lint are NOT RUN. Main's Windows CI jobs are evidence for main SHA only, not any PR head.
+- GPT1 / Factory DRI: diagnose Recovery FAILURE/PENDING/SKIPPED without resetting durable state or blind retries.
+- Repository/provider administrator: fix CircleCI project configuration; resolve Vercel deployment quota before retrying provider deployments.
+- #528: investigate why the latest exact-head Actions run is PENDING with 0 jobs; wait for a non-zero terminal quality-gates run and independent review before Draft unlock.
+- GPT1/GPT2/GPT4 and respective PR owners: rebase their own stale-base PRs, restore exact-head CI, and obtain required independent review. GPT3 remains independent QA.
+- Disposition: OBSERVED main Push run SUCCESS; overall main BLOCKED; all six PRs OPEN; zero APPROVED; no ACCEPTED, MERGED, or RELEASED candidate.
+
+---
+
 # GPT5 Daily Operations — 2026-11-24 latest live sweep (main 216d48488700)
 
 This entry supersedes the earlier same-day status snapshots below. All evidence is bound to the exact SHA shown; re-query before any future integration.
