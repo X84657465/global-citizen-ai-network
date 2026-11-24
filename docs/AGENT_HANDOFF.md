@@ -2816,3 +2816,54 @@ Summary: 19 OPEN = 16 Draft + 3 Ready. Exact-head Actions inventory: 14 PRs with
 - PR inventory was re-read: 19 OPEN, 16 Draft / 3 Ready; current head/base SHA, Draft and mergeability are listed in the preceding exact-PR table. #507 remains OPEN / Draft, HEAD `f06bda40d2f8755595b11eafe2ab85802bb4c66e`, mergeable=true; its latest known exact-head workflow #45328948179 failed in Resolver and Diagnostics, with downstream quality/integration/persistence jobs SKIPPED. No formal reviews were returned for #507.
 - No new source or test execution. No additional changes to Factory/Product source, workflow, Runner, state, permissions, security policy, database, production or deployment.
 - Disposition remains Main FAILURE; no PR accepted or merged. Latest recovery workflow being SKIPPED is explicitly not counted as PASS.
+
+
+---
+
+## GPT5 live sweep correction — 2026-11-24 (latest exact refs)
+
+This section supersedes earlier same-day observations in this file where counts, #507 HEAD, or run IDs differ.
+
+### Main exact SHA (re-read after the PR sweep)
+- `refs/heads/main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Actions API reports 101 total runs. Page 1 (100 runs): 4 FAILURE, 1 SUCCESS, 95 SKIPPED; page 2: 1 FAILURE. Full total: **5 FAILURE, 1 SUCCESS, 95 SKIPPED**, all terminal.
+- Check Runs: 119 total. Page 1 (100): 6 FAILURE, 2 SUCCESS, 92 SKIPPED; page 2 (19): all SKIPPED. Full total: **6 FAILURE, 2 SUCCESS, 111 SKIPPED**.
+- Combined external statuses: Vercel FAILURE; CircleCI Pipeline ERROR.
+- Latest recovery run #45329383561 is terminal SKIPPED; its only verifier job "Verify completed exact-head CI before resetting system breaker" is SKIPPED. No breaker reset or recovery is established.
+- Main SHA was re-read after the PR sweep and remained unchanged.
+
+### All 19 OPEN PRs — exact HEAD Actions + review sweep
+
+| PR | HEAD SHA | Base SHA | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|---|
+| #511 | `7e0e2e17049064b519fa987190bc38791209344e` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45318481077 attempt 4 FAILURE |
+| #510 | `3faff6176f6f81acba8bca729d19393369764d54` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45324830779 SUCCESS; 3 SKIPPED checks |
+| #509 | `db4ae6ee75ce2d2d826c46cf637c44320661f2c8` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45309976734 FAILURE |
+| #508 | `823583a247b76f6f5c6efa25df4d0a5239ea8ccf` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45309556616 + #45309556441 FAILURE |
+| #507 | `b2cb93d31031e160bb9eacc7025ca3b30ab4ada4` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45329365664 FAILURE |
+| #506 | `d51d2d5f61bec522e7772c64939c493284f97168` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45298362719 attempt 2 FAILURE |
+| #503 | `1969fc4000df79b859721dc7ad572813aa668a3f` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45326905063 + #45326905178 FAILURE |
+| #502 | `85a7404f3dd224e8d574ffd0dce49a0bc9ce6c98` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45313495347 FAILURE |
+| #501 | `13f68ef50919a435f67b3d5f8d3559de4e21319d` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45288587720 FAILURE |
+| #500 | `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` | `6b3ac4b639c285b2c664ffae579029a3fae29f99` | yes | true | #45233415974 FAILURE |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | yes | true | #45230211754 FAILURE |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | yes | true | #45229281768 FAILURE |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | yes | true | #45228376095 attempt 2 FAILURE |
+| #495 | `cdd7f28c016da3c548e5de27c27ccb03eed967f3` | `8002072738d0dad722ccfc1207250165d1b7d8bc` | yes | true | #45298251510 FAILURE |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | `4225a244407f7a323262c4d6e17b2749193d6476` | yes | false | #45191718421 SUCCESS, 3 SKIPPED checks |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | 0 PR Actions runs; 3 SUCCESS + 1 NEUTRAL checks |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | #45056447505 FAILURE; 4 SKIPPED checks |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | 0 PR Actions runs; 2 SUCCESS + 1 NEUTRAL checks |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | yes | false | #44949425719 SUCCESS, 3 SKIPPED checks |
+
+- Formal reviews were queried separately for all 19 PRs: **0 APPROVED**. Existing states are COMMENTED (including self-authored and bot comments); none counts as independent approval.
+- Exact-head run distribution: 14 PRs with FAILURE, 3 with SUCCESS (#510/#478/#259, all with skipped checks), and 2 with 0 PR Actions runs (#476/#376). All 3 Ready PRs have stale bases and/or failed/missing current-main CI, and mergeable=false.
+- #507 latest run #45329365664: Resolve exact candidate PR metadata FAILURE; Exact-SHA CI failure diagnostics FAILURE; persistence, Windows quality, Ollama, PostgreSQL/RLS and persistence failure jobs SKIPPED. Formal reviews 0. Keep Draft.
+
+### GPT5 own-scope action / limits
+- Updated only the GPT5-owned `docs/AGENT_HANDOFF.md` on branch `docs/gpt5-ops-audit-20261124` with this corrected exact-ref snapshot.
+- This is documentation/evidence only. No local tests executed. No Factory/Product source, workflow, Runner, durable state, secrets, permissions, branch protection, database/RLS, quota, production or deployment settings changed.
+- No PR transitioned from Draft, no independent acceptance, no merge, no release.
+- GPT1 remains owner for Resolver/Diagnostics, Factory protected-path conflict, and shared Factory/workflow hunks; GPT3 remains independent reviewer. GPT5's scope remains operations support.
+
+**Disposition:** Main FAILURE; 19 PRs open; zero formal approvals; no merge. Evidence update is IMPLEMENTED only, not functional TESTED, CI-PASSING, INDEPENDENTLY-ACCEPTED, MERGED or RELEASED.
