@@ -48,6 +48,26 @@ jobs:
       head_ref: ${{ steps.resolve.outputs.head_ref }}
       api_cooldown_until: ${{ steps.resolve.outputs.api_cooldown_until }}
     steps:
+      - name: Initialize fallback resolver evidence before checkout
+        shell: pwsh
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+        run: |
+          $path = Join-Path $env:RUNNER_TEMP "resolver-diagnostics.json"
+          $fallback = @{
+            schemaVersion = 1
+            stage = "resolver_not_completed"
+            errorName = "ResolverDidNotComplete"
+            httpStatus = $null
+            method = ""
+            path = ""
+            rateLimited = $false
+            retryAfterMs = $null
+            expectedHeadSha = $env:EXPECTED_HEAD_SHA
+            workflowRunId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+          }
+          [System.IO.File]::WriteAllText($path, ($fallback | ConvertTo-Json -Depth 10) + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
       - name: Checkout resolver
         uses: actions/checkout@v5
         with:
@@ -73,7 +93,7 @@ jobs:
         with:
           name: resolver-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/resolver-diagnostics.json
-          if-no-files-found: ignore
+          if-no-files-found: warn
           retention-days: 90
 
   quality:
@@ -511,6 +531,21 @@ jobs:
       AGENT_FACTORY_API_COOLDOWN_UNTIL: ${{ needs.build.outputs.api_cooldown_until }}
       CI_FAILURE_SCOPE: ${{ (needs.quality.result != 'failure' || needs.quality.outputs.failure_scope == 'task') && (needs.build.result != 'failure' || needs.build.outputs.failure_scope == 'task') && (needs.database.result != 'failure' || needs.database.outputs.failure_scope == 'task') && (needs.quality.outputs.failure_scope == 'task' || needs.build.outputs.failure_scope == 'task' || needs.database.outputs.failure_scope == 'task') && 'task' || 'system' }}
     steps:
+      - name: Initialize fallback CI evidence before checkout
+        shell: pwsh
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+        run: |
+          $path = Join-Path $env:RUNNER_TEMP "ci-failure-diagnostics.json"
+          $fallback = @{
+            schemaVersion = 1
+            captureStatus = "incomplete"
+            failureStage = "checkout_or_diagnostics_not_completed"
+            workflowRunId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            expectedHeadSha = $env:EXPECTED_HEAD_SHA
+          }
+          [System.IO.File]::WriteAllText($path, ($fallback | ConvertTo-Json -Depth 10) + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
         with:
@@ -747,12 +782,13 @@ jobs:
           CI_SIBLING_RUNS_JSON: ${{ runner.temp }}/ci-sibling-runs.json
           CI_FAILED_LOG: ${{ runner.temp }}/ci-failed.log
           CI_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
-          CI_DIAGNOSTICS_OUTPUT: artifacts/ci-failure-diagnostics.json
+          CI_DIAGNOSTICS_OUTPUT: ${{ runner.temp }}/ci-failure-diagnostics.json
         run: node scripts/ci-failure-diagnostics.mjs
       - name: Upload redacted CI failure evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ci-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/ci-failure-diagnostics.json
-          if-no-files-found: error
+          path: ${{ runner.temp }}/ci-failure-diagnostics.json
+          if-no-files-found: warn
           retention-days: 90
