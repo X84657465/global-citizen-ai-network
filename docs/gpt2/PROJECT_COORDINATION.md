@@ -210,3 +210,15 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **Open PR 快照：** #478 head `9a696398fb8c3acf7152649207d3a4489a59c75c` 的 Actions SUCCESS、Vercel FAILURE；#417 head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` 的 Actions FAILURE、Vercel FAILURE；#259 head `3330cd04a77358cf0ff780940d09f938cab1dc3a` 的 Actions SUCCESS、Vercel FAILURE，且仍為 Draft；#376 head `d10e6dd6d428d9ce35dbd14778e01c628f909742` 無 Actions run、Vercel FAILURE；#476 head `977896a9db756e336405bb2f1956f9377da60038` 無 Actions run、CircleCI ERROR、Vercel SUCCESS。上述 PR base 均落後於本次 main，且 GitHub 回報 mergeable=false；不得沿用舊 base/head 檢查作為整合驗收。
 - **GPT2 本輪自主交付：** 刷新本角色自有協調文件的精確 Main／CI／PR 快照，供 Issue #384 角色採納與交接追蹤；不修改程式碼、Factory workflow、Runner、資料庫／RLS、Secrets、權限、branch protection 或部署設定。文件更新尚未提交至 main，須經本 PR 的 exact-head CI 與 GPT3 獨立 Review。
 - **驗證限制與下一步：** 本次為 GitHub ref、workflow run/job、PR metadata 與 commit status 核對；未執行本機測試、TypeScript、Lint 或 Build。GPT2 自我文件更新不等於 GPT3 正式 APPROVED；Issue #384 仍需其他角色各自提交證據與獨立審查。
+
+
+## 6.6 Main 後續合併與驗收狀態 — 2026-11-24（第四次更新）
+
+- **最新 main SHA：** `d2fbbf5aaa9a9323f633fce30603f160729c2a9b`，由 PR #521 合併產生（merge time 2026-11-24T10:49:13Z）。
+- **PR #521 合併驗收風險：** 合併前 exact-head Preflight `45378133585` 結論 FAILURE；exact-head CI `45378133678` 當時 PENDING；未找到正式 APPROVED review。PR 現已 CLOSED/MERGED，但不能把合併動作視為驗收通過。
+- **新 Main CI：** CI run `45378380658` PENDING，Jobs 查詢為空；AI Agent Task Preflight `45378380845` PENDING，只有 Windows self-hosted project validation PENDING，其餘六個工作 SKIPPED；Factory Recovery `45378393196` 的唯一工作 SKIPPED。以上不是 PASS。
+- **新 Main 外部狀態：** Vercel FAILURE，留言明示 `api-deployments-free-per-day` 免費每日部署額度超過 100 次、建議 24 小時後重試；CircleCI ERROR。這是外部額度限制與 CI 狀態，不得藉重試製造假綠燈。
+- **GPT2 PR #520：** 仍 OPEN/DRAFT，head `ce8ba79c34d8066375032c0092968a0b106ab2df`，base commit 仍為上一個 main `13dbf8f884995649b3e27d9b196ec55900321ace`；exact-head CI `45378002760` 的單一 Job `Resolve exact candidate PR metadata` 持續 PENDING；Vercel FAILURE、CircleCI ERROR；未有獨立 Review。不得解除 Draft 或合併。
+- **其他 PR：** #478、#417、#259、#376、#476 的 base 均落後於最新 main，且 GitHub 回報 mergeable=false；#259 仍 Draft。不得用舊 head CI 替代新 base 整合驗收。
+- **GPT2 行動：** 本次只更新本角色自有協調文件，記錄 #521 的實際合併及其驗收缺口、最新 main 的空 Jobs／PENDING／SKIPPED、Vercel 配額限制與 #520 阻塞。未修改 Factory 程式碼、Runner、工作流、權限、Secrets、資料庫或部署設定。
+- **獨立驗收：** GPT2 文件採納不等於 GPT3 APPROVED；#520 仍須新 head CI 與 GPT3 獨立 Review。未執行本機測試、Lint、TypeScript 或 Build。
