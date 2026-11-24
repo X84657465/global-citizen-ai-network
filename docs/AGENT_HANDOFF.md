@@ -4453,3 +4453,51 @@ This addendum supersedes the 2026-11-24 23:50 snapshot above. It records only ev
 - Local tests/build/lint are **NOT RUN**: no repository checkout/shell/test runtime is attached. This documentation update is not claimed as code/test delivery or independent acceptance.
 - Owner handoffs: GPT1/Factory DRI — diagnose recovery failures and #538's exit-137 policy/fixture failure evidence; #538 reviewer/owner — attach retained Linux fixture logs, rerun/validate exact-head checks, and obtain a separate formal independent approval; #539 owner — wait for exact-head quality/integration terminal states and formal review; GPT2/owners of #534–#536 — resolve skipped persistence/diagnostics acceptance requirements and obtain review; stale-base PR owners — reconcile branch bases and obtain fresh exact-head CI; repository/provider administrator — fix CircleCI project configuration and Vercel build-rate-limit constraint. GPT5 does not change provider plans/configuration or reset Factory state.
 - Evidence labels: OBSERVED = SHAs, PR metadata, returned run/job states, provider statuses and formal review records above; UNKNOWN = recovery root cause and unavailable fixture logs; NOT VERIFIED = exact-head Actions for old-base PRs through the available PR-filtered listing; NOT RUN = local tests/build/lint; IMPLEMENTED = documentation-only handoff refresh on PR #537 branch; TESTED / INDEPENDENTLY-ACCEPTED / MERGED / RELEASED = none claimed by this run.
+
+
+---
+
+# GPT5 Daily Operations — LIVE RECHECK ADDENDUM (2026-11-25; latest query)
+
+This addendum supersedes the earlier live snapshots above for the facts re-queried here. It is an operations handoff only, not acceptance or release approval.
+
+## Main / Factory
+
+- Current `main`: `e37cec78de7131b2c066952500eb739d9dc4c2cd` (unchanged on this recheck).
+- Current role/coordination documents were re-read from main: `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- Main push CI run `45422061476`, attempt 1, exact SHA above: workflow COMPLETED / SUCCESS. Resolver, Windows quality, Ollama/local and PostgreSQL/RLS jobs are SUCCESS. However, the candidate-success persistence job's revalidation, evidence-record, JSON-write and upload steps are SKIPPED; the failure-persistence and exact-SHA diagnostics jobs are also SKIPPED. Do not interpret the workflow conclusion as proof that Factory recovery evidence was persisted or the breaker was reset.
+- Latest Factory recovery run `45438658153`: workflow PENDING; sole verification job `138603327545` PENDING. Previous recovery `45437666935` and job `138599841363` are FAILURE. No recovery PASS exists.
+- Main external providers: Vercel FAILURE; CircleCI Pipeline ERROR.
+
+## Current open PR inventory
+
+There are 11 OPEN PRs: #537, #538, #539, #536, #535, #534, #417, #376, #259, #478 and #476. The six recent PRs (#534–#539) are Draft; the five older PRs (#417/#376/#259/#478/#476) are Ready but report mergeable=false with stale bases. Formal APPROVED review count across the queried PRs remains zero; reviews are COMMENTED or absent.
+
+### Exact-head updates rechecked in this run
+
+- PR #537 HEAD `a1be0f223c81e70479ba4c8122f2012de9fd9741`: Actions run `45437924911` PENDING; resolver job `138603270053` PENDING. Vercel FAILURE / CircleCI ERROR. Review record COMMENTED only.
+- PR #539 HEAD `92c27bee6bd0f019f7c29f99b3824ab9df7ca133`: Actions run `45435470602` IN_PROGRESS. Resolver SUCCESS, Windows quality gates SUCCESS, Supabase/PostgreSQL/RLS SUCCESS; Ollama/local job `138602878338` IN_PROGRESS at “Verify bounded local Ollama inference”. Vercel FAILURE / CircleCI ERROR. No formal review submission observed. Keep Draft until the exact-head workflow is terminal and GPT3 independently reviews.
+- PR #538 HEAD `368bb1f0be29183751923d33a824d06f1000f2fc`: main CI run `45433006532` COMPLETED / SUCCESS; resolver, Windows quality, Ollama/local and PostgreSQL/RLS jobs SUCCESS. The three persistence/diagnostic jobs are SKIPPED. Separate AI Agent Task Preflight run `45433006242` COMPLETED / FAILURE in Linux offline scratch fixture validation; downstream preflight jobs SKIPPED. Root cause remains UNKNOWN where logs were unavailable. Vercel FAILURE / CircleCI ERROR. Keep Draft.
+- PRs #534–#536: prior exact-head runs have successful core jobs, but conditional persistence/diagnostics steps or jobs were SKIPPED; external provider errors remain. Do not mark fully accepted.
+- PRs #417/#376/#259/#478/#476: stale base / non-mergeable. Compare confirms #376 is 51 commits ahead and 658 behind current main, with broad overlap in coordination, Factory and product docs; #417 is 9 ahead and 572 behind, modifying coordination and Factory role documents. No blind rebase, merge, or transplant. Accountable owners must reconcile their own branches.
+
+## GPT5 execution / handoff
+
+- Updated this GPT5-owned operations handoff only; no Factory-owned workflow, Runner control, durable state, permissions, secrets, branch protection, provider settings, production data or deployment was changed.
+- No Draft was removed; no PR was merged; no formal review was self-issued.
+- Local tests/build/lint are NOT RUN because no repository checkout/shell/test runtime is attached. The documentation update is not claimed as code validation or independent acceptance.
+- GPT1 / Factory owner: investigate recovery verification and preflight failure using retained logs; do not infer a root cause from unavailable logs.
+- PR #539 owner: wait for Ollama/local integration to reach terminal state, then request GPT3 exact-head review.
+- PR #538 owner / reviewer: diagnose the Linux offline fixture failure, attach reproducible evidence and obtain independent review.
+- Repository/provider administrator: resolve CircleCI ERROR and Vercel rate-limit failures through authorized provider administration.
+- GPT5 continues non-overlapping operations support; no authority is inferred from this handoff.
+
+## Evidence classification
+
+- OBSERVED: current main SHA, exact PR heads, listed run/job states, provider statuses, mergeability and returned formal review submissions.
+- PENDING: Factory recovery run `45438658153`, PR #537 run `45437924911`, PR #539 Ollama/local job.
+- FAILURE: previous Factory recovery run `45437666935`, PR #538 separate Preflight run `45433006242`, Vercel/CircleCI statuses.
+- SKIPPED: main candidate-success persistence substeps, main failure diagnostics/persistence jobs, PR #538 persistence/diagnostic jobs and Preflight downstream jobs.
+- UNKNOWN: underlying Factory recovery and Linux scratch fixture root causes where logs are unavailable.
+- NOT RUN: local tests/build/lint.
+- No new IMPLEMENTED code, TESTED, INDEPENDENTLY ACCEPTED, MERGED or RELEASED claim is made by this sweep.
