@@ -708,7 +708,7 @@ test("preflight captures and uploads both synthetic and real candidate offline-t
 
     if (index === 1) {
       assert.ok(section.includes("docker inspect --format '{{json .State}}'"), "inspect the candidate container after attached start");
-      assert.ok(section.includes("candidateContainerFailureScope(state, startExitCode)"), "classify the inspected process result with the shared fail-closed policy and Docker start exit evidence");
+      assert.ok(section.includes("candidateContainerFailureScope(state)"), "classify the inspected process result with the shared fail-closed policy");
       assert.ok(section.includes("$classificationExitCode"), "preserve classifier execution failure as system evidence");
     }
   }
