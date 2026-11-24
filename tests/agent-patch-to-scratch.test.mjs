@@ -268,7 +268,8 @@ test("task preflight rejects invalid fetched issue identity before marking conte
   const identityReject = source.indexOf("if (!validFetchedTaskIdentity)");
   const validation = source.indexOf("task = validateAndBuildTask(issue, repository)");
   const validationCatch = source.indexOf("catch (error)", validation);
-  const typedGuard = source.indexOf("if (validFetchedTaskIdentity && error instanceof TaskValidationError)", validationCatch);
+  const identityGuard = source.indexOf("if (validFetchedTaskIdentity)", validationCatch);
+  const typedGuard = source.indexOf("if (error instanceof TaskValidationError)", identityGuard);
 
   assert.ok(identityHelper >= 0);
   assert.ok(lookup >= 0);
@@ -276,7 +277,8 @@ test("task preflight rejects invalid fetched issue identity before marking conte
   assert.ok(identityReject > identityCheck);
   assert.ok(validation > identityReject);
   assert.ok(validationCatch > validation);
-  assert.ok(typedGuard > validationCatch);
+  assert.ok(identityGuard > validationCatch);
+  assert.ok(typedGuard > identityGuard);
 
   const identitySection = source.slice(identityHelper, lookup);
   assert.match(identitySection, /candidate\.number !== requestedNumber/);
