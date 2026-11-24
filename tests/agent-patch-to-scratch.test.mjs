@@ -371,6 +371,6 @@ test("only a valid fetched Issue identity with rejected task content writes the 
 test("preflight requires Docker start exit evidence to match inspected container state", () => {
   const workflowPath = fileURLToPath(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url));
   const workflow = readFileSync(workflowPath, "utf8");
-  assert.match(workflow, /CANDIDATE_CONTAINER_START_EXIT_CODE = \[string\]\$startExitCode/);
-  assert.match(workflow, /candidateContainerFailureScope\(state, startExitCode\)/);
+  assert.match(workflow, /DockerStartExitCode -NotePropertyValue \$startExitCode/);
+  assert.match(workflow, /candidateContainerFailureScope\(state\)/);
 });
