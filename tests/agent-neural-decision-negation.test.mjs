@@ -26,6 +26,8 @@ test("negated high-risk prohibitions do not independently trigger positive-risk 
       "Do not modify billing or payout settings",
       "Secrets are not modified",
       "Secrets not modified",
+      "Secrets not modified and never rotate credentials",
+      "Do not modify secrets and credentials",
       "Credentials remain unchanged",
       "Auth is out of scope",
       "Production remains out of scope",
@@ -57,12 +59,15 @@ test("sensitive target paths remain fail-closed even when surrounding wording is
 });
 
 test("mixed negative and positive clauses are classified conservatively", () => {
-  const result = evaluateAgentDecision(
-    withImplementerText("Do not deploy to production, but update billing rules"),
-    task,
-  );
-  assert.equal(result.signals.no_high_risk_scope, false);
-  assert.equal(result.decision, "reject_and_replan");
+  for (const title of [
+    "Do not deploy to production, but update billing rules",
+    "Secrets not modified and rotate credentials",
+    "Secrets are not modified in this task and rotate credentials",
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title), task);
+    assert.equal(result.signals.no_high_risk_scope, false, title);
+    assert.equal(result.decision, "reject_and_replan", title);
+  }
 });
 
 test("ordinary words such as author do not match the auth risk token", () => {

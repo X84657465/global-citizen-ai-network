@@ -46,7 +46,6 @@ test("rejects malformed repository path segments in candidate and run identity",
     "owner/.",
     "owner/..",
     "owner/...",
-    "owner/._repo",
     "owner/repo/extra",
     "owner//repo",
   ]) {
@@ -168,7 +167,7 @@ test("rejects duplicate job records and malformed run evidence", () => {
 });
 
 test("accepts supported repository prefixes in the candidate, run and job URLs", () => {
-  for (const candidateRepository of ["owner/-repo", "owner/.github"]) {
+  for (const candidateRepository of ["owner/-repo", "owner/.github", "owner/_repo", "owner/._repo"]) {
     const original = bundle().run;
     const run = {
       ...original,
