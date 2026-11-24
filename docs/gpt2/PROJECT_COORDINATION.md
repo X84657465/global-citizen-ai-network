@@ -198,3 +198,16 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **目前 main 的 CI／外部檢查（本次巡檢）：** GitHub main CI run `45366164752` 對此 SHA 結束 SUCCESS，Resolver、Windows quality、Supabase/PostgreSQL/RLS、Ollama/local execution jobs 均 SUCCESS。這只證明該 main push workflow；同 SHA 的 Factory Recovery run `45375327985` 為 FAILURE，另有 Recovery runs `45373974643`、`45372363724`、`45372269044`、`45371934842`、`45370693094`、`45370555262` 為 SKIPPED，不能據此宣稱 Factory Recovery 通過。Vercel status 為 FAILURE（`build-rate-limit`）；CircleCI Pipeline #236 為 ERROR。
 - **GPT2 本次工作界線：** 只更新本角色自有文件的主線快照與交接證據；不接管 GPT1 Factory failure、GPT5 Issue #117／PR #517，亦不修改其他 owner PR。L/Federation 維持停用／延後。
 - **驗證限制：** 本次為文件與 GitHub metadata/CI evidence 更新；未執行本機測試、TypeScript、Lint 或 Build。此新候選仍須以其 exact HEAD 核對 Actions；GPT3 正式獨立 APPROVED 未提供前不得宣稱驗收或合併。
+
+
+## 6.5 最新主線重核與 GPT2 交付狀態 — 2026-11-24（第三次更新）
+
+- **本次直接驗證的 main SHA：** `d2fbbf5aaa9a9323f633fce30603f160729c2a9b`（PR #521 merge commit）。
+- **GPT2 自有協調文件：** `docs/gpt2/PROJECT_COORDINATION.md`；本次更新以 main blob `786934a7b544257df8e5efd090ff6b89f2b534b7` 為基礎。
+- **Issue #384：** GPT2 的文件與工作流程採納證據已在本文件第 2–5 節及第 6.1–6.4 節建立；本次補上最新主線快照與交接狀態。Issue 仍 OPEN，因其要求 GPT3 與 GPT4 各自提供採納證據；GPT2 不代替其他角色簽認。
+- **採納成熟度：** DOCUMENTED=YES；ADOPTED=YES（僅 GPT2 文件與工作流程層級）；INDEPENDENT ACCEPTANCE=PENDING（GPT3 獨立審查）；IMPLEMENTED=NOT CLAIMED。
+- **本次 main CI 證據：** GitHub Actions push run `45378380658`（CI — `d2fbbf5aaa9a9323f633fce30603f160729c2a9b`）仍 PENDING；唯一已列出的 job「Resolve exact candidate PR metadata」`138404807096` 亦 PENDING。AI Agent Task Preflight run `45378380845` 為 FAILURE；Windows self-hosted project validation job `138390624675` 的「Test patched candidate offline inside restricted container」FAILURE，其後完整 unit tests、TypeScript、ESLint 等步驟 SKIPPED。Recovery run `45382505328` 為 SKIPPED；Recovery runs `45382381241`、`45382307132` 為 FAILURE。不可將 PENDING／SKIPPED 視為 PASS。
+- **外部檢查：** main commit status 為 FAILURE。Vercel 回報部署 rate limit（提示 24 小時後重試）；CircleCI Pipeline 回報未找到專案設定。兩者分開記錄，均未視為 GitHub Actions 成功。
+- **OPEN PR 快照：** 本次 API 第一頁回傳 6 個 OPEN PR：#522、#417、#376、#259、#478、#476。PR #522 exact HEAD `5f7478bab6d3cd4a1a03d8417183b889a3f2faf7` 的 CI run `45382327606` 中 Windows Runner quality gates job `138405069076` 仍 PENDING，Factory Preflight run `45382327546` 的 Linux offline scratch fixture validation FAILURE；PR #417、#376、#259、#478、#476 均不得僅依舊 SHA 的 review 或 CI 宣稱通過。PR #259 仍 Draft 且 mergeable=false；本次確認 6 個 OPEN PR 的變更檔案均未包含本 GPT2 自有文件。
+- **GPT2 工作界線：** 本次只更新 `docs/gpt2/PROJECT_COORDINATION.md` 的角色自有狀態與證據，不修改 GPT1 A–E／Factory、GPT3 QA、GPT4 B Product、其他 GPT2 工作線程式碼、Runner、Workflow、Secrets、DB／RLS、權限或部署設定。Issue #136 維持唯讀；L/Federation 維持停用／延後。
+- **驗證限制：** 本次為 GitHub API main ref、文件 blob、PR 清單、exact-head workflow runs/jobs 與 commit statuses 的唯讀核對；未執行本機測試、TypeScript、Lint 或 Build。此文件更新本身不代表 Runtime 實作、獨立驗收或部署完成。
