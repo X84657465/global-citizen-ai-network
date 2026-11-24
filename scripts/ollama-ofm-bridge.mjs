@@ -107,7 +107,7 @@ async function streamChatCompletion(upstream, downstream, controller) {
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
       let separator;
-      while ((separator = /\\r?\\n\\r?\\n/.exec(buffer)) !== null) {
+      while ((separator = /\r?\n\r?\n/.exec(buffer)) !== null) {
         consumeFrame(buffer.slice(0, separator.index));
         buffer = buffer.slice(separator.index + separator[0].length);
       }
