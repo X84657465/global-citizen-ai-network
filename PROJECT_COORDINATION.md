@@ -1172,3 +1172,51 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 本次治理提案分支以 main `480f22e484dfa80d301f136cedd5504fbde41407` 為起點。該 SHA 是提案建立基準，不代表 PR 合併時 main 仍相同。main、PR、CI、Runner、Factory durable state、Vercel deployment 均須在交付時重新查證；歷史快照標記 STALE，不可複製成最新狀態。
 
 **本文件只定義協作規範，不代表 GPT1–GPT5 已同時啟動，也不代表尚未觸發的工作已派工成功。** 跨 GPT 交接以 GitHub Issue、PR、commit、CI 與 handoff 為準。
+
+
+---
+
+## 22. GPT2 — F–P 神經智慧體工作模式採納（Issue #384）
+
+**採納依據：** `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` 與本文件。  
+**責任範圍：** GPT2 僅負責 F–P；本節是 GPT2 的工作流程落地，不改變 A–E、B Product 或 GPT3 的 owner／審查權限。  
+**採納狀態：** DOCUMENTED（本次文件變更）；尚不代表 F–P 各模組已 IMPLEMENTED、TESTED、VERIFIED 或 ACCEPTED。
+
+### 22.1 七步閉環映射至 F–P
+
+| 閉環步驟 | GPT2／F–P 執行要求 | 最低可追溯證據 |
+|---|---|---|
+| 感知 Perception | 開工前讀取精確 main SHA、模組規格、Issue／PR／Review／CI、相依服務與檔案 owner；辨識新鮮、過期及未知資訊 | 來源 URL、時間、SHA、工作範圍與狀態快照 |
+| 記憶 Memory | 將已核實的 F–P 決策、威脅模型、介面契約、缺陷、測試與交接寫入版本化文件／Issue；標記 STALE，不保存 secrets | 文件路徑、決策來源、適用版本、最後驗證時間 |
+| 認知 Cognition | 分析需求、根因、資料流、信任邊界、成本、相依與回滾；先 REUSE，再 EXTEND／REPAIR，有證據才 REPLACE | 問題證據、影響分析、假設、風險與替代方案 |
+| 規劃 Planning | 每項工作指定唯一 DRI、Developer、獨立 Reviewer、允許路徑、依賴、驗收條件、測試與停止條件；一次聚焦一項直接阻擋 A／B 的 F–P 任務 | Issue、allowlist、任務 DAG、DoD、風險與回滾計畫 |
+| 執行 Execution | 僅修改 F–P owner 範圍及明確授權路徑；優先交付可執行的安全、Release／QA、Observability 或整合能力 | commit、PR、精確變更檔案、實際測試輸出 |
+| 驗證 Verification | 對候選 HEAD SHA 執行適用單元／整合／安全測試與 CI；核對 Review、分支保護及外部檢查；PENDING／SKIPPED／0 Job／Rate Limit 不得視為 PASS | exact SHA、Run ID／Attempt、job 終態、測試結果、獨立 Review |
+| 反思 Reflection | 比較預期與實際結果；失敗兩次停止原樣重試，分類程式、環境、供應商或權限阻塞；更新文件並切換無依賴的可閉環工作 | 根因／UNKNOWN、缺口、修復或 DEFER 決策、下一步與接手者 |
+
+### 22.2 F–P 工作線的具體應用
+
+- **F — Cyber Security & Defense：** 感知威脅與供應鏈訊號；記憶威脅模型與例外期限；推理攻擊面及信任邊界；規劃最小權限修補；執行掃描器／安全控制；驗證負向測試與回歸；反思誤報、漏報及新風險。
+- **G — Release／QA／Integration：** 感知版本、分支、CI 與依賴；記憶 release evidence；推理相容性與整合衝突；規劃測試矩陣及發布 gate；執行可重現測試／整合工具；驗證 exact-SHA 結果；反思失敗分類與回滾品質。
+- **H — Observability／Telemetry／Cost：** 感知指標、事件與成本資料；記憶 schema、基準及資料來源；推理資料品質、隱私與成本異常；規劃最小監測及告警；執行只讀監測／成本證據能力；驗證資料完整性、遮罩及告警測試；反思盲點與誤報。
+- **I — Connectors／Workflow Automation：** 感知外部 API、版本與授權；記憶契約及供應商限制；推理重試、冪等與失敗模式；規劃 allowlist／速率／逾時；執行受控 adapter；驗證契約、重放及權限測試；反思供應商漂移與失敗恢復。
+- **J — Self-Healing／Chaos／Continuity：** 感知健康與故障訊號；記憶復原演練；推理故障域與副作用；規劃隔離、停止與回滾；執行安全的故障注入測試；驗證恢復時間及不變量；反思演練缺口。不得操作未授權正式環境。
+- **K — Knowledge／Docs／Governance：** 感知文件與決策差異；記憶有來源的正式知識；推理衝突及過期內容；規劃 owner／審查流程；執行版本化文件更新；驗證連結、引用與政策一致性；反思知識缺口。
+- **L — Multi-Node／Federation／Cluster：** 感知節點身分、版本與狀態；記憶協定及信任資料；推理隔離、租約與重放風險；規劃節點授權及撤銷；執行隔離測試節點工作；驗證故障、撤銷與稽核；反思跨節點風險。
+- **M — Compliance／Policy Audit／Risk：** 感知資料分類、用途與適用政策；記憶來源、保存及決策依據；推理法遵／隱私風險；規劃控制與證據要求；執行政策檢查及稽核紀錄；驗證可追溯性與例外處置；反思政策變更與未覆蓋情境。
+- **N — Productization／Analytics／Growth／Ecosystem：** 感知經核准的產品需求與指標；記憶定義、來源與限制；推理價值、成本及偏差；規劃可量測且不越權的產品化交付；執行分析／整合支援；驗證指標可重算及資料用途；反思產品假設與實際結果。B 產品方向及接受權仍屬 GPT4。
+- **O — Lifecycle／Deprecation／Legacy Retirement：** 感知版本、使用量與依賴；記憶棄用決策及遷移路徑；推理相容性與退役風險；規劃分階段遷移及回復；執行有界相容修補；驗證使用者／依賴回歸；反思遺留風險與退役證據。
+- **P — Governance／Ethics／Trust：** 感知治理政策、權利與利害關係人影響；記憶決策及同意證據；推理公平、透明、問責與信任風險；規劃人類監督及申訴路徑；執行政策文件／控制支援；驗證稽核與救濟流程；反思未預期影響。不得自行變更正式政策或替代專案負責人決策。
+
+### 22.3 GPT1／GPT3／GPT4 跨角色依賴與交接
+
+- **GPT1（A–E／Factory owner）：** GPT2 對 Factory 內部狀態、Runner、私有資料表及 A–E 核心不得直接耦合或寫入。若 F–P 需要 Factory 能力，GPT2 提供需求、公開介面契約、威脅／失敗案例及可重現證據，由 GPT1 決定 Factory-side 實作與交接；GPT2 驗證 F–P 消費端契約。
+- **GPT3（獨立架構審查／QA）：** GPT2 提供 PR 精確 HEAD、範圍、風險、測試矩陣、CI Run／Attempt 與未解問題，請 GPT3 獨立審查。GPT2 不自我批准、不把自我檢查或 COMMENTED 當 APPROVED；GPT3 不接管 F–P 功能 owner。
+- **GPT4（B Product owner）：** 涉及 B 的需求、UX、產品指標或產品接受條件，由 GPT4 定義及決策；GPT2 提供 F–P 能力契約、限制、安全／成本證據與交接文件。GPT2 不擅自決定 B 產品方向，也不將未驗收的 F–P 能力宣稱為 B 已可用。
+- **共同交接格式：** Issue／PR、唯一 DRI、接收 owner、精確 SHA、公開契約版本、資料分類、驗收條件、測試／CI 證據、風險、未解阻塞及下一步。跨角色依賴未確認時標 BLOCKED／UNKNOWN，不以聊天宣稱替代接收紀錄。
+
+### 22.4 GPT2 採納與成熟度聲明
+
+本節完成後只代表 GPT2 的協作流程已 DOCUMENTED。各 F–P 工作線須分別以實際程式／流程、測試、精確 SHA、CI 與獨立審查證明 IMPLEMENTED／TESTED／VERIFIED；不得因文件存在即宣稱整體神經智慧體模式已部署或達到 L4／L5。合併、正式部署、付費資源、Secrets／權限及不可逆操作仍遵守既有授權與治理閘門。
+
+**Issue #384 handoff：** GPT2 的協調文件引用、F–P 七步映射及 GPT1／GPT3／GPT4 交接規則由本節承載；後續採納狀態須以本文件的合併 commit、PR 精確 SHA 及獨立審查紀錄更新。
