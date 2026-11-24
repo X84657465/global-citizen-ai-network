@@ -32,9 +32,9 @@ For every change produced by the Neural Intelligence Agent (the authorized ChatG
 
 <!-- coderabbit-ai-generated:v1 -->
 
-<!-- coderabbit-ai-generated-section:v1:4b3da747d2f1fdd50624fabb78face028b44859437bb992bba6268c179009d7a -->
+<!-- coderabbit-ai-generated-section:v1:b2ee8a49d1cce091c22af5e273d3c7389a4b92b7a7f6afd9e0777ce12f9cd69c -->
 
-This rule applies equally to Factory code and Factory self-improvement changes. Independent GPT3 review of the exact candidate SHA is mandatory, and the release / merge gate must remain closed when GPT3 is unavailable. A project-owner decision cannot waive either requirement. Any other exception requires an explicit project-owner decision recorded in the repository and cannot be self-approved by the Developer.
+This rule applies equally to Factory code and Factory self-improvement changes. Independent GPT3 review of the exact candidate SHA is mandatory, and the release / merge gate must remain closed when GPT3 is unavailable. A project-owner decision cannot waive either requirement, required-check rules, or branch-protection rules. Any other exception requires an explicit project-owner decision recorded in the repository and cannot be self-approved by the Developer.
 
 <!-- /coderabbit-ai-generated:v1 -->
 
