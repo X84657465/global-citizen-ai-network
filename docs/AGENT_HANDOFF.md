@@ -4090,3 +4090,8 @@ This addendum supersedes earlier same-day snapshot rows where exact SHAs/runs ha
 
 ### Automation
 - Existing `GCAN 每日工程巡檢` automation is enabled; next scheduled run `2026-11-25T08:00:00+08:00`. Its recorded last run is `2026-11-24T00:23:51Z`–`00:37:58Z`; that scheduled run's report was for an older Main SHA and is not this inline live recheck. Delivery status is UNKNOWN.
+
+
+### Post-handoff exact-head correction — 2026-11-24
+- The preceding handoff refresh committed as `f76ca3e07bb7bc5288bc7d8891ce67133d8bbcea`, which is now the exact HEAD of PR #528. This supersedes the #528 HEAD `0631a1d9...` listed in the preceding table.
+- Exact-head Actions query for `f76ca3e07bb7bc5288bc7d8891ce67133d8bbcea` returned no workflow runs; combined status contains only Vercel FAILURE (rate limit) and CircleCI ERROR. Treat Actions as NOT RUN, not PASS. PR #528 remains Draft, mergeable=true, and has zero formal reviews.
