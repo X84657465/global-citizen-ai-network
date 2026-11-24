@@ -1580,12 +1580,14 @@ test("system-health success requires verified exact-head CI evidence and resets 
             conclusion: "success",
             path: ".github/workflows/ci.yml",
             event: "pull_request",
-            head_repository: { full_name: "owner/repo" },
+            head_repository: { id: 42, full_name: "owner/repo" },
             head_branch: "feature/system-health",
+            // GitHub's embedded workflow_run.pull_requests payload uses
+            // reduced repository objects without full_name.
             pull_requests: [{
               number: 168,
-              base: { ref: "main", repo: { full_name: "owner/repo" } },
-              head: { ref: "feature/system-health", sha: pullRequestHeadSha, repo: { full_name: "owner/repo" } },
+              base: { ref: "main", repo: { id: 42, name: "repo" } },
+              head: { ref: "feature/system-health", sha: pullRequestHeadSha, repo: { id: 42, name: "repo" } },
             }],
           };
         }
