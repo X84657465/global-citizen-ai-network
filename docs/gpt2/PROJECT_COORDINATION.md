@@ -211,3 +211,14 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **OPEN PR 快照：** 本次 API 第一頁回傳 6 個 OPEN PR：#522、#417、#376、#259、#478、#476。PR #522 exact HEAD `5f7478bab6d3cd4a1a03d8417183b889a3f2faf7` 的 CI run `45382327606` 中 Windows Runner quality gates job `138405069076` 仍 PENDING，Factory Preflight run `45382327546` 的 Linux offline scratch fixture validation FAILURE；PR #417、#376、#259、#478、#476 均不得僅依舊 SHA 的 review 或 CI 宣稱通過。PR #259 仍 Draft 且 mergeable=false；本次確認 6 個 OPEN PR 的變更檔案均未包含本 GPT2 自有文件。
 - **GPT2 工作界線：** 本次只更新 `docs/gpt2/PROJECT_COORDINATION.md` 的角色自有狀態與證據，不修改 GPT1 A–E／Factory、GPT3 QA、GPT4 B Product、其他 GPT2 工作線程式碼、Runner、Workflow、Secrets、DB／RLS、權限或部署設定。Issue #136 維持唯讀；L/Federation 維持停用／延後。
 - **驗證限制：** 本次為 GitHub API main ref、文件 blob、PR 清單、exact-head workflow runs/jobs 與 commit statuses 的唯讀核對；未執行本機測試、TypeScript、Lint 或 Build。此文件更新本身不代表 Runtime 實作、獨立驗收或部署完成。
+
+
+## 6.6 最新主線重核與 GPT2 交付狀態 — 2026-11-24（第四次更新）
+
+- **本次直接驗證的 main SHA：** `3c6fc232ec1d07c56f0ba31d3a690079008f4004`。
+- **GPT2 自有文件：** `docs/gpt2/PROJECT_COORDINATION.md`；本次更新前 blob SHA：`cb0235274b743fa81491a730c9bc0abc545f5f1b`。本更新只在 GPT2 自有文件路徑追加本次快照，不修改根目錄協調文件、Factory、Runner、Workflow、Secrets、資料庫／RLS、權限或部署設定。
+- **Issue #384：** GPT2 被明確要求提交自身採納證據。此文件記錄 F–P 的感知、記憶、認知、規劃、執行、驗證／反思映射，以及 GPT1／GPT3／GPT4 的責任與交接邊界。GPT2 自有文件交付為 DOCUMENTED=YES、ADOPTED=YES（限文件與工作流程）；GPT3 獨立驗收仍 PENDING，GPT4 自有採納證據不由 GPT2 代簽；IMPLEMENTED=NOT CLAIMED。
+- **Main exact-SHA CI：** Push CI run `45393056714` 對上述 SHA 為 SUCCESS。Recovery runs `45393156876`、`45395814790`、`45398561717` 為 SKIPPED；`45393890346`、`45397541314`、`45399199052` 為 FAILURE。最新 Recovery failure 的唯一 job `138463013638` 為 FAILURE；job log API 回傳 404 BlobNotFound，根因 UNKNOWN。Recovery 不得視為通過。
+- **OPEN PR 快照：** #528、#376、#417、#259、#478、#476。#528 Draft，head `80c0eddb0d21e7e335f95629cf82a0c40a1411e3`，Vercel FAILURE（build-rate-limit）、CircleCI Pipeline #305 ERROR，Actions run `45399359488` PENDING 且 job 清單 0。#376 CircleCI #259 ERROR、Vercel SUCCESS；#417 CircleCI #297 ERROR、Vercel build-rate-limit FAILURE；#259 CircleCI #298 ERROR、Vercel build-rate-limit FAILURE；#478 CircleCI #256 ERROR、Vercel build-rate-limit FAILURE；#476 CircleCI #22 ERROR、Vercel SUCCESS。其餘五個 PR 均無對應目前 head 的 Actions workflow run。沒有 PR 可宣稱完整通過或安全合併。
+- **GPT2 自有工作界線：** 本次不接管 GPT1 Factory 的 Recovery、GPT5 的 #528、其他角色的 PR 或跨線衝突工作。此更新僅完成 GPT2 自有文件快照與 Issue #384 的角色交付紀錄；不代表 Issue #384 整體關閉、GPT3 APPROVED、CI 全綠或 PR 已合併。
+- **驗證限制：** 本次以 GitHub API 核對 main ref、GPT2 文件 blob、PR head SHA、commit statuses、workflow runs/jobs；本文件變更未執行程式測試、TypeScript、Lint 或 Build。新候選仍須以其 exact HEAD 完成必要 CI，並取得 GPT3 正式獨立 Review，才可合併。
