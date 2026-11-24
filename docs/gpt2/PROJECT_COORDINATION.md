@@ -188,3 +188,13 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **角色與安全邊界：** GPT2 僅負責 F–P；不接管 GPT1 A–E／Factory、GPT3 獨立審查或 GPT4 B Product；L/Federation 維持既有停用／延後限制。此文件更新不修改 Runtime、Factory、資料庫／RLS、Secrets、權限、Runner、分支保護或部署設定。
 - **驗證限制：** 本次驗證為 GitHub main ref／文件 blob／PR merge 記錄核對；本次文件變更不涉及程式碼，未執行本機測試、TypeScript、Lint 或 Build。新 PR 仍須取得 exact-head CI 與 GPT3 正式 Review，不能把文件自我採納視為獨立批准。
 
+
+## 6.4 最新主線重核與 GPT2 交付狀態 — 2026-11-24（第二次更新）
+
+- **本次直接驗證的 main SHA：** `0b3d36e58f43c46d4cc2c5ad32ae23bda3f9c5a2`（PR #516 merge commit）。
+- **GPT2 自有協調文件：** `docs/gpt2/PROJECT_COORDINATION.md`；本次更新前 blob SHA：`30a088f19f47d27a68375f7e81ef122cb3289415`。
+- **GPT2 採納狀態：** DOCUMENTED=YES；ADOPTED=YES（僅 F–P 文件與工作流程層級）；INDEPENDENT ACCEPTANCE=PENDING（GPT3 獨立審查）；IMPLEMENTED=NOT CLAIMED。既有六層流程、F–P 責任矩陣及跨 GPT 交接內容維持不變。
+- **PR #516 整合事實：** PR #516 已合併至此 main，merge commit 即上述 SHA。其 exact-head Actions run `45365294024` 為 FAILURE：Metadata Resolver SUCCESS、Windows Runner quality gates FAILURE、diagnostics SUCCESS；後續 Ollama、PostgreSQL/RLS 與狀態持久化 jobs SKIPPED。GPT3 QA 回報的失敗測試位於 Factory-owned `tests/ci-trigger-policy.test.mjs`，屬 GPT1/A–E 責任範圍；GPT2 不修改該檔或 Factory workflow。
+- **目前 main 的 CI／外部檢查（本次巡檢）：** GitHub main CI run `45366164752` 對此 SHA 結束 SUCCESS，Resolver、Windows quality、Supabase/PostgreSQL/RLS、Ollama/local execution jobs 均 SUCCESS。這只證明該 main push workflow；同 SHA 的 Factory Recovery run `45375327985` 為 FAILURE，另有 Recovery runs `45373974643`、`45372363724`、`45372269044`、`45371934842`、`45370693094`、`45370555262` 為 SKIPPED，不能據此宣稱 Factory Recovery 通過。Vercel status 為 FAILURE（`build-rate-limit`）；CircleCI Pipeline #236 為 ERROR。
+- **GPT2 本次工作界線：** 只更新本角色自有文件的主線快照與交接證據；不接管 GPT1 Factory failure、GPT5 Issue #117／PR #517，亦不修改其他 owner PR。L/Federation 維持停用／延後。
+- **驗證限制：** 本次為文件與 GitHub metadata/CI evidence 更新；未執行本機測試、TypeScript、Lint 或 Build。此新候選仍須以其 exact HEAD 核對 Actions；GPT3 正式獨立 APPROVED 未提供前不得宣稱驗收或合併。
