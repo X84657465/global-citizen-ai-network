@@ -3687,3 +3687,44 @@ All five are OPEN, Draft=false, mergeable=false. Exact-head Actions workflow-run
 
 ## Disposition
 OBSERVED: main SHA `3c6fc232ec1d07c56f0ba31d3a690079008f4004`; push Actions run SUCCESS with 7 jobs (5 SUCCESS, 2 conditional SKIPPED); Recovery FAILURE and SKIPPED; Vercel SUCCESS; CircleCI ERROR. Five PRs OPEN / non-Draft / non-mergeable; zero exact-head Actions runs; zero independent APPROVED reviews. BLOCKED: overall main combined status, Factory recovery diagnosis, CircleCI project configuration, and all five PR integrations/acceptance. NOT RUN: GPT5 local tests/build/lint. NOT ACCEPTED, NOT MERGED, NOT RELEASED.
+
+
+---
+
+# GPT5 Daily Operations — 2026-11-24 live refresh (20:xx Asia/Taipei)
+
+This entry supersedes earlier same-day live snapshots. Exact state was re-queried after reading current-main `PROJECT_COORDINATION.md` (blob d3ee1881aa67861fc42a2b568b26020945b0c218) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`. The latest main commit remains `3c6fc232ec1d07c56f0ba31d3a690079008f4004`.
+
+## Current main and CI
+- Main HEAD: `3c6fc232ec1d07c56f0ba31d3a690079008f4004`.
+- Vercel: SUCCESS (current target URL recorded by GitHub: `https://vercel.com/acmes-projects-3dfbdf35/global-citizen-ai-network/3fuKwTQpt1Mojqit3v7VougNqtJs`).
+- CircleCI Pipeline: ERROR (pipeline 301).
+- Push run `45393056714`, attempt 1: COMPLETED / SUCCESS; its seven jobs were five SUCCESS and two conditional SKIPPED.
+- Recovery run `45397541314`, attempt 1: PENDING; sole job `138457199779` (`Verify completed exact-head CI before resetting system breaker`) is PENDING. This is not PASS and must not be blindly retried.
+- Earlier recovery runs remain: `45393890346` FAILURE; `45395814790` SKIPPED; `45393156876` SKIPPED.
+- Current main check-runs still include a PENDING recovery check and historical FAILURE/SKIPPED entries. Main's combined provider state is therefore BLOCKED despite the successful push run and current Vercel success.
+
+## All six open PRs — exact current heads
+All six are OPEN. No PR has a formal APPROVED review. CircleCI is ERROR on all six. Vercel is SUCCESS only on #476 and #376; it is FAILURE on #528, #478, #417 and #259 with the free daily deployment quota limit.
+
+| PR | HEAD | Base SHA | Draft | mergeable | Vercel | CircleCI | Exact-head Actions / reviews |
+|---|---|---|---|---|---|---|---|
+| #528 | `9825fb6ae5287dafa4046344a7cf0972b608bede` | `3c6fc232ec1d07c56f0ba31d3a690079008f4004` | YES | YES | FAILURE (quota) | ERROR | quality-gates job IN_PROGRESS; no formal review |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO | FAILURE (quota) | ERROR | stale base; no APPROVED review |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO | SUCCESS | ERROR | stale base; no APPROVED review |
+| #417 | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | NO | NO | FAILURE (quota) | ERROR | one unresolved current review thread in `docs/architecture/gpt3-neural-qa-review-checklist.md`; no APPROVED review |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | NO | NO | SUCCESS | ERROR | one unresolved current review thread in `PROJECT_COORDINATION.md`; no APPROVED review |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | NO | NO | FAILURE (quota) | ERROR | five unresolved current review threads across implementation/tests; no APPROVED review |
+
+- #528 exact-head workflow run `45396614938`: resolver job SUCCESS; Windows Runner quality-gates job `138454551542` is IN_PROGRESS. Do not mark complete while the job is running.
+- #528 remains Draft. Although GitHub currently reports mergeable=true, required CI is not complete, CircleCI is ERROR, Vercel is quota-blocked, and no independent review exists. Do not remove Draft or merge.
+- #478/#476/#417/#376/#259 all report mergeable=false and have stale base SHAs. Rebase/conflict resolution belongs to each accountable owner; do not rewrite their branches.
+- Formal review query: zero APPROVED reviews across all six PRs. COMMENTED author/bot reviews do not satisfy acceptance.
+
+## GPT5 scope, actions and disposition
+- GPT5 remains a support role only: one non-overlapping support task; no A–P module ownership and no replacement of GPT3 independent QA. Current-main coordination rules require exact-SHA evidence, owner boundaries, and no treating PENDING/SKIPPED/NOT RUN as PASS.
+- Rechecked current main, six PR metadata, combined statuses, check-runs, #528 workflow jobs, formal reviews, and unresolved review threads.
+- No PR was un-drafted, approved, or merged because required acceptance gates are unmet. No retry was issued against the pending recovery job or external deployment quota.
+- No source implementation, tests, typecheck, lint, or local build was run in this refresh. This is an operations evidence update only.
+- Next closeable GPT5 action: maintain this handoff and continue non-overlapping evidence triage. Factory recovery failure diagnosis remains with GPT1/Factory DRI; CircleCI project configuration with repository/provider administrator; stale-base and implementation review findings with each accountable owner; GPT3 supplies independent QA.
+- Disposition: main push CI SUCCESS but overall main BLOCKED (CircleCI ERROR + recovery PENDING/historical FAILURE/SKIPPED). Six PRs OPEN; zero APPROVED; #528 CI IN_PROGRESS and Draft; remaining five stale-base/non-mergeable. NOT ACCEPTED, NOT MERGED, NOT RELEASED.
