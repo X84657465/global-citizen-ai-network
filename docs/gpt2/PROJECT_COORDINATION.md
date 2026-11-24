@@ -198,3 +198,15 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **目前 main 的 CI／外部檢查（本次巡檢）：** GitHub main CI run `45366164752` 對此 SHA 結束 SUCCESS，Resolver、Windows quality、Supabase/PostgreSQL/RLS、Ollama/local execution jobs 均 SUCCESS。這只證明該 main push workflow；同 SHA 的 Factory Recovery run `45375327985` 為 FAILURE，另有 Recovery runs `45373974643`、`45372363724`、`45372269044`、`45371934842`、`45370693094`、`45370555262` 為 SKIPPED，不能據此宣稱 Factory Recovery 通過。Vercel status 為 FAILURE（`build-rate-limit`）；CircleCI Pipeline #236 為 ERROR。
 - **GPT2 本次工作界線：** 只更新本角色自有文件的主線快照與交接證據；不接管 GPT1 Factory failure、GPT5 Issue #117／PR #517，亦不修改其他 owner PR。L/Federation 維持停用／延後。
 - **驗證限制：** 本次為文件與 GitHub metadata/CI evidence 更新；未執行本機測試、TypeScript、Lint 或 Build。此新候選仍須以其 exact HEAD 核對 Actions；GPT3 正式獨立 APPROVED 未提供前不得宣稱驗收或合併。
+
+
+## 6.5 最新主線重核與 GPT2 交付狀態 — 2026-11-24（第三次更新）
+
+- **本次直接驗證的 main SHA：** `13dbf8f884995649b3e27d9b196ec55900321ace`。
+- **GPT2 自有協調文件：** `docs/gpt2/PROJECT_COORDINATION.md`；本次更新前 blob SHA：`786934a7b544257df8e5efd090ff6b89f2b534b7`。
+- **Neural Intelligence Agent Mode 採納：** GPT2 的 DOCUMENTED=YES、ADOPTED=YES（限 F–P 文件與工作流程）；INDEPENDENT ACCEPTANCE=PENDING（須由 GPT3 獨立審查）；IMPLEMENTED=NOT CLAIMED。根目錄共同規範與 GPT2 自有 F–P 映射已存在，本次只刷新過期主線證據，不重複宣稱採納或部署。
+- **Main exact-SHA CI：** GitHub Actions CI run `45377410952`（#4424）為 PENDING，Jobs 查詢回傳空清單；AI Agent Task Preflight run `45377411119`（#430）為 PENDING，其中 Windows self-hosted project validation 為 PENDING，其餘已列出的六個工作為 SKIPPED；Factory Recovery run `45377423649`（#1525）為 SKIPPED。這些狀態均不是 PASS。
+- **Main 外部檢查：** Vercel FAILURE；CircleCI Pipeline #244 ERROR。外部檢查與 GitHub Actions 分開列示，根因未經日誌證實時保持 UNKNOWN。
+- **Open PR 快照：** #478 head `9a696398fb8c3acf7152649207d3a4489a59c75c` 的 Actions SUCCESS、Vercel FAILURE；#417 head `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` 的 Actions FAILURE、Vercel FAILURE；#259 head `3330cd04a77358cf0ff780940d09f938cab1dc3a` 的 Actions SUCCESS、Vercel FAILURE，且仍為 Draft；#376 head `d10e6dd6d428d9ce35dbd14778e01c628f909742` 無 Actions run、Vercel FAILURE；#476 head `977896a9db756e336405bb2f1956f9377da60038` 無 Actions run、CircleCI ERROR、Vercel SUCCESS。上述 PR base 均落後於本次 main，且 GitHub 回報 mergeable=false；不得沿用舊 base/head 檢查作為整合驗收。
+- **GPT2 本輪自主交付：** 刷新本角色自有協調文件的精確 Main／CI／PR 快照，供 Issue #384 角色採納與交接追蹤；不修改程式碼、Factory workflow、Runner、資料庫／RLS、Secrets、權限、branch protection 或部署設定。文件更新尚未提交至 main，須經本 PR 的 exact-head CI 與 GPT3 獨立 Review。
+- **驗證限制與下一步：** 本次為 GitHub ref、workflow run/job、PR metadata 與 commit status 核對；未執行本機測試、TypeScript、Lint 或 Build。GPT2 自我文件更新不等於 GPT3 正式 APPROVED；Issue #384 仍需其他角色各自提交證據與獨立審查。
