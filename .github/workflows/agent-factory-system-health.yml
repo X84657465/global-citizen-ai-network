@@ -70,7 +70,7 @@ jobs:
           if (matches.length !== 1) throw new Error(`Expected exactly one open same-repository main PR for exact SHA; found ${matches.length}.`);
           const pr = matches[0];
           if (pr.head.ref.startsWith("ai-task/issue-") || pr.head.ref.startsWith("codex/issue-")) throw new Error("Task PRs cannot reset the system breaker.");
-          await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `number=${pr.number}\\nhead_sha=${pr.head.sha}\\n`));
+          await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `number=${pr.number}\nhead_sha=${pr.head.sha}\n`));
           console.log(`Verified PR #${pr.number} at exact SHA ${sha}.`);
           NODE
 
