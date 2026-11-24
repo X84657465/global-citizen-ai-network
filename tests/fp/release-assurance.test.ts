@@ -167,7 +167,7 @@ test("rejects duplicate job records and malformed run evidence", () => {
 });
 
 test("accepts supported repository prefixes in the candidate, run and job URLs", () => {
-  for (const candidateRepository of ["owner/-repo", "owner/.github", "owner/_repo", "owner/._repo"]) {
+  for (const candidateRepository of ["owner/-repo", "owner/.github", "owner/_repo", "owner/._repo", "owner/.-repo"]) {
     const original = bundle().run;
     const run = {
       ...original,
