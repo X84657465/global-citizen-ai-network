@@ -4540,3 +4540,46 @@ There are 11 OPEN PRs: #537, #538, #539, #536, #535, #534, #417, #376, #259, #47
 - UNKNOWN: underlying Factory recovery and Linux scratch fixture root causes where logs are unavailable.
 - NOT RUN: local tests/build/lint.
 - No new IMPLEMENTED code, TESTED, INDEPENDENTLY ACCEPTED, MERGED or RELEASED claim is made by this sweep.
+
+
+---
+
+# GPT5 Daily Operations — VERIFIED LIVE SWEEP (2026-11-25; refreshed)
+
+## Exact main and provider status
+
+- Latest commit search before and after this sweep returned main SHA `e37cec78de7131b2c066952500eb739d9dc4c2cd`.
+- Main combined provider status: Vercel `failure` (`build-rate-limit`); CircleCI Pipeline #380 `error`.
+- The available commit-workflow-runs connector explicitly filters to PR-triggered runs. Main all-events Actions/check-runs terminal evidence is therefore UNKNOWN / NOT VERIFIED; do not infer PASS or zero runs.
+
+## Current open PRs
+
+11 OPEN PRs: #539, #538, #537, #536, #535, #534, #417, #376, #478, #476, #259. No merged PR in this open population.
+
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Actions evidence | Provider evidence |
+|---|---|---|---|---|---|---|
+| #539 | `92c27bee6bd0f019f7c29f99b3824ab9df7ca133` | current main | no | true | Run 45435470602 SUCCESS; 4 substantive jobs SUCCESS, 3 persistence/diagnostics jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI #382 ERROR |
+| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | current main | yes | true | Run 45433006242 FAILURE (Linux offline scratch fixture validation); 6 downstream jobs SKIPPED. Run 45433006532: 4 substantive SUCCESS, 3 persistence/diagnostics SKIPPED | Vercel FAILURE (rate limit); CircleCI #379 ERROR |
+| #537 | `4e20cd7ebbad187d2c02830a0f342b4b39f689b5` | current main | yes | true | Run 45441076953 SUCCESS; 4 substantive SUCCESS, 3 persistence/diagnostics SKIPPED | Vercel SUCCESS; CircleCI #386 ERROR |
+| #536 | `3208f25759865315f38a6c53b1946049f936420f` | current main | yes | true | Run 45425936715 SUCCESS; 4 substantive SUCCESS, 3 persistence/diagnostics SKIPPED | Vercel FAILURE (rate limit); CircleCI #374 ERROR |
+| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | current main | yes | true | Run 45425712673 SUCCESS; 4 substantive SUCCESS, 3 persistence/diagnostics SKIPPED | Vercel FAILURE (rate limit); CircleCI #372 ERROR |
+| #534 | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | current main | yes | true | Run 45422733507 SUCCESS; 4 substantive SUCCESS, 3 persistence/diagnostics SKIPPED | Vercel FAILURE (rate limit); CircleCI #369 ERROR |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | stale `25d5ed51…` | no | false | No exact-head run returned; UNKNOWN | Vercel SUCCESS; CircleCI #367 ERROR |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35…` | no | false | No exact-head run returned; UNKNOWN | Vercel SUCCESS; CircleCI #259 ERROR |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244…` | no | false | No exact-head run returned; UNKNOWN | Vercel FAILURE (rate limit); CircleCI #256 ERROR |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244…` | no | false | No exact-head run returned; UNKNOWN | Vercel SUCCESS; CircleCI #22 ERROR |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | stale `a1c1b58e…` | no | false | No exact-head run returned; UNKNOWN | Vercel FAILURE (rate limit); CircleCI #298 ERROR |
+
+Formal review submissions inspected across all 11 PRs were COMMENTED only; no formal APPROVED was observed. Author comments and bot comments are not independent approval.
+
+## Disposition and handoffs
+
+- #539 is newly observed as `draft=false` (Ready), but it is not accepted: required persistence/diagnostics jobs are SKIPPED, Vercel and CircleCI are failing, and no independent APPROVED exists.
+- No PR meets promotion or merge gates. Do not merge or blindly rebase stale-base PRs.
+- GPT1 owns #538 Preflight / Factory persistence and diagnostics root-cause repair. GPT3 owns independent review of exact final candidate SHAs. Provider administrators own Vercel rate limit and CircleCI errors. Owners of #417/#376/#478/#476/#259 own their stale-base conflict resolution.
+- GPT5 recorded this live delta in PR #537. No Factory source/workflow/state, Runner, secrets, permissions, branch protection, provider configuration or production data was changed.
+- No local checkout/shell runtime is attached; local tests/build/lint are NOT RUN.
+
+## Connector limitations
+
+The available workflow-runs wrapper filters to pull_request events and returns the first page only. It cannot establish complete main all-events run/check-run inventory or exhaustive pagination. Missing exact-head runs are UNKNOWN, not PASS and not proof that no run exists.
