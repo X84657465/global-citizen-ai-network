@@ -1,0 +1,208 @@
+name: Main Merge Acceptance Audit
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Merged PR number to audit"
+        required: true
+        type: number
+
+permissions:
+  actions: read
+  checks: read
+  contents: read
+  issues: write
+  pull-requests: read
+  statuses: read
+
+jobs:
+  audit-merged-pr:
+    name: Audit merged PR against exact-head acceptance evidence
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted mainline audit policy
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Audit merged PR and open incident when acceptance was bypassed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const path = require('path');
+            const { evaluateAcceptance, REQUIRED_CI_JOBS } = require(
+              path.join(process.env.GITHUB_WORKSPACE, 'scripts', 'pr-acceptance-policy.cjs')
+            );
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.eventName === 'workflow_dispatch'
+              ? Number(context.payload.inputs && context.payload.inputs.pr_number)
+              : context.payload.pull_request.number;
+            if (!prNumber) throw new Error('A valid merged PR number is required.');
+
+            const prResponse = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            const pr = prResponse.data;
+            if (!pr.merged) {
+              core.notice('PR #' + prNumber + ' is not merged; merge audit is not applicable.');
+              return;
+            }
+            const headSha = pr.head.sha;
+            const mergeSha = pr.merge_commit_sha || 'UNKNOWN';
+
+            const checkRuns = await github.paginate(github.rest.checks.listForRef, {
+              owner, repo, ref: headSha, per_page: 100
+            });
+            function latestCheck(name) {
+              return checkRuns
+                .filter(check => check.head_sha === headSha && check.name === name &&
+                  check.app && check.app.slug === 'github-actions')
+                .sort((a, b) => new Date(b.started_at || 0) - new Date(a.started_at || 0))[0] || null;
+            }
+            const ciJobs = REQUIRED_CI_JOBS.map(name => {
+              const check = latestCheck(name);
+              return {
+                name,
+                status: check ? check.status : 'missing',
+                conclusion: check ? check.conclusion : null
+              };
+            });
+            const missing = ciJobs.some(job => job.status === 'missing');
+            const completed = ciJobs.every(job => job.status === 'completed');
+            const success = ciJobs.every(job => job.status === 'completed' && job.conclusion === 'success');
+            const ci = {
+              headSha,
+              status: missing ? 'missing' : completed ? 'completed' : 'in_progress',
+              conclusion: success ? 'success' : completed ? 'failure' : null,
+              jobs: ciJobs
+            };
+
+            const preflightPaths = new Set([
+              'lib/agent-task-validation.mjs',
+              'lib/agent-patch-validation.mjs',
+              'lib/agent-plan-validation.mjs',
+              'scripts/prepare-agent-task.mjs',
+              'scripts/select-agent-task.mjs',
+              'scripts/agent-factory-controller.mjs',
+              'scripts/agent-factory-v2-controller.mjs',
+              'lib/agent-factory-controller.mjs',
+              'lib/agent-failure-scope.mjs',
+              'tests/agent-failure-scope.test.mjs',
+              'lib/agent-factory-state-machine.mjs',
+              'lib/agent-factory-state-store.mjs',
+              'lib/agent-task-queue.mjs',
+              'lib/github-api-client.mjs',
+              'lib/github-pagination.mjs',
+              'lib/agent-path-safety.mjs',
+              'lib/agent-scratch-evidence.mjs',
+              'lib/agent-publisher-branch.mjs',
+              'lib/agent-task-pr-metadata.mjs',
+              'scripts/resolve-agent-task-pr.mjs',
+              'lib/agent-factory-policy.mjs',
+              'tests/agent-factory-policy.test.mjs',
+              'tests/agent-task-queue.test.mjs',
+              'tests/github-api-client.test.mjs',
+              'tests/github-pagination.test.mjs',
+              'scripts/generate-agent-plan.mjs',
+              'scripts/generate-agent-patch.mjs',
+              'scripts/apply-agent-patch-to-scratch.mjs',
+              'tests/agent-patch-to-scratch.test.mjs',
+              'scripts/publish-agent-patch.mjs',
+              'tests/agent-task-validation.test.mjs',
+              'tests/agent-patch-validation.test.mjs',
+              'tests/agent-plan-validation.test.mjs',
+              'tests/agent-factory-controller.test.mjs',
+              'tests/agent-factory-lifecycle.integration.test.mjs',
+              'tests/agent-factory-state-machine.test.mjs',
+              'tests/agent-factory-state-store.test.mjs',
+              'tests/agent-path-safety.test.mjs',
+              'tests/agent-scratch-evidence.test.mjs',
+              'tests/agent-publisher-branch.test.mjs',
+              'tests/agent-task-pr-metadata.test.mjs',
+              'eslint.config.mjs',
+              'package.json',
+              '.github/workflows/ci.yml'
+            ]);
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner, repo, pull_number: prNumber, per_page: 100
+            });
+            const preflightCheck = latestCheck('Linux offline scratch fixture validation');
+            const preflightApplicable = Boolean(preflightCheck) || files.some(file =>
+              preflightPaths.has(file.filename) || (file.previous_filename && preflightPaths.has(file.previous_filename))
+            );
+            const preflight = preflightApplicable ? {
+              applicable: true,
+              headSha: preflightCheck ? preflightCheck.head_sha : null,
+              status: preflightCheck ? preflightCheck.status : 'missing',
+              conclusion: preflightCheck ? (preflightCheck.conclusion || null) : 'missing',
+              requiredJobConclusion: preflightCheck ? (preflightCheck.conclusion || preflightCheck.status) : 'missing'
+            } : { applicable: false, status: 'not_applicable' };
+
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner, repo, pull_number: prNumber, per_page: 100
+            });
+            const latestReviewByUser = new Map();
+            reviews.sort((a, b) => new Date(a.submitted_at || 0) - new Date(b.submitted_at || 0));
+            for (const review of reviews) {
+              if (review.user && review.user.login) latestReviewByUser.set(review.user.login, review);
+            }
+            const approved = Array.from(latestReviewByUser.values()).some(review =>
+              review.user.login !== pr.user.login &&
+              review.state === 'APPROVED' &&
+              review.commit_id === headSha
+            );
+
+            const evaluation = evaluateAcceptance({
+              currentHeadSha: headSha,
+              ci,
+              preflight,
+              hasCurrentHeadApproval: approved,
+              mergeable: true,
+              draft: false
+            });
+            const marker = '<!-- merge-acceptance-audit:pr-' + prNumber + ':' + headSha + ' -->';
+            const failures = evaluation.failures.map(item => '- **' + item.code + '**: ' + item.detail).join('\n');
+            const body = [
+              marker,
+              '## Merge acceptance incident',
+              '- PR: #' + prNumber,
+              '- Merged commit: ' + mergeSha,
+              '- Audited PR HEAD SHA: ' + headSha,
+              '- Result: **' + (evaluation.accepted ? 'COMPLIANT' : 'ACCEPTANCE BREACH') + '**',
+              '- Preflight: ' + evaluation.preflight,
+              '',
+              '### Findings',
+              failures || '- No acceptance-policy violation detected.',
+              '',
+              '### Required CI job evidence',
+              ...ciJobs.map(job => '- ' + job.name + ': ' + (job.conclusion || job.status)),
+              '',
+              '> This is a post-merge audit. It records violations; it does not automatically revert code or modify production.'
+            ].join('\n');
+
+            if (evaluation.accepted) {
+              core.info('Merged PR #' + prNumber + ' satisfies the configured acceptance evidence.');
+              return;
+            }
+
+            const existingIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner, repo, state: 'open', per_page: 100
+            });
+            const existing = existingIssues.find(issue => !issue.pull_request && issue.body && issue.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.update({ owner, repo, issue_number: existing.number, body });
+              core.info('Updated existing merge acceptance incident #' + existing.number);
+            } else {
+              const created = await github.rest.issues.create({
+                owner, repo,
+                title: 'Merge acceptance incident: PR #' + prNumber,
+                body
+              });
+              core.setFailed('Acceptance breach detected for merged PR #' + prNumber + '; incident #' + created.data.number + ' created.');
+            }
