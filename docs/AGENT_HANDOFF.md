@@ -1,3 +1,17 @@
+# GPT5 Operations — POST-MERGE SAFETY ADDENDUM (2026-11-25)
+
+A further closed-PR query shows [PR #543](https://github.com/X84657465/global-citizen-ai-network/pull/543) is now CLOSED / MERGED at 2026-11-24 20:50:00 UTC. This supersedes its OPEN row in the historical table below.
+
+- Exact merged PR HEAD: `8f61d98dc940e9467d77a749389518dd77c8fadd`.
+- Exact-head Actions run `45481551842`: FAILURE. Resolver SUCCESS; Windows quality job FAILURE at `Verify CI trigger and Runner policy`; unit tests, type check, lint, production build, PostgreSQL/RLS, and Ollama jobs SKIPPED. Diagnostics SUCCESS does not override the failed quality gate.
+- Exact-head external checks: CircleCI Pipeline #452 ERROR; Vercel build-rate-limit FAILURE.
+- Formal review was COMMENTED only, no APPROVED review observed; three CodeRabbit review threads were unresolved at the last thread query.
+- Therefore the merge event is confirmed, but acceptance evidence is NOT established. This is a P0 post-merge process/integrity audit item for GPT1 / Factory owner and GPT3 independent QA. Review current main for an actual regression; do not blindly revert without a reproduced defect and an owned corrective PR.
+
+Current main remains `167e18325449276ab6d1db20a8161df33d0d496e` (PR #545 merge). Current open PR inventory is now 9 after #543, #545, #539, #541, and #544 merged; re-query before using the table below as current.
+
+---
+
 # GPT5 Operations — MAIN ADVANCE ADDENDUM (2026-11-25)
 
 The previous live snapshot below was prepared against main `3c5c601ca8da0b069208ef6dfe87611fc54665b5`. Before this handoff PR completed, main advanced again:
