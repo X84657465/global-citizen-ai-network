@@ -329,10 +329,8 @@ function makeInvoicePreviewRequest(body: string | Uint8Array, headers: Record<st
 }
 
 test("invoice preview POST returns 401 before profile or database access", async () => {
-  const deps = makePreviewRouteDependencies({
-    getAuthenticatedClient: async () => null,
-  });
-  deps.calls.push("auth");
+  const deps = makePreviewRouteDependencies();
+  deps.getAuthenticatedClient = async () => { deps.calls.push("auth"); return null; };
   const response = await handleProviderInvoicePreviewPost(
     makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
   );
