@@ -129,7 +129,9 @@ jobs:
 
   validation-tests:
     name: Windows self-hosted project validation
-    if: github.event_name == 'push' && github.actor == github.repository_owner
+# CI already runs the full exact-SHA quality, Ollama and database gates on pushes.
+    # Keep this heavier synthetic Factory smoke test manual to avoid duplicate Runner work.
+    if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       queue: max
