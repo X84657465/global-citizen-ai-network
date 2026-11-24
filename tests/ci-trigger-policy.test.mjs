@@ -14,7 +14,7 @@ const workflowLevelConcurrency = workflow.split("\non:\n", 1)[0];
 function findJobSection(source, name) {
   const start = source.indexOf("  " + name + ":\n");
   assert.ok(start >= 0, "missing CI job: " + name);
-  const headers = [...source.slice(start + 1).matchAll(/^  [A-Za-z0-9_-]+:\s*$/gm)];
+  const headers = [...source.slice(start + 1).matchAll(/^  [A-Za-z0-9_-]+:[ \t]*(?:#.*)?$/gm)];
   return { start, end: headers[0] ? start + 1 + headers[0].index : source.length };
 }
 
@@ -51,9 +51,11 @@ test("named workflow step extraction never crosses into a later job", () => {
     "    runs-on: ubuntu-latest\n",
     "    steps:\n",
     "      - run: echo current-job\n",
-    "  next-job:\n",
-    "    continue-on-error: true\n",
-    "    runs-on: ubuntu-latest\n",
+    "  next-job: # follow-up\n",
+    "    env:\n",
+    "      SAFE: yes\n",
+    "    concurrency:\n",
+    "      group: leaked-next-job-runner-group\n",
     "    steps:\n",
     "      - run: echo next-job\n",
   ].join("");
@@ -61,6 +63,8 @@ test("named workflow step extraction never crosses into a later job", () => {
   const resetSection = continueOnErrorSource.slice(resetJob.start, resetJob.end);
   assert.match(resetSection, /echo current-job/);
   assert.doesNotMatch(resetSection, /echo next-job/);
+  assert.doesNotMatch(resetSection, /leaked-next-job-runner-group/,
+    "a following job with env first and a trailing YAML comment must not leak into the recovery section");
 
   const windowsSource = source.replace(/\n/g, "\r\n");
   const windowsPrepareStart = windowsSource.indexOf("  prepare-task:");
