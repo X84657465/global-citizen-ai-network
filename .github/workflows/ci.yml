@@ -739,6 +739,21 @@ jobs:
       run:
         shell: pwsh
     steps:
+      - name: Initialize fallback CI evidence before checkout
+        shell: pwsh
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+        run: |
+          $path = Join-Path $env:RUNNER_TEMP "ci-failure-diagnostics.json"
+          $fallback = @{
+            schemaVersion = 1
+            captureStatus = "incomplete"
+            failureStage = "checkout_or_diagnostics_not_completed"
+            workflowRunId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            expectedHeadSha = $env:EXPECTED_HEAD_SHA
+          }
+          [System.IO.File]::WriteAllText($path, ($fallback | ConvertTo-Json -Depth 10) + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
         with:
