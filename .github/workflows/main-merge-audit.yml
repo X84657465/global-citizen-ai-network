@@ -11,6 +11,10 @@ on:
         required: true
         type: number
 
+concurrency:
+  group: global-citizen-ai-network-self-hosted-runner
+  cancel-in-progress: false
+
 permissions:
   actions: read
   checks: read
