@@ -4829,3 +4829,37 @@ All PR bases for #539/#538/#537/#536/#535/#534 equal current main. Old PRs #478/
 - Local tests/build/lint: NOT RUN (no repository checkout/shell test runtime attached).
 
 Status vocabulary remains strict: SUCCESS, FAILURE, PENDING, SKIPPED, NOT VERIFIED, UNKNOWN, NOT RUN. None is silently promoted to PASS.
+
+
+---
+
+# GPT5 FOLLOW-UP SWEEP — 2026-11-25 (latest observed)
+
+This follow-up supersedes mutable statuses above where explicitly updated. Main and PR head SHAs below were re-read from GitHub in this sweep.
+
+## Main
+- Main remains `e37cec78de7131b2c066952500eb739d9dc4c2cd`.
+- Main Push CI run `45422061476`: COMPLETED / SUCCESS; all required quality jobs succeeded. Conditional persistence/diagnostic steps were SKIPPED and are not independent passes.
+- Latest Factory Recovery run `45463665940`: COMPLETED / SKIPPED; its only job `138692726611` was SKIPPED. Earlier Recovery run `45462403940`: COMPLETED / FAILURE. Therefore no Factory Recovery PASS.
+- Main provider contexts: Vercel FAILURE; CircleCI Pipeline ERROR.
+
+## Open PR exact-head recheck
+All 11 PRs remain OPEN. Current head/base/draft metadata was refreshed from the GitHub open-PR listing:
+- #539 head `c77637896d1e806163fc9985de038eb0079c0306`, base current main, Draft. Actions run `45460328638` is run-level PENDING; Windows quality job `138688488814` COMPLETED / FAILURE (Unit tests FAILURE; Type check/Lint/Production build SKIPPED); diagnostics job `138694105506` PENDING. Vercel FAILURE, CircleCI ERROR. One unresolved review thread in `lib/agent-factory-controller.mjs`.
+- #538 head `368bb1f0be29183751923d33a824d06f1000f2fc`, base current main, Draft. CI run `45433006532` SUCCESS, but separate AI Agent Task Preflight run `45433006242` FAILURE; Linux offline scratch fixture validation job `138686942398` FAILURE and downstream plan/publish jobs SKIPPED. Vercel FAILURE, CircleCI ERROR.
+- #537 head `359d67f81f608f06e826fc6de38987442b6b6f66`, base current main, Draft. Actions run `45463649386` PENDING and Jobs API returned 0 jobs. Vercel FAILURE, CircleCI ERROR.
+- #536 head `c848ba193417eea9f80dfac0b1d5958a1457ba9f`, base current main, Draft. Actions run `45462687029` IN_PROGRESS; resolver job succeeded and Windows quality job `138694488572` PENDING. Vercel FAILURE, CircleCI ERROR.
+- #535 head `addaf7b318a8c478974522fc31a3abc38d63596a`, base current main, Ready. Actions run `45425712673` COMPLETED / SUCCESS. Vercel FAILURE, CircleCI ERROR.
+- #534 head `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2`, base current main, Draft. Actions run `45422733507` COMPLETED / SUCCESS. Vercel FAILURE, CircleCI ERROR.
+- #478 head `d32781849befd9be53d3fec7329efa54654a96be`, base stale `4225a244407f7a323262c4d6e17b2749193d6476`, Ready. No exact-head Actions run returned. Vercel FAILURE, CircleCI ERROR. One unresolved thread in `tests/gcan-mvp-first-delivery.test.mjs`.
+- #476 head `977896a9db756e336405bb2f1956f9377da60038`, base stale `4225a244407f7a323262c4d6e17b2749193d6476`, Ready. No exact-head Actions run returned. Vercel SUCCESS, CircleCI ERROR. One unresolved thread in `docs/GCAN_AP_UNIFIED_DELIVERY_ACCEPTANCE_STANDARD.md`.
+- #417 head `c0567805a5a032a1925f7e783caca4b1b5ce27ab`, base stale `25d5ed519eb923d3001df6d43aec1670a0d4851a`, Ready. No exact-head Actions run returned. Vercel SUCCESS, CircleCI ERROR. Five unresolved threads in `docs/architecture/gpt3-neural-qa-review-checklist.md`.
+- #376 head `8e9b14d7a137e5930e9a549c9ff949743689335b`, base stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`, Ready. No exact-head Actions run returned. Vercel SUCCESS, CircleCI ERROR. Ten unresolved threads across coordination, B charter, baseline and neural-mode docs.
+- #259 head `721c57eeb68af070bb91787ac2d9ebd5a0770019`, base stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`, Ready. No exact-head Actions run returned. Vercel FAILURE, CircleCI ERROR. Fifteen unresolved threads across controller, governance, release/security assurance and tests.
+
+## Independent review / disposition
+- Formal review queries across all 11 PRs returned COMMENTED entries only; no APPROVED observed. Comment authors include repository owner and automated reviewers; comments are not approval.
+- #539 exact-head logs for the failed Windows quality job returned BlobNotFound/404; exact failing unit-test name/root cause is UNKNOWN from accessible evidence.
+- No PR was removed from Draft or merged: none satisfies all acceptance conditions. #535 is already Ready but lacks independent approval and has provider failures. #534 CI success does not clear provider failures or missing formal approval. #538 CI success does not clear its separate Preflight FAILURE.
+- GPT5 performed a read-only recheck and refreshed this handoff only. No other owner’s files/code/workflow or Factory state were changed; no tests were locally run.
+- GPT5 next action: continue exact-head monitoring and operations handoff; request owner-side retained logs for #539/#538; keep #537 Draft until its new exact-head CI is terminal, external required contexts are resolved, and authorized independent APPROVED is recorded.
