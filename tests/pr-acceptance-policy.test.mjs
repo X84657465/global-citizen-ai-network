@@ -64,3 +64,10 @@ test("rejects mergeable=false and unknown mergeability", () => {
 test("rejects Draft PRs", () => {
   assert.ok(evaluateAcceptance(valid({ draft: true })).failures.some(item => item.code === "DRAFT_NOT_READY"));
 });
+
+test("rejects applicable Preflight SKIPPED", () => {
+  const result = evaluateAcceptance(valid({
+    preflight: { applicable: true, headSha: sha, status: "completed", conclusion: "success", requiredJobConclusion: "skipped" },
+  }));
+  assert.ok(result.failures.some(item => item.code === "PREFLIGHT_NOT_SUCCESS"));
+});
