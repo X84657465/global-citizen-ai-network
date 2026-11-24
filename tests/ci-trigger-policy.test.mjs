@@ -46,6 +46,22 @@ test("named workflow step extraction never crosses into a later job", () => {
     /missing workflow step in requested job/,
   );
 
+  const continueOnErrorSource = [
+    "  reset-system-breaker:\\n",
+    "    runs-on: ubuntu-latest\\n",
+    "    steps:\\n",
+    "      - run: echo current-job\\n",
+    "  next-job:\\n",
+    "    continue-on-error: true\\n",
+    "    runs-on: ubuntu-latest\\n",
+    "    steps:\\n",
+    "      - run: echo next-job\\n",
+  ].join("");
+  const resetJob = findJobSection(continueOnErrorSource, "reset-system-breaker");
+  const resetSection = continueOnErrorSource.slice(resetJob.start, resetJob.end);
+  assert.match(resetSection, /echo current-job/);
+  assert.doesNotMatch(resetSection, /echo next-job/);
+
   const windowsSource = source.replace(/\n/g, "\r\n");
   const windowsPrepareStart = windowsSource.indexOf("  prepare-task:");
   const windowsPrepareEnd = windowsSource.indexOf("  publish-task:");
@@ -744,11 +760,7 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   const recoveryWorkflowHeader = recovery.slice(0, recovery.indexOf("\njobs:"));
   assert.equal(recoveryWorkflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false,
     "cancelled/failed workflow_run events must not reserve the shared Runner queue at workflow scope");
-  const recoveryJobStart = recovery.indexOf("  reset-system-breaker:\n");
-  const nextRecoveryJobMatch = recovery.slice(recoveryJobStart + 1).match(/\n  [A-Za-z0-9_-]+:\n(?=    (?:name|if|runs-on|needs|permissions|concurrency|timeout-minutes|environment|strategy|outputs|env|defaults|container|services|uses|with|secrets):)/);
-  const recoveryJobEnd = nextRecoveryJobMatch
-    ? recoveryJobStart + 1 + nextRecoveryJobMatch.index
-    : recovery.length;
+  const { start: recoveryJobStart, end: recoveryJobEnd } = findJobSection(recovery, "reset-system-breaker");
   const recoveryJob = recovery.slice(recoveryJobStart, recoveryJobEnd);
   assert.ok(recoveryJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
   assert.ok(recoveryJob.includes("queue: max"));
