@@ -2960,7 +2960,7 @@ This observation supersedes prior live-state snapshots only where the exact refs
 | #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | No PR-triggered run returned (NOT RUN) |
 | #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | yes | false | Run `44949425719` SUCCESS on stale base; not current-main acceptance |
 
-- Inventory: 19 OPEN = 16 Draft + 3 Ready; exact-head workflow distribution = 14 FAILURE, 1 IN_PROGRESS (#510), 2 historical SUCCESS on stale bases (#478/#259), and 2 NOT RUN (#511/#476/#376 actually 3 NOT RUN; see correction below). No PR is safe to promote or merge.
+- Inventory: 19 OPEN = 16 Draft + 3 Ready; exact-head workflow distribution = 13 FAILURE, 1 IN_PROGRESS (#510), 2 historical SUCCESS on stale bases (#478/#259), and 3 NOT RUN (#511/#476/#376). No PR is safe to promote or merge.
 - Formal review submissions were queried for all 19 PRs: 0 APPROVED; returned reviews are COMMENTED or absent. Self-authored comments are not independent acceptance.
 - External status samples: CircleCI reports ERROR on the current-main PR set; Vercel is mixed SUCCESS/FAILURE, with failures including provider build-rate-limit. A successful Vercel status does not cure failed Actions or missing approval.
 
