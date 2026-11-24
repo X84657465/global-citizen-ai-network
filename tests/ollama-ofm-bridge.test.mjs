@@ -33,12 +33,12 @@ async function fixture(t) {
       const input = JSON.parse(body);
       if (input.stream) {
         response.writeHead(200, { "content-type": "text/event-stream" });
-        response.write("data: " + JSON.stringify({ choices: [{ delta: { content: "{\\"schema_version\\":1}" }, finish_reason: null }] }) + "\r\n\r\n");
+        response.write("data: " + JSON.stringify({ choices: [{ delta: { content: JSON.stringify({ schema_version: 1 }) }, finish_reason: null }] }) + "\r\n\r\n");
         response.end("data: [DONE]\r\n\r\n");
       } else {
         response.writeHead(200, { "content-type": "application/json" });
         response.end(JSON.stringify({
-          choices: [{ message: { content: "{\\"schema_version\\":1}" }, finish_reason: "stop" }],
+          choices: [{ message: { content: JSON.stringify({ schema_version: 1 }) }, finish_reason: "stop" }],
           usage: { prompt_tokens: 12, completion_tokens: 5 },
         }));
       }
@@ -85,7 +85,7 @@ test("translates non-streaming Ollama generation into OpenAI chat completions", 
   });
   assert.equal(response.status, 200);
   const payload = await response.json();
-  assert.equal(payload.response, "{\\"schema_version\\":1}");
+  assert.equal(payload.response, JSON.stringify({ schema_version: 1 }));
   assert.equal(payload.done, true);
   assert.equal(payload.prompt_eval_count, 12);
   assert.equal(payload.eval_count, 5);
@@ -105,7 +105,7 @@ test("translates CRLF OpenAI SSE into Ollama NDJSON chunks", async (t) => {
   });
   assert.equal(response.status, 200);
   const lines = (await response.text()).trim().split("\n").map((line) => JSON.parse(line));
-  assert.equal(lines[0].response, "{\\"schema_version\\":1}");
+  assert.equal(lines[0].response, JSON.stringify({ schema_version: 1 }));
   assert.equal(lines.at(-1).done, true);
   assert.equal(lines.at(-1).done_reason, "stop");
 });
