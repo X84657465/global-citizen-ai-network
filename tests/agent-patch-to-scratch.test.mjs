@@ -281,5 +281,5 @@ test("successful task publication clears only task retry state", () => {
   assert.ok(stepStart >= 0 && nextStep > stepStart, "publication-success step must have a bounded workflow section");
   const successStep = workflow.slice(stepStart, nextStep);
   assert.match(successStep, /AGENT_FACTORY_SUCCESS_SCOPE: task/);
-  assert.match(successStep, /COMPLETED_ISSUE_NUMBER: \\$\\{\\{ needs\\.prepare-task\\.outputs\\.issue_number \\}\\}/);
+  assert.ok(successStep.includes("COMPLETED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}"));
 });
