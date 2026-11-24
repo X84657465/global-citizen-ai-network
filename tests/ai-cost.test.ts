@@ -474,3 +474,27 @@ test("invoice preview POST preserves 413 when oversized stream cancellation reje
   assert.equal(response.status, 413);
   assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
+
+
+test("invoice preview POST returns 413 when oversized stream cancellation never settles", async () => {
+  const deps = makePreviewRouteDependencies();
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new Uint8Array(1_100_001));
+    },
+    cancel() {
+      return new Promise<void>(() => {});
+    },
+  });
+  const request = {
+    headers: { get: () => null },
+    body,
+  } as unknown as Request;
+
+  const response = await Promise.race([
+    handleProviderInvoicePreviewPost(request, deps),
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error("handler did not return promptly")), 100)),
+  ]);
+  assert.equal(response.status, 413);
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
+});
