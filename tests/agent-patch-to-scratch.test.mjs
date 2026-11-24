@@ -17,7 +17,6 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
   // Keep the executable Git shim in the checked-out workspace instead.
   const gitBin = mkdtempSync(join(process.cwd(), ".gcan-git-bin-"));
   t.after(() => rmSync(gitBin, { recursive: true, force: true }));
-  mkdirSync(gitBin);
   if (process.platform === "win32") {
     // The Windows host runner has Git installed; retain a real repository fixture there.
     execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
