@@ -5,11 +5,12 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { candidateContainerFailureScope } from "../lib/agent-factory-policy.mjs";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
 const FIXTURE_COMMIT = "0123456789abcdef0123456789abcdef01234567";
 
-function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, missingIssueSafety = false, invalidRunnerTemp = false } = {}) {
+function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson = false, invalidPatchJson = false, invalidTaskIdentity = false, missingIssueSafety = false, invalidRunnerTemp = false, trackedDirectoryCollision = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-scratch-apply-test-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const gitBin = join(root, "git-bin");
@@ -25,7 +26,7 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
     const gitShim = String.raw`#!/usr/bin/env node
 const args = process.argv.slice(2);
 if (args[0] === "ls-files" && args[1] === "-z") {
-  process.stdout.write("README.md\0");
+  process.stdout.write(${JSON.stringify(trackedDirectoryCollision ? "README.md\0docs\0" : "README.md\0")});
 } else if (args[0] === "rev-parse" && args[1] === "HEAD") {
   process.stdout.write("${FIXTURE_COMMIT}\n");
 } else {
@@ -38,8 +39,9 @@ if (args[0] === "ls-files" && args[1] === "-z") {
     chmodSync(shimPath, 0o755);
   }
   writeFileSync(join(root, "README.md"), "scratch fixture\n");
+  if (trackedDirectoryCollision) writeFileSync(join(root, "docs"), "not a directory\n");
   if (process.platform === "win32") {
-    execFileSync("git", ["add", "README.md"], { cwd: root });
+    execFileSync("git", ["add", ...(trackedDirectoryCollision ? ["README.md", "docs"] : ["README.md"])], { cwd: root });
     execFileSync("git", ["commit", "-m", "fixture"], { cwd: root, stdio: "ignore" });
   }
   const artifacts = join(root, "artifacts");
@@ -234,4 +236,38 @@ test("only typed plan and patch validation errors may request task-scoped marker
   assert.match(source, /taskScoped:\s*error instanceof AgentPlanValidationError/);
   assert.match(source, /taskScoped:\s*error instanceof PatchValidationError/);
   assert.doesNotMatch(source, /invalidJsonTaskScoped|taskScoped:\s*true/);
+});
+
+
+test("classifies Docker OOM-killed and dead candidate containers as system failures", () => {
+  const healthyRuntimeFailure = {
+    Status: "exited",
+    Error: "",
+    ExitCode: 137,
+    OOMKilled: false,
+    Dead: false,
+  };
+
+  assert.equal(candidateContainerFailureScope(healthyRuntimeFailure), "task");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: true }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, Dead: true }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: true, Dead: true }), "system");
+
+  const missingOomKilled = { ...healthyRuntimeFailure };
+  delete missingOomKilled.OOMKilled;
+  const missingDead = { ...healthyRuntimeFailure };
+  delete missingDead.Dead;
+  assert.equal(candidateContainerFailureScope(missingOomKilled), "system");
+  assert.equal(candidateContainerFailureScope(missingDead), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, OOMKilled: null }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, Dead: "false" }), "system");
+});
+
+test("keeps scratch filesystem collisions system-scoped and removes partial scratch workspaces", (t) => {
+  const data = fixture(t, { trackedDirectoryCollision: true });
+  const result = runScript(data);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(data.githubEnv, "utf8"), "");
+  assert.match(result.stderr, /Unable to create a patch destination directory in the scratch workspace/);
+  assert.deepEqual(readdirSync(data.runnerTemp), []);
 });

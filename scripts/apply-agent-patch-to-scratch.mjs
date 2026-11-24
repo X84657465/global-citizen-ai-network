@@ -207,8 +207,16 @@ for (const relativePath of trackedPaths) {
   if (destinationPath !== scratchRoot && !destinationPath.startsWith(scratchRoot + sep)) {
     fail("A scratch destination resolves outside the disposable workspace.");
   }
-  mkdirSync(dirname(destinationPath), { recursive: true });
-  copyFileSync(sourcePath, destinationPath);
+  try {
+    mkdirSync(dirname(destinationPath), { recursive: true });
+  } catch {
+    fail("Unable to create a tracked repository directory in the scratch workspace.");
+  }
+  try {
+    copyFileSync(sourcePath, destinationPath);
+  } catch {
+    fail("Unable to copy a tracked repository file into the scratch workspace.");
+  }
   copiedFiles += 1;
 }
 
@@ -217,11 +225,19 @@ for (const file of validatedPatch.files) {
   if (destinationPath !== scratchRoot && !destinationPath.startsWith(scratchRoot + sep)) {
     fail("A patch destination resolves outside the disposable workspace.");
   }
-  mkdirSync(dirname(destinationPath), { recursive: true });
+  try {
+    mkdirSync(dirname(destinationPath), { recursive: true });
+  } catch {
+    fail("Unable to create a patch destination directory in the scratch workspace.");
+  }
   const exists = existsSync(destinationPath);
   if (file.operation === "add" && exists) fail("An add patch unexpectedly targets an existing scratch file.");
   if (file.operation === "modify" && !exists) fail("A modify patch target is missing from the scratch copy.");
-  writeFileSync(destinationPath, file.content, "utf8");
+  try {
+    writeFileSync(destinationPath, file.content, "utf8");
+  } catch {
+    fail("Unable to write the validated patch into the scratch workspace.");
+  }
 }
 
 let baseCommit = "unknown";

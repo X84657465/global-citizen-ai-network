@@ -282,9 +282,10 @@ test("durable cooldown preserves x-ratelimit-reset from a classified secondary r
   });
 });
 
-test("candidate container command failures are task-scoped only after a normal container exit", () => {
-  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: 1 }), "task");
-  assert.equal(candidateContainerFailureScope({ Status: "exited", Error: "", ExitCode: 0 }), "none");
+test("candidate container command failures are task-scoped only after a normal container exit with explicit healthy runtime flags", () => {
+  const healthyRuntime = { Status: "exited", Error: "", OOMKilled: false, Dead: false };
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntime, ExitCode: 1 }), "task");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntime, ExitCode: 0 }), "none");
 });
 
 test("candidate container startup and runtime failures remain system-scoped", () => {
