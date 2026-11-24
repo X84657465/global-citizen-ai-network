@@ -129,7 +129,7 @@ jobs:
 
   validation-tests:
     name: Windows self-hosted project validation
-# CI already runs the full exact-SHA quality, Ollama and database gates on pushes.
+    # CI already runs the full exact-SHA quality, Ollama and database gates on pushes.
     # Keep this heavier synthetic Factory smoke test manual to avoid duplicate Runner work.
     if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner
     concurrency:
