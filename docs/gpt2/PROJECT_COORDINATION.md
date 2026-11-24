@@ -311,3 +311,47 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **本次文件交付：** 追加本節至 `docs/gpt2/PROJECT_COORDINATION.md`，記錄 main push/preflight/recovery 的精確 run/job 終態、七個 OPEN PR 的 exact base/head 與外部狀態、正式 review 缺口，以及 G/H overlap blocker。此為文件-only 交付，不宣稱 runtime implementation、程式測試或 GPT3 acceptance。
 - **驗收界線：** 本輪沒有任何 PR 同時具備 exact-head 必要 CI 全成功、正式獨立 APPROVED、無未解阻塞及可合併狀態。沒有解除 Draft 或合併 PR；未繞過任何 owner、branch protection 或 CI gate。
 - **下一步：** 追蹤 #259 owner 對重疊檔案的整合處置；待路徑解除衝突後，分別處理 #375、#364。#553/#552 等待各自 owner 完成精確 HEAD CI 與獨立正式審查。Recovery 的空 steps 與 Preflight failure 交回 Factory/相關 owner 診斷，不由 GPT2 接管。
+
+
+## 6.11 即時主線重核與 GPT2/F–P 交付 — 2026-11-25
+
+> 本節只記錄本次可直接查證的 GitHub 狀態；前述 6.1–6.10 保留為歷史快照。所有 CI 與 review 判定均綁定精確 SHA，不將合併事件推論為驗收通過。
+
+### Main 與新合併提交
+
+- **本次 main HEAD：** `462eeea5917f3b0750fc2c41c888a4d54c562c1e`。
+- **PR #553** 已於 2026-11-24T22:55:59Z 合併，merge commit `a00300542233e0d2083457999ff8113a1028273a`；其 exact-head CI run `45505262767` 在本次查核時仍 IN_PROGRESS（先前為 PENDING），不可將其視為完成。
+- **PR #554** 已於 2026-11-24T22:56:36Z 合併，merge commit `6931cecf20564dd0e1d679c701e306ed786d8f54`；其 exact-head CI run `45504353393` 在合併前仍未達終態，當前查詢顯示 PENDING。該 run 的 Windows quality job此前已完成 tests、type check、lint、audit、build 等主要品質步驟，但下游 integration jobs 在當時仍 PENDING；不可把局部步驟成功擴張成整個 workflow PASS。
+- **PR #552** 已於 2026-11-24T22:56:57Z 合併，merge commit 即目前 main HEAD。其 exact-head CI run `45498686969` 為 SUCCESS，但 Preflight run `45498686808` 為 FAILURE，Linux offline scratch fixture validation 失敗且下游 jobs SKIPPED。失敗日誌 API 曾回傳 404 BlobNotFound，根因 UNKNOWN。
+- 上述三件 PR 的 GitHub review submissions 查詢均為空；本紀錄不聲稱存在 GPT3 正式 APPROVED。合併事實與獨立驗收證據必須分開記錄。
+
+### Main CI 與外部狀態
+
+- Main push CI run `45505611114` 對目前 SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`：metadata resolver SUCCESS；Windows Runner quality gates job `138839925866` 仍 PENDING。該 job 尚未證明 tests、type check、lint、audit、build 與整合工作全部完成。
+- Main Preflight run `45505611073` 為 SKIPPED；其 task validation、Windows validation、Linux fixture 與 publication 下游 jobs 均 SKIPPED。
+- Main Recovery run `45505619929` 為 SKIPPED；不得標示為 PASS。
+- Main combined status 為 FAILURE：Vercel 回報 deployment rate limited（retry in 24 hours）；CircleCI Pipeline 回報專案找不到 configuration。外部狀態與 GitHub Actions job 狀態分開記錄。
+
+### 目前 OPEN PR（5 件）
+
+- **#478** head `e10878764d161a960ef258022e936f0717ad75a2`，base `4225a244407f7a323262c4d6e17b2749193d6476`；mergeable=false／dirty；exact-head Actions run 未找到；Vercel SUCCESS、CircleCI ERROR。Review 只有 COMMENTED。
+- **#476** head `977896a9db756e336405bb2f1956f9377da60038`，base 同為 `4225a244407f7a323262c4d6e17b2749193d6476`；mergeable=false／dirty；exact-head Actions run 未找到；Vercel SUCCESS、CircleCI ERROR。Review 只有 COMMENTED。
+- **#417** head `c0567805a5a032a1925f7e783caca4b1b5ce27ab`，base `25d5ed519eb923d3001df6d43aec1670a0d4851a`；mergeable=false／dirty；exact-head Actions run 未找到；Vercel SUCCESS、CircleCI ERROR。Review 只有 COMMENTED。
+- **#376** head `8e9b14d7a137e5930e9a549c9ff949743689335b`，base `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e`；mergeable=false／dirty；exact-head Actions run 未找到；Vercel SUCCESS、CircleCI ERROR。Review 只有 COMMENTED。
+- **#259** head `1badb7ce38cd7a7bd7ca3345500bed81a46206a3`，base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`；mergeable=false／dirty；與目前 main 比較仍有 114 commits ahead；exact-head Actions run 未找到；Vercel rate-limit FAILURE、CircleCI ERROR。Review 只有 COMMENTED，且與 G/H 任務路徑重疊。
+
+上述五件 OPEN PR 的 combined status 均為 FAILURE；無正式 APPROVED 證據。未解除 Draft、未合併、未做機械 rebase。
+
+### GPT2/F–P 自有工作與後續
+
+- Issue #384 要求 GPT2 在自有協調文件引用神經智慧體模式、將六層閉環映射到 F–P，並記錄 GPT1／GPT3／GPT4 的依賴與交接。本文件第 2–5 節已有該映射與責任邊界；本節刷新目前 main 證據。此為文件／工作流程採納，不宣稱 neural runtime 已部署；GPT3 獨立驗收及 GPT4 自有採納證據仍不可由 GPT2 代簽。
+- Issue #375（G）與 #364（H）仍受 OPEN PR #259 的同路徑變更阻塞：不得在重疊檔案上直接寫入、cherry-pick 或機械重建。
+- Issue #505 明確指定 GPT1／A–E Factory owner；GPT2 僅可提供證據交接，不接管其 workflow／Runner allowlist。
+- 本輪 GPT2 可安全完成的工作為更新本角色自有文件；沒有找到可在既有 owner／allowlist 下安全獨立完成、且不與現有候選重疊的 F–P 程式碼任務。未新增 Runtime、workflow、Runner、DB／RLS、Secrets、權限或部署變更。
+
+### 驗收狀態
+
+- 文件快照：已在本候選中更新；程式測試、TypeScript、Lint、Build：NOT RUN（文件-only）。
+- 新 PR 的 exact-head CI：PENDING，須以 GitHub 最新結果重查。
+- GPT3 正式獨立 APPROVED：PENDING／NOT PRESENT。
+- 整體交付：DOCUMENTED；INDEPENDENT ACCEPTANCE 尚未完成；IMPLEMENTED 不作宣稱。
