@@ -97,7 +97,7 @@ jobs:
                 check.app && check.app.slug === 'github-actions')
                 .sort((a,b) => new Date(b.started_at || 0) - new Date(a.started_at || 0))[0] || null;
             }
-            const preflightPaths = new Set([            const preflightPaths = new Set([
+            const preflightPaths = new Set([
               'lib/agent-task-validation.mjs',
               'lib/agent-patch-validation.mjs',
               'lib/agent-plan-validation.mjs',
