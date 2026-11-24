@@ -1019,3 +1019,12 @@ test("resolver failure evidence preserves event and ref from the pre-checkout fa
   assert.ok(resolver.includes('event: typeof fallbackContext.event'));
   assert.ok(resolver.includes('ref: typeof fallbackContext.ref'));
 });
+
+test("resolver fallback evidence is uploaded only when the resolver did not succeed", () => {
+  const { start, end } = findJobSection(workflow, "resolve-candidate");
+  const upload = findNamedStepBlock(workflow, "Upload redacted resolver failure evidence", start, end);
+  assert.ok(upload.includes("if: always() && steps.resolve.outcome != 'success'"),
+    "a successful resolver must not publish the pre-checkout failure fallback");
+  assert.ok(upload.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"),
+    "failure evidence must retain the pre-checkout fallback path");
+});
