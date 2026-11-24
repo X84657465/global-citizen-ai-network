@@ -17,13 +17,21 @@ This bridge exposes the Our Free Model standalone service's OpenAI-compatible Ki
 The upstream repository currently documents its standalone service as source-run only; a standalone installation artifact is not yet published. It requires Node.js `^22.19.0 || >=24.0.0` (the Factory workflow's pinned Node 22.13 runtime is too old to host it).
 
 1. Review and pin the upstream source revision before use: `Ebony-Vinyl/dsh-our-free-model`, commit `8f3182b78938344436cc50c34dbfe947136cce9f`.
-2. In a separate PowerShell session on the trusted Windows self-hosted Runner host, run the upstream standalone service from its full repository checkout:
+2. Create the full source checkout and pin that exact revision:
+
+   ```powershell
+   git clone https://github.com/Ebony-Vinyl/dsh-our-free-model.git
+   Set-Location dsh-our-free-model
+   git checkout 8f3182b78938344436cc50c34dbfe947136cce9f
+   ```
+
+3. In a separate PowerShell session on the trusted Windows self-hosted Runner host, run the upstream standalone service from that checkout:
 
    ```powershell
    npm run start:standalone -- --port 18900 --data-dir "$env:USERPROFILE\.our-free-model-factory"
    ```
 
-3. Complete local setup in the service's own management page. Read the generated `forwardKey` from that local data directory's `settings.json`; never commit it or paste it into an Issue, PR, log, or chat.
+4. Complete local setup in the service's own management page. Read the generated `forwardKey` from that local data directory's `settings.json`; never commit it or paste it into an Issue, PR, log, or chat.
 
 ## Start the bridge
 
