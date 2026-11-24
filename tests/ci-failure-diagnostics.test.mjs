@@ -134,7 +134,7 @@ test("detects self-hosted runner queue", () => {
 
 test("redacts credentials", () => {
   const value = redactCiLog(
-    "ghp_abcdefghijklmnopqrstuvwxyz1234567890\\nAuthorization: Bearer abcdefghijklmnopqrstuvwxyz123456",
+    "ghp_abcdefghijklmnopqrstuvwxyz1234567890\nAuthorization: Bearer abcdefghijklmnopqrstuvwxyz123456",
   );
   assert.doesNotMatch(value, /ghp_abcdefghijklmnopqrstuvwxyz|Bearer abcdefghijklmnopqrstuvwxyz/);
   assert.match(value, /REDACTED/);
