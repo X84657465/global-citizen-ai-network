@@ -2742,3 +2742,65 @@ This entry supersedes prior live-state snapshots for the exact refs and workflow
 - Main remains FAILURE. No PR is eligible for safe un-Draft or merge. The next closeable GPT5 action is to refresh this documentation PR's exact-head CI and attach a precise owner handoff; do not repeat failed runs or unavailable log retrieval.
 
 **Disposition:** OBSERVED main FAILURE; 19 OPEN PRs; 0 formal APPROVED reviews; 0 merges. This documentation update is an operations handoff, not functional TESTED, CI-PASSING, INDEPENDENTLY-ACCEPTED, MERGED or RELEASED delivery.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-24 (second exact-head sweep)
+
+This section supersedes prior live-state observations in this file where they conflict. Repository docs and refs were re-read during this turn; this section is evidence-only and does not change Factory/Product ownership or acceptance policy.
+
+### Governance / execution instructions re-read
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob: `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob: `67166a378c92909c8ddf64586f8a2b5202be7d14`; status remains GOVERNANCE PROPOSAL, not formally accepted.
+- GPT5 remains Global Intelligence & Operations support; no A–P module ownership. Keep one GPT5-led support task; no shared-file writes outside explicit allowlist. Factory-first remains P0; independent review is not self-review.
+
+### Main exact SHA and CI
+- Main HEAD re-read at start and after the PR sweep: `6b3ac4b639c285b2c664ffae579029a3fae29f99`; unchanged.
+- All-event Actions inventory: 99 runs, all terminal: 5 FAILURE, 1 SUCCESS, 93 SKIPPED; no pending/in-progress run observed.
+- Check-runs: 117 total across both pages: 6 FAILURE, 2 SUCCESS, 109 SKIPPED; no pending/in-progress checks observed.
+- Main push run #45233037163 attempt 3: FAILURE. Resolver and Diagnostics jobs FAILURE; failure-persistence SUCCESS; Windows quality, Ollama, PostgreSQL/RLS, and success-persistence SKIPPED.
+- Combined external statuses: Vercel FAILURE and CircleCI Pipeline ERROR. These are not Actions PASS.
+- Branch protection/ruleset read remains unavailable to the connected integration (403); policy state must not be inferred as disabled or enabled.
+
+### All 19 open PRs — exact HEAD Actions inventory
+Every PR below was re-read for current head/base SHA, Draft and mergeability. Exact-head Actions run inventory and check-runs were queried; formal review submissions were queried separately.
+
+| PR | Exact HEAD (prefix) | Draft / mergeable | Exact-head Actions |
+|---|---|---|---|
+| #511 | `7e0e2e170490` | Draft / true | #45318481077 attempt 4 FAILURE; Resolver + Diagnostics FAILURE, 5 checks SKIPPED |
+| #510 | `3faff6176f6f` | Draft / true | #45324830779 SUCCESS; Resolver, Windows quality, PostgreSQL/RLS, Ollama SUCCESS; Diagnostics and both persistence jobs SKIPPED |
+| #509 | `db4ae6ee75ce` | Draft / true | #45309976734 FAILURE; Resolver + Diagnostics FAILURE, 5 checks SKIPPED |
+| #508 | `823583a247b7` | Draft / true | #45309556441 and #45309556616 both FAILURE; Resolver/Diagnostics and Linux offline fixture failure; downstream checks SKIPPED |
+| #507 | `439ddb84e5ca` | Draft / true | #45328087973 FAILURE; Resolver + Diagnostics FAILURE; quality, Ollama, PostgreSQL/RLS and persistence SKIPPED |
+| #506 | `d51d2d5f61be` | Draft / true | #45298362719 attempt 2 FAILURE; Resolver + Diagnostics FAILURE, downstream checks SKIPPED |
+| #503 | `1969fc4000df` | Draft / true | #45326905063 and #45326905178 both FAILURE; Resolver + Diagnostics + Linux fixture failure, downstream SKIPPED |
+| #502 | `85a7404f3dd2` | Draft / true | #45313495347 FAILURE; Resolver + Diagnostics FAILURE, downstream SKIPPED |
+| #501 | `13f68ef50919` | Draft / true | #45288587720 FAILURE; Resolver + Diagnostics FAILURE, downstream SKIPPED |
+| #500 | `9e67c4e9668e` | Draft / true | #45233415974 FAILURE; Resolver + Diagnostics FAILURE, downstream SKIPPED |
+| #498 | `2d13ddd094cb` | Draft / true | #45230211754 FAILURE; Resolver + Diagnostics FAILURE, downstream SKIPPED |
+| #497 | `c3e6450551d5` | Draft / true | #45229281768 FAILURE; Resolver + Diagnostics FAILURE, downstream SKIPPED |
+| #496 | `5251f221884a` | Draft / true | #45228376095 attempt 2 FAILURE; Resolver + Diagnostics FAILURE, downstream SKIPPED |
+| #495 | `cdd7f28c016d` | Draft / true | #45298251510 FAILURE; Resolver + Diagnostics FAILURE, downstream SKIPPED |
+| #478 | `9a696398fb8c` | Draft / false | #45191718421 SUCCESS, but Diagnostics and persistence SKIPPED; base is stale |
+| #476 | `977896a9db75` | Ready / false | 0 PR-triggered Actions runs; 3 SUCCESS check-runs + 1 NEUTRAL, base stale; not a complete current-main acceptance |
+| #417 | `0dd4a08886a2` | Ready / false | #45056447505 FAILURE; Windows quality FAILURE, remaining substantive checks SKIPPED; base stale |
+| #376 | `d10e6dd6d428` | Ready / false | 0 PR-triggered Actions runs; 2 SUCCESS check-runs + 1 NEUTRAL, base stale |
+| #259 | `3330cd04a773` | Draft / false | Historical #44949425719 SUCCESS, but persistence/diagnostics SKIPPED and base stale |
+
+Summary: 19 OPEN = 16 Draft + 3 Ready. Exact-head Actions inventory: 14 PRs with FAILURE, 3 with SUCCESS (#510/#478/#259), and 2 with 0 PR-triggered runs (#476/#376). A SUCCESS workflow with skipped required jobs is not a complete PASS. Stale-base candidates are not current-main evidence.
+
+### Formal reviews
+- Queried formal review submissions for all 19 PRs. There are **0 APPROVED** review states.
+- Existing submissions are COMMENTED only, including self-authored and bot comments. They do not establish independent approval.
+- No PR satisfies independent review + exact-head required gates + mergeability + repository-policy verification. Do not un-Draft or merge.
+
+### GPT5 work / scope
+- This sweep performed read-only verification and updates this GPT5-owned handoff file only.
+- No local tests were run. No Factory/Product source, workflow, Runner, durable state, lease, secrets, permissions, branch protection, DB/RLS, provider quota, production or deployment settings changed.
+- #507 remains OPEN / Draft. Its exact-head run #45328087973 is terminal FAILURE; no self-approval or transition.
+- Owner handoff: GPT1 owns Resolver/Diagnostics, Factory policy and shared Factory tests; GPT2 owns F–P; GPT3 owns independent architecture/QA review; GPT4 owns B Product. GPT5 remains operations support.
+- Stop repeating unavailable log retrieval paths; prior audit/recovery logs returned Azure BlobNotFound. Exact failing step remains UNKNOWN where no usable log exists.
+
+**Disposition:** Main FAILURE; no PR independently accepted, no PR merged, no tests executed locally by GPT5 in this turn. This handoff update is IMPLEMENTED as documentation/evidence only, not functional TESTED, CI-PASSING, INDEPENDENTLY-ACCEPTED, MERGED or RELEASED.
