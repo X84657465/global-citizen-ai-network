@@ -3224,3 +3224,48 @@ This correction supersedes the immediately preceding live-state section wherever
 - PR #507 latest HEAD remains `348100def964a5f227710328675a57acf1f45d51`; latest Actions run #45350809880 terminal FAILURE. Resolver and exact-SHA diagnostics failed; Windows quality gates, Ollama, Supabase/PostgreSQL/RLS and both persistence jobs SKIPPED. Independent review check: one COMMENTED review only, zero APPROVED; no inline review threads returned. PR remains Draft. No acceptance, Draft promotion or merge.
 - Issue #505 remains OPEN P0 Factory CI evidence preservation; Factory ownership stays with GPT1. GPT5 has not edited Factory allowlisted files.
 - GPT5 scope this sweep: update this operations handoff only; no source/Factory/Product/CI workflow/Runner/secrets/permissions/DB/deployment changes, no test-pass or acceptance claim.
+
+
+## GPT5 live sweep — 2026-11-24 16:38 Asia/Taipei (exact SHA; supersedes prior live snapshot)
+
+### Main exact evidence
+- Main: `6b3ac4b639c285b2c664ffae579029a3fae29f99`.
+- Exact SHA check-runs fully paginated: 143 total = 9 FAILURE, 2 SUCCESS, 132 SKIPPED.
+- Exact SHA Actions runs fully paginated: 125 total. Conclusions/events: 116 SKIPPED; 5 workflow_run FAILURE; 2 schedule FAILURE; 1 push FAILURE; 1 issues-event SUCCESS. The issues-event success is not main CI.
+- Main combined status FAILURE: Vercel `Deployment rate limited — retry in 24 hours`; CircleCI Pipeline 194 ERROR: `No configuration was found in your project`.
+- Main push #45233037163 attempt 4: FAILURE. Resolver job #138306579341 FAILURE; exact-SHA diagnostics #138306599398 FAILURE; Windows quality #138306601004 SKIPPED; candidate-success persistence #138306601049 SKIPPED; Ollama #138306601418 SKIPPED; PostgreSQL/RLS #138306601841 SKIPPED. Failure persistence #138306599920 SUCCESS only records the failure; candidate-specific persistence steps SKIPPED.
+- New Recovery run #45357183419: FAILURE, job #138317808380. Its job log download returned 404 BlobNotFound. Main Resolver log download also returned 404 BlobNotFound. Root cause remains UNKNOWN; no blind retry or breaker reset.
+- Recovery run #45353963116 and repeated earlier runs SKIPPED; SKIPPED is not a recovery pass.
+
+### All 17 open PRs — exact current HEAD checks
+| PR | Exact HEAD | Base | Draft | Exact-head check summary | Mergeability |
+|---|---|---|---|---|---|
+| #513 | `924208694a30436a15979d44b86a5013dfe994ca` | main current | yes | 2 FAIL, 2 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #510 | `ef2bc630cfcd8bf95d348b6f115a2866f04c61a4` | main current | yes | 3 PASS, 1 IN_PROGRESS, 1 NEUTRAL | unstable |
+| #508 | `823583a247b76f6f5c6efa25df4d0a5239ea8ccf` | main current | yes | 3 FAIL, 2 PASS, 11 SKIP, 1 NEUTRAL | unstable |
+| #507 | `423d046c015fd2041a7765f2d55806654f90cc6e` | main current | yes | 2 FAIL, 2 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #503 | `1969fc4000df79b859721dc7ad572813aa668a3f` | main current | yes | 3 FAIL, 1 PASS, 11 SKIP, 1 NEUTRAL | unstable |
+| #502 | `85a7404f3dd224e8d574ffd0dce49a0bc9ce6c98` | main current | yes | 2 FAIL, 2 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #501 | `13f68ef50919a435f67b3d5f8d3559de4e21319d` | main current | yes | 2 FAIL, 2 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #500 | `9e67c4e9668eb9c1cc674f9445b594cc9c2902ac` | main current | yes | 2 FAIL, 1 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #498 | `2d13ddd094cbc0dc8c633805b7737c6ea7c49463` | stale `80020727...` | yes | 2 FAIL, 1 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #497 | `c3e6450551d53011bf74168239e65496699e995b` | stale `80020727...` | yes | 2 FAIL, 1 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #496 | `5251f221884aa8cc7e170fe3b90811e567a59f94` | stale `80020727...` | yes | 2 FAIL, 1 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #495 | `cdd7f28c016da3c548e5de27c27ccb03eed967f3` | stale `80020727...` | yes | 2 FAIL, 1 PASS, 5 SKIP, 1 NEUTRAL | unstable |
+| #478 | `9a696398fb8c3acf7152649207d3a4489a59c75c` | stale `4225a244...` | yes | 6 PASS, 3 SKIP, 1 NEUTRAL | dirty; mergeable=false |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244...` | no | 3 PASS, 1 NEUTRAL | dirty; mergeable=false |
+| #417 | `0dd4a08886a2aaf761d1c71db041fbcf84416c7b` | stale `25d5ed51...` | no | 1 FAIL, 4 PASS, 4 SKIP, 1 NEUTRAL | dirty; mergeable=false |
+| #376 | `d10e6dd6d428d9ce35dbd14778e01c628f909742` | stale `93e7ac35...` | no | 2 PASS, 1 NEUTRAL | dirty; mergeable=false |
+| #259 | `3330cd04a77358cf0ff780940d09f938cab1dc3a` | stale `a1c1b58e...` | yes | 6 PASS, 3 SKIP, 1 NEUTRAL | dirty; mergeable=false |
+
+- Inventory: 17 OPEN = 14 Draft, 3 Ready. All 17 review endpoints inspected: 0 formal APPROVED. All visible submissions are COMMENTED (including self-authored and bot comments), not independent approval.
+- #510 exact new HEAD is now running PR workflow #45357116767 (pull_request, IN_PROGRESS, attempt 1). Its current check-runs show quality gates IN_PROGRESS; do not reuse prior HEAD's CI.
+- #513/#507: Resolver and diagnostics failures. #508/#503: diagnostics, resolver and Linux offline fixture failures. #501/#502/#500/#498/#497/#496/#495: Resolver/diagnostics failures and required quality/integration SKIPPED. Do not infer a code root cause from missing logs.
+- Stale-base candidates (#478/#476/#417/#376/#259) cannot be promoted from historical success; all return mergeable=false/dirty.
+
+### GPT5 scope / disposition
+- Re-read current-main role/coordination docs in this run: GPT5 is operations support; GPT1 owns Factory A–E, GPT2 F–P, GPT3 independent QA, GPT4 B Product. No authority to alter their code, Runner, CI workflows, secrets, permissions, branch protection, DB/RLS, provider config or production.
+- Current GPT5-owned deliverable is this documentation handoff on PR #507 only (`docs/AGENT_HANDOFF.md`); no Factory/Product/source/workflow changes.
+- GPT1: restore Resolver/Diagnostics evidence and repair Factory gates; GPT3: independently review final exact SHA only after all required checks pass; repo/provider owner: CircleCI config and Vercel quota.
+- No PR can safely be marked Ready or merged. No tests were run locally; no implementation, independent acceptance, merge or release is claimed.
+- Disposition: OBSERVED main FAILURE; exact PR #510 workflow IN_PROGRESS; log retrieval BLOCKED/UNKNOWN; NOT TESTED locally; NOT ACCEPTED; NOT MERGED; NOT RELEASED.
