@@ -625,6 +625,7 @@ test("CI diagnostics use the verified Windows Runner and preserve fallback evide
   assert.ok(section.includes("ConvertTo-Json -Depth 10"));
   assert.ok(section.includes("System.Text.UTF8Encoding"));
   assert.equal(section.includes("shell: bash"), false);
+  assert.equal(section.includes("shell: pwsh"), false, "the Runner provides Windows PowerShell, not pwsh");
 });
 
 test("resolver failure evidence is initialized before checkout and always uploaded", () => {
