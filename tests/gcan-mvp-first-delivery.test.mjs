@@ -11,6 +11,14 @@ const homepage = read("../app/page.tsx");
 const workspace = read("../app/workspace/workspace-client.tsx");
 const workspaceGate = read("../app/workspace/page.tsx");
 const chatApi = read("../app/api/ai/chat/route.ts");
+const trackIds = [..."ABCDEFGHIJKLMNOP"];
+const acceptanceStages = "PLANNED → IMPLEMENTED → TESTED → VERIFIED → ACCEPTED → RELEASED";
+
+function mvpSection() {
+  const section = homepage.match(/<section\b([^>]*\bid="mvp-first"[^>]*)>([\s\S]*?)<\/section>/);
+  assert.ok(section, "Homepage MVP section is missing");
+  return { attributes: section[1], content: section[2] };
+}
 
 test("MVP-first policy is linked from the master charter and coordination entry point", () => {
   assert.match(master, /## 24\. P0 MVP First/);
@@ -29,16 +37,68 @@ test("MVP-first charter defines a bounded scope, deadline, and exact-SHA accepta
   assert.match(charter, /資料隔離/);
   assert.match(charter, /Post-MVP/);
   assert.match(charter, /A–P 全工作線都必須各自交付產品級 MVP/);
-  for (const track of "ABCDEFGHIJKLMNOP".split("")) assert.match(charter, new RegExp(`\\| ${track} —`));
 });
 
-test("README and homepage expose the MVP entry points and delivery status", () => {
+test("the charter lists exactly one complete acceptance entry for each A-P track", () => {
+  const directory = charter.match(/^### A–P 產品級 MVP 交付目錄[^\n]*\n+((?:\|[^\n]*\n)+)/m);
+  assert.ok(directory, "Charter MVP acceptance table is missing");
+  const rows = directory[1].trimEnd().split("\n").slice(2);
+  const tracks = rows.map((row) => {
+    const [track, value, outcome, ...extra] = row.slice(1, -1).split("|").map((cell) => cell.trim());
+    const label = track.match(/^([A-P]) — \S/);
+    assert.ok(label, `Missing track identifier or product name: ${row}`);
+    assert.ok(value && outcome && extra.length === 0, `Track ${label[1]} needs a product value and an acceptance outcome`);
+    return label[1];
+  });
+  assert.deepEqual(tracks.sort(), trackIds);
+});
+
+test("portfolio governance keeps the same ordered acceptance stages for every track", () => {
+  for (const document of [charter, master]) {
+    assert.ok(document.includes(acceptanceStages), "Missing or out-of-order portfolio acceptance stages");
+  }
+});
+
+test("README links to the charter from its independent A-P MVP guidance", () => {
   assert.match(readme, /P0 MVP First/);
-  assert.match(readme, /GCAN_MVP_FIRST_DELIVERY_CHARTER\.md/);
-  assert.match(homepage, /id="mvp-first"/);
-  assert.match(homepage, /尚待本輪驗收/);
-  assert.match(homepage, /GPT5 · OPS/);
-  assert.match(homepage, /href="\/workspace"/);
+  const portfolio = readme.match(/^### A–P 全線都要有自己的產品級 MVP\n+([\s\S]*?)(?=^---$)/m)?.[1] ?? "";
+  assert.match(portfolio, /16 條工作線/);
+  assert.match(portfolio, /\[[^\]]+\]\(docs\/GCAN_MVP_FIRST_DELIVERY_CHARTER\.md\)/);
+});
+
+test("primary navigation targets a unique MVP section with an accessible heading", () => {
+  const { attributes, content } = mvpSection();
+  const navigation = homepage.match(/<nav\b[^>]*aria-label="主要導覽"[^>]*>([\s\S]*?)<\/nav>/)?.[1] ?? "";
+  assert.match(navigation, /<a\b[^>]*href="#mvp-first"[^>]*>\s*MVP 首版\s*<\/a>/);
+  assert.equal([...homepage.matchAll(/\bid="mvp-first"/g)].length, 1);
+
+  const titleId = attributes.match(/\baria-labelledby="([\w-]+)"/)?.[1];
+  assert.ok(titleId, "The MVP section needs an accessible name");
+  assert.match(content, new RegExp(`<h2\\b[^>]*\\bid="${titleId}"[^>]*>\\s*[^<\\s]`));
+  assert.equal([...homepage.matchAll(new RegExp(`\\bid="${titleId}"`, "g"))].length, 1);
+});
+
+test("MVP cards direct visitors to the matching journey and evidence destinations", () => {
+  const { content } = mvpSection();
+  const cards = [...content.matchAll(/<article\b[^>]*>\s*<span>\d{2} · ([A-Z ]+)<\/span>([\s\S]*?)<\/article>/g)];
+  const destinations = cards.map(([, name, card]) => [name, card.match(/<a\b[^>]*href="([^"]+)"/)?.[1]]);
+  const repository = "https://github.com/X84657465/global-citizen-ai-network";
+  assert.deepEqual(destinations, [
+    ["ACCOUNT", "/login"],
+    ["WORKSPACE", "/workspace"],
+    ["AI SERVICE", `${repository}/tree/main/app/api/ai/chat`],
+    ["DELIVERY", `${repository}/actions`],
+  ]);
+  assert.ok(content.includes(`href="${repository}/blob/main/docs/GCAN_MVP_FIRST_DELIVERY_CHARTER.md"`));
+  assert.ok(content.includes(`href="${repository}/blob/main/PROJECT_COORDINATION.md"`));
+});
+
+test("MVP section shows pending acceptance and all five delivery roles", () => {
+  const { content } = mvpSection();
+  assert.match(content, /<span>ACCEPTANCE STATE<\/span>\s*<b>尚待本輪驗收<\/b>/);
+  assert.match(content, /不代表已實作或已上線/);
+  const roles = [...content.matchAll(/<article\b[^>]*>\s*<span>(GPT\d+) ·/g)].map(([, role]) => role);
+  assert.deepEqual(roles.sort(), ["GPT1", "GPT2", "GPT3", "GPT4", "GPT5"]);
 });
 
 test("existing MVP workspace remains protected by the authentication gate", () => {
@@ -56,15 +116,18 @@ test("AI MVP path fails closed and retains idempotency and cost preflight contro
   assert.match(chatApi, /AI 服務尚未完成安全設定/);
 });
 
-
 test("homepage exposes a separate MVP product card for every A-P track", () => {
-  const directory = homepage.match(/A–P 全線產品 MVP 交付目錄<\/b><span>[^<]*<\/span><\/div>\s*<div className=\{styles\.executionLiveGrid\}>([\s\S]*?)<\/div>/);
+  const { content } = mvpSection();
+  const directory = content.match(/A–P 全線產品 MVP 交付目錄<\/b><span>[^<]*<\/span><\/div>\s*<div\b[^>]*>([\s\S]*?)<\/div>/);
   assert.ok(directory, "MVP track directory grid is missing");
 
   const tracks = [...directory[1].matchAll(/<article\b[^>]*>([\s\S]*?)<\/article>/g)].map(([, article]) => {
     const markers = [...article.matchAll(/<span>\s*([A-P]) ·/g)];
     assert.equal(markers.length, 1, "Each MVP article must have exactly one track marker");
-    return markers[0][1];
+    const track = markers[0][1];
+    assert.match(article, /<b>\s*[^<\s][^<]*<\/b>/, `Track ${track} needs a product name`);
+    assert.match(article, /<p>\s*[^<\s][^<]*<\/p>/, `Track ${track} needs a delivery description`);
+    return track;
   });
-  assert.deepEqual(tracks.sort(), [..."ABCDEFGHIJKLMNOP"]);
+  assert.deepEqual(tracks.sort(), trackIds);
 });
