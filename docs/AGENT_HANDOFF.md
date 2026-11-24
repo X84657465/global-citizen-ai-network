@@ -1,50 +1,59 @@
-# GPT5 Daily Operations — authoritative live snapshot (2026-11-24; main 3c6fc232ec1d)
+# GPT5 Daily Operations — live sweep (2026-11-24; main 3c6fc232ec1d)
 
-> This section supersedes earlier status snapshots in this file. Older entries are historical records, not current state. All evidence below is bound to the exact SHAs and run IDs stated; re-query before integration.
+> Authoritative snapshot for this sweep. Historical entries below are retained as history. Evidence is bound to exact SHAs/run IDs; re-query before any future integration.
 
-## Governance / GPT5 scope
-- Re-read current-main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, `PROJECT_COORDINATION.md`, `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md`, and `docs/GCAN_UNIFIED_EXECUTION_CONSTITUTION_V3.md`.
-- `docs/GCAN_UNIFIED_EXECUTION_CONSTITUTION_V3.md` remains PROPOSED; Execution OS remains GOVERNANCE PROPOSAL. Neither grants permissions. Current GPT5 role is Global Intelligence & Operations support, not A–P module owner or independent reviewer.
-- Current GPT5 file allowlist remains `docs/AGENT_HANDOFF.md`. No Factory/Product source, workflow, Runner state, durable state, secrets, permissions, branch protection, production data, or deployment settings were modified.
+## Governance / scope
+- Re-read mainline `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, `PROJECT_COORDINATION.md`, `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md`, and `docs/GCAN_UNIFIED_EXECUTION_CONSTITUTION_V3.md`.
+- Execution OS remains GOVERNANCE PROPOSAL and Unified Execution Constitution V3 remains PROPOSED; neither expands GPT5 permissions. GPT5 remains Global Intelligence & Operations support, not an A–P owner or independent reviewer.
+- Current GPT5 write allowlist remains `docs/AGENT_HANDOFF.md`. No Factory/Product source, workflow, Runner state, durable state, secrets, permissions, branch protection, production data, or deployment settings were modified.
 
 ## Main exact SHA and CI
-- Main HEAD at start and end of this sweep: `3c6fc232ec1d07c56f0ba31d3a690079008f4004`.
-- Combined status: Vercel SUCCESS; CircleCI Pipeline ERROR. Overall main is NOT CI-PASSING.
-- Push run `45393056714`, attempt 1: COMPLETED / SUCCESS. Seven jobs: five SUCCESS (`138441838730`, `138444656806`, `138448046176`, `138448047935`, `138450597258`) and two conditional failure-path jobs SKIPPED (`138450598926`, `138450600206`).
-- Recovery run `45393890346`, attempt 1: COMPLETED / FAILURE; job `138444433694` FAILURE.
-- Recovery runs `45393156876` and `45395814790`, attempt 1: COMPLETED / SKIPPED; jobs `138441874337` and `138451167581` SKIPPED.
-- Latest Recovery run `45397541314`, attempt 1: PENDING; sole job `138460503731` PENDING, no completed_at. Not PASS; no blind retry.
-- Main exact-SHA check-runs contain 12 entries, including the PENDING Recovery check and historical FAILURE/SKIPPED checks.
+- Main HEAD at start and after PR sweep: `3c6fc232ec1d07c56f0ba31d3a690079008f4004` (unchanged).
+- Main check-runs: 13. Combined status: Vercel SUCCESS; CircleCI Pipeline ERROR (no project configuration found). Overall main is NOT CI-PASSING.
+- Push run `45393056714`, attempt 1: COMPLETED / SUCCESS, 7 jobs: 5 SUCCESS (`138441838730`, `138444656806`, `138448046176`, `138448047935`, `138450597258`) and 2 conditional failure-path SKIPPED (`138450598926`, `138450600206`).
+- Recovery run `45399199052`, attempt 1: COMPLETED / FAILURE; sole job `138463013638` FAILURE.
+- Recovery run `45397541314`, attempt 2: COMPLETED / FAILURE; sole job `138460503731` FAILURE.
+- Recovery run `45393890346`, attempt 1: COMPLETED / FAILURE; sole job `138444433694` FAILURE.
+- Recovery runs `45398561717`, `45395814790`, and `45393156876`, attempt 1: COMPLETED / SKIPPED; sole jobs `138460799705`, `138451167581`, and `138441874337` respectively SKIPPED.
+- All seven runs returned for this exact main SHA are terminal; no current PENDING main run. Recovery remains failed/skipped, not PASS. Failure-job payloads expose no step records in the retrieved job responses; root cause/log detail remains UNKNOWN from available evidence. No blind retry or Factory durable-state reset.
 
-## Current automation record
-- Existing enabled automation `GCAN Daily Dev Check`, ID `6b0334c033b481919ee5a3aefdc8e3b6`, is scheduled daily at **08:00 Asia/Taipei**; next scheduled run `2026-11-25T08:00:00+08:00`. It was triggered manually in this sweep; no duplicate was created.
-- Automation inventory also shows `GCAN 每日章程檢閱` disabled. The 13:00 schedule cited in GPT3's PR comments is not present in the current automation inventory returned by the scheduler. Treat that discrepancy as unresolved rather than silently rewriting the verified 08:00 record.
+## Current automation
+- Existing `GCAN Daily Dev Check`, ID `6b0334c033b481919ee5a3aefdc8e3b6`, remains enabled daily at 08:00 Asia/Taipei; next scheduled run `2026-11-25T08:00:00+08:00`.
+- Invoked the existing automation for this turn; its inline operating prompt was carried out. No duplicate automation or schedule change. Scheduler's recorded last completed run remains the earlier record; this inline execution is not misrepresented as a new background completion.
 
-## Every OPEN PR — 6 total
-| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions | Combined status | Formal reviews |
+## Every OPEN PR — 7 total
+| PR | Exact HEAD | Base SHA | Draft | Mergeability | Exact-head Actions / jobs | Combined status | Formal reviews |
 |---|---|---|---|---|---|---|---|
-| [#528](https://github.com/X84657465/global-citizen-ai-network/pull/528) | pre-refresh HEAD `564c7256c05dcd23fb3258829b1d493444c4a433`* | main `3c6fc232ec1d07c56f0ba31d3a690079008f4004` | YES | YES / unstable | run `45398552432`, attempt 1 PENDING; Jobs query = 0 | Vercel SUCCESS; CircleCI ERROR | 0 |
-| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 4 COMMENTED; 0 APPROVED |
-| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO | 0 runs | Vercel SUCCESS; CircleCI ERROR | 4 COMMENTED; 0 APPROVED |
-| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 11 COMMENTED; 0 APPROVED |
-| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | NO | NO | 0 runs | Vercel SUCCESS; CircleCI ERROR | 16 COMMENTED; 0 APPROVED |
-| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 10 COMMENTED; 0 APPROVED |
+| [#529](https://github.com/X84657465/global-citizen-ai-network/pull/529) | `42259a07eb07f8faba7c9f86e0c7ace7f5babd43` | main `3c6fc232ec1d07c56f0ba31d3a690079008f4004` | NO | YES / unstable | run `45399704599`, attempt 1 PENDING; job `138464758028` PENDING | Vercel FAILURE (24h rate limit); CircleCI ERROR | 0 |
+| [#528](https://github.com/X84657465/global-citizen-ai-network/pull/528) | `80c0eddb0d21e7e335f95629cf82a0c40a1411e3` | main `3c6fc232ec1d07c56f0ba31d3a690079008f4004` | YES | YES / unstable | run `45399359488`, attempt 1 PENDING; Jobs query = 0 | Vercel FAILURE (24h rate limit); CircleCI ERROR | 0 |
+| [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO / dirty | 0 runs | Vercel FAILURE; CircleCI ERROR | 4 COMMENTED; 0 APPROVED |
+| [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO / dirty | 0 runs | Vercel SUCCESS; CircleCI ERROR | 4 COMMENTED; 0 APPROVED |
+| [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | NO | NO / dirty | 0 runs | Vercel FAILURE; CircleCI ERROR | 11 COMMENTED; 0 APPROVED |
+| [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | NO | NO / dirty | 0 runs | Vercel SUCCESS; CircleCI ERROR | 16 COMMENTED; 0 APPROVED |
+| [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | NO | NO / dirty | 0 runs | Vercel FAILURE; CircleCI ERROR | 10 COMMENTED; 0 APPROVED |
 
-- #528's Summary SUCCESS and Vercel Preview Comments SUCCESS do not substitute for missing workflow jobs; Mergify is NEUTRAL. Its pre-refresh exact-head run `45398552432` is PENDING and the job query returned 0 jobs. The exact-head checks are Summary SUCCESS, Vercel Preview Comments SUCCESS, and Mergify NEUTRAL; combined status is FAILURE because CircleCI reports no project configuration. Keep Draft until a non-zero terminal exact-head quality-gates run and independent approval. No formal APPROVED review exists on any OPEN PR.
-- *The HEAD shown for #528 is the candidate SHA observed immediately before this handoff refresh. This refresh commit itself advances the PR HEAD; re-query the resulting HEAD and its Actions/jobs before any further acceptance decision.
-- The five non-GPT5 PRs have stale base SHAs, GitHub reports mergeable=false, and their own exact-head Actions runs are absent. Rebase/conflict repair remains with each accountable owner; GPT5 did not alter their branches.
-- No PR meets acceptance or merge gates. #528 remains Draft; the other five are already non-Draft, which does not imply acceptance.
+- #529 exact-head check-runs: CodeRabbit IN_PROGRESS; Summary SUCCESS; Resolve exact candidate PR metadata PENDING; Mergify NEUTRAL. Its only Actions job is PENDING. No independent review.
+- #528 exact-head check-runs: Summary SUCCESS; Mergify NEUTRAL. Its Actions run is PENDING with 0 jobs. Keep Draft.
+- #478 checks: Mergify IN_PROGRESS; Summary SUCCESS; CodeRabbit SUCCESS.
+- #476 checks: Mergify IN_PROGRESS; Vercel Preview Comments SUCCESS; Summary SUCCESS; CodeRabbit SUCCESS.
+- #417 checks: Summary SUCCESS; CodeRabbit SUCCESS; Mergify NEUTRAL.
+- #376 checks: Mergify IN_PROGRESS; Vercel Preview Comments SUCCESS; Summary SUCCESS; CodeRabbit SUCCESS.
+- #259 checks: Summary SUCCESS; CodeRabbit SUCCESS; Mergify NEUTRAL.
+- The five older PRs (#478/#476/#417/#376/#259) have stale base SHAs and GitHub mergeable=false / dirty; rebase/conflict repair belongs to their accountable owners. They have no exact-head Actions runs.
+- Across all seven OPEN PRs: formal APPROVED reviews = 0. COMMENTED reviews, bot summaries, Mergify NEUTRAL/IN_PROGRESS, and Summary SUCCESS are not independent approval or complete CI.
+- No PR meets acceptance/merge gates. #528 remains Draft; #529 is non-Draft but has PENDING exact-head job, provider failures and no independent review.
 
 ## GPT5 actions, tests and handoff
-- Triggered the existing daily check once via its existing automation ID; no duplicate automation created.
-- Re-read current governance/role docs and queried main, all six OPEN PRs, exact-head runs/checks/statuses/reviews, main jobs, automation inventory, and #528 QA comments.
-- Updated only this allowlisted handoff file on the existing GPT5 branch. This is an operations evidence correction, not feature implementation, acceptance, merge, or release.
-- No local checkout or shell/test runtime was attached; GPT5 local tests/build/lint are NOT RUN. Main's Windows CI jobs are evidence for main SHA only, not any PR head.
-- GPT1 / Factory DRI: diagnose Recovery FAILURE/PENDING/SKIPPED without resetting durable state or blind retries.
-- Repository/provider administrator: fix CircleCI project configuration; resolve Vercel deployment quota before retrying provider deployments.
-- #528: investigate why the latest exact-head Actions run is PENDING with 0 jobs; wait for a non-zero terminal quality-gates run and independent review before Draft unlock.
-- GPT1/GPT2/GPT4 and respective PR owners: rebase their own stale-base PRs, restore exact-head CI, and obtain required independent review. GPT3 remains independent QA.
-- Disposition: OBSERVED main Push run SUCCESS; overall main BLOCKED; all six PRs OPEN; zero APPROVED; no ACCEPTED, MERGED, or RELEASED candidate.
+- Re-read current-main role, coordination, Execution OS and proposed constitution; verified governance proposal statuses and GPT5 boundary.
+- Queried main ref before and after the PR sweep, all seven main Actions runs/jobs, 13 check-runs, combined status, all seven open PRs, exact-head runs/checks/statuses/reviews, and current automation schedule.
+- Updated only this allowlisted handoff file on the existing GPT5 branch. This is an operations evidence update, not feature implementation, acceptance, merge or release.
+- No local repository checkout or shell/test runtime was attached; local tests/build/lint NOT RUN. Main Windows CI results apply only to main SHA, not PR heads.
+- GPT1 / Factory DRI: diagnose three Recovery FAILUREs and three SKIPPED runs; retrieve underlying controller/log evidence and explain the skipped predicate without resetting durable state, breaker, cooldown, quarantine or retry budget.
+- Repository/provider administrator: repair CircleCI project configuration and resolve Vercel deployment quota; then restore provider checks against current exact SHAs.
+- GPT2 owns #529 and its GPT2 coordination file; GPT5 did not modify that branch. GPT3 independent review remains required.
+- GPT1/GPT2/GPT4 and respective PR owners: rebase their own stale-base PRs, restore exact-head Actions, and obtain required independent review. GPT3 remains independent QA.
+- Disposition: main Push run OBSERVED SUCCESS; overall main BLOCKED; 7 PRs OPEN; 0 formal APPROVED; no ACCEPTED, MERGED or RELEASED candidate.
+
 
 ---
 
