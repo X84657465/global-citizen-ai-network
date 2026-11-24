@@ -1004,3 +1004,12 @@ test("resolver skips token and GitHub API requirements for events without a PR c
   assert.ok(resolver.includes('is_current_head", "true"'));
   assert.ok(resolver.includes('is_task_pr", "false"'));
 });
+
+test("resolver failure evidence preserves event and ref from the pre-checkout fallback", () => {
+  assert.ok(resolver.includes('readFileSync(resolverDiagnosticsOutput, "utf8")'),
+    "resolver diagnostics must read the pre-checkout fallback before replacing it");
+  assert.ok(resolver.includes('fallbackContext.event'));
+  assert.ok(resolver.includes('fallbackContext.ref'));
+  assert.ok(resolver.includes('event: typeof fallbackContext.event'));
+  assert.ok(resolver.includes('ref: typeof fallbackContext.ref'));
+});
