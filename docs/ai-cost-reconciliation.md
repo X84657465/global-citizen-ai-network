@@ -1,17 +1,22 @@
 # AI provider invoice CSV preview (Issue #85)
 
-## Implementation status — 2026-11-24
+## Implementation status — 2026-11-25
 
-The read-only invoice-preview implementation has been merged into `main` through PR #530 (merge commit `a3c244b3684966922373892fb4ab087cf776e3aa`). The current main baseline checked for this status update is `e37cec78de7131b2c066952500eb739d9dc4c2cd`.
+The read-only invoice-preview implementation has been merged into `main` through PR #530 (merge commit `a3c244b3684966922373892fb4ab087cf776e3aa`). The main baseline checked for this status update is `e37cec78de7131b2c066952500eb739d9dc4c2cd`.
 
 This merge is implementation progress, **not full Issue #85 acceptance**. Issue #85 remains OPEN. Do not describe the feature as fully accepted, independently approved, or production-accounting complete until every required gate is evidenced on the applicable exact SHA.
 
-The current mainline evidence observed on 2026-11-24 is:
-- GitHub Actions main CI run `45422061476`: PENDING; the job query returned 0 jobs. This is not a pass.
-- Agent Factory recovery run `45424899032`: PENDING; its verification job `138554106474` is also PENDING.
-- Vercel: FAILURE (`build-rate-limit`).
-- CircleCI Pipeline #368: ERROR.
+The current mainline evidence observed on 2026-11-25 is:
+- GitHub Actions: no run was returned for the exact main SHA in this check; status is UNKNOWN, not PASS.
+- Vercel: FAILURE.
+- CircleCI Pipeline #380: ERROR.
 - No exact-main CI pass or formal GPT3 APPROVED review is established by this status update.
+
+The current GPT2 candidate evidence is:
+- PR #536 head `3208f25759865315f38a6c53b1946049f936420f`.
+- GitHub Actions run `45425936715`: completed SUCCESS. Conditional evidence/persistence jobs were SKIPPED; those skips are not independent passes.
+- Vercel: FAILURE; CircleCI: ERROR.
+- The review records checked for this candidate are COMMENTED only; no formal GPT3 APPROVED review is established.
 
 ## Delivered implementation
 
