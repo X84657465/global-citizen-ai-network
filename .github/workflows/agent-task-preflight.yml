@@ -54,7 +54,6 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - ".github/workflows/agent-task-preflight.yml"
       - "tests/agent-patch-to-scratch.test.mjs"
       - "scripts/apply-agent-patch-to-scratch.mjs"
       - "lib/agent-plan-validation.mjs"
