@@ -1,5 +1,22 @@
 # GPT5 Daily Operations — live sweep (2026-11-24; main 3c6fc232ec1d)
 
+## Latest live delta — 2026-11-24 (main SHA unchanged)
+
+- Main exact SHA: `3c6fc232ec1d07c56f0ba31d3a690079008f4004`; final ref re-read unchanged.
+- Main exact-SHA Actions: 14 runs; Check-runs: 20; combined status FAILURE. Run distribution: 1 Main Push CI SUCCESS, 6 Recovery FAILURE, 6 Recovery SKIPPED, 1 Recovery PENDING. Latest pending run `45402845714`, only job `138475659797` PENDING. Vercel SUCCESS; CircleCI ERROR (project configuration missing).
+- Recovery run `45401843436` and newer `45402661524` have both terminated FAILURE; latest `45402845714` is still PENDING. No Recovery PASS.
+- PR #529 exact HEAD `42259a07eb07f8faba7c9f86e0c7ace7f5babd43`: Actions run `45399704599` COMPLETED / SUCCESS; metadata, quality gates, Supabase/PostgreSQL/RLS, Ollama/local integration all SUCCESS. However combined status remains FAILURE from Vercel deployment rate limit and CircleCI missing config; formal APPROVED reviews = 0. No merge.
+- PR #528 exact HEAD `8bdff06d144128c7468ac0a351ee3c7ff5fe2bae`: Draft; run `45401807365` PENDING overall; metadata job SUCCESS, Windows quality gates job `138475276447` IN_PROGRESS. Combined FAILURE (Vercel rate limit; CircleCI missing config); 0 approvals.
+- PR #530 exact HEAD `cddd8e66d8736f2516ff084a229fe77cabdec3e9`: Draft; run `45402137586` PENDING; metadata job `138475570012` PENDING (the earlier 0-job observation has changed; now one pending job). Combined FAILURE (Vercel rate limit; CircleCI missing config); 0 approvals.
+- Older PRs #478/#476/#417/#376/#259 remain stale-base, mergeable=false / dirty, 0 exact-head Actions runs, 0 formal approvals; reviews are COMMENTED only. Their owners retain rebase/conflict ownership.
+- All 8 open PRs: formal APPROVED = 0. No Draft removal, acceptance, merge or release gate met.
+- Existing daily automation `GCAN Daily Dev Check` ID `6b0334c033b481919ee5a3aefdc8e3b6` remains enabled at 08:00 Asia/Taipei. Existing automation was invoked for inline execution; this does not prove scheduler background completion.
+- GPT5 action: refreshed only this allowlisted handoff file; no Factory state, breaker, cooldown, quarantine, retry budget, source code, workflows, secrets, permissions, branch protection or production configuration changed. No local build/lint/test environment attached; no local tests claimed.
+- Handoffs: GPT1/Factory DRI diagnose six Recovery failures and latest pending run from logs/controller evidence; GPT2 owns #529/#530 workstreams; GPT3 performs independent QA on final exact SHA; repository admin repairs CircleCI project config; Vercel admin addresses deployment quota; old PR owners rebase and resolve conflicts.
+- Disposition: overall Main BLOCKED despite Main Push CI SUCCESS; all 8 PRs OPEN; 0 formal approvals; no ACCEPTED/MERGED/RELEASED result.
+
+
+
 > Latest exact-SHA snapshot; older records below remain history.
 
 ## Role / authority
