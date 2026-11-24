@@ -991,3 +991,16 @@ test("post-completion recovery guard compares stable repository IDs from workflo
     assert.ok(recoveryWorkflow.includes(requiredGuard), "recovery guard must retain " + requiredGuard);
   }
 });
+
+
+test("resolver skips token and GitHub API requirements for events without a PR candidate", () => {
+  const parse = resolver.indexOf('const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);');
+  const noCandidate = resolver.indexOf('No pull-request candidate metadata applies to this event.');
+  const tokenGuard = resolver.indexOf('if (!token)', parse);
+  const apiClient = resolver.indexOf('createGitHubApiClient({', parse);
+  assert.ok(parse >= 0 && noCandidate > parse, "no-PR event must be detected");
+  assert.ok(tokenGuard > noCandidate, "token validation must happen only after no-PR early return");
+  assert.ok(apiClient > tokenGuard, "GitHub API client must be created only for PR candidates");
+  assert.ok(resolver.includes('is_current_head", "true"'));
+  assert.ok(resolver.includes('is_task_pr", "false"'));
+});
