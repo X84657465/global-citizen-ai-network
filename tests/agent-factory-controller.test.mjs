@@ -508,6 +508,7 @@ test("candidate success completes only its task and preserves the global breaker
     cooldown_until: new Date(120_000).toISOString(),
     last_error_code: "RUNNER_UNAVAILABLE",
     last_error: "Shared Runner is still unavailable.",
+    last_failure_at: new Date(1000).toISOString(),
     last_success_at: new Date(500).toISOString(),
   };
   initial.tasks["99"] = {
@@ -1507,6 +1508,7 @@ test("task publication success is a non-mutating callback and cannot reset the g
     cooldown_until: new Date(120_000).toISOString(),
     last_error_code: "RUNNER_UNAVAILABLE",
     last_error: "Shared Runner is still unavailable.",
+    last_failure_at: new Date(1000).toISOString(),
     last_success_at: new Date(500).toISOString(),
   };
   initial.tasks["99"] = {
