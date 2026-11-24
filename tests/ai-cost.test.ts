@@ -319,10 +319,15 @@ const routeInvoiceCsv = [
 ].join("\n");
 
 function makeInvoicePreviewRequest(body: string | Uint8Array, headers: Record<string, string> = {}) {
+  const requestBody: BodyInit = typeof body === "string" ? body : (() => {
+    const buffer = new ArrayBuffer(body.byteLength);
+    new Uint8Array(buffer).set(body);
+    return buffer;
+  })();
   return new Request("https://example.test/api/admin/ai-costs", {
     method: "POST",
     headers: { "content-type": "application/json", ...headers },
-    body,
+    body: requestBody,
   });
 }
 
