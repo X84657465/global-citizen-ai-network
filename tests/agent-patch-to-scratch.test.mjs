@@ -268,8 +268,10 @@ test("task preflight rejects invalid fetched issue identity before marking conte
   const identityReject = source.indexOf("if (!validFetchedTaskIdentity)");
   const validation = source.indexOf("task = validateAndBuildTask(issue, repository)");
   const validationCatch = source.indexOf("catch (error)", validation);
-  const identityGuard = source.indexOf("if (validFetchedTaskIdentity)", validationCatch);
-  const typedGuard = source.indexOf("if (error instanceof TaskValidationError)", identityGuard);
+  const taskScopeGuard = source.indexOf(
+    "if (validFetchedTaskIdentity && error instanceof TaskValidationError)",
+    validationCatch,
+  );
 
   assert.ok(identityHelper >= 0);
   assert.ok(lookup >= 0);
@@ -277,8 +279,7 @@ test("task preflight rejects invalid fetched issue identity before marking conte
   assert.ok(identityReject > identityCheck);
   assert.ok(validation > identityReject);
   assert.ok(validationCatch > validation);
-  assert.ok(identityGuard > validationCatch);
-  assert.ok(typedGuard > identityGuard);
+  assert.ok(taskScopeGuard > validationCatch);
 
   const identitySection = source.slice(identityHelper, lookup);
   assert.match(identitySection, /candidate\.number !== requestedNumber/);
@@ -286,5 +287,5 @@ test("task preflight rejects invalid fetched issue identity before marking conte
   assert.match(identitySection, /candidate\.pull_request/);
   assert.match(identitySection, /candidate\.html_url !== expectedUrl/);
   assert.match(identitySection, /ownerAuthored \|\| plannerAuthored/);
-  assert.match(source.slice(typedGuard, source.indexOf("fail(", typedGuard)), /markTaskScopedFailure\(\)/);
+  assert.match(source.slice(taskScopeGuard, source.indexOf("fail(", taskScopeGuard)), /markTaskScopedFailure\(\)/);
 });
