@@ -13,8 +13,8 @@
 - Push run `45393056714`, attempt 1: COMPLETED / SUCCESS. Seven jobs: five SUCCESS (`138441838730`, `138444656806`, `138448046176`, `138448047935`, `138450597258`) and two conditional failure-path jobs SKIPPED (`138450598926`, `138450600206`).
 - Recovery run `45393890346`, attempt 1: COMPLETED / FAILURE; job `138444433694` FAILURE.
 - Recovery runs `45393156876` and `45395814790`, attempt 1: COMPLETED / SKIPPED; jobs `138441874337` and `138451167581` SKIPPED.
-- Latest Recovery run `45397541314`, attempt 1: PENDING; sole job `138457199779` PENDING, no completed_at. Not PASS; no blind retry.
-- Main check-runs contain 11 entries including the PENDING Recovery check and historical FAILURE/SKIPPED checks.
+- Latest Recovery run `45397541314`, attempt 1: PENDING; sole job `138460503731` PENDING, no completed_at. Not PASS; no blind retry.
+- Main exact-SHA check-runs contain 12 entries, including the PENDING Recovery check and historical FAILURE/SKIPPED checks.
 
 ## Current automation record
 - Existing enabled automation `GCAN Daily Dev Check`, ID `6b0334c033b481919ee5a3aefdc8e3b6`, is scheduled daily at **08:00 Asia/Taipei**; next scheduled run `2026-11-25T08:00:00+08:00`. It was triggered manually in this sweep; no duplicate was created.
@@ -23,14 +23,15 @@
 ## Every OPEN PR — 6 total
 | PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions | Combined status | Formal reviews |
 |---|---|---|---|---|---|---|---|
-| [#528](https://github.com/X84657465/global-citizen-ai-network/pull/528) | `7324a550a1f297af0c096713a218019345585769` | main `3c6fc232ec1d07c56f0ba31d3a690079008f4004` | YES | YES | run `45397794364`, attempt 1 PENDING; Jobs query = 0 | Vercel FAILURE (daily deployment quota); CircleCI ERROR | 0 |
+| [#528](https://github.com/X84657465/global-citizen-ai-network/pull/528) | pre-refresh HEAD `564c7256c05dcd23fb3258829b1d493444c4a433`* | main `3c6fc232ec1d07c56f0ba31d3a690079008f4004` | YES | YES / unstable | run `45398552432`, attempt 1 PENDING; Jobs query = 0 | Vercel SUCCESS; CircleCI ERROR | 0 |
 | [#478](https://github.com/X84657465/global-citizen-ai-network/pull/478) | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 4 COMMENTED; 0 APPROVED |
 | [#476](https://github.com/X84657465/global-citizen-ai-network/pull/476) | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | NO | NO | 0 runs | Vercel SUCCESS; CircleCI ERROR | 4 COMMENTED; 0 APPROVED |
 | [#417](https://github.com/X84657465/global-citizen-ai-network/pull/417) | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 11 COMMENTED; 0 APPROVED |
 | [#376](https://github.com/X84657465/global-citizen-ai-network/pull/376) | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | NO | NO | 0 runs | Vercel SUCCESS; CircleCI ERROR | 16 COMMENTED; 0 APPROVED |
 | [#259](https://github.com/X84657465/global-citizen-ai-network/pull/259) | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | NO | NO | 0 runs | Vercel FAILURE; CircleCI ERROR | 10 COMMENTED; 0 APPROVED |
 
-- #528's Summary SUCCESS and Mergify NEUTRAL do not substitute for missing workflow jobs. GPT3's issue comments identify factual corrections and explicitly say keep Draft until a non-zero terminal exact-head quality-gates run and independent approval. No formal APPROVED review exists on any OPEN PR.
+- #528's Summary SUCCESS and Vercel Preview Comments SUCCESS do not substitute for missing workflow jobs; Mergify is NEUTRAL. Its pre-refresh exact-head run `45398552432` is PENDING and the job query returned 0 jobs. The exact-head checks are Summary SUCCESS, Vercel Preview Comments SUCCESS, and Mergify NEUTRAL; combined status is FAILURE because CircleCI reports no project configuration. Keep Draft until a non-zero terminal exact-head quality-gates run and independent approval. No formal APPROVED review exists on any OPEN PR.
+- *The HEAD shown for #528 is the candidate SHA observed immediately before this handoff refresh. This refresh commit itself advances the PR HEAD; re-query the resulting HEAD and its Actions/jobs before any further acceptance decision.
 - The five non-GPT5 PRs have stale base SHAs, GitHub reports mergeable=false, and their own exact-head Actions runs are absent. Rebase/conflict repair remains with each accountable owner; GPT5 did not alter their branches.
 - No PR meets acceptance or merge gates. #528 remains Draft; the other five are already non-Draft, which does not imply acceptance.
 
