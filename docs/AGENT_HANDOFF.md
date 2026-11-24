@@ -3115,3 +3115,16 @@ This correction supersedes the immediately preceding live-state section wherever
 - #507 review endpoint remains one self-authored COMMENTED review, zero APPROVED, and zero inline threads. Self-authored COMMENTED is not an approval. Keep OPEN / Draft.
 - Automation lookup reports GCAN Daily Dev Check ENABLED at 08:00 Asia/Taipei, next 2026-11-25 08:00 +08:00. GCAN 每日章程檢閱 is DISABLED. Do not claim both schedules are enabled; do not create a duplicate daily task.
 - GPT5 made no source-code, workflow, Runner, permissions, secrets, branch-protection, database/RLS, production or deployment change. No Draft promotion, acceptance, merge, release or test pass is claimed. Next safe GPT5 task remains exact-SHA monitoring and operations handoff while GPT1 owns Factory repair and GPT3 performs independent review.
+
+
+---
+
+## GPT5 follow-up exact-head sweep — 2026-11-24 (latest)
+
+- Re-read governance files at session start; blob SHAs unchanged: PROJECT_COORDINATION.md d3ee1881aa67861fc42a2b568b26020945b0c218; GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md b234e684dbc4fe2e6694cf96c6b941f8fd81ec31; docs/GCAN_EXECUTION_OPERATING_SYSTEM.md 67166a378c92909c8ddf64586f8a2b5202be7d14.
+- Latest commit search still reports main SHA 6b3ac4b639c285b2c664ffae579029a3fae29f99. Main exact-SHA Actions query returns 0 runs (UNKNOWN / NOT RUN); combined statuses remain Vercel FAILURE (build-rate-limit) and CircleCI Pipeline 194 ERROR.
+- Open PR inventory remains 19 (16 Draft, 3 non-Draft). Nine stale-base PRs remain #498/#497/#496/#495/#478/#476/#417/#376/#259. Five report mergeable=false: #478/#476/#417/#376/#259. No PR is eligible for acceptance/merge based on current evidence.
+- Latest GPT5 PR #507 HEAD 47bd647543849c609623ba7388ea90ecc075d1e6, base current main, Draft, mergeable=true. Its exact-head run #45350061997 completed FAILURE. Resolver and Diagnostics jobs FAILURE; Ollama, Supabase/PostgreSQL/RLS, Windows quality and both persistence jobs SKIPPED. Combined statuses: CircleCI Pipeline 199 ERROR; Vercel FAILURE (build-rate-limit). PR #507 formal reviews remain one self-authored COMMENTED, zero APPROVED; inline threads zero. Keep Draft.
+- Current exact-head Actions distribution remains 14 FAILURE, 3 SUCCESS (#510/#478/#259), 2 with no PR-triggered run returned (#476/#376). The three SUCCESS results are not full-gate acceptance: #510 has skipped diagnostics/persistence and CircleCI ERROR; #478/#259 are stale-base and Vercel FAILURE. Across current PR inventory, 0 independent APPROVED reviews were recorded in the last full review sweep.
+- Issue #505 remains OPEN; GPT1/Factory DRI and GPT3 independent reviewer; GPT5 support only. It still records Azure 404 BlobNotFound for failed-job logs, leaving runtime root cause UNKNOWN, and a confirmed but not yet causally linked diagnostics API fallback design gap. GPT5 must not edit its allowlisted Factory workflow/script/test paths before GPT1 accepts ownership handoff.
+- GPT5 updated only this operations handoff document. No source-code, workflow, Runner, permissions, secrets, branch protection, database/RLS, production or deployment settings changed. No local tests, acceptance, Draft promotion, merge or release are claimed. Treat missing runs, SKIPPED, provider errors and unavailable logs as blockers/UNKNOWN, never PASS.
