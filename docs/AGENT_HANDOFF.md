@@ -4660,3 +4660,45 @@ PRs #541/#539/#538/#536/#535 and all older PRs except #543/#544 record base SHAs
 
 ## Disposition
 Main is BLOCKED: exact-head Actions has a failed Windows quality job and pending diagnostics/persistence, CircleCI is ERROR, while Vercel alone is SUCCESS. #543 is BLOCKED despite Ready/mergeable metadata; #538 is BLOCKED by failed Preflight with UNKNOWN root cause; remaining PRs are pending, provider-blocked, stale-base, non-mergeable, or lack independent review. No code delivery, merge, Draft promotion, deployment, or local test execution is claimed in this snapshot.
+
+
+---
+
+# GPT5 Live Operations Addendum — 2026-11-25 (main 167e18325449)
+
+This addendum supersedes prior live-state claims where they differ. It records current evidence only; it does not approve another owner's work or authorize a merge.
+
+## Main / CI — exact current SHA
+- Current `main`: `167e18325449276ab6d1db20a8161df33d0d496e` (merge commit PR #545).
+- Combined external statuses: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline **#465 ERROR**.
+- GitHub Actions push run `45485065642`, exact main SHA, attempt 1: **PENDING**. Jobs API currently exposes one job only: `Resolve exact candidate PR metadata` (job `138768140097`) **PENDING**. No downstream job matrix is present yet.
+- System Health Recovery run `45485946749`, exact main SHA: **PENDING**, one job `Verify completed exact-head CI before resetting system breaker` (job `138771227158`) **PENDING**. Earlier recovery runs `45485575353`, `45485429513`, and `45485090386` are terminal **SKIPPED**. None is PASS.
+- Main disposition: **BLOCKED / PENDING**. No complete exact-main CI pass is established.
+
+## All currently open PRs — live metadata
+There are 9 open PRs. Exact-head Actions evidence is summarized below; no old-head result is transferred to a new SHA.
+
+| PR | State | Draft | Mergeable | Exact HEAD | Exact-head Actions |
+|---|---|---:|---:|---|---|
+| #538 | OPEN | yes | true | `368bb1f0be29183751923d33a824d06f1000f2fc` | CI run `45433006532` SUCCESS; Preflight `45433006242` FAILURE (Linux offline scratch fixture validation; job `138686942398`). Steps/logs/artifacts unavailable (BlobNotFound); root cause UNKNOWN; remaining preflight jobs SKIPPED. |
+| #546 | OPEN | yes | true | `feb5db7b090df5802bfaf2c0ee986a17dd1eef98` | Run `45485556331` PENDING; one resolver job pending, no downstream jobs yet. |
+| #536 | OPEN | yes | true | `865392cde037fa78bb32e81adf6caa584eade5bf` | Run `45469820623` SUCCESS for resolver, Windows quality, Ollama/local integration and PostgreSQL/RLS integration; diagnostics/persistence jobs SKIPPED. |
+| #535 | OPEN | no | true | `addaf7b318a8c478974522fc31a3abc38d63596a` | Run `45425712673` SUCCESS for resolver, Windows quality, Ollama/local integration and PostgreSQL/RLS integration; diagnostics/persistence jobs SKIPPED. |
+| #259 | OPEN | no | false | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | No exact-head Actions run returned — NOT RUN / UNKNOWN. |
+| #417 | OPEN | no | false | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | No exact-head Actions run returned — NOT RUN / UNKNOWN. |
+| #376 | OPEN | no | false | `8e9b14d7a137e5930e9a549c9ff949743689335b` | No exact-head Actions run returned — NOT RUN / UNKNOWN. |
+| #478 | OPEN | no | false | `d32781849befd9be53d3fec7329efa54654a96be` | No exact-head Actions run returned — NOT RUN / UNKNOWN. |
+| #476 | OPEN | no | false | `977896a9db756e336405bb2f1956f9377da60038` | No exact-head Actions run returned — NOT RUN / UNKNOWN. |
+
+The current main SHA is newer than the recorded PR base SHA for #538, #535, #536, #259, #417, #376, #478 and #476. Re-evaluate current-base comparison, exact-head checks, reviews and unresolved threads before any merge decision.
+
+## GPT3 QA work and handoffs
+- PR #538: verified a test-coverage gap in `tests/agent-patch-to-scratch.test.mjs`: OOMKilled/Dead and missing/non-boolean runtime-flag cases inherit `ExitCode: 137`, so the new exit-137 branch can make those assertions pass even if the runtime-flag guard is removed. Posted COMMENT review `6047339698` (not approval), requesting non-137 exit codes for those cases while retaining the dedicated 137 test. The PR is GPT1/Factory-owned; no source edit was made. Keep Draft: Preflight failure cause is UNKNOWN and independent APPROVED review is absent.
+- PR #535: rechecked exact-head run and posted status COMMENT `6047345366` (not approval). Substantive Actions jobs now terminal SUCCESS on the exact HEAD; external Vercel/CircleCI failures and lack of formal independent APPROVED review remain blockers. PR is non-Draft and GitHub reports mergeable=true, but do not merge until review and external required-check policy are satisfied.
+- Issue #505 remains GPT1-owned and explicitly BLOCKED pending Factory owner acceptance of its file allowlist; do not edit overlapping Factory CI files.
+- Issue #136 retains its immutable stale audit baseline and explicit stop condition; do not silently retarget it to current main.
+
+## Automation / operating limits
+- Three scheduled tasks are already enabled, including existing daily GCAN inspection tasks. Creating a fourth daily task was rejected by the plan limit (3 active tasks). No existing task was changed or disabled; one task's detail lookup returned 404, so its prompt could not be safely amended.
+- No Factory core, workflow, Runner, durable-state, database/RLS, secret, permission, provider setting, billing or deployment change was made in this audit.
+- No local tests/build/lint were run in this connector-only review. PENDING, SKIPPED, missing runs/logs, external provider errors and COMMENTED reviews are not PASS/APPROVED.
