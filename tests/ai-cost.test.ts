@@ -293,8 +293,7 @@ function makePreviewRouteDependencies(
     hasServiceRoleKey: () => true,
     createAdminClient: () => {
       calls.push("admin-client");
-      let query: PreviewQuery;
-      query = {
+      const query: PreviewQuery = {
         select: (columns) => { calls.push("select:" + columns); return query; },
         gte: (column) => { calls.push("gte:" + column); return query; },
         lte: (column) => { calls.push("lte:" + column); return query; },
