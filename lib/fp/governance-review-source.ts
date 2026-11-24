@@ -30,7 +30,7 @@ export class FPGovernanceReviewCollectionError extends Error {
 
 const SHA = /^[a-f0-9]{40}$/i;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-const LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
+export const GITHUB_REVIEWER_LOGIN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}(?:\[bot\])?$/;
 function isValidUtcTimestamp(value: string): boolean {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/.exec(value);
   if (!match) return false;
@@ -137,7 +137,7 @@ export async function collectFPGovernanceReviewEvidence(
     if (!decision) invalid("GitHub returned an unsupported submitted review state.");
 
     const login = item.user?.login;
-    if (typeof login !== "string" || !LOGIN.test(login) ||
+    if (typeof login !== "string" || !GITHUB_REVIEWER_LOGIN.test(login) ||
         typeof item.commit_id !== "string" || !SHA.test(item.commit_id) ||
         typeof item.submitted_at !== "string" || !isValidUtcTimestamp(item.submitted_at)) {
       invalid("GitHub review is missing a valid reviewer, commit SHA or UTC submission timestamp.");

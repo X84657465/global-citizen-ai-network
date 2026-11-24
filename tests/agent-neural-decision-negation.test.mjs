@@ -120,3 +120,30 @@ test("a direct prohibition still suppresses prose-only risk while keeping the de
   assert.equal(result.authority.may_execute_code, false);
   assert.equal(result.authority.may_publish_changes, false);
 });
+
+test("underscore-delimited path terms are high risk without matching longer words", () => {
+  for (const [path, highRisk] of [["lib/billing_service.mjs", true], ["lib/author_service.mjs", false]]) {
+    const result = evaluateAgentDecision(
+      withImplementerText("Update the service", [], path),
+      { allowed_paths: [path] },
+    );
+    assert.equal(result.signals.scope_bounded, true);
+    assert.equal(result.evidence.high_risk_scope_detected, highRisk, path);
+  }
+});
+
+test("a trailing contrast with documentation does not prohibit changing billing", () => {
+  const result = evaluateAgentDecision(withImplementerText("Update billing not documentation"), task);
+  assert.equal(result.decision, "reject_and_replan");
+});
+
+test("negation in one intent field cannot suppress a positive requirement in another", () => {
+  for (const [title, criteria] of [
+    ["Do not update documentation", ["Rotate secrets"]],
+    ["Rotate secrets", ["Not documentation"]],
+    ["Update the guide", ["Do not update documentation", "Rotate secrets"]],
+  ]) {
+    const result = evaluateAgentDecision(withImplementerText(title, criteria), task);
+    assert.equal(result.decision, "reject_and_replan");
+  }
+});

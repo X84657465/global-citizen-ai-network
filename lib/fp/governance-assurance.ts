@@ -104,6 +104,7 @@ export interface FPGovernanceAssessment {
 
 const SHA_PATTERN = /^[a-f0-9]{40}$/i;
 const OWNER_REF_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$/;
+const GITHUB_BOT_REVIEWER_REF_PATTERN = /^github:[A-Za-z0-9][A-Za-z0-9-]{0,38}\[bot\]$/;
 const EVIDENCE_REF_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,255}$/;
 const ISO_UTC_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
 
@@ -145,7 +146,7 @@ function assessReviews(
       !SHA_PATTERN.test(review.reviewedSha) ||
       !["approved", "changes-requested", "commented"].includes(review.decision) ||
       !isSafeEvidenceRef(review.reviewRef) ||
-      !OWNER_REF_PATTERN.test(review.reviewerRef) ||
+      !(OWNER_REF_PATTERN.test(review.reviewerRef) || GITHUB_BOT_REVIEWER_REF_PATTERN.test(review.reviewerRef)) ||
       !isSafeEvidenceRef(review.reviewerAuthorizationRef) ||
       !["verified", "unverified"].includes(review.reviewerAuthorizationStatus) ||
       !isValidUtcTimestamp(review.submittedAt) ||

@@ -186,3 +186,17 @@ test("rejects forged run/job URLs, duplicate controls, invalid SHAs, and unregis
     evidence: [evidence("member-isolation", { evidenceRef: "tests/other-unrelated.test.ts" })],
   })), TypeError);
 });
+
+test("accepts a leading repository hyphen in evidence bound to the candidate CI run", () => {
+  const candidateRepository = "owner/-repo";
+  const records = bundle().evidence.map((item) => ({
+    ...item,
+    ci: {
+      ...item.ci,
+      repository: candidateRepository,
+      runUrl: item.ci.runUrl.replace(repository, candidateRepository),
+      jobUrl: item.ci.jobUrl.replace(repository, candidateRepository),
+    },
+  }));
+  assert.equal(assessFPSecurityEvidence(bundle({ candidateRepository, evidence: records })).status, "ready-for-review");
+});

@@ -1,7 +1,8 @@
-import type {
-  FPGovernanceRepositoryPermission,
-  FPGovernanceReviewerPermission,
-  FPGovernanceReviewCollectionInput,
+import {
+  GITHUB_REVIEWER_LOGIN,
+  type FPGovernanceRepositoryPermission,
+  type FPGovernanceReviewerPermission,
+  type FPGovernanceReviewCollectionInput,
 } from "./governance-review-source.ts";
 import { isSafeGitHubRepositoryName } from "../github-repository-name.mjs";
 
@@ -36,7 +37,7 @@ export function createFPGitHubReviewerPermissionVerifier(input: {
   return async (reviewerLogin: string): Promise<FPGovernanceReviewerPermission> => {
     if (
       typeof reviewerLogin !== "string" ||
-      !/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(reviewerLogin)
+      !GITHUB_REVIEWER_LOGIN.test(reviewerLogin)
     ) {
       throw new TypeError("A valid GitHub reviewer login is required.");
     }
@@ -56,9 +57,11 @@ export function createFPGitHubReviewerPermissionVerifier(input: {
       throw new TypeError("GitHub returned an unsupported repository permission.");
     }
 
+    // Keep the bot identity distinct while using only safe reference characters.
+    const reviewerRef = reviewerLogin.replace(/\[bot\]$/, ":bot");
     return Object.freeze({
       permission: permission as FPGovernanceRepositoryPermission,
-      evidenceRef: `github:${input.repository}:collaborator-permission:${reviewerLogin}:${permission}`,
+      evidenceRef: `github:${input.repository}:collaborator-permission:${reviewerRef}:${permission}`,
     });
   };
 }
