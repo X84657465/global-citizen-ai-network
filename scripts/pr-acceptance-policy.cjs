@@ -11,17 +11,28 @@ function evaluateAcceptance(input) {
   if (!input.currentHeadSha || ci.headSha !== input.currentHeadSha) {
     failures.push({ code: "CI_SHA_MISMATCH", detail: "CI result is missing or does not match the current PR HEAD SHA." });
   }
+  if (!Number.isSafeInteger(ci.runId) || ci.runId < 1 ||
+      !Number.isSafeInteger(ci.runAttempt) || ci.runAttempt < 1 ||
+      !Number.isSafeInteger(ci.workflowId) || ci.workflowId < 1 ||
+      ci.workflowPath !== ".github/workflows/ci.yml" || ci.event !== "pull_request") {
+    failures.push({ code: "CI_RUN_IDENTITY_INVALID", detail: "A unique CI workflow run identity (workflow, event, run ID, attempt and exact path) is required." });
+  }
   if (ci.status !== "completed" || ci.conclusion !== "success") {
     failures.push({ code: "CI_NOT_SUCCESS", detail: `CI must be completed/success; observed ${ci.status || "UNKNOWN"}/${ci.conclusion || "UNKNOWN"}.` });
   }
-  const jobs = new Map((ci.jobs || []).map(job => [job.name, job.conclusion || job.status || "UNKNOWN"]));
+  const jobs = Array.isArray(ci.jobs) ? ci.jobs : [];
   for (const name of REQUIRED_CI_JOBS) {
-    const result = jobs.get(name);
-    if (result !== "success") {
-      failures.push({
-        code: result === "skipped" ? "REQUIRED_JOB_SKIPPED" : result ? "REQUIRED_JOB_NOT_SUCCESS" : "REQUIRED_JOB_MISSING",
-        detail: `${name}: ${result || "MISSING"} (only SUCCESS is accepted).`,
-      });
+    const matches = jobs.filter(job => job.name === name);
+    if (matches.length !== 1) {
+      failures.push({ code: matches.length === 0 ? "REQUIRED_JOB_MISSING" : "REQUIRED_JOB_DUPLICATE",
+        detail: `${name}: expected exactly one job in CI run ${ci.runId || "UNKNOWN"} attempt ${ci.runAttempt || "UNKNOWN"}; observed ${matches.length}.` });
+      continue;
+    }
+    const job = matches[0];
+    if (job.runId !== ci.runId || job.runAttempt !== ci.runAttempt ||
+        job.status !== "completed" || job.conclusion !== "success") {
+      failures.push({ code: job.conclusion === "skipped" ? "REQUIRED_JOB_SKIPPED" : "REQUIRED_JOB_NOT_SUCCESS",
+        detail: `${name}: job must belong to run ${ci.runId} attempt ${ci.runAttempt} and be completed/success; observed run=${job.runId || "UNKNOWN"}, attempt=${job.runAttempt || "UNKNOWN"}, ${job.status || "UNKNOWN"}/${job.conclusion || "UNKNOWN"}.` });
     }
   }
 
@@ -29,29 +40,14 @@ function evaluateAcceptance(input) {
   if (preflight.applicable && (preflight.headSha !== input.currentHeadSha ||
       preflight.status !== "completed" || preflight.conclusion !== "success" ||
       preflight.requiredJobConclusion !== "success")) {
-    failures.push({
-      code: "PREFLIGHT_NOT_SUCCESS",
-      detail: `Applicable Preflight must complete successfully on the current SHA; observed SHA=${preflight.headSha || "UNKNOWN"}, workflow=${preflight.status || "UNKNOWN"}/${preflight.conclusion || "UNKNOWN"}, required job=${preflight.requiredJobConclusion || "UNKNOWN"}.`,
-    });
+    failures.push({ code: "PREFLIGHT_NOT_SUCCESS",
+      detail: `Applicable Preflight must complete successfully on the current SHA; observed SHA=${preflight.headSha || "UNKNOWN"}, workflow=${preflight.status || "UNKNOWN"}/${preflight.conclusion || "UNKNOWN"}, required job=${preflight.requiredJobConclusion || "UNKNOWN"}.` });
   }
-
-  if (input.hasCurrentHeadApproval !== true) {
-    failures.push({ code: "APPROVAL_MISSING", detail: "No APPROVED review by someone other than the PR author is recorded against the current HEAD SHA." });
-  }
-  if (input.mergeable !== true) {
-    failures.push({ code: input.mergeable === false ? "NOT_MERGEABLE" : "MERGEABILITY_UNKNOWN", detail: "GitHub must explicitly report mergeable=true; false or unknown is rejected." });
-  }
-  if (input.draft !== false) {
-    failures.push({ code: "DRAFT_NOT_READY", detail: "Pull request must be Ready for review, not Draft." });
-  }
-
-  return {
-    accepted: failures.length === 0,
-    currentHeadSha: input.currentHeadSha || "UNKNOWN",
-    preflight: preflight.applicable ? "REQUIRED" : "NOT_APPLICABLE",
-    failures,
-    requiredCiJobs: REQUIRED_CI_JOBS,
-  };
+  if (input.hasCurrentHeadApproval !== true) failures.push({ code: "APPROVAL_MISSING", detail: "No APPROVED review by someone other than the PR author is recorded against the current HEAD SHA." });
+  if (input.mergeable !== true) failures.push({ code: input.mergeable === false ? "NOT_MERGEABLE" : "MERGEABILITY_UNKNOWN", detail: "GitHub must explicitly report mergeable=true; false or unknown is rejected." });
+  if (input.draft !== false) failures.push({ code: "DRAFT_NOT_READY", detail: "Pull request must be Ready for review, not Draft." });
+  return { accepted: failures.length === 0, currentHeadSha: input.currentHeadSha || "UNKNOWN",
+    ciRun: { runId: ci.runId || null, runAttempt: ci.runAttempt || null },
+    preflight: preflight.applicable ? "REQUIRED" : "NOT_APPLICABLE", failures, requiredCiJobs: REQUIRED_CI_JOBS };
 }
-
 module.exports = { REQUIRED_CI_JOBS, evaluateAcceptance };
