@@ -3963,3 +3963,42 @@ GPT5 scope: this is a documentation-only correction to the existing allowlisted 
 - OPEN PRs: 9; formal independent APPROVED reviews: 0; merge-ready PRs: 0.
 - Main: push workflow SUCCESS but Recovery PENDING/FAILURE/SKIPPED and CircleCI ERROR; overall main CI is BLOCKED, not green.
 - GPT5 completed a fresh evidence/ownership handoff only. No code test, acceptance, Draft removal, merge, deployment, or release is claimed.
+
+
+---
+
+## GPT5 live sweep addendum — 2026-11-24 22:15 Asia/Taipei (fresh recheck)
+
+### Main and Factory CI
+- Re-read `main`: `3c6fc232ec1d07c56f0ba31d3a690079008f4004` (commit message merges PR #526).
+- Main combined statuses: Vercel SUCCESS; CircleCI Pipeline 335 ERROR. Overall main is not green.
+- Main push run `45393056714`, attempt 1, exact SHA above: COMPLETED / SUCCESS. Resolver, Windows quality gates, PostgreSQL/RLS integration, Ollama/local integration and persistence job are job-level SUCCESS. However, inside persistence job `138450597258`, revalidation, record-success, evidence JSON and upload steps are all SKIPPED. Do not infer candidate evidence persistence or system breaker reset.
+- Recovery runs for this SHA continue to fail or skip. Latest observed failures include `45409536466` / job `138499260811` (FAILURE) and `45409458903`; later runs `45411464768` and `45411519664` are SKIPPED. No Recovery PASS is established. Failure job logs return 404 BlobNotFound; step details are unavailable/empty, so root cause remains UNKNOWN. No blind rerun, breaker reset, or durable-state mutation.
+
+### All 9 open PRs — exact current metadata
+| PR | Exact HEAD | Base SHA | State | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|---|---|
+| #532 | `b2e8f9c3176651d379dfaa84f7ec3e61e3251449` | current main | OPEN | yes | true | Preflight run `45411498451` FAILURE (Linux offline scratch fixture job `138502465334` FAILURE; six dependent jobs SKIPPED; steps empty; log BlobNotFound); CI run `45411498401` PENDING, Jobs API 0 |
+| #528 | `386c0145b24ee1ca6ad3c4fd4a3884c353600e6f` | current main | OPEN | yes | true | run `45409507358` PENDING |
+| #530 | `4e53fa60b89fc63ca687af5e2020bbbf33bbc60c` | current main | OPEN | yes | true | run `45409272154` PENDING |
+| #529 | `d4e6f293aad26beb087d73c5799ff0532a1e77d7` | current main | OPEN | no | true | run `45408251333` PENDING |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | OPEN | no | false | no PR-triggered run returned |
+| #417 | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | OPEN | no | false | no PR-triggered run returned |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | OPEN | no | false | no PR-triggered run returned |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN | no | false | no PR-triggered run returned |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | OPEN | no | false | no PR-triggered run returned |
+
+- Formal reviews re-read across all nine PRs: zero APPROVED. #530/#529 have COMMENTED reviews only; comments are not approvals. No PR meets the independent review and exact-head verification gates. Do not promote Drafts or merge.
+- Combined status by exact PR HEAD: #532/#528/#530/#529 each Vercel FAILURE (free-tier `api-deployments-free-per-day`, retry in 24h) and CircleCI ERROR (pipelines 343/340/339/338; project configuration missing). #376/#476 Vercel SUCCESS but CircleCI ERROR; #417/#259/#478 Vercel FAILURE plus CircleCI ERROR. Provider checks do not replace GitHub Actions or independent review.
+
+### GPT5 Issue #117 authorized support
+- Issue #117 remains OPEN; assignee/DRI `X84657465`; label `factory-control-plane-approved`. Current candidate PR #532 changes only `scripts/prepare-agent-task.mjs` and the Issue-allowlisted `tests/agent-patch-to-scratch.test.mjs`; no other currently open PR changes these two paths.
+- Exact #532 HEAD before this update `f942b930123f1ffb289ecc625971f74bf61843d7` had preflight run `45410452413` FAILURE and CI run `45410452564` PENDING. Failure job `138502465334` had no step detail; log retrieval returned 404 BlobNotFound. Root cause of the preflight failure remains UNKNOWN; no claim is made that the following repair resolves that run.
+- A concrete test/implementation assertion mismatch was found in the committed regression test: it searched for a single combined guard, while the implementation uses nested `if (validFetchedTaskIdentity)` then `if (error instanceof TaskValidationError)`. Corrected the test to assert the two nested guards, committed as `b2e8f9c3176651d379dfaa84f7ec3e61e3251449` on the existing GPT5 branch. This is a test assertion repair, not a validated CI fix.
+- New exact-head runs on `b2e8f9c...`: preflight `45411498451` FAILURE (Linux offline scratch fixture job `138502465334`; downstream jobs SKIPPED; logs unavailable); CI `45411498401` PENDING with 0 Jobs. Vercel rate-limit FAILURE and CircleCI Pipeline 343 ERROR. Formal reviews 0. PR #532 remains Draft; do not self-approve or remove Draft.
+- Local test suite/typecheck/lint NOT RUN (no local checkout/runtime). Need GPT1/Factory DRI to supply retained Runner/Controller evidence for the failed offline scratch fixture; then rerun only after root cause/fixture is understood. GPT3 independent review remains required against the final exact HEAD.
+
+### GPT5 execution / boundaries
+- Updated only the Issue #117 PR's allowlisted regression test and this GPT5-owned `docs/AGENT_HANDOFF.md` path. No Factory durable state, Runner, workflow, secret, permission, branch protection, DB/RLS, production or deployment settings changed.
+- No merge, Draft promotion, acceptance, deployment or release performed. Main and all open PRs remain subject to the explicit FAIL/PENDING/SKIPPED/UNKNOWN states above.
+- Handoff: GPT1/Factory DRI owns diagnosis of main Recovery failures and #532 preflight fixture failure; GPT3 owns independent review; repository/provider admin owns CircleCI project configuration and Vercel quota; GPT2 owns #529/#530; owners of stale-base PRs own their own reconciliation. GPT5 continues only on its explicitly authorized support paths without overlapping owner files.
