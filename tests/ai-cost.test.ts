@@ -256,3 +256,188 @@ test("invoice source references are deduplicated within provider namespaces", ()
     "openai-request", "anthropic-request",
   ]);
 });
+
+
+import { handleProviderInvoicePreviewPost } from "../lib/ai-cost-reconciliation.mjs";
+
+type PreviewRouteTestDependencies = {
+  calls: string[];
+  getAuthenticatedClient: () => Promise<unknown>;
+  getProfile: (auth: unknown) => Promise<{ data: unknown; error: unknown }>;
+  hasServiceRoleKey: () => boolean;
+  createAdminClient: () => unknown;
+};
+
+type PreviewRequestResult = { data: unknown[] | null; error: unknown };
+
+function makePreviewRouteDependencies(
+  overrides: Partial<Omit<PreviewRouteTestDependencies, "calls">> = {},
+  requestResult: PreviewRequestResult = { data: [], error: null },
+): PreviewRouteTestDependencies {
+  const calls: string[] = [];
+  const defaults: Omit<PreviewRouteTestDependencies, "calls"> = {
+    getAuthenticatedClient: async () => {
+      calls.push("auth");
+      return { user: { id: "admin-1" } };
+    },
+    getProfile: async () => {
+      calls.push("profile");
+      return { data: { role: "admin", account_status: "active" }, error: null };
+    },
+    hasServiceRoleKey: () => true,
+    createAdminClient: () => {
+      calls.push("admin-client");
+      let query: {
+        select: (columns: string) => typeof query;
+        gte: (column: string, value: string) => typeof query;
+        lte: (column: string, value: string) => typeof query;
+        not: (column: string, operator: string, value: null) => typeof query;
+        order: (column: string, options: { ascending: boolean }) => typeof query;
+        limit: (count: number) => Promise<PreviewRequestResult>;
+      };
+      query = {
+        select: (columns) => { calls.push("select:" + columns); return query; },
+        gte: (column) => { calls.push("gte:" + column); return query; },
+        lte: (column) => { calls.push("lte:" + column); return query; },
+        not: (column) => { calls.push("not:" + column); return query; },
+        order: (column) => { calls.push("order:" + column); return query; },
+        limit: (count) => { calls.push("limit:" + count); return Promise.resolve(requestResult); },
+      };
+      return {
+        from: (table: string) => {
+          calls.push("from:" + table);
+          return query;
+        },
+      };
+    },
+  };
+  return { calls, ...defaults, ...overrides };
+}
+
+const routeInvoiceCsv = [
+  "provider,model,billing_period_start,billing_period_end,source_reference,currency,amount",
+  "openai,gpt-test,2026-11-01,2026-11-30,provider-req-1,USD,1.25",
+].join("\n");
+
+function makeInvoicePreviewRequest(body: string | Uint8Array, headers: Record<string, string> = {}) {
+  return new Request("https://example.test/api/admin/ai-costs", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...headers },
+    body,
+  });
+}
+
+test("invoice preview POST returns 401 before profile or database access", async () => {
+  const deps = makePreviewRouteDependencies({
+    getAuthenticatedClient: async () => { throw new Error("not used"); },
+  });
+  deps.getAuthenticatedClient = async () => { deps.calls.push("auth"); return null; };
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  assert.equal(response.status, 401);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  assert.deepEqual(deps.calls, ["auth"]);
+});
+
+test("invoice preview POST returns 503 for profile lookup failure and 403 for inactive non-admin", async () => {
+  const unavailable = makePreviewRouteDependencies({
+    getProfile: async () => { throw new Error("profile provider unavailable"); },
+  });
+  const unavailableResponse = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), unavailable,
+  );
+  assert.equal(unavailableResponse.status, 503);
+  assert.deepEqual(unavailable.calls, ["auth"]);
+
+  const forbidden = makePreviewRouteDependencies({
+    getProfile: async () => ({
+      data: { role: "admin", account_status: "suspended" }, error: null,
+    }),
+  });
+  const forbiddenResponse = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), forbidden,
+  );
+  assert.equal(forbiddenResponse.status, 403);
+  assert.deepEqual(forbidden.calls, ["auth"]);
+});
+
+test("invoice preview POST fails closed when server database configuration is missing", async () => {
+  const deps = makePreviewRouteDependencies({ hasServiceRoleKey: () => false });
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  assert.equal(response.status, 503);
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
+});
+
+test("invoice preview POST rejects malformed JSON, invalid UTF-8, null, arrays and primitives", async () => {
+  const invalidBodies: Array<string | Uint8Array> = [
+    "{",
+    new Uint8Array([0xc3, 0x28]),
+    "null",
+    "[]",
+    "42",
+    '"text"',
+  ];
+  for (const body of invalidBodies) {
+    const deps = makePreviewRouteDependencies();
+    const response = await handleProviderInvoicePreviewPost(makeInvoicePreviewRequest(body), deps);
+    assert.equal(response.status, 400);
+    assert.deepEqual(deps.calls, ["auth", "profile"]);
+  }
+});
+
+test("invoice preview POST rejects oversized declared bodies before reading or querying", async () => {
+  const deps = makePreviewRouteDependencies();
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest("{}", { "content-length": "1100001" }), deps,
+  );
+  assert.equal(response.status, 413);
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
+});
+
+test("invoice preview POST returns 503 when request evidence cannot be read", async () => {
+  const deps = makePreviewRouteDependencies({}, { data: null, error: new Error("database unavailable") });
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  assert.equal(response.status, 503);
+  assert.ok(deps.calls.includes("from:ai_requests"));
+});
+
+test("invoice preview POST rejects billing windows with more than 5,000 request records", async () => {
+  const deps = makePreviewRouteDependencies({}, {
+    data: Array.from({ length: 5001 }, () => ({})), error: null,
+  });
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  assert.equal(response.status, 413);
+});
+
+test("invoice preview POST returns a private read-only evidence preview without database writes", async () => {
+  const deps = makePreviewRouteDependencies({}, {
+    data: [{
+      id: "request-1", provider: "openai", model: "gpt-test",
+      provider_request_id: "provider-req-1", created_at: "2026-11-10T12:00:00.000Z",
+      provider_billed_cost: "1.25", provider_billed_currency: "USD",
+    }],
+    error: null,
+  });
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  const body = await response.json() as {
+    preview: { rows: Array<{ disposition: string }> };
+    note: string;
+  };
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  assert.equal(body.preview.rows[0].disposition, "matched_actual");
+  assert.match(body.note, /唯讀預覽/);
+  assert.deepEqual(deps.calls.filter(call => call.startsWith("from:")), ["from:ai_requests"]);
+  assert.equal(deps.calls.some(call => /insert|update|upsert|delete/i.test(call)), false);
+});
