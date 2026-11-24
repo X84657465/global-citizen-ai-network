@@ -11,9 +11,12 @@ jobs:
     # Only one trusted, same-repository, non-task PR targeting main may
     # request system-health recovery after its source CI run has completed.
     # All other workflow_run events skip before queue acquisition.
-    # Recovery is a GitHub API/state operation; keep it off the Windows
-    # execution runner so Factory health recovery cannot queue behind workloads.
-    # Preserve the cross-process serialization fence for durable Factory state writes.
+    # Recovery is a GitHub API/state operation; keep execution off the Windows
+    # Runner so it does not consume local execution capacity. This job still
+    # waits in the shared cross-process state-writer queue and may queue behind
+    # CI workloads. That ordering is intentional: durable Factory state writes
+    # must remain serialized until an independently verified atomic CAS/lease
+    # protocol replaces the repository-wide concurrency fence.
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       cancel-in-progress: false

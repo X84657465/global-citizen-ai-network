@@ -784,6 +784,10 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.ok(recoveryJob.includes("cancel-in-progress: false"));
   assert.ok(recovery.includes("runs-on: ubuntu-latest"),
     "the state recovery job must stay on hosted Linux while retaining the shared cross-process queue");
+  assert.ok(recoveryJob.includes("waits in the shared cross-process state-writer queue"));
+  assert.ok(recoveryJob.includes("may queue behind"));
+  assert.ok(recoveryJob.includes("atomic CAS/lease"),
+    "do not imply hosted Linux removes the state-writer queue or permits unsafe lock splitting");
   for (const permission of ["actions: read", "contents: read", "issues: write", "pull-requests: read"])
     assert.ok(recovery.includes(permission));
   assert.ok(recovery.includes("ref: main"));
