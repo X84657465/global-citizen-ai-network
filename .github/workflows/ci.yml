@@ -730,9 +730,6 @@ jobs:
     permissions:
       actions: read
       contents: read
-    defaults:
-      run:
-        shell: pwsh
     steps:
       - name: Initialize fallback CI evidence before checkout
         env:
