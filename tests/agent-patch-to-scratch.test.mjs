@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, readdirSyn
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { candidateContainerFailureScope } from "../lib/agent-factory-policy.mjs";
 
 const scriptPath = fileURLToPath(new URL("../scripts/apply-agent-patch-to-scratch.mjs", import.meta.url));
@@ -257,4 +257,110 @@ test("successful task publication does not invoke the non-mutating legacy succes
   );
   assert.equal(workflow.includes("AGENT_FACTORY_SUCCESS_SCOPE: task"), false);
   assert.equal(workflow.includes("COMPLETED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}"), false);
+});
+
+
+
+const prepareTaskScriptPath = fileURLToPath(new URL("../scripts/prepare-agent-task.mjs", import.meta.url));
+const identityTestBody = [
+  "## Goal",
+  "Verify the fetched task identity gate before task content is classified.",
+  "## Allowed paths",
+  "- tests/agent-patch-to-scratch.test.mjs",
+  "## Acceptance criteria",
+  "- Only a validated fetched Issue may enter task-content validation.",
+  "## Explicit exclusions",
+  "- Do not modify paths outside the task allowlist.",
+].join("\n");
+const identityTestUrl = "https://github.com/X84657465/global-citizen-ai-network/issues/117";
+
+function identityIssue(overrides = {}) {
+  return {
+    number: 117,
+    state: "open",
+    html_url: identityTestUrl,
+    title: "Factory failure scope identity regression",
+    body: identityTestBody,
+    user: { login: "X84657465" },
+    labels: [],
+    ...overrides,
+  };
+}
+
+function runTaskPreparation(issue, t) {
+  const root = mkdtempSync(join(tmpdir(), "gcan-task-identity-test-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  mkdirSync(join(root, "artifacts"));
+  const githubEnv = join(root, "github-env.txt");
+  writeFileSync(githubEnv, "");
+  const mockFetchPath = join(root, "mock-github-fetch.mjs");
+  writeFileSync(mockFetchPath, [
+    "const issue = JSON.parse(process.env.GCAN_TEST_GITHUB_ISSUE_JSON);",
+    "globalThis.fetch = async (url) => {",
+    '  if (String(url) !== "https://api.github.com/repos/X84657465/global-citizen-ai-network/issues/117") {',
+    '    return new Response(JSON.stringify({ message: "unexpected URL" }), { status: 404, headers: { "content-type": "application/json" } });',
+    "  }",
+    '  return new Response(JSON.stringify(issue), { status: 200, headers: { "content-type": "application/json" } });',
+    "};",
+  ].join("\n"));
+  const preload = "--import=" + pathToFileURL(mockFetchPath).href;
+  const result = spawnSync(process.execPath, [prepareTaskScriptPath], {
+    cwd: root,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      NODE_ENV: "test",
+      GITHUB_ENV: githubEnv,
+      GITHUB_API_URL: "https://api.github.com",
+      GITHUB_REPOSITORY: "X84657465/global-citizen-ai-network",
+      GITHUB_TOKEN: "test-token",
+      ISSUE_NUMBER: "117",
+      GCAN_TEST_GITHUB_ISSUE_JSON: JSON.stringify(issue),
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, preload].filter(Boolean).join(" "),
+    },
+  });
+  return { result, githubEnv };
+}
+
+test("task preflight accepts a matching open repository-owner Issue identity", (t) => {
+  const { result, githubEnv } = runTaskPreparation(identityIssue(), t);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.equal(readFileSync(githubEnv, "utf8"), "");
+});
+
+test("task preflight accepts a matching planner-authored Issue with the required marker", (t) => {
+  const issue = identityIssue({
+    user: { login: "github-actions[bot]" },
+    body: identityTestBody.replace(
+      "Verify the fetched task identity gate before task content is classified.",
+      "Verify the fetched task identity gate before task content is classified. <!-- ai-task-generated-by-planner -->",
+    ),
+  });
+  const { result, githubEnv } = runTaskPreparation(issue, t);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.equal(readFileSync(githubEnv, "utf8"), "");
+});
+
+test("task preflight rejects mismatched fetched Issue identities without writing a task marker", (t) => {
+  const invalidCases = [
+    ["wrong issue number", identityIssue({ number: 118 })],
+    ["closed issue", identityIssue({ state: "closed" })],
+    ["pull request response", identityIssue({ pull_request: { url: "https://api.github.com/repos/X84657465/global-citizen-ai-network/pulls/117" } })],
+    ["mismatched canonical URL", identityIssue({ html_url: "https://github.com/X84657465/another-repository/issues/117" })],
+    ["unauthorized author", identityIssue({ user: { login: "untrusted-contributor" } })],
+  ];
+  for (const [label, issue] of invalidCases) {
+    const { result, githubEnv } = runTaskPreparation(issue, t);
+    assert.notEqual(result.status, 0, label + " must be rejected");
+    assert.equal(readFileSync(githubEnv, "utf8"), "", label + " must not write a task marker");
+    assert.match(result.stderr, /did not match the requested open task identity/, label);
+  }
+});
+
+test("only a valid fetched Issue identity with rejected task content writes the task marker", (t) => {
+  const issue = identityIssue({ body: "## Goal\nMalformed task body without required sections." });
+  const { result, githubEnv } = runTaskPreparation(issue, t);
+  assert.notEqual(result.status, 0);
+  assert.equal(readFileSync(githubEnv, "utf8"), "AGENT_FACTORY_FAILURE_SCOPE=task\n");
+  assert.match(result.stderr, /Required section is missing/);
 });
