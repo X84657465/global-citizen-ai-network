@@ -331,7 +331,10 @@ test("task preflight accepts a matching open repository-owner Issue identity", (
 test("task preflight accepts a matching planner-authored Issue with the required marker", (t) => {
   const issue = identityIssue({
     user: { login: "github-actions[bot]" },
-    body: identityTestBody + "\n\n<!-- ai-task-generated-by-planner -->",
+    body: identityTestBody.replace(
+      "Verify the fetched task identity gate before task content is classified.",
+      "Verify the fetched task identity gate before task content is classified. <!-- ai-task-generated-by-planner -->",
+    ),
   });
   const { result, githubEnv } = runTaskPreparation(issue, t);
   assert.equal(result.status, 0, result.stderr || result.stdout);
