@@ -4095,3 +4095,47 @@ This addendum supersedes earlier same-day snapshot rows where exact SHAs/runs ha
 ### Post-handoff exact-head correction — 2026-11-24
 - The preceding handoff refresh committed as `f76ca3e07bb7bc5288bc7d8891ce67133d8bbcea`, which is now the exact HEAD of PR #528. This supersedes the #528 HEAD `0631a1d9...` listed in the preceding table.
 - Exact-head Actions query for `f76ca3e07bb7bc5288bc7d8891ce67133d8bbcea` returned no workflow runs; combined status contains only Vercel FAILURE (rate limit) and CircleCI ERROR. Treat Actions as NOT RUN, not PASS. PR #528 remains Draft, mergeable=true, and has zero formal reviews.
+
+
+---
+
+## GPT5 live recheck — 2026-11-24 (latest API snapshot)
+
+### Governance / Main
+- Freshly re-read `PROJECT_COORDINATION.md` (blob `d3ee1881aa67861fc42a2b568b26020945b0c218`) and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` (blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`). Master Governance Charter remains PROPOSED; no GPT5 A–P ownership or GPT3 QA authority is inferred.
+- Main remains `3c6fc232ec1d07c56f0ba31d3a690079008f4004`.
+- Main combined statuses: Vercel SUCCESS; CircleCI Pipeline 335 ERROR.
+- Main exact-head check-runs have advanced to 40 total: 5 SUCCESS, 15 FAILURE, 20 SKIPPED.
+- Main push run `45393056714`, attempt 1, exact Main SHA: COMPLETED / SUCCESS. Job-level metadata, Windows quality gates, PostgreSQL/RLS, Ollama/local integration, and persistence job are SUCCESS. However, persistence job `138450597258` has the four candidate-success evidence steps SKIPPED; the failure persistence and diagnostics jobs are also SKIPPED. Job-level SUCCESS does not establish candidate evidence persistence or global breaker reset.
+- Latest observed Recovery run `45412703310`, attempt 1, exact Main SHA: COMPLETED / SKIPPED. Immediately preceding runs `45412624656`, `45412566117`, `45411663242`, `45411519664` and `45411464768` are also SKIPPED; recent earlier Recovery attempts include FAILURE. No Recovery PASS is established.
+
+### Current 9 open PRs — exact current HEADs
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---|---|---|
+| #532 | `7fc6e5656dd436b55d8097efbcec3c17f70cc332` | Main | yes | true | Preflight `45411971316` FAILURE; Linux offline scratch fixture Job `138507896179` FAILURE; six downstream jobs SKIPPED; steps array empty. CI `45411971452` PENDING, Jobs API 0. |
+| #528 | `b4eefd45d7a631c24bdc95892cc9d9ad7896d04c` | Main | yes | true | CI `45412688168` PENDING, Jobs API 0. |
+| #530 | `99d871eec12d7fd1a407f4cdfd59d39ec3c7c726` | Main | yes | true | CI `45412907732` PENDING, Jobs API 0. This is newer than the prior handoff snapshot. |
+| #529 | `d4e6f293aad26beb087d73c5799ff0532a1e77d7` | Main | no | true | CI `45408251333` PENDING; resolver SUCCESS, Windows quality gates SUCCESS, PostgreSQL/RLS and Ollama/local integration PENDING. |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | No exact-head PR Actions run returned. |
+| #417 | `4c175c1b6c635eb5d923f616851078e7ce97afc7` | stale `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | No exact-head PR Actions run returned. |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | stale `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | no | false | No exact-head PR Actions run returned. |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No exact-head PR Actions run returned. |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No exact-head PR Actions run returned. |
+
+- Formal review counts re-read: #532 0, #528 0, #530 3 COMMENTED, #529 3 COMMENTED, #376 16 COMMENTED, #417 11 COMMENTED, #259 10 COMMENTED, #478 4 COMMENTED, #476 4 COMMENTED. APPROVED = 0. No PR qualifies for acceptance, Draft promotion, or merge.
+- Combined external statuses for #532/#528/#530/#529: Vercel FAILURE and CircleCI ERROR. #376/#476: Vercel SUCCESS, CircleCI ERROR. #417/#259/#478: Vercel FAILURE, CircleCI ERROR. These provider checks do not substitute for GitHub Actions or independent review.
+
+### GPT5 Issue #117 status
+- Issue #117 remains OPEN, assigned to `X84657465`, label `factory-control-plane-approved`; GPT5 support is explicitly delegated, while DRI and independent review remain separate.
+- PR #532 current exact HEAD is `7fc6e565...`; the actual branch source still uses the intended identity precheck and typed `TaskValidationError` guard, and the regression test checks the corresponding combined guard. Do not rely on prior snapshot text suggesting a nested-guard rewrite; current branch file blob for the test is `8099e9b766d5447024ac32e18f2c144b5657541e`, implementation blob `830030da8171ddff5e32091ff6e4c6550d6e7b6d`.
+- Preflight run `45411971316` fails at Linux offline scratch fixture job `138507896179`; Steps API returns an empty array. Failure root cause remains UNKNOWN. The separate CI run `45411971452` is PENDING with 0 Jobs. Local unit suite/typecheck/lint are NOT RUN (no attached repository checkout/runtime). No code change is justified without a reproducible failure or retained diagnostics.
+- PR #530 is GPT2-owned and advanced to HEAD `99d871ee...`; exact-head CI `45412907732` is PENDING with 0 Jobs. Do not edit its files or assume earlier GPT3 comments apply as approval to this newer SHA.
+
+### Scheduled automation truth
+- Existing `GCAN 每日工程巡檢` is enabled; next run `2026-11-25T08:00:00+08:00`.
+- Last scheduled run ID `62dbf816-c380-832c-9d86-8a528536d314` recorded COMPLETED, but its report was generated against stale Main `6b3ac4b...`, not current Main `3c6fc232...`. Automation delivery status is UNKNOWN. The scheduled result is not a substitute for this live API recheck.
+
+### Disposition
+- No Draft promotion, merge, deployment, durable Factory state mutation, Runner/secret/permission/branch-protection change, or paid provider action.
+- GPT1 / Factory DRI owns recovery and Linux fixture root-cause evidence; GPT2 owns #529/#530; GPT3 owns independent review; repository/provider administrator owns CircleCI project configuration and Vercel quota; stale-base PR owners own their reconciliation.
+- GPT5 continues only in its explicitly authorized support/documentation paths. PENDING, 0 Jobs, SKIPPED, provider FAILURE/ERROR and UNKNOWN remain non-PASS states.
