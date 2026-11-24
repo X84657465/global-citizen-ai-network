@@ -49,19 +49,14 @@ function writeOutput(key, value) {
 }
 
 async function main() {
-  resolverStage = "validate_environment";
-  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
-    throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
+  resolverStage = "validate_repository";
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
+    throw new Error("GITHUB_REPOSITORY is required.");
   }
+
+  // Events without a PR candidate must complete without API credentials or network access.
   resolverStage = "parse_event_metadata";
   const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);
-  const api = createGitHubApiClient({
-    baseUrl: apiBase,
-    token,
-    timeoutMs: 15_000,
-    maxRetries: 2,
-    maxInlineRetryDelayMs: 30_000,
-  });
   if (!Number.isSafeInteger(pullRequestNumber) || pullRequestNumber < 1) {
     writeOutput("state_issue_number", "");
     writeOutput("is_current_head", "true");
@@ -73,6 +68,18 @@ async function main() {
     console.log("No pull-request candidate metadata applies to this event.");
     return;
   }
+
+  resolverStage = "validate_api_credentials";
+  if (!token) {
+    throw new Error("GITHUB_TOKEN is required when resolving a pull-request candidate.");
+  }
+  const api = createGitHubApiClient({
+    baseUrl: apiBase,
+    token,
+    timeoutMs: 15_000,
+    maxRetries: 2,
+    maxInlineRetryDelayMs: 30_000,
+  });
 
   let pull;
   resolverStage = "fetch_pull_request";
