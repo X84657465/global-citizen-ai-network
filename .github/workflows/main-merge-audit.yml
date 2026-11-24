@@ -88,6 +88,15 @@ jobs:
                 status: job.status, conclusion: job.conclusion
               }));
             }
+            // Separate exact-SHA check lookup is retained only for the single applicable Preflight job and informational provider signals.
+            const checkRuns = await github.paginate(github.rest.checks.listForRef, {
+              owner, repo, ref: headSha, per_page: 100
+            });
+            function latestCheck(name) {
+              return checkRuns.filter(check => check.head_sha === headSha && check.name === name &&
+                check.app && check.app.slug === 'github-actions')
+                .sort((a,b) => new Date(b.started_at || 0) - new Date(a.started_at || 0))[0] || null;
+            }
             const preflightPaths = new Set([            const preflightPaths = new Set([
               'lib/agent-task-validation.mjs',
               'lib/agent-patch-validation.mjs',
