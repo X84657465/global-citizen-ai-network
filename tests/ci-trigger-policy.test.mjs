@@ -619,9 +619,9 @@ test("CI diagnostics use the verified Windows Runner and preserve fallback evide
   const upload = section.indexOf("Upload redacted CI failure evidence");
   assert.ok(fallback >= 0 && fallback < checkout);
   assert.ok(upload > checkout && section.slice(upload).includes("if: always()"));
-  assert.ok(section.includes(expr+" runner.temp }}/ci-failure-diagnostics.json"));
-  assert.ok(section.includes("WORKFLOW_EVENT: "+expr+" github.event_name }}"));
-  assert.ok(section.includes("WORKFLOW_REF: "+expr+" github.ref }}"));
+  assert.ok(section.includes("${{ runner.temp }}/ci-failure-diagnostics.json"));
+  assert.ok(section.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
+  assert.ok(section.includes("WORKFLOW_REF: ${{ github.ref }}"));
   assert.ok(section.includes("ConvertTo-Json -Depth 10"));
   assert.ok(section.includes("System.Text.UTF8Encoding"));
   assert.equal(section.includes("shell: bash"), false);
@@ -639,8 +639,8 @@ test("resolver failure evidence is initialized before checkout and always upload
   assert.ok(s.includes("resolver-diagnostics.json"));
   assert.ok(s.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
   assert.ok(s.includes("WORKFLOW_REF: ${{ github.ref }}"));
-  assert.ok(s.includes(String.raw`\"event\": \"%s\"`));
-  assert.ok(s.includes(String.raw`\"ref\": \"%s\"`));
+  assert.ok(s.includes("event = $env:WORKFLOW_EVENT"));
+  assert.ok(s.includes("ref = $env:WORKFLOW_REF"));
 });
 
 
