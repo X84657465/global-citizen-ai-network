@@ -369,9 +369,20 @@ test("system success clears system cooldown without erasing task failures", () =
   state = reserveTask(state, metadata(), 1500);
   state = failTask(state, 42, event("task-fail"), "PATCH_INVALID", "bad", 2000).state;
   state = recordSystemFailure(state, event("sys-fail"), "OLLAMA_OFFLINE", "offline", 3000).state;
-  const result = recordSystemSuccess(state, event("sys-success"), 4000);
+  assert.equal(state.system.last_failure_at, new Date(3000).toISOString());
+  const result = recordSystemSuccess(state, event("sys-success"), 4000, 3000);
   assert.equal(result.state.system.consecutive_failures, 0);
   assert.equal(result.state.tasks["42"].failures, 1);
+});
+
+test("system success refuses evidence completed before the latest system failure", () => {
+  let state = createInitialFactoryState(1000);
+  state = recordSystemFailure(state, event("sys-fail-before-ci"), "RUNNER_UNAVAILABLE", "runner offline", 5000).state;
+  const result = recordSystemSuccess(state, event("stale-system-success"), 7000, 4000);
+  assert.equal(result.stale, true);
+  assert.equal(result.state, state);
+  assert.equal(result.state.system.consecutive_failures, 1);
+  assert.equal(result.state.system.last_failure_at, new Date(5000).toISOString());
 });
 
 test("expired lease is recovered only after workflow is confirmed stopped", () => {
