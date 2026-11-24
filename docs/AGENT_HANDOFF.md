@@ -1,3 +1,69 @@
+# GCAN Cross-GPT Execution Directive — 2026-11-25
+
+> Coordination handoff for GPT1–GPT4 and GPT5. This records the user's explicit request to coordinate the existing five-GPT operating model. It does **not** change role authority, governance status, branch protection, acceptance gates, or ownership.
+
+## Baseline and governing rules
+
+- Baseline main SHA at handoff creation: `a36238cad79d2d55ba12b36bb6181919d103ceff`. Re-read main before acting; this SHA is a starting reference, not a permanent truth.
+- Follow current `PROJECT_COORDINATION.md`, `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`, the applicable module charters, and existing Factory-first priorities. The Master Governance Charter / Execution OS proposals do not independently expand permissions.
+- Do not create a parallel Factory, Runner, scheduler, control plane, CI pipeline, or governance system merely to escape current failures.
+- For every candidate change, apply this order and record evidence: **INVENTORY → REUSE → EXTEND → REPAIR → REPLACE → DEFER**. REPLACE requires proof that repair is not reasonable, plus compatibility/migration/rollback/regression plan and GPT3 independent review.
+- No blind reruns, force merges, branch-protection bypasses, skipped required tests, false PASS claims, or mutation of durable Factory state to clear a blocker.
+- Work in parallel only on non-overlapping owned surfaces. Keep one accountable owner per task and one integration path through the existing repository process.
+
+## Immediate coordination requests
+
+### GPT1 — A–E / Agent Factory owner
+1. Own the P0 Factory task lifecycle and real Issue → Worker → validation → Draft PR closure.
+2. Inventory current Factory/Runner/Controller implementation and durable state before proposing changes. Identify the first reproducible blocker using exact run, job, step, log, and state-transition evidence.
+3. For each blocker, choose REUSE / EXTEND / REPAIR / REPLACE / DEFER with a short reason. If a repeated failure has no new evidence, stop rerunning the same path and switch to diagnosis or a justified alternative.
+4. Publish one bounded implementation plan and owner-controlled PR; do not create Factory V3 or duplicate infrastructure without an approved, evidence-backed replacement decision.
+
+### GPT2 — F–P specialist owner
+1. Inventory existing F–P capabilities and their actual integration contracts.
+2. Work only on a demonstrated F–P gap that blocks P0 or the required A→B handoff; do not duplicate GPT1's Factory work or create a second orchestration/control plane.
+3. Reconcile ownership and overlap before touching existing PRs. Report reusable modules, exact missing capability, tests, and the owning PR/branch.
+
+### GPT3 — independent architecture / QA
+1. Independently assess the current mainline and relevant merged changes for P0 regressions; do not inherit implementer conclusions.
+2. Review each proposed REPLACE decision, migration/rollback plan, and exact-head test evidence.
+3. Return an explicit disposition per candidate: PASS / FAIL / BLOCKED / NOT RUN, with exact SHA and evidence. Do not self-approve implementation work or treat COMMENTED reviews, PENDING, 0 jobs, SKIPPED, provider errors, or missing logs as approval/PASS.
+
+### GPT4 — B Product owner
+1. Continue B Product requirements, UX, acceptance criteria, and interface-contract work within the existing B ownership boundary.
+2. Make requirements testable and identify the minimum end-to-end user journey that proves product value.
+3. Do not independently replace Factory infrastructure or launch a competing backend/runtime. Coordinate interface dependencies with GPT1 and report product-side blockers separately so independent work can continue.
+
+### GPT5 — Global Intelligence / Operations support
+1. Maintain the exact-main / exact-PR evidence ledger, stale-PR inventory, cost/blocker classification, and handoff records within the existing GPT5 write allowlist.
+2. Identify duplicate, obsolete, ownerless, or non-progressing work and recommend CLOSE / DEFER / REPAIR / REPLACE with evidence; do not close another owner's PR or take over their implementation without authority.
+3. Avoid modifying source, Factory workflow, Runner, durable state, secrets, permissions, branch protection, or deployment settings outside the explicit allowlist.
+4. Keep the user-facing status factual: distinguish code present, CI passed, independent review approved, deployed, and runtime-verified.
+
+## Required response from each owner
+
+Each GPT owner should acknowledge this handoff in its existing owned PR / issue / work thread (not by creating a duplicate PR) with:
+- current exact branch/head SHA and owner;
+- one current deliverable and the single next action;
+- evidence for its current blocker, or explicit UNKNOWN if evidence is unavailable;
+- REUSE / EXTEND / REPAIR / REPLACE / DEFER decision where applicable;
+- dependencies and any overlap requiring coordination;
+- exact acceptance test and GPT3 review point.
+
+## Integration and stop conditions
+
+- GPT1 remains accountable for Factory A–E; GPT2 for F–P; GPT3 remains independent QA; GPT4 owns B Product; GPT5 remains operations support. This handoff does not reassign those responsibilities.
+- Prefer independent, non-overlapping progress while CI/provider capacity is blocked. Do not fan out duplicate CI runs or spend quota on unchanged retries.
+- A task is not complete until its exact-head implementation evidence, required tests, independent review, and applicable integration/runtime acceptance are recorded.
+- If the same root cause fails twice without new diagnostic evidence, stop identical retries. Capture the failure, request the owning specialist's diagnosis, and choose a materially different evidence-producing action.
+- Escalate external Vercel/CircleCI quota or configuration issues to the project administrator; do not claim they are fixed by source changes or purchase/upgrade anything without the user's authorization.
+
+## User intent recorded
+
+The user explicitly directed that coordination instructions be written into the repository so the other four GPT workstreams can see and act on them. This file is the durable handoff mechanism available to GPT5. It does not prove that another GPT has read or acknowledged it; acknowledgement must be recorded by that owner in its existing work thread.
+
+---
+
 # GPT5 Daily Operations — POST-MERGE AUDIT (2026-11-24; current main exact SHA)
 
 This snapshot supersedes earlier live snapshots below. Historical snapshots remain for audit only and must not be reused as current evidence.
