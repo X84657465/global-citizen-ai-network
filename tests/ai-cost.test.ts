@@ -133,7 +133,7 @@ test("invoice reconciliation requires exact provider reference, provider, model,
   };
   const matched = previewProviderInvoiceReconciliation(parsed, [request]);
   assert.equal(matched.rows[0].disposition, "matched_actual");
-  assert.equal(matched.rows[0].match.requestId, "request-1");
+  assert.equal(matched.rows[0].match?.requestId, "request-1");
   const variance = previewProviderInvoiceReconciliation(parsed, [{ ...request, provider_billed_cost: "1.26" }]);
   assert.equal(variance.rows[0].disposition, "variance");
   const unmatched = previewProviderInvoiceReconciliation(parsed, [{ ...request, provider_request_id: "different" }]);
