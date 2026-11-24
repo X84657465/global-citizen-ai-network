@@ -110,14 +110,14 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
   assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 });
 
-test("read-only PR metadata resolution runs on hosted Linux without occupying the Windows Runner queue", () => {
+test("PR metadata resolution uses the verified Windows Runner and shared queue", () => {
   const { start, end } = findJobSection(workflow, "resolve-candidate");
   const resolverJob = workflow.slice(start, end);
-  assert.ok(resolverJob.includes("runs-on: ubuntu-latest"));
-  assert.equal(resolverJob.includes("group: global-citizen-ai-network-self-hosted-runner"), false);
-  assert.equal(resolverJob.includes("queue: max"), false);
-  assert.ok(resolverJob.includes("cancel-in-progress: false") === false);
-  assert.ok(resolverJob.includes("shell: bash"), "resolver command must override the workflow's Windows PowerShell default");
+  assert.ok(resolverJob.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.ok(resolverJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(resolverJob.includes("queue: max"));
+  assert.ok(resolverJob.includes("cancel-in-progress: false"));
+  assert.equal(resolverJob.includes("shell: bash"), false);
   assert.ok(resolverJob.includes("contents: read"));
   assert.ok(resolverJob.includes("issues: read"));
   assert.ok(resolverJob.includes("pull-requests: read"));
@@ -600,20 +600,49 @@ test("CI candidate execution is fenced to the exact event head SHA", () => {
   assert.ok(resolver.includes("pull.head?.sha === expectedSha"));
   assert.ok(workflow.includes("github.event.client_payload.head_sha || github.event.pull_request.head.sha"));
 });
-test("CI diagnostics use the available shared Windows Runner with read-only access", () => {
+test("CI diagnostics use the verified Windows Runner and preserve fallback evidence before checkout", () => {
   const x = findJobSection(workflow, "ci-diagnostics");
+  const section = workflow.slice(x.start, x.end);
+  assert.ok(section.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.ok(section.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(section.includes("queue: max"));
+  assert.ok(section.includes("cancel-in-progress: false"));
+  assert.ok(section.includes("actions: read"));
+  assert.ok(section.includes("contents: read"));
+  assert.ok(section.includes("Invoke-RestMethod"));
+  assert.ok(section.includes("CI_EXPECTED_HEAD_SHA"));
+  assert.ok(section.includes("ci-failure-diagnostics.json"));
+  assert.ok(section.includes("retention-days: 90"));
+  assert.equal(section.includes("issues: write"), false);
+  const fallback = section.indexOf("Initialize fallback CI evidence before checkout");
+  const checkout = section.indexOf("Checkout exact tested revision");
+  const upload = section.indexOf("Upload redacted CI failure evidence");
+  assert.ok(fallback >= 0 && fallback < checkout);
+  assert.ok(upload > checkout && section.slice(upload).includes("if: always()"));
+  assert.ok(section.includes("${{ runner.temp }}/ci-failure-diagnostics.json"));
+  assert.ok(section.includes("if-no-files-found: error"),
+    "missing CI failure evidence must fail closed");
+  assert.ok(section.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
+  assert.ok(section.includes("WORKFLOW_REF: ${{ github.ref }}"));
+  assert.ok(section.includes("ConvertTo-Json -Depth 10"));
+  assert.ok(section.includes("System.Text.UTF8Encoding"));
+  assert.equal(section.includes("shell: bash"), false);
+  assert.equal(section.includes("shell: pwsh"), false, "the Runner provides Windows PowerShell, not pwsh");
+});
+
+test("resolver failure evidence is initialized before checkout and always uploaded", () => {
+  const x = findJobSection(workflow, "resolve-candidate");
   const s = workflow.slice(x.start, x.end);
-  assert.ok(s.includes("runs-on: [self-hosted, Windows, X64]"));
-  assert.ok(s.includes("group: global-citizen-ai-network-self-hosted-runner"));
-  assert.ok(s.includes("queue: max"));
-  assert.ok(s.includes("cancel-in-progress: false"));
-  assert.ok(s.includes("actions: read"));
-  assert.ok(s.includes("contents: read"));
-  assert.ok(s.includes("Invoke-RestMethod"));
-  assert.ok(s.includes("CI_EXPECTED_HEAD_SHA"));
-  assert.ok(s.includes("ci-failure-diagnostics.json"));
-  assert.ok(s.includes("retention-days: 90"));
-  assert.equal(s.includes("issues: write"), false);
+  const fallback = s.indexOf("Initialize fallback resolver evidence before checkout");
+  const checkout = s.indexOf("Checkout resolver");
+  const upload = s.indexOf("Upload redacted resolver failure evidence");
+  assert.ok(fallback >= 0 && fallback < checkout);
+  assert.ok(upload > checkout && s.slice(upload).includes("if: always()"));
+  assert.ok(s.includes("resolver-diagnostics.json"));
+  assert.ok(s.includes("WORKFLOW_EVENT: ${{ github.event_name }}"));
+  assert.ok(s.includes("WORKFLOW_REF: ${{ github.ref }}"));
+  assert.ok(s.includes("event = $env:WORKFLOW_EVENT"));
+  assert.ok(s.includes("ref = $env:WORKFLOW_REF"));
 });
 
 
@@ -773,7 +802,8 @@ test("hosted resolver persists redacted failure metadata even when the resolver 
   assert.ok(section.includes("Upload redacted resolver failure evidence"));
   assert.ok(section.includes("if: always()"));
   assert.ok(section.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"));
-  assert.ok(section.includes("if-no-files-found: ignore"));
+  assert.ok(section.includes("if-no-files-found: error"),
+    "missing resolver fallback evidence must fail closed");
   assert.ok(section.includes("retention-days: 90"));
 });
 
@@ -943,4 +973,35 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
   assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("codex/issue-")'));
   assert.equal(recoveryWorkflow.includes("workflow_run.pull_requests"), false,
     "recovery must not trust optional workflow_run PR associations");
+});
+
+
+test("resolver skips token and GitHub API requirements for events without a PR candidate", () => {
+  const parse = resolver.indexOf('const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);');
+  const noCandidate = resolver.indexOf('No pull-request candidate metadata applies to this event.');
+  const tokenGuard = resolver.indexOf('if (!token)', parse);
+  const apiClient = resolver.indexOf('createGitHubApiClient({', parse);
+  assert.ok(parse >= 0 && noCandidate > parse, "no-PR event must be detected");
+  assert.ok(tokenGuard > noCandidate, "token validation must happen only after no-PR early return");
+  assert.ok(apiClient > tokenGuard, "GitHub API client must be created only for PR candidates");
+  assert.ok(resolver.includes('is_current_head", "true"'));
+  assert.ok(resolver.includes('is_task_pr", "false"'));
+});
+
+test("resolver failure evidence preserves event and ref from the pre-checkout fallback", () => {
+  assert.ok(resolver.includes('readFileSync(resolverDiagnosticsOutput, "utf8")'),
+    "resolver diagnostics must read the pre-checkout fallback before replacing it");
+  assert.ok(resolver.includes('fallbackContext.event'));
+  assert.ok(resolver.includes('fallbackContext.ref'));
+  assert.ok(resolver.includes('event: typeof fallbackContext.event'));
+  assert.ok(resolver.includes('ref: typeof fallbackContext.ref'));
+});
+
+test("resolver fallback evidence is uploaded only when the resolver did not succeed", () => {
+  const { start, end } = findJobSection(workflow, "resolve-candidate");
+  const upload = findNamedStepBlock(workflow, "Upload redacted resolver failure evidence", start, end);
+  assert.ok(upload.includes("if: always() && steps.resolve.outcome != 'success'"),
+    "a successful resolver must not publish the pre-checkout failure fallback");
+  assert.ok(upload.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"),
+    "failure evidence must retain the pre-checkout fallback path");
 });

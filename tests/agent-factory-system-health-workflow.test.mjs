@@ -10,6 +10,7 @@ test("system-health recovery invokes its Node controller without the Windows Pow
   assert.ok(start >= 0, "system-health recovery controller step must exist");
   const next = workflow.indexOf("\n      - name:", start + marker.length);
   const step = workflow.slice(start, next < 0 ? undefined : next);
-  assert.ok(step.includes("        shell: cmd\n"), "controller step must use cmd instead of the blocked PowerShell script wrapper");
+  assert.ok(workflow.includes("runs-on: ubuntu-latest"), "system-health workflow must use its hosted Ubuntu runner");
+  assert.ok(step.includes("        shell: bash\n"), "controller step must use the Bash shell declared by the Ubuntu runner");
   assert.ok(step.includes("        run: node scripts/agent-factory-v2-controller.mjs"), "controller invocation must remain unchanged");
 });

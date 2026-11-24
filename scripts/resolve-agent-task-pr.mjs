@@ -1,4 +1,4 @@
-import { appendFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { createFactoryStateStore } from "../lib/agent-factory-state-store.mjs";
 import { persistApiCooldownDeadline } from "../lib/agent-factory-api-cooldown.mjs";
@@ -24,8 +24,16 @@ function writeResolverDiagnostic(error) {
     /^\/repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/(pulls|issues)\/\d+$/.test(error.path)
     ? error.path
     : "";
+  let fallbackContext = {};
+  try {
+    fallbackContext = JSON.parse(readFileSync(resolverDiagnosticsOutput, "utf8"));
+  } catch {
+    // Preserve context when available; the diagnostic record remains useful without it.
+  }
   const evidence = {
     schemaVersion: 1,
+    event: typeof fallbackContext.event === "string" ? fallbackContext.event.slice(0, 80) : "",
+    ref: typeof fallbackContext.ref === "string" ? fallbackContext.ref.slice(0, 500) : "",
     stage: resolverStage,
     errorName: typeof error?.name === "string" ? error.name.slice(0, 80) : "Error",
     httpStatus: Number.isInteger(error?.status) ? error.status : null,
@@ -49,19 +57,14 @@ function writeOutput(key, value) {
 }
 
 async function main() {
-  resolverStage = "validate_environment";
-  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) || !token) {
-    throw new Error("GITHUB_REPOSITORY and GITHUB_TOKEN are required.");
+  resolverStage = "validate_repository";
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
+    throw new Error("GITHUB_REPOSITORY is required.");
   }
+
+  // Events without a PR candidate must complete without API credentials or network access.
   resolverStage = "parse_event_metadata";
   const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);
-  const api = createGitHubApiClient({
-    baseUrl: apiBase,
-    token,
-    timeoutMs: 15_000,
-    maxRetries: 2,
-    maxInlineRetryDelayMs: 30_000,
-  });
   if (!Number.isSafeInteger(pullRequestNumber) || pullRequestNumber < 1) {
     writeOutput("state_issue_number", "");
     writeOutput("is_current_head", "true");
@@ -73,6 +76,18 @@ async function main() {
     console.log("No pull-request candidate metadata applies to this event.");
     return;
   }
+
+  resolverStage = "validate_api_credentials";
+  if (!token) {
+    throw new Error("GITHUB_TOKEN is required when resolving a pull-request candidate.");
+  }
+  const api = createGitHubApiClient({
+    baseUrl: apiBase,
+    token,
+    timeoutMs: 15_000,
+    maxRetries: 2,
+    maxInlineRetryDelayMs: 30_000,
+  });
 
   let pull;
   resolverStage = "fetch_pull_request";

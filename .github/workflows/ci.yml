@@ -24,15 +24,19 @@ defaults:
 
 jobs:
   resolve-candidate:
-    # Metadata resolution uses only the read-only GitHub API and must not
-    # occupy or wait behind the scarce Windows/Ollama execution runner.
+    # Use the verified Windows self-hosted Runner while hosted Ubuntu
+    # allocation is failing; serialize with other stateful CI work.
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
        (github.event.pull_request.user.login == github.repository_owner ||
         github.event.pull_request.user.login == 'github-actions[bot]'))
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     timeout-minutes: 10
     permissions:
       contents: read
@@ -48,6 +52,29 @@ jobs:
       head_ref: ${{ steps.resolve.outputs.head_ref }}
       api_cooldown_until: ${{ steps.resolve.outputs.api_cooldown_until }}
     steps:
+      - name: Initialize fallback resolver evidence before checkout
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+          WORKFLOW_EVENT: ${{ github.event_name }}
+          WORKFLOW_REF: ${{ github.ref }}
+        run: |
+          $fallback = [ordered]@{
+            schemaVersion = 1
+            stage = "resolver_not_completed"
+            errorName = "ResolverDidNotComplete"
+            httpStatus = $null
+            method = ""
+            path = ""
+            rateLimited = $false
+            retryAfterMs = $null
+            expectedHeadSha = $env:EXPECTED_HEAD_SHA
+            workflowRunId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            event = $env:WORKFLOW_EVENT
+            ref = $env:WORKFLOW_REF
+          }
+          $json = $fallback | ConvertTo-Json -Depth 10
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "resolver-diagnostics.json"), $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
       - name: Checkout resolver
         uses: actions/checkout@v5
         with:
@@ -58,7 +85,6 @@ jobs:
           node-version: "22.13.0"
       - name: Resolve current PR head and task marker
         id: resolve
-        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -68,12 +94,12 @@ jobs:
           RESOLVER_DIAGNOSTICS_OUTPUT: ${{ runner.temp }}/resolver-diagnostics.json
         run: node scripts/resolve-agent-task-pr.mjs
       - name: Upload redacted resolver failure evidence
-        if: always()
+        if: always() && steps.resolve.outcome != 'success'
         uses: actions/upload-artifact@v4
         with:
           name: resolver-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/resolver-diagnostics.json
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 90
 
   quality:
@@ -685,8 +711,8 @@ jobs:
           retention-days: 90
 
   ci-diagnostics:
-    # Diagnostics are GitHub API / artifact work only; never queue behind
-    # the scarce Windows/Ollama execution runner.
+    # Use the verified Windows self-hosted Runner while hosted Ubuntu
+    # allocation is failing; serialize with other CI jobs.
     name: Exact-SHA CI failure diagnostics and evidence
     needs: [resolve-candidate, quality, build, database]
     if: >-
@@ -695,15 +721,34 @@ jobs:
        needs.quality.result == 'failure' ||
        needs.build.result == 'failure' ||
        needs.database.result == 'failure')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      queue: max
+      cancel-in-progress: false
     timeout-minutes: 10
     permissions:
       actions: read
       contents: read
-    defaults:
-      run:
-        shell: pwsh
     steps:
+      - name: Initialize fallback CI evidence before checkout
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
+          WORKFLOW_EVENT: ${{ github.event_name }}
+          WORKFLOW_REF: ${{ github.ref }}
+        run: |
+          $fallback = [ordered]@{
+            schemaVersion = 1
+            captureStatus = "incomplete"
+            failureStage = "checkout_or_diagnostics_not_completed"
+            workflowRunId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            expectedHeadSha = $env:EXPECTED_HEAD_SHA
+            event = $env:WORKFLOW_EVENT
+            ref = $env:WORKFLOW_REF
+          }
+          $json = $fallback | ConvertTo-Json -Depth 10
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-failure-diagnostics.json"), $json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
         with:
@@ -747,12 +792,13 @@ jobs:
           CI_SIBLING_RUNS_JSON: ${{ runner.temp }}/ci-sibling-runs.json
           CI_FAILED_LOG: ${{ runner.temp }}/ci-failed.log
           CI_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
-          CI_DIAGNOSTICS_OUTPUT: artifacts/ci-failure-diagnostics.json
+          CI_DIAGNOSTICS_OUTPUT: ${{ runner.temp }}/ci-failure-diagnostics.json
         run: node scripts/ci-failure-diagnostics.mjs
       - name: Upload redacted CI failure evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ci-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/ci-failure-diagnostics.json
+          path: ${{ runner.temp }}/ci-failure-diagnostics.json
           if-no-files-found: error
           retention-days: 90

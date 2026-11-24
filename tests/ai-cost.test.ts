@@ -120,8 +120,8 @@ test("invoice CSV detects repeated rows and conflicting source references withou
   assert.deepEqual(preview.rows.map((row) => row.disposition), [
     "unmatched_estimate", "duplicate_row", "duplicate_reference",
   ]);
-  assert.equal(preview.counts.duplicate_row, 1);
-  assert.equal(preview.counts.duplicate_reference, 1);
+  assert.equal((preview.counts as Record<string, number>).duplicate_row, 1);
+  assert.equal((preview.counts as Record<string, number>).duplicate_reference, 1);
 });
 
 test("invoice reconciliation requires exact provider reference, provider, model, period, currency and amount", () => {
@@ -133,7 +133,7 @@ test("invoice reconciliation requires exact provider reference, provider, model,
   };
   const matched = previewProviderInvoiceReconciliation(parsed, [request]);
   assert.equal(matched.rows[0].disposition, "matched_actual");
-  assert.equal(matched.rows[0].match.requestId, "request-1");
+  assert.equal(matched.rows[0].match?.requestId, "request-1");
   const variance = previewProviderInvoiceReconciliation(parsed, [{ ...request, provider_billed_cost: "1.26" }]);
   assert.equal(variance.rows[0].disposition, "variance");
   const unmatched = previewProviderInvoiceReconciliation(parsed, [{ ...request, provider_request_id: "different" }]);
@@ -155,7 +155,7 @@ test("invoice TWD normalization requires an explicit valid rate and timestamp", 
   const normalized = previewProviderInvoiceReconciliation(parsed, request, {
     fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "2026-11-23T00:00:00.000Z",
   });
-  assert.equal(normalized.rows[0].normalizedTwd.amount, 40);
+  assert.equal(normalized.rows[0].normalizedTwd?.amount, 40);
   assert.equal(previewProviderInvoiceReconciliation(parsed, request, {
     fromCurrency: "USD", toCurrency: "TWD", rate: 32, timestamp: "not-a-date",
   }).rows[0].normalizedTwd, null);
