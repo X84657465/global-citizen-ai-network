@@ -787,7 +787,8 @@ test("hosted resolver persists redacted failure metadata even when the resolver 
   assert.ok(section.includes("Upload redacted resolver failure evidence"));
   assert.ok(section.includes("if: always()"));
   assert.ok(section.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"));
-  assert.ok(section.includes("if-no-files-found: ignore"));
+  assert.ok(section.includes("if-no-files-found: warn"),
+    "the pre-checkout fallback artifact must not be silently ignored if missing");
   assert.ok(section.includes("retention-days: 90"));
 });
 
