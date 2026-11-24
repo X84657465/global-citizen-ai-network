@@ -761,21 +761,53 @@ jobs:
       - name: Capture workflow metadata and failed-step logs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
         run: |
+          $ErrorActionPreference = "Stop"
           $apiBase = $env:GITHUB_API_URL
           if ([string]::IsNullOrWhiteSpace($apiBase)) { $apiBase = "https://api.github.com" }
           $apiBase = $apiBase.TrimEnd("/")
           $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json"; "X-GitHub-Api-Version" = "2022-11-28" }
           $runUri = "$apiBase/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
-          $run = Invoke-RestMethod -Uri $runUri -Headers $headers -Method Get
-          $jobs = Invoke-RestMethod -Uri "$runUri/jobs?per_page=100" -Headers $headers -Method Get
-          $branch = [uri]::EscapeDataString($env:GITHUB_REF_NAME)
-          $siblings = Invoke-RestMethod -Uri "$apiBase/repos/$env:GITHUB_REPOSITORY/actions/runs?branch=$branch&per_page=30" -Headers $headers -Method Get
           $utf8 = [System.Text.UTF8Encoding]::new($false)
-          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-run.json"), ($run | ConvertTo-Json -Depth 100), $utf8)
-          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-jobs.json"), ($jobs | ConvertTo-Json -Depth 100), $utf8)
-          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-sibling-runs.json"), ($siblings | ConvertTo-Json -Depth 100), $utf8)
-          $logText = ""
+          $capture = [ordered]@{
+            run_metadata = [ordered]@{ status = "UNAVAILABLE"; error_class = "NotAttempted"; http_status = $null }
+            jobs = [ordered]@{ status = "UNAVAILABLE"; error_class = "NotAttempted"; http_status = $null }
+            sibling_runs = [ordered]@{ status = "UNAVAILABLE"; error_class = "NotAttempted"; http_status = $null }
+            logs = [ordered]@{ status = "UNAVAILABLE"; error_class = "NotAttempted"; http_status = $null }
+          }
+          $run = [ordered]@{ id = [long]$env:GITHUB_RUN_ID; run_attempt = [int]$env:GITHUB_RUN_ATTEMPT; head_sha = $env:EXPECTED_HEAD_SHA; status = "unknown"; conclusion = $null; workflow_id = 0; head_branch = $env:GITHUB_REF_NAME }
+          $jobs = @{ jobs = @() }
+          $siblings = @{ workflow_runs = @() }
+          function Get-HttpStatus($errorRecord) {
+            try { return [int]$errorRecord.Exception.Response.StatusCode.value__ } catch { return $null }
+          }
+          try {
+            $run = Invoke-RestMethod -Uri $runUri -Headers $headers -Method Get
+            $capture.run_metadata = [ordered]@{ status = "SUCCESS"; error_class = $null; http_status = 200 }
+          } catch {
+            $capture.run_metadata = [ordered]@{ status = "UNAVAILABLE"; error_class = $_.Exception.GetType().Name; http_status = (Get-HttpStatus $_) }
+            Write-Warning "Workflow run metadata unavailable; trusted event context fallback retained."
+          }
+          try {
+            $jobs = Invoke-RestMethod -Uri "$runUri/jobs?per_page=100" -Headers $headers -Method Get
+            if ($null -eq $jobs.jobs) { throw "Jobs payload missing jobs array." }
+            $capture.jobs = [ordered]@{ status = "SUCCESS"; error_class = $null; http_status = 200 }
+          } catch {
+            $jobs = @{ jobs = @() }
+            $capture.jobs = [ordered]@{ status = "UNAVAILABLE"; error_class = $_.Exception.GetType().Name; http_status = (Get-HttpStatus $_) }
+            Write-Warning "Workflow jobs unavailable; no job results will be fabricated."
+          }
+          try {
+            $branch = [uri]::EscapeDataString($env:GITHUB_REF_NAME)
+            $siblings = Invoke-RestMethod -Uri "$apiBase/repos/$env:GITHUB_REPOSITORY/actions/runs?branch=$branch&per_page=30" -Headers $headers -Method Get
+            if ($null -eq $siblings.workflow_runs) { throw "Sibling workflow payload missing workflow_runs array." }
+            $capture.sibling_runs = [ordered]@{ status = "SUCCESS"; error_class = $null; http_status = 200 }
+          } catch {
+            $siblings = @{ workflow_runs = @() }
+            $capture.sibling_runs = [ordered]@{ status = "UNAVAILABLE"; error_class = $_.Exception.GetType().Name; http_status = (Get-HttpStatus $_) }
+            Write-Warning "Sibling workflow metadata unavailable."
+          }
           try {
             $zipPath = Join-Path $env:RUNNER_TEMP "ci-run-logs.zip"
             $extractPath = Join-Path $env:RUNNER_TEMP "ci-run-logs"
@@ -783,13 +815,23 @@ jobs:
             if (Test-Path $extractPath) { Remove-Item $extractPath -Recurse -Force }
             Expand-Archive -LiteralPath $zipPath -DestinationPath $extractPath -Force
             $logText = (Get-ChildItem -LiteralPath $extractPath -Recurse -Filter "*.txt" | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join [Environment]::NewLine
-          } catch { Write-Warning ("Failed-step logs unavailable: " + $_.Exception.Message) }
+            $capture.logs = [ordered]@{ status = "SUCCESS"; error_class = $null; http_status = 200 }
+          } catch {
+            $logText = ""
+            $capture.logs = [ordered]@{ status = "UNAVAILABLE"; error_class = $_.Exception.GetType().Name; http_status = (Get-HttpStatus $_) }
+            Write-Warning "Workflow logs unavailable; failure classification remains UNKNOWN."
+          }
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-run.json"), ($run | ConvertTo-Json -Depth 100), $utf8)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-jobs.json"), ($jobs | ConvertTo-Json -Depth 100), $utf8)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-sibling-runs.json"), ($siblings | ConvertTo-Json -Depth 100), $utf8)
+          [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-capture-status.json"), ($capture | ConvertTo-Json -Depth 100), $utf8)
           [System.IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP "ci-failed.log"), $logText, $utf8)
       - name: Classify failure and write redacted evidence
         env:
           CI_RUN_JSON: ${{ runner.temp }}/ci-run.json
           CI_JOBS_JSON: ${{ runner.temp }}/ci-jobs.json
           CI_SIBLING_RUNS_JSON: ${{ runner.temp }}/ci-sibling-runs.json
+          CI_CAPTURE_STATUS_JSON: ${{ runner.temp }}/ci-capture-status.json
           CI_FAILED_LOG: ${{ runner.temp }}/ci-failed.log
           CI_EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
           CI_DIAGNOSTICS_OUTPUT: ${{ runner.temp }}/ci-failure-diagnostics.json
