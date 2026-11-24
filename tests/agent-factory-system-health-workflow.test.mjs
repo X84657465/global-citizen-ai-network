@@ -15,5 +15,5 @@ test("system-health recovery invokes its Node controller without the Windows Pow
   assert.ok(step.includes("          controller_status=\${PIPESTATUS[0]}\n"), "controller failure exit status must be preserved after tee");
   assert.ok(workflow.includes("      - name: Upload system-health recovery diagnostics\n        if: always()\n        uses: actions/upload-artifact@v4\n"), "diagnostic artifact upload must run even when the controller fails");
   assert.ok(workflow.includes("          retention-days: 14\n"), "recovery diagnostics must be retained for post-run investigation");
-  assert.ok(step.includes("        run: node scripts/agent-factory-v2-controller.mjs"), "controller invocation must remain unchanged");
+  assert.ok(step.includes("        run: |\n"), "controller must run through the diagnostic capture wrapper");
 });
