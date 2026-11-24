@@ -271,3 +271,15 @@ test("keeps scratch filesystem collisions system-scoped and removes partial scra
   assert.match(result.stderr, /Unable to create a patch destination directory in the scratch workspace/);
   assert.deepEqual(readdirSync(data.runnerTemp), []);
 });
+
+
+test("successful task publication clears only task retry state", () => {
+  const workflowPath = fileURLToPath(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url));
+  const workflow = readFileSync(workflowPath, "utf8");
+  const stepStart = workflow.indexOf("      - name: Reset circuit breaker after successful task publication");
+  const nextStep = workflow.indexOf("      - name: Record publication failure", stepStart);
+  assert.ok(stepStart >= 0 && nextStep > stepStart, "publication-success step must have a bounded workflow section");
+  const successStep = workflow.slice(stepStart, nextStep);
+  assert.match(successStep, /AGENT_FACTORY_SUCCESS_SCOPE: task/);
+  assert.match(successStep, /COMPLETED_ISSUE_NUMBER: \\$\\{\\{ needs\\.prepare-task\\.outputs\\.issue_number \\}\\}/);
+});
