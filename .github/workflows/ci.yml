@@ -99,7 +99,7 @@ jobs:
         with:
           name: resolver-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/resolver-diagnostics.json
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
 
   quality:
@@ -800,5 +800,5 @@ jobs:
         with:
           name: ci-failure-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-failure-diagnostics.json
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
