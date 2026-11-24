@@ -13,9 +13,10 @@ The current mainline evidence observed on 2026-11-25 is:
 - No exact-main CI pass or formal GPT3 APPROVED review is established by this status update.
 
 The current GPT2 candidate evidence is:
-- PR #536 head `3208f25759865315f38a6c53b1946049f936420f`.
-- GitHub Actions run `45425936715`: completed SUCCESS. Conditional evidence/persistence jobs were SKIPPED; those skips are not independent passes.
-- Vercel: FAILURE; CircleCI: ERROR.
+- PR #536 head `2c257709e5bccb1e2b6ccb3a686fdc6369a1d0a7`.
+- GitHub Actions run `45458711528`: completed SUCCESS on this exact head. Resolver, Windows quality gates, Ollama/local execution integration, and Supabase migrations/PostgreSQL/RLS integration all completed SUCCESS.
+- Conditional evidence/persistence/diagnostic jobs were SKIPPED; those skips are not independent passes and are not represented as required quality-gate passes.
+- Main external statuses at the time of this check: Vercel FAILURE (build-rate-limit); CircleCI Pipeline #380 ERROR.
 - The review records checked for this candidate are COMMENTED only; no formal GPT3 APPROVED review is established.
 
 ## Delivered implementation
