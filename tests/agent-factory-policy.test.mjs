@@ -363,3 +363,22 @@ test("task preflight marks only typed validation errors after successful GitHub 
   assert.equal(source.slice(lookup, validation).includes("markTaskScopedFailure()"), false);
   assert.match(source.slice(typedGuard, source.indexOf("fail(", typedGuard)), /try\s*\{\s*markTaskScopedFailure\(\);\s*\}\s*catch/);
 });
+
+
+test("candidate container classification requires Docker start exit to match inspected process exit", () => {
+  const clean = { Status: "exited", Error: "", ExitCode: 0, OOMKilled: false, Dead: false };
+  assert.equal(candidateContainerFailureScope(clean, 0), "none");
+  assert.equal(candidateContainerFailureScope(clean, 1), "system");
+  assert.equal(candidateContainerFailureScope({ ...clean, ExitCode: 1 }, 1), "task");
+  assert.equal(candidateContainerFailureScope({ ...clean, ExitCode: 2 }, 1), "system");
+  assert.equal(candidateContainerFailureScope({ ...clean, ExitCode: 137 }, 137), "system");
+  assert.equal(candidateContainerFailureScope(clean, "0"), "system");
+});
+
+
+
+test("candidate container classification reads Docker start exit evidence from the state default parameter", () => {
+  const clean = { Status: "exited", Error: "", ExitCode: 0, OOMKilled: false, Dead: false };
+  assert.equal(candidateContainerFailureScope({ ...clean, DockerStartExitCode: 0 }), "none");
+  assert.equal(candidateContainerFailureScope({ ...clean, DockerStartExitCode: 1 }), "system");
+});
