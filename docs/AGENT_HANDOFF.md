@@ -2867,3 +2867,59 @@ This section supersedes earlier same-day observations in this file where counts,
 - GPT1 remains owner for Resolver/Diagnostics, Factory protected-path conflict, and shared Factory/workflow hunks; GPT3 remains independent reviewer. GPT5's scope remains operations support.
 
 **Disposition:** Main FAILURE; 19 PRs open; zero formal approvals; no merge. Evidence update is IMPLEMENTED only, not functional TESTED, CI-PASSING, INDEPENDENTLY-ACCEPTED, MERGED or RELEASED.
+
+
+---
+
+## GPT5 live sweep correction — 2026-11-24 14:05 Asia/Taipei
+
+This is a new observation, not a claim that earlier entries were wrong when recorded. It supersedes live-state claims above where current refs or run states differ.
+
+### Main / CI
+
+- Latest recent commit on `main`: `6b3ac4b639c285b2c664ffae579029a3fae29f99` — `fix(ai-cost): extract testable invoice preview payload validation`.
+- Re-read `PROJECT_COORDINATION.md` from `main`; current blob SHA: `d3ee1881aa67861fc42a2b568b26020945b0c218`. Re-read `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` and retained Factory-first, A–P owner boundaries, exact-SHA evidence requirements, and GPT5 operations-support-only authority.
+- Main exact-SHA Actions run `45233037163`, attempt 3: terminal **FAILURE**. `Resolve exact candidate PR metadata` (job `138119072413`) and `Exact-SHA CI failure diagnostics and evidence` (job `138119090272`) failed. `Persist candidate or system CI failures` succeeded and recorded a system failure. Candidate revalidation/registration, Windows quality, Ollama/local execution, Supabase/PostgreSQL/RLS, and success persistence were SKIPPED. No full CI pass.
+- Main combined external statuses: CircleCI Pipeline **ERROR** (pipeline 161); Vercel **FAILURE** (`build-rate-limit`). These are separate external checks, not a substitute for GitHub Actions.
+- Root cause of Resolver/Diagnostics remains UNKNOWN from available evidence. Do not rerun blindly, infer a green state, or treat the successful failure-persistence job as recovery.
+
+### All 19 OPEN PRs — current exact metadata, Actions and combined status
+
+| PR | Exact HEAD (short) | Base SHA (short) | Draft | Mergeable | Exact-head Actions | Combined external checks |
+|---|---|---|---|---|---|---|
+| #511 | `7e0e2e170490` | `6b3ac4b639c2` | yes | true | #45318481077 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #510 | `5e4eff8768ef` | `6b3ac4b639c2` | yes | true | #45335398946 **PENDING** | CircleCI ERROR; Vercel SUCCESS |
+| #509 | `db4ae6ee75ce` | `6b3ac4b639c2` | yes | true | #45309976734 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #508 | `823583a247b7` | `6b3ac4b639c2` | yes | true | #45309556441 CI FAILURE; #45309556616 Preflight FAILURE | CircleCI ERROR; Vercel SUCCESS |
+| #507 | `2a372dd154e6` | `6b3ac4b639c2` | yes | true | #45329819619 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #506 | `d51d2d5f61be` | `6b3ac4b639c2` | yes | true | #45298362719 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #503 | `1969fc4000df` | `6b3ac4b639c2` | yes | true | #45326905063 CI FAILURE; #45326905178 Preflight FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #502 | `85a7404f3dd2` | `6b3ac4b639c2` | yes | true | #45313495347 FAILURE | CircleCI ERROR; Vercel SUCCESS |
+| #501 | `13f68ef50919` | `6b3ac4b639c2` | yes | true | #45288587720 FAILURE | CircleCI ERROR; Vercel SUCCESS |
+| #500 | `9e67c4e9668e` | `6b3ac4b639c2` | yes | true | #45233415974 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #498 | `2d13ddd094cb` | `8002072738d0` | yes | true | #45230211754 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #497 | `c3e6450551d5` | `8002072738d0` | yes | true | #45229281768 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #496 | `5251f221884a` | `8002072738d0` | yes | true | #45228376095 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #495 | `cdd7f28c016d` | `8002072738d0` | yes | true | #45298251510 FAILURE | CircleCI ERROR; Vercel FAILURE |
+| #478 | `9a696398fb8c` | `4225a244407f` | yes | false | #45191718421 SUCCESS | Vercel FAILURE; CircleCI status absent |
+| #476 | `977896a9db75` | `4225a244407f` | no | false | No PR-triggered Actions run returned | CircleCI ERROR; Vercel SUCCESS |
+| #417 | `0dd4a08886a2` | `25d5ed519eb9` | no | false | #45056447505 FAILURE | Vercel FAILURE; CircleCI status absent |
+| #376 | `d10e6dd6d428` | `93e7ac35bfd5` | no | false | No PR-triggered Actions run returned | Vercel FAILURE; CircleCI status absent |
+| #259 | `3330cd04a773` | `a1c1b58e4d18` | yes | false | #44949425719 SUCCESS | Vercel FAILURE; CircleCI status absent |
+
+- Counts: **19 OPEN** = 16 Draft + 3 Ready; 14 mergeable=true, 5 mergeable=false. Exact-head Actions inventory: **14 FAILURE, 1 PENDING, 2 SUCCESS, 2 with no PR-triggered run returned**. A SUCCESS run does not imply all required jobs passed; skipped jobs remain non-passing.
+- #510 is currently PENDING; do not spin, mark it PASS, or claim a terminal result. Wait for a real terminal transition on that exact HEAD.
+- Stale-base groups: #498/#497/#496/#495 based on `8002072738d0...`; #478/#476 on `4225a244407f...`; #417 on `25d5ed519eb9...`; #376 on `93e7ac35bfd5...`; #259 on `a1c1b58e4d18...`. All five report mergeable=false. Do not force-update or merge these overlapping/stale candidates.
+- Selected current review submissions checked on #507, #503 and #511 are COMMENTED only; none is APPROVED. #507 review explicitly blocks acceptance; #503 review explicitly blocks acceptance and notes unavailable diagnostic logs; #511 review explicitly blocks acceptance. The earlier all-PR formal-review sweep in this file recorded zero APPROVED; this current delta does not claim a fresh all-19 review query.
+- No PR is safe to un-Draft or merge: the three Ready PRs (#476/#417/#376) are all mergeable=false and lack passing exact-current-base evidence; all Draft PRs remain blocked by failed/pending/skipped or stale evidence.
+
+### GPT5-owned work and next routing
+
+- Updated only this GPT5-owned `docs/AGENT_HANDOFF.md` on `docs/gpt5-ops-audit-20261124`. This is an operations evidence/handoff update, not a Factory source repair.
+- GPT1 / Factory owner: Resolver and Diagnostics failures, main CI recovery, and Factory workflow/runtime remediation.
+- GPT3: independent architecture/QA review after a new exact-head candidate is produced.
+- GPT2: F–P owned changes; GPT4: B Product. GPT5 does not take over their code or module ownership.
+- No local tests were run in this documentation-only update. No Factory/Product source, workflow, Runner, durable state, lease, secret, permission, branch protection, database/RLS, provider quota, production, or deployment setting changed.
+- PR #507 remains OPEN / Draft pending fresh exact-head CI and independent approval. This documentation commit does not self-approve or change PR state.
+
+**Disposition:** Main FAILURE; 19 PRs open; 14 Actions failures, one pending, two successful runs (not sufficient evidence of full required gates), two with no PR-triggered run returned; no PR transition, merge, acceptance or release performed.
