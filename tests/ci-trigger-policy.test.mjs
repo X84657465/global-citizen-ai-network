@@ -975,7 +975,7 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
     "utf8",
   ).replace(/\r\n/g, "\n");
   const resolverStart = recoveryWorkflow.indexOf("const matches = prs.filter(");
-  const resolverEnd = recoveryWorkflow.indexOf("if (matches.length !== 1)", resolverStart);
+  const resolverEnd = recoveryWorkflow.indexOf("if (matches.length > 1)", resolverStart);
   assert.ok(resolverStart >= 0 && resolverEnd > resolverStart,
     "recovery must explicitly filter all PR candidates before accepting one");
   const resolver = recoveryWorkflow.slice(resolverStart, resolverEnd);
@@ -987,8 +987,14 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
     "pr.head?.sha === sha",
     "pr.head?.ref === ref",
   ]) assert.ok(resolver.includes(requiredGuard), "exact-head resolver must retain " + requiredGuard);
-  assert.ok(recoveryWorkflow.includes("matches.length !== 1"),
-    "zero or multiple PR matches must fail closed");
+  assert.ok(recoveryWorkflow.includes("if (matches.length === 0)"),
+    "stale or closed-PR CI without an open exact-head PR must be a successful no-op");
+  assert.ok(recoveryWorkflow.includes("should_recover=false"),
+    "zero matches must prevent the privileged recovery controller from running");
+  assert.ok(recoveryWorkflow.includes("if (matches.length > 1)"),
+    "ambiguous exact-head PR matches must still fail closed");
+  assert.ok(recoveryWorkflow.includes("if: steps.resolve-pr.outputs.should_recover == 'true'"),
+    "the privileged recovery controller must run only after a unique exact-head PR is verified");
   assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("ai-task/issue-")'));
   assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("codex/issue-")'));
   assert.equal(recoveryWorkflow.includes("workflow_run.pull_requests"), false,
