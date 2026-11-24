@@ -273,13 +273,14 @@ test("keeps scratch filesystem collisions system-scoped and removes partial scra
 });
 
 
-test("successful task publication clears only task retry state", () => {
+test("successful task publication does not invoke the non-mutating legacy success callback", () => {
   const workflowPath = fileURLToPath(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url));
   const workflow = readFileSync(workflowPath, "utf8");
-  const stepStart = workflow.indexOf("      - name: Reset circuit breaker after successful task publication");
-  const nextStep = workflow.indexOf("      - name: Record publication failure", stepStart);
-  assert.ok(stepStart >= 0 && nextStep > stepStart, "publication-success step must have a bounded workflow section");
-  const successStep = workflow.slice(stepStart, nextStep);
-  assert.match(successStep, /AGENT_FACTORY_SUCCESS_SCOPE: task/);
-  assert.ok(successStep.includes("COMPLETED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}"));
+  assert.equal(
+    workflow.includes("Reset circuit breaker after successful task publication"),
+    false,
+    "publishing a task must not invoke the legacy success callback or imply system recovery",
+  );
+  assert.equal(workflow.includes("AGENT_FACTORY_SUCCESS_SCOPE: task"), false);
+  assert.equal(workflow.includes("COMPLETED_ISSUE_NUMBER: ${{ needs.prepare-task.outputs.issue_number }}"), false);
 });
