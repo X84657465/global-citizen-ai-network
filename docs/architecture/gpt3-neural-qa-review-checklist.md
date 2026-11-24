@@ -32,9 +32,9 @@ For every change produced by the Neural Intelligence Agent (the authorized ChatG
 
 <!-- coderabbit-ai-generated:v1 -->
 
-<!-- coderabbit-ai-generated-section:v1:db073333d2814aa6089931b7eaea7fe16d73919370fb4dab969c605371266c41 -->
+<!-- coderabbit-ai-generated-section:v1:654f8aa755306d5f7da96099296665286030bea8ac797098b6d70cd95069d8cc -->
 
-This rule applies equally to Factory code and Factory self-improvement changes. Independent GPT3 review of the exact candidate SHA is mandatory, and the release / merge gate must remain closed when GPT3 is unavailable. A GPT3 FAIL on the exact candidate SHA always blocks release and merge. No exception, including a project-owner decision, can override that FAIL, permit the Developer to issue or simulate any GPT3 review disposition for its own change (including BLOCKED, PASS, and ACCEPTED), or waive the independent review, GPT3 availability, required-check, or branch-protection requirements. Exceptions outside these limits require an explicit project-owner decision recorded in the repository and cannot be self-approved by the Developer.
+This rule applies equally to Factory code and Factory self-improvement changes. Independent GPT3 review of the exact candidate SHA is mandatory, and the release / merge gate must remain closed when GPT3 is unavailable. Release and merge require an overall GPT3 PASS on the exact candidate SHA; every non-PASS disposition (FAIL, BLOCKED, NOT RUN, PENDING, UNKNOWN, or STALE) keeps the gate closed. No exception, including a project-owner decision, can override any non-PASS disposition, permit the Developer to issue or simulate any GPT3 review disposition for its own change (including BLOCKED, PASS, and ACCEPTED), or waive the independent review, GPT3 availability, required-check, or branch-protection requirements. Exceptions outside these limits require an explicit project-owner decision recorded in the repository and cannot be self-approved by the Developer.
 
 <!-- /coderabbit-ai-generated:v1 -->
 
