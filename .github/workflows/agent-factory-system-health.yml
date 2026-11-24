@@ -61,4 +61,19 @@ jobs:
           SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           SYSTEM_HEALTH_PR_HEAD_SHA: ${{ github.event.workflow_run.pull_requests[0].head.sha }}
         shell: bash
-        run: node scripts/agent-factory-v2-controller.mjs
+        run: |
+          : > recovery-controller.log
+          set +e
+          node scripts/agent-factory-v2-controller.mjs 2>&1 | tee recovery-controller.log
+          controller_status=${PIPESTATUS[0]}
+          printf 'controller_exit_code=%s\n' "$controller_status" | tee -a recovery-controller.log
+          exit "$controller_status"
+
+      - name: Upload system-health recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-health-recovery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: recovery-controller.log
+          if-no-files-found: warn
+          retention-days: 14
