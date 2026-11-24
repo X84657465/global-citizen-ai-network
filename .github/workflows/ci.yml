@@ -49,25 +49,11 @@ jobs:
       api_cooldown_until: ${{ steps.resolve.outputs.api_cooldown_until }}
     steps:
       - name: Initialize fallback resolver evidence before checkout
-        shell: pwsh
+        shell: bash
         env:
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
         run: |
-          $path = Join-Path $env:RUNNER_TEMP "resolver-diagnostics.json"
-          $fallback = @{
-            schemaVersion = 1
-            stage = "resolver_not_completed"
-            errorName = "ResolverDidNotComplete"
-            httpStatus = $null
-            method = ""
-            path = ""
-            rateLimited = $false
-            retryAfterMs = $null
-            expectedHeadSha = $env:EXPECTED_HEAD_SHA
-            workflowRunId = $env:GITHUB_RUN_ID
-            runAttempt = $env:GITHUB_RUN_ATTEMPT
-          }
-          [System.IO.File]::WriteAllText($path, ($fallback | ConvertTo-Json -Depth 10) + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          printf '{\n  "schemaVersion": 1,\n  "stage": "resolver_not_completed",\n  "errorName": "ResolverDidNotComplete",\n  "httpStatus": null,\n  "method": "",\n  "path": "",\n  "rateLimited": false,\n  "retryAfterMs": null,\n  "expectedHeadSha": "%s",\n  "workflowRunId": "%s",\n  "runAttempt": "%s"\n}\n' "$EXPECTED_HEAD_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > "$RUNNER_TEMP/resolver-diagnostics.json"
       - name: Checkout resolver
         uses: actions/checkout@v5
         with:
@@ -725,20 +711,11 @@ jobs:
         shell: pwsh
     steps:
       - name: Initialize fallback CI evidence before checkout
-        shell: pwsh
+        shell: bash
         env:
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.client_payload.head_sha || github.sha }}
         run: |
-          $path = Join-Path $env:RUNNER_TEMP "ci-failure-diagnostics.json"
-          $fallback = @{
-            schemaVersion = 1
-            captureStatus = "incomplete"
-            failureStage = "checkout_or_diagnostics_not_completed"
-            workflowRunId = $env:GITHUB_RUN_ID
-            runAttempt = $env:GITHUB_RUN_ATTEMPT
-            expectedHeadSha = $env:EXPECTED_HEAD_SHA
-          }
-          [System.IO.File]::WriteAllText($path, ($fallback | ConvertTo-Json -Depth 10) + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          printf '{\n  "schemaVersion": 1,\n  "captureStatus": "incomplete",\n  "failureStage": "checkout_or_diagnostics_not_completed",\n  "workflowRunId": "%s",\n  "runAttempt": "%s",\n  "expectedHeadSha": "%s"\n}\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$EXPECTED_HEAD_SHA" > "$RUNNER_TEMP/ci-failure-diagnostics.json"
       - name: Checkout exact tested revision
         uses: actions/checkout@v5
         with:
