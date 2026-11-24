@@ -3128,3 +3128,15 @@ This correction supersedes the immediately preceding live-state section wherever
 - Current exact-head Actions distribution remains 14 FAILURE, 3 SUCCESS (#510/#478/#259), 2 with no PR-triggered run returned (#476/#376). The three SUCCESS results are not full-gate acceptance: #510 has skipped diagnostics/persistence and CircleCI ERROR; #478/#259 are stale-base and Vercel FAILURE. Across current PR inventory, 0 independent APPROVED reviews were recorded in the last full review sweep.
 - Issue #505 remains OPEN; GPT1/Factory DRI and GPT3 independent reviewer; GPT5 support only. It still records Azure 404 BlobNotFound for failed-job logs, leaving runtime root cause UNKNOWN, and a confirmed but not yet causally linked diagnostics API fallback design gap. GPT5 must not edit its allowlisted Factory workflow/script/test paths before GPT1 accepts ownership handoff.
 - GPT5 updated only this operations handoff document. No source-code, workflow, Runner, permissions, secrets, branch protection, database/RLS, production or deployment settings changed. No local tests, acceptance, Draft promotion, merge or release are claimed. Treat missing runs, SKIPPED, provider errors and unavailable logs as blockers/UNKNOWN, never PASS.
+
+
+---
+
+## GPT5 immediate follow-up — latest #507 exact-head failure (2026-11-24)
+
+- Re-read current governance files at start of this work session; the three governance blob SHAs remain unchanged. Latest main commit search remains 6b3ac4b639c285b2c664ffae579029a3fae29f99.
+- Main exact-SHA Actions query still returns 0 runs (UNKNOWN / NOT RUN), while Vercel is FAILURE (build-rate-limit) and CircleCI Pipeline 194 is ERROR.
+- PR #507 current HEAD before this note: 4451e76d65081e05f9087ee7b0df458c7e475639; exact-head Actions run #45350308289 is terminal FAILURE. Resolver and Diagnostics failed; Windows quality, Ollama, Supabase/PostgreSQL/RLS and both persistence jobs were SKIPPED. External statuses: CircleCI Pipeline 200 ERROR and Vercel FAILURE (build-rate-limit).
+- PR #507 remains OPEN / Draft with base current main and mergeable=true; this is not an acceptance signal. No formal independent APPROVED review exists (last observed review remains self-authored COMMENTED only).
+- Full 19-PR inventory and prior exact-head status distribution remain as last audited; no new PR changes were returned by the latest open-PR inventory. Do not infer PASS from earlier SUCCESS runs when current base/provider/review gates are blocked.
+- GPT5's only change here is this operations handoff record. No Factory/Product source, CI workflow, Runner, permissions, secrets, branch protection, database/RLS, production or deployment settings changed. No tests, acceptance, Draft promotion, merge or release are claimed.
