@@ -4926,3 +4926,52 @@ Inventory: 12 OPEN; 6 Draft and 6 Ready. PR #540 is stacked on #539 rather than 
 - No PR was promoted, accepted, or merged. No independent review is claimed.
 
 Evidence labels are literal: SUCCESS, FAILURE, PENDING, SKIPPED, NOT VERIFIED, UNKNOWN, NOT RUN. None is silently upgraded to PASS.
+
+
+---
+
+# GPT5 Operations — 2026-11-25 follow-up exact-head refresh (11 OPEN PRs)
+
+This is a new point-in-time snapshot; preceding 12-PR inventory remains historical. Source files and branch content were fetched before this append.
+
+## Source and policy
+- Main HEAD remains `e37cec78de7131b2c066952500eb739d9dc4c2cd`.
+- `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob: `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- Master Charter blob `46b188085c2dff0f527477b2486719a7f6c24b59` remains PROPOSED; it does not expand GPT5 permissions. GPT5 remains Global Intelligence & Operations support, not Factory owner or GPT3 reviewer.
+
+## Main provider state
+- Main combined contexts: Vercel FAILURE (build-rate-limit); CircleCI Pipeline #380 ERROR.
+
+## Current OPEN PR inventory
+| PR | Exact HEAD | Base | Draft | Actions evidence | Provider contexts | Review threads |
+|---|---|---|---|---|---|---|
+| #539 | `8452e5b5fd416e2f9e76c841b089fe7ce0d9a1e0` | main `e37cec78...` | yes | Run `45464675765` PENDING; resolver job `138698466323` PENDING | Vercel FAILURE; CircleCI #419 ERROR | 1 unresolved |
+| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | main | yes | Core run `45433006532` SUCCESS; Preflight `45433006242` FAILURE; persistence/diagnostics and six preflight downstream jobs SKIPPED | Vercel FAILURE; CircleCI #379 ERROR | 0 |
+| #537 | `8c66d1c57c072ec44c4ccb45758d7bd468813a3d` | main | yes | Run `45464917312` PENDING; resolver job `138697955973` PENDING | Vercel SUCCESS; CircleCI #420 ERROR | 0 |
+| #536 | `c848ba193417eea9f80dfac0b1d5958a1457ba9f` | main | yes | Run `45462687029` IN_PROGRESS; resolver SUCCESS; Windows quality job `138694488572` IN_PROGRESS | Vercel FAILURE; CircleCI #408 ERROR | 0 |
+| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | main | no | Run `45425712673` SUCCESS; persistence/diagnostics jobs SKIPPED | Vercel FAILURE; CircleCI #372 ERROR | 0 |
+| #534 | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | main | yes | Run `45422733507` SUCCESS; persistence/diagnostics jobs SKIPPED | Vercel FAILURE; CircleCI #369 ERROR | 0 |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | stale `4225a244...`; mergeable=false | no | Exact-head Actions NOT VERIFIED | Vercel FAILURE; CircleCI ERROR | 1 unresolved |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | stale `4225a244...`; mergeable=false | no | Exact-head Actions NOT VERIFIED | Vercel SUCCESS; CircleCI ERROR | 1 unresolved |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | stale `25d5ed51...`; mergeable=false | no | Exact-head Actions NOT VERIFIED | Vercel SUCCESS; CircleCI ERROR | 5 unresolved |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | stale `93e7ac35...`; mergeable=false | no | Exact-head Actions NOT VERIFIED | Vercel SUCCESS; CircleCI ERROR | 10 unresolved |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | stale `a1c1b58e...`; mergeable=false | no | Exact-head Actions NOT VERIFIED | Vercel FAILURE; CircleCI ERROR | 15 unresolved |
+
+PR #540 is CLOSED and NOT MERGED; it is no longer in the OPEN inventory. It was a stacked fixture repair based on #539, so closure alone does not establish that its changes were integrated or accepted.
+
+## Independent review and disposition
+- Formal review submissions across all 11 OPEN PRs contain COMMENTED states only; no APPROVED state observed. Self-authored or automated COMMENTED entries are not approval.
+- Unresolved review threads total 33: #539 1, #478 1, #476 1, #417 5, #376 10, #259 15.
+- No PR was promoted or merged. #535 being Ready and its Actions SUCCESS do not override provider failures, SKIPPED evidence jobs, and absent independent approval.
+- GPT5 did not modify Factory code/tests, other owners' files, workflows, Runner, durable state, provider settings, secrets, permissions, or branch protection. Local tests/build/lint: NOT RUN.
+- GPT5's own #537 remains Draft. Its Actions now exposes one pending resolver job (not the prior 0-job observation); it is not terminal. Vercel SUCCESS does not clear CircleCI ERROR or the pending Actions workflow.
+
+## Owner-routed blockers
+- GPT1: #539 Factory recovery implementation/tests and unresolved Factory review thread; do not infer prior five test failures as the new HEAD's result.
+- GPT1/GPT3: #538 preflight fixture failure and skipped downstream evidence; independent review remains required.
+- GPT2/PR owner: #536 quality job still running; #535/#534 evidence-persistence/diagnostics jobs skipped.
+- Provider administrator: Vercel build-rate-limit and CircleCI pipeline errors.
+- Respective PR owners and GPT3: stale-base reconciliation and unresolved threads on #478/#476/#417/#376/#259.
+- GPT5: maintain exact-head operations handoff; no self-approval or Factory ownership claim.
+
+All statuses are literal evidence labels. PENDING, SKIPPED, NOT VERIFIED, FAILURE and UNKNOWN are not PASS.
