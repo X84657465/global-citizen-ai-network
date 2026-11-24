@@ -3,7 +3,8 @@
 > **Owner：** GPT2 — F–P workstream owner  
 > **工作範圍：** F、G、H、I、J、K、L、M、N、O、P  
 > **文件狀態：** GPT2 F–P Neural Intelligence Agent Mode 採納紀錄；DOCUMENTED：YES、ADOPTED：YES（限 GPT2 文件與工作流程採納），IMPLEMENTED：NOT CLAIMED。此紀錄不等於 GPT3 獨立驗收、PR 合併或背景 Runtime 部署。  
-> **本次核對基準：** main `4225a244407f7a323262c4d6e17b2749193d6476`（2026-11-23）  
+> **初始採納基準：** main `4225a244407f7a323262c4d6e17b2749193d6476`（2026-11-23）  
+> **最新主線重核：** main `6b3ac4b639c285b2c664ffae579029a3fae29f99`（2026-11-24；最新狀態見第 6.3 節）  
 > **任務：** Issue #384 — GPT2 adoption of Neural Intelligence Agent Mode  
 > **治理依據：** Repository 根目錄 PROJECT_COORDINATION.md、GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md、各 F–P 工作線文件及相關 Issue／PR 的最新有效紀錄。
 
