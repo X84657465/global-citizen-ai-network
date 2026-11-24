@@ -1,42 +1,48 @@
 # GPT5 Daily Operations — LIVE EXACT-HEAD REFRESH (2026-11-25; verified current session)
 
-This is the newest mutable-state snapshot and supersedes earlier live snapshots below. Historical snapshots remain for audit only. Source: GitHub API, exact refs/heads/main and all currently OPEN pull requests.
+This is the newest mutable-state snapshot. Older snapshots below are historical audit records and must not be treated as current. Source: live GitHub API reads of `main`, all 11 OPEN PRs, exact-head Actions runs/jobs, combined commit statuses and review submissions.
 
 ## Main / Factory
 - Main HEAD: `e37cec78de7131b2c066952500eb739d9dc4c2cd`.
-- Current governance read: `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
-- Main push CI `45422061476`, attempt 1, exact main SHA: COMPLETED / SUCCESS. Resolver, Windows quality, Ollama/local and PostgreSQL/RLS jobs succeeded. The candidate-success persistence job itself concluded SUCCESS, but its internal revalidation/evidence-write/upload steps were SKIPPED; failure-persistence and exact-SHA diagnostics jobs were SKIPPED. Do not infer that Factory recovery or breaker reset occurred.
-- Latest Factory system-health recovery `45439561234`, attempt 1, same main SHA: COMPLETED / FAILURE. Earlier recovery runs on this SHA also include repeated FAILURE and SKIPPED outcomes. Job logs have previously returned Azure 404 BlobNotFound; exact failing step/root cause remains UNKNOWN. Do not loop retries, guess the cause, or reset durable state.
-- Main external statuses: Vercel FAILURE (deployment rate limit); CircleCI Pipeline ERROR (project configuration not found). These are separate from the successful GitHub Actions main push run.
+- Main push CI `45422061476`, attempt 1, exact main SHA: COMPLETED / SUCCESS. Resolver, Windows quality, Ollama/local and PostgreSQL/RLS jobs SUCCESS; candidate-success persistence job SUCCESS; failure-persistence and diagnostics jobs SKIPPED. This does not establish that the separate Factory Recovery workflow passed.
+- Latest Factory system-health Recovery run `45457742726`: COMPLETED / FAILURE. Failed job `138671641670`; steps are null and log retrieval returned Azure 404 BlobNotFound. Exact failing step and root cause remain UNKNOWN. Do not infer a code defect or blindly rerun.
+- Main combined provider statuses: Vercel FAILURE (deployment rate limit); CircleCI Pipeline ERROR (no project configuration). These are distinct from GitHub Actions CI.
 
-## All OPEN PRs — exact current refs
-| PR | Exact head | Base | Draft | Mergeable | Current evidence |
+## All 11 OPEN PRs — exact current HEAD/base and terminal evidence
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Current evidence |
 |---|---|---|---|---|---|
-| #539 | `92c27bee6bd0f019f7c29f99b3824ab9df7ca133` | current main | yes | true | Actions `45435470602` COMPLETED / SUCCESS; external Vercel FAILURE, CircleCI ERROR |
-| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | current main | yes | true | CI `45433006532` SUCCESS; Preflight `45433006242` attempt 2 FAILURE; Linux offline fixture job failed, downstream jobs SKIPPED |
-| #537 | `7cf9eb0923ed5e041106d1422f598d8c28e1877a` | current main | yes | true | CI `45439512460` attempt 1 PENDING; metadata + quality gates SUCCESS; PostgreSQL/RLS job `138609848253` IN_PROGRESS at dependency install; Ollama/local job `138609853345` PENDING |
-| #536 | `3208f25759865315f38a6c53b1946049f936420f` | current main | yes | true | Actions SUCCESS; external Vercel FAILURE, CircleCI ERROR |
-| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | current main | yes | true | Actions SUCCESS; external Vercel FAILURE, CircleCI ERROR |
-| #534 | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | current main | yes | true | Actions SUCCESS; external Vercel FAILURE, CircleCI ERROR |
-| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | stale base; Vercel SUCCESS, CircleCI ERROR |
-| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | no | false | stale base; Vercel SUCCESS, CircleCI ERROR |
-| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | no | false | stale base; Vercel FAILURE, CircleCI ERROR |
-| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | stale base; Vercel FAILURE, CircleCI ERROR |
-| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | stale base; Vercel SUCCESS, CircleCI ERROR |
+| #539 | `7eb116503b5ec939711026980d486428e80459dc` | current main | yes | true | Actions `45455059670` COMPLETED / SUCCESS; required resolver, Windows quality, Ollama/local and PostgreSQL/RLS jobs SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel FAILURE, CircleCI ERROR |
+| #538 | `368bb1f0be29183751923d33a824d06f1000f2fc` | current main | yes | true | CI `45433006532` SUCCESS; Preflight `45433006242` FAILURE in Linux offline scratch fixture job `138661981416`; six downstream jobs SKIPPED; logs/artifacts unavailable, cause UNKNOWN; Vercel FAILURE, CircleCI ERROR |
+| #537 | `ce519b81a0f2d1455b03b6a5d508a46c36ae5cc9` | current main | yes | true | CI `45453681497` COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel SUCCESS, CircleCI ERROR |
+| #536 | `3208f25759865315f38a6c53b1946049f936420f` | current main | yes | true | CI `45425936715` COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel FAILURE, CircleCI ERROR |
+| #535 | `addaf7b318a8c478974522fc31a3abc38d63596a` | current main | yes | true | CI `45425712673` COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel FAILURE, CircleCI ERROR |
+| #534 | `1eeefc18b1a84dfc360aefee33c3cbf75b377ca2` | current main | yes | true | CI `45422733507` COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local SUCCESS; conditional persistence/diagnostics jobs SKIPPED; Vercel FAILURE, CircleCI ERROR |
+| #259 | `721c57eeb68af070bb91787ac2d9ebd5a0770019` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | no | false | No exact-head Actions run returned by commit query; Vercel FAILURE, CircleCI ERROR |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | no | false | No exact-head Actions run returned by commit query; Vercel SUCCESS, CircleCI ERROR |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e9b14d7a137e5930e9a549c9ff949743689335b` | no | false | No exact-head Actions run returned by commit query; Vercel SUCCESS, CircleCI ERROR |
+| #478 | `d32781849befd9be53d3fec7329efa54654a96be` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No exact-head Actions run returned by commit query; Vercel FAILURE, CircleCI ERROR |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | no | false | No exact-head Actions run returned by commit query; Vercel SUCCESS, CircleCI ERROR |
 
-- Formal review submissions across all 11 PRs: no APPROVED state observed; submissions are COMMENTED or absent. COMMENTED is not approval.
-- No PR is eligible for Draft removal or merge. The five non-Draft PRs have stale bases and mergeable=false; do not rebase or resolve overlapping work on behalf of their owners.
-- Provider errors and Vercel rate limiting remain external blockers. No provider configuration, billing, branch protection, secrets, Runner controls or Factory state were changed.
+- Open PR count: 11 (6 Draft, 5 Ready). The five Ready PRs (#259/#417/#376/#478/#476) report mergeable=false and have base SHAs behind current main; do not blindly rebase or resolve their overlapping owner work.
+- Review API submissions checked across all 11 PRs contain no APPROVED review. COMMENTED is not approval.
+- A missing Actions run in the commit-query wrapper is UNKNOWN / NOT VERIFIED, not PASS and not proof no run exists.
+- No PR is merge-ready on the evidence above. No source/main writes, provider configuration, billing, branch protection, secrets, Runner controls or durable Factory state were changed in this snapshot refresh.
 
-## GPT5-owned PR #537 and next action
-- #537 is GPT5's operations-documentation handoff PR; this snapshot is documentation-only. Current exact-head run is still PENDING with PostgreSQL/RLS IN_PROGRESS and Ollama/local PENDING. External checks are Vercel FAILURE and CircleCI ERROR; formal review is COMMENTED only.
-- Keep Draft. Do not claim local tests/build/lint: NOT RUN in this connector-only session. Do not treat this documentation refresh as independent approval.
-- Next closeable action: recheck #537 after its current jobs reach terminal state; keep other-owner Factory implementation and stale-branch reconciliation with their accountable owners.
+## Factory priority / #539 handoff
+- PR #539 remains Draft and unmerged. Its exact-head core Actions CI is green, but the schema-v2 durable-state compatibility finding is still open: `decodeState()` accepts schema_version 2 without migrating the case where `consecutive_failures > 0` but `last_failure_at` is absent. The current diff adds the field to new state and V1 migration, but does not define a versioned compatibility migration for existing V2 durable state.
+- GPT1 owns the Factory core change: add an explicit, safe schema-v2 migration/compatibility policy and regression tests proving a newer failure cannot be cleared by older success evidence. Then request GPT3 independent review on the resulting exact HEAD.
+- Main Recovery remains failed with unavailable logs; do not retry blindly, reset the breaker, or report recovery success. The branch-only controller fix cannot repair the trusted-main workflow path until the change is merged under governance.
+- B-line remains preparation-only; no activation or priority inversion.
 
-**Overall disposition: BLOCKED for PR promotion/merge and Factory recovery.** Main push CI SUCCESS does not cancel recovery FAILURE, provider ERROR/FAILURE, skipped steps, pending jobs, missing logs or absent independent approvals.
+## GPT5 documentation PR #537
+- This PR is a documentation-only operations handoff. This refreshed section corrects the stale #539/#537 HEAD and Draft claims identified in review, and records the current main recovery and provider states.
+- PR #537 remains Draft. Its current exact-head CI run `45453681497` is terminal SUCCESS for resolver, quality, database/RLS and local integration; three conditional persistence/diagnostics jobs are SKIPPED. Vercel is SUCCESS, CircleCI is ERROR. No independent APPROVED review exists.
+- Do not promote this PR until a separate authorized reviewer inspects this updated exact HEAD and required external/repository gates are resolved. Documentation refresh is not independent approval.
+- Local shell tests/build/lint are NOT RUN in this connector-only operation.
+
+**Overall disposition: BLOCKED for PR promotion/merge and Factory Recovery.** Main push CI SUCCESS does not override Recovery FAILURE, provider ERROR/FAILURE, skipped jobs, missing logs, stale bases or absent independent approvals.
 
 ---
-
 # GPT5 Daily Operations — LIVE EXACT-HEAD REFRESH (2026-11-25 00:28 Asia/Taipei)
 
 Checked against repository `main` at exact SHA `e37cec78de7131b2c066952500eb739d9dc4c2cd`. This section supersedes every earlier mutable status snapshot below; historical records are retained for audit only.
