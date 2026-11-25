@@ -9,14 +9,19 @@ import {
 
 const sha = "a".repeat(40);
 const repo = "X84657465/global-citizen-ai-network";
-const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence => ({
-  jobId,
-  runAttempt: 1,
-  status: "completed",
-  conclusion: "success",
-  jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456",
-  ...overrides,
-});
+const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence => {
+  const requiredJobIndex = G_REQUIRED_CI_JOBS.indexOf(jobId as (typeof G_REQUIRED_CI_JOBS)[number]);
+  const fallbackJobId = [...jobId].reduce((value, character) => value * 31 + character.charCodeAt(0), 0);
+  const jobUrlId = 456 + (requiredJobIndex >= 0 ? requiredJobIndex : fallbackJobId);
+  return {
+    jobId,
+    runAttempt: 1,
+    status: "completed",
+    conclusion: "success",
+    jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${jobUrlId}`,
+    ...overrides,
+  };
+};
 const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle => ({
   candidateRepository: repo,
   candidateSha: sha,
@@ -256,4 +261,15 @@ test("rejects Proxy-reported canonical job-array indices outside the declared le
     })),
     /bounded dense plain array/,
   );
+});
+
+
+test("rejects distinct required job IDs that reuse one GitHub job URL", () => {
+  const sharedJobUrl = "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456";
+  const duplicatedUrlJobs = G_REQUIRED_CI_JOBS.map((id) => job(id, { jobUrl: sharedJobUrl }));
+  assert.equal(new Set(duplicatedUrlJobs.map((item) => item.jobId)).size, 4);
+  assert.equal(new Set(duplicatedUrlJobs.map((item) => item.jobUrl)).size, 1);
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: duplicatedUrlJobs },
+  })), /Duplicate G CI job evidence/);
 });
