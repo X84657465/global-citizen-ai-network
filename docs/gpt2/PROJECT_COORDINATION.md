@@ -311,3 +311,28 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **本次文件交付：** 追加本節至 `docs/gpt2/PROJECT_COORDINATION.md`，記錄 main push/preflight/recovery 的精確 run/job 終態、七個 OPEN PR 的 exact base/head 與外部狀態、正式 review 缺口，以及 G/H overlap blocker。此為文件-only 交付，不宣稱 runtime implementation、程式測試或 GPT3 acceptance。
 - **驗收界線：** 本輪沒有任何 PR 同時具備 exact-head 必要 CI 全成功、正式獨立 APPROVED、無未解阻塞及可合併狀態。沒有解除 Draft 或合併 PR；未繞過任何 owner、branch protection 或 CI gate。
 - **下一步：** 追蹤 #259 owner 對重疊檔案的整合處置；待路徑解除衝突後，分別處理 #375、#364。#553/#552 等待各自 owner 完成精確 HEAD CI 與獨立正式審查。Recovery 的空 steps 與 Preflight failure 交回 Factory/相關 owner 診斷，不由 GPT2 接管。
+
+## 6.14 即時狀態修正與舊候選清理 — 2026-11-25
+
+> 本節取代前述 6.11–6.13 中與目前 PR 清理結果不一致的 OPEN PR 清單；歷史快照保留但不得當作目前狀態。
+
+### Main
+- main HEAD：`462eeea5917f3b0750fc2c41c888a4d54c562c1e`。
+- 本次未修改 main。
+
+### PR 清理結果
+- 已關閉不可整合的舊候選：#478、#476、#376、#417、#259。其原始分支 base 落後目前 main，GitHub mergeable=false；不採用機械 rebase。
+- #558 已關閉，由 #559 後續修正候選取代。
+- #555 舊文件候選已關閉：內容包含過期 PR 狀態，且只有舊 HEAD 的 COMMENTED review，沒有正式 APPROVED。文件狀態以本節及新候選為準。
+- 已從目前 main 建立重建分支：`rebuild/pr478-gcan-mvp-from-main`、`rebuild/pr476-acceptance-governance-from-main`、`rebuild/pr376-factory-autonomy-docs-from-main`、`rebuild/pr417-neural-factory-seat-from-main`、`rebuild/pr259-factory-consolidation-from-main`。這些分支目前只是乾淨基底，尚未移植原 PR 變更，不代表新功能已重建或驗收。
+
+### 仍開啟的候選與精確驗收狀態
+- #561，HEAD `1e63c727b763c18106880121773a5da14c581618`：CI run `45537703554` attempt 2；Resolver job queued/pending。沒有正式 Review。不可稱 PASS。
+- #559，HEAD `6f33c72588589d5f64af99c1dd1e93d09dccd530`：CI run `45537023617` attempt 2；Resolver SUCCESS，Windows quality gates queued/pending。沒有正式 Review。不可稱 PASS。
+- #560，HEAD `31051b5f98233c107debc2de810170eb69d5956f`：CI run `45536887001` attempt 1；Resolver、Quality、Ollama/local integration SUCCESS，Supabase/PostgreSQL/RLS integration IN_PROGRESS。沒有正式 Review。不可稱 PASS。
+- #561／#559／#560 均保持 Draft；不把 queued/in-progress 當失敗，也不把局部 job success 當整體 workflow success。
+- #555 的舊 CI run `45521844484` SUCCESS 只對舊候選 HEAD 有效，不能轉移至新文件候選。
+
+### 驗收界線
+- 本文件更新只屬文件交接；不宣稱 Factory Recovery 已恢復、程式功能已實作或 B 主線已可推進。
+- 任何 PR 只有在目前 exact HEAD 的必要 CI 全部成功、獨立正式 Review APPROVED、未解 threads 清零、base/mergeability 與 repository gates 均符合時，才可解除 Draft／合併。
