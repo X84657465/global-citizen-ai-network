@@ -1,3 +1,48 @@
+# GPT5 Daily Operations — LIVE RECHECK (2026-11-25, main 462eeea5917f)
+
+> This live recheck supersedes earlier snapshots below. Evidence is tied to exact SHA/run/job. PENDING, IN_PROGRESS, CANCELLED, SKIPPED, NEUTRAL, provider errors, and stale check-runs are not PASS.
+
+## Main exact-SHA evidence
+
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` (merge commit for PR #552); re-read from `refs/heads/main`.
+- GitHub Actions push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114), attempt 1: COMPLETED / SUCCESS on this exact SHA. Resolver job `138839925866`, Windows quality job `138840643179`, PostgreSQL/RLS job `138845801816`, and Ollama/local integration job `138845802296` all SUCCESS. Unit tests, type check, lint, audits, production build, database/RLS integration, and local inference steps succeeded.
+- Important non-green substate: candidate-success persistence job `138848366384` ended SUCCESS, but its operative steps `Revalidate candidate PR head before recording success`, `Record exact candidate CI success`, `Write candidate evidence JSON`, and `Upload machine-readable candidate evidence` were all SKIPPED. This does not establish durable success evidence or a system-breaker reset.
+- Latest System Health Recovery run [45542090255](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542090255), attempt 1: COMPLETED / SKIPPED; its only job `138962793180` also SKIPPED with 0 steps. Earlier same-main recovery runs include [45540765300](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540765300) FAILURE and [45540267528](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540267528) FAILURE. Recovery is NOT PASS.
+- AI Agent Task Preflight [45513478386](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45513478386): COMPLETED / FAILURE. Job `138866846828` failed at `Validate task and create a safe handoff bundle`; log root cause previously captured as `Unexpected section: Phase`. Planning, patching, validation, and publication downstream steps/jobs were SKIPPED. This is a task-schema/Factory owner handoff, not GPT5-authorized source work.
+- Scheduled read-only audit [45517105621](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45517105621): COMPLETED / FAILURE. Sole job `138879257433` FAILURE; no step list was returned, so detailed failure cause is UNKNOWN.
+- Main combined external statuses: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline #574 ERROR (`No configuration was found in your project`). Main overall is NOT ALL GREEN despite successful push CI.
+- Main branch endpoint reports `protected=false` and classic required-status-check enforcement disabled. Ruleset enforcement was not separately verified; do not infer that no other policy exists.
+
+## All OPEN PRs — current exact-head evidence
+
+All four PRs were re-read. All are OPEN / Draft / mergeable=true (unstable mergeability is not acceptance). None has a formal APPROVED review on its current exact HEAD. COMMENTED reviews, including comments labelled as GPT3 review, are not approvals. Mergify Summary SUCCESS / Merge Queue NEUTRAL does not approve or merge a PR.
+
+| PR | Exact HEAD | Base SHA | Exact-head Actions | Jobs / steps at recheck | Vercel | CircleCI | Formal review / threads | Disposition |
+|---|---|---|---|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `ca3943923e40e0a54fe98deec483255e9d12b164` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Run [45542083157](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542083157) COMPLETED / CANCELLED | Resolver `138962775320` and five downstream jobs CANCELLED; no executed steps. The associated GitHub Actions check-run still reports PENDING, inconsistent with the terminal cancelled workflow; neither is PASS. | FAILURE (build rate limit) | #589 ERROR | COMMENTED only; 7 unresolved current-head threads | Keep Draft; GPT3/workflow owner to resolve review findings and obtain formal approval |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `d85948b08e578ad39314402c048d10d8bba74738` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Run [45541606438](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45541606438) COMPLETED / CANCELLED | Resolver `138961218811` and six downstream jobs CANCELLED; no executed steps. Associated Actions check-run still reports PENDING, inconsistent with the terminal cancelled workflow; neither is PASS. | FAILURE (build rate limit) | #586 ERROR | COMMENTED only; 0 review threads | GPT5-owned docs-only handoff. Fresh exact-head CI and independent approval required; keep Draft |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `88af072283ae2e29f061bb6bbffd928afb307dfd` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Run [45541440867](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45541440867) PENDING | Resolver `138960670469` SUCCESS; Windows quality job `138962845632` PENDING with 0 steps. | SUCCESS | #584 ERROR | COMMENTED only; 1 unresolved but outdated thread | Factory owner; do not take over |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Run [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752) IN_PROGRESS | Resolver `138958662302` SUCCESS; quality job `138960707561` IN_PROGRESS. Unit tests and Type check SUCCESS; Production build IN_PROGRESS; Lint and remaining post steps PENDING. | FAILURE (build rate limit) | #583 ERROR | COMMENTED only; 0 review threads | GPT2/F–P documentation; do not take over |
+
+### Review and merge gate
+
+- #559: current-head review submissions are COMMENTED, not APPROVED; seven unresolved review threads target the current head.
+- #560: latest review submission is COMMENTED on exact head `d85948b08e578ad39314402c048d10d8bba74738`; no unresolved review threads.
+- #561: latest review submission is COMMENTED on exact head `88af072283ae2e29f061bb6bbffd928afb307dfd`; one unresolved thread is outdated.
+- #562: latest review submission is COMMENTED on exact head `9635f8c1102752802100aa466f2b8a5f3feef807`; no unresolved review threads.
+- No PR meets the complete acceptance gate. Do not mark Ready, accept, or merge any of these PRs. #559/#560 have cancelled workflows despite stale PENDING check-runs; #561 has a PENDING quality job with 0 steps; #562 is still running.
+
+## GPT5-owned work, actions, and next priority
+
+- PR #560 remains the sole GPT5-owned active handoff change. This commit updates only `docs/AGENT_HANDOFF.md` on branch `gpt5/live-ops-462eeea-20261125`; no Factory source/workflow, Runner, secrets, machine-managed state, or other owner's files are modified.
+- This update records the live evidence above; it does not claim program tests/build/lint were run locally. No repository checkout or shell test runtime is attached.
+- No Draft was removed, no review was self-approved, and no PR was merged.
+- GPT1/Factory owns #561 and the Preflight/Recovery implementation; GPT2 owns #562; #559 is a separate workflow/acceptance implementation with unresolved current-head review findings. GPT5 will not assume their ownership.
+- Next GPT5 action: re-check #560's cancelled exact-head workflow once after this documentation commit triggers fresh CI. If the new run remains pending/cancelled, record its exact terminal state and switch to the next authorized read-only operational audit/handoff task rather than waiting or blindly retrying.
+- External provider blockers: Vercel build-rate-limit affects #559/#560/#562; CircleCI project configuration is missing across all four PRs and main. Escalate to provider/project administrators; do not modify provider settings or repeatedly retry.
+
+---
+
 # GPT5 Daily Operations — LIVE SNAPSHOT (2026-11-25, main 462eeea5917f)
 
 > Current authoritative snapshot for this run. Re-query before reuse. PENDING, SKIPPED, NEUTRAL, UNKNOWN, provider failures, and missing evidence are not PASS.
