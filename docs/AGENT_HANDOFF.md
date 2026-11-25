@@ -5705,3 +5705,39 @@ All remain OPEN / Draft and base Main `462eeea5917f3b0750fc2c41c888a4d54c562c1e`
 - IMPLEMENTED: prior GPT5 documentation-only commit `6638858e8a638da8047c17ef87c9ff13c7eeac0c` is present at PR #560 HEAD.
 - TESTS / BUILD / LINT for this documentation update: NOT RUN.
 - INDEPENDENTLY REVIEWED / ACCEPTED / MERGED / RELEASED / BREAKER RESET: not claimed.
+
+
+---
+
+## GPT5 Operations Live Recheck — 2026-11-25 (fresh exact-head observation)
+
+This snapshot supersedes earlier live-state rows only for the exact refs below. It is an operations handoff, not independent acceptance.
+
+### Main
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Main combined external checks: CircleCI Pipeline #574 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- Main push run `45505611114`: substantive resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs SUCCESS; candidate-success persistence's operative revalidation/record/evidence/artifact steps SKIPPED. This is not durable success evidence or a breaker reset.
+- Recovery run `45543793434`: COMPLETED / FAILURE; job details/steps unavailable, root cause UNKNOWN. Later run `45545992973`: COMPLETED / SKIPPED. Recovery/reset is not established.
+
+### All four open PRs (base SHA equals current Main)
+| PR | Exact HEAD | Actions evidence | External checks | Formal reviews / threads |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | Run [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826) PENDING; resolver and Windows quality SUCCESS; Ollama/local and PostgreSQL/RLS PENDING. | CircleCI #607 ERROR; Vercel build-rate-limit FAILURE. | 5 COMMENTED, 0 APPROVED; 7 threads, 1 unresolved. |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `6638858e8a638da8047c17ef87c9ff13c7eeac0c` | Run [45546992810](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45546992810) PENDING; only resolver job returned and is PENDING (one job, not a complete matrix). | CircleCI #613 ERROR; Vercel FAILURE. | 5 COMMENTED, 0 APPROVED; 0 unresolved threads. |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | Run [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799) IN_PROGRESS: resolver, Windows quality, Ollama/local SUCCESS; PostgreSQL/RLS IN_PROGRESS. Separate Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160) FAILURE at Linux offline scratch fixture; six downstream jobs SKIPPED. | CircleCI #605 ERROR; Vercel FAILURE. | 6 COMMENTED, 0 APPROVED; 1 thread, 0 unresolved. |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | Run [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752) COMPLETED / SUCCESS for resolver, Windows quality, PostgreSQL/RLS and Ollama/local. Failure persistence, success persistence and diagnostics jobs SKIPPED. | CircleCI #583 ERROR; Vercel FAILURE. | 3 COMMENTED, 0 APPROVED; 0 unresolved threads. |
+
+All four remain OPEN / Draft. No formal APPROVED review exists. Mergeable metadata is not an acceptance gate. No PR is eligible for Draft promotion or merge.
+
+### Routing / GPT5 execution
+- GPT1 / Factory owner: diagnose Main Recovery FAILURE and #561 Linux Preflight fixture FAILURE. Job step/log evidence is unavailable; root cause remains UNKNOWN. Do not blindly retry or alter breaker/durable state.
+- #559 owner / GPT3: complete the remaining unresolved review finding, obtain terminal exact-head integration results and independent formal approval.
+- #560 is GPT5's sole WIP and remains documentation-only. Current exact-head run has only a pending resolver; the just-appended snapshot requires a new exact-head run. No program tests/build/lint are claimed.
+- GPT2: #562 substantive jobs passed, but SKIPPED persistence/diagnostics, CircleCI/Vercel failures and missing approval block acceptance.
+- Provider administrators: CircleCI errors and Vercel build-rate-limit are external blockers; no provider settings, billing, secrets, permissions, Runner, Factory state, branch protection or deployment changes were made by GPT5.
+
+### Evidence classification
+OBSERVED: exact refs, Actions jobs, external status contexts, review states and thread counts above.
+IMPLEMENTED: this GPT5-owned operations handoff update only.
+TESTS / BUILD / LINT: NOT RUN locally.
+INDEPENDENTLY ACCEPTED / MERGED / RELEASED / BREAKER RESET: not claimed.
