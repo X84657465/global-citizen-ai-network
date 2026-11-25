@@ -1056,7 +1056,7 @@ test("main push CI success invokes exact-SHA Factory system-health persistence",
   const marker = "      - name: Persist exact-main CI success and reset system breaker";
   const start = section.indexOf(marker);
   assert.ok(start >= 0, "main push must have a dedicated durable system-health callback");
-  const next = section.indexOf("\\n      - name:", start + marker.length);
+  const next = section.indexOf("\n      - name:", start + marker.length);
   const step = section.slice(start, next < 0 ? undefined : next);
   for (const required of [
     "github.event_name == 'push'",
