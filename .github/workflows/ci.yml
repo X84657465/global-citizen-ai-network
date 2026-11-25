@@ -114,7 +114,7 @@ jobs:
       needs.resolve-candidate.result == 'success' &&
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
       (
-        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'push' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')) ||
         (github.event_name == 'pull_request' &&
          github.event.pull_request.head.repo.full_name == github.repository &&
          (github.event.pull_request.user.login == github.repository_owner ||
@@ -244,7 +244,7 @@ jobs:
       needs.quality.result == 'success' &&
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
       (
-        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'push' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')) ||
         (github.event_name == 'pull_request' &&
          github.event.pull_request.head.repo.full_name == github.repository &&
          (github.event.pull_request.user.login == github.repository_owner ||
@@ -335,7 +335,7 @@ jobs:
       needs.quality.result == 'success' &&
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
       (
-        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'push' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')) ||
         (github.event_name == 'pull_request' &&
          github.event.pull_request.head.repo.full_name == github.repository &&
          (github.event.pull_request.user.login == github.repository_owner ||
