@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Check runner GitHub CLI authentication
-        shell: pwsh
+        shell: powershell
         run: |
           $gh = Get-Command gh -ErrorAction SilentlyContinue
           if (-not $gh) {
@@ -30,7 +30,7 @@ jobs:
             exit 1
           }
       - name: Test branch protection read permission
-        shell: pwsh
+        shell: powershell
         env:
           REPOSITORY: ${{ github.repository }}
         run: |
