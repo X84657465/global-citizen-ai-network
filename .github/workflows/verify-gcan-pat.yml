@@ -16,26 +16,57 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 3
     steps:
-      - name: Check runner GitHub CLI authentication
+      - name: Diagnose GitHub CLI availability
+        id: gh-cli
         shell: pwsh
         run: |
           $gh = Get-Command gh -ErrorAction SilentlyContinue
           if (-not $gh) {
-            Write-Error "GitHub CLI is not installed on this runner."
+            Write-Output "RESULT: gh CLI is not installed or is not on PATH for the runner service account."
             exit 1
           }
-          gh auth status --hostname github.com
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "No usable GitHub CLI authentication is configured for the runner service account."
+          Write-Output "RESULT: gh CLI found at $($gh.Source)"
+      - name: Check runner authentication without exposing credentials
+        id: gh-auth
+        shell: pwsh
+        run: |
+          $output = & gh auth status --hostname github.com 2>&1
+          $code = $LASTEXITCODE
+          $joined = ($output | ForEach-Object { $_.ToString() }) -join "`n"
+          if ($code -ne 0) {
+            if ($joined -match "not logged in|not authenticated|no authentication") {
+              Write-Output "RESULT: GitHub CLI is present, but this runner service account has no GitHub authentication."
+            } else {
+              Write-Output "RESULT: GitHub CLI authentication check failed (exit $code); raw output suppressed."
+            }
             exit 1
+          }
+          if ($joined -match "Logged in to github.com") {
+            Write-Output "RESULT: GitHub CLI reports an authenticated session."
+          } else {
+            Write-Output "RESULT: GitHub CLI returned success; identity details suppressed."
           }
       - name: Test branch protection read permission
         shell: pwsh
         env:
           REPOSITORY: ${{ github.repository }}
         run: |
-          gh api "repos/$env:REPOSITORY/branches/main/protection" --jq '"PASS: branch protection API returned HTTP 200"'
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Runner GitHub CLI identity cannot read branch protection."
+          $token = (& gh auth token --hostname github.com | Out-String).Trim()
+          if ([string]::IsNullOrWhiteSpace($token)) {
+            Write-Error "GitHub CLI returned no token."
+            exit 1
+          }
+          Write-Output "::add-mask::$token"
+          $headers = @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json"; "X-GitHub-Api-Version" = "2022-11-28" }
+          try {
+            $response = Invoke-WebRequest -Uri "https://api.github.com/repos/$env:REPOSITORY/branches/main/protection" -Headers $headers -Method Get
+            Write-Output "HTTP status: $([int]$response.StatusCode)"
+            if ([int]$response.StatusCode -eq 200) { Write-Output "PASS: branch protection read succeeded." }
+            else { Write-Error "Unexpected API status."; exit 1 }
+          } catch {
+            $status = $null
+            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) { $status = [int]$_.Exception.Response.StatusCode }
+            Write-Output "HTTP status: $status"
+            Write-Error "Branch protection API request failed; credential details suppressed."
             exit 1
           }
