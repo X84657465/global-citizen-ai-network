@@ -143,3 +143,19 @@ test("PR acceptance gate retains applicable Preflight evidence for final policy 
   assert.equal(source.indexOf("let preflight =", applicabilityGuard), -1,
     "Preflight evidence must not be redeclared inside the applicability branch");
 });
+
+
+test("acceptance re-evaluates review submit and dismissal events and guards stale HEAD writes", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
+  assert.match(source, /pull_request_review:\\s*types: \\[submitted, edited, dismissed\\]/);
+  assert.match(source, /effectiveReviewStates = new Set\\(\\['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'\\]\\)/);
+  assert.match(source, /currentPrResponse\\.data\\.head\\.sha !== headSha/);
+});
+
+test("merge audit uses isolated concurrency and effective review decisions", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/main-merge-audit.yml", import.meta.url), "utf8");
+  assert.match(source, /group: merge-audit-pr-\\$\\{\\{ github\\.event\\.pull_request\\.number/);
+  assert.match(source, /effectiveReviewStates = new Set\\(\\['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'\\]\\)/);
+});
