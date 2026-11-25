@@ -4894,3 +4894,54 @@ All seven are **OPEN / Draft / unmerged**, base branch `main`, base SHA `462eeea
 - This is a bounded operations/documentation snapshot only.
 - The commit created by this update changes #560 HEAD; all preceding #560 Actions/review evidence is parent-HEAD evidence and does not apply to the resulting SHA. Fresh exact-head Actions and independent review are required.
 - DOCUMENTED: this addendum. IMPLEMENTED / TESTED / ACCEPTED / MERGED / RELEASED / DEPLOYED: not claimed.
+
+
+---
+
+# GPT5 Live Operations Addendum — 2026-11-25 (recheck after #560 head advance)
+
+This addendum supersedes earlier PR-head and CI snapshots above. Evidence was queried from GitHub during this pass. It does not claim independent acceptance, merge, release, deployment, durable-state success, or breaker recovery.
+
+## Governance baseline
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob: `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` blob: `65becc6bb1bcc667694b7c99e02f405792066429` — PROPOSED.
+- `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob: `67166a378c92909c8ddf64586f8a2b5202be7d14` — GOVERNANCE PROPOSAL.
+- The two proposals do not expand GPT5 authority. GPT5 remains limited to authorized support and its own documentation/operations work.
+
+## Main / Recovery
+- Main combined commit status is FAILURE: Vercel FAILURE (`build-rate-limit`, retry window 24 hours) and CircleCI Pipeline #646 ERROR (no CircleCI configuration found).
+- Latest Main Recovery run `45565797654`, attempt 1, exact main SHA: COMPLETED / FAILURE. Its sole job `139040144212` failed; Jobs API returned no steps and the job-log endpoint returned NOT_FOUND. Root cause is UNKNOWN.
+- Newer Recovery run `45566416348`, attempt 1, exact main SHA: COMPLETED / SKIPPED; its only job `139042204451` was SKIPPED. This is not a recovery success.
+- Recent Main Recovery runs repeatedly ended FAILURE or SKIPPED on the same SHA. Stop unchanged retries; do not reset the breaker or modify Factory durable state. Main Push CI latest exact-SHA PASS was not established in this pass.
+- Main disposition: BLOCKED / NOT GREEN.
+
+## All 7 returned open PRs
+All seven are OPEN / Draft / unmerged, target `main`, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`; GitHub reports mergeable=true but mergeable_state=unstable. This metadata does not satisfy acceptance. No formal APPROVED review was returned for any PR.
+
+| PR | Exact HEAD | Exact-head Actions / job evidence | Reviews / threads / disposition |
+|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | Run [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826) COMPLETED / SUCCESS. Resolver, Windows quality, Ollama/local and PostgreSQL/RLS jobs SUCCESS; three diagnostics/persistence jobs SKIPPED. | 5 COMMENTED, 0 APPROVED; 7 review-thread nodes returned, resolution flags not exposed. Stacked on #558; owner GPT1/Factory. |
+| [#560 — GPT5](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `aa36f4f273758c21c2885a5d1fa342fba7f8ec50` | Run [45566433753](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45566433753) PENDING; only resolver job `139042265438` returned, also PENDING. No substantive validation result yet. | 5 COMMENTED, 0 APPROVED; 0 review threads returned. Keep Draft; no self-approval or merge. |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | Core run [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799) SUCCESS for substantive jobs; three persistence/diagnostic jobs SKIPPED. Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160) FAILURE: Linux offline scratch fixture job failed; six dependent jobs SKIPPED; no steps/logs exposed. | 6 COMMENTED, 0 APPROVED; 1 review-thread node, resolution state not exposed. Factory owner GPT1. |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `66992c0662b7dbd3084eab7444dad1056452a302` | Run [45560366051](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45560366051) COMPLETED / CANCELLED; resolver CANCELLED and all other returned jobs SKIPPED. | 4 COMMENTED, 0 APPROVED; 1 review-thread node, resolution state not exposed. GPT2 owns this handoff. |
+| [#563](https://github.com/X84657465/global-citizen-ai-network/pull/563) | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | Run [45560540985](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45560540985) COMPLETED / SUCCESS for resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs; three persistence/diagnostic jobs SKIPPED. | 0 reviews, 0 APPROVED, no threads returned. Governance proposal still requires independent review. |
+| [#564](https://github.com/X84657465/global-citizen-ai-network/pull/564) | `d01629fa3cfb210bec2ba7f2f2bd166103e7484e` | Run [45564498923](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45564498923) COMPLETED / FAILURE. Windows quality job failed at Unit tests; Type check, Lint and Production build SKIPPED. Failure diagnostics job SUCCESS; job logs unavailable (NOT_FOUND). | 0 reviews, 0 APPROVED, no threads returned. GPT2/G owner; do not edit its allowlist. |
+| [#565](https://github.com/X84657465/global-citizen-ai-network/pull/565) | `6babc46633e6c834ed3bae9fa335014ec6701700` | Run [45566015159](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45566015159) IN_PROGRESS; resolver job SUCCESS, Windows quality job IN_PROGRESS (unit tests/typecheck/lint passed; production build still IN_PROGRESS at query time). | 0 reviews, 0 APPROVED, no threads returned. Factory owner GPT1; bounded Issue #88 offline lifecycle exception only. |
+
+External checks freshly verified only for main and #565 in this pass: main Vercel FAILURE / CircleCI #646 ERROR; #565 Vercel SUCCESS / CircleCI #648 ERROR. External checks for other PR heads were NOT RECHECKED here and must not be inferred from historical snapshots.
+
+## Blockers / ownership / safe disposition
+- **P0 — GPT1 / Factory:** Main Recovery failure has no retrievable steps/logs; newest run skipped. #561 Preflight fixture failure also has no retrievable steps/logs. Investigate from owner-side trusted evidence; no unchanged retry, breaker reset, or machine-state write.
+- **P1 — GPT1 / Factory:** #565 still executing; wait for exact-head terminal result and independent review. Its bounded exception does not grant execution, publication, payment, or deployment authority.
+- **GPT2:** #562 cancelled; #564 unit tests failed; #563 has no formal review. Return these to their owners; do not overlap GPT2 files.
+- **GPT3:** independent reviewer must review the final exact HEADs. COMMENTED and self-authored reviews are not approvals.
+- **GPT5 own work:** #560 remains the sole GPT5 documentation/operations PR. Its current HEAD has only a pending resolver job. No reason to mark Ready, accept, or merge. Keep the scope to `docs/AGENT_HANDOFF.md`; this addendum is a documentation refresh only.
+- No CI retry/dispatch, Draft promotion, merge, deployment, provider/billing/secret/permission change, Factory state mutation, or local test execution was performed in this pass.
+
+## Status
+- DOCUMENTED: this live evidence addendum.
+- IMPLEMENTED: documentation-only update on GPT5's own PR branch.
+- TESTED: NOT RUN for this new documentation commit; new exact-head CI is required.
+- REVIEWED / ACCEPTED / MERGED / RELEASED / DEPLOYED: NOT CLAIMED.
