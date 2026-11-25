@@ -43,10 +43,13 @@ function evaluateAcceptance(input) {
         preflight.workflowPath !== ".github/workflows/agent-task-preflight.yml" ||
         preflight.event !== "pull_request" ||
         !Number.isSafeInteger(preflight.runId) || preflight.runId < 1 ||
-        !Number.isSafeInteger(preflight.runAttempt) || preflight.runAttempt < 1 ||
-        preflight.status !== "completed" || preflight.conclusion !== "success") {
+        !Number.isSafeInteger(preflight.runAttempt) || preflight.runAttempt < 1) {
       failures.push({ code: "PREFLIGHT_RUN_IDENTITY_INVALID",
-        detail: "Applicable Preflight requires the exact trusted workflow path, pull_request event, current HEAD SHA, run ID, attempt, and completed/success conclusion." });
+        detail: "Applicable Preflight requires the exact trusted workflow path, pull_request event, current HEAD SHA, run ID, and attempt." });
+    }
+    if (preflight.status !== "completed" || preflight.conclusion !== "success") {
+      failures.push({ code: "PREFLIGHT_NOT_SUCCESS",
+        detail: `Applicable Preflight run must be completed/success; observed ${preflight.status || "UNKNOWN"}/${preflight.conclusion || "UNKNOWN"}.` });
     }
     const preflightJobs = Array.isArray(preflight.jobs) ? preflight.jobs : [];
     const requiredJobs = preflightJobs.filter(job => job.name === "Linux offline scratch fixture validation");
