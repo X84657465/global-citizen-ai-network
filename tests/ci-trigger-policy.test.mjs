@@ -796,7 +796,11 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ID: " + "$" + "{{ github.event.workflow_run.id }}"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ATTEMPT: " + "$" + "{{ github.event.workflow_run.run_attempt }}"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"));
-  assert.ok(recovery.includes("run: node scripts/agent-factory-v2-controller.mjs"));
+  assert.ok(recovery.includes("        run: |\n          set +e"),
+    "the recovery controller must run in a guarded shell block so its output and exit code can be captured");
+  assert.ok(recovery.includes('node scripts/agent-factory-v2-controller.mjs 2>&1 | tee "$RUNNER_TEMP/system-health-recovery.log"'));
+  assert.ok(recovery.includes("controller_exit=${PIPESTATUS[0]}"),
+    "diagnostic capture must preserve the controller exit code rather than tee exit status");
   assert.equal(recovery.includes("ref: " + "$" + "{{ github.event.workflow_run.head_sha }}"), false,
     "the privileged workflow must execute trusted mainline controller code, never PR code");
 });
