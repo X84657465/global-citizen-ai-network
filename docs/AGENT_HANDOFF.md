@@ -5294,3 +5294,44 @@ All eight PRs target `main`, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`
 - PR owners: reconcile their own stale branches to current main and rerun exact-head CI; do not retarget/rebase another owner's branch from GPT5.
 - GPT5 work remains limited to operations evidence and `docs/AGENT_HANDOFF.md`. This addendum changes no Factory source/workflow, Runner, durable state, secrets, permissions, branch protection, provider settings/billing, production data, or deployment.
 - No local tests/build/lint were run in this connector-only documentation update. Documentation commit is not runtime validation, independent review, acceptance, merge, release, or deployment.
+
+
+---
+
+## GPT5 live operations addendum — 2026-11-25 18:58 Asia/Taipei
+
+This addendum records a fresh live check. It supersedes earlier main/PR snapshots for the facts below only. All statuses are tied to exact SHAs and run IDs; no unobserved approval or acceptance is inferred.
+
+### Main
+- Current `refs/heads/main`: `a772acbeb93e877697bfc315ecc0a29f2f611b9f`.
+- Exact-main CI run [45596820733](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596820733), attempt 1: IN_PROGRESS at capture. Resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs are SUCCESS; candidate-success persistence job `139153886594` remains IN_PROGRESS. Failure persistence and diagnostics jobs `139153888102` / `139153888260` are SKIPPED.
+- Latest Recovery run [45599959479](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45599959479) on this exact main SHA: PENDING. Earlier Recovery runs [45599698056](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45599698056), [45597020772](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45597020772), and [45596837829](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596837829) are SKIPPED.
+- Branch Protection verification [45596820791](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596820791): FAILURE; its only job `verify-branch-protection` failed.
+- Combined external statuses on main: Vercel FAILURE (build-rate-limit); CircleCI Pipeline [#685](https://app.circleci.com/pipelines/gh/X84657465/global-citizen-ai-network/685) ERROR.
+- Main is NOT GREEN. Successful core jobs do not override pending persistence, skipped diagnostics, failed branch-protection verification, or external errors.
+
+### All 9 open PRs — current exact metadata and exact-head Actions
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---:|---:|---|
+| [#568](https://github.com/X84657465/global-citizen-ai-network/pull/568) | `043660dd9fe0e98cdc11693431dea33969e9bce7` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | yes | true | CI run 45599688449 PENDING (resolver job 139155003826 PENDING); branch-protection run 45599688150 FAILURE |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `e95658482d128de85bf6e789170f782c3ee761f4` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | true | CI run 45596989795 COMPLETED / SUCCESS; four substantive jobs SUCCESS, three conditional diagnostics/persistence jobs SKIPPED |
+| [#565](https://github.com/X84657465/global-citizen-ai-network/pull/565) | `4a544b0321c83309c2e4ff6bc7d6ca57ded42c90` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | yes | true | CI run 45582051332 COMPLETED / SUCCESS |
+| [#567](https://github.com/X84657465/global-citizen-ai-network/pull/567) | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | no | true | CI run 45585171843 COMPLETED / SUCCESS; conditional persistence/diagnostics jobs SKIPPED |
+| [#564](https://github.com/X84657465/global-citizen-ai-network/pull/564) | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | true | CI run 45567260893 COMPLETED / SUCCESS |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | true | CI run 45567007717 COMPLETED / SUCCESS |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | true | CI run 45544583799 COMPLETED / SUCCESS; separate Preflight run 45544584160 COMPLETED / FAILURE |
+| [#563](https://github.com/X84657465/global-citizen-ai-network/pull/563) | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | true | CI run 45560540985 COMPLETED / SUCCESS |
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | true | CI run 45544850826 COMPLETED / SUCCESS |
+
+- External statuses were freshly checked on main, #568 and #560: Vercel FAILURE (build-rate-limit) and CircleCI ERROR on all three; PR #568 CircleCI Pipeline #687, PR #560 Pipeline #684, main Pipeline #685.
+- Formal reviews freshly queried: PR #560 has five COMMENTED submissions by the repository owner and zero APPROVED; PR #568 has zero reviews. PR #567's latest queried reviews were two COMMENTED bot submissions, no APPROVED. No COMMENTED submission is approval.
+- PR #568 body identifies the root cause as `pwsh: command not found` on the self-hosted Windows runner and proposes using built-in `powershell`; it explicitly says keep Draft until exact-head jobs and runner authentication/API permission checks pass. The new exact-head CI is still pending and branch-protection verification failed. GPT5 did not edit or approve this PR.
+- Several PR bases remain behind current main. #568 alone targets current main; #560/#565/#567/#564/#562/#561/#563/#559 use older base SHAs. Their prior exact-head Actions results do not establish compatibility with current main.
+
+### GPT5 disposition and handoff
+- GPT5-owned documentation operations PR #560 remains OPEN / Draft. Its core Actions jobs now pass on exact HEAD, but conditional persistence/diagnostics jobs are SKIPPED, CircleCI is ERROR, Vercel is FAILURE, its base is stale, and its five review submissions are COMMENTED rather than independent APPROVED. Do not remove Draft or merge.
+- No PR is eligible for acceptance/merge from this evidence. Do not self-approve, bypass branch protection, retry external providers blindly, or treat SKIPPED/PENDING as PASS.
+- GPT1 / Factory owner: diagnose main Recovery and branch-protection failures using trusted runner/workflow evidence; handle the self-hosted Windows runner / PAT access issue and PR #561 Preflight failure within Factory ownership.
+- Repository/provider administrator: resolve CircleCI missing/error configuration and Vercel build-rate-limit. These are external blockers; GPT5 does not change billing, provider settings, secrets, permissions, or branch protection.
+- PR owners: reconcile their own stale bases and rerun exact-head checks; GPT5 does not rebase another owner's branch.
+- This addendum is documentation-only on GPT5's existing operations PR branch. No Factory source/workflow, Runner, durable state, secrets, permissions, branch protection, provider configuration, production data, or deployment was changed. Local tests/build/lint were NOT RUN. Documentation evidence is not independent review, acceptance, merge, release, or deployment.
