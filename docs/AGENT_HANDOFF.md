@@ -5026,3 +5026,51 @@ All PR base SHAs returned in this sweep equal current main SHA. GitHub reports t
 - The main push Actions run could not be independently queried through the available PR-trigger-only endpoint; its exact terminal state is UNKNOWN here.
 - This addendum is a documentation update only. Its new commit has not yet been tested; fresh exact-head Actions and independent review remain required.
 - DOCUMENTED: yes. IMPLEMENTED: documentation only. TESTED: NOT RUN for the new commit. REVIEWED / ACCEPTED / MERGED / RELEASED / DEPLOYED: NOT CLAIMED.
+
+
+---
+
+# GPT5 Live Operations Recheck — 2026-11-25 16:21 Asia/Taipei
+
+> This timestamped addendum supersedes earlier current-state claims in this file. All GitHub Actions observations below are tied to the exact SHA/run shown. PENDING, IN_PROGRESS, SKIPPED, missing evidence, and external provider errors are not PASS.
+
+## Main baseline
+
+- Current `refs/heads/main`: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` (re-fetched from `main`).
+- Main combined external statuses on this SHA: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline **#653 ERROR**.
+- Main Push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114): **COMPLETED / SUCCESS** for resolver, Windows quality, PostgreSQL/RLS, and Ollama/local jobs. Candidate-success persistence revalidation, durable success record, evidence JSON/upload steps were **SKIPPED**; failure-persistence and diagnostics jobs were also **SKIPPED**. No durable success record or breaker reset is established.
+- Main Recovery [45573609945](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45573609945): **COMPLETED / FAILURE**; sole job [139065990636](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45573609945/job/139065990636) FAILURE, no steps returned. Root cause **UNKNOWN**; no blind retry or state reset.
+- Main Preflight [45547466932](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932), attempt 2: **COMPLETED / FAILURE** at `Generate and validate a read-only plan with local Ollama` (job `139031600314`). Patch generation, scratch execution, dependency install, tests, and publication downstream steps/jobs were **SKIPPED**. This does not establish candidate validation or publication.
+- The commit-run lookup used here is PR-triggered only and returned no main run; this is a query limitation, not a pass. The three independently fetched main run records above are the evidence used.
+- Main disposition: **BLOCKED / NOT ALL GREEN**.
+
+## All eight OPEN PRs — exact current heads
+
+All eight PRs target `main`, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`, and currently report `mergeable=true`. Mergeable metadata is not acceptance. The exact-head combined statuses, Actions runs/jobs, and review submissions were queried in this sweep.
+
+| PR | Exact HEAD | Draft | GitHub Actions exact-head evidence | Vercel | CircleCI | Formal reviews observed |
+|---|---|---:|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | yes | Core run [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826) completed SUCCESS for substantive jobs; three persistence/diagnostic jobs SKIPPED. PR Acceptance Gate [45559927442](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45559927442) FAILURE. | FAILURE (build-rate-limit) | #607 ERROR | 5 COMMENTED / 0 APPROVED |
+| [#560 — GPT5 operations handoff](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `e82aca0920c90800089bc0bb5571063b8cb8a3a2` | yes | Run [45574492212](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45574492212) **PENDING**. Resolver and Windows quality jobs SUCCESS; PostgreSQL/RLS job IN_PROGRESS (test steps succeeded; post-checkout still IN_PROGRESS); Ollama/local job PENDING. | SUCCESS | #657 ERROR | 5 COMMENTED / 0 APPROVED |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | yes | Core run [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799) substantive jobs SUCCESS; three persistence/diagnostic jobs SKIPPED. Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160) FAILURE at Linux offline scratch fixture job `139036463820`; six downstream jobs SKIPPED. | FAILURE (build-rate-limit) | #605 ERROR | 6 COMMENTED / 0 APPROVED |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | yes | Run [45567007717](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45567007717) substantive jobs SUCCESS; three persistence/diagnostic jobs SKIPPED. | FAILURE (build-rate-limit) | #650 ERROR | 4 COMMENTED / 0 APPROVED |
+| [#563](https://github.com/X84657465/global-citizen-ai-network/pull/563) | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | yes | Run [45560540985](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45560540985) substantive jobs SUCCESS; three persistence/diagnostic jobs SKIPPED. | SUCCESS | #626 ERROR | 0 reviews |
+| [#564](https://github.com/X84657465/global-citizen-ai-network/pull/564) | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | yes | Run [45567260893](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45567260893) substantive jobs SUCCESS; three persistence/diagnostic jobs SKIPPED. | FAILURE (build-rate-limit) | #652 ERROR | 0 reviews |
+| [#565](https://github.com/X84657465/global-citizen-ai-network/pull/565) | `6babc46633e6c834ed3bae9fa335014ec6701700` | yes | Run [45566015159](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45566015159) substantive jobs SUCCESS; three persistence/diagnostic jobs SKIPPED. | SUCCESS | #648 ERROR | 0 reviews |
+| [#566](https://github.com/X84657465/global-citizen-ai-network/pull/566) | `c72e6781c762179f213d55c47d94e125ee47ecba` | no | Run [45570913651](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45570913651) substantive jobs SUCCESS; three persistence/diagnostic jobs SKIPPED. | FAILURE (build-rate-limit) | #656 ERROR | 1 COMMENTED / 0 APPROVED |
+
+### Review and ownership gates
+
+- No OPEN PR has a formal `APPROVED` review on its current exact HEAD in the review submissions queried. COMMENTED reviews are not approvals.
+- Inline thread records were returned for #559 (7), #561 (1), #562 (1), and #566 (2); #560, #563, #564, and #565 returned none. The connector payload did not expose a reliable resolved flag in the compact thread records, so unresolved counts are **not asserted**.
+- #559 Acceptance Gate failure and #561 Preflight failure remain owner-side blockers. #562–#564 are GPT2 workstream ownership; #565/#561 are Factory/GPT1 ownership; #566 is a B Product strategy document under GPT4 ownership. GPT5 does not take over these files or tasks.
+- Vercel rate-limit failures and CircleCI pipeline errors are external/provider-side blockers. GPT5 does not change provider settings, billing, secrets, or project permissions.
+- No PR meets all merge gates. No Draft removal, approval, merge, deployment, or acceptance action is justified by this evidence.
+
+## GPT5 execution record
+
+- Re-read current `PROJECT_COORDINATION.md` and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` from main. The Master Charter remains **PROPOSED**; GPT5 execution-expansion remains **PROPOSED**. GPT5 authority remains operations/intelligence support and explicitly authorized documentation, not A–P ownership or independent QA.
+- This sweep's only write is this timestamped update to GPT5-owned `docs/AGENT_HANDOFF.md` on PR #560's existing branch. No Factory source, workflow, Runner, durable state, B Product source, provider configuration, secrets, permissions, or deployment was changed.
+- Local tests/build/lint were **NOT RUN** in this connector-only session. This new documentation commit requires its own exact-head CI; prior-head run evidence does not transfer.
+- **DOCUMENTED:** yes. **IMPLEMENTED:** documentation only. **TESTED:** pending new exact-head CI. **INDEPENDENTLY REVIEWED / ACCEPTED / MERGED / RELEASED / DEPLOYED:** not claimed.
+- Next GPT5 action: re-read the resulting PR #560 HEAD and exact-head Actions/provider/review state after this commit. Keep Draft until terminal required checks and an independent GPT3 APPROVED review bind to that final HEAD.
