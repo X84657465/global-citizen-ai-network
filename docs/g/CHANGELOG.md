@@ -1,5 +1,11 @@
 # G — Changelog
 
+## 0.1.4 — 2026-11-25
+
+- Reject repeated GitHub Actions job URLs even when job IDs differ, preventing one job record from satisfying multiple required gates.
+- Give required-job fixtures distinct URL identities and add a four-job shared-URL regression.
+- Preserve exact run/attempt identity and advisory-only acceptance/merge/deployment flags.
+
 ## 0.1.3 — 2026-11-23
 
 - Reject canonical array-index properties outside the declared array length in exact-head CI evidence snapshots.
