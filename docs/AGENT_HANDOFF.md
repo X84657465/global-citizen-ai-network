@@ -5562,3 +5562,43 @@ All target `main` at base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`. All re
 - IMPLEMENTED: this documentation-only addendum on the GPT5-owned handoff path.
 - TESTED: program tests/build/lint NOT RUN; no local repository checkout or shell test runtime is attached. The resulting PR #560 commit requires fresh exact-head CI; prior evidence does not transfer.
 - INDEPENDENTLY-ACCEPTED / MERGED / RELEASED: not claimed. Keep #559–#562 Draft; no PR currently satisfies the combined exact-head CI, external required-check, independent approval and governance gates.
+
+
+---
+
+## GPT5 Operations Live Delta — 2026-11-25 (fresh exact-head recheck)
+
+This delta supersedes prior PR status observations where the exact run/job state has changed. It is a timestamped evidence refresh, not an acceptance or permission change.
+
+### Main
+- Current Main HEAD remains `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Governance files freshly re-read from this exact Main:
+  - `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`
+  - `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`
+  - `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob `67166a378c92909c8ddf64586f8a2b5202be7d14` (GOVERNANCE PROPOSAL)
+- Main combined external status: FAILURE — Vercel `build-rate-limit`; CircleCI Pipeline #574 ERROR.
+- Main push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114) is COMPLETED / SUCCESS for resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs. However, candidate-success persistence Job `138848366384` completed SUCCESS while exact-head revalidation, success record, evidence JSON and artifact upload steps were SKIPPED; failure persistence and diagnostics jobs were also SKIPPED. This is not durable success or breaker-reset evidence.
+- Main Recovery [45543793434](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45543793434) is COMPLETED / FAILURE (job `138968409731` FAILURE; steps/log details unavailable, root cause UNKNOWN). Newer Recovery [45545992973](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45545992973) is COMPLETED / SKIPPED (job `138975639661` SKIPPED). No recovery/reset is evidenced.
+
+### Current open PRs — all target Main SHA above and remain OPEN / Draft
+| PR | Exact HEAD | GitHub Actions exact-head evidence | External status | Reviews |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826) IN_PROGRESS. Resolver SUCCESS; Windows quality gates SUCCESS; Ollama/local and PostgreSQL/RLS jobs PENDING. | CircleCI #607 ERROR; Vercel FAILURE (`build-rate-limit`) | 5 submissions, all COMMENTED; 1 unresolved review thread |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `61181fbbd4b43e248ef6821395e18c10da312a47` | [45546625752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45546625752) PENDING; sole resolver job `138977698710` PENDING. | CircleCI #610 ERROR; Vercel FAILURE (`build-rate-limit`) | 5 submissions, all COMMENTED; 0 unresolved threads |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | CI [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799) PENDING: resolver and Windows quality SUCCESS; Ollama/local IN_PROGRESS; PostgreSQL/RLS PENDING. Separate Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160) COMPLETED / FAILURE at Linux offline scratch fixture; six downstream jobs SKIPPED. | CircleCI #605 ERROR; Vercel FAILURE (`build-rate-limit`) | 6 submissions, all COMMENTED; 0 unresolved threads |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752) COMPLETED / SUCCESS. Resolver, Windows quality, PostgreSQL/RLS, Ollama/local SUCCESS; failure persistence, success persistence and diagnostics jobs SKIPPED. | CircleCI #583 ERROR; Vercel FAILURE (`build-rate-limit`) | 3 submissions, all COMMENTED; 0 unresolved threads |
+
+### Work routing and no-idle disposition
+- GPT1 / Factory owner: investigate Main Recovery FAILURE and PR #561 Preflight fixture FAILURE from durable logs/evidence. The returned Preflight job record does not expose failing steps/logs; root cause remains UNKNOWN. Do not blind-rerun, relax Recovery eligibility, or mutate Factory durable state from GPT5.
+- PR #559: wait only for the two integration jobs to reach terminal state, then route the remaining unresolved evidence-cutoff review finding to the implementation owner/GPT3. No formal APPROVED review exists.
+- PR #560: GPT5's single WIP; current exact-head CI is PENDING, so this new evidence delta itself is not yet verified by CI. No code tests/build/lint run; documentation-only scope.
+- PR #561: keep blocked on Preflight failure and incomplete CI. GPT1 owns Factory diagnosis.
+- PR #562: GPT2 owns implementation. Successful substantive tests do not compensate for SKIPPED persistence/diagnostics, CircleCI ERROR, Vercel failure, or missing independent approval.
+- Provider administrators: CircleCI project configuration errors on #559/#560/#561/#562 and Main; Vercel build-rate-limit on Main and PRs. GPT5 made no provider, billing, permission, secret, Runner, branch-protection, Factory state, or deployment changes.
+- No PR meets the complete exact-head CI, required external-check, independent APPROVED review, and repository-policy gates. Do not remove Draft or merge.
+
+### Evidence classification
+- OBSERVED: exact Main and PR heads, Actions run/job states, combined external status, review submission states and thread counts listed above.
+- IMPLEMENTED: this documentation-only handoff delta on GPT5's existing branch.
+- TESTS / BUILD / LINT: NOT RUN (no local checkout/test runtime in this session).
+- INDEPENDENTLY ACCEPTED / MERGED / RELEASED / BREAKER RESET: not claimed.
