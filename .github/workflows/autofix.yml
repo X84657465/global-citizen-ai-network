@@ -35,15 +35,15 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/autofix-diagnostics"
           {
-            printf 'schema_version=1\\n'
-            printf 'run_id=%s\\n' "$GITHUB_RUN_ID"
-            printf 'run_attempt=%s\\n' "$GITHUB_RUN_ATTEMPT"
-            printf 'repository=%s\\n' "$GITHUB_REPOSITORY"
-            printf 'head_sha=%s\\n' "$GITHUB_SHA"
-            printf 'event=%s\\n' "$GITHUB_EVENT_NAME"
-            printf 'format_step_outcome=%s\\n' "$FORMAT_OUTCOME"
-            printf 'format_exit_code=%s\\n' "$FORMAT_EXIT_CODE"
-            printf 'autofix_step_outcome=%s\\n' "$AUTOFIX_OUTCOME"
+            printf 'schema_version=1\n'
+            printf 'run_id=%s\n' "$GITHUB_RUN_ID"
+            printf 'run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT"
+            printf 'repository=%s\n' "$GITHUB_REPOSITORY"
+            printf 'head_sha=%s\n' "$GITHUB_SHA"
+            printf 'event=%s\n' "$GITHUB_EVENT_NAME"
+            printf 'format_step_outcome=%s\n' "$FORMAT_OUTCOME"
+            printf 'format_exit_code=%s\n' "$FORMAT_EXIT_CODE"
+            printf 'autofix_step_outcome=%s\n' "$AUTOFIX_OUTCOME"
           } > "$RUNNER_TEMP/autofix-diagnostics/summary.txt"
           if [ -f "$RUNNER_TEMP/cargo-fmt.log" ]; then
             cp "$RUNNER_TEMP/cargo-fmt.log" "$RUNNER_TEMP/autofix-diagnostics/cargo-fmt.log"
