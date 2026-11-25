@@ -114,16 +114,16 @@ jobs:
           RECOVERY_PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
         run: |
           {
-            printf 'schema_version=1\\n'
-            printf 'recovery_run_id=%s\\n' "$GITHUB_RUN_ID"
-            printf 'recovery_run_attempt=%s\\n' "$GITHUB_RUN_ATTEMPT"
-            printf 'source_ci_run_id=%s\\n' "$RECOVERY_RUN_ID"
-            printf 'source_ci_run_attempt=%s\\n' "$RECOVERY_RUN_ATTEMPT"
-            printf 'source_ci_conclusion=%s\\n' "$RECOVERY_CONCLUSION"
-            printf 'source_ci_head_sha=%s\\n' "$RECOVERY_HEAD_SHA"
-            printf 'source_ci_head_ref=%s\\n' "$RECOVERY_HEAD_REF"
-            printf 'resolved_pr_number=%s\\n' "$RECOVERY_PR_NUMBER"
-            printf 'controller_step_outcome=%s\\n' "$RECOVERY_CONTROLLER_OUTCOME"
+            printf 'schema_version=1\n'
+            printf 'recovery_run_id=%s\n' "$GITHUB_RUN_ID"
+            printf 'recovery_run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT"
+            printf 'source_ci_run_id=%s\n' "$RECOVERY_RUN_ID"
+            printf 'source_ci_run_attempt=%s\n' "$RECOVERY_RUN_ATTEMPT"
+            printf 'source_ci_conclusion=%s\n' "$RECOVERY_CONCLUSION"
+            printf 'source_ci_head_sha=%s\n' "$RECOVERY_HEAD_SHA"
+            printf 'source_ci_head_ref=%s\n' "$RECOVERY_HEAD_REF"
+            printf 'resolved_pr_number=%s\n' "$RECOVERY_PR_NUMBER"
+            printf 'controller_step_outcome=%s\n' "$RECOVERY_CONTROLLER_OUTCOME"
           } > "$RUNNER_TEMP/system-health-recovery-summary.txt"
 
       - name: Upload recovery diagnostics
