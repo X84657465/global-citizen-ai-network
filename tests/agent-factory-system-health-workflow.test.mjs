@@ -12,5 +12,11 @@ test("system-health recovery invokes its Node controller without the Windows Pow
   const step = workflow.slice(start, next < 0 ? undefined : next);
   assert.ok(workflow.includes("runs-on: ubuntu-latest"), "system-health workflow must use its hosted Ubuntu runner");
   assert.ok(step.includes("        shell: bash\n"), "controller step must use the Bash shell declared by the Ubuntu runner");
-  assert.ok(step.includes("        run: node scripts/agent-factory-v2-controller.mjs"), "controller invocation must remain unchanged");
+  assert.ok(workflow.includes("    runs-on: ubuntu-latest"), "observer job must start for every completed CI event");
+  assert.equal(workflow.includes("    if: >-"), false, "job-level filtering must not suppress diagnostic evidence");
+  assert.ok(workflow.includes("WORKFLOW_CONCLUSION"), "resolver must validate source CI conclusion inside the job");
+  assert.ok(workflow.includes("WORKFLOW_HEAD_REPOSITORY"), "resolver must reject untrusted source repositories");
+  assert.ok(step.includes("        run: |\\n          set +e\\n"), "controller must preserve its exit status");
+  assert.ok(workflow.includes("      - name: Write redacted recovery diagnostic summary\\n        if: always()"), "diagnostic summary must run even when recovery is ineligible");
+  assert.ok(workflow.includes("      - name: Upload recovery diagnostics\\n        if: always()"), "diagnostic artifact must always be uploaded");
 });
