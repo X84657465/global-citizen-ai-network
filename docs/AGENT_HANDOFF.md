@@ -4803,3 +4803,57 @@ This addendum supersedes earlier open-PR counts and status snapshots in this fil
 - IMPLEMENTED: operations handoff update only.
 - TESTED: PR #553 exact-head GitHub Actions substantive jobs passed on the pre-addendum SHA `570ea112f5c12f448040e9adb0e5a7c71c004a37`; the new addendum commit requires fresh exact-head CI.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: no.
+
+
+---
+
+## GPT5 Live Operations Addendum — 2026-11-25 (main 462eeea)
+
+This addendum supersedes earlier live-state snapshots in this file where they differ. It is an operations evidence record, not an approval or authorization to merge another owner's work.
+
+### Main / CI — exact current SHA
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- System Health Recovery run `45533540649`, attempt 2: **COMPLETED / FAILURE** on that exact SHA.
+- The only job, `138934913969` (Verify completed exact-head CI before resetting system breaker), is **FAILURE**.
+- Job-log retrieval returned `BlobNotFound`; failure step/root cause is **UNKNOWN**. No breaker reset is evidenced.
+- Same-SHA combined external statuses: CircleCI Pipeline #517 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- Other Recovery runs on this SHA include terminal **SKIPPED** results; these are not PASS.
+- Main disposition: **BLOCKED**. No complete successful mainline CI / recovery closure is established.
+
+### Current OPEN PR inventory — exact heads and bases
+
+| PR | Exact HEAD | Base SHA | Draft | GitHub mergeability | Exact-head Actions |
+|---|---|---|---:|---|---|
+| #259 | `7e71687df663f26e8d7835784dacd898491cf075` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | YES | false / DIRTY | No workflow run found |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | YES | false / DIRTY | No workflow run found |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | YES | false / DIRTY | No workflow run found |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | YES | false / DIRTY | No workflow run found |
+| #478 | `e10878764d161a960ef258022e936f0717ad75a2` | `4225a244407f7a323262c4d6e17b2749193d6476` | YES | false / DIRTY | No workflow run found |
+| #555 | `b83acd0b42777debd828bc8264a113d1aa5f126a` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45521844484` SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED |
+| #558 | `1560d653f1f1a961caea81835a703466502091ab` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45521438949` SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED |
+| #559 | `43ea58a2b7663a4985950dc37a07319c813669ea` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45532223811` SUCCESS; 4 substantive jobs SUCCESS, 3 conditional jobs SKIPPED |
+
+For #259/#376/#417/#476/#478, zero exact-head workflow runs means **NOT RUN / UNKNOWN**, not CI success. The five branches have stale bases and GitHub reports them non-mergeable.
+
+### Review and external-check disposition
+- Formal review API contains **no APPROVED review** for any of the eight PRs. Records are COMMENTED only or absent.
+- #558 has two unresolved inline threads: Preflight evidence is selected by SHA/name/app but not bound to the trusted `agent-task-preflight.yml` workflow run and attempt. The same provenance ambiguity is repeated in `main-merge-audit.yml`.
+- #559 has a blocking QA finding on exact HEAD `43ea58a2b7663a4985950dc37a07319c813669ea`: inner `let preflight` declarations shadow the outer variable in both `.github/workflows/pr-acceptance.yml` and `.github/workflows/main-merge-audit.yml`, so the evaluator can receive `applicable:false`. The latest finding requests assignment to the existing binding plus workflow-level regression coverage. The exact-head Actions success does not resolve this static/runtime wiring finding.
+- #555/#558/#559 combined statuses: CircleCI **ERROR**, Vercel **FAILURE** (`build-rate-limit`).
+- #259: CircleCI **ERROR**, Vercel **FAILURE**.
+- #376/#417/#476/#478: CircleCI **ERROR**, Vercel **SUCCESS**. Vercel SUCCESS alone does not clear stale-base conflicts, missing exact-head Actions, or missing independent approval.
+- All eight PRs remain Draft. No PR is ready for Draft promotion or merge.
+
+### GPT5 disposition and next owners
+- GPT5 completed this exact-SHA, read-only operations audit and refreshed this handoff record.
+- GPT5 did not edit Factory / release workflows, Runner, durable state, secrets, permissions, branch protection, provider settings, billing, production data or deployments. Those changes remain outside GPT5's currently approved module ownership.
+- GPT1 / Factory owner: diagnose main Recovery failure from an available log/runner trace; do not retry unchanged while the log artifact remains unavailable.
+- GPT2 / Release-QA owner: resolve #558/#559 exact Preflight workflow provenance and variable-shadowing defects; add workflow-level regression coverage. GPT3 must independently review the repaired exact HEAD.
+- Owners of #259/#376/#417/#476/#478: selectively reconcile stale branches with current main, then run fresh exact-head CI and obtain independent formal review. Do not transplant broad diffs or force-update over overlapping owner work.
+- Repository/CircleCI administrator: diagnose Pipeline #517 and related CircleCI errors. Vercel administrator: resolve the daily free-tier deployment quota. GPT5 will not change provider billing/settings.
+
+### State labels
+- DOCUMENTED: this live operations addendum.
+- IMPLEMENTED: handoff documentation only.
+- TESTED: no new program test was run for this documentation-only update.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
