@@ -12,5 +12,7 @@ test("system-health recovery invokes its Node controller without the Windows Pow
   const step = workflow.slice(start, next < 0 ? undefined : next);
   assert.ok(workflow.includes("runs-on: ubuntu-latest"), "system-health workflow must use its hosted Ubuntu runner");
   assert.ok(step.includes("        shell: bash\n"), "controller step must use the Bash shell declared by the Ubuntu runner");
-  assert.ok(step.includes("        run: node scripts/agent-factory-v2-controller.mjs"), "controller invocation must remain unchanged");
+  assert.ok(step.includes("        run: |\n          set +e\n"), "controller must run in a guarded Bash block for diagnostic capture");
+  assert.ok(step.includes('node scripts/agent-factory-v2-controller.mjs 2>&1 | tee "$RUNNER_TEMP/system-health-recovery.log"'));
+  assert.ok(step.includes("controller_exit=${PIPESTATUS[0]}"), "diagnostic capture must preserve the controller exit code");
 });
