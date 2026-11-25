@@ -9,14 +9,19 @@ import {
 
 const sha = "a".repeat(40);
 const repo = "X84657465/global-citizen-ai-network";
-const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence => ({
-  jobId,
-  runAttempt: 1,
-  status: "completed",
-  conclusion: "success",
-  jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${456 + G_REQUIRED_CI_JOBS.indexOf(jobId as (typeof G_REQUIRED_CI_JOBS)[number])}`,
-  ...overrides,
-});
+const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence => {
+  const requiredJobIndex = G_REQUIRED_CI_JOBS.indexOf(jobId as (typeof G_REQUIRED_CI_JOBS)[number]);
+  const fallbackJobId = [...jobId].reduce((value, character) => value * 31 + character.charCodeAt(0), 0);
+  const jobUrlId = 456 + (requiredJobIndex >= 0 ? requiredJobIndex : fallbackJobId);
+  return {
+    jobId,
+    runAttempt: 1,
+    status: "completed",
+    conclusion: "success",
+    jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${jobUrlId}`,
+    ...overrides,
+  };
+};
 const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle => ({
   candidateRepository: repo,
   candidateSha: sha,
