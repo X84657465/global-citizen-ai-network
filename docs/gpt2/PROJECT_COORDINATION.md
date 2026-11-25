@@ -337,3 +337,29 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 ### 驗收界線
 - 本文件更新只屬文件交接；不宣稱 Factory Recovery 已恢復、程式功能已實作或 B 主線已可推進。
 - 任何 PR 只有在目前 exact HEAD 的必要 CI 全部成功、獨立正式 Review APPROVED、未解 threads 清零、base/mergeability 與 repository gates 均符合時，才可解除 Draft／合併。
+
+## 6.15 即時巡檢與 GPT2 文件修正 — 2026-11-25 14:10 Asia/Taipei
+
+> 本節是本次查核時間點的即時快照，取代 §6.14 的「目前 PR 狀態」用途；§6.14 保留為歷史紀錄。PR HEAD 改變後，本節的 CI／review／外部狀態即不再代表新 HEAD。
+
+### Main 精確狀態
+- `refs/heads/main`：`462eeea5917f3b0750fc2c41c888a4d54c562c1e`（本次重新讀取 ref 確認）。
+- Main Push CI run `45505611114`，attempt 1，COMPLETED / SUCCESS。Resolver、Windows quality gates、PostgreSQL/RLS、Ollama/local 四項實質工作 SUCCESS；但成功持久化 job 的 revalidation、record、evidence JSON、artifact upload 步驟 SKIPPED，另有兩個持久化／診斷 jobs SKIPPED。不能宣稱完整 evidence persistence 或 breaker reset。
+- Main Recovery run `45555540275`，attempt 1，COMPLETED / FAILURE；唯一 job `139006576806` FAILURE，Jobs API 顯示 0 steps。根因 UNKNOWN；前一個 Recovery run `45554144805` 亦 FAILURE。停止盲目重跑，不重置 breaker。
+- Main Preflight run `45547466932`，attempt 1，COMPLETED / FAILURE；job `138980414769` 在「Validate task and create a safe handoff bundle」FAILURE，六個下游 jobs SKIPPED。此為 Factory/task-owner 範圍，GPT2 不接管。
+- Main combined external statuses：Vercel FAILURE（build-rate-limit）；CircleCI Pipeline #574 ERROR。Main 不是全綠。
+- Branch protection endpoint 本次回應 403 Resource not accessible by integration；因此 branch protection／required-check 設定狀態 UNKNOWN，不推定為啟用或停用。
+
+### 全部 OPEN PR（本次搜尋 4 件；base 均為 main，base SHA 均為上述 main SHA）
+- **#559** — OPEN / Draft；HEAD `567f27233103790b07c26c59dab7dbb4b033fced`。Actions run `45544850826` attempt 1 COMPLETED / SUCCESS；Resolver、Windows quality、PostgreSQL/RLS、Ollama/local 實質 jobs SUCCESS，但三個 Persist／Diagnostics jobs SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI Pipeline #607 ERROR。5 筆 review 均 COMMENTED，0 APPROVED。
+- **#560** — OPEN / Draft；HEAD `80a1ac355bc1dfe540410ac3b0ad4eed4fa2a97e`。Actions run `45557346032` attempt 1 IN_PROGRESS；Resolver、Windows quality、Ollama/local SUCCESS；PostgreSQL/RLS job `139014701324` IN_PROGRESS，工作流程尚無終態。Vercel SUCCESS；CircleCI Pipeline #620 ERROR。5 筆 review 均 COMMENTED，0 APPROVED。
+- **#561** — OPEN / Draft；HEAD `ac904aa3d6b787177bd0c2d58f173f9955af64d8`。CI run `45544583799` attempt 1 COMPLETED / SUCCESS；四項實質 jobs SUCCESS，但三個 Persist／Diagnostics jobs SKIPPED。另有 Preflight run `45544584160` attempt 4 COMPLETED / FAILURE；Linux offline scratch fixture job `138991100153` FAILURE，其餘六個下游 jobs SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI Pipeline #605 ERROR。6 筆 review 均 COMMENTED，0 APPROVED。
+- **#562（GPT2 自有文件候選）** — OPEN / Draft；HEAD `9635f8c1102752802100aa466f2b8a5f3feef807`。Actions run `45540835752` attempt 2 COMPLETED / SUCCESS；Resolver、Windows quality、Ollama/local、PostgreSQL/RLS 四項實質 jobs SUCCESS，但三個 Persist／Diagnostics jobs SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI Pipeline #583 ERROR。3 筆 review 均 COMMENTED，0 APPROVED；本次 review-thread 查詢回傳 0 threads。
+- 四件 PR 的 GitHub metadata 均為 mergeable=true，但仍全數 Draft；外部失敗／錯誤、SKIPPED 證據步驟及正式 APPROVED 缺口未解除。不得解除 Draft 或合併。COMMENTED 不等於 APPROVED；不同 SHA 的舊 CI／review 不轉移到目前 HEAD。
+
+### GPT2/F–P 處置與交付
+- 本次唯一直接可處理且屬 GPT2 自有範圍的工作，是修正本文件 §6.14 已過期的即時 PR 清單；已在本節記錄目前精確 SHA、run／attempt／job 終態、外部狀態與正式 review 數。
+- #559 的 stacked acceptance 改動、#561 的 Factory Recovery diagnostics、Main Recovery／Preflight 根因，均不由 GPT2 越權接管；Vercel 額度限制與 CircleCI ERROR 交由服務／專案管理者處理。
+- #562 本次仍只屬文件交付；未執行本機測試、TypeScript、Lint 或 Build。此文件更新不構成 GPT3 APPROVED、程式驗收、PR 解 Draft 或合併。
+- 下一步：保持 #562 Draft；待目前 HEAD 的獨立正式 APPROVED、必要 CI／外部檢查及 repo gate 證據齊備後再評估。其他阻塞持續時，轉向無重疊且有明確 GPT2/F–P owner/allowlist 的可閉環任務。
+
