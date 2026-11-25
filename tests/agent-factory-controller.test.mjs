@@ -2251,3 +2251,100 @@ test("operator recovery fails closed when ambiguous write read-back is unavailab
     assert.equal(store.writes, 1);
   }
 });
+
+
+test("main-push system-health success resets the breaker only for the exact current main SHA and successful required jobs", async () => {
+  const initial = createInitialFactoryState(1000);
+  initial.system.consecutive_failures = 2;
+  initial.system.cooldown_until = new Date(120_000).toISOString();
+  const sha = "d".repeat(40);
+  const store = fakeStore(initial);
+  const requests = [];
+  const controller = createAgentFactoryController({
+    store,
+    repository: "owner/repo",
+    now: () => 3000,
+    api: {
+      async request(path) {
+        requests.push(path);
+        if (path === "/repos/owner/repo/actions/runs/555100") {
+          return {
+            id: 555100, run_attempt: 1, head_sha: sha, status: "completed",
+            conclusion: "success", updated_at: new Date(2500).toISOString(),
+            path: ".github/workflows/ci.yml", event: "push", head_branch: "main",
+            head_repository: { full_name: "owner/repo" },
+          };
+        }
+        if (path === "/repos/owner/repo/git/ref/heads/main") return { object: { sha } };
+        if (path === "/repos/owner/repo/actions/runs/555100/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555100, 1, sha);
+        }
+        throw new Error("Unexpected API request: " + path);
+      },
+    },
+  });
+  const env = {
+    AGENT_FACTORY_MODE: "main-push-system-health-success",
+    SYSTEM_HEALTH_RUN_ID: "555100",
+    SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+    SYSTEM_HEALTH_HEAD_SHA: sha,
+  };
+  const first = await controller.run(env);
+  const replay = await controller.run(env);
+  assert.equal(first.outputs.breaker_reset, true);
+  assert.equal(first.outputs.duplicate, false);
+  assert.equal(first.outputs.health_head_sha, sha);
+  assert.equal(first.outputs.cooldown_active, false);
+  assert.equal(first.state.system.consecutive_failures, 0);
+  assert.equal(first.state.system.cooldown_until, null);
+  assert.equal(replay.outputs.duplicate, true);
+  assert.equal(replay.outputs.breaker_reset, false);
+  assert.equal(replay.state.state_version, first.state.state_version);
+  assert.deepEqual(requests, [
+    "/repos/owner/repo/actions/runs/555100",
+    "/repos/owner/repo/git/ref/heads/main",
+    "/repos/owner/repo/actions/runs/555100/attempts/1/jobs?per_page=100",
+    "/repos/owner/repo/actions/runs/555100",
+    "/repos/owner/repo/git/ref/heads/main",
+    "/repos/owner/repo/actions/runs/555100/attempts/1/jobs?per_page=100",
+  ]);
+});
+
+test("main-push system-health success rejects stale main SHA and skipped required jobs", async () => {
+  for (const scenario of ["stale-main", "skipped-job"]) {
+    const initial = createInitialFactoryState(1000);
+    initial.system.consecutive_failures = 2;
+    initial.system.cooldown_until = new Date(120_000).toISOString();
+    const sha = "d".repeat(40);
+    const store = fakeStore(initial);
+    const controller = createAgentFactoryController({
+      store, repository: "owner/repo", now: () => 3000,
+      api: { async request(path) {
+        if (path === "/repos/owner/repo/actions/runs/555101") return {
+          id: 555101, run_attempt: 1, head_sha: sha, status: "completed",
+          conclusion: "success", updated_at: new Date(2500).toISOString(),
+          path: ".github/workflows/ci.yml", event: "push", head_branch: "main",
+          head_repository: { full_name: "owner/repo" },
+        };
+        if (path === "/repos/owner/repo/git/ref/heads/main") return {
+          object: { sha: scenario === "stale-main" ? "e".repeat(40) : sha },
+        };
+        if (path === "/repos/owner/repo/actions/runs/555101/attempts/1/jobs?per_page=100") {
+          return systemHealthJobs(555101, 1, sha, scenario === "skipped-job"
+            ? { "Windows Supabase migrations, PostgreSQL and RLS integration": { conclusion: "skipped" } }
+            : {});
+        }
+        throw new Error("Unexpected API request: " + path);
+      } },
+    });
+    await assert.rejects(controller.run({
+      AGENT_FACTORY_MODE: "main-push-system-health-success",
+      SYSTEM_HEALTH_RUN_ID: "555101",
+      SYSTEM_HEALTH_RUN_ATTEMPT: "1",
+      SYSTEM_HEALTH_HEAD_SHA: sha,
+    }), scenario === "stale-main" ? /main has advanced beyond/ : /every resolver, quality, build, and database job to succeed/);
+    assert.equal(store.state.state_version, initial.state_version);
+    assert.equal(store.state.system.consecutive_failures, 2);
+    assert.equal(store.state.system.cooldown_until, new Date(120_000).toISOString());
+  }
+});
