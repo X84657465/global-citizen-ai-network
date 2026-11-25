@@ -186,7 +186,7 @@ jobs:
           }
           $encodedSha = [uri]::EscapeDataString($sha)
           $uri = "$($apiBase.TrimEnd('/'))/repos/$env:GITHUB_REPOSITORY/commits/$encodedSha/pulls?per_page=100"
-          $prs = @(Invoke-RestMethod -Uri $uri -Headers $headers -Method Get)
+          $prs = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
           $matchingPrs = @($prs | Where-Object {
             $_.state -eq "open" -and
             $_.base.ref -eq "main" -and
