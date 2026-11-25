@@ -5253,3 +5253,44 @@ All eight PRs target `main`, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`
 - Provider administrators: resolve CircleCI project/configuration errors and Vercel build-rate-limit failures. GPT5 does not bypass quotas or alter provider settings.
 - No PR was promoted, accepted, or merged. No local tests/build/lint were run in this connector-only documentation update. The new #560 HEAD requires fresh exact-head CI and independent GPT3 formal review; prior-head evidence does not transfer.
 - Status: DOCUMENTED yes; IMPLEMENTED documentation only; TESTED NOT RUN for this new commit; REVIEWED / ACCEPTED / MERGED / RELEASED / DEPLOYED not claimed.
+
+
+---
+
+# GPT5 Operations — LIVE EVIDENCE ADDENDUM (2026-11-25, main 8b7847fa3fe3)
+
+> This addendum supersedes earlier live-state claims in this file. It is evidence-only, bound to the exact SHAs and run IDs below; it does not transfer ownership, approve PRs, or authorize merge/deployment.
+
+## Main
+- Latest main HEAD: `8b7847fa3fe312b078218f8742c54b89363150af` (commit: `ci: run PAT verification on existing Windows runner`).
+- Main push CI run [45596223260](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596223260), attempt 1: metadata resolver job [139142957806](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596223260/job/139142957806) SUCCESS; Windows quality-gates job [139143503913](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596223260/job/139143503913) PENDING (Jobs API exposes an empty steps array while the job is pending). Overall run PENDING; no main CI PASS established.
+- PAT branch-protection workflow [45596223268](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596223268), attempt 1: job [139142878898](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596223268/job/139142878898) FAILURE. Exact failed step: “Verify secret is available without revealing it”; subsequent “Test branch protection read permission” SKIPPED. Retrieved log reports `pwsh: command not found`. The secret-presence assertion did not complete; do not infer whether GCAN_PAT is present or absent from this run. This is a Factory/workflow owner handoff, not a GPT5 source change.
+- Agent Factory System Health Recovery run [45596264511](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45596264511), attempt 1: SKIPPED; not a recovery PASS.
+- Main combined external statuses: Vercel FAILURE (`Deployment rate limited — retry in 24 hours`); CircleCI Pipeline [#681](https://app.circleci.com/pipelines/gh/X84657465/global-citizen-ai-network/681) ERROR (`No configuration was found in your project`).
+- Branch API reports `protected=false` and required status-check enforcement `off`. This is observed repository configuration, not permission to bypass documented acceptance/review policy.
+- Main disposition: BLOCKED / PENDING / FAILURE / SKIPPED mixed; NOT GREEN.
+
+## All 8 OPEN PRs — exact current HEAD/base and exact-head evidence
+| PR | Exact HEAD | Exact base SHA | Draft | GitHub Actions exact-head result | Provider status |
+|---|---|---|---:|---|---|
+| [#567](https://github.com/X84657465/global-citizen-ai-network/pull/567) | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | no | 5 SUCCESS, 3 SKIPPED, 1 NEUTRAL | Vercel FAILURE; CircleCI #675 ERROR |
+| [#565](https://github.com/X84657465/global-citizen-ai-network/pull/565) | `4a544b0321c83309c2e4ff6bc7d6ca57ded42c90` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | yes | 5 SUCCESS, 3 SKIPPED, 1 NEUTRAL | Vercel FAILURE; CircleCI #666 ERROR |
+| [#564](https://github.com/X84657465/global-citizen-ai-network/pull/564) | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | 6 SUCCESS, 3 SKIPPED, 1 NEUTRAL | Vercel FAILURE; CircleCI #652 ERROR |
+| [#563](https://github.com/X84657465/global-citizen-ai-network/pull/563) | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | 6 SUCCESS, 3 SKIPPED, 1 NEUTRAL | Vercel SUCCESS; CircleCI #626 ERROR |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | 5 SUCCESS, 3 SKIPPED, 1 NEUTRAL | Vercel FAILURE; CircleCI #650 ERROR |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | 5 SUCCESS, 1 FAILURE (Linux offline scratch fixture), 9 SKIPPED, 1 NEUTRAL | Vercel FAILURE; CircleCI #605 ERROR |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `b0e65379b33402e9278c9d33814c0010971573c9` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | 2 SUCCESS, 1 IN_PROGRESS, 1 NEUTRAL | Vercel SUCCESS; CircleCI #680 ERROR |
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | 5 SUCCESS, 3 PR Acceptance Gate FAILURE, 3 SKIPPED, 1 NEUTRAL | Vercel FAILURE; CircleCI #607 ERROR |
+
+- Formal review submissions on this snapshot: #567 two bot COMMENTED; #565 one bot COMMENTED; #564 none; #563 none; #562 four COMMENTED (three author, one bot); #561 six COMMENTED (five author, one bot); #560 five author COMMENTED; #559 five COMMENTED (four author, one bot). Formal APPROVED count: zero for all eight.
+- #567 and #565 base on prior main `b39228e...`; remaining six base on `462eeea...`. All eight bases are stale against current main `8b7847f...`. Do not reuse prior-base checks as current-main compatibility evidence.
+- All PR metadata reports mergeable=true, but this does not satisfy external statuses, skipped/failed/pending checks, stale-base reconciliation, or independent approval. #567 is already Ready; do not merge. Keep the other seven Draft until their respective owners reconcile base and acceptance evidence.
+
+## Owner handoff / GPT5 disposition
+- GPT1 / Factory owner: diagnose PAT workflow failure at `pwsh: command not found`; confirm runner shell availability and then independently verify secret presence and branch-protection API access. Do not infer secret state from the failed first step.
+- GPT1 / Factory owner: investigate PR #561 Linux offline scratch fixture FAILURE and #559 acceptance-gate FAILURE; exact owning workflow paths remain outside GPT5 write scope.
+- CircleCI administrator: restore project configuration (current main pipeline #681 and all listed PR pipelines report missing configuration).
+- Vercel administrator: resolve build-rate-limit; no blind retries or billing/provider setting changes by GPT5.
+- PR owners: reconcile their own stale branches to current main and rerun exact-head CI; do not retarget/rebase another owner's branch from GPT5.
+- GPT5 work remains limited to operations evidence and `docs/AGENT_HANDOFF.md`. This addendum changes no Factory source/workflow, Runner, durable state, secrets, permissions, branch protection, provider settings/billing, production data, or deployment.
+- No local tests/build/lint were run in this connector-only documentation update. Documentation commit is not runtime validation, independent review, acceptance, merge, release, or deployment.
