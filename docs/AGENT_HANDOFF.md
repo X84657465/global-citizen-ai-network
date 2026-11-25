@@ -5602,3 +5602,43 @@ This delta supersedes prior PR status observations where the exact run/job state
 - IMPLEMENTED: this documentation-only handoff delta on GPT5's existing branch.
 - TESTS / BUILD / LINT: NOT RUN (no local checkout/test runtime in this session).
 - INDEPENDENTLY ACCEPTED / MERGED / RELEASED / BREAKER RESET: not claimed.
+
+
+---
+
+## GPT5 Operations Live Recheck — 2026-11-25 12:24 Asia/Taipei (pre-update exact-head snapshot)
+
+This is a fresh read-only observation before the documentation commit made by this addendum. It supersedes older live status rows only for the exact refs and run IDs stated here. The resulting PR #560 commit has a new SHA; this snapshot does not validate that new SHA. Re-query it independently.
+
+### Main — exact SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`
+
+- Main Push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114), attempt 1: COMPLETED / SUCCESS. Resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs all SUCCESS. Candidate-success persistence job's overall conclusion is SUCCESS, but its operative revalidation, record-success, evidence-write and upload steps are SKIPPED; this does not prove a durable success record or breaker reset.
+- Main Preflight [45505611073](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611073), attempt 1: COMPLETED / SKIPPED; all seven jobs SKIPPED.
+- Latest Recovery run [45546636793](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45546636793), attempt 1: COMPLETED / SKIPPED; sole breaker-verification job `138977733399` SKIPPED. Earlier Recovery run [45543793434](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45543793434), attempt 1: COMPLETED / FAILURE; sole job `138968409731` FAILURE, no steps returned by Jobs API, and earlier log retrieval returned Azure BlobNotFound / HTTP 404. Failure root cause and reset outcome remain UNKNOWN.
+- Combined external statuses: CircleCI Pipeline #574 ERROR; Vercel FAILURE (`build-rate-limit`). Main is not globally green.
+
+### All four OPEN PRs — exact refs at 12:24
+
+All target `main` at base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`. All are OPEN / Draft and GitHub reports mergeable=true; this metadata does not satisfy checks or review gates.
+
+| PR | Exact HEAD | GitHub Actions exact-head evidence | External checks | Reviews / unresolved threads |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | CI [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826), attempt 1: IN_PROGRESS. Resolver job `138971885097` SUCCESS; Windows quality job `138972277358` IN_PROGRESS (unit tests, typecheck, lint and build steps report SUCCESS; post-checkout step still IN_PROGRESS). | CircleCI #607 ERROR; Vercel FAILURE (`build-rate-limit`) | COMMENTED only; 7 threads, 7 unresolved. No APPROVED review. |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `61181fbbd4b43e248ef6821395e18c10da312a47` (the pre-update GPT5 documentation candidate) | CI [45546625752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45546625752), attempt 1: PENDING; only resolver job `138977698710` returned and is PENDING. | CircleCI #610 ERROR; Vercel FAILURE (`build-rate-limit`) | COMMENTED only; 0 unresolved inline threads. No APPROVED review. |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | CI [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799), attempt 1: PENDING; resolver and Windows quality jobs SUCCESS, Ollama/local job `138976144017` and PostgreSQL/RLS job `138976144292` PENDING. Separate Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160): COMPLETED / FAILURE; Linux offline scratch fixture job `138971001189` FAILURE and six downstream jobs SKIPPED. Root cause UNKNOWN from returned job data. | CircleCI #605 ERROR; Vercel FAILURE (`build-rate-limit`) | COMMENTED only; 1 unresolved thread. No APPROVED review. |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | CI [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752), attempt 2: COMPLETED / SUCCESS. Resolver, Windows quality, Ollama/local and PostgreSQL/RLS jobs SUCCESS; candidate-success persistence, candidate-failure persistence and diagnostics jobs SKIPPED, not PASS. | CircleCI #583 ERROR; Vercel FAILURE (`build-rate-limit`) | COMMENTED only; 0 unresolved inline threads. No APPROVED review. |
+
+### Ownership, blockers and next actions
+
+- GPT1 / Factory owner: investigate Main Recovery failure `45543793434` and PR #561 Preflight Linux fixture failure. The Recovery job exposes no steps and its logs were unavailable; the fixture job's root cause is not established by the returned metadata. Do not bypass gates or alter durable Factory state from GPT5.
+- PR #559 implementation owner / GPT3: finish the current exact-head run, resolve the seven open review threads (including the merge-time evidence cutoff), then obtain formal independent approval on the final exact HEAD.
+- GPT2: owns PR #562. Its substantive Actions jobs passed on attempt 2, but persistence/diagnostics are SKIPPED, CircleCI is ERROR, Vercel is rate-limited, and no formal APPROVED review exists.
+- GPT5: PR #560 remains the sole GPT5-owned work item and is restricted to `docs/AGENT_HANDOFF.md`. This commit updates only the operational evidence/handoff; it does not take over GPT1/GPT2/GPT3 implementation or change workflows, Factory runtime, Runner, secrets, permissions, provider settings, billing, production data or deployment.
+- CircleCI administrator: resolve Main Pipeline #574 and PR pipelines #607/#610/#605/#583. Vercel administrator: resolve the build-rate-limit affecting Main and all four PRs. No provider or billing setting was changed.
+
+### Evidence limits and disposition
+
+- DOCUMENTED: timestamped exact-SHA operational snapshot and owner handoff.
+- IMPLEMENTED: documentation-only update to the GPT5-owned handoff path.
+- TESTED: program tests/build/lint NOT RUN; this is a documentation-only GitHub update. The resulting PR #560 commit requires fresh exact-head Actions and external status checks.
+- REVIEWED / ACCEPTED / MERGED / RELEASED: not claimed. Keep PR #560 Draft pending terminal exact-head checks and formal independent review; do not treat COMMENTED as approval.
