@@ -62,3 +62,18 @@ test("rejects missing approval, mergeability false/unknown, and Draft", () => {
   assert.ok(evaluateAcceptance(valid({mergeable:null})).failures.some(x=>x.code==="MERGEABILITY_UNKNOWN"));
   assert.ok(evaluateAcceptance(valid({draft:true})).failures.some(x=>x.code==="DRAFT_NOT_READY"));
 });
+
+
+test("merge audit renders the exact CI jobs collection without an undefined variable", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/main-merge-audit.yml", import.meta.url), "utf8");
+  assert.match(source, /\.\.\.ci\.jobs\.map\(job =>/);
+  assert.doesNotMatch(source, /\.\.\.ciJobs\.map\(job =>/);
+});
+
+test("manual PR acceptance dispatch always checks out policy from the repository default branch", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
+  assert.match(source, /ref: \$\{\{ github\.event\.repository\.default_branch \}\}/);
+  assert.doesNotMatch(source, /github\.event_name == 'workflow_dispatch' && github\.ref/);
+});
