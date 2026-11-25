@@ -159,3 +159,35 @@ test("merge audit uses isolated concurrency and effective review decisions", asy
   assert.match(source, /group: merge-audit-pr-\$\{\{ github\.event\.pull_request\.number/);
   assert.match(source, /effectiveReviewStates = new Set\(\['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'\]\)/);
 });
+
+
+test("merge audit uses merged_at as a strict cutoff for historical CI and Preflight attempts", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/main-merge-audit.yml", import.meta.url), "utf8");
+  assert.match(source, /Date\.parse\(pr\.merged_at \|\| ''\)/);
+  assert.match(source, /actions\/runs\/\{run_id\}\/attempts\/\{attempt_number\}/);
+  assert.match(source, /attemptCompletedAt <= evidenceCutoff/);
+  assert.match(source, /completedAt <= evidenceCutoff/);
+  assert.match(source, /requiredJobNames: \['Linux offline scratch fixture validation'\]/);
+  assert.match(source, /submittedAt > evidenceCutoff/);
+});
+
+test("merge audit does not select a post-merge retry over an earlier eligible attempt", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/main-merge-audit.yml", import.meta.url), "utf8");
+  assert.match(source, /for \(let attemptNumber = 1; attemptNumber <= run\.run_attempt; attemptNumber \+= 1\)/);
+  assert.match(source, /eligible\.sort\(\(a, b\) => b\.completedAt - a\.completedAt\)/);
+  assert.match(source, /if \(eligible\.length\) return eligible\[0\]\.summary/);
+  assert.match(source, /status: 'not_completed_by_merge'/);
+});
+
+test("merge audit fails closed when timestamps are missing or reviews were submitted after merge", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/main-merge-audit.yml", import.meta.url), "utf8");
+  assert.match(source, /!Number\.isFinite\(mergedAt\)/);
+  assert.match(source, /!Number\.isFinite\(attemptStartedAt\)/);
+  assert.match(source, /!Number\.isFinite\(attemptCompletedAt\)/);
+  assert.match(source, /!Number\.isFinite\(completedAt\)/);
+  assert.match(source, /!Number\.isFinite\(submittedAt\)/);
+  assert.match(source, /DISMISSED reviews are conservatively treated as non-approvals/);
+});
