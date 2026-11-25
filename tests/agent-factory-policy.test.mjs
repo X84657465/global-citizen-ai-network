@@ -382,3 +382,15 @@ test("candidate container classification reads Docker start exit evidence from t
   assert.equal(candidateContainerFailureScope({ ...clean, DockerStartExitCode: 0 }), "none");
   assert.equal(candidateContainerFailureScope({ ...clean, DockerStartExitCode: 1 }), "system");
 });
+
+
+test("system health recovery uses the verified self-hosted Windows Runner while hosted Ubuntu allocation is unavailable", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("  reset-system-breaker:");
+  assert.ok(start >= 0, "system health recovery job must exist");
+  const job = workflow.slice(start);
+  assert.match(job, /runs-on:\s*\[self-hosted, Windows, X64\]/);
+  assert.match(job, /group:\s*global-citizen-ai-network-self-hosted-runner/);
+  assert.match(job, /queue:\s*max/);
+  assert.match(job, /cancel-in-progress:\s*false/);
+});
