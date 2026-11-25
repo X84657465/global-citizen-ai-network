@@ -1019,6 +1019,19 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
 });
 
 
+test("Recovery observer passes the source HEAD SHA into the capture step environment", () => {
+  const source = readFileSync(
+    new URL("../.github/workflows/agent-factory-recovery-observer.yml", import.meta.url),
+    "utf8",
+  ).replace(/\\r\\n/g, "\\n");
+  const captureStart = source.indexOf("- name: Capture run metadata, job steps and log availability");
+  const captureEnd = source.indexOf("\\n      - name:", captureStart + 1);
+  assert.ok(captureStart >= 0 && captureEnd > captureStart, "capture step must exist");
+  const captureStep = source.slice(captureStart, captureEnd);
+  assert.ok(captureStep.includes("SOURCE_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"),
+    "capture step must receive the exact source HEAD SHA independently of the initialization step");
+});
+
 test("resolver skips token and GitHub API requirements for events without a PR candidate", () => {
   const parse = resolver.indexOf('const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);');
   const noCandidate = resolver.indexOf('No pull-request candidate metadata applies to this event.');
