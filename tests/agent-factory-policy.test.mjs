@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 import { FAILURE_THRESHOLD, COOLDOWN_MS, cooldownActive, apiCooldownUntil, nextFailureState, nextPlannerTask, plannerIssueBody, successState, candidateContainerFailureScope } from "../lib/agent-factory-policy.mjs";
 import { inferTaskIssueNumber } from "../lib/agent-failure-context.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
@@ -381,4 +382,49 @@ test("candidate container classification reads Docker start exit evidence from t
   const clean = { Status: "exited", Error: "", ExitCode: 0, OOMKilled: false, Dead: false };
   assert.equal(candidateContainerFailureScope({ ...clean, DockerStartExitCode: 0 }), "none");
   assert.equal(candidateContainerFailureScope({ ...clean, DockerStartExitCode: 1 }), "system");
+});
+
+
+test("Recovery diagnostics match GitHub Actions case-insensitive equality and branch-prefix semantics", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8");
+  const marker = "node --input-type=module <<'NODE'\\n";
+  const start = workflow.indexOf(marker);
+  const end = workflow.indexOf("\\n          NODE", start + marker.length);
+  assert.ok(start >= 0 && end > start, "read-only recovery diagnostic script must exist");
+  let script = workflow.slice(start + marker.length, end);
+  script = script.replace("console.log(JSON.stringify({", "globalThis.__diagnostic = ({");
+  script = script.replace(/}, null, 2\\)\\);\\s*$/, "});");
+  assert.match(script, /normalize\\(env\\.HEAD_BRANCH\\)\\.startsWith\\("ai-task\\/issue-"\\)/);
+  assert.match(script, /normalize\\(env\\.HEAD_BRANCH\\)\\.startsWith\\("codex\\/issue-"\\)/);
+
+  const baseEnv = {
+    TARGET_REPOSITORY: "x84657465/global-citizen-ai-network",
+    WORKFLOW_PATH: ".GITHUB/WORKFLOWS/CI.YML",
+    WORKFLOW_CONCLUSION: "SUCCESS",
+    WORKFLOW_EVENT: "PULL_REQUEST",
+    HEAD_REPOSITORY: "X84657465/GLOBAL-CITIZEN-AI-NETWORK",
+    HEAD_SHA: "a".repeat(40),
+    SOURCE_RUN_ID: "123",
+    SOURCE_RUN_ATTEMPT: "1",
+  };
+  const evaluate = (branchName) => {
+    const context = { process: { env: { ...baseEnv, HEAD_BRANCH: branchName } }, console: { log() {} } };
+    runInNewContext(script, context);
+    return context.__diagnostic;
+  };
+
+  const aiTask = evaluate("AI-TASK/issue-42");
+  assert.equal(aiTask.predicates.expected_workflow_path, true);
+  assert.equal(aiTask.predicates.source_conclusion_success, true);
+  assert.equal(aiTask.predicates.source_event_pull_request, true);
+  assert.equal(aiTask.predicates.source_repository_matches, true);
+  assert.equal(aiTask.predicates.branch_not_ai_task, false);
+  assert.equal(aiTask.all_job_level_predicates_pass, false);
+
+  const codexTask = evaluate("CoDeX/Issue-42");
+  assert.equal(codexTask.predicates.branch_not_codex_task, false);
+  assert.equal(codexTask.all_job_level_predicates_pass, false);
+
+  const feature = evaluate("feature/recovery-diagnostics");
+  assert.equal(feature.all_job_level_predicates_pass, true);
 });
