@@ -1,12 +1,12 @@
 # G — Release, QA & Integration
 
-**Track version:** 0.1.2  
+**Track version:** 0.1.4  
 **Status:** implementation candidate; operational release authority is not implied.  
 **Owner:** GPT 2 / G workstream.
 
 ## Purpose
 
-G makes cross-track integration deterministic and evidence-driven. It sequences candidate integration, records compatibility, defines required quality gates, and produces release evidence bound to an exact repository, pull request, commit SHA, workflow run, and run attempt.
+G makes cross-track integration deterministic and evidence-driven. It rejects repeated Actions job URLs so one underlying job record cannot satisfy multiple required gates. It sequences candidate integration, records compatibility, defines required quality gates, and produces release evidence bound to an exact repository, pull request, commit SHA, workflow run, and run attempt.
 
 G does not own feature implementation, override F security decisions, grant approval authority, or bypass repository branch protection. A successful partial job, stale run, skipped check, draft PR, version bump, or merged documentation is not acceptance.
 
@@ -60,4 +60,4 @@ Skipped, cancelled, stale, missing, resolver-only, or different-SHA results neve
 
 ## Versioning
 
-G owns its independent numeric version in `versions/manifest.json` and this changelog. This documentation-only patch advances G from 0.1.1 to 0.1.2. The repository-wide version is intentionally unchanged; shared release metadata must be coordinated separately by its owning candidate.
+G owns its independent numeric version in `versions/manifest.json` and this changelog. This G code-and-regression patch advances the independent G track from 0.1.3 to 0.1.4. The repository-wide version is intentionally unchanged; shared release metadata must be coordinated separately by its owning candidate.
