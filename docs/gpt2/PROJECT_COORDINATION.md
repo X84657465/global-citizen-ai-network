@@ -326,12 +326,13 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - #555 舊文件候選已關閉：內容包含過期 PR 狀態，且只有舊 HEAD 的 COMMENTED review，沒有正式 APPROVED。文件狀態以本節及新候選為準。
 - 已從目前 main 建立重建分支：`rebuild/pr478-gcan-mvp-from-main`、`rebuild/pr476-acceptance-governance-from-main`、`rebuild/pr376-factory-autonomy-docs-from-main`、`rebuild/pr417-neural-factory-seat-from-main`、`rebuild/pr259-factory-consolidation-from-main`。這些分支目前只是乾淨基底，尚未移植原 PR 變更，不代表新功能已重建或驗收。
 
-### 仍開啟的候選與精確驗收狀態
-- #561，HEAD `1e63c727b763c18106880121773a5da14c581618`：CI run `45537703554` attempt 2；Resolver job queued/pending。沒有正式 Review。不可稱 PASS。
-- #559，HEAD `6f33c72588589d5f64af99c1dd1e93d09dccd530`：CI run `45537023617` attempt 2；Resolver SUCCESS，Windows quality gates queued/pending。沒有正式 Review。不可稱 PASS。
-- #560，HEAD `31051b5f98233c107debc2de810170eb69d5956f`：CI run `45536887001` attempt 1；Resolver、Quality、Ollama/local integration SUCCESS，Supabase/PostgreSQL/RLS integration IN_PROGRESS。沒有正式 Review。不可稱 PASS。
-- #561／#559／#560 均保持 Draft；不把 queued/in-progress 當失敗，也不把局部 job success 當整體 workflow success。
-- #555 的舊 CI run `45521844484` SUCCESS 只對舊候選 HEAD 有效，不能轉移至新文件候選。
+### 仍開啟的候選與精確驗收狀態（2026-11-25 即時重查）
+- #559，HEAD `d2ea22c554c74c982ab7e4f2b2a0cfcf7c079fe9`：CI run `45538396851` 為 IN_PROGRESS；Resolver SUCCESS，Windows quality gates IN_PROGRESS。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #577 ERROR。Review 僅 COMMENTED，無正式 APPROVED。
+- #560，HEAD `8523d8516d316b938c62b292640578d2de35eb4c`：CI run `45540620989` 為 PENDING；Resolver job PENDING。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #582 ERROR。Review 僅 COMMENTED，無正式 APPROVED。
+- #561，HEAD `1e63c727b763c18106880121773a5da14c581618`：CI run `45537703554` 為 SUCCESS；Resolver、Windows quality、Supabase/PostgreSQL/RLS、Ollama/local jobs 均 SUCCESS，但三個 Persist／Diagnostics jobs 均 SKIPPED。這不等於 Recovery 診斷已執行或恢復成功。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #568 ERROR。Review 僅 COMMENTED，無正式 APPROVED。
+- #562，HEAD `7a6bc97fbdf89e59033a1f5b923832dbf509b09f`：CI run `45538233679` 為 SUCCESS；Resolver、Windows quality、Ollama/local、Supabase/PostgreSQL/RLS jobs 均 SUCCESS，但三個 Persist／Diagnostics jobs 均 SKIPPED。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #575 ERROR。Review 僅 COMMENTED，無正式 APPROVED。GPT3 文件審查指出本節先前漏列 #562 本身；本次已補列，後續仍需獨立正式 APPROVED。
+- 四件 PR（#559、#560、#561、#562）目前均 OPEN、Draft，base 均為 main，base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`；GitHub 回報 mergeable=true，但外部 Vercel/CircleCI 均未通過，且無正式 APPROVED，因此全部維持 Draft，不解除、不合併。
+- 本次狀態以每件 PR 的目前 exact HEAD、最新可取得的 Actions run/jobs、combined status 與正式 review submissions 為準；舊 SHA 的 CI/review 不轉移至新 HEAD。
 
 ### 驗收界線
 - 本文件更新只屬文件交接；不宣稱 Factory Recovery 已恢復、程式功能已實作或 B 主線已可推進。
