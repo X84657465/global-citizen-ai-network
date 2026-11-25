@@ -5216,3 +5216,50 @@ All four PRs remain OPEN, Draft=true, mergeable metadata=true, and target main S
 - IMPLEMENTED: documentation-only correction on GPT5-owned PR #560.
 - TESTED: program tests/build/lint NOT RUN; fresh exact-head CI required.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+---
+
+## GPT5 Operations Recheck — 2026-11-25 11:40 Asia/Taipei (exact-head correction)
+
+This newest addendum supersedes prior live-state tables above where they differ. It records only evidence queried for this sweep. It does not authorize Draft promotion, self-approval, merge, deployment, or changes outside GPT5's current scope.
+
+### Main — exact SHA and workflow outcomes
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` (unchanged at recheck).
+- Main push CI [run 45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114), attempt 1, exact same SHA: **COMPLETED / SUCCESS**. Resolver, Windows quality gates, PostgreSQL/RLS, Ollama/local execution, and candidate-success persistence jobs **SUCCESS**. Conditional failure-persistence and diagnostics jobs **SKIPPED**; not counted as passes.
+- Latest System Health Recovery [run 45540765300](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540765300), attempt 1, exact Main SHA: **COMPLETED / FAILURE**. Sole job `138958426680` FAILURE. Steps API returned an empty array; job-log download returned Azure Storage `404 BlobNotFound`. Failing step/root cause remain **UNKNOWN**. No breaker reset is evidenced.
+- Immediately preceding Recovery [run 45540632272](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540632272): **COMPLETED / SKIPPED**. Not PASS.
+- Main combined external statuses: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline #574 **ERROR**. Overall Main is **NOT ALL GREEN** despite the successful push CI.
+
+### All four OPEN PRs — current exact heads and jobs
+All four currently query as OPEN, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`, Draft=true, mergeable metadata=true. The latter is metadata only, not acceptance.
+
+| PR | Exact HEAD | Exact-head Actions run / attempt | Jobs observed | External statuses |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `d2ea22c554c74c982ab7e4f2b2a0cfcf7c079fe9` | [45538396851](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45538396851), run API PENDING | Resolver `138956298663` SUCCESS; Windows quality `138956253597` SUCCESS; PostgreSQL/RLS `138960331305` IN_PROGRESS; Ollama/local `138960331768` PENDING. Workflow is not terminal. | CircleCI #577 ERROR; Vercel build-rate-limit FAILURE |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `31abbbf838ff9bc045de1d8732c3cbd57ac25017` | [45541461654](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45541461654), PENDING | Resolver `138960738809` PENDING; no downstream jobs returned yet. | CircleCI #582 ERROR; Vercel build-rate-limit FAILURE |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `88af072283ae2e29f061bb6bbffd928afb307dfd` | [45541440867](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45541440867), PENDING | Resolver `138960670469` PENDING; no downstream jobs returned yet. | CircleCI #568 ERROR; Vercel build-rate-limit FAILURE |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752), PENDING | Resolver `138958662302` SUCCESS; Windows quality `138960707561` PENDING. | CircleCI #583 ERROR; Vercel build-rate-limit FAILURE |
+
+### Formal review / unresolved acceptance
+- Formal review API for #559–#562 contains COMMENTED submissions only; **0 formal APPROVED** submissions are evidenced.
+- #559 GPT3 COMMENTED review is tied to exact HEAD `d2ea22c...`; it is not APPROVED. CodeRabbit submitted seven actionable comments; their resolution must be confirmed by the PR owner before acceptance.
+- #560 prior GPT3 COMMENTED reviews apply to older heads `4223e39...`, `d5648c1...`, and `8523d851...`, not this new exact HEAD `31abbbf...`. Fresh independent review is still required.
+- #561 GPT3's blocking predicate-semantics finding was on older HEAD `1e63c727...`; current HEAD changed to `88af072...`. GPT1 must resolve/verify the issue on its current exact HEAD. GPT5 does not edit Factory workflow.
+- #562 GPT3's documentation staleness finding was on current-at-review HEAD `9635f8c...`; ownership remains GPT2. GPT5 does not edit GPT2's coordination file.
+- No PR is eligible for Draft removal or merge. No formal approval or full terminal exact-head Actions success is established.
+
+### GPT5 work, boundaries, and handoff
+- This PR #560 update remains limited to the authorized path `docs/AGENT_HANDOFF.md`.
+- This commit is documentation/evidence only. Program tests/build/lint: **NOT RUN**. Its new exact HEAD requires fresh exact-head Actions and GPT3 independent review.
+- GPT1 / Factory: diagnose Main Recovery failure using retained runner/controller evidence; current GitHub steps/log endpoints are empty/BlobNotFound, so root cause remains UNKNOWN. Do not blind-retry or mutate breaker/durable state.
+- GPT2 / Release-QA: own #559; complete its still-running integration jobs and resolve actionable review comments, then request GPT3 review on final exact HEAD.
+- GPT1: own #561 and its case-insensitive gate predicate semantics; verify current exact HEAD and obtain independent review.
+- GPT2: own #562; refresh its own coordination inventory and correct the self-referential stale-head issue.
+- CircleCI administrator: resolve project configuration errors on #574/#577/#582/#568/#583. Vercel administrator: resolve project build-rate-limit quota. GPT5 made no provider/billing/settings, secrets, permissions, branch-protection, Runner, Factory workflow/runtime/durable-state, production data, or deployment changes.
+
+### State labels
+- DOCUMENTED: this live exact-head operations correction.
+- IMPLEMENTED: documentation-only update on GPT5-owned PR #560.
+- TESTED: program tests/build/lint NOT RUN; fresh exact-head CI pending.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
