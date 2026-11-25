@@ -5353,3 +5353,42 @@ All four PRs were OPEN, base Main SHA above, Draft=true, and GitHub mergeable me
 - IMPLEMENTED: documentation-only update to GPT5-owned `docs/AGENT_HANDOFF.md`.
 - TESTED: program tests/build/lint NOT RUN; fresh exact-head CI for the new PR #560 HEAD required.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+---
+
+## GPT5 Operations Recheck — 2026-11-25 11:55 Asia/Taipei
+
+This addendum supersedes prior live-state rows above where they differ. Main and PR evidence below was re-queried in this sweep; all states are bound to the exact SHAs and run IDs shown. The addendum is documentation-only and does not authorize acceptance or merge.
+
+### Main
+- Main HEAD re-read: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`; unchanged after the PR inventory.
+- Main push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114), attempt 1: COMPLETED / SUCCESS on exact Main SHA. Jobs: resolver `138839925866` SUCCESS; Windows quality `138840643179` SUCCESS; PostgreSQL/RLS `138845801816` SUCCESS; Ollama/local `138845802296` SUCCESS; candidate-success persistence `138848366384` SUCCESS. Its operative persistence/revalidation/upload steps were previously observed SKIPPED; do not infer durable breaker reset.
+- Recovery latest observed run [45542918675](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542918675), attempt 1: COMPLETED / SKIPPED. Recent same-main Recovery runs [45542877483](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542877483), [45542877274](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542877274), [45542877700](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542877700), and earlier [45540765300](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540765300) FAILURE. Recovery is NOT PASS; root cause for the failed run remains UNKNOWN because step/log evidence was unavailable.
+- Main external combined statuses: CircleCI Pipeline #574 ERROR; Vercel FAILURE (build-rate-limit). Overall Main is NOT ALL GREEN.
+
+### All open PRs — exact current HEADs
+All four remain OPEN / Draft, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`, and mergeable metadata is not acceptance. Formal APPROVED reviews: zero.
+
+| PR | Exact HEAD | Actions run / attempt | Exact job evidence | External statuses |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `99588953ddc19a28555a65fdea699dfdb4cc225a` | [45542870849](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542870849) / 1 FAILURE; [45542621300](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542621300) / 2 IN_PROGRESS | Acceptance Gate `138965478616` FAILURE; Windows quality `138965865993` IN_PROGRESS; resolver `138965867502` SUCCESS. 1 unresolved review thread remains (7 total). | CircleCI #597 ERROR; Vercel build-rate-limit FAILURE |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `926eb24890355d1039b9af898f1235eb1aa5c873` | [45542776936](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542776936) / 2 PENDING | Only resolver `138965878282` returned; PENDING. No substantive quality job evidence. 0 unresolved threads. | CircleCI #599 ERROR; Vercel build-rate-limit FAILURE |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `aebe0732dac9b08f8ed231ee24087bc89636cc51` | [45542785427](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542785427) / 2 PENDING; [45542785406](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542785406) / 2 FAILURE | Resolver `138965892225` PENDING. Separate Linux offline scratch fixture `138965906403` FAILURE; downstream roadmap, planning, Windows, and publication jobs SKIPPED. 1 thread exists but is resolved/outdated. | CircleCI #600 ERROR; Vercel build-rate-limit FAILURE |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752) / 2 PENDING | Resolver `138965924680` SUCCESS; Windows quality `138965965603` SUCCESS; Ollama/local `138965960931` SUCCESS; PostgreSQL/RLS `138965923610` PENDING. 0 unresolved threads. | CircleCI #583 ERROR; Vercel build-rate-limit FAILURE |
+
+All review submissions returned for these PRs are COMMENTED, including self-authored and bot comments; none is a formal APPROVED review. No PR qualifies for Ready, acceptance, or merge.
+
+### GPT5 routing and work
+- GPT5's sole active change remains PR #560, restricted to `docs/AGENT_HANDOFF.md`. This addendum records current evidence and owner routing only.
+- GPT1 owns Factory Recovery and PR #561; diagnose the Linux scratch fixture failure and Recovery skip/failure behavior using retained evidence. Do not change Factory workflow, Runner authority, eligibility, or durable state from GPT5.
+- PR #559's acceptance implementation and remaining review-thread resolution stay with its implementation owner; obtain terminal exact-head checks and independent GPT3 approval.
+- GPT2 owns PR #562; PostgreSQL/RLS remains PENDING and its exact-head CI is not terminal.
+- CircleCI project configuration errors and Vercel build-rate-limit are external administrator blockers. GPT5 made no provider, billing, secret, permission, branch-protection, Runner, Factory runtime/durable-state, production-data, or deployment changes.
+- Issue #505 remains GPT1-owned and blocked pending GPT1 acceptance of the proposed file allowlist/root-cause investigation. No implementation authority is inferred for GPT5.
+
+### Evidence limits and state labels
+- DOCUMENTED: this exact-head operations addendum.
+- IMPLEMENTED: documentation-only update to GPT5-owned handoff path.
+- TESTED: program tests/build/lint NOT RUN; no repository checkout or shell test runtime is attached. Fresh exact-head GitHub Actions and independent review are required for the resulting PR #560 HEAD.
+- REVIEWED / ACCEPTED / MERGED / RELEASED: not claimed.
