@@ -670,7 +670,7 @@ jobs:
         with:
           node-version: "22.13.0"
       - name: Persist exact-main CI success and reset system breaker
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor == github.repository_owner
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
