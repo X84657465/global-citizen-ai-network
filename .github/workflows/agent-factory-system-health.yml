@@ -31,13 +31,16 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           const env = process.env;
+          // GitHub Actions expression string comparisons are case-insensitive.
+          // Normalize every mirrored equality/prefix check to match the job gate.
+          const normalize = (value) => String(value || "").toLowerCase();
           const predicates = {
-            expected_workflow_path: env.WORKFLOW_PATH === ".github/workflows/ci.yml",
-            source_conclusion_success: env.WORKFLOW_CONCLUSION === "success",
-            source_event_pull_request: env.WORKFLOW_EVENT === "pull_request",
-            source_repository_matches: env.HEAD_REPOSITORY === env.TARGET_REPOSITORY,
-            branch_not_ai_task: !String(env.HEAD_BRANCH || "").startsWith("ai-task/issue-"),
-            branch_not_codex_task: !String(env.HEAD_BRANCH || "").startsWith("codex/issue-"),
+            expected_workflow_path: normalize(env.WORKFLOW_PATH) === ".github/workflows/ci.yml",
+            source_conclusion_success: normalize(env.WORKFLOW_CONCLUSION) === "success",
+            source_event_pull_request: normalize(env.WORKFLOW_EVENT) === "pull_request",
+            source_repository_matches: normalize(env.HEAD_REPOSITORY) === normalize(env.TARGET_REPOSITORY),
+            branch_not_ai_task: !normalize(env.HEAD_BRANCH).startsWith("ai-task/issue-"),
+            branch_not_codex_task: !normalize(env.HEAD_BRANCH).startsWith("codex/issue-"),
           };
           console.log(JSON.stringify({
             diagnostic: "factory_recovery_trigger",
