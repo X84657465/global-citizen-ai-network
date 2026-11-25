@@ -26,25 +26,40 @@ jobs:
           SOURCE_EVENT: ${{ github.event.workflow_run.event }}
         run: |
           mkdir -p "$RUNNER_TEMP/recovery-observer"
-          cat > "$RUNNER_TEMP/recovery-observer/evidence.json" <<JSON
-          {
-            "schemaVersion": 1,
-            "captureStatus": "fallback_initialized",
-            "failureClassification": "UNKNOWN",
-            "source": {
-              "runId": "${SOURCE_RUN_ID}",
-              "runAttempt": "${SOURCE_RUN_ATTEMPT}",
-              "headSha": "${SOURCE_HEAD_SHA}",
-              "branch": "${SOURCE_BRANCH}",
-              "conclusion": "${SOURCE_CONCLUSION}",
-              "event": "${SOURCE_EVENT}"
-            },
-            "runMetadata": "NOT_ATTEMPTED",
-            "jobs": [],
-            "logs": { "availability": "NOT_ATTEMPTED", "httpStatus": null, "error": null },
-            "failureStage": "NOT_DETERMINED"
-          }
-          JSON
+          node --input-type=module <<'NODE'
+          import { writeFileSync } from "node:fs";
+          import assert from "node:assert/strict";
+
+          const source = {
+            runId: process.env.SOURCE_RUN_ID,
+            runAttempt: process.env.SOURCE_RUN_ATTEMPT,
+            headSha: process.env.SOURCE_HEAD_SHA,
+            branch: process.env.SOURCE_BRANCH,
+            conclusion: process.env.SOURCE_CONCLUSION,
+            event: process.env.SOURCE_EVENT
+          };
+
+          // Regression fixture: JSON serialization must preserve quotes and backslashes
+          // in externally influenced branch names without corrupting the evidence document.
+          const hostileBranch = 'fixture-"quoted"-and-\\-backslash';
+          const fixture = JSON.parse(JSON.stringify({ source: { branch: hostileBranch } }));
+          assert.equal(fixture.source.branch, hostileBranch);
+
+          const evidence = {
+            schemaVersion: 1,
+            captureStatus: "fallback_initialized",
+            failureClassification: "UNKNOWN",
+            source,
+            runMetadata: "NOT_ATTEMPTED",
+            jobs: [],
+            logs: { availability: "NOT_ATTEMPTED", httpStatus: null, error: null },
+            failureStage: "NOT_DETERMINED"
+          };
+          writeFileSync(
+            "$RUNNER_TEMP/recovery-observer/evidence.json",
+            JSON.stringify(evidence, null, 2) + "\\n"
+          );
+          NODE
 
       - name: Capture run metadata, job steps and log availability
         id: capture
