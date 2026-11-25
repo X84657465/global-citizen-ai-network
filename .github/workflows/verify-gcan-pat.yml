@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Check runner GitHub CLI authentication
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $gh = Get-Command gh -ErrorAction SilentlyContinue
           if (-not $gh) {
@@ -35,7 +35,7 @@ jobs:
             exit 1
           }
       - name: Test branch protection read permission
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         env:
           REPOSITORY: ${{ github.repository }}
         run: |
