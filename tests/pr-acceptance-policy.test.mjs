@@ -50,9 +50,15 @@ test("rejects missing or invalid run identity", () => {
   const input=valid(); input.ci.runId=null;
   assert.ok(evaluateAcceptance(input).failures.some(x=>x.code==="CI_RUN_IDENTITY_INVALID"));
 });
-test("rejects applicable Preflight failure or SKIPPED", () => {
+test("rejects applicable Preflight failure or SKIPPED from the exact trusted workflow attempt", () => {
   for (const conclusion of ["failure","skipped"]) {
-    const input=valid({preflight:{applicable:true,headSha:sha,status:"completed",conclusion,requiredJobConclusion:conclusion}});
+    const input=valid({preflight:{
+      applicable:true, workflowId:654, workflowPath:".github/workflows/agent-task-preflight.yml",
+      event:"pull_request", runId:456, runAttempt:3, headSha:sha,
+      status:"completed", conclusion:"success",
+      jobs:[{name:"Linux offline scratch fixture validation",runId:456,runAttempt:3,
+        status:"completed",conclusion}]
+    }});
     assert.ok(evaluateAcceptance(input).failures.some(x=>x.code==="PREFLIGHT_NOT_SUCCESS"));
   }
 });
