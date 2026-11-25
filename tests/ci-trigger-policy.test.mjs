@@ -200,6 +200,28 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   assert.ok(runnerSmoke.includes("cancel-in-progress: false"));
 });
 
+function hasV2ControllerInvocation(source) {
+  const lines = source.split(/\r?\n/);
+  const commands = [];
+  let runIndent = null;
+  for (const line of lines) {
+    const run = line.match(/^(\\s*)run:\\s*(.*)$/);
+    if (run) {
+      runIndent = run[1].length;
+      if (run[2] && run[2].trim() !== "|") commands.push(run[2]);
+      continue;
+    }
+    if (runIndent !== null) {
+      const indent = line.match(/^\\s*/)[0].length;
+      if (line.trim() && indent <= runIndent) runIndent = null;
+      else commands.push(line);
+    }
+  }
+  const executableLines = commands.filter(line => !/^\\s*#/.test(line));
+  return /^\\s*(?:env\\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\\s]+\\s+)*)?node(?:\\s+(?:--[^\\s]+|-r\\s+\\S+))*\\s+(?:\\.\\/)?scripts\\/agent-factory-v2-controller\\.mjs\\b/m
+    .test(executableLines.join("\\n"));
+}
+
 test("every V2 state-writer workflow is serialized by the shared Runner queue", () => {
   const workflowDirectory = new URL("../.github/workflows/", import.meta.url);
   const workflowFiles = readdirSync(workflowDirectory).filter((name) => /\.ya?ml$/i.test(name));
@@ -207,7 +229,7 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
 
   for (const fileName of workflowFiles) {
     const source = readFileSync(new URL(fileName, workflowDirectory), "utf8").replace(/\r\n/g, "\n");
-    if (!/\bnode\s+scripts\/agent-factory-v2-controller\.mjs\b/.test(source)) continue;
+    if (!hasV2ControllerInvocation(source)) continue;
     writerWorkflowCount += 1;
 
     const jobsMarker = source.indexOf("\njobs:");
@@ -244,6 +266,14 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
   }
 
   assert.ok(writerWorkflowCount > 0, "expected at least one V2 state-writer workflow");
+});
+
+test("controller invocation detection includes Node options and ./ prefixes but ignores comments", () => {
+  assert.equal(hasV2ControllerInvocation("        run: node scripts/agent-factory-v2-controller.mjs"), true);
+  assert.equal(hasV2ControllerInvocation("        run: node ./scripts/agent-factory-v2-controller.mjs"), true);
+  assert.equal(hasV2ControllerInvocation("        run: node --no-warnings ./scripts/agent-factory-v2-controller.mjs"), true);
+  assert.equal(hasV2ControllerInvocation("        run: |\\n          # node scripts/agent-factory-v2-controller.mjs"), false);
+  assert.equal(hasV2ControllerInvocation("        run: echo '# node scripts/agent-factory-v2-controller.mjs'"), false);
 });
 
 test("Next.js output tracing is scoped to the repository and ignores unrelated Runner workspace lockfiles", () => {
