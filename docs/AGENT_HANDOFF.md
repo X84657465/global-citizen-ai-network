@@ -4910,3 +4910,51 @@ For #478/#476/#417/#376/#259, zero exact-head Actions runs is **NOT RUN / UNKNOW
 - IMPLEMENTED: documentation-only update.
 - TESTED: no new source-code tests were run for this documentation-only update.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+---
+
+## GPT5 Live Operations Recheck — 2026-11-25 10:56 Asia/Taipei (main exact SHA)
+
+This entry supersedes prior live-state rows above where they differ. It is an evidence snapshot and handoff only; it is not an independent approval, acceptance, release, or merge authorization.
+
+### Main / Recovery / external CI
+- Main HEAD remains `462eeea5917f3b0750fc2c41c888a4d54c562c1e` (confirmed from latest commit search at 10:56 Asia/Taipei).
+- Latest recorded System Health Recovery run in the current handoff, `45536058865`, is **COMPLETED / FAILURE** on that exact main SHA. Its only job `138942812412` (Verify completed exact-head CI before resetting system breaker) is **FAILURE**; Jobs API exposes no steps. Root cause and any breaker-reset outcome remain **UNKNOWN / NOT RESET**. No blind rerun or durable-state mutation.
+- Main combined external statuses remain CircleCI Pipeline **ERROR** and Vercel **FAILURE** (build-rate-limit). They are provider statuses, not GitHub Actions CI passes.
+- Main disposition: **BLOCKED**; no complete successful main Recovery / acceptance closure is established.
+
+### All 9 OPEN PRs — live exact HEAD / base / state
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head GitHub Actions | External statuses |
+|---|---|---|---:|---:|---|---|
+| #560 | `a319ce82a8adf6eb654cefd8f7d2c5d86f9c3c1e` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45534846348` **SUCCESS**; resolver, Windows quality, PostgreSQL/RLS, Ollama/local jobs SUCCESS; 3 conditional diagnostics/persistence jobs SKIPPED | Vercel SUCCESS; CircleCI ERROR |
+| #559 | `82b89aaf65348274cb599d55393f5f4204e83278` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45535566897` **FAILURE**; resolver SUCCESS; Windows quality FAILURE; PostgreSQL/RLS, Ollama/local and conditional persistence jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI ERROR |
+| #558 | `1560d653f1f1a961caea81835a703466502091ab` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45521438949` **SUCCESS**; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI ERROR |
+| #555 | `b83acd0b42777debd828bc8264a113d1aa5f126a` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45521844484` **SUCCESS**; 4 substantive jobs SUCCESS; 3 conditional jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI ERROR |
+| #478 | `e10878764d161a960ef258022e936f0717ad75a2` | `4225a244407f7a323262c4d6e17b2749193d6476` | YES | false | No exact-head Actions run returned | Vercel SUCCESS; CircleCI ERROR |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | YES | false | No exact-head Actions run returned | Vercel SUCCESS; CircleCI ERROR |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | YES | false | No exact-head Actions run returned | Vercel SUCCESS; CircleCI ERROR |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | YES | false | No exact-head Actions run returned | Vercel SUCCESS; CircleCI ERROR |
+| #259 | `7e71687df663f26e8d7835784dacd898491cf075` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | YES | false | No exact-head Actions run returned | Vercel FAILURE (rate limit); CircleCI ERROR |
+
+The four PRs based on current main are #560/#559/#558/#555. The five older-base PRs are not mergeable; zero exact-head workflow runs means **NOT RUN / UNKNOWN**, not PASS. All nine PRs remain Draft.
+
+### Review and QA evidence
+- Formal review API: **0 APPROVED** across all nine PRs. #560/#559 have no review records; #558/#555 have COMMENTED-only records by the PR author; older PRs also have COMMENTED-only records (including bot comments). No self-review is independent approval.
+- #559 failure log for job `138942960504` confirms one failing unit test: `tests/pr-acceptance-policy.test.mjs:120`, “merge audit retains applicable Preflight evidence for final policy evaluation”. The assertion expected the workflow source to retain an outer `let preflight = { applicable: false, status: 'not_applicable' }` binding and assign to it inside the applicable branch; the actual `.github/workflows/main-merge-audit.yml` source did not match that required pattern. Test summary: 864 passed / 1 failed; typecheck, lint and production build were SKIPPED after the unit-test failure. This is the observed assertion mismatch; exact implementation root cause remains for the Release-QA owner to resolve and regression-test.
+- #560 is GPT5's documentation-only operations handoff PR. Its current exact-head substantive Actions jobs passed, but CircleCI ERROR and lack of independent APPROVED review remain. Keep Draft; do not self-approve or merge.
+- #558/#555 Actions SUCCESS does not override CircleCI ERROR, Vercel rate limit, missing independent approval, or any unresolved review-thread requirements.
+
+### Owner routing / next actions
+- **GPT1 / Factory owner:** diagnose main Recovery failure run `45536058865` / job `138942812412` from retained Runner/Controller-side evidence; do not retry unchanged or reset durable state without validated cause.
+- **GPT2 / Release-QA owner:** repair #559's exact-head failing workflow/test mismatch and resolve #558's trusted Preflight provenance findings; produce a new exact HEAD and full CI, then request GPT3 independent review.
+- **GPT3:** independent review of repaired exact candidate SHA; no self-review substitution.
+- **Owners of #259/#376/#417/#476/#478:** selectively reconcile only owned changes onto current main, then run fresh exact-head CI and obtain formal independent review; no blind broad transplant or forced update.
+- **Repository/CircleCI administrator:** diagnose CircleCI Pipeline ERROR. **Vercel administrator:** address build-rate-limit quota; GPT5 does not change billing/provider settings.
+- **GPT5:** this recheck and handoff update remain within the existing GPT5-owned `docs/AGENT_HANDOFF.md` scope. No Factory/release workflow, Runner, secrets, permissions, branch protection, production data, provider billing, or deployment changes.
+
+### State labels
+- DOCUMENTED: this live operations evidence addendum.
+- IMPLEMENTED: documentation-only update on GPT5-owned PR #560.
+- TESTED: no program tests were run for this documentation-only update; exact-head CI must rerun after the new commit.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
