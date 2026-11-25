@@ -207,7 +207,7 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
 
   for (const fileName of workflowFiles) {
     const source = readFileSync(new URL(fileName, workflowDirectory), "utf8").replace(/\r\n/g, "\n");
-    if (!source.includes("scripts/agent-factory-v2-controller.mjs")) continue;
+    if (!/\bnode\s+scripts\/agent-factory-v2-controller\.mjs\b/.test(source)) continue;
     writerWorkflowCount += 1;
 
     const jobsMarker = source.indexOf("\njobs:");
