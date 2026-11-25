@@ -43,8 +43,9 @@ jobs:
           // Regression fixture: JSON serialization must preserve quotes and backslashes
           // in externally influenced branch names without corrupting the evidence document.
           const hostileBranch = 'fixture-"quoted"-and-\\-backslash';
-          const fixture = JSON.parse(JSON.stringify({ source: { branch: hostileBranch } }));
+          const fixture = JSON.parse(JSON.stringify({ source: { ...source, branch: hostileBranch } }));
           assert.equal(fixture.source.branch, hostileBranch);
+          assert.equal(fixture.source.runId, source.runId);
 
           const evidence = {
             schemaVersion: 1,
@@ -57,7 +58,7 @@ jobs:
             failureStage: "NOT_DETERMINED"
           };
           const evidencePath = join(process.env.RUNNER_TEMP, "recovery-observer", "evidence.json");
-          writeFileSync(evidencePath, JSON.stringify(evidence, null, 2) + "\\n");
+          writeFileSync(evidencePath, JSON.stringify(evidence, null, 2) + "\n");
           NODE
 
       - name: Capture run metadata, job steps and log availability
