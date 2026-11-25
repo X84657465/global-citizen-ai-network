@@ -1,3 +1,43 @@
+# GPT5 Daily Operations — Corrected Live Snapshot (2026-11-25, refreshed)
+
+> This snapshot supersedes prior snapshots below. Exact SHA/run evidence only. SUCCESS does not override SKIPPED required jobs, failed external checks, or missing independent approval.
+
+## Main and governance baseline
+- Current Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Re-read at this exact Main SHA: `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; Master Charter blob `65becc6bb1bcc667694b7c99e02f405792066429` (PROPOSED); Execution Operating System blob `67166a378c92909c8ddf64586f8a2b5202be7d14` (GOVERNANCE PROPOSAL). Neither proposal grants authority before formal acceptance.
+- Latest Main Recovery [45558613431](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45558613431), attempt 1: COMPLETED / FAILURE on this exact Main SHA. Sole job [139016613292](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45558613431/job/139016613292) failed; no steps were returned. Root cause UNKNOWN; no blind rerun or breaker reset.
+- Main Task Preflight [45547466932](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932), attempt 1: COMPLETED / FAILURE; validation/handoff-bundle step failed and six downstream jobs SKIPPED. Actual task owner remains UNKNOWN from evidence.
+- Main Push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114), attempt 1: COMPLETED / SUCCESS, but success revalidation, durable record, evidence JSON/upload steps were SKIPPED; no breaker reset or durable success is established.
+- Main Nightly Read-only Audit [45517105621](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45517105621): FAILURE.
+- Main external checks: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline #574 ERROR.
+
+## All open PRs — exact current heads
+All four are OPEN / Draft and target Main SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`. Formal APPROVED review count is zero on each; returned reviews are COMMENTED.
+
+| PR | Exact HEAD SHA | GitHub Actions | External checks |
+|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826), attempt 1, SUCCESS; prior job inventory has three persistence/diagnostics jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI #607 ERROR |
+| [#560 — GPT5 operations WIP](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `80a1ac355bc1dfe540410ac3b0ad4eed4fa2a97e` | [45557346032](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45557346032), attempt 1, COMPLETED / SUCCESS. Four substantive jobs succeeded, including Windows quality gates and PostgreSQL/RLS; candidate success/breaker persistence, failure diagnostics, and failure persistence jobs SKIPPED. | Vercel SUCCESS; CircleCI #620 ERROR |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799), attempt 1, SUCCESS; separate Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160), attempt 4, FAILURE in Linux offline scratch fixture; downstream jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI #605 ERROR |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `6afc0ddb7a780c496cd92d4fca53373a1e6e338a` | [45558740698](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45558740698), attempt 1, IN_PROGRESS at last observation. Resolver SUCCESS; Windows quality-gates job IN_PROGRESS, unit tests/typecheck/lint/build not yet terminal. | Vercel SUCCESS; CircleCI #621 ERROR |
+
+## GPT5 disposition and ownership
+- GPT5 scope remains this PR's `docs/AGENT_HANDOFF.md` plus operational evidence/handoff; no A–P module ownership, Factory Runner/state mutation, B Product ownership, or independent QA authority.
+- #560 has 0 formal APPROVED reviews (five COMMENTED); keep Draft. The Actions SUCCESS does not establish persistence because three workflow-level jobs were SKIPPED; CircleCI #620 remains ERROR.
+- GPT1 / Factory owner: investigate Main Recovery zero-step job failure and #561 Preflight fixture failure.
+- GPT2 owner: own #562 and its exact-head validation/evidence.
+- GPT3: independent review on final exact heads.
+- Project/provider administrators: resolve CircleCI errors and Vercel rate-limit failures; GPT5 does not change billing, provider configuration, secrets, permissions, or deployments.
+- No PR is safe to promote or merge based on the evidence above.
+
+## Evidence classification
+- Observed: live Main SHA, five current governance documents, four open PR heads, listed exact-head Actions runs, external statuses, and returned review states.
+- UNKNOWN: root cause of Main Recovery failure and owner of Main Task Preflight failure.
+- Not claimed: independent acceptance, merge, release, deployment, durable candidate-success persistence, or breaker reset.
+- Local shell/tests/build/lint outside GitHub Actions: NOT RUN in this tool-only environment.
+
+---
+
 # GPT5 Daily Operations — LIVE RECHECK (2026-11-25; main 462eeea5917f)
 
 > This newest section supersedes earlier live snapshots below. Every result is tied to the exact SHA/run/job shown. PENDING, SKIPPED, missing logs, provider errors, and COMMENTED reviews are not PASS/approval.
