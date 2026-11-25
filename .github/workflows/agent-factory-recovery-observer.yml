@@ -28,6 +28,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/recovery-observer"
           node --input-type=module <<'NODE'
           import { writeFileSync } from "node:fs";
+          import { join } from "node:path";
           import assert from "node:assert/strict";
 
           const source = {
@@ -55,10 +56,8 @@ jobs:
             logs: { availability: "NOT_ATTEMPTED", httpStatus: null, error: null },
             failureStage: "NOT_DETERMINED"
           };
-          writeFileSync(
-            "$RUNNER_TEMP/recovery-observer/evidence.json",
-            JSON.stringify(evidence, null, 2) + "\\n"
-          );
+          const evidencePath = join(process.env.RUNNER_TEMP, "recovery-observer", "evidence.json");
+          writeFileSync(evidencePath, JSON.stringify(evidence, null, 2) + "\\n");
           NODE
 
       - name: Capture run metadata, job steps and log availability
