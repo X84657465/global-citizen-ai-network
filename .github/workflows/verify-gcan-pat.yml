@@ -10,38 +10,32 @@ on:
 
 permissions:
   contents: read
-  administration: read
 
 jobs:
   verify-branch-protection:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 3
     steps:
+      - name: Check runner GitHub CLI authentication
+        shell: pwsh
+        run: |
+          $gh = Get-Command gh -ErrorAction SilentlyContinue
+          if (-not $gh) {
+            Write-Error "GitHub CLI is not installed on this runner."
+            exit 1
+          }
+          gh auth status --hostname github.com
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "No usable GitHub CLI authentication is configured for the runner service account."
+            exit 1
+          }
       - name: Test branch protection read permission
         shell: pwsh
         env:
-          GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
         run: |
-          Write-Output "::add-mask::$env:GH_TOKEN"
-          $headers = @{
-            Accept = "application/vnd.github+json"
-            Authorization = "Bearer $env:GH_TOKEN"
-            "X-GitHub-Api-Version" = "2022-11-28"
-          }
-          $uri = "https://api.github.com/repos/$env:REPOSITORY/branches/main/protection"
-          try {
-            $response = Invoke-WebRequest -Uri $uri -Headers $headers -Method Get
-            Write-Output "HTTP status: $([int]$response.StatusCode)"
-            if ([int]$response.StatusCode -ne 200) { throw "Unexpected HTTP status." }
-            $policy = $response.Content | ConvertFrom-Json
-            Write-Output "PASS: GITHUB_TOKEN can read main branch protection."
-            Write-Output "Required status checks configured: $($null -ne $policy.required_status_checks)"
-          }
-          catch {
-            $statusCode = $null
-            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) { $statusCode = [int]$_.Exception.Response.StatusCode }
-            Write-Output "HTTP status: $statusCode"
-            Write-Error "Branch protection read failed. No credential value was logged."
+          gh api "repos/$env:REPOSITORY/branches/main/protection" --jq '"PASS: branch protection API returned HTTP 200"'
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Runner GitHub CLI identity cannot read branch protection."
             exit 1
           }
