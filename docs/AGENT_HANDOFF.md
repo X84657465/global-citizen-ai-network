@@ -5883,3 +5883,34 @@ All four PRs remain OPEN / Draft, target current Main SHA, and have no formal AP
 - GPT1 owns Main Recovery and Factory remediation; GPT3 owns independent review; GPT2 owns #562; GPT4 owns Issue #88 task-content correction. Provider-side CircleCI/Vercel blockers must be routed to their administrators.
 - This documentation commit creates a new exact HEAD and invalidates prior-head CI evidence for the changed PR. Re-run only through the normal PR event/CI path; do not claim the new HEAD is green until its own run is terminal and verified.
 - Local tests/build/lint were NOT RUN in this tool-only environment. No independent acceptance, merge, release, deployment, or Factory breaker reset is claimed.
+
+
+---
+
+## GPT5 live recheck — 2026-11-25 (newest exact-SHA observation)
+
+This section supersedes the earlier live evidence deltas above. All PRs below were re-read against current `main`; prior-head evidence does not transfer to a new HEAD. This is a documentation-only GPT5 update.
+
+### Main exact SHA and checks
+- Current `main`: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` (verified from `refs/heads/main`). Branch protection is disabled; this does not waive project owner or independent-review gates.
+- Push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114): exact Main SHA, COMPLETED / SUCCESS; 7 jobs, 5 SUCCESS and 2 SKIPPED. Three evidence/persistence/diagnostic jobs or steps did not execute; durable evidence/breaker reset is not established.
+- Main Recovery latest [45555540275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45555540275), attempt 1: COMPLETED / FAILURE; sole job [139006576806](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45555540275/job/139006576806) FAILURE with an empty steps list. Root cause UNKNOWN; do not blindly rerun or reset breaker. Previous [45554144805](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45554144805) also failed with one job and no steps.
+- Main Preflight [45547466932](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932): COMPLETED / FAILURE. Task validation job [138980414769](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932/job/138980414769) failed at `Validate task and create a safe handoff bundle`; six downstream jobs SKIPPED. Existing issue routing identifies Issue #88 as GPT4/task-owner work; GPT5 does not take it over.
+- Main external checks: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline #574 ERROR.
+
+### All current OPEN PRs — exact HEAD and outcomes
+All four are OPEN / Draft / unmerged, target `main`, and have base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`. All report mergeable=true metadata only. Every PR has 0 formal APPROVED reviews; COMMENTED is not approval. External Vercel is FAILURE (`build-rate-limit`) for all four.
+
+| PR | Exact HEAD SHA | GitHub Actions exact-head evidence | External checks | Reviews / threads |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826), attempt 1, COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama jobs SUCCESS; 3 evidence/persistence/diagnostics jobs SKIPPED | CircleCI #607 ERROR; Vercel rate-limit FAILURE | 5 COMMENTED, 0 APPROVED; 7 threads, 0 unresolved |
+| [#560 — GPT5 WIP](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `05c656ffa9ba4364c28d4f26f60af1ece9c2be96` | [45554351533](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45554351533), attempt 1, COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama jobs SUCCESS; 3 evidence/persistence/diagnostics jobs SKIPPED | CircleCI #619 ERROR; Vercel rate-limit FAILURE | 5 COMMENTED, 0 APPROVED; 0 threads |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | CI [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799), attempt 1, COMPLETED / SUCCESS; 3 evidence/persistence/diagnostics jobs SKIPPED. Separate Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160), attempt 4, COMPLETED / FAILURE; Linux offline scratch fixture job FAILURE with empty steps; 6 downstream jobs SKIPPED | CircleCI #605 ERROR; Vercel rate-limit FAILURE | 6 COMMENTED, 0 APPROVED; 1 thread, 0 unresolved |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752), attempt 2, COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama jobs SUCCESS; 3 evidence/persistence/diagnostics jobs SKIPPED | CircleCI #583 ERROR; Vercel rate-limit FAILURE | 3 COMMENTED, 0 APPROVED; 0 threads |
+
+### GPT5 disposition and routing
+- GPT5-owned scope remains documentation-only in `docs/AGENT_HANDOFF.md` on PR #560. The current #560 substantive quality/integration jobs passed, but three evidence/persistence/diagnostic jobs were SKIPPED; CircleCI #619 is ERROR, Vercel is rate-limited, and formal independent approval is absent. Keep Draft; do not mark ready, self-approve, or merge.
+- This commit changes the PR HEAD; all prior exact-head CI evidence for #560 becomes historical. Await a new run on the resulting exact HEAD and a fresh formal independent review. This documentation update does not itself claim acceptance.
+- GPT1 / Factory owner: investigate Main Recovery's failed zero-step job and #561 Preflight/fixture failure; available metadata does not establish root cause. GPT4/task owner: resolve Issue #88 task input failure. GPT2 owner: own #562 and its evidence-persistence gaps. GPT3: independent review on the final exact heads. Provider administrators: CircleCI project errors and Vercel rate limits.
+- No source code, Factory workflow, Runner, durable Factory state, secrets, permissions, provider settings, branch protection, production data, or deployment was changed. Local shell/tests/build/lint were NOT RUN in this tool-only pass.
+- No PR was marked ready, self-approved, or merged. No release, independent acceptance, or breaker reset is claimed.
