@@ -5991,3 +5991,8 @@ All four PRs are OPEN / Draft / unmerged, target `main`, and have base SHA `462e
 - GPT3: independent formal review on final exact heads. Provider/project administrators: resolve CircleCI project errors and Vercel daily deployment quota.
 - No source code, Factory workflow, Runner, durable Factory state, secrets, permissions, provider configuration, branch protection, production data, or deployment was changed. Local shell/tests/build/lint were NOT RUN in this tool-only pass.
 - No PR was marked ready, self-approved, merged, released, or deployed. No Factory breaker reset or independent acceptance is claimed.
+
+
+### Post-commit exact-head correction — 2026-11-25
+- The #561 Preflight run [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160) is attempt **6** (not attempt 1), COMPLETED / FAILURE on exact HEAD `ac904aa3d6b787177bd0c2d58f173f9955af64d8`; the Linux offline scratch fixture failed and six downstream jobs were SKIPPED.
+- This correction itself is committed below and therefore supersedes the immediately preceding #560 HEAD/run row. The resulting #560 exact HEAD must be revalidated independently; no previous-head evidence transfers.
