@@ -213,8 +213,8 @@ Every release must publish this scorecard using measured data. If a metric has n
 
 | Metric | Definition | Release rule |
 |---|---|---|
-| Verified task success rate | Tasks meeting all predeclared acceptance criteria / eligible completed tasks | Publish with sample size and task mix |
-| False-success rate | Tasks marked successful despite unmet criteria | Must be zero in release acceptance suite |
+| Verified task success rate | Tasks meeting all predeclared acceptance criteria / all eligible attempted tasks, including timed-out, failed, cancelled, and infrastructure-interrupted attempts; publish any predeclared exclusions separately with counts and reasons | Publish numerator, denominator, sample size, task mix, and exclusions |
+| False-success rate | Tasks marked successful despite unmet criteria / all tasks marked successful | Must be zero in release acceptance suite; publish numerator and denominator |
 | Human intervention rate | Tasks requiring unplanned human action / eligible tasks | Track trend; define planned approvals separately |
 | Cost per successful task | Total attributable model, tool, and compute cost / verified successes | Must remain within configured budget |
 | Completion latency | Median and p90 from accepted request to verified outcome | Publish by task class |
