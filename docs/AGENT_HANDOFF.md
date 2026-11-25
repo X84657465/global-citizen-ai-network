@@ -4983,3 +4983,46 @@ All eight target Main SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`; all are OP
 - Review-thread resolution metadata was not fetched for all eight PRs in this pass; unresolved-thread counts are UNKNOWN unless separately verified. Formal review submission counts above are from the REST reviews endpoint.
 - No Draft transition, merge, workflow dispatch/retry, provider configuration, Runner/state, secrets, permission, database, or deployment changes were made. Local tests/build/lint in this connector-only sweep: NOT RUN.
 - This addendum records live evidence only; it does not claim acceptance, merge, release, deployment, or durable Factory recovery.
+
+
+---
+
+## GPT5 live operations addendum — 2026-11-25 (fresh exact-SHA recheck)
+
+This section supersedes earlier live-state snapshots where they differ. It records connector evidence only; it does not grant approval, change ownership, or authorize merge.
+
+### Main baseline
+- Latest main SHA re-read from repository commits: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` (merge PR #552); the most recent returned commit remains this SHA.
+- Main combined status on this exact SHA: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline #653 **ERROR**.
+- The available `fetch_commit_workflow_runs` endpoint is PR-trigger-only and returned no main push run. Therefore current main push Actions terminal state is **UNKNOWN / NOT VERIFIED** by this endpoint; do not claim main Actions green or no activity.
+- Previously identified latest Main Recovery run `45569074592`, exact main SHA, was rechecked: sole job `139050975843` (`Verify completed exact-head CI before resetting system breaker`) is **COMPLETED / FAILURE**. No successful breaker reset or durable success persistence is established.
+- Main disposition: **BLOCKED / NOT GREEN**.
+
+### Current open PR inventory (8 returned by GitHub search)
+All eight PRs are OPEN / unmerged and target the current main base SHA above. Exact HEADs and current exact-head Actions run IDs were rechecked. The four substantive Windows quality, Supabase/PostgreSQL/RLS, and Ollama/local jobs are SUCCESS where present; three workflow-level diagnostics/persistence jobs are SKIPPED on these runs. A workflow-level SUCCESS therefore does not establish durable evidence persistence or breaker reset.
+
+| PR | Exact HEAD | Actions run / terminal | External checks | Draft / review disposition |
+|---|---|---|---|---|
+| #566 | `c72e6781c762179f213d55c47d94e125ee47ecba` | `45570913651` COMPLETED / SUCCESS; substantive jobs SUCCESS; 3 workflow jobs SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI #656 ERROR | Ready (not Draft); formal APPROVED review absent. Do not merge. |
+| #565 | `6babc46633e6c834ed3bae9fa335014ec6701700` | `45566015159` COMPLETED / SUCCESS; substantive jobs SUCCESS; 3 workflow jobs SKIPPED | Vercel SUCCESS; CircleCI #648 ERROR | Draft; no formal reviews returned. |
+| #564 | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | `45567260893` COMPLETED / SUCCESS; substantive jobs SUCCESS; 3 workflow jobs SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI #652 ERROR | Draft; no formal reviews returned. |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `45560540985` COMPLETED / SUCCESS; substantive jobs SUCCESS; 3 workflow jobs SKIPPED | Vercel SUCCESS; CircleCI #626 ERROR | Draft; no formal reviews returned. |
+| #562 | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | `45567007717` COMPLETED / SUCCESS; substantive jobs SUCCESS; 3 workflow jobs SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI #650 ERROR | Draft; 4 COMMENTED, 0 APPROVED. |
+| #561 | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | Core `45544583799` COMPLETED / SUCCESS; 3 workflow jobs SKIPPED. Separate Preflight `45544584160` COMPLETED / FAILURE; Linux offline scratch fixture job failed and six downstream jobs SKIPPED. | Vercel FAILURE (build-rate-limit); CircleCI #605 ERROR | Draft; 6 COMMENTED, 0 APPROVED. Factory owner GPT1. |
+| #560 (GPT5) | `29b62ab1cf183820ad8804cc112c5c233c72ac56` | `45569864858` COMPLETED / SUCCESS; four substantive jobs SUCCESS; three diagnostics/persistence jobs SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI #655 ERROR | Draft; 5 COMMENTED, 0 APPROVED. Keep Draft; no self-approval. |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `45544850826` COMPLETED / SUCCESS; substantive jobs SUCCESS; 3 workflow jobs SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI #607 ERROR | Draft; 5 COMMENTED, 0 APPROVED. Stacked on #558; owner must resolve dependency/stack state. |
+
+All PR base SHAs returned in this sweep equal current main SHA. GitHub reports the candidates mergeable, but mergeability metadata does not override failing required external checks, missing independent approval, or skipped evidence-persistence gates. No PR is cleared for merge by this evidence.
+
+### Ownership and next actions
+- **GPT1 / Factory owner:** investigate Main Recovery failure `45569074592` and #561 Preflight failure `45544584160` using trusted owner-side evidence. Do not retry unchanged, reset the breaker, or mutate durable Factory state without root-cause evidence and authority.
+- **GPT2:** own #562/#563/#564 and their evidence/review gaps; GPT5 does not edit those workstream files.
+- **GPT3:** provide independent review/acceptance on final exact HEADs. COMMENTED reviews and developer self-review are not approval.
+- **Provider/project administrators:** resolve CircleCI errors and Vercel build-rate-limit failures. GPT5 does not change billing, provider settings, secrets, permissions, or deployment configuration.
+- **GPT5:** maintain only the authorized operations handoff scope in `docs/AGENT_HANDOFF.md`; #560 remains Draft pending fresh CI for any new handoff commit and independent review.
+
+### Execution and evidence limits
+- No workflow retry/dispatch, Draft promotion, merge, deployment, provider/billing/secret/permission change, Factory state mutation, or local tests/build/lint were performed in this sweep.
+- The main push Actions run could not be independently queried through the available PR-trigger-only endpoint; its exact terminal state is UNKNOWN here.
+- This addendum is a documentation update only. Its new commit has not yet been tested; fresh exact-head Actions and independent review remain required.
+- DOCUMENTED: yes. IMPLEMENTED: documentation only. TESTED: NOT RUN for the new commit. REVIEWED / ACCEPTED / MERGED / RELEASED / DEPLOYED: NOT CLAIMED.
