@@ -77,11 +77,13 @@ jobs:
             }
             return JSON.parse(body);
           }
+          let runIdentityVerified = false;
           try {
             const run = await getJson(base + "/actions/runs/" + process.env.SOURCE_RUN_ID + "/attempts/" + process.env.SOURCE_RUN_ATTEMPT);
             if (run.run_attempt !== Number(process.env.SOURCE_RUN_ATTEMPT) || run.head_sha !== process.env.SOURCE_HEAD_SHA) {
               throw new Error("Run attempt or HEAD SHA does not match the workflow_run event; evidence remains UNKNOWN.");
             }
+            runIdentityVerified = true;
             evidence.runMetadata = {
               availability: "SUCCESS",
               id: run.id,
@@ -171,9 +173,11 @@ jobs:
               classification: "LOG_FETCH_EXCEPTION"
             };
           }
+          evidence.runIdentityVerified = runIdentityVerified;
           evidence.failureClassification = evidence.source?.conclusion === "success" ? "NONE" :
-            evidence.failedSteps.length ? "FAILED_STEP_IDENTIFIED" : "UNKNOWN";
+            runIdentityVerified && evidence.failedSteps.length ? "FAILED_STEP_IDENTIFIED" : "UNKNOWN";
           if (evidence.source?.conclusion === "success") evidence.failureStage = "completed_success";
+          else if (!runIdentityVerified) evidence.failureStage = "RUN_IDENTITY_UNVERIFIED";
           evidence.captureStatus = "complete";
           evidence.capturedAt = new Date().toISOString();
           writeFileSync(path, JSON.stringify(evidence, null, 2) + "\n");
