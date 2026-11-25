@@ -36,7 +36,7 @@ jobs:
             source_conclusion_success: env.WORKFLOW_CONCLUSION === "success",
             source_event_pull_request: env.WORKFLOW_EVENT === "pull_request",
             source_repository_matches: env.HEAD_REPOSITORY === env.TARGET_REPOSITORY,
-            branch_not_ai_task: !env.HEAD_BRANCH.startsWith("ai-task/issue-"),
+            branch_not_ai_task: !String(env.HEAD_BRANCH || "").startsWith("ai-task/issue-"),
             branch_not_codex_task: !env.HEAD_BRANCH.startsWith("codex/issue-"),
           };
           console.log(JSON.stringify({
@@ -120,14 +120,14 @@ jobs:
             pr.head?.repo?.full_name === process.env.GITHUB_REPOSITORY &&
             pr.head?.sha === sha && pr.head?.ref === ref);
           if (matches.length === 0) {
-            await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\\n"));
+            await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\n"));
             console.log(`No open PR matches completed CI SHA ${sha}; treating stale or closed-PR CI as a no-op.`);
             process.exit(0);
           }
           if (matches.length > 1) throw new Error(`Ambiguous exact-head PR resolution; found ${matches.length} matches.`);
           const pr = matches[0];
           if (pr.head.ref.startsWith("ai-task/issue-") || pr.head.ref.startsWith("codex/issue-")) throw new Error("Task PRs cannot reset the system breaker.");
-          await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `should_recover=true\\nnumber=${pr.number}\\nhead_sha=${pr.head.sha}\\n`));
+          await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `should_recover=true\nnumber=${pr.number}\nhead_sha=${pr.head.sha}\n`));
           console.log(`Verified PR #${pr.number} at exact SHA ${sha}.`);
           NODE
 
