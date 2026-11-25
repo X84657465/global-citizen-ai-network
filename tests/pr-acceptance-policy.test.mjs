@@ -120,6 +120,12 @@ test("rejects Preflight job from a different run or attempt", () => {
 test("merge audit retains applicable Preflight evidence for final policy evaluation", async () => {
   const { readFile } = await import("node:fs/promises");
   const source = await readFile(new URL("../.github/workflows/main-merge-audit.yml", import.meta.url), "utf8");
-  assert.match(source, /let preflight = \{ applicable: false, status: 'not_applicable' \};[\\s\\S]*?if \(preflightApplicable\) \{[\\s\\S]*?\\n\\s*preflight = \{/);
-  assert.doesNotMatch(source, /if \(preflightApplicable\) \{[\\s\\S]*?\\blet preflight = \{/);
+  const initialDeclaration = source.indexOf("let preflight = { applicable: false, status: 'not_applicable' };");
+  const applicabilityGuard = source.indexOf("if (preflightApplicable) {", initialDeclaration);
+  const applicableAssignment = source.indexOf("preflight = {", applicabilityGuard);
+  assert.ok(initialDeclaration >= 0, "Preflight must be initialized before the applicability branch");
+  assert.ok(applicabilityGuard > initialDeclaration, "Preflight applicability branch must follow initialization");
+  assert.ok(applicableAssignment > applicabilityGuard, "Applicable Preflight evidence must be assigned inside the branch");
+  assert.equal(source.indexOf("let preflight =", applicabilityGuard), -1,
+    "Preflight evidence must not be redeclared inside the applicability branch");
 });
