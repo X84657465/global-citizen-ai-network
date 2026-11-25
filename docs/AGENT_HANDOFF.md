@@ -1,3 +1,14 @@
+# GPT5 Operations Snapshot — Evidence Correction (2026-11-25 17:42 Asia/Taipei)
+
+> This correction supersedes conflicting details in the immediately following snapshot. It does not transfer old-head checks to a newer commit.
+
+- **Main Recovery job URL correction:** run [45586383871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45586383871); failed job [139108947529](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45586383871/job/139108947529). The job returned no steps; root cause UNKNOWN.
+- **PR #567 exact-head Actions correction:** HEAD `250645c6b7465c961cb3e364d98e6be8e2586b30`; run [45585171843](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45585171843), attempt 1. Resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs completed SUCCESS; diagnostics and candidate/system persistence jobs completed SKIPPED. This is not complete acceptance evidence. External combined statuses remain Vercel FAILURE and CircleCI ERROR; review state remains COMMENTED only, no formal APPROVED.
+- **PR #560 pre-correction head status:** commit `8a4a33a1b01d73569076e7c747aeda20aae9cef9` triggered run [45588219652](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45588219652). At inspection, resolver job succeeded and Windows quality gates were QUEUED; Vercel was PENDING and CircleCI ERROR. This commit is now being superseded by this evidence-correction commit, so none of those checks apply to the resulting HEAD.
+- The correction commit itself advances PR #560 again. Its resulting exact HEAD must be re-read and independently validated. Keep Draft; do not infer merge readiness from mergeable=true.
+
+---
+
 # GPT5 Daily Operations — Verified Snapshot (2026-11-25 17:40 Asia/Taipei)
 
 > This snapshot supersedes the older top-level snapshot below. It is a read-only operations handoff plus this documentation commit. It does not claim approval, acceptance, merge, deployment, or external-provider recovery. All evidence is bound to the exact SHA/run stated.
