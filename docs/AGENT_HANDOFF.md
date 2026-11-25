@@ -4958,3 +4958,48 @@ The four PRs based on current main are #560/#559/#558/#555. The five older-base 
 - IMPLEMENTED: documentation-only update on GPT5-owned PR #560.
 - TESTED: no program tests were run for this documentation-only update; exact-head CI must rerun after the new commit.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+---
+
+## GPT5 Live Operations Recheck — 2026-11-25 (latest exact-SHA sweep)
+
+This entry supersedes prior open-PR inventory and status rows above. The source is a fresh GitHub query; this is documentation, not a CI pass, review approval, or release authorization.
+
+### Main
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- GitHub commit-workflow-runs query returned **0 runs** for this SHA. This is NOT evidence that all main workflows passed or that main has no workflow activity outside this query.
+- Same-SHA combined statuses: CircleCI Pipeline #574 **ERROR**; Vercel **FAILURE** (`build-rate-limit`). Main is **BLOCKED**; no green mainline CI claim.
+- PROJECT_COORDINATION.md blob SHA: `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+
+### All current OPEN PRs — exact head/base and terminal evidence
+
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | Exact-head Actions |
+|---|---|---|---:|---:|---|
+| #561 | `1e63c727b763c18106880121773a5da14c581618` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45537703554` PENDING; resolver SUCCESS; Windows quality gates PENDING |
+| #560 | `31051b5f98233c107debc2de810170eb69d5956f` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45536887001` completed; resolver, Windows quality, Ollama, PostgreSQL/RLS SUCCESS; three conditional persistence/diagnostic jobs SKIPPED |
+| #559 | `6f33c72588589d5f64af99c1dd1e93d09dccd530` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45537023617` PENDING; resolver SUCCESS; Windows quality gates PENDING |
+| #558 | `1560d653f1f1a961caea81835a703466502091ab` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | New run `45538028346` returned **0 jobs**; earlier run `45521438949` SUCCESS with three conditional jobs SKIPPED |
+| #555 | `b83acd0b42777debd828bc8264a113d1aa5f126a` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45521844484` SUCCESS with four substantive jobs SUCCESS and three conditional jobs SKIPPED |
+
+No PR has a formal **APPROVED** review. #558 has two unresolved review threads. #561, #559 and #560 have no review threads returned in this query; absence of threads does not constitute approval. #555 has a COMMENTED record only. All five PRs remain Draft; none is eligible for Draft promotion or merge on current evidence.
+
+### External checks on exact heads
+- #561: CircleCI Pipeline #568 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- #560: CircleCI Pipeline #563 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- #559: CircleCI Pipeline #564 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- #558: CircleCI Pipeline #550 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- #555: CircleCI Pipeline #549 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+
+### Owner routing and GPT5 work
+- GPT1 / Factory owns #561 Recovery skip observability and must resolve its pending Windows quality job; GPT5 does not edit Factory implementation.
+- GPT2 / Release-QA owns #559/#558 acceptance workflow fixes. #558's latest run has 0 jobs and must not be treated as pass; GPT3 must independently review the repaired exact SHA.
+- GPT2 owns #555 F–P handoff; its COMMENTED review is not APPROVED.
+- GPT5's own PR #560 remains a one-file `docs/AGENT_HANDOFF.md` evidence update. Its substantive Actions jobs passed, but conditional jobs were SKIPPED, CircleCI is ERROR, Vercel is rate-limited, and formal independent APPROVED is absent. Keep Draft.
+- No other current open PR is within GPT5's authorized module ownership. Do not un-draft, self-approve, merge, modify provider billing/settings, or bypass required checks.
+
+### State labels
+- DOCUMENTED: this exact-SHA inventory and owner routing.
+- IMPLEMENTED: documentation-only update on GPT5-owned PR #560.
+- TESTED: no program tests run for this documentation update; the new commit requires fresh exact-head CI.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
