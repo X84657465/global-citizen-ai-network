@@ -37,11 +37,30 @@ function evaluateAcceptance(input) {
   }
 
   const preflight = input.preflight || { applicable: false, status: "not_applicable" };
-  if (preflight.applicable && (preflight.headSha !== input.currentHeadSha ||
-      preflight.status !== "completed" || preflight.conclusion !== "success" ||
-      preflight.requiredJobConclusion !== "success")) {
-    failures.push({ code: "PREFLIGHT_NOT_SUCCESS",
-      detail: `Applicable Preflight must complete successfully on the current SHA; observed SHA=${preflight.headSha || "UNKNOWN"}, workflow=${preflight.status || "UNKNOWN"}/${preflight.conclusion || "UNKNOWN"}, required job=${preflight.requiredJobConclusion || "UNKNOWN"}.` });
+  if (preflight.applicable) {
+    if (preflight.headSha !== input.currentHeadSha ||
+        !Number.isSafeInteger(preflight.workflowId) || preflight.workflowId < 1 ||
+        preflight.workflowPath !== ".github/workflows/agent-task-preflight.yml" ||
+        preflight.event !== "pull_request" ||
+        !Number.isSafeInteger(preflight.runId) || preflight.runId < 1 ||
+        !Number.isSafeInteger(preflight.runAttempt) || preflight.runAttempt < 1 ||
+        preflight.status !== "completed" || preflight.conclusion !== "success") {
+      failures.push({ code: "PREFLIGHT_RUN_IDENTITY_INVALID",
+        detail: "Applicable Preflight requires the exact trusted workflow path, pull_request event, current HEAD SHA, run ID, attempt, and completed/success conclusion." });
+    }
+    const preflightJobs = Array.isArray(preflight.jobs) ? preflight.jobs : [];
+    const requiredJobs = preflightJobs.filter(job => job.name === "Linux offline scratch fixture validation");
+    if (requiredJobs.length !== 1) {
+      failures.push({ code: requiredJobs.length === 0 ? "PREFLIGHT_JOB_MISSING" : "PREFLIGHT_JOB_DUPLICATE",
+        detail: `Expected exactly one Linux offline scratch fixture validation job in Preflight run ${preflight.runId || "UNKNOWN"} attempt ${preflight.runAttempt || "UNKNOWN"}; observed ${requiredJobs.length}.` });
+    } else {
+      const job = requiredJobs[0];
+      if (job.runId !== preflight.runId || job.runAttempt !== preflight.runAttempt ||
+          job.status !== "completed" || job.conclusion !== "success") {
+        failures.push({ code: "PREFLIGHT_NOT_SUCCESS",
+          detail: `Required Preflight job must belong to run ${preflight.runId} attempt ${preflight.runAttempt} and be completed/success; observed run=${job.runId || "UNKNOWN"}, attempt=${job.runAttempt || "UNKNOWN"}, ${job.status || "UNKNOWN"}/${job.conclusion || "UNKNOWN"}.` });
+      }
+    }
   }
   if (input.hasCurrentHeadApproval !== true) failures.push({ code: "APPROVAL_MISSING", detail: "No APPROVED review by someone other than the PR author is recorded against the current HEAD SHA." });
   if (input.mergeable !== true) failures.push({ code: input.mergeable === false ? "NOT_MERGEABLE" : "MERGEABILITY_UNKNOWN", detail: "GitHub must explicitly report mergeable=true; false or unknown is rejected." });
