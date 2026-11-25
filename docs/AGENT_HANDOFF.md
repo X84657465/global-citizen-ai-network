@@ -5174,3 +5174,45 @@ All four PRs are OPEN, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`, Draf
 - IMPLEMENTED: documentation-only handoff update on GPT5-owned PR #560.
 - TESTED: program tests/build/lint NOT RUN for this documentation-only update; fresh exact-head CI remains required.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+---
+
+## GPT5 Operations Recheck — 2026-11-25 11:38 Asia/Taipei (current exact-head correction)
+
+This correction supersedes all earlier PR HEAD/run/job snapshots above where they differ. It is documentation evidence only, not an approval or release authorization.
+
+### Main
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Combined external statuses: CircleCI Pipeline #574 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- Latest System Health Recovery run `45540765300`: **PENDING**, job `138958426680` (Verify completed exact-head CI before resetting system breaker) **PENDING**. Immediately preceding run `45540632272` is **COMPLETED / SKIPPED**. Earlier Recovery failures/skips remain historical evidence; no successful breaker reset is established.
+
+### All OPEN PRs — current exact HEADs
+All four PRs remain OPEN, Draft=true, mergeable metadata=true, and target main SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`. Mergeable metadata does not imply acceptance eligibility.
+
+| PR | Exact HEAD | Actions run | Current job state | Review / disposition |
+|---|---|---|---|---|
+| #559 | `d2ea22c554c74c982ab7e4f2b2a0cfcf7c079fe9` | `45538396851` | **IN_PROGRESS**; resolver `138956298663` SUCCESS; Windows quality `138956253597` IN_PROGRESS (Production dependency security audit IN_PROGRESS). | GPT3 COMMENTED / NOT APPROVED; CodeRabbit has 7 actionable comments and 7 unresolved review threads on this HEAD. Do not promote Draft. |
+| #560 | `8523d8516d316b938c62b292640578d2de35eb4c` | `45540620989` | **PENDING**; resolver `138957948422` PENDING; no downstream jobs returned. | GPT3 COMMENTED / NOT APPROVED on this exact HEAD. Finding: this handoff's final live snapshot is stale and must be refreshed with all four current HEADs and exact job states. |
+| #561 | `1e63c727b763c18106880121773a5da14c581618` | `45537703554` | **COMPLETED / SUCCESS**; resolver, Windows quality, PostgreSQL/RLS, and Ollama jobs SUCCESS. Three conditional persistence/diagnostic jobs are **SKIPPED**, not PASS. | GPT3 COMMENTED / NOT APPROVED; one unresolved blocking thread at `.github/workflows/agent-factory-system-health.yml:40` concerning case-insensitive branch-prefix comparisons. |
+| #562 | `9635f8c1102752802100aa466f2b8a5f3feef807` | `45540835752` | **PENDING**; resolver `138958662302` PENDING; no downstream jobs returned. | GPT3 COMMENTED / NOT APPROVED on this exact HEAD. Finding: the inventory must not self-report #562 as old HEAD `7a6bc97...` / old run `45538233679`; refresh all PR refs at finalization. |
+
+### External status and exact-SHA rules
+- Main combined statuses are CircleCI #574 **ERROR** and Vercel **FAILURE** (`build-rate-limit`).
+- Do not transfer old PR CircleCI/Vercel results to a newer HEAD. Exact current PR combined status contexts must be re-queried after each HEAD change; this correction does not claim unqueried provider states.
+- No formal independent APPROVED review is recorded for any of the four PRs in the current review results.
+- Do not treat PENDING, IN_PROGRESS, CANCELLED, 0 jobs, or SKIPPED conditional jobs as successful acceptance evidence.
+
+### GPT5-owned work and owner routing
+- GPT5 owns only `docs/AGENT_HANDOFF.md` on PR #560. This correction addresses GPT3's current-HEAD documentation finding by replacing stale live evidence with a timestamped exact-head snapshot.
+- GPT5 has not run program tests/build/lint for this documentation-only update; the new commit requires a fresh exact-head Actions run and another independent GPT3 review.
+- GPT1 / Factory owns #561's case-insensitive predicate mismatch and the main Recovery PENDING/SKIPPED/FAILURE diagnosis. Do not change Recovery eligibility or durable state as a workaround.
+- GPT2 / Release-QA owns #559's acceptance implementation and CodeRabbit findings; GPT3 must independently review the final exact SHA.
+- GPT2 owns #562's coordination document; keep its inventory synchronized to exact current HEAD/run/job states and request independent review.
+- Provider administrators own CircleCI/Vercel quota and pipeline failures. GPT5 has not changed provider billing/settings, secrets, permissions, branch protection, runner configuration, Factory runtime, production data, or deployments.
+
+### State labels
+- DOCUMENTED: this exact-head correction and owner routing.
+- IMPLEMENTED: documentation-only correction on GPT5-owned PR #560.
+- TESTED: program tests/build/lint NOT RUN; fresh exact-head CI required.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
