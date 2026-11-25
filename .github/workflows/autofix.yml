@@ -4,14 +4,58 @@ on:
 jobs:
   autofix:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v3
       - name: Format Rust workspace when present
+        id: format
         shell: bash
         run: |
+          set +e
+          log_file="$RUNNER_TEMP/cargo-fmt.log"
           if [ -f Cargo.toml ]; then
-            cargo fmt --all
+            cargo fmt --all >"$log_file" 2>&1
+            format_status=$?
           else
-            echo "No Cargo.toml found; skipping Rust formatting for this repository."
+            echo "No Cargo.toml found; skipping Rust formatting for this repository." | tee "$log_file"
+            format_status=0
           fi
-      - uses: autofix-ci/action@8bc06253bec489732e5f9c52884c7cace15c0160
+          cat "$log_file"
+          echo "exit_code=$format_status" >> "$GITHUB_OUTPUT"
+          exit "$format_status"
+      - name: Run pinned autofix action
+        id: autofix
+        uses: autofix-ci/action@8bc06253bec489732e5f9c52884c7cace15c0160
+      - name: Write redacted Autofix diagnostics
+        if: always()
+        shell: bash
+        env:
+          FORMAT_OUTCOME: ${{ steps.format.outcome }}
+          FORMAT_EXIT_CODE: ${{ steps.format.outputs.exit_code }}
+          AUTOFIX_OUTCOME: ${{ steps.autofix.outcome }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/autofix-diagnostics"
+          {
+            printf 'schema_version=1\\n'
+            printf 'run_id=%s\\n' "$GITHUB_RUN_ID"
+            printf 'run_attempt=%s\\n' "$GITHUB_RUN_ATTEMPT"
+            printf 'repository=%s\\n' "$GITHUB_REPOSITORY"
+            printf 'head_sha=%s\\n' "$GITHUB_SHA"
+            printf 'event=%s\\n' "$GITHUB_EVENT_NAME"
+            printf 'format_step_outcome=%s\\n' "$FORMAT_OUTCOME"
+            printf 'format_exit_code=%s\\n' "$FORMAT_EXIT_CODE"
+            printf 'autofix_step_outcome=%s\\n' "$AUTOFIX_OUTCOME"
+          } > "$RUNNER_TEMP/autofix-diagnostics/summary.txt"
+          if [ -f "$RUNNER_TEMP/cargo-fmt.log" ]; then
+            cp "$RUNNER_TEMP/cargo-fmt.log" "$RUNNER_TEMP/autofix-diagnostics/cargo-fmt.log"
+          fi
+      - name: Upload Autofix diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofix-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/autofix-diagnostics/
+          if-no-files-found: error
+          retention-days: 30
