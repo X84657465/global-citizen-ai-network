@@ -58,7 +58,7 @@ jobs:
           const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
           const sha = process.env.WORKFLOW_HEAD_SHA;
           const ref = process.env.WORKFLOW_HEAD_REF;
-          const reject = reason => {
+          const reject = async reason => {
             const { appendFileSync } = await import("node:fs");
             appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\n");
             console.log(`Recovery not eligible: ${reason}`);
@@ -72,7 +72,7 @@ jobs:
           ];
           const failed = eligibility.find(([ok]) => !ok);
           if (failed) {
-            reject(failed[1]);
+            await reject(failed[1]);
             process.exit(0);
           }
           if (!/^[0-9a-f]{40}$/i.test(sha || "")) throw new Error("Invalid workflow head SHA.");
