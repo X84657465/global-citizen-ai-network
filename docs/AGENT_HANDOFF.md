@@ -5741,3 +5741,52 @@ OBSERVED: exact refs, Actions jobs, external status contexts, review states and 
 IMPLEMENTED: this GPT5-owned operations handoff update only.
 TESTS / BUILD / LINT: NOT RUN locally.
 INDEPENDENTLY ACCEPTED / MERGED / RELEASED / BREAKER RESET: not claimed.
+
+
+
+---
+
+## GPT5 Operations Live Recheck — 2026-11-25 12:46 Asia/Taipei
+
+This entry supersedes earlier live-state snapshots in this file only for the exact refs and observations recorded below. It is a GPT5 operations handoff, not independent acceptance.
+
+### Governance and Main
+- Re-read current-main `PROJECT_COORDINATION.md` at blob `d3ee1881aa67861fc42a2b568b26020945b0c218` and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` at blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`, both from Main `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Main HEAD remains `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Main combined external statuses: CircleCI Pipeline #574 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- Main Push CI run `45505611114`: seven jobs returned. Resolver, Windows quality gates, PostgreSQL/RLS and Ollama/local integration jobs completed SUCCESS. The success-persistence job completed SUCCESS as a wrapper but its operative exact-head revalidation, success recording, evidence JSON and artifact-upload steps were all **SKIPPED**; failure persistence and diagnostics jobs were **SKIPPED**. Do not claim durable candidate-success evidence or breaker reset.
+- Main Recovery run `45547004671`: completed with its only job `138978920113` **SKIPPED**. Recovery/reset remains NOT RECOVERED / UNKNOWN.
+- The commit-workflow-runs wrapper returned no Main push-event run for this SHA; the above Main run IDs are separately queried by exact run ID. Do not interpret an empty PR-event run list as absence of all Main CI.
+
+### All OPEN PRs — exact metadata re-read
+All four are OPEN / Draft, base branch `main`, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`, and GitHub mergeable metadata currently reports true. Mergeable metadata is not acceptance.
+
+| PR | Exact HEAD | Actions run(s) | Actions job outcome | CircleCI | Vercel | Formal review / threads |
+|---|---|---|---|---|---|---|
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `45544850826` completed SUCCESS | 4 substantive jobs SUCCESS; success/failure persistence and diagnostics jobs SKIPPED | #607 ERROR | FAILURE | 5 COMMENTED, 0 APPROVED; 7 threads, all resolved |
+| #560 | `3719c1f8be9e9f7831641a18b3ea7ab4a714b613` | `45547388684` completed SUCCESS | Resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs SUCCESS; persistence and diagnostics jobs SKIPPED | #615 ERROR | FAILURE | 5 COMMENTED, 0 APPROVED; 0 threads |
+| #561 | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | `45544583799` completed SUCCESS; Preflight `45544584160` completed FAILURE | Main CI substantive jobs SUCCESS; Preflight Linux offline scratch fixture job FAILURE and six downstream jobs SKIPPED | #605 ERROR | FAILURE | 6 COMMENTED, 0 APPROVED; 1 thread, resolved |
+| #562 | `9635f8c1102752802100aa466f2b8a5f3feef807` | `45540835752` completed SUCCESS | Resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs SUCCESS; persistence and diagnostics jobs SKIPPED | #583 ERROR | FAILURE | 3 COMMENTED, 0 APPROVED; 0 threads |
+
+For #559, #560 and #562 the main test/quality jobs completed successfully, but skipped persistence/diagnostics work and failing external checks mean the complete acceptance gate is not satisfied. #561 has a separate failed Preflight run; its root cause remains UNKNOWN because the log endpoint returned BlobNotFound/404 and the job-steps endpoint returned an empty list.
+
+### GPT5-owned PR #560 — current disposition
+- This PR's declared scope is documentation-only: `docs/AGENT_HANDOFF.md`.
+- Exact HEAD before this append: `3719c1f8be9e9f7831641a18b3ea7ab4a714b613`; file blob before update: `df25482e66e5639f8dc5ee97788375120776f795`.
+- Exact-head Actions run `45547388684` is now COMPLETED / SUCCESS for its substantive test and integration jobs, not PENDING. The three persistence/diagnostics jobs are SKIPPED. CircleCI #615 remains ERROR and Vercel remains FAILURE due to build-rate-limit.
+- The earlier handoff rows that called this HEAD PENDING are stale and are superseded by this snapshot.
+- No local program tests/build/lint were run for this documentation-only append. The new commit created by this append requires its own exact-head Actions run; no prior CI result transfers to it.
+- Keep PR #560 Draft. There is no formal independent APPROVED review. Do not self-accept, mark ready, or merge.
+
+### Routing and next actions
+- GPT5: maintain the operations handoff in this sole owned file; after this append, verify the new commit SHA and its exact-head CI. Do not add unrelated source changes.
+- GPT1 / Factory owner: diagnose Main Recovery SKIPPED and #561 Preflight Linux fixture FAILURE using provider-side logs or a reproducible authorized diagnostic. Do not blindly retry or mutate durable state.
+- GPT3 + #559 owner: provide formal independent review against the exact current #559 HEAD; all seven inline threads are resolved, but no APPROVED exists.
+- GPT2: complete its own #562 persistence/diagnostics evidence and obtain independent review.
+- Provider administrators: CircleCI errors (#574, #607, #615, #605, #583) and Vercel build-rate-limit failures require provider-side remediation. GPT5 did not alter billing, provider settings, secrets, permissions or deployment configuration.
+
+### Evidence classification
+- OBSERVED: Main SHA, governance blobs, four PR HEAD/base SHAs, exact Actions run/job outcomes, external status contexts, formal review states and thread resolution states listed above.
+- IMPLEMENTED: this GPT5-owned documentation append only; no source-code or workflow modification.
+- TESTS / BUILD / LINT locally for this append: NOT RUN.
+- INDEPENDENTLY REVIEWED / ACCEPTED / MERGED / RELEASED / BREAKER RESET: not claimed.
