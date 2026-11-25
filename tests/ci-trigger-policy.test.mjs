@@ -1023,9 +1023,9 @@ test("Recovery observer passes the source HEAD SHA into the capture step environ
   const source = readFileSync(
     new URL("../.github/workflows/agent-factory-recovery-observer.yml", import.meta.url),
     "utf8",
-  ).replace(/\\r\\n/g, "\\n");
+  ).replace(/\r\n/g, "\n");
   const captureStart = source.indexOf("- name: Capture run metadata, job steps and log availability");
-  const captureEnd = source.indexOf("\\n      - name:", captureStart + 1);
+  const captureEnd = source.indexOf("\n      - name:", captureStart + 1);
   assert.ok(captureStart >= 0 && captureEnd > captureStart, "capture step must exist");
   const captureStep = source.slice(captureStart, captureEnd);
   assert.ok(captureStep.includes("SOURCE_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"),
