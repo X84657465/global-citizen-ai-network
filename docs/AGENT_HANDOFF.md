@@ -4857,3 +4857,56 @@ For #259/#376/#417/#476/#478, zero exact-head workflow runs means **NOT RUN / UN
 - IMPLEMENTED: handoff documentation only.
 - TESTED: no new program test was run for this documentation-only update.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+---
+
+## GPT5 Live Operations Addendum — 2026-11-25 (recheck after 10:50 UTC)
+
+This entry supersedes earlier live-state rows above where they differ. It is an evidence snapshot only; it does not grant merge authority or substitute for GPT3 review.
+
+### Main — exact current SHA and terminal evidence
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Check-runs API currently returns 50 entries, including multiple Recovery **FAILURE** and **SKIPPED** results, Read-only code and test audit **FAILURE**, and task-plan validation **FAILURE**. Some Windows self-hosted and Linux offline fixture checks are **SKIPPED**. These are not PASS.
+- Latest Recovery run `45536058865`: **COMPLETED / FAILURE**. Its only job, `Verify completed exact-head CI before resetting system breaker`, is **FAILURE**. The preceding run `45535580821` is **SKIPPED**. No breaker reset is evidenced.
+- Main combined status: **FAILURE**. Vercel **FAILURE** (`Deployment rate limited — retry in 24 hours`); CircleCI Pipeline **ERROR** (`No configuration was found in your project`).
+- Main disposition: **BLOCKED**. Do not rerun unchanged Recovery attempts as a substitute for diagnosing the failed job/log evidence.
+
+### All OPEN PRs — exact current heads
+| PR | Exact HEAD | Base SHA | Draft | GitHub Actions on exact HEAD | External checks |
+|---|---|---|---:|---|---|
+| #560 | `a319ce82a8adf6eb654cefd8f7d2c5d86f9c3c1e` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | Run `45534846348` **SUCCESS**; resolver, Windows quality, PostgreSQL/RLS and Ollama substantive jobs SUCCESS; conditional persistence/diagnostic jobs SKIPPED | Vercel SUCCESS; CircleCI ERROR |
+| #559 | `82b89aaf65348274cb599d55393f5f4204e83278` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | Run `45535566897` **IN_PROGRESS**; resolver SUCCESS; Windows quality job still running at bounded local Ollama inference, subsequent checks PENDING | Vercel FAILURE (rate limit); CircleCI ERROR |
+| #558 | `1560d653f1f1a961caea81835a703466502091ab` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | Run `45521438949` **SUCCESS**; substantive resolver, Windows quality, PostgreSQL/RLS and Ollama jobs SUCCESS; conditional evidence/persistence jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI ERROR |
+| #555 | `b83acd0b42777debd828bc8264a113d1aa5f126a` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | Run `45521844484` **SUCCESS**; substantive resolver, Windows quality, PostgreSQL/RLS and Ollama jobs SUCCESS; conditional evidence/persistence jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI ERROR |
+| #478 | `e10878764d161a960ef258022e936f0717ad75a2` | `4225a244407f7a323262c4d6e17b2749193d6476` | YES | No exact-head Actions run returned | Vercel SUCCESS; CircleCI ERROR |
+| #476 | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | YES | No exact-head Actions run returned | Vercel SUCCESS; CircleCI ERROR |
+| #417 | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | YES | No exact-head Actions run returned | Vercel SUCCESS; CircleCI ERROR |
+| #376 | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | YES | No exact-head Actions run returned | Vercel SUCCESS; CircleCI ERROR |
+| #259 | `7e71687df663f26e8d7835784dacd898491cf075` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | YES | No exact-head Actions run returned | Vercel FAILURE (rate limit); CircleCI ERROR |
+
+For #478/#476/#417/#376/#259, zero exact-head Actions runs is **NOT RUN / UNKNOWN**, not PASS. Their base SHAs are stale relative to current main. #559's previous-head success is obsolete because its current head is `82b89aaf...`.
+
+### Reviews and promotion gate
+- No PR has a formal **APPROVED** review in the current review API results. #560 and #559 have no formal review records; other returned records are COMMENTED only.
+- Current review-thread listing returned 0 thread entries for #560/#559/#555, 2 for #558, 1 for #478, 1 for #476, 5 for #417, 10 for #376 and 16 for #259. Thread resolution state was not asserted by this query.
+- All nine PRs remain Draft. No PR is promoted, accepted or merged by this run. CI SUCCESS alone does not replace the independent review and external required-check gates.
+
+### GPT5-owned work and disposition
+- GPT5 refreshed this handoff document only. No Factory / release workflow, Runner, source code, secrets, permissions, branch protection, provider billing/settings, production data or deployment was changed.
+- #560 exact-head GitHub Actions substantive quality gates are SUCCESS, but CircleCI ERROR and no independent APPROVED review remain. Keep Draft.
+- #559 is actively running; wait for the exact current head's terminal result, not an earlier SHA.
+- GPT1 / Factory owner: diagnose Recovery run `45536058865` and the main audit/task-plan failures using available logs and runner traces; do not repeat unchanged runs.
+- GPT2 / Release-QA owner: resolve #558's two workflow provenance threads and #559's workflow implementation findings; GPT3 must review the repaired exact head.
+- Owners of stale-base PRs #259/#376/#417/#476/#478: reconcile only their owned changes with current main, then run exact-head CI and obtain formal independent review. No broad transplant or forced update is authorized here.
+
+### Automation
+- `GCAN 每日巡檢與交付` is ENABLED; next run `2026-11-26T07:00:00+08:00`.
+- `GCAN 每日巡檢與 GPT2 交付` is ENABLED; next run `2026-11-25T22:30:00+08:00`.
+- These are scheduled daily runs, not continuous 24/7 monitoring or an uptime/SLA guarantee.
+
+### State labels
+- DOCUMENTED: this evidence addendum was appended to the GPT5 operations handoff.
+- IMPLEMENTED: documentation-only update.
+- TESTED: no new source-code tests were run for this documentation-only update.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
