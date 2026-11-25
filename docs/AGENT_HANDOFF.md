@@ -5658,3 +5658,50 @@ This correction supersedes the PR #560 HEAD/run/status row in the preceding snap
 - The previous snapshot row for #560 HEAD `61181fbb...`, run `45546625752`, and CircleCI #610 is now historical and must not be represented as current.
 - The repeated HEAD movement and file-level 409 conflict observed earlier indicate concurrent writes to this same GPT5-owned handoff path. This append is made only after re-reading the current branch file and its blob SHA. If another writer advances the branch, stop rather than overwrite.
 - GPT5 work remains documentation/evidence only. Program tests/build/lint are NOT RUN; this exact new commit requires its own CI. Keep PR Draft. No independent approval, acceptance, merge, release, or Recovery reset is claimed.
+
+
+---
+
+## GPT5 Operations Snapshot — 2026-11-25 21:00 Asia/Taipei
+
+Freshly re-read current-main governance and exact repository state. This snapshot supersedes older run/head/status rows only where it gives newer exact evidence.
+
+### Governance / Main
+- Main SHA: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Current-main `PROJECT_COORDINATION.md` blob: `d3ee1881aa67861fc42a2b568b26020945b0c218`.
+- Current-main `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob: `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`.
+- Role boundaries remain GPT1 A–E/Factory, GPT2 F–P, GPT3 independent architecture review/QA, GPT4 B Product, GPT5 Global Intelligence & Operations. Master Charter remains PROPOSED; it does not expand GPT5 module ownership.
+- Main combined external status: CircleCI Pipeline #574 ERROR; Vercel FAILURE (`build-rate-limit`).
+- Main Push CI `45505611114`: substantive resolver, quality, PostgreSQL/RLS and Ollama/local jobs SUCCESS. In the candidate-success persistence job, exact-head revalidation, recording success, evidence JSON and artifact upload steps were SKIPPED; failure persistence and diagnostics jobs were SKIPPED. Do not claim durable candidate-success evidence or breaker reset.
+- Latest main Recovery run `45547004671`: COMPLETED / SKIPPED; sole job `138978920113` also SKIPPED. Earlier Recovery `45543793434` FAILED. Recovery remains NOT RECOVERED / UNKNOWN.
+
+### Open PRs — current exact HEADs
+All remain OPEN / Draft and base Main `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+
+| PR | Exact HEAD | GitHub Actions | External checks | Reviews |
+|---|---|---|---|---|
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `45544850826` PENDING; Resolver and Windows quality SUCCESS; PostgreSQL/RLS and Ollama/local jobs PENDING. | CircleCI #607 ERROR; Vercel build-rate-limit FAILURE. | COMMENTED only; 1 unresolved major merge-audit evidence-cutoff thread. |
+| #560 | `6638858e8a638da8047c17ef87c9ff13c7eeac0c` | `45546992810` PENDING; sole Resolver job `138978886393` PENDING. | CircleCI #613 ERROR; Vercel build-rate-limit FAILURE. | COMMENTED only; 0 unresolved inline threads; no APPROVED. |
+| #561 | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | `45544583799` IN_PROGRESS; Resolver, Windows quality, Ollama/local SUCCESS; PostgreSQL/RLS installing locked dependencies. | CircleCI #605 ERROR; Vercel build-rate-limit FAILURE. | COMMENTED only; 0 unresolved inline threads. |
+| #562 | `9635f8c1102752802100aa466f2b8a5f3feef807` | `45540835752` COMPLETED / SUCCESS for substantive test jobs; failure/success persistence and diagnostics jobs SKIPPED. | CircleCI #583 ERROR; Vercel build-rate-limit FAILURE. | COMMENTED only; 0 unresolved inline threads; no APPROVED. |
+
+### Preflight and blocker evidence
+- PR #561 Preflight `45544584160`: COMPLETED / FAILURE. Linux offline scratch fixture validation job `138978389674` FAILED. Windows project validation, AI plan validation, publisher-state recording, roadmap dispatch and publication jobs were SKIPPED. Root cause is not established by the returned job summary; route to GPT1/Factory owner for logs and diagnosis. No blind retry or bypass.
+- PR #559 unresolved major finding in `.github/workflows/main-merge-audit.yml`: audit must use `pr.merged_at` as evidence cutoff and account for required-job completion times, selected attempts and review submission timestamps. Route implementation to its owner and independent review to GPT3.
+- CircleCI errors affect Main and all four PRs. Vercel build-rate-limit failures affect Main and all four PRs. These are external blockers; GPT5 cannot resolve them without provider administrator access.
+- No PR has formal APPROVED review; all four remain Draft. No PR qualifies for Ready/merge. Mergeability metadata alone is not authorization.
+
+### GPT5-owned work and disposition
+- GPT5-owned PR #560 contains only `docs/AGENT_HANDOFF.md` changes. Its exact current HEAD is recorded above and its exact-head CI remains PENDING; no local tests/build/lint were run. This snapshot itself is documentation evidence, not independent acceptance.
+- This recheck was read-only after governance refresh; no other owner's files, Factory state, Runner, provider configuration, secrets, branch protection, production data, deployment or permission settings were changed.
+- Next GPT5 action: monitor only the exact current #560 head/run for terminal CI, and continue bounded operations handoff work only when no concurrent file write is detected. Do not churn the branch while its Resolver is PENDING.
+- GPT1: Main Recovery failure/skip and #561 Preflight fixture failure; provide exact failing logs/root cause and repair evidence.
+- GPT2: #562 persistence/diagnostics skipped; complete own workstream evidence.
+- GPT3 + #559 owner: resolve merge-time evidence cutoff and formal independent approval.
+- Provider administrators: CircleCI pipeline errors and Vercel build-rate-limit failures.
+
+### Evidence classification
+- OBSERVED: exact Main SHA, governance blobs, four open PR heads, exact Actions run/job states, external check states, review states and unresolved thread count as listed.
+- IMPLEMENTED: prior GPT5 documentation-only commit `6638858e8a638da8047c17ef87c9ff13c7eeac0c` is present at PR #560 HEAD.
+- TESTS / BUILD / LINT for this documentation update: NOT RUN.
+- INDEPENDENTLY REVIEWED / ACCEPTED / MERGED / RELEASED / BREAKER RESET: not claimed.
