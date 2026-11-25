@@ -92,15 +92,10 @@ jobs:
                 status: job.status, conclusion: job.conclusion
               }));
             }
-            // Separate exact-SHA check lookup is retained only for the single applicable Preflight job and informational provider signals.
+            // Check runs remain informational only; Preflight acceptance is bound to its exact workflow run/attempt.
             const checkRuns = await github.paginate(github.rest.checks.listForRef, {
               owner, repo, ref: headSha, per_page: 100
             });
-            function latestCheck(name) {
-              return checkRuns.filter(check => check.head_sha === headSha && check.name === name &&
-                check.app && check.app.slug === 'github-actions')
-                .sort((a,b) => new Date(b.started_at || 0) - new Date(a.started_at || 0))[0] || null;
-            }
             const preflightPaths = new Set([
               'lib/agent-task-validation.mjs',
               'lib/agent-patch-validation.mjs',
@@ -150,18 +145,48 @@ jobs:
             const files = await github.paginate(github.rest.pulls.listFiles, {
               owner, repo, pull_number: prNumber, per_page: 100
             });
-            const preflightCheck = latestCheck('Linux offline scratch fixture validation');
-            const preflightApplicable = Boolean(preflightCheck) || files.some(file =>
+            const preflightApplicable = files.some(file =>
               preflightPaths.has(file.filename) || (file.previous_filename && preflightPaths.has(file.previous_filename))
             );
-            const preflight = preflightApplicable ? {
-              applicable: true,
-              headSha: preflightCheck ? preflightCheck.head_sha : null,
-              status: preflightCheck ? preflightCheck.status : 'missing',
-              conclusion: preflightCheck ? (preflightCheck.conclusion || null) : 'missing',
-              requiredJobConclusion: preflightCheck ? (preflightCheck.conclusion || preflightCheck.status) : 'missing'
-            } : { applicable: false, status: 'not_applicable' };
-
+            let preflight = { applicable: false, status: 'not_applicable' };
+            if (preflightApplicable) {
+            const preflightWorkflowResponse = await github.request(
+              'GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}',
+              { owner, repo, workflow_id: 'agent-task-preflight.yml', headers: { accept: 'application/vnd.github+json' } }
+            );
+            const preflightWorkflow = preflightWorkflowResponse.data;
+            if (preflightWorkflow.path !== '.github/workflows/agent-task-preflight.yml') {
+              throw new Error('Preflight workflow path did not match the required trusted workflow.');
+            }
+            const preflightRunsResponse = await github.rest.actions.listWorkflowRuns({
+              owner, repo, workflow_id: preflightWorkflow.id, head_sha: headSha,
+              event: 'pull_request', per_page: 100
+            });
+            const matchingPreflightRuns = preflightRunsResponse.data.workflow_runs
+              .filter(run => run.head_sha === headSha && run.head_branch === pr.head.ref &&
+                run.event === 'pull_request' && run.path === '.github/workflows/agent-task-preflight.yml')
+              .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+            const selectedPreflightRun = matchingPreflightRuns[0] || null;
+            let preflight = {
+              applicable: true, workflowId: preflightWorkflow.id,
+              workflowPath: preflightWorkflow.path, event: 'pull_request',
+              runId: selectedPreflightRun ? selectedPreflightRun.id : null,
+              runAttempt: selectedPreflightRun ? selectedPreflightRun.run_attempt : null,
+              headSha, status: selectedPreflightRun ? selectedPreflightRun.status : 'missing',
+              conclusion: selectedPreflightRun ? selectedPreflightRun.conclusion : null,
+              jobs: []
+            };
+            if (selectedPreflightRun) {
+              const preflightJobsResponse = await github.rest.actions.listJobsForWorkflowRunAttempt({
+                owner, repo, run_id: selectedPreflightRun.id,
+                attempt_number: selectedPreflightRun.run_attempt, per_page: 100
+              });
+              preflight.jobs = preflightJobsResponse.data.jobs.map(job => ({
+                name: job.name, runId: job.run_id, runAttempt: job.run_attempt,
+                status: job.status, conclusion: job.conclusion
+              }));
+            }
+            }
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
               owner, repo, pull_number: prNumber, per_page: 100
             });
