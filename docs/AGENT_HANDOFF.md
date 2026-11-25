@@ -5642,3 +5642,19 @@ All target `main` at base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`. All ar
 - IMPLEMENTED: documentation-only update to the GPT5-owned handoff path.
 - TESTED: program tests/build/lint NOT RUN; this is a documentation-only GitHub update. The resulting PR #560 commit requires fresh exact-head Actions and external status checks.
 - REVIEWED / ACCEPTED / MERGED / RELEASED: not claimed. Keep PR #560 Draft pending terminal exact-head checks and formal independent review; do not treat COMMENTED as approval.
+
+
+---
+
+## GPT5 live correction — 2026-11-25 12:27 Asia/Taipei
+
+This correction supersedes the PR #560 HEAD/run/status row in the preceding snapshot. The branch advanced again after the earlier observation; the exact current PR head was re-read twice and remained stable during this check.
+
+- Main remains `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- PR #560 current exact HEAD: `f85b90b280fd4380d1cf359f6a28f1e353747ac4`; OPEN / Draft; base SHA is Main above.
+- Exact-head Actions run `45546845602`: PENDING; its only currently reported job, `Resolve exact candidate PR metadata`, is PENDING.
+- Exact-head external checks: CircleCI Pipeline #611 ERROR; Vercel FAILURE (`build-rate-limit`).
+- PR #560 reviews remain COMMENTED-only (no formal APPROVED); no unresolved inline threads in the preceding review query.
+- The previous snapshot row for #560 HEAD `61181fbb...`, run `45546625752`, and CircleCI #610 is now historical and must not be represented as current.
+- The repeated HEAD movement and file-level 409 conflict observed earlier indicate concurrent writes to this same GPT5-owned handoff path. This append is made only after re-reading the current branch file and its blob SHA. If another writer advances the branch, stop rather than overwrite.
+- GPT5 work remains documentation/evidence only. Program tests/build/lint are NOT RUN; this exact new commit requires its own CI. Keep PR Draft. No independent approval, acceptance, merge, release, or Recovery reset is claimed.
