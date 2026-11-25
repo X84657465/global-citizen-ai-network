@@ -491,7 +491,7 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 
 ## 6.19 即時巡檢與 GPT2 自有文件交付 — 2026-11-26 00:30 Asia/Taipei
 
-> 本節為本輪重新讀取 GitHub API 的快照。SHA、CI、Review 與外部狀態只對應明列的 exact HEAD；HEAD 改變後必須重新驗證。
+> **歷史快照／提交前證據（非本節所在 commit 的即時狀態）：** 本節記錄的 PR #562 HEAD `a4849cf6cfad4ce430573cfd4d2f29b494c45fc0`、CI run `45649416400` 與 review／provider 狀態，是本節文件更新前觀測到的候選版本證據。後續提交本文件會改變 PR #562 的 HEAD；因此上述 SHA、CI、Review 與外部狀態均不得解讀為目前包含本節內容的 commit 已通過驗收。請以 [PR #562 即時頁面](https://github.com/X84657465/global-citizen-ai-network/pull/562) 的最新 HEAD、Checks、Reviews 與 Conversations 為準，並對每個新 HEAD 重新執行 exact-head 驗證。
 
 ### Main 精確狀態
 - `refs/heads/main`：`94004585a0756d10c56edd6d65dc143b05a652ab`。
