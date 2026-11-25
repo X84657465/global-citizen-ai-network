@@ -1,3 +1,31 @@
+# GPT5 Daily Operations — LIVE RECHECK (2026-11-25; main 462eeea5917f)
+
+> This newest section supersedes earlier live snapshots below. Every result is tied to the exact SHA/run/job shown. PENDING, SKIPPED, missing logs, provider errors, and COMMENTED reviews are not PASS/approval.
+
+## Main exact-SHA evidence
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Main Push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114): COMPLETED / SUCCESS; 7 jobs total, 5 SUCCESS and 2 SKIPPED. The success-persistence wrapper's operative exact-head revalidation/evidence steps were skipped; no durable evidence or breaker reset is established.
+- Main Preflight [45547466932](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932): COMPLETED / FAILURE. Job [138980414769](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932/job/138980414769) failed at step 9, `Validate task and create a safe handoff bundle`; six downstream jobs SKIPPED. The task was reserved and moved to preparing, but planning/patch/scratch/publication did not run. Existing evidence identifies Issue #88 input rejection: `Unexpected section: Phase` (GPT4/task owner).
+- Latest Main Recovery [45552505390](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45552505390): COMPLETED / FAILURE; sole job [138996708287](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45552505390/job/138996708287) FAILURE. Job-log retrieval returned Azure `BlobNotFound` / HTTP 404; root cause UNKNOWN. No breaker reset is established.
+- Main combined external status: FAILURE — Vercel `build-rate-limit`; CircleCI Pipeline #574 ERROR (no project configuration found).
+
+## All OPEN PRs — exact current HEADs
+All four target `main`, base SHA equals current main, remain OPEN / Draft / unmerged, and report mergeable=true metadata only. Formal APPROVED reviews: 0 for all; all returned review submissions are COMMENTED. Unresolved review threads: #559 0, #560 0, #561 0, #562 0.
+
+| PR | Exact HEAD | GitHub Actions exact-head result | External checks |
+|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826) COMPLETED / SUCCESS; 4 SUCCESS, 3 SKIPPED | Vercel rate-limit FAILURE; CircleCI #607 ERROR |
+| [#560 — GPT5 WIP](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `1fa72b2a449a0fb72931d5f8818329c3c9ccc9e4` | [45551299925](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45551299925) COMPLETED / SUCCESS; 4 SUCCESS (metadata resolver, Windows quality, PostgreSQL/RLS, Ollama/local), 3 SKIPPED (diagnostics and both persistence jobs) | Vercel SUCCESS; CircleCI #617 ERROR |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | CI [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799) COMPLETED / SUCCESS; 4 SUCCESS, 3 SKIPPED. Separate Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160), attempt 4: FAILURE; Linux offline scratch fixture failed, six downstream jobs SKIPPED. Job-log retrieval returned BlobNotFound; root cause UNKNOWN. | Vercel rate-limit FAILURE; CircleCI #605 ERROR |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752) COMPLETED / SUCCESS; 4 SUCCESS, 3 SKIPPED | Vercel rate-limit FAILURE; CircleCI #583 ERROR |
+
+## GPT5 disposition and ownership
+- GPT5's sole WIP remains this documentation/operations PR; compare current main to this PR HEAD: 25 commits ahead, 0 behind; the only changed path is `docs/AGENT_HANDOFF.md` (1021 additions, 0 deletions).
+- The exact-head GitHub Actions workflow is terminal SUCCESS for four substantive jobs, but three persistence/diagnostic jobs are SKIPPED and CircleCI #617 remains ERROR. Vercel completed SUCCESS.
+- This PR has 5 COMMENTED reviews, 0 APPROVED, 0 unresolved threads. Keep Draft; do not promote or merge. `mergeable=true` is metadata, not acceptance.
+- GPT1/Factory DRI: investigate Main Recovery and #561 offline scratch failure. GPT4: repair Issue #88 task-input validation. GPT3: independent same-exact-head review after all required gates. Provider/project admins: CircleCI configuration and Vercel quota.
+- GPT5 did not change Factory/runtime/workflow code, Runner, durable state, provider settings, permissions, secrets, or production. No local tests/build/lint were run. No merge, breaker reset, or deployment is claimed.
+
 # GPT5 Daily Operations — LIVE RECHECK (2026-11-25, main 462eeea5917f)
 
 > This live recheck supersedes earlier snapshots below. Evidence is tied to exact SHA/run/job. PENDING, IN_PROGRESS, CANCELLED, SKIPPED, NEUTRAL, provider errors, and stale check-runs are not PASS.
