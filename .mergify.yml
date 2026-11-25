@@ -1,10 +1,7 @@
 pull_request_rules:
   - name: Automatic merge when CI passes
     conditions:
-      - "#check-failure = 0"
-      - "#check-pending = 0"
-      - -conflict
-      - -draft
+      - "#check-success = 1"
     actions:
       merge:
         method: merge
