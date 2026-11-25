@@ -12,6 +12,8 @@
 - Independent Reviewer GitHub login:
 - Reviewer is independent from Developer: YES / NO / BLOCKED
 - Domain / product acceptance owner:
+- Domain / product acceptance result: ACCEPTED / REJECTED / BLOCKED / NOT RUN
+- Acceptance evidence (decision record / links):
 - Acceptance criteria:
 
 ## Verification evidence
