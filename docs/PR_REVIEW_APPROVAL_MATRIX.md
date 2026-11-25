@@ -57,7 +57,7 @@
 - [ ] 必要 CI／測試對應目前 PR head SHA，所有必要 Job 均為成功終態。
 - [ ] 沒有 PENDING、SKIPPED、CANCELLED、UNKNOWN、0 Job 或缺少證據的必要檢查。
 - [ ] 沒有未解決的阻擋性 Review thread 或高風險 finding。
-- [ ] 領域／產品驗收與技術審查分開記錄；領域／產品驗收結果必須明確為 ACCEPTED／APPROVED 才可合併。若結果為 REJECTED，必須先有產品負責人與授權 Maintainer 核准的例外決策紀錄，否則 BLOCKED。
+- [ ] 領域／產品驗收與技術審查分開記錄；領域／產品驗收結果為 ACCEPTED／APPROVED 時可通過此項合併閘門。若結果為 REJECTED，原則上 BLOCKED；只有在產品負責人與具實際 Repository 授權的 Maintainer 明確核准並記錄例外理由、範圍及風險接受後，該例外才可明確覆寫 REJECTED 結果並允許通過此項合併閘門。未具備完整例外紀錄或任一核准者不具實際授權時，仍為 BLOCKED。
 - [ ] GitHub mergeability、Branch Protection 與實際合併權限允許。
 - [ ] 合併前已識別具實際 GitHub 合併權限的授權者／自動化身分。
 - [ ] 合併後記錄實際產生的 merge commit SHA；此 SHA 不得作為合併前置條件。
