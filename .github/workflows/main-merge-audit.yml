@@ -199,7 +199,7 @@ jobs:
               failures || '- No acceptance-policy violation detected.',
               '',
               '### Required CI job evidence',
-              ...ciJobs.map(job => '- ' + job.name + ': ' + (job.conclusion || job.status)),
+              ...ci.jobs.map(job => '- ' + job.name + ': ' + (job.conclusion || job.status)),
               '',
               '> This is a post-merge audit. It records violations; it does not automatically revert code or modify production.'
             ].join('\n');
