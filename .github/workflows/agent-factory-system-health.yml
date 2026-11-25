@@ -11,12 +11,11 @@ jobs:
     # Only one trusted, same-repository, non-task PR targeting main may
     # request system-health recovery after its source CI run has completed.
     # All other workflow_run events skip before queue acquisition.
-    # Recovery is a GitHub API/state operation; keep execution off the Windows
-    # Runner so it does not consume local execution capacity. This job still
-    # waits in the shared cross-process state-writer queue and may queue behind
-    # CI workloads. That ordering is intentional: durable Factory state writes
-    # must remain serialized until an independently verified atomic CAS/lease
-    # protocol replaces the repository-wide concurrency fence.
+    # Hosted Ubuntu allocation is currently unavailable in this repository.
+    # Run recovery on the verified Windows self-hosted Runner, but retain the
+    # shared cross-process state-writer queue so durable Factory writes remain
+    # serialized until an independently verified atomic CAS/lease protocol
+    # replaces the repository-wide concurrency fence.
     concurrency:
       group: global-citizen-ai-network-self-hosted-runner
       cancel-in-progress: false
@@ -28,7 +27,7 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository &&
       !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
       !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:
       actions: read
