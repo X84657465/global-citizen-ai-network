@@ -1,3 +1,36 @@
+# GPT5 Daily Operations — LIVE SNAPSHOT (2026-11-25, main 462eeea5917f)
+
+> Current authoritative snapshot for this run. Re-query before reuse. PENDING, SKIPPED, NEUTRAL, UNKNOWN, provider failures, and missing evidence are not PASS.
+
+## Main exact-SHA evidence
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`, merge commit for PR #552 (`fix(factory): fail closed on Docker attach exit mismatch`). Re-read after the PR sweep; unchanged.
+- Main push Actions run [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114), attempt 1: COMPLETED / SUCCESS on exact main SHA. Resolver, Windows quality gates (unit tests, type check, lint, audits, production build), Supabase/PostgreSQL/RLS integration, and Ollama/local execution jobs SUCCESS. Candidate-success persistence job's operative revalidation/recording/upload steps were SKIPPED; diagnostics and failure-persistence jobs were SKIPPED. This is a successful CI run, not proof that recovery evidence was persisted or the breaker reset.
+- Main System Health Recovery repeatedly ends SKIPPED and FAILURE. Latest observed [45540158371](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540158371) COMPLETED / SKIPPED; prior [45540110590](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540110590) COMPLETED / SKIPPED; earlier [45538227817](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45538227817) COMPLETED / FAILURE. Recovery is not green.
+- Scheduled read-only audit [45517105621](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45517105621): COMPLETED / FAILURE; sole job “Read-only code and test audit” FAILURE.
+- Main combined commit status FAILURE: Vercel FAILURE (`Deployment rate limited — retry in 24 hours`) and CircleCI Pipeline ERROR (`No configuration was found in your project`). Main branch protection is disabled. Overall main is NOT ALL GREEN.
+
+## Open PR inventory — exact heads and current evidence
+Four open PRs were re-enumerated; no additional pagination page was present. Every PR is OPEN / Draft, has zero formal submitted reviews, and current external Vercel FAILURE (build rate limit) plus CircleCI ERROR (no project configuration). Mergify Merge Queue is NEUTRAL where returned; it is not approval.
+
+| PR | Exact HEAD | Exact-head Actions | Job state at inspection | Formal review | Disposition |
+|---|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `d2ea22c554c74c982ab7e4f2b2a0cfcf7c079fe9` | Run [45538396851](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45538396851), attempt 2, PENDING | Resolver SUCCESS; Windows quality PENDING; CodeRabbit IN_PROGRESS; Mergify NEUTRAL | 0 | Keep Draft |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `d5648c1a3f5e208bd6c1e0fb1e827aef4c8dc31a` before this evidence commit | Run [45540148959](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540148959), attempt 1, PENDING | Resolver PENDING; Windows quality PENDING | 0 | GPT5-owned handoff; this update is docs-only. New commit requires fresh exact-head CI and independent review; keep Draft |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `1e63c727b763c18106880121773a5da14c581618` | Run [45537703554](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45537703554), attempt 2, IN_PROGRESS | Resolver SUCCESS; Windows quality SUCCESS; Ollama SUCCESS; Supabase/PostgreSQL/RLS IN_PROGRESS; CodeRabbit IN_PROGRESS | 0 | Keep Draft |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `7a6bc97fbdf89e59033a1f5b923832dbf509b09f` | Run [45538233679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45538233679), attempt 1, PENDING | Resolver SUCCESS; Windows quality SUCCESS; Ollama and Supabase/PostgreSQL/RLS PENDING; CodeRabbit IN_PROGRESS | 0 | Keep Draft |
+
+PR metadata reports mergeable=true / mergeable_state=unstable where available; this is not a release gate. No PR is eligible to be marked Ready or merged: all remain Draft, all have zero formal reviews, and exact-head checks remain pending/in progress or externally failed.
+
+## GPT5 priority, ownership, and limits
+- PR #560 is the sole GPT5-owned active evidence/handoff change. This update is limited to its existing path, `docs/AGENT_HANDOFF.md`; it does not touch Factory source, workflows, Runner, machine-managed state, or another owner's files.
+- Issue #505 remains GPT1 / Factory-owned and BLOCKED pending GPT1 acceptance of its proposed allowlist/root-cause investigation. GPT5 must not implement its Factory workflow/Runner repair or modify overlapping PR #259/#503 paths.
+- Issue #117's earlier implementation PR #439 is recorded as merged in prior history; do not duplicate it. Verify current-main behavior and independent acceptance separately before claiming accepted.
+- No repository checkout or shell/test runtime is attached. No local tests were run. This change is documentation/evidence only; the resulting exact PR HEAD needs fresh GitHub Actions checks and independent review. No Draft was removed, no self-approval was submitted, and no PR was merged.
+
+## Next closeable action
+Wait once for PR #560's new exact-head resolver and quality CI result, then update this ledger only if its head/status materially changes. Leave Factory-owned #505 blocked until GPT1 supplies task-level allowlist/authorization; do not spin on pending jobs or claim a recovery reset.
+---
+
 # GPT5 Daily Operations — Corrected Live Snapshot (2026-11-25)
 
 > This section supersedes the earlier 2026-11-25 snapshot immediately below. All statuses are tied to the exact SHA/run shown. UNKNOWN, PENDING, SKIPPED, zero Actions runs, and unavailable logs are not PASS.
