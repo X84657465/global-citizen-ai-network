@@ -58,6 +58,87 @@ jobs:
               return;
             }
             const headSha = pr.head.sha;
+            const mergedAt = Date.parse(pr.merged_at || '');
+            if (!Number.isFinite(mergedAt)) {
+              throw new Error('PR merged_at is missing or invalid; historical acceptance evidence cannot be established.');
+            }
+            const evidenceCutoff = mergedAt;
+            const selectPreMergeAttempt = async ({ workflow, workflowPath, event, headSha, headBranch, requiredJobNames }) => {
+              const response = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: workflow.id, head_sha: headSha, event, per_page: 100
+              });
+              const runs = response.data.workflow_runs.filter(run =>
+                run.head_sha === headSha && run.head_branch === headBranch &&
+                run.event === event && run.path === workflowPath &&
+                Number.isSafeInteger(run.run_attempt) && run.run_attempt > 0
+              );
+              const eligible = [];
+              let latestObserved = null;
+              for (const run of runs) {
+                for (let attemptNumber = 1; attemptNumber <= run.run_attempt; attemptNumber += 1) {
+                  let attempt;
+                  let jobs;
+                  try {
+                    const attemptResponse = await github.request(
+                      'GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}',
+                      { owner, repo, run_id: run.id, attempt_number: attemptNumber,
+                        headers: { accept: 'application/vnd.github+json' } }
+                    );
+                    attempt = attemptResponse.data;
+                    const jobsResponse = await github.rest.actions.listJobsForWorkflowRunAttempt({
+                      owner, repo, run_id: run.id, attempt_number: attemptNumber, per_page: 100
+                    });
+                    jobs = jobsResponse.data.jobs;
+                  } catch (error) {
+                    core.warning('Unable to retrieve historical attempt ' + run.id + '/' + attemptNumber +
+                      ': ' + (error && error.message ? error.message : String(error)));
+                    continue;
+                  }
+                  if (attempt.head_sha !== headSha || attempt.path !== workflowPath ||
+                      attempt.event !== event || attempt.run_attempt !== attemptNumber) continue;
+                  const attemptCompletedAt = Date.parse(attempt.completed_at || '');
+                  const attemptStartedAt = Date.parse(attempt.run_started_at || attempt.created_at || '');
+                  const summary = {
+                    runId: run.id, runAttempt: attemptNumber, headSha,
+                    status: attempt.status || 'unknown', conclusion: attempt.conclusion || null,
+                    completedAt: attempt.completed_at || null, jobs: []
+                  };
+                  const selectedJobs = requiredJobNames.map(name => {
+                    const matches = jobs.filter(job => job.name === name);
+                    if (matches.length !== 1) return { name, runId: run.id, runAttempt: attemptNumber,
+                      status: 'missing_or_duplicate', conclusion: null, completedAt: null };
+                    const job = matches[0];
+                    return { name: job.name, runId: job.run_id, runAttempt: job.run_attempt,
+                      status: job.status, conclusion: job.conclusion, completedAt: job.completed_at || null };
+                  });
+                  summary.jobs = selectedJobs;
+                  latestObserved = summary;
+                  const attemptBeforeMerge = attempt.status === 'completed' &&
+                    attempt.conclusion === 'success' && Number.isFinite(attemptStartedAt) &&
+                    Number.isFinite(attemptCompletedAt) && attemptCompletedAt <= evidenceCutoff;
+                  const jobsBeforeMerge = selectedJobs.every(job => {
+                    const completedAt = Date.parse(job.completedAt || '');
+                    return job.runId === run.id && job.runAttempt === attemptNumber &&
+                      job.status === 'completed' && job.conclusion === 'success' &&
+                      Number.isFinite(completedAt) && completedAt <= evidenceCutoff;
+                  });
+                  if (attemptBeforeMerge && jobsBeforeMerge) {
+                    eligible.push({ summary, completedAt: attemptCompletedAt });
+                  }
+                }
+              }
+              eligible.sort((a, b) => b.completedAt - a.completedAt);
+              if (eligible.length) return eligible[0].summary;
+              if (latestObserved) {
+                return { ...latestObserved, status: 'not_completed_by_merge', conclusion: null,
+                  jobs: latestObserved.jobs.map(job => ({ ...job,
+                    status: job.status === 'completed' && Date.parse(job.completedAt || '') > evidenceCutoff
+                      ? 'completed_after_merge' : job.status
+                  })) };
+              }
+              return { runId: null, runAttempt: null, headSha, status: 'missing',
+                conclusion: null, completedAt: null, jobs: [] };
+            };
             const mergeSha = pr.merge_commit_sha || 'UNKNOWN';
 
             // Select one exact CI workflow run first; never assemble jobs from Check Runs across runs.
@@ -69,29 +150,16 @@ jobs:
             if (workflow.path !== '.github/workflows/ci.yml') {
               throw new Error('CI workflow path did not match the required trusted workflow.');
             }
-            const workflowRunsResponse = await github.rest.actions.listWorkflowRuns({
-              owner, repo, workflow_id: workflow.id, head_sha: headSha,
-              event: 'pull_request', per_page: 100
+            const ciAttempt = await selectPreMergeAttempt({
+              workflow, workflowPath: '.github/workflows/ci.yml', event: 'pull_request',
+              headSha, headBranch: pr.head.ref, requiredJobNames: REQUIRED_CI_JOBS
             });
-            const matchingRuns = workflowRunsResponse.data.workflow_runs
-              .filter(run => run.head_sha === headSha && run.head_branch === pr.head.ref &&
-                run.event === 'pull_request' && run.path === '.github/workflows/ci.yml')
-              .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-            const selectedRun = matchingRuns[0] || null;
-            let ci = { workflowId: workflow.id, workflowPath: workflow.path, event: 'pull_request',
-              runId: selectedRun ? selectedRun.id : null,
-              runAttempt: selectedRun ? selectedRun.run_attempt : null,
-              headSha, status: selectedRun ? selectedRun.status : 'missing',
-              conclusion: selectedRun ? selectedRun.conclusion : null, jobs: [] };
-            if (selectedRun) {
-              const jobsResponse = await github.rest.actions.listJobsForWorkflowRunAttempt({
-                owner, repo, run_id: selectedRun.id, attempt_number: selectedRun.run_attempt, per_page: 100
-              });
-              ci.jobs = jobsResponse.data.jobs.map(job => ({
-                name: job.name, runId: job.run_id, runAttempt: job.run_attempt,
-                status: job.status, conclusion: job.conclusion
-              }));
-            }
+            const ci = {
+              workflowId: workflow.id, workflowPath: workflow.path, event: 'pull_request',
+              runId: ciAttempt.runId, runAttempt: ciAttempt.runAttempt, headSha,
+              status: ciAttempt.status, conclusion: ciAttempt.conclusion,
+              completedAt: ciAttempt.completedAt, jobs: ciAttempt.jobs
+            };
             // Check runs remain informational only; Preflight acceptance is bound to its exact workflow run/attempt.
             const checkRuns = await github.paginate(github.rest.checks.listForRef, {
               owner, repo, ref: headSha, per_page: 100
@@ -158,45 +226,34 @@ jobs:
             if (preflightWorkflow.path !== '.github/workflows/agent-task-preflight.yml') {
               throw new Error('Preflight workflow path did not match the required trusted workflow.');
             }
-            const preflightRunsResponse = await github.rest.actions.listWorkflowRuns({
-              owner, repo, workflow_id: preflightWorkflow.id, head_sha: headSha,
-              event: 'pull_request', per_page: 100
+            const preflightAttempt = await selectPreMergeAttempt({
+              workflow: preflightWorkflow,
+              workflowPath: '.github/workflows/agent-task-preflight.yml',
+              event: 'pull_request', headSha, headBranch: pr.head.ref,
+              requiredJobNames: ['Linux offline scratch fixture validation']
             });
-            const matchingPreflightRuns = preflightRunsResponse.data.workflow_runs
-              .filter(run => run.head_sha === headSha && run.head_branch === pr.head.ref &&
-                run.event === 'pull_request' && run.path === '.github/workflows/agent-task-preflight.yml')
-              .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-            const selectedPreflightRun = matchingPreflightRuns[0] || null;
             preflight = {
               applicable: true, workflowId: preflightWorkflow.id,
               workflowPath: preflightWorkflow.path, event: 'pull_request',
-              runId: selectedPreflightRun ? selectedPreflightRun.id : null,
-              runAttempt: selectedPreflightRun ? selectedPreflightRun.run_attempt : null,
-              headSha, status: selectedPreflightRun ? selectedPreflightRun.status : 'missing',
-              conclusion: selectedPreflightRun ? selectedPreflightRun.conclusion : null,
-              jobs: []
+              runId: preflightAttempt.runId, runAttempt: preflightAttempt.runAttempt,
+              headSha, status: preflightAttempt.status,
+              conclusion: preflightAttempt.conclusion,
+              completedAt: preflightAttempt.completedAt, jobs: preflightAttempt.jobs
             };
-            if (selectedPreflightRun) {
-              const preflightJobsResponse = await github.rest.actions.listJobsForWorkflowRunAttempt({
-                owner, repo, run_id: selectedPreflightRun.id,
-                attempt_number: selectedPreflightRun.run_attempt, per_page: 100
-              });
-              preflight.jobs = preflightJobsResponse.data.jobs.map(job => ({
-                name: job.name, runId: job.run_id, runAttempt: job.run_attempt,
-                status: job.status, conclusion: job.conclusion
-              }));
-            }
             }
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
               owner, repo, pull_number: prNumber, per_page: 100
             });
             const latestReviewByUser = new Map();
             const effectiveReviewStates = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
-            reviews.sort((a, b) => new Date(a.submitted_at || 0) - new Date(b.submitted_at || 0));
+            reviews.sort((a, b) => Date.parse(a.submitted_at || '') - Date.parse(b.submitted_at || ''));
             for (const review of reviews) {
-              if (review.user && review.user.login && effectiveReviewStates.has(review.state)) {
-                latestReviewByUser.set(review.user.login, review);
-              }
+              const submittedAt = Date.parse(review.submitted_at || '');
+              if (!review.user || !review.user.login || !effectiveReviewStates.has(review.state) ||
+                  !Number.isFinite(submittedAt) || submittedAt > evidenceCutoff) continue;
+              // DISMISSED reviews are conservatively treated as non-approvals. The Reviews API
+              // exposes submitted_at, not a reliable dismissal timestamp for historical reconstruction.
+              latestReviewByUser.set(review.user.login, review);
             }
             const approved = Array.from(latestReviewByUser.values()).some(review =>
               review.user.login !== pr.user.login &&
