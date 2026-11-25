@@ -2256,6 +2256,7 @@ test("operator recovery fails closed when ambiguous write read-back is unavailab
 test("main-push system-health success resets the breaker only for the exact current main SHA and successful required jobs", async () => {
   const initial = createInitialFactoryState(1000);
   initial.system.consecutive_failures = 2;
+  initial.system.last_failure_at = new Date(2000).toISOString();
   initial.system.cooldown_until = new Date(120_000).toISOString();
   const sha = "d".repeat(40);
   const store = fakeStore(initial);
