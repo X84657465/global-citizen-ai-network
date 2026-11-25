@@ -77,3 +77,36 @@ test("manual PR acceptance dispatch always checks out policy from the repository
   assert.match(source, /ref: \$\{\{ github\.event\.repository\.default_branch \}\}/);
   assert.doesNotMatch(source, /github\.event_name == 'workflow_dispatch' && github\.ref/);
 });
+
+
+test("rejects same-name Preflight check from another workflow without trusted run provenance", () => {
+  const input = valid({ preflight: {
+    applicable: true, headSha: sha, status: "completed", conclusion: "success",
+    requiredJobConclusion: "success"
+  }});
+  const result = evaluateAcceptance(input);
+  assert.ok(result.failures.some(x => x.code === "PREFLIGHT_RUN_IDENTITY_INVALID"));
+  assert.ok(result.failures.some(x => x.code === "PREFLIGHT_JOB_MISSING"));
+});
+
+test("accepts Preflight only from the exact trusted workflow run and attempt", () => {
+  const input = valid({ preflight: {
+    applicable: true, workflowId: 654, workflowPath: ".github/workflows/agent-task-preflight.yml",
+    event: "pull_request", runId: 456, runAttempt: 3, headSha: sha,
+    status: "completed", conclusion: "success",
+    jobs: [{ name: "Linux offline scratch fixture validation", runId: 456, runAttempt: 3,
+      status: "completed", conclusion: "success" }]
+  }});
+  assert.equal(evaluateAcceptance(input).accepted, true);
+});
+
+test("rejects Preflight job from a different run or attempt", () => {
+  const input = valid({ preflight: {
+    applicable: true, workflowId: 654, workflowPath: ".github/workflows/agent-task-preflight.yml",
+    event: "pull_request", runId: 456, runAttempt: 3, headSha: sha,
+    status: "completed", conclusion: "success",
+    jobs: [{ name: "Linux offline scratch fixture validation", runId: 456, runAttempt: 2,
+      status: "completed", conclusion: "success" }]
+  }});
+  assert.ok(evaluateAcceptance(input).failures.some(x => x.code === "PREFLIGHT_NOT_SUCCESS"));
+});
