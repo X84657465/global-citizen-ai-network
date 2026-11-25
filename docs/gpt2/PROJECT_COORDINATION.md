@@ -311,3 +311,450 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - **本次文件交付：** 追加本節至 `docs/gpt2/PROJECT_COORDINATION.md`，記錄 main push/preflight/recovery 的精確 run/job 終態、七個 OPEN PR 的 exact base/head 與外部狀態、正式 review 缺口，以及 G/H overlap blocker。此為文件-only 交付，不宣稱 runtime implementation、程式測試或 GPT3 acceptance。
 - **驗收界線：** 本輪沒有任何 PR 同時具備 exact-head 必要 CI 全成功、正式獨立 APPROVED、無未解阻塞及可合併狀態。沒有解除 Draft 或合併 PR；未繞過任何 owner、branch protection 或 CI gate。
 - **下一步：** 追蹤 #259 owner 對重疊檔案的整合處置；待路徑解除衝突後，分別處理 #375、#364。#553/#552 等待各自 owner 完成精確 HEAD CI 與獨立正式審查。Recovery 的空 steps 與 Preflight failure 交回 Factory/相關 owner 診斷，不由 GPT2 接管。
+
+## 6.14 即時狀態修正與舊候選清理 — 2026-11-25
+
+> 本節取代前述 6.11–6.13 中與目前 PR 清理結果不一致的 OPEN PR 清單；歷史快照保留但不得當作目前狀態。
+
+### Main
+- main HEAD：`462eeea5917f3b0750fc2c41c888a4d54c562c1e`。
+- 本次未修改 main。
+
+### PR 清理結果
+- 已關閉不可整合的舊候選：#478、#476、#376、#417、#259。其原始分支 base 落後目前 main，GitHub mergeable=false；不採用機械 rebase。
+- #558 已關閉，由 #559 後續修正候選取代。
+- #555 舊文件候選已關閉：內容包含過期 PR 狀態，且只有舊 HEAD 的 COMMENTED review，沒有正式 APPROVED。文件狀態以本節及新候選為準。
+- 已從目前 main 建立重建分支：`rebuild/pr478-gcan-mvp-from-main`、`rebuild/pr476-acceptance-governance-from-main`、`rebuild/pr376-factory-autonomy-docs-from-main`、`rebuild/pr417-neural-factory-seat-from-main`、`rebuild/pr259-factory-consolidation-from-main`。這些分支目前只是乾淨基底，尚未移植原 PR 變更，不代表新功能已重建或驗收。
+
+### 仍開啟的候選與精確驗收狀態（2026-11-25 即時重查）
+- #559，HEAD `d2ea22c554c74c982ab7e4f2b2a0cfcf7c079fe9`：CI run `45538396851` 為 IN_PROGRESS；Resolver SUCCESS，Windows quality gates IN_PROGRESS。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #577 ERROR。Review 僅 COMMENTED，無正式 APPROVED。
+- #560，HEAD `8523d8516d316b938c62b292640578d2de35eb4c`：CI run `45540620989` 為 PENDING；Resolver job PENDING。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #582 ERROR。Review 僅 COMMENTED，無正式 APPROVED。
+- #561，HEAD `1e63c727b763c18106880121773a5da14c581618`：CI run `45537703554` 為 SUCCESS；Resolver、Windows quality、Supabase/PostgreSQL/RLS、Ollama/local jobs 均 SUCCESS，但三個 Persist／Diagnostics jobs 均 SKIPPED。這不等於 Recovery 診斷已執行或恢復成功。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #568 ERROR。Review 僅 COMMENTED，無正式 APPROVED。
+- #562，HEAD `7a6bc97fbdf89e59033a1f5b923832dbf509b09f`：CI run `45538233679` 為 SUCCESS；Resolver、Windows quality、Ollama/local、Supabase/PostgreSQL/RLS jobs 均 SUCCESS，但三個 Persist／Diagnostics jobs 均 SKIPPED。Vercel FAILURE（build-rate-limit），CircleCI Pipeline #575 ERROR。Review 僅 COMMENTED，無正式 APPROVED。GPT3 文件審查指出本節先前漏列 #562 本身；本次已補列，後續仍需獨立正式 APPROVED。
+- 四件 PR（#559、#560、#561、#562）目前均 OPEN、Draft，base 均為 main，base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`；GitHub 回報 mergeable=true，但外部 Vercel/CircleCI 均未通過，且無正式 APPROVED，因此全部維持 Draft，不解除、不合併。
+- 本次狀態以每件 PR 的目前 exact HEAD、最新可取得的 Actions run/jobs、combined status 與正式 review submissions 為準；舊 SHA 的 CI/review 不轉移至新 HEAD。
+
+### 驗收界線
+- 本文件更新只屬文件交接；不宣稱 Factory Recovery 已恢復、程式功能已實作或 B 主線已可推進。
+- 任何 PR 只有在目前 exact HEAD 的必要 CI 全部成功、獨立正式 Review APPROVED、未解 threads 清零、base/mergeability 與 repository gates 均符合時，才可解除 Draft／合併。
+
+## 6.15 即時巡檢與 GPT2 文件修正 — 2026-11-25 14:10 Asia/Taipei
+
+> 本節是本次查核時間點的即時快照，取代 §6.14 的「目前 PR 狀態」用途；§6.14 保留為歷史紀錄。PR HEAD 改變後，本節的 CI／review／外部狀態即不再代表新 HEAD。
+
+### Main 精確狀態
+- `refs/heads/main`：`462eeea5917f3b0750fc2c41c888a4d54c562c1e`（本次重新讀取 ref 確認）。
+- Main Push CI run `45505611114`，attempt 1，COMPLETED / SUCCESS。Resolver、Windows quality gates、PostgreSQL/RLS、Ollama/local 四項實質工作 SUCCESS；但成功持久化 job 的 revalidation、record、evidence JSON、artifact upload 步驟 SKIPPED，另有兩個持久化／診斷 jobs SKIPPED。不能宣稱完整 evidence persistence 或 breaker reset。
+- Main Recovery run `45555540275`，attempt 1，COMPLETED / FAILURE；唯一 job `139006576806` FAILURE，Jobs API 顯示 0 steps。根因 UNKNOWN；前一個 Recovery run `45554144805` 亦 FAILURE。停止盲目重跑，不重置 breaker。
+- Main Preflight run `45547466932`，attempt 1，COMPLETED / FAILURE；job `138980414769` 在「Validate task and create a safe handoff bundle」FAILURE，六個下游 jobs SKIPPED。此為 Factory/task-owner 範圍，GPT2 不接管。
+- Main combined external statuses：Vercel FAILURE（build-rate-limit）；CircleCI Pipeline #574 ERROR。Main 不是全綠。
+- Branch protection endpoint 本次回應 403 Resource not accessible by integration；因此 branch protection／required-check 設定狀態 UNKNOWN，不推定為啟用或停用。
+
+### 全部 OPEN PR（本次搜尋 4 件；base 均為 main，base SHA 均為上述 main SHA）
+- **#559** — OPEN / Draft；HEAD `567f27233103790b07c26c59dab7dbb4b033fced`。Actions run `45544850826` attempt 1 COMPLETED / SUCCESS；Resolver、Windows quality、PostgreSQL/RLS、Ollama/local 實質 jobs SUCCESS，但三個 Persist／Diagnostics jobs SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI Pipeline #607 ERROR。5 筆 review 均 COMMENTED，0 APPROVED。
+- **#560** — OPEN / Draft；HEAD `80a1ac355bc1dfe540410ac3b0ad4eed4fa2a97e`。Actions run `45557346032` attempt 1 IN_PROGRESS；Resolver、Windows quality、Ollama/local SUCCESS；PostgreSQL/RLS job `139014701324` IN_PROGRESS，工作流程尚無終態。Vercel SUCCESS；CircleCI Pipeline #620 ERROR。5 筆 review 均 COMMENTED，0 APPROVED。
+- **#561** — OPEN / Draft；HEAD `ac904aa3d6b787177bd0c2d58f173f9955af64d8`。CI run `45544583799` attempt 1 COMPLETED / SUCCESS；四項實質 jobs SUCCESS，但三個 Persist／Diagnostics jobs SKIPPED。另有 Preflight run `45544584160` attempt 4 COMPLETED / FAILURE；Linux offline scratch fixture job `138991100153` FAILURE，其餘六個下游 jobs SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI Pipeline #605 ERROR。6 筆 review 均 COMMENTED，0 APPROVED。
+- **#562（GPT2 自有文件候選；以下為本次文件更新前的前一版 HEAD 歷史證據，不代表包含本次更新的目前 HEAD）** — 當時觀測 HEAD `9635f8c1102752802100aa466f2b8a5f3feef807`；當時 Actions run `45540835752` attempt 2 COMPLETED / SUCCESS，Resolver、Windows quality、Ollama/local、PostgreSQL/RLS 四項實質 jobs SUCCESS，但三個 Persist／Diagnostics jobs SKIPPED；當時 Vercel FAILURE（build-rate-limit）、CircleCI Pipeline #583 ERROR，3 筆 review 均 COMMENTED、0 APPROVED，review-thread 查詢回傳 0 threads。**以上均為歷史快照；本次文件更新會改變 PR HEAD，請以 [PR #562 最新 Checks](https://github.com/X84657465/global-citizen-ai-network/pull/562/checks) 與 [PR #562 最新 Reviews](https://github.com/X84657465/global-citizen-ai-network/pull/562) 核對目前 exact HEAD，不得將此處舊 SHA／CI／review 沿用至新 HEAD。**
+- 四件 PR 的 GitHub metadata 均為 mergeable=true，但仍全數 Draft；外部失敗／錯誤、SKIPPED 證據步驟及正式 APPROVED 缺口未解除。不得解除 Draft 或合併。COMMENTED 不等於 APPROVED；不同 SHA 的舊 CI／review 不轉移到目前 HEAD。
+
+### GPT2/F–P 處置與交付
+- 本次唯一直接可處理且屬 GPT2 自有範圍的工作，是修正本文件 §6.14 已過期的即時 PR 清單；已在本節記錄目前精確 SHA、run／attempt／job 終態、外部狀態與正式 review 數。
+- #559 的 stacked acceptance 改動、#561 的 Factory Recovery diagnostics、Main Recovery／Preflight 根因，均不由 GPT2 越權接管；Vercel 額度限制與 CircleCI ERROR 交由服務／專案管理者處理。
+- #562 本次仍只屬文件交付；未執行本機測試、TypeScript、Lint 或 Build。此文件更新不構成 GPT3 APPROVED、程式驗收、PR 解 Draft 或合併。
+- 下一步：保持 #562 Draft；待目前 HEAD 的獨立正式 APPROVED、必要 CI／外部檢查及 repo gate 證據齊備後再評估。其他阻塞持續時，轉向無重疊且有明確 GPT2/F–P owner/allowlist 的可閉環任務。
+
+
+
+## 6.16 即時巡檢、G 測試阻塞與交付分流 — 2026-11-25 15:16 Asia/Taipei
+
+> 本節為本次即時觀測快照。PR #562 的下列 HEAD 是本文件更新前的 HEAD；本次文件提交會改變 #562 HEAD，故其新 SHA 的 Actions／reviews 必須重新查詢，不沿用舊證據。
+
+### Main
+- `refs/heads/main`：`462eeea5917f3b0750fc2c41c888a4d54c562c1e`。
+- Main Push CI run `45505611114`：COMPLETED / SUCCESS；Resolver、Windows quality gates、PostgreSQL/RLS、Ollama/local 四項實質工作 SUCCESS，但持久化／診斷 jobs 與部分 evidence persistence 步驟 SKIPPED，不能宣稱 durable evidence 或 breaker reset 已完成。
+- 最新 Recovery run `45565797654`：COMPLETED / FAILURE；唯一 job `139040144212` FAILURE。其後 Recovery run `45566416348`：COMPLETED / SKIPPED；唯一 job `139042204451` SKIPPED。不得將 SKIPPED 當成重試成功。
+- Main Preflight run `45547466932`：COMPLETED / FAILURE；下游 jobs SKIPPED。根因與修繕交由 Factory／該任務 owner，不由 GPT2 接管。
+- Main external checks：Vercel FAILURE（`build-rate-limit`）；CircleCI Pipeline #646 ERROR。Branch protection endpoint 回應 403 `Resource not accessible by integration`，設定狀態 UNKNOWN。
+
+### 全部 OPEN PR（7 件；base 均為上述 main SHA）
+- **#559** — HEAD `567f27233103790b07c26c59dab7dbb4b033fced`；Actions run `45544850826` attempt 1 COMPLETED / SUCCESS。Resolver、Windows quality、PostgreSQL/RLS、Ollama/local SUCCESS；三個持久化／診斷 jobs SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI #607 ERROR；5 COMMENTED、0 APPROVED。
+- **#560** — HEAD `196ca3790b124ccd7284d37d7a3dc86c64f6bd7b`；Actions run `45564202225` attempt 1 COMPLETED / SUCCESS。四項實質 jobs SUCCESS；三個持久化／診斷 jobs SKIPPED。Vercel SUCCESS；CircleCI #644 ERROR；5 COMMENTED、0 APPROVED。
+- **#561** — HEAD `ac904aa3d6b787177bd0c2d58f173f9955af64d8`；CI run `45544583799` attempt 1 COMPLETED / SUCCESS，四項實質 jobs SUCCESS、三個持久化／診斷 jobs SKIPPED；另有 Preflight run `45544584160` attempt 7 FAILURE，Linux offline scratch fixture job `139036463820` FAILURE，其餘六個 jobs SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI #605 ERROR；6 COMMENTED、0 APPROVED。
+- **#562（GPT2 自有文件候選）** — 本次文件更新前 HEAD `66992c0662b7dbd3084eab7444dad1056452a302`；Actions run `45560366051` attempt 2 CANCELLED，Resolver job `139023017436` CANCELLED，其餘六個 jobs SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI #624 ERROR；4 COMMENTED、0 APPROVED；未解 review threads 0。此 HEAD／CI 僅為本次文件提交前證據。
+- **#563** — HEAD `e62f4fc4322432f71f46c9478f1bdbace174dcdc`；Actions run `45560540985` attempt 1 COMPLETED / SUCCESS。四項實質 jobs SUCCESS，三個持久化／診斷 jobs SKIPPED。Vercel SUCCESS；CircleCI #626 ERROR；未取得正式 review。
+- **#564（GPT2 G 工作線）** — HEAD `d01629fa3cfb210bec2ba7f2f2bd166103e7484e`；Actions run `45564498923` attempt 1 COMPLETED / FAILURE。Resolver SUCCESS；Windows quality job `139038195506` FAILURE；diagnostics job SUCCESS；Ollama、PostgreSQL/RLS 與持久化 jobs SKIPPED。失敗 job 的 849 個單元測試為 843 PASS／6 FAIL；六個失敗案例都在 F–G integration assurance fixture，因四個 G required job 共用同一個 job URL 而觸發 `Duplicate G CI job evidence.`。Type Check、Lint、Production Build 因前置 Unit Tests 失敗而 SKIPPED。Vercel FAILURE（build-rate-limit）；CircleCI #645 ERROR；未取得正式 review。
+- **#565** — HEAD `6babc46633e6c834ed3bae9fa335014ec6701700`；Actions run `45566015159` attempt 1 IN_PROGRESS。Resolver job `139040876817` SUCCESS；Windows quality job `139041975366` IN_PROGRESS，Node setup 尚在執行，後續安裝、Runner/Ollama、migration/schema guards、audits、tests、types、lint、build 均 PENDING。Vercel SUCCESS；CircleCI #648 ERROR；未取得正式 review。
+- 七件 PR 均 OPEN / Draft，GitHub 回報 mergeable=true；目前沒有任何 PR 取得正式 APPROVED。COMMENTED 不等於 APPROVED，mergeable=true 也不代表驗收完成。
+
+### GPT2 自有工作與阻塞分流
+- **#564 根因已定位，但暫不越界修改。** Issue #375 明確限制 G 修繕範圍為 `lib/fp/release-assurance.ts`、`tests/fp/release-assurance.test.ts`、G changelog／README 與 manifest；六個失敗案例位於另一個 `tests/fp/f-g-integration-assurance.test.ts` fixture。該路徑不在 Issue #375 的明確 allowlist。不得為了 CI 轉綠而放寬重複 URL 防護，也不得未經授權擴大 Issue 範圍；需由該整合測試 owner／Issue owner 決定是否擴 scope 或提供相容 fixture 修正。
+- **#562 的 CodeRabbit finding 已在現有文件中處理：** 將該 SHA／CI 標記為本次文件更新前的歷史證據，並指向 PR live Checks／Reviews；此處不把 CodeRabbit COMMENTED 或本文件自查當作獨立 APPROVED。
+- Vercel rate limit 與 CircleCI Pipeline ERROR 是外部 provider／專案設定阻塞；GPT2 不改 billing、secrets、provider 設定或權限。Main Recovery／Preflight 屬 Factory／任務 owner，不重複盲目 rerun。
+- 本節只更新 GPT2 自有文件；未修改 main、Runtime、Factory state、Runner、workflow、DB/RLS、secrets 或 deployment。未執行本機測試／typecheck／lint/build。#562 新文件 HEAD 的 exact-SHA CI 與 review 狀態須在本提交後重新取得。
+- **驗收界線：** 所有 PR 保持 Draft；沒有解除 Draft、沒有合併、沒有宣稱獨立驗收或部署完成。
+
+
+## 6.17 即時巡檢與 GPT2 文件更新 — 2026-11-25（本輪重新查核）
+
+> 本節為本次重新讀取 GitHub refs、PR metadata、exact-head Actions runs/jobs 與 combined statuses 後的快照。下列 PR #562 的 SHA／CI 是本次文件提交前證據；此文件提交會改變 #562 HEAD，故提交後必須重新查 exact-head CI 與 reviews，不可沿用本節的 #562 歷史證據。
+
+### Main
+- `refs/heads/main`：`a772acbeb93e877697bfc315ecc0a29f2f611b9f`。
+- Main Push CI `45596820733`：COMPLETED / SUCCESS；Windows quality gates、Ollama/local、PostgreSQL/RLS 實質工作 SUCCESS。
+- Main Recovery `45603245818`：COMPLETED / FAILURE；同類 Recovery 驗證失敗已重複出現，不盲目重跑、不宣稱 breaker reset。
+- Main combined statuses：Vercel FAILURE（deployment rate limit，提示 24 小時後重試）；CircleCI Pipeline ERROR（project configuration not found）。
+- Main check runs 同時存在 FAILURE 與 SKIPPED 的 Recovery／branch-protection／evidence 工作；Main 不是全綠。Branch protection 驗證失敗不等於已證明保護設定已啟用或停用。
+
+### 全部 OPEN PR（10 件）
+以下 HEAD、BASE 與 status 均為本輪重新讀取值；Actions SUCCESS 不會覆蓋 external provider FAILURE/ERROR，也不會自動滿足正式審查。
+
+| PR | HEAD | BASE | Draft | Exact-head Actions／其他阻塞 |
+|---|---|---|---|---|
+| #570 | `98767a70d6729917a3938ac6772e76fdbd884251` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | yes | CI run `45603966381` PENDING；Preflight `45603966403` FAILURE：Linux offline scratch fixture validation FAILURE，其餘 6 Jobs SKIPPED |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | yes | CI `45600232110` SUCCESS；branch-protection verification `45600232082` FAILURE |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | no | CI `45585171843` SUCCESS；Vercel FAILURE、CircleCI ERROR |
+| #565 | `4a544b0321c83309c2e4ff6bc7d6ca57ded42c90` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | yes | CI `45582051332` SUCCESS；Vercel FAILURE、CircleCI ERROR |
+| #564 | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | CI `45567260893` SUCCESS；Vercel FAILURE、CircleCI ERROR；formal reviews 0，review threads 0 |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | CI `45560540985` SUCCESS；Vercel SUCCESS、CircleCI ERROR |
+| #562 | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | pre-update CI `45567007717` SUCCESS；Vercel FAILURE、CircleCI ERROR；reviews 為 COMMENTED，非 APPROVED；1 個 review thread 已 resolved/outdated |
+| #561 | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | CI `45544583799` SUCCESS；Preflight `45544584160` attempt 8 FAILURE；Vercel FAILURE、CircleCI ERROR |
+| #560 | `1c758ecbc7c3399d7d98e0b1d0970bbcbbda0a97` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | CI `45603964148` IN_PROGRESS；Resolver、Windows quality、Ollama/local SUCCESS；PostgreSQL/RLS IN_PROGRESS |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | Acceptance Gate runs `45559927442`／`45559920138`／`45559909285` FAILURE；另有 CI `45544850826` SUCCESS；Vercel FAILURE、CircleCI ERROR |
+
+### PR #564 / Issue #375 — G 工作線
+- Main SHA `a772acbeb93e877697bfc315ecc0a29f2f611b9f` 與 PR #564 merge base `462eeea5917f3b0750fc2c41c888a4d54c562c1e` 比較：Main 相對 merge base ahead 5 commits；PR #564 相對 merge base ahead 8 commits（DIVERGED）。
+- Main 新增的 5 commits 只修改 `.github/workflows/verify-gcan-pat.yml` 與 `docs/GCAN_COMPETITIVE_PRODUCT_STRATEGY.md`，與 PR #564 的 G 修復檔案沒有同路徑重疊。PR #259 已 CLOSED / unmerged，原先開放重疊候選不再是 OPEN PR。
+- 這只代表目前觀察到的路徑衝突風險低，不代表已 rebase 或已同步。現有可用操作未提供安全 rebase；本輪未移動分支、未 force push。
+- PR #564 仍 Draft；exact-head Actions SUCCESS 不包含獨立 formal APPROVED。Vercel FAILURE、CircleCI ERROR 持續存在。
+- 已在 Issue #375 新增 comment `7161169921`，記錄 Main/PR 比較、無同檔案衝突的觀察、PR #259 關閉狀態與下一步驗收條件。
+
+### GPT2/F–P 本輪處置
+- 本輪唯一直接寫入的交付是更新本文件的即時快照；此為文件交接，不是程式碼修復、測試通過或部署驗收。
+- #570 Linux fixture failure、#561 Preflight failure、Main Recovery failure 交由 Factory／對應 owner；不接管其他模組。
+- Vercel rate limit 與 CircleCI configuration error 交由 provider／專案管理者處理，不更改 billing、secrets、權限或 provider 設定。
+- #562 提交此文件後會產生新 HEAD；舊 SHA 的 SUCCESS、COMMENTED review 與 resolved thread 不轉移到新 HEAD。
+- 本輪沒有解除 Draft、沒有合併任何 PR、沒有宣稱獨立 APPROVED；#562 必須在新 HEAD 上重新取得完整 CI 終態與正式獨立 review。
+
+### 驗收界線
+- 所有 PR 只有在目前 exact HEAD 的必要 checks 全部 terminal SUCCESS、外部必要檢查無阻塞、review threads 無未解阻塞、取得真正獨立 formal APPROVED、base/mergeability 與 repository gate 均符合後，才可評估解除 Draft／合併。
+- PENDING、IN_PROGRESS、SKIPPED、0 Jobs、branch-protection API/驗證 FAILURE、Vercel rate limit、CircleCI ERROR 均不是綠燈。
+
+
+## 6.18 即時巡檢與 GPT2 工作分流 — 2026-11-25 23:45 Asia/Taipei
+
+> 本節為本次即時查核快照。所有 Actions／status／review 結論僅對應下列 exact HEAD；HEAD 改變即須重新查核。PR #562 的 HEAD 是本次文件更新前的 SHA；本次提交會改變 #562 HEAD，故該 PR 新 SHA 的 CI／review 必須重新取得，不得沿用舊證據。
+
+### Main 精確狀態
+
+- `refs/heads/main`：`94004585a0756d10c56edd6d65dc143b05a652ab`。
+- Main Push CI run `45640241849`，attempt 1，COMPLETED / SUCCESS。Resolver、Windows quality gates、Ollama/local integration、Supabase/PostgreSQL/RLS 四項實質 jobs SUCCESS；但 diagnostics、candidate/system failure persistence jobs SKIPPED，且 success-persistence job 的 revalidate、record、evidence JSON、artifact upload 步驟 SKIPPED。不得宣稱完整 evidence persistence 或 breaker reset。
+- Main Recovery 最新可見 run `45648538436`，attempt 1，COMPLETED / SKIPPED；job `139326192966` SKIPPED、0 steps。前一個 run `45647756585` COMPLETED / FAILURE；唯一 job `139323279340` FAILURE、0 steps。根因 UNKNOWN；停止盲目重跑，不重置 breaker。
+- Main combined status：Vercel FAILURE（build-rate-limit）。本次 main SHA 的 Actions runs 清單未回傳 Preflight run；不得推定 Preflight PASS。Branch protection endpoint 回應 403 Resource not accessible by integration，設定與 required-check 規則狀態 UNKNOWN。
+- Main 不是全綠；技術 CI SUCCESS 不覆蓋 Recovery FAILURE／SKIPPED、evidence persistence SKIPPED 或 Vercel FAILURE。
+
+### 全部 OPEN PR（15 件；本次搜尋與 metadata 重核）
+
+| PR | HEAD | BASE | Draft / Mergeable | exact-head Actions／外部 status |
+|---|---|---|---|---|
+| #579 | `2cada172191c21d62a48f47bd3acd1913b663e5a` | main `94004585` | Draft / true | CI `45648588571` PENDING（1 job pending）；Autofix `45648588694` FAILURE；combined statuses 空，無正式 review。 |
+| #565 | `47c403b63517e8e92564c6d6f3189be63e2e781a` | main `94004585` | Draft / true | CI `45643721399` SUCCESS；Resolver、Windows quality、Ollama/local、Supabase/RLS jobs SUCCESS；3 個 persistence／diagnostic jobs SKIPPED。Autofix `45643721451` FAILURE；Vercel SUCCESS；CodeRabbit COMMENTED、2 個未解 threads。 |
+| #560 | `b8ead614c9857b89a2878f4e0ed13925e136dddd` | main `94004585` | Draft / true | CI `45647946764` IN_PROGRESS；Resolver SUCCESS、Windows quality job IN_PROGRESS（Lint step IN_PROGRESS）；Vercel FAILURE（build-rate-limit）；5 筆 review 均 COMMENTED，無 APPROVED。 |
+| #576 | `4e8ecb3368b8716c12aa20388975ce6044fb0bd8` | main `94004585` | Draft / true | CI `45642766445` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；Vercel FAILURE（build-rate-limit）；無正式 review。 |
+| #575 | `c9c3be8f315c2c3eae695c6db63abafbf02edf3a` | main `a772acbe` | Draft / true | CI `45629288165` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；Vercel FAILURE（build-rate-limit）、CircleCI Pipeline #730 ERROR；CodeRabbit COMMENTED、1 個未解 thread。 |
+| #571 | `07fbee6e1272049c3fdd4d23246dcdb3bb327797` | main `a772acbe` | Draft / true | CI `45620122969` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；Vercel FAILURE、CircleCI Pipeline #721 ERROR；無正式 review。 |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | `feat/g-release-evidence-v2` `4e70c548` | Draft / true | CI `45615936030` FAILURE：resolver FAILURE、system-failure persistence FAILURE，其餘 build／integration／success-persistence jobs SKIPPED；Vercel FAILURE、CircleCI Pipeline #719 ERROR；無正式 review。 |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | `feat/g-release-evidence-contract` `6f735c12` | Draft / true | exact-head Actions run 未回傳；Vercel FAILURE、CircleCI Pipeline #715 ERROR；不得將「無 run」視為 PASS；無正式 review。 |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | `feat/g-p-workstream-governance` `c2d2b17b` | Draft / true | CI `45614788127` FAILURE：resolver FAILURE、system-failure persistence FAILURE，build／integration／success-persistence jobs SKIPPED；Vercel FAILURE、CircleCI Pipeline #711 ERROR；無正式 review。 |
+| #564 | `a100b6f3df89717e5c06a1da7955998baf343770` | main `a772acbe` | Draft / true | CI `45610501178` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；Vercel SUCCESS、CircleCI Pipeline #700 ERROR；0 formal review、0 review threads。相對目前 main compare 為 DIVERGED（ahead 9／behind 7）。 |
+| #562 | `49d87ba0f65438c8666e473b80f87b9c54f70690` | main `462eeea5` | Draft / true | 本次文件更新前 CI `45605696725` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；Vercel SUCCESS、CircleCI Pipeline #696 ERROR；reviews 僅 COMMENTED，無 APPROVED。相對目前 main compare 為 DIVERGED（ahead 6／behind 12）。本節提交後必須重查新 HEAD。 |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | main `a772acbe` | Draft / false | CI `45600232110` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；另 branch-protection verification run `45600232082` FAILURE；Vercel FAILURE、CircleCI Pipeline #688 ERROR。 |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | main `b39228e2` | Ready / true | CI `45585171843` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；Vercel FAILURE、CircleCI Pipeline #675 ERROR；CodeRabbit COMMENTED、5 個未解 threads，無 APPROVED。 |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | main `462eeea5` | Draft / true | CI `45560540985` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；Vercel SUCCESS、CircleCI Pipeline #626 ERROR；無正式 review。 |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | main `462eeea5` | Draft / true | CI `45544850826` SUCCESS；4 個實質 jobs SUCCESS、3 個 persistence／diagnostic jobs SKIPPED；Vercel FAILURE、CircleCI Pipeline #607 ERROR；review submissions 僅 COMMENTED、7 個未解 threads，無 APPROVED。 |
+
+> 上表 SHA 縮寫只為閱讀；操作與驗收必須使用 GitHub PR metadata 的完整 SHA。除明列外，未回傳的 provider status／review 不得推定成功。所有 15 件 PR 均 OPEN；mergeable=true 不是驗收或合併授權。#567 是唯一非 Draft；仍因外部檢查、未解 threads、缺正式 APPROVED 而不得合併。
+
+### GPT2/F–P 自有工作與阻塞分流
+
+- **#564／Issue #375（G）**：Issue 明確 allowlist 僅含 `lib/fp/release-assurance.ts`、`tests/fp/release-assurance.test.ts`、G changelog／README、`versions/manifest.json`。目前 PR diff 另含 `tests/fp/f-g-integration-assurance.test.ts`，超出 Issue allowlist；不可為了解除阻塞而擴大範圍或放寬 duplicate job URL 防護。PR 相對目前 main DIVERGED（9 ahead／7 behind），不機械 rebase／force-push。待 Issue owner／整合測試 owner 明確處理 scope 與 fixture 相容性。
+- **#562（GPT2 自有協調文件）**：目前 main 自 merge base `462eeea5917f3b0750fc2c41c888a4d54c562c1e` ahead 12 commits；PR 分支 ahead 6／behind 12。這 12 個 main commits 未修改 `docs/gpt2/PROJECT_COORDINATION.md`，但分支仍未同步；不機械 rebase。此次在既有 GPT2 文件分支追加本節即時快照，作為本輪唯一直接文件交付；本文件更新不代表程式測試、GPT3 APPROVED 或 PR 接受。
+- Main Recovery／Preflight 屬 Factory／對應 task owner，不由 GPT2 接管；Vercel build-rate-limit 與 CircleCI ERROR 交由 provider／專案管理者處理，不改 billing、secrets、權限或 provider 設定。
+- Branch protection API 403，狀態 UNKNOWN；不得假設保護規則已啟用或停用。不得自我批准、把 COMMENTED 當 APPROVED、解除 Draft 或合併未達 gate 的 PR。
+- 本次為 GitHub API 唯讀巡檢及 GPT2 文件更新；未執行本機測試、TypeScript、Lint、Build，亦未修改 main、Factory／Runtime、secrets、權限或部署。
+
+### 驗收與下一步
+
+- #562 新 commit 產生後，重新查其 exact HEAD、Actions runs/jobs/steps、Vercel／CircleCI、formal reviews 與 review threads；舊 SHA 的 SUCCESS／COMMENTED 不轉移。
+- #564 等待 Issue #375 allowlist／integration fixture owner 明確處理；#565 等待未解 threads 與獨立 review；#579／#560 等待 exact-head CI 終態；其他 PR 按各自 owner／provider blocker 分流。
+- 只有 exact-head 必要 jobs 全部 terminal SUCCESS、外部必要檢查可接受、未解阻塞清零、獲授權獨立 formal APPROVED、base／mergeability／repository gate 均符合時，才可評估解除 Draft／合併。PENDING、IN_PROGRESS、0 jobs、SKIPPED、缺少 run、FAILURE、ERROR、403 或 Rate Limit 均不是 PASS。
+
+
+## 6.19 即時巡檢與 GPT2 自有文件交付 — 2026-11-26 00:30 Asia/Taipei
+
+> **歷史快照／提交前證據（非本節所在 commit 的即時狀態）：** 本節記錄的 PR #562 HEAD `a4849cf6cfad4ce430573cfd4d2f29b494c45fc0`、CI run `45649416400` 與 review／provider 狀態，是本節文件更新前觀測到的候選版本證據。後續提交本文件會改變 PR #562 的 HEAD；因此上述 SHA、CI、Review 與外部狀態均不得解讀為目前包含本節內容的 commit 已通過驗收。請以 [PR #562 即時頁面](https://github.com/X84657465/global-citizen-ai-network/pull/562) 的最新 HEAD、Checks、Reviews 與 Conversations 為準，並對每個新 HEAD 重新執行 exact-head 驗證。
+
+### Main 精確狀態
+- `refs/heads/main`：`94004585a0756d10c56edd6d65dc143b05a652ab`。
+- Main Push CI run `45640241849`，attempt 1，COMPLETED / SUCCESS。四個實質 jobs（metadata resolver、Windows quality gates、Ollama/local integration、Supabase/PostgreSQL/RLS integration）均 SUCCESS。
+- 同一 run 的 diagnostics／failure persistence jobs 為 SKIPPED；success-persistence job 雖然 Job SUCCESS，但 revalidate、record、evidence JSON、artifact upload 步驟均 SKIPPED。故只確認四項實質技術工作成功，不宣稱完整 evidence persistence 或 breaker reset 完成。
+- Main Recovery 最新 run `45654495866`，attempt 1，COMPLETED / SKIPPED；唯一 job `139347498667` SKIPPED。前一 run `45653625817`，attempt 1，COMPLETED / FAILURE；唯一 job `139344365616` FAILURE。不得把 SKIPPED 當成功，也不盲目重跑相同根因。
+- Main combined status：Vercel FAILURE，訊息為 deployment rate limited，要求 24 小時後重試。Main 整體不是全綠。
+- Branch protection／required-check 設定本輪未取得可用證據；不得推定已啟用或停用。
+
+### OPEN PR inventory
+- 本輪 GitHub 查詢取得 17 件 OPEN PR：#581、#580、#579、#576、#575、#574、#573、#572、#571、#568、#567、#565、#564、#563、#562、#560、#559。
+- PR metadata 的 mergeable=true 只代表 GitHub 回報可合併狀態，不等於驗收或授權。#567 是非 Draft；其餘 16 件為 Draft。不得因 metadata 可合併就直接合併。
+- 本輪沒有對全部 17 件逐一取得 exact-head workflow jobs、外部 provider checks、正式 reviews 與 review threads 的完整終態；未列出的項目一律標記為尚未完成驗收，不推定成功。
+
+### GPT2 自有 PR #562 — 本輪 exact-head 查核
+- PR：`https://github.com/X84657465/global-citizen-ai-network/pull/562`
+- 狀態：OPEN / Draft；GitHub mergeable=true。
+- Exact HEAD：`a4849cf6cfad4ce430573cfd4d2f29b494c45fc0`。
+- Base SHA：`462eeea5917f3b0750fc2c41c888a4d54c562c1e`；相對目前 Main `94004585a0756d10c56edd6d65dc143b05a652ab`，比較結果 DIVERGED：PR ahead 7、behind 12。Main 自舊 base 的 12 個 commits 只涉及 `.coderabbit.yaml`、`.github/workflows/autofix.yml`、`.github/workflows/verify-gcan-pat.yml`、`.mergify.yml`、`docs/GCAN_COMPETITIVE_PRODUCT_STRATEGY.md`；本 PR 只改 `docs/gpt2/PROJECT_COORDINATION.md`，本輪不做機械 rebase／force-push。
+- Exact-head CI run `45649416400`，attempt 1，COMPLETED / SUCCESS；Resolver、Windows quality gates、Ollama/local integration、Supabase/PostgreSQL/RLS integration 四個實質 jobs 全部 SUCCESS。三個 diagnostics／persistence jobs 均 SKIPPED，故不可宣稱完整證據持久化。
+- 同一 HEAD 的獨立 autofix workflow run `45649416095`，COMPLETED / FAILURE，job `139329491918` FAILURE。嘗試讀取該 job log 時，GitHub log endpoint 回傳 BlobNotFound；根因目前 UNKNOWN，不把它混同為主 CI PASS，也不猜測失敗原因。
+- Exact-head combined status：Vercel SUCCESS（Deployment has completed）。本輪未取得 CircleCI 的可確認終態，標記 UNKNOWN。
+- Formal review submissions 共 4 筆，全部為 COMMENTED（作者 3 筆、CodeRabbit 1 筆），0 筆 APPROVED。唯一 review thread 已 resolved 且 outdated；沒有未解 thread，但仍缺獨立正式 APPROVED。
+- 因缺少正式獨立 APPROVED、autofix workflow FAILURE 根因尚未查明、PR 與 Main diverged 12 commits，維持 Draft；不解除 Draft、不合併。
+
+### GPT2/F–P 本輪交付與分流
+- 已在 GPT2 自有 PR #562 的 `docs/gpt2/PROJECT_COORDINATION.md` 追加本節即時證據，記錄 Main SHA、Recovery FAILURE/SKIPPED、17 件 OPEN PR inventory，以及 #562 exact-head CI／外部狀態／Review／分支差異。
+- 本次為文件證據交付；未執行本機測試、未修改 Main、未修改 Factory／Runtime、Secrets、權限、資料庫或部署。
+- Main Recovery 的 FAILURE／SKIPPED 屬 Factory owner 範圍；Vercel rate limit 屬 provider 外部限制。GPT2 不越權接管，將工作優先維持在自有文件與可獨立閉環的 F–P 範圍。
+- 下一步：先釐清 #562 autofix job failure 的可讀日誌／根因；確認 GPT3 對目前 exact HEAD 的獨立正式 APPROVED；再評估安全同步 12 個 Main commits。所有操作均須重新以最新 SHA 驗收。
+
+### 驗收界線
+- PENDING、IN_PROGRESS、0 jobs、SKIPPED、FAILURE、缺失日誌、外部 Rate Limit、未取得的 provider 狀態均不是 PASS。
+- COMMENTED 不等於 APPROVED；mergeable=true 不等於接受；不同 SHA 的舊 CI／Review 不轉移到新 HEAD。
+
+
+## 6.20 即時巡檢與 GPT2/F–P 分流 — 2026-11-26（最新查核）
+
+> 本節記錄本次 GitHub API 查核及本 PR 文件更新前後的精確狀態。任何提交改變 HEAD 後，舊 SHA 的 CI、Review、provider status 不可轉移。
+
+### Main
+- Main SHA：`94004585a0756d10c56edd6d65dc143b05a652ab`。
+- 本輪 exact-SHA workflow lookup 未回傳可用 Actions runs；不得將先前 run `45640241849` 的 SUCCESS 當成新的執行證據。
+- Combined status 仍有 Vercel FAILURE，target 回報 build-rate-limit。Main Recovery run `45668787391` FAILURE；job `139398085810` 已結束 FAILURE，job steps 為 0，log endpoint 回傳 404／BlobNotFound，根因 UNKNOWN。
+- 上述代表 Main 整體仍未健康；不宣稱 CI 全綠或完整 evidence persistence 成功。
+
+### OPEN PR exact-head inventory（17 件）
+| PR | Exact HEAD | Exact-head Actions／其他可見終態 |
+|---|---|---|
+| #560 | `f1ba6b5f143a27f528ac2de52cc8b4fd2a20cad6` | CI run `45669918783` IN_PROGRESS；Resolver SUCCESS；Windows quality gates job `139402514789` IN_PROGRESS。Autofix run `45669919005` FAILURE。 |
+| #580 | `fcaa0d111b95b1d867625df365d22c5da768f3a5` | CI `45651167126` SUCCESS；Autofix `45651166993` FAILURE。 |
+| #579 | `2cada172191c21d62a48f47bd3acd1913b663e5a` | CI `45648588571` SUCCESS；Autofix `45648588694` FAILURE。 |
+| #581 | `3a238546a56865a75db5a400f35c6cf57f692985` | CI `45655724008` SUCCESS；Preflight `45655724017` FAILURE；Autofix `45655724222` FAILURE。 |
+| #575 | `e2f1f8dca37cd82d4b6ba61ec3e662b5e3df96c4` | CI `45665115929` SUCCESS；Autofix `45665115972` FAILURE。 |
+| #562 | `129f50568ff9b4a9c0ec934479e0e5654381f431` | CI `45656598335` SUCCESS；Autofix `45656598450` FAILURE。此為文件更新前 HEAD；本節提交會再次改變 HEAD。 |
+| #564 | `a100b6f3df89717e5c06a1da7955998baf343770` | CI `45610501178` SUCCESS；Vercel SUCCESS；CircleCI Pipeline #700 ERROR；0 formal APPROVED。 |
+| #565 | `47c403b63517e8e92564c6d6f3189be63e2e781a` | CI `45643721399` SUCCESS；Autofix `45643721451` FAILURE。 |
+| #576 | `4e8ecb3368b8716c12aa20388975ce6044fb0bd8` | CI `45642766445` SUCCESS；Autofix `45642766637` FAILURE。 |
+| #571 | `07fbee6e1272049c3fdd4d23246dcdb3bb327797` | CI `45620122969` SUCCESS。 |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | CI `45615936030` FAILURE。 |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | No exact-head Actions run returned. |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | CI `45614788127` FAILURE；Resolver failure；candidate evidence persistence steps SKIPPED。 |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | CI `45600232110` SUCCESS；branch-protection verification `45600232082` FAILURE。 |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | CI `45585171843` SUCCESS；reviews are COMMENTED only, not APPROVED。 |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | CI `45560540985` SUCCESS。 |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | CI `45544850826` SUCCESS。 |
+
+All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above is only the named workflow run; it does not override a separate Autofix FAILURE, Preflight FAILURE, external provider ERROR, skipped jobs, missing exact-head run, unresolved review, or missing independent approval. No PR met all merge conditions in this pass.
+
+### GPT2/F–P owned delivery and blockers
+
+- **Issue #364 (H):** closed after the recorder snapshot hardening was confirmed on Main. No duplicate implementation is required.
+- **Issue #375 / PR #564 (G):** PR #259 is CLOSED / unmerged, so the former open-PR overlap is gone. The focused candidate implements duplicate `jobUrl` rejection and the four-distinct-job-ID/same-URL regression. However, PR #564's actual diff also changes `tests/fp/f-g-integration-assurance.test.ts`, outside Issue #375's explicit allowlist. That fixture change is coupled to the new invariant. Do not silently expand scope or alter the F–G integration fixture without its authorized owner decision. Candidate HEAD `a100b6f3df89717e5c06a1da7955998baf343770` is 9 commits ahead / 7 behind current main; historical CI SUCCESS is not a current-main reconciliation. CircleCI #700 ERROR and formal APPROVED count 0. Keep Draft.
+- **PR #560:** current HEAD `f1ba6b5f143a27f528ac2de52cc8b4fd2a20cad6`; Run `45669918783` is still IN_PROGRESS. Resolver passed, Windows quality job remains in progress, PostgreSQL/RLS and Ollama terminal results not yet available. Autofix failure is separate. Do not mark complete.
+- **GPT2 document PR #562:** branch `rebuild/gpt2-mainline-status-20261125` was reconciled with current Main using a two-parent merge commit `587c7c5ff07566f0ff9c46ca705d73ae549087af` (first parent current main `94004585a0756d10c56edd6d65dc143b05a652ab`, second parent prior PR head `129f50568ff9b4a9c0ec934479e0e5654381f431`). The mainline commits since the old base touched no GPT2 coordination document path. This preserves both histories without force-push. This section is being appended to the GPT2-owned document; the resulting new HEAD requires fresh exact-head CI and review.
+- Main Recovery, Vercel rate limit, CircleCI configuration errors, Factory Preflight/Resolver failures, and other owners' paths remain routed to their respective owners/providers. Do not spend cycles repeatedly retrying the same external failure.
+
+### Acceptance boundary and next actions
+- This is documentation/evidence maintenance only; it does not claim a Runtime fix, local test execution, independent approval, PR acceptance, or merge.
+- Re-fetch PR #562's new HEAD and all jobs after this commit. Keep Draft until its new exact-head CI and authorized independent formal APPROVED are present.
+- For #375, obtain an explicit F–G integration fixture scope/owner decision; then rerun the complete G and F–G regression suite on a fresh exact-head candidate.
+- For #560, wait for the current quality/integration jobs to reach terminal states; do not treat IN_PROGRESS, CANCELLED, SKIPPED, or Autofix failure as PASS.
+- Never treat COMMENTED as APPROVED, mergeable=true as acceptance, or old-SHA evidence as proof for a new HEAD.
+
+
+## 6.21 即時巡檢與 GPT2/F–P 自有工作分流 — 2026-11-26
+
+> **提交前快照聲明：** 以下 Main、PR、CI、Review 與 provider 狀態均為本次文件更新前觀測值。更新本文件會改變 PR #562 的 HEAD；本節所列 #562 SHA／CI 不代表包含本節的新 commit 已驗收。提交後必須重新讀取新 HEAD 並重跑 exact-head 證據；舊 SHA 的 CI、Review、provider status 不轉移。
+
+### Main exact-SHA 狀態
+- `refs/heads/main`：`94004585a0756d10c56edd6d65dc143b05a652ab`。
+- Main Push CI：run `45640241849`，attempt 1，COMPLETED / SUCCESS。Resolver、Windows quality gates、Ollama/local integration、Supabase/PostgreSQL/RLS integration 四個實質 jobs SUCCESS。
+- 同一 run 的 diagnostics 與 failure-persistence jobs SKIPPED；success-persistence job 雖為 SUCCESS，但 revalidate、record success、evidence JSON、artifact upload 步驟均 SKIPPED。因此只確認四項實質技術 jobs 成功，不宣稱完整 evidence persistence 或 breaker reset 完成。
+- 最新 Main Recovery：run `45692897727`，attempt 1，COMPLETED / FAILURE；唯一 job `139482707137` FAILURE。前次 Recovery run `45691110134` 亦 FAILURE。不得把 Recovery 失敗或大量 SKIPPED runs 當成 PASS。
+- Main combined status：Vercel FAILURE，訊息為 deployment rate limited，要求 24 小時後重試。Main 整體未通過完整驗收。
+- Rulesets API 回傳 HTTP 403（提示需升級方案或公開 Repository）；required checks／branch protection 設定標記 UNKNOWN，不推測其狀態。
+
+### OPEN PR inventory 與抽樣 exact-head 證據
+- 本次 OPEN PR inventory 共 15 件：#560、#580、#582、#562、#579、#564、#565、#576、#574、#573、#572、#568、#567、#563、#559。
+- 本次逐一核實以下 GPT2 相關或新近阻塞 PR；其餘 PR 未在本輪取得完整 exact-head CI、provider、formal review 與 threads 終態，不推定成功。
+
+| PR | Exact HEAD | Base SHA | Draft / mergeable | 精確證據與阻塞 |
+|---|---|---|---|---|
+| #562 | `08a1337862417f7c8804f48356c9bbc8a1efc790` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft / true | CI `45670732222` SUCCESS，4 個實質 jobs SUCCESS、3 個 evidence／diagnostics jobs SKIPPED；Autofix `45670732323` FAILURE；Vercel FAILURE（rate limit）；4 筆 reviews 全為 COMMENTED、0 APPROVED；1 個 review thread 已 resolved / outdated。與目前 Main compare ahead 11 / behind 0，差異僅 `docs/gpt2/PROJECT_COORDINATION.md`。 |
+| #564 | `a100b6f3df89717e5c06a1da7955998baf343770` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | Draft / true | CI `45610501178` SUCCESS，4 個實質 jobs SUCCESS、3 個 persistence／diagnostics jobs SKIPPED；CircleCI Pipeline #700 ERROR；Vercel SUCCESS；0 formal APPROVED、0 review threads。Issue #375 allowlist 外另修改 `tests/fp/f-g-integration-assurance.test.ts`，必須取得 F–G integration fixture owner／Issue owner 明確 scope 決定。 |
+| #580 | `07784fcb5ef43506e59dae02648731b52ce0d0b8` | `94004585a0756d10c56edd6d65dc143b05a652ab` | Draft / true | CI `45688324129` SUCCESS，4 個實質 jobs SUCCESS；3 個 evidence／diagnostics jobs SKIPPED；Autofix `45688324295` FAILURE；Vercel FAILURE（rate limit）。此為 CI/Factory 工作，不屬 GPT2 可接管範圍。 |
+| #582 | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | `94004585a0756d10c56edd6d65dc143b05a652ab` | Draft / true | CI `45673461429` SUCCESS，4 個實質 jobs SUCCESS、3 個 evidence／diagnostics jobs SKIPPED；Preflight `45673461387` attempt 6 FAILURE，其中 Linux offline scratch fixture FAILURE，多個 publish／validation jobs SKIPPED；Autofix `45673461347` attempt 5 FAILURE；Vercel FAILURE。屬 Factory 工作，不由 GPT2 修改。 |
+| #579 | `2cada172191c21d62a48f47bd3acd1913b663e5a` | `94004585a0756d10c56edd6d65dc143b05a652ab` | Draft / true | CI `45648588571` SUCCESS，4 個實質 jobs SUCCESS、3 個 evidence／diagnostics jobs SKIPPED；Autofix `45648588694` FAILURE；Vercel FAILURE。屬 Factory 工作，不由 GPT2 修改。 |
+
+- 上表的 GitHub Actions SUCCESS 僅指指定 workflow run；不覆蓋另一 workflow 的 FAILURE、外部 provider ERROR、SKIPPED、缺失證據或缺少獨立 APPROVED。
+- 其他 OPEN PR 的 Draft、mergeability、head/base SHA 已列入 live inventory；未完成全部精確終態查核者均不得視為通過。mergeable=true 不是接受或合併授權。
+
+### GPT2/F–P 自有工作與分流
+- **#562（GPT2 自有協調文件）**：本輪確認分支已包含目前 Main（compare ahead 11 / behind 0），相對 Main 的差異僅 GPT2 自有協調文件。CodeRabbit 曾指出 #562 的歷史 SHA／CI 應標為文件更新前證據；目前文件已明確標示 pre-update snapshot，且該 thread 已 resolved / outdated。這項修正不等於正式獨立 APPROVED。
+- **#562 待辦**：最新已觀測 exact-head CI 的四項實質 jobs 成功，但 Autofix workflow FAILURE、Vercel rate limit、0 formal APPROVED。維持 Draft；文件更新後重新查新 HEAD 的 Actions／jobs／steps、provider checks、formal reviews 與 threads。
+- **#564／Issue #375（G）**：不修改 allowlist 外的 F–G integration fixture；待 Issue owner 與 integration fixture owner 明確決定納入範圍並指定責任人，或由授權 owner 提供不需改動該 fixture 的測試策略。CircleCI #700 ERROR、0 formal APPROVED 仍是獨立阻塞。
+- **#580／#582／#579**：屬 Factory／CI owner 的工作。GPT2 不接管其程式碼、workflow 或 Recovery；記錄精確失敗並退回對應 owner。
+- Main Recovery FAILURE、Vercel rate limit、CircleCI 設定錯誤與 Rulesets API 403 均不由 GPT2 越權修補；不改 billing、secrets、permissions、branch protection、部署設定或 Factory 私有狀態。
+- 本輪僅執行 GitHub API 查核與 GPT2 自有文件維護；未執行本機測試、未修改 Main、未解除 Draft、未接受或合併任何 PR。
+
+### 下一步與驗收邊界
+- 重新讀取本次文件 commit 產生的 PR #562 新 HEAD，對新 SHA 查 exact-head Actions runs/jobs/steps、Autofix、Vercel、CircleCI、formal reviews 與 review threads。
+- #562 維持 Draft，直到新 HEAD 必要檢查全部通過、Autofix／外部必要檢查有可接受終態、未解 threads 清零，並取得授權獨立 reviewer 對同一 exact HEAD 的正式 APPROVED。
+- #564 等待 Issue #375 與 F–G integration fixture owner 的明確 scope 決定；不擅自擴權。
+- #580／#582／#579 的 Factory 修繕退回 Factory owner；GPT2 只做自有 F–P 可閉環任務。
+- PENDING、IN_PROGRESS、0 jobs、SKIPPED、FAILURE、ERROR、403、Rate Limit、缺少 run／log、COMMENTED 或舊 SHA 證據均不是 PASS。mergeable=true 不等於接受；不得自我批准或繞過 gate。
+
+
+## 6.22 即時巡檢與 GPT2/F–P 自有工作分流 — 2026-11-26（本輪）
+
+> 本節為本輪 GitHub 即時查核快照。任何文件提交都會改變 PR #562 HEAD；本節提交後，必須重新讀取新 HEAD 並重新驗證。不同 SHA 的 CI、review、provider status 不可轉移。
+
+### Main 與 Factory
+- `refs/heads/main`：`94004585a0756d10c56edd6d65dc143b05a652ab`，本輪確認未變。
+- Main Push CI run `45640241849`：COMPLETED / SUCCESS。Resolver、Windows quality gates、Ollama/local integration、Supabase/PostgreSQL/RLS 四個實質 jobs 均 SUCCESS；但候選成功重驗、record、evidence JSON、artifact upload steps SKIPPED，diagnostics 與 failure-persistence jobs 亦 SKIPPED。只確認實質工作成功，不宣稱完整 evidence persistence 或 breaker reset。
+- Main combined status：Vercel FAILURE（`build-rate-limit`）。CircleCI 對此 SHA 沒有可確認狀態，標 UNKNOWN。
+- Factory Recovery 最新 run `45698499885`：COMPLETED / SKIPPED；前一 run `45695950647` FAILURE，job `139493256197` 在 runner allocation 前失敗（runner_id=0、0 steps），log API 回傳 Azure BlobNotFound / HTTP 404，根因 UNKNOWN。沒有 Recovery PASS 或 breaker reset 證據。GPT2 已於 Issue #505 handoff 給 GPT1 Factory DRI（comment `7174121675`）；目前查到的最新留言仍未見 GPT1 根因修復回覆。GPT2 不修改 Factory workflow、Runner、breaker、Secrets 或 permissions。
+- Branch protection／required checks：本輪無法取得可用設定證據，維持 UNKNOWN，不推定啟用或停用。
+
+### 15 件 OPEN PR：live HEAD 與 workflow 終態
+| PR | Exact HEAD | Draft | Exact-head workflow／主要終態 |
+|---|---|---|---|
+| #580 | `10c98d442e79f3e2aa5ab685632ecf264baf1699` | Draft | CI run `45699227031` PENDING；Autofix `45699227042` SUCCESS（修正 workflow 名稱後）。 |
+| #582 | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | Draft | CI `45673461429` SUCCESS；Preflight `45673461387` FAILURE（runner_id=0、0 steps）；Autofix `45673461347` FAILURE。 |
+| #560 | `7273fc05a2c7b7e28d333f596080952042e0fd06` | Draft | CI `45698484101` IN_PROGRESS；Autofix `45698484086` FAILURE。 |
+| #583 | `ba2975ac84bcad8ef2af8a162bf766e2158347d6` | Draft | CI `45696758058` FAILURE；Autofix `45696758047` FAILURE。 |
+| #562 | `32c50c1ab501493272abfcac327c0ccbb8f355fe` | Draft | CI `45694089753` SUCCESS；Autofix `45694089711` FAILURE。 |
+| #579 | `2cada172191c21d62a48f47bd3acd1913b663e5a` | Draft | CI `45648588571` SUCCESS；Autofix `45648588694` FAILURE。 |
+| #565 | `47c403b63517e8e92564c6d6f3189be63e2e781a` | Draft | CI `45643721399` SUCCESS；Autofix `45643721451` FAILURE。 |
+| #576 | `4e8ecb3368b8716c12aa20388975ce6044fb0bd8` | Draft | CI `45642766445` SUCCESS；Autofix `45642766637` FAILURE。 |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | Draft | CI `45615936030` FAILURE。 |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | Draft | 0 PR-triggered Actions runs returned；NOT RUN，不是 PASS。 |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | Draft | CI `45614788127` FAILURE。 |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | Draft | CI `45600232110` SUCCESS；branch-protection verification `45600232082` FAILURE。 |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | Ready | CI `45585171843` SUCCESS。 |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | Draft | CI `45560540985` SUCCESS。 |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | Draft | CI `45544850826` SUCCESS；另有既往 Acceptance Gate FAILURE 記錄。 |
+
+- 本輪逐一查詢 15 件 OPEN PR 的正式 review submissions：**0 筆 APPROVED**。有 COMMENTED 的 PR（#560、#562、#565、#567、#559）仍不等於正式批准；其餘 PR 亦未取得獨立批准。
+- 上表 SUCCESS 僅代表指定 workflow run 的結論，不覆蓋 Autofix、Preflight、provider checks、SKIPPED jobs、缺失 run 或未批准。#562 的 compare（main SHA → PR HEAD）為 12 commits ahead / 0 behind，差異僅 `docs/gpt2/PROJECT_COORDINATION.md`；metadata 記載的 base SHA 舊值不應被誤讀為 PR branch 落後 main。
+- #574、#573、#572 的 base 為非 main 分支；#568、#567、#563、#559 的 base SHA 舊於 current main。這些分支／base 情況不能僅以 mergeable=true 當作可接受。
+
+### GPT2 自有工作與阻塞
+- **Issue #375 / PR #583（G）**：精確 HEAD `ba2975ac84bcad8ef2af8a162bf766e2158347d6`，compare current main 為 1 ahead / 0 behind，改動仍精確限於五個 allowlisted paths。CI `45696758058` 已 COMPLETED / FAILURE；Windows quality job `139497607246` 的 Unit tests FAILURE，記錄 843/849 tests passed、6 failed。失敗均落在 allowlist 外的 `tests/fp/f-g-integration-assurance.test.ts` fixture：不同 required job IDs 共用 URL `.../actions/runs/123/job/456`，與 duplicate job URL invariant 衝突。該 invariant 不應被放寬；fixture 屬 F–G integration owner，未經 Issue／fixture owner 明確授權，不擴大範圍、不修改該檔。GPT2 已在 PR 留下詳細 handoff comment `7174306916`；截至本輪最新 comments，未見 owner 授權或修正回覆。Autofix job log API 404，根因 UNKNOWN。維持 Draft，不解除、不合併。
+- PR #583 的 CI failure evidence artifact `15063055344` 已成功建立並下載檢視；JSON 確認 exact SHA match、Unit tests 為 failed step、log capture 404、failure_category unknown、complete_ci_pass=false。此診斷產物是失敗證據，不是 PASS。
+- **GPT2 自有文件 PR #562**：目前分支只改本文件，compare main → HEAD 為 12 ahead / 0 behind。為維持 GPT2 自有 F–P 文件工作，本節將追加到同一 allowlisted 文件；提交後必須重新查新 HEAD 的 CI、Autofix、provider status、review 與 threads。舊 HEAD 的 CI SUCCESS 不轉移。
+- **其他 owner 的任務**：#580 Autofix 已 SUCCESS 但 CI 仍 PENDING，交由該 PR owner 完成 exact-head 驗收；#582 的 Factory Preflight runner allocation failure 與 Recovery 不由 GPT2 接管；#560 CI 尚 IN_PROGRESS，屬 GPT5 文件工作。GPT2 不跨 owner 修改檔案或控制面。
+
+### 本輪處置與驗收界線
+- 本輪已完成 main、15 個 OPEN PR exact-head workflow inventory、15 件 formal review 查核、#583 failure evidence artifact 下載檢視與 owner blocker 重新確認。
+- 本節文件更新屬 GPT2 自有文件交付；未修改 main、Factory／Runner、secrets、permissions、branch protection、production data 或 deployment settings；未解除 Draft、未 APPROVED、未合併。
+- PENDING、IN_PROGRESS、0 jobs、SKIPPED、FAILURE、ERROR、0 PR-triggered runs、404／BlobNotFound、Rate Limit、COMMENTED、mergeable=true、舊 SHA 證據均不是 PASS／批准。
+- 下一步：提交本節後立即重新讀取 PR #562 新 HEAD 並查 exact-head jobs；#583 等待 F–G fixture owner 明確授權或提供合規替代測試設計。若無授權，維持 handoff，繼續 GPT2 明確 allowlist 內的其他 F–P 工作，不空轉。
+
+
+## 6.23 即時巡檢與 GPT2/F–P 工作分流 — 2026-11-26（更新）
+
+> 查核時間：2026-11-26 05:33 Asia/Taipei。此節記錄本輪 GitHub API 證據；本節提交會改變 PR #562 HEAD，故舊 HEAD 的 CI／review 不得沿用，必須對新 SHA 重新查核。
+
+### Main exact-SHA、CI 與外部狀態
+- **main HEAD：** `abf6cd976cdb592021ebd6464a216fa13b29b792`；最新提交為 PR #580 merge commit。
+- **Main push CI：** run [45705050529](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45705050529)，attempt 1，COMPLETED / SUCCESS。但 jobs 中只有 Resolver SUCCESS；Windows Runner quality gates、Supabase/PostgreSQL/RLS、Ollama/local integration、failure persistence、diagnostics、success persistence 均 SKIPPED。故主線 push workflow 雖顯示 SUCCESS，實質 CI 證據鏈不完整，不得標記 main PASS。
+- **Factory Recovery：** runs [45705156383](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45705156383) 與 [45705250425](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45705250425) 均 COMPLETED / SKIPPED；沒有 Recovery PASS 證據。
+- **Combined status：** Vercel FAILURE（build-rate-limit）；main 未回報 CircleCI context，CircleCI 狀態為 UNKNOWN／未提供，不猜測。
+- **Branch protection：** main branch API 回報 `protected=false`、`protection.enabled=false`、required status contexts 為空。不得宣稱 main 有 branch protection 或 required checks 已強制執行。
+
+### 全部 14 件 OPEN PR — exact HEAD 與最新 workflow 終態
+| PR | Base branch / SHA | Exact HEAD | Draft | Exact-head Actions / jobs | 外部狀態 |
+|---|---|---|---|---|---|
+| #583 | main / `94004585a0756d10c56edd6d65dc143b05a652ab` | `ba2975ac84bcad8ef2af8a162bf766e2158347d6` | Draft | CI `45696758058` FAILURE；Autofix `45696758047` FAILURE | Vercel SUCCESS |
+| #582 | main / `94004585a0756d10c56edd6d65dc143b05a652ab` | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | Draft | CI `45673461429` SUCCESS；Preflight `45673461387` FAILURE；Autofix `45673461347` FAILURE | Vercel FAILURE |
+| #579 | main / `94004585a0756d10c56edd6d65dc143b05a652ab` | `2cada172191c21d62a48f47bd3acd1913b663e5a` | Draft | CI `45648588571` SUCCESS；Autofix `45648588694` FAILURE | Vercel FAILURE |
+| #576 | main / `94004585a0756d10c56edd6d65dc143b05a652ab` | `4e8ecb3368b8716c12aa20388975ce6044fb0bd8` | Draft | CI `45642766445` SUCCESS；Autofix `45642766637` FAILURE | Vercel FAILURE |
+| #574 | feat/g-release-evidence-v2 / `4e70c5487c19acd536ad14780a5bdc24e1d47e54` | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | Draft | CI `45615936030` FAILURE；resolver FAILURE，後續測試／DB jobs SKIPPED | Vercel FAILURE；CircleCI ERROR |
+| #573 | feat/g-release-evidence-contract / `6f735c1251907c5016e7eea32ea0253142e537ec` | `1d4d225f299662337254818a9db35015253685c2` | Draft | 無 exact-head PR-triggered Actions run 返回；NOT RUN | Vercel FAILURE；CircleCI ERROR |
+| #572 | feat/g-p-workstream-governance / `c2d2b17b91898f05d0bdc20641fc7bc4fc254be8` | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | Draft | CI `45614788127` FAILURE；resolver FAILURE，後續 build／test／DB jobs SKIPPED | Vercel FAILURE；CircleCI ERROR |
+| #568 | main / `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | Draft | CI `45600232110` SUCCESS；branch-protection verification `45600232082` FAILURE；證據持久化 jobs SKIPPED | Vercel FAILURE；CircleCI ERROR；mergeable=false |
+| #567 | main / `b39228e24e15c329f3053ba22a3f4dfebe77546b` | `250645c6b7465c961cb3e364d98e6be8e2586b30` | Ready | CI `45585171843` SUCCESS；條件式證據／持久化 jobs SKIPPED | Vercel FAILURE；CircleCI ERROR |
+| #565 | main / `94004585a0756d10c56edd6d65dc143b05a652ab` | `47c403b63517e8e92564c6d6f3189be63e2e781a` | Draft | CI `45643721399` SUCCESS；Autofix `45643721451` FAILURE；證據持久化 jobs SKIPPED | Vercel SUCCESS |
+| #563 | main / `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | Draft | CI `45560540985` SUCCESS；條件式證據／持久化 jobs SKIPPED | Vercel SUCCESS；CircleCI ERROR |
+| #562 | main / `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `f5b4f00eabda69dcbc48f6fb404f728083ed23cb` | Draft | CI `45699942608` SUCCESS；Autofix `45699942594` FAILURE；條件式證據／持久化 jobs SKIPPED | Vercel FAILURE |
+| #560 | main / `94004585a0756d10c56edd6d65dc143b05a652ab` | `ee746d7ea31b91e7ec06c7ebf77044c87f0de6a9` | Draft | CI `45704381444` IN_PROGRESS；quality gates 尚在執行；Autofix `45704381443` FAILURE | Vercel FAILURE |
+| #559 | main / `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `567f27233103790b07c26c59dab7dbb4b033fced` | Draft | CI `45544850826` SUCCESS；條件式證據／持久化 jobs SKIPPED | Vercel FAILURE；CircleCI ERROR |
+
+- PR metadata：共 14 件 OPEN；13 Draft、1 Ready（#567）。除 #568 mergeable=false 外，其餘 API 回報 mergeable=true；mergeable=true 不代表可接受或可合併。多件 PR 的 base SHA 落後目前 main，#583 對目前 main compare 為 DIVERGED（1 ahead／7 behind）；不得沿用舊 base／舊 CI。
+- 本輪 14 件 PR 的正式 review submissions **0 筆 APPROVED**。#567 有 2 筆 COMMENTED、#565 有 1 筆、#562 有 4 筆、#560 有 6 筆、#559 有 5 筆；COMMENTED 不等於批准。所有 14 件 PR 的 review threads 均無未解 thread（#567 5、#565 2、#562 1、#560 2、#559 7，均已 resolved）。
+- Vercel SUCCESS（#583、#565、#563）不抵銷 Actions failure／SKIPPED；CircleCI ERROR（#574、#573、#572、#568、#567、#563、#559）獨立列示，不與 GitHub Actions 混算。
+
+### GPT2/F–P 自有工作、修繕與精確 handoff
+- **Issue #375 / PR #583（G）**：Issue #259 已 CLOSED / UNMERGED，原先重疊阻塞解除。PR #583 的精確 CI run `45696758058` 於 Unit tests 失敗，849 tests 中 843 pass、6 fail；六項均在 allowlist 外的 `tests/fp/f-g-integration-assurance.test.ts`，錯誤為 `Duplicate G CI job evidence.`。根因是 F–G integration fixtures 對不同 required G job IDs 重複使用同一 job URL；不能放寬 duplicate-URL 防護。
+- Issue #375 目前只允許修改 `lib/fp/release-assurance.ts`、`tests/fp/release-assurance.test.ts`、G changelog/README、`versions/manifest.json`。失敗 fixture 不在 allowlist；本輪沒有越權修改。已在 Issue #375 留下 handoff comment `7175297111`，要求 fixture owner/DRI 明確授權額外路徑，或建立單獨授權的 follow-up。PR #583 保持 Draft；不 rebase、不擴大 allowlist、不解除 Draft、不合併。
+- **GPT2 自有文件 PR #562**：本節是 GPT2 自有 `docs/gpt2/PROJECT_COORDINATION.md` 的文件-only 狀態更新。舊 HEAD `f5b4f00eabda69dcbc48f6fb404f728083ed23cb` 的 CI `45699942608` SUCCESS 不能轉移到本節提交後的新 HEAD；Autofix `45699942594` FAILURE、Vercel FAILURE、正式 APPROVED 為 0。提交後須立即重新查新 HEAD 的 Actions jobs／steps、Autofix、Vercel／CircleCI、正式 reviews 與 threads。
+- **其他 owner 的阻塞**：#582、#579 屬 Factory／CI owner；#574/#573/#572 是其他 G/P 工作線分支；#568/#567/#565/#563/#560/#559 不因巡檢而轉移 owner。GPT2 不接管 Factory／Runner／Recovery、branch protection、Secrets、production DB/RLS、billing 或 deployment settings。
+- 本輪實際交付：更新 GPT2 自有文件快照；對 Issue #375 留下失敗根因與 allowlist 缺口 handoff。沒有修改 main、沒有修改 allowlist 外程式碼、沒有解除 Draft、沒有獨立批准、沒有合併或部署。文件提交不宣稱本機測試通過。
+- 下一步：對本文件新 commit 的 PR #562 HEAD 重新驗證 exact-head CI；#583 等待 fixture owner／Issue owner 明確授權或提供獨立 follow-up allowlist。沒有新的合規 F–P 任務可閉環時，保留精確 handoff，不空轉、不擴權。
+
+
+---
+
+## 6.24 即時巡檢與 GPT2/F–P 工作分流 — 2026-11-26（本輪更新）
+
+> 本節依本輪 GitHub API 即時查核；以 SHA 綁定所有結論。此文件更新會產生新的 PR #562 HEAD，舊 HEAD 的 CI／review 不得沿用。此為 GPT2 自有協調文件更新，不代表程式功能驗收或 GPT3 獨立批准。
+
+### Main exact-SHA、CI、外部服務與治理
+
+- **main HEAD：** abf6cd976cdb592021ebd6464a216fa13b29b792；最新提交為 PR #580 merge commit。
+- **Main Push CI：** run [45705050529](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45705050529)，COMPLETED / SUCCESS；但 Resolver 以外的 Windows Quality、Supabase/PostgreSQL/RLS、Ollama/local integration、failure persistence、diagnostics、success persistence jobs 均為 SKIPPED。故 Workflow SUCCESS 不代表主線完整 CI PASS。
+- **Factory Recovery：** [run 45706754277](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45706754277) FAILURE；唯一 job 139530590663 FAILURE，steps=null、logs_url=null。前兩次 Recovery run 45705250425、45705156383 均 SKIPPED。根因 UNKNOWN；不重複盲目重跑。
+- **Main combined status：** Vercel FAILURE，描述 Deployment rate limited — retry in 24 hours。main 未回報 CircleCI context，CircleCI 標 UNKNOWN／未提供。
+- **Branch protection：** /branches/main 回報 protected=false、protection.enabled=false、required status checks enforcement off、contexts 空。Repository rulesets API 回應 HTTP 403（private repository／權限限制），故其他 rulesets 是否存在標 UNKNOWN；不得宣稱 main 已受有效保護。
+- **驗收判定：** main NOT PASS；PENDING、SKIPPED、Recovery FAILURE、Vercel rate limit 均不可轉成綠燈。
+
+### 全部 15 件 OPEN PR — exact base/head 與檢查終態
+
+| PR | Base SHA | Exact HEAD | Draft | GitHub Actions exact-head 摘要 | 外部 status |
+|---|---|---|---|---|---|
+| #584 | abf6cd976cdb592021ebd6464a216fa13b29b792 | 3ec9f3b2672a4dc404bbfd8fdba9795fc6099c09 | Draft | Resolver PENDING；autofix PENDING | Vercel rate-limit FAILURE |
+| #583 | 94004585a0756d10c56edd6d65dc143b05a652ab | 84cb011f86181b142305cb1338ad5ee4f820c7e0 | Draft | Resolver SUCCESS、quality SUCCESS；PostgreSQL/RLS PENDING、Ollama PENDING；autofix SUCCESS | Vercel SUCCESS |
+| #582 | 94004585a0756d10c56edd6d65dc143b05a652ab | 528be6dd1dca86c789e9acd1c3dc19dd44509b6c | Draft | Quality／DB／Ollama SUCCESS；Linux offline scratch fixture FAILURE；autofix FAILURE；下游 persistence/publication SKIPPED | Vercel rate-limit FAILURE |
+| #579 | 94004585a0756d10c56edd6d65dc143b05a652ab | 2cada172191c21d62a48f47bd3acd1913b663e5a | Draft | Quality／DB／Ollama SUCCESS；autofix FAILURE；evidence persistence／diagnostics SKIPPED | Vercel rate-limit FAILURE |
+| #576 | 94004585a0756d10c56edd6d65dc143b05a652ab | 4e8ecb3368b8716c12aa20388975ce6044fb0bd8 | Draft | Quality／DB／Ollama SUCCESS；autofix FAILURE；evidence persistence／diagnostics SKIPPED | Vercel rate-limit FAILURE |
+| #574 | 4e70c5487c19acd536ad14780a5bdc24e1d47e54 | 8145ea2d0a0e99485706b0a6cec01f8e423512cd | Draft | Resolver FAILURE、failure persistence FAILURE；build／tests／DB／success persistence SKIPPED | Vercel rate-limit FAILURE；CircleCI ERROR（無 config） |
+| #573 | 6f735c1251907c5016e7eea32ea0253142e537ec | 1d4d225f299662337254818a9db35015253685c2 | Draft | 無 exact-head Actions run；僅 Summary SUCCESS／Mergify neutral，不能當 CI PASS | Vercel rate-limit FAILURE；CircleCI ERROR（無 config） |
+| #572 | c2d2b17b91898f05d0bdc20641fc7bc4fc254be8 | 58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6 | Draft | Resolver FAILURE、failure persistence FAILURE；build／tests／DB／success persistence SKIPPED | Vercel rate-limit FAILURE；CircleCI ERROR（無 config） |
+| #568 | a772acbeb93e877697bfc315ecc0a29f2f611b9f | cfd9a90b888f59253894f6a6a6f9d498eff00dac | Draft | Quality／DB／Ollama SUCCESS；verify-branch-protection FAILURE；persistence／diagnostics SKIPPED；mergeable=false | Vercel rate-limit FAILURE；CircleCI ERROR（無 config） |
+| #567 | b39228e24e15c329f3053ba22a3f4dfebe77546b | 250645c6b7465c961cb3e364d98e6be8e2586b30 | Ready | Quality／DB／Ollama SUCCESS；evidence persistence／diagnostics SKIPPED | Vercel rate-limit FAILURE；CircleCI ERROR（無 config） |
+| #565 | 94004585a0756d10c56edd6d65dc143b05a652ab | 47c403b63517e8e92564c6d6f3189be63e2e781a | Draft | Quality／DB／Ollama SUCCESS；autofix FAILURE；evidence persistence／diagnostics SKIPPED | Vercel SUCCESS |
+| #563 | 462eeea5917f3b0750fc2c41c888a4d54c562c1e | e62f4fc4322432f71f46c9478f1bdbace174dcdc | Draft | Quality／DB／Ollama SUCCESS；evidence persistence／diagnostics SKIPPED | Vercel SUCCESS；CircleCI ERROR（無 config） |
+| #562 | 462eeea5917f3b0750fc2c41c888a4d54c562c1e | f86d0152de5398f96f97c3810d2229acf43777e9 | Draft | Quality／Ollama SUCCESS；PostgreSQL/RLS IN_PROGRESS；autofix SUCCESS | Vercel rate-limit FAILURE |
+| #560 | 94004585a0756d10c56edd6d65dc143b05a652ab | 7e96959e4906d41acd1dce126000d8a4b4470e49 | Draft | Resolver PENDING；autofix PENDING | Vercel rate-limit FAILURE |
+| #559 | 462eeea5917f3b0750fc2c41c888a4d54c562c1e | 567f27233103790b07c26c59dab7dbb4b033fced | Draft | Quality／DB／Ollama SUCCESS；PR Acceptance Gate FAILURE ×3；evidence persistence／diagnostics SKIPPED | Vercel rate-limit FAILURE |
+
+- **數量校正：** GitHub REST /pulls?state=open 本輪回傳 15 件 OPEN PR，不是前次報告的 14 件；其中 14 Draft、1 Ready（#567）。上表列出全部 15 件。
+- **外部狀態分開計算：** Vercel SUCCESS 僅 #583、#565、#563；其餘 12 件為 build-rate-limit FAILURE。CircleCI ERROR（專案無 CircleCI configuration）出現在 #574、#573、#572、#568、#567、#563、#559；其他 PR 未回報 CircleCI context，標 UNKNOWN／未提供。Vercel 成功不替代 Actions。
+- **正式審查：** 15 件 PR 均無正式 APPROVED。#567 有 CodeRabbit COMMENTED ×2、5 threads；#565 CodeRabbit COMMENTED、2 threads；#562 作者 COMMENTED ×3 與 CodeRabbit COMMENTED、1 thread；#560 作者 COMMENTED ×5 與 CodeRabbit COMMENTED、2 threads；#559 作者 COMMENTED ×4 與 CodeRabbit COMMENTED、7 threads。其餘 PR 無 review submissions／threads。COMMENTED 與 CodeRabbit 均非 GPT3 APPROVED。
+- **合併／Draft 判定：** 沒有 PR 同時滿足 exact-head 必要 CI 全成功、外部 required checks 可確認、GPT3 對同一 SHA 正式 APPROVED、無未解阻塞及治理條件。不得解除 Draft、不得合併。
+
+### GPT2/F–P 自有工作、交付與 handoff
+
+- **Issue #375 / PR #583（G）仍 OPEN／Draft。** Issue #375 的五路徑 allowlist 為 lib/fp/release-assurance.ts、tests/fp/release-assurance.test.ts、G changelog／README、versions/manifest.json。PR #583 實際 compare 顯示六個變更路徑，額外包含 tests/fp/f-g-integration-assurance.test.ts；該檔案不在目前 allowlist。PR body 宣稱五路徑與實際 diff 不一致。
+- PR #583 對目前 main compare 為 DIVERGED：2 commits ahead／7 behind，merge base 94004585a0756d10c56edd6d65dc143b05a652ab。其目前 exact HEAD 的 quality SUCCESS，但 PostgreSQL/RLS 與 Ollama 仍 PENDING；Vercel SUCCESS；正式 review 0。先前 HEAD 的測試失敗紀錄不得套用到目前 HEAD。
+- 前一個重疊 PR #259 已 CLOSED／UNMERGED，舊 overlap gate 已解除；但額外 F–G integration fixture 的 allowlist／DRI 授權仍未取得。不得自行擴大 Issue #375 scope、弱化 duplicate URL 防護或機械 rebase。責任 owner：G/F–G integration fixture owner／Issue scope owner；解除條件：明確授權額外測試路徑與 DRI，或提供不修改該路徑且保留整合回歸的合規方案。
+- **Issue #364（H）已 CLOSED**，不再列為待辦。
+- **GPT2 自有文件 PR #562**：本輪以 docs/gpt2/PROJECT_COORDINATION.md 為唯一變更路徑，刷新 main、全部 OPEN PR、exact-head jobs、Vercel／CircleCI、Review 與 Issue #375 阻塞證據，並將分支同步至最新 main。此為文件／交接交付，不宣稱 runtime、程式測試、GPT3 acceptance 或 merge。
+- **其他 owner 工作不接管：** #582、#579 屬 Factory／CI；#574／#573／#572 屬其他工作線；#568／#567／#565／#563／#560／#559 不因巡檢而轉移 owner。GPT2 不修改 Factory／Runner、Secrets、branch protection、正式 DB/RLS、billing 或 deployment settings。
+- **本輪實際交付限制：** 沒有任何 GPT2 F–P 程式任務同時具備明確 allowlist、無路徑重疊及可獨立驗收條件，因此本輪改做 GPT2 自有協調文件的即時刷新與 Issue #375 handoff；不虛構程式碼修復或測試通過。
