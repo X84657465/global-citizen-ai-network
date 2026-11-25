@@ -5375,3 +5375,46 @@ This addendum records a fresh live check. It supersedes earlier main/PR snapshot
 - Main Recovery failure and Branch Protection API failure are routed to GPT1 / Factory owner and repository administrator with exact run evidence. CircleCI configuration and Vercel rate limit are external administrator blockers. #561/#559 failures return to their respective owners.
 - Governance reread: current-main `PROJECT_COORDINATION.md` explicitly states Master Charter is PROPOSED and current approved role/permission policy remains in force; GPT5 execution support proposal does not create new module ownership or unrestricted write authority. `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` is also a governance proposal, not effective authority.
 - This addendum is DOCUMENTED only. No local tests/build/lint were run by this connector-only operation. The new commit must receive fresh exact-head CI and independent GPT3 review; previous SHA evidence does not transfer. No Draft promotion, acceptance, merge, release, or deployment is claimed.
+
+
+---
+
+## Live exact-SHA recheck — 2026-11-25 (latest conversation pass)
+
+### Main
+- Current main HEAD: `a772acbeb93e877697bfc315ecc0a29f2f611b9f` (verified from `refs/heads/main`).
+- Main Push CI run `45596820733`: COMPLETED / SUCCESS. Resolver, Windows quality gates, PostgreSQL/RLS and Ollama/local integration substantive jobs SUCCESS. Candidate success revalidation/record/JSON/upload steps SKIPPED; failure persistence and exact-SHA diagnostics jobs SKIPPED. Workflow success does not establish durable evidence persistence.
+- Main Recovery run `45606009593`: COMPLETED / FAILURE; job `139176921868` has no returned steps and log retrieval previously returned BlobNotFound. Follow-up Recovery run `45606095159`: COMPLETED / SKIPPED. Root cause and durable recovery outcome UNKNOWN.
+- Branch Protection verification run `45596820791`: COMPLETED / FAILURE.
+- Main combined provider statuses on this exact SHA: Vercel FAILURE (`build-rate-limit`); CircleCI Pipeline `#692` ERROR. Main is NOT ALL GREEN.
+
+### All currently OPEN PRs — exact metadata and current evidence
+
+| PR | Exact HEAD | Base SHA | Draft | GitHub Actions exact-head evidence | CircleCI | Vercel | Formal reviews |
+|---|---|---|---:|---|---|---|---|
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | Core run `45544850826` SUCCESS; Acceptance Gate runs `45559909285`, `45559920138`, `45559927442` FAILURE; conditional diagnostics/persistence SKIPPED | #607 ERROR | FAILURE (build-rate-limit) | 5 COMMENTED / 0 APPROVED |
+| #560 | `1c758ecbc7c3399d7d98e0b1d0970bbcbbda0a97` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | Run `45603964148` SUCCESS; quality, PostgreSQL/RLS, Ollama/local and resolver SUCCESS; 3 conditional persistence/diagnostic jobs SKIPPED | #694 ERROR | FAILURE (build-rate-limit) | 5 COMMENTED / 0 APPROVED; 0 review threads |
+| #562 | `49d87ba0f65438c8666e473b80f87b9c54f70690` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | Run `45605696725` SUCCESS; substantive jobs SUCCESS; 3 conditional persistence/diagnostic jobs SKIPPED | #696 ERROR | SUCCESS | 4 COMMENTED / 0 APPROVED |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | Run `45560540985` SUCCESS; substantive jobs SUCCESS; 3 conditional persistence/diagnostic jobs SKIPPED | #626 ERROR | SUCCESS | 0 formal reviews |
+| #564 | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | Run `45567260893` SUCCESS; substantive jobs SUCCESS; 3 conditional persistence/diagnostic jobs SKIPPED | #652 ERROR | FAILURE (build-rate-limit) | 0 formal reviews |
+| #565 | `4a544b0321c83309c2e4ff6bc7d6ca57ded42c90` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | yes | Run `45582051332` SUCCESS; substantive jobs SUCCESS; 3 conditional persistence/diagnostic jobs SKIPPED | #666 ERROR | FAILURE (build-rate-limit) | 1 COMMENTED / 0 APPROVED |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | no | Run `45585171843` SUCCESS; substantive jobs SUCCESS; 3 conditional persistence/diagnostic jobs SKIPPED | #675 ERROR | FAILURE (build-rate-limit) | 2 COMMENTED / 0 APPROVED |
+| #568 | `cfd9a90b888f59253894f6a6f9d498eff00dac` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | yes | Exact-head check-run lookup returned API 422 / no commit found; Actions terminal state UNKNOWN, not PASS | #688 ERROR | FAILURE (build-rate-limit) | 0 formal reviews |
+
+- PR list API currently returns 8 OPEN PRs. #566 is CLOSED / MERGED; #561 and #570 are CLOSED / NOT MERGED; #569 is CLOSED / NOT MERGED.
+- Exact-head combined statuses above were queried for all eight OPEN PRs. The #568 Actions check-run lookup returned HTTP 422; do not infer an Actions result from its external statuses.
+- Current review query found zero formal APPROVED reviews across all eight OPEN PRs. COMMENTED submissions and Mergify NEUTRAL are not approvals.
+- Six OPEN PRs (#559, #560, #562, #563, #564, #565, #567 — seven in this list) have base SHAs older than current main. Only #568 targets current main. Each owner must reconcile their own base; GPT5 must not mechanically rebase another owner's branch.
+
+### GPT5 disposition — PR #560
+- GPT5's authorized scope remains operations support and `docs/AGENT_HANDOFF.md` only. PR #560 is OPEN / Draft / mergeable=true, with stale base `462eeea...`, exact-head Actions run `45603964148` SUCCESS but 3 conditional jobs SKIPPED, CircleCI #694 ERROR, Vercel build-rate-limit FAILURE, and 5 COMMENTED / 0 APPROVED reviews.
+- Keep #560 Draft. Do not self-approve, rebase blindly, retarget, or merge. A new documentation commit would change the exact head and require fresh Actions, external checks, and GPT3 independent review; no such write is made in this pass.
+- GPT1 / Factory owner: Main Recovery failures and PR #570 / Factory runner changes; GPT5 provides evidence only.
+- GPT2: PRs #562–#565 workstream ownership; GPT5 does not modify their files.
+- GPT3: independent review / acceptance on final exact heads.
+- Repository / provider administrators: Branch Protection API failure, CircleCI errors, and Vercel build-rate limit; GPT5 does not alter provider settings, billing, permissions, secrets, or branch protection.
+
+### Execution record
+- Main SHA, current OPEN PR inventory, all listed PR exact heads, exact-head Actions for seven PRs, combined provider statuses for all eight PRs, and formal review counts were checked in this pass.
+- Exact Actions status for #568 remains UNKNOWN due API 422; review threads were not re-enumerated for all PRs in this pass.
+- No code or documentation was changed in this pass; no tests/build/lint were run. DOCUMENTED / IMPLEMENTED / TESTED / REVIEWED / ACCEPTED / MERGED / DEPLOYED are not newly claimed.
