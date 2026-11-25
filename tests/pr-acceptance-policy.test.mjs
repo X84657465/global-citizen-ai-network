@@ -129,3 +129,17 @@ test("merge audit retains applicable Preflight evidence for final policy evaluat
   assert.equal(source.indexOf("let preflight =", applicabilityGuard), -1,
     "Preflight evidence must not be redeclared inside the applicability branch");
 });
+
+
+test("PR acceptance gate retains applicable Preflight evidence for final policy evaluation", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
+  const initialDeclaration = source.indexOf("let preflight = { applicable: false, status: 'not_applicable' };");
+  const applicabilityGuard = source.indexOf("if (preflightApplicable) {", initialDeclaration);
+  const applicableAssignment = source.indexOf("preflight = {", applicabilityGuard);
+  assert.ok(initialDeclaration >= 0, "Preflight must be initialized before the applicability branch");
+  assert.ok(applicabilityGuard > initialDeclaration, "Preflight applicability branch must follow initialization");
+  assert.ok(applicableAssignment > applicabilityGuard, "Applicable Preflight evidence must be assigned inside the branch");
+  assert.equal(source.indexOf("let preflight =", applicabilityGuard), -1,
+    "Preflight evidence must not be redeclared inside the applicability branch");
+});
