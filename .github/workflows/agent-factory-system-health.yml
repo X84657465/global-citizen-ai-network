@@ -6,6 +6,55 @@ on:
     types: [completed]
 
 jobs:
+  diagnose-recovery-trigger:
+    name: Record safe workflow_run gate diagnostics
+    # This read-only job runs even when reset-system-breaker is skipped.
+    # It records only non-secret event identity and predicate results so a
+    # skipped recovery decision is attributable without weakening its gate.
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Report recovery trigger metadata and gate predicates
+        env:
+          TARGET_REPOSITORY: ${{ github.repository }}
+          WORKFLOW_PATH: ${{ github.event.workflow_run.path }}
+          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          WORKFLOW_EVENT: ${{ github.event.workflow_run.event }}
+          HEAD_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const env = process.env;
+          const predicates = {
+            expected_workflow_path: env.WORKFLOW_PATH === ".github/workflows/ci.yml",
+            source_conclusion_success: env.WORKFLOW_CONCLUSION === "success",
+            source_event_pull_request: env.WORKFLOW_EVENT === "pull_request",
+            source_repository_matches: env.HEAD_REPOSITORY === env.TARGET_REPOSITORY,
+            branch_not_ai_task: !env.HEAD_BRANCH.startsWith("ai-task/issue-"),
+            branch_not_codex_task: !env.HEAD_BRANCH.startsWith("codex/issue-"),
+          };
+          console.log(JSON.stringify({
+            diagnostic: "factory_recovery_trigger",
+            target_repository: env.TARGET_REPOSITORY,
+            workflow_path: env.WORKFLOW_PATH,
+            workflow_conclusion: env.WORKFLOW_CONCLUSION,
+            workflow_event: env.WORKFLOW_EVENT,
+            head_repository: env.HEAD_REPOSITORY,
+            head_branch: env.HEAD_BRANCH,
+            head_sha: env.HEAD_SHA,
+            source_run_id: env.SOURCE_RUN_ID,
+            source_run_attempt: env.SOURCE_RUN_ATTEMPT,
+            predicates,
+            all_job_level_predicates_pass: Object.values(predicates).every(Boolean),
+          }, null, 2));
+          NODE
+
   reset-system-breaker:
     name: Verify completed exact-head CI before resetting system breaker
     # Only one trusted, same-repository, non-task PR targeting main may
@@ -71,14 +120,14 @@ jobs:
             pr.head?.repo?.full_name === process.env.GITHUB_REPOSITORY &&
             pr.head?.sha === sha && pr.head?.ref === ref);
           if (matches.length === 0) {
-            await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\n"));
+            await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\\n"));
             console.log(`No open PR matches completed CI SHA ${sha}; treating stale or closed-PR CI as a no-op.`);
             process.exit(0);
           }
           if (matches.length > 1) throw new Error(`Ambiguous exact-head PR resolution; found ${matches.length} matches.`);
           const pr = matches[0];
           if (pr.head.ref.startsWith("ai-task/issue-") || pr.head.ref.startsWith("codex/issue-")) throw new Error("Task PRs cannot reset the system breaker.");
-          await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `should_recover=true\nnumber=${pr.number}\nhead_sha=${pr.head.sha}\n`));
+          await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `should_recover=true\\nnumber=${pr.number}\\nhead_sha=${pr.head.sha}\\n`));
           console.log(`Verified PR #${pr.number} at exact SHA ${sha}.`);
           NODE
 
