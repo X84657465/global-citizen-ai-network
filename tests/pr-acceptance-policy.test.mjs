@@ -116,3 +116,10 @@ test("rejects Preflight job from a different run or attempt", () => {
   }});
   assert.ok(evaluateAcceptance(input).failures.some(x => x.code === "PREFLIGHT_NOT_SUCCESS"));
 });
+
+test("merge audit retains applicable Preflight evidence for final policy evaluation", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/main-merge-audit.yml", import.meta.url), "utf8");
+  assert.match(source, /let preflight = \{ applicable: false, status: 'not_applicable' \};[\\s\\S]*?if \(preflightApplicable\) \{[\\s\\S]*?\\n\\s*preflight = \{/);
+  assert.doesNotMatch(source, /if \(preflightApplicable\) \{[\\s\\S]*?\\blet preflight = \{/);
+});
