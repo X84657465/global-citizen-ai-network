@@ -526,3 +526,52 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 ### 驗收界線
 - PENDING、IN_PROGRESS、0 jobs、SKIPPED、FAILURE、缺失日誌、外部 Rate Limit、未取得的 provider 狀態均不是 PASS。
 - COMMENTED 不等於 APPROVED；mergeable=true 不等於接受；不同 SHA 的舊 CI／Review 不轉移到新 HEAD。
+
+
+## 6.20 即時巡檢與 GPT2/F–P 分流 — 2026-11-26（最新查核）
+
+> 本節記錄本次 GitHub API 查核及本 PR 文件更新前後的精確狀態。任何提交改變 HEAD 後，舊 SHA 的 CI、Review、provider status 不可轉移。
+
+### Main
+- Main SHA：`94004585a0756d10c56edd6d65dc143b05a652ab`。
+- 本輪 exact-SHA workflow lookup 未回傳可用 Actions runs；不得將先前 run `45640241849` 的 SUCCESS 當成新的執行證據。
+- Combined status 仍有 Vercel FAILURE，target 回報 build-rate-limit。Main Recovery run `45668787391` FAILURE；job `139398085810` 已結束 FAILURE，job steps 為 0，log endpoint 回傳 404／BlobNotFound，根因 UNKNOWN。
+- 上述代表 Main 整體仍未健康；不宣稱 CI 全綠或完整 evidence persistence 成功。
+
+### OPEN PR exact-head inventory（17 件）
+| PR | Exact HEAD | Exact-head Actions／其他可見終態 |
+|---|---|---|
+| #560 | `f1ba6b5f143a27f528ac2de52cc8b4fd2a20cad6` | CI run `45669918783` IN_PROGRESS；Resolver SUCCESS；Windows quality gates job `139402514789` IN_PROGRESS。Autofix run `45669919005` FAILURE。 |
+| #580 | `fcaa0d111b95b1d867625df365d22c5da768f3a5` | CI `45651167126` SUCCESS；Autofix `45651166993` FAILURE。 |
+| #579 | `2cada172191c21d62a48f47bd3acd1913b663e5a` | CI `45648588571` SUCCESS；Autofix `45648588694` FAILURE。 |
+| #581 | `3a238546a56865a75db5a400f35c6cf57f692985` | CI `45655724008` SUCCESS；Preflight `45655724017` FAILURE；Autofix `45655724222` FAILURE。 |
+| #575 | `e2f1f8dca37cd82d4b6ba61ec3e662b5e3df96c4` | CI `45665115929` SUCCESS；Autofix `45665115972` FAILURE。 |
+| #562 | `129f50568ff9b4a9c0ec934479e0e5654381f431` | CI `45656598335` SUCCESS；Autofix `45656598450` FAILURE。此為文件更新前 HEAD；本節提交會再次改變 HEAD。 |
+| #564 | `a100b6f3df89717e5c06a1da7955998baf343770` | CI `45610501178` SUCCESS；Vercel SUCCESS；CircleCI Pipeline #700 ERROR；0 formal APPROVED。 |
+| #565 | `47c403b63517e8e92564c6d6f3189be63e2e781a` | CI `45643721399` SUCCESS；Autofix `45643721451` FAILURE。 |
+| #576 | `4e8ecb3368b8716c12aa20388975ce6044fb0bd8` | CI `45642766445` SUCCESS；Autofix `45642766637` FAILURE。 |
+| #571 | `07fbee6e1272049c3fdd4d23246dcdb3bb327797` | CI `45620122969` SUCCESS。 |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | CI `45615936030` FAILURE。 |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | No exact-head Actions run returned. |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | CI `45614788127` FAILURE；Resolver failure；candidate evidence persistence steps SKIPPED。 |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | CI `45600232110` SUCCESS；branch-protection verification `45600232082` FAILURE。 |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | CI `45585171843` SUCCESS；reviews are COMMENTED only, not APPROVED。 |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | CI `45560540985` SUCCESS。 |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | CI `45544850826` SUCCESS。 |
+
+All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above is only the named workflow run; it does not override a separate Autofix FAILURE, Preflight FAILURE, external provider ERROR, skipped jobs, missing exact-head run, unresolved review, or missing independent approval. No PR met all merge conditions in this pass.
+
+### GPT2/F–P owned delivery and blockers
+
+- **Issue #364 (H):** closed after the recorder snapshot hardening was confirmed on Main. No duplicate implementation is required.
+- **Issue #375 / PR #564 (G):** PR #259 is CLOSED / unmerged, so the former open-PR overlap is gone. The focused candidate implements duplicate `jobUrl` rejection and the four-distinct-job-ID/same-URL regression. However, PR #564's actual diff also changes `tests/fp/f-g-integration-assurance.test.ts`, outside Issue #375's explicit allowlist. That fixture change is coupled to the new invariant. Do not silently expand scope or alter the F–G integration fixture without its authorized owner decision. Candidate HEAD `a100b6f3df89717e5c06a1da7955998baf343770` is 9 commits ahead / 7 behind current main; historical CI SUCCESS is not a current-main reconciliation. CircleCI #700 ERROR and formal APPROVED count 0. Keep Draft.
+- **PR #560:** current HEAD `f1ba6b5f143a27f528ac2de52cc8b4fd2a20cad6`; Run `45669918783` is still IN_PROGRESS. Resolver passed, Windows quality job remains in progress, PostgreSQL/RLS and Ollama terminal results not yet available. Autofix failure is separate. Do not mark complete.
+- **GPT2 document PR #562:** branch `rebuild/gpt2-mainline-status-20261125` was reconciled with current Main using a two-parent merge commit `587c7c5ff07566f0ff9c46ca705d73ae549087af` (first parent current main `94004585a0756d10c56edd6d65dc143b05a652ab`, second parent prior PR head `129f50568ff9b4a9c0ec934479e0e5654381f431`). The mainline commits since the old base touched no GPT2 coordination document path. This preserves both histories without force-push. This section is being appended to the GPT2-owned document; the resulting new HEAD requires fresh exact-head CI and review.
+- Main Recovery, Vercel rate limit, CircleCI configuration errors, Factory Preflight/Resolver failures, and other owners' paths remain routed to their respective owners/providers. Do not spend cycles repeatedly retrying the same external failure.
+
+### Acceptance boundary and next actions
+- This is documentation/evidence maintenance only; it does not claim a Runtime fix, local test execution, independent approval, PR acceptance, or merge.
+- Re-fetch PR #562's new HEAD and all jobs after this commit. Keep Draft until its new exact-head CI and authorized independent formal APPROVED are present.
+- For #375, obtain an explicit F–G integration fixture scope/owner decision; then rerun the complete G and F–G regression suite on a fresh exact-head candidate.
+- For #560, wait for the current quality/integration jobs to reach terminal states; do not treat IN_PROGRESS, CANCELLED, SKIPPED, or Autofix failure as PASS.
+- Never treat COMMENTED as APPROVED, mergeable=true as acceptance, or old-SHA evidence as proof for a new HEAD.
