@@ -5,6 +5,8 @@ on:
   pull_request_target:
     branches: [main]
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
   workflow_run:
     workflows: ["CI", "AI Agent Task Preflight"]
     types: [completed]
@@ -226,9 +228,12 @@ jobs:
               owner, repo, pull_number: prNumber, per_page: 100
             });
             const latestReviewByUser = new Map();
+            const effectiveReviewStates = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
             reviews.sort((a, b) => new Date(a.submitted_at || 0) - new Date(b.submitted_at || 0));
             for (const review of reviews) {
-              if (review.user && review.user.login) latestReviewByUser.set(review.user.login, review);
+              if (review.user && review.user.login && effectiveReviewStates.has(review.state)) {
+                latestReviewByUser.set(review.user.login, review);
+              }
             }
             const hasCurrentHeadApproval = Array.from(latestReviewByUser.values()).some(review =>
               review.user.login !== pr.user.login &&
@@ -283,7 +288,11 @@ jobs:
             });
             const hasHoldLabel = labelResponse.data.some(label => label.name === holdLabel);
 
-            if (!evaluation.accepted) {
+            const currentPrResponse = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            if (currentPrResponse.data.head.sha !== headSha) {
+              core.notice('PR #' + prNumber + ' advanced from evaluated SHA ' + headSha + ' to ' +
+                currentPrResponse.data.head.sha + '; skipping stale label and Draft updates.');
+            } else if (!evaluation.accepted) {
               if (!hasHoldLabel) {
                 try {
                   await github.rest.issues.createLabel({
