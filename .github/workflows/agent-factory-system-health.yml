@@ -59,8 +59,8 @@ jobs:
           const sha = process.env.WORKFLOW_HEAD_SHA;
           const ref = process.env.WORKFLOW_HEAD_REF;
           const reject = reason => {
-            const { appendFileSync } = require("node:fs");
-            appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\\n");
+            const { appendFileSync } = await import("node:fs");
+            appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\n");
             console.log(`Recovery not eligible: ${reason}`);
           };
           const eligibility = [
@@ -97,6 +97,7 @@ jobs:
           NODE
 
       - name: Verify completed CI provenance and reset global breaker
+        id: recovery
         if: steps.resolve-pr.outputs.should_recover == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -130,19 +131,19 @@ jobs:
           CONTROLLER_OUTCOME: ${{ steps.recovery.outcome }}
         run: |
           {
-            printf 'schema_version=1\\n'
-            printf 'recovery_run_id=%s\\n' "$GITHUB_RUN_ID"
-            printf 'recovery_run_attempt=%s\\n' "$GITHUB_RUN_ATTEMPT"
-            printf 'source_ci_run_id=%s\\n' "$SOURCE_CI_RUN_ID"
-            printf 'source_ci_run_attempt=%s\\n' "$SOURCE_CI_RUN_ATTEMPT"
-            printf 'source_ci_head_sha=%s\\n' "$SOURCE_CI_SHA"
-            printf 'source_ci_head_ref=%s\\n' "$SOURCE_CI_REF"
-            printf 'source_ci_conclusion=%s\\n' "$SOURCE_CI_CONCLUSION"
-            printf 'source_ci_event=%s\\n' "$SOURCE_CI_EVENT"
-            printf 'source_ci_head_repository=%s\\n' "$SOURCE_CI_REPOSITORY"
-            printf 'resolved_pr_number=%s\\n' "$RESOLVED_PR_NUMBER"
-            printf 'resolver_step_outcome=%s\\n' "$RESOLVER_OUTCOME"
-            printf 'controller_step_outcome=%s\\n' "$CONTROLLER_OUTCOME"
+            printf 'schema_version=1\n'
+            printf 'recovery_run_id=%s\n' "$GITHUB_RUN_ID"
+            printf 'recovery_run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT"
+            printf 'source_ci_run_id=%s\n' "$SOURCE_CI_RUN_ID"
+            printf 'source_ci_run_attempt=%s\n' "$SOURCE_CI_RUN_ATTEMPT"
+            printf 'source_ci_head_sha=%s\n' "$SOURCE_CI_SHA"
+            printf 'source_ci_head_ref=%s\n' "$SOURCE_CI_REF"
+            printf 'source_ci_conclusion=%s\n' "$SOURCE_CI_CONCLUSION"
+            printf 'source_ci_event=%s\n' "$SOURCE_CI_EVENT"
+            printf 'source_ci_head_repository=%s\n' "$SOURCE_CI_REPOSITORY"
+            printf 'resolved_pr_number=%s\n' "$RESOLVED_PR_NUMBER"
+            printf 'resolver_step_outcome=%s\n' "$RESOLVER_OUTCOME"
+            printf 'controller_step_outcome=%s\n' "$CONTROLLER_OUTCOME"
           } > "$RUNNER_TEMP/system-health-recovery-summary.txt"
 
       - name: Upload recovery diagnostics
