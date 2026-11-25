@@ -155,7 +155,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-reset-system-breaker-windows-fallback:
+  reset-system-breaker-windows-fallback:
     name: Verify hosted allocation failure and recover on Windows Runner
     needs: [reset-system-breaker]
     if: always() && needs.reset-system-breaker.result == 'failure'
