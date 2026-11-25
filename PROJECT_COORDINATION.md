@@ -8,6 +8,8 @@
 
 ## 0.1 PR 審查、驗收與合併權責
 
+> **本節狀態：PROPOSED。** 本節規則僅於 `docs/PR_REVIEW_APPROVAL_MATRIX.md` 經獨立審查並依 Repository 正式治理程序接受後生效；正式接受前，仍以目前已核准的政策為準。
+
 PR 必須分開記錄 Developer、領域／產品驗收者、獨立技術 Reviewer 與 GitHub 合併授權者。GPT4 是 B Product Lead，負責產品需求與產品驗收；GPT3 負責必要的獨立技術審查；實際合併只能由具 GitHub 權限且符合 Repository 政策的授權者／自動化執行。GPT 角色名稱不等於 GitHub 身分或權限，Developer 不得自我批准。詳見 [`docs/PR_REVIEW_APPROVAL_MATRIX.md`](docs/PR_REVIEW_APPROVAL_MATRIX.md) 與 [.github/pull_request_template.md](.github/pull_request_template.md)。
 
 ## 1. 目的與基本原則
