@@ -387,15 +387,15 @@ test("candidate container classification reads Docker start exit evidence from t
 
 test("Recovery diagnostics match GitHub Actions case-insensitive equality and branch-prefix semantics", () => {
   const workflow = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8");
-  const marker = "node --input-type=module <<'NODE'\\n";
+  const marker = "node --input-type=module <<'NODE'\n";
   const start = workflow.indexOf(marker);
-  const end = workflow.indexOf("\\n          NODE", start + marker.length);
+  const end = workflow.indexOf("\n          NODE", start + marker.length);
   assert.ok(start >= 0 && end > start, "read-only recovery diagnostic script must exist");
   let script = workflow.slice(start + marker.length, end);
   script = script.replace("console.log(JSON.stringify({", "globalThis.__diagnostic = ({");
-  script = script.replace(/}, null, 2\\)\\);\\s*$/, "});");
-  assert.match(script, /normalize\\(env\\.HEAD_BRANCH\\)\\.startsWith\\("ai-task\\/issue-"\\)/);
-  assert.match(script, /normalize\\(env\\.HEAD_BRANCH\\)\\.startsWith\\("codex\\/issue-"\\)/);
+  script = script.replace(/}, null, 2\)\);\s*$/, "});");
+  assert.match(script, /normalize\(env\.HEAD_BRANCH\)\.startsWith\("ai-task\/issue-"\)/);
+  assert.match(script, /normalize\(env\.HEAD_BRANCH\)\.startsWith\("codex\/issue-"\)/);
 
   const baseEnv = {
     TARGET_REPOSITORY: "x84657465/global-citizen-ai-network",
