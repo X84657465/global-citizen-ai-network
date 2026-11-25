@@ -167,7 +167,7 @@ jobs:
                 run.event === 'pull_request' && run.path === '.github/workflows/agent-task-preflight.yml')
               .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
             const selectedPreflightRun = matchingPreflightRuns[0] || null;
-            let preflight = {
+            preflight = {
               applicable: true, workflowId: preflightWorkflow.id,
               workflowPath: preflightWorkflow.path, event: 'pull_request',
               runId: selectedPreflightRun ? selectedPreflightRun.id : null,
