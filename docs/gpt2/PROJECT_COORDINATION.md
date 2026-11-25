@@ -392,3 +392,49 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - Vercel rate limit 與 CircleCI Pipeline ERROR 是外部 provider／專案設定阻塞；GPT2 不改 billing、secrets、provider 設定或權限。Main Recovery／Preflight 屬 Factory／任務 owner，不重複盲目 rerun。
 - 本節只更新 GPT2 自有文件；未修改 main、Runtime、Factory state、Runner、workflow、DB/RLS、secrets 或 deployment。未執行本機測試／typecheck／lint/build。#562 新文件 HEAD 的 exact-SHA CI 與 review 狀態須在本提交後重新取得。
 - **驗收界線：** 所有 PR 保持 Draft；沒有解除 Draft、沒有合併、沒有宣稱獨立驗收或部署完成。
+
+
+## 6.17 即時巡檢與 GPT2 文件更新 — 2026-11-25（本輪重新查核）
+
+> 本節為本次重新讀取 GitHub refs、PR metadata、exact-head Actions runs/jobs 與 combined statuses 後的快照。下列 PR #562 的 SHA／CI 是本次文件提交前證據；此文件提交會改變 #562 HEAD，故提交後必須重新查 exact-head CI 與 reviews，不可沿用本節的 #562 歷史證據。
+
+### Main
+- `refs/heads/main`：`a772acbeb93e877697bfc315ecc0a29f2f611b9f`。
+- Main Push CI `45596820733`：COMPLETED / SUCCESS；Windows quality gates、Ollama/local、PostgreSQL/RLS 實質工作 SUCCESS。
+- Main Recovery `45603245818`：COMPLETED / FAILURE；同類 Recovery 驗證失敗已重複出現，不盲目重跑、不宣稱 breaker reset。
+- Main combined statuses：Vercel FAILURE（deployment rate limit，提示 24 小時後重試）；CircleCI Pipeline ERROR（project configuration not found）。
+- Main check runs 同時存在 FAILURE 與 SKIPPED 的 Recovery／branch-protection／evidence 工作；Main 不是全綠。Branch protection 驗證失敗不等於已證明保護設定已啟用或停用。
+
+### 全部 OPEN PR（10 件）
+以下 HEAD、BASE 與 status 均為本輪重新讀取值；Actions SUCCESS 不會覆蓋 external provider FAILURE/ERROR，也不會自動滿足正式審查。
+
+| PR | HEAD | BASE | Draft | Exact-head Actions／其他阻塞 |
+|---|---|---|---|---|
+| #570 | `98767a70d6729917a3938ac6772e76fdbd884251` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | yes | CI run `45603966381` PENDING；Preflight `45603966403` FAILURE：Linux offline scratch fixture validation FAILURE，其餘 6 Jobs SKIPPED |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | yes | CI `45600232110` SUCCESS；branch-protection verification `45600232082` FAILURE |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | no | CI `45585171843` SUCCESS；Vercel FAILURE、CircleCI ERROR |
+| #565 | `4a544b0321c83309c2e4ff6bc7d6ca57ded42c90` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | yes | CI `45582051332` SUCCESS；Vercel FAILURE、CircleCI ERROR |
+| #564 | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | CI `45567260893` SUCCESS；Vercel FAILURE、CircleCI ERROR；formal reviews 0，review threads 0 |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | CI `45560540985` SUCCESS；Vercel SUCCESS、CircleCI ERROR |
+| #562 | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | pre-update CI `45567007717` SUCCESS；Vercel FAILURE、CircleCI ERROR；reviews 為 COMMENTED，非 APPROVED；1 個 review thread 已 resolved/outdated |
+| #561 | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | CI `45544583799` SUCCESS；Preflight `45544584160` attempt 8 FAILURE；Vercel FAILURE、CircleCI ERROR |
+| #560 | `1c758ecbc7c3399d7d98e0b1d0970bbcbbda0a97` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | CI `45603964148` IN_PROGRESS；Resolver、Windows quality、Ollama/local SUCCESS；PostgreSQL/RLS IN_PROGRESS |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | yes | Acceptance Gate runs `45559927442`／`45559920138`／`45559909285` FAILURE；另有 CI `45544850826` SUCCESS；Vercel FAILURE、CircleCI ERROR |
+
+### PR #564 / Issue #375 — G 工作線
+- Main SHA `a772acbeb93e877697bfc315ecc0a29f2f611b9f` 與 PR #564 merge base `462eeea5917f3b0750fc2c41c888a4d54c562c1e` 比較：Main 相對 merge base ahead 5 commits；PR #564 相對 merge base ahead 8 commits（DIVERGED）。
+- Main 新增的 5 commits 只修改 `.github/workflows/verify-gcan-pat.yml` 與 `docs/GCAN_COMPETITIVE_PRODUCT_STRATEGY.md`，與 PR #564 的 G 修復檔案沒有同路徑重疊。PR #259 已 CLOSED / unmerged，原先開放重疊候選不再是 OPEN PR。
+- 這只代表目前觀察到的路徑衝突風險低，不代表已 rebase 或已同步。現有可用操作未提供安全 rebase；本輪未移動分支、未 force push。
+- PR #564 仍 Draft；exact-head Actions SUCCESS 不包含獨立 formal APPROVED。Vercel FAILURE、CircleCI ERROR 持續存在。
+- 已在 Issue #375 新增 comment `7161169921`，記錄 Main/PR 比較、無同檔案衝突的觀察、PR #259 關閉狀態與下一步驗收條件。
+
+### GPT2/F–P 本輪處置
+- 本輪唯一直接寫入的交付是更新本文件的即時快照；此為文件交接，不是程式碼修復、測試通過或部署驗收。
+- #570 Linux fixture failure、#561 Preflight failure、Main Recovery failure 交由 Factory／對應 owner；不接管其他模組。
+- Vercel rate limit 與 CircleCI configuration error 交由 provider／專案管理者處理，不更改 billing、secrets、權限或 provider 設定。
+- #562 提交此文件後會產生新 HEAD；舊 SHA 的 SUCCESS、COMMENTED review 與 resolved thread 不轉移到新 HEAD。
+- 本輪沒有解除 Draft、沒有合併任何 PR、沒有宣稱獨立 APPROVED；#562 必須在新 HEAD 上重新取得完整 CI 終態與正式獨立 review。
+
+### 驗收界線
+- 所有 PR 只有在目前 exact HEAD 的必要 checks 全部 terminal SUCCESS、外部必要檢查無阻塞、review threads 無未解阻塞、取得真正獨立 formal APPROVED、base/mergeability 與 repository gate 均符合後，才可評估解除 Draft／合併。
+- PENDING、IN_PROGRESS、SKIPPED、0 Jobs、branch-protection API/驗證 FAILURE、Vercel rate limit、CircleCI ERROR 均不是綠燈。
