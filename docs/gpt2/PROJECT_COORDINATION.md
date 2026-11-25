@@ -355,3 +355,44 @@ GPT5 可提供研究、來源查核、風險預警與受授權的執行支援。
 - 新 PR 的 exact-head CI：PENDING，須以 GitHub 最新結果重查。
 - GPT3 正式獨立 APPROVED：PENDING／NOT PRESENT。
 - 整體交付：DOCUMENTED；INDEPENDENT ACCEPTANCE 尚未完成；IMPLEMENTED 不作宣稱。
+
+
+## 6.12 即時主線重核與 GPT2/F–P 交付 — 2026-11-25（07:55 Asia/Taipei）
+
+> 本節是本次重新查詢的即時快照；6.1–6.11 保留為歷史紀錄。所有結論綁定 exact SHA／run；HEAD 改變必須重新查核。此節不宣稱部署或取代 GPT3 獨立審查。
+
+### Main、Actions 與外部檢查
+
+- **main HEAD：** `462eeea5917f3b0750fc2c41c888a4d54c562c1e`。
+- **GitHub Actions main push CI：** run `45505611114`，event=push，completed/SUCCESS，head SHA 與 main 相同。Resolver、Windows quality gates（migration/schema guards、audits、script syntax、CI trigger policy、unit tests、type check、lint、production build）、PostgreSQL/RLS integration、Ollama/local integration jobs 均 SUCCESS。惟成功證據持久化 job 的 revalidate、record、evidence JSON、artifact upload steps 為 SKIPPED；不得宣稱完整 evidence persistence 已完成。
+- **Main Preflight：** run `45513478386` FAILURE；job `138866846828`；Issue #87 的 `scripts/prepare-agent-task.mjs` 明確拒絕任務內容：`Task preflight rejected: Unexpected section: Phase`。task validation 後的 planning、patch、offline test、publication 下游 jobs／steps SKIPPED。此為 GPT1／Factory task-ingestion 範圍，GPT2 不修改 Factory parser／workflow。
+- **Main Recovery：** run `45513476913` SKIPPED；job `138866843614` SKIPPED 且 0 steps，不是 PASS。
+- **Required checks／branch protection：** UNKNOWN。Branch-protection API 回傳 403 Resource not accessible by integration；無法從本次權限確認 required-check 清單。
+- **Vercel：** FAILURE，deployment rate limited，提示 24 小時後重試；不可視為 Preview 成功。
+- **CircleCI：** ERROR，Pipeline #517 回報專案找不到 configuration；與 GitHub Actions 分開列示。
+- **整體 Main：** combined status FAILURE。Main push CI SUCCESS 不抵銷 Preflight FAILURE、Recovery SKIPPED、Vercel FAILURE 或 CircleCI ERROR。
+
+### 全部 OPEN PR（7 件；以本次 API 回傳為準）
+
+| PR | Exact HEAD | Base SHA | Draft / mergeability | Exact-head Actions | 正式 Review／未解 threads |
+|---|---|---|---|---|---|
+| #556 Factory recovery acceptance guard | `57ab404520421890529ca5e92ccef2721ab605ee` | main `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft；mergeable=true（state unstable） | run `45513460415` FAILURE；quality job `138866978609` FAILURE。CI Trigger/Runner policy step FAILURE；`tests/ci-trigger-policy.test.mjs:203` 的 `audit-merged-pr` 必須使用 shared non-cancelling Runner queue 斷言失敗；47 tests pass、1 fail，後續 unit/type/lint/build SKIPPED | 無正式 Review；0 threads |
+| #555 GPT2 mainline evidence／handoff | `3bb41bb0cb956a2580f629deba3ef83c3cac75b4` | main `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft；mergeable=true（state unstable） | run `45506051623` completed/SUCCESS；quality gates、PostgreSQL/RLS、Ollama/local integration 均 SUCCESS | 只有作者 COMMENTED；無 GPT3 APPROVED；0 threads |
+| #476 A–P acceptance governance | `977896a9db756e336405bb2f1956f9377da60038` | `4225a244407f7a323262c4d6e17b2749193d6476` | Draft；mergeable=false／dirty | exact-head Actions run 未找到；Actions UNKNOWN。Mergify IN_PROGRESS；Vercel Preview Comments、Summary、CodeRabbit SUCCESS | 僅 COMMENTED；1 unresolved thread（`docs/GCAN_AP_UNIFIED_DELIVERY_ACCEPTANCE_STANDARD.md`） |
+| #376 Factory autonomy／project north star | `8e9b14d7a137e5930e9a549c9ff949743689335b` | `93e7ac35bfd5b6a9c33ea3508b6b7c2f2b4bbe1e` | Draft；mergeable=false／dirty | exact-head Actions run 未找到；Actions UNKNOWN。Mergify IN_PROGRESS；Vercel Preview Comments、Summary、CodeRabbit SUCCESS | 僅 COMMENTED；10 unresolved threads，涉及 PROJECT_COORDINATION、B Product baseline、Neural Intelligence Agent Mode 等 |
+| #478 Product MVP A–P | `e10878764d161a960ef258022e936f0717ad75a2` | `4225a244407f7a323262c4d6e17b2749193d6476` | Draft；mergeable=false／dirty | exact-head Actions run 未找到；Actions UNKNOWN。Mergify IN_PROGRESS；Vercel Preview Comments、Summary、CodeRabbit SUCCESS | 僅 COMMENTED；1 unresolved thread（`tests/gcan-mvp-first-delivery.test.mjs`） |
+| #417 Neural Intelligence developer seat | `c0567805a5a032a1925f7e783caca4b1b5ce27ab` | `25d5ed519eb923d3001df6d43aec1670a0d4851a` | Draft；mergeable=false／dirty | exact-head Actions run 未找到；Actions UNKNOWN。Mergify IN_PROGRESS；Vercel Preview Comments、Summary、CodeRabbit SUCCESS | 僅 COMMENTED；5 unresolved threads（`docs/architecture/gpt3-neural-qa-review-checklist.md`） |
+| #259 consolidated A/F–P integration | `7e71687df663f26e8d7835784dacd898491cf075` | `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582` | Draft；mergeable=false／dirty | exact-head Actions run 未找到；Actions UNKNOWN。Summary、CodeRabbit SUCCESS；Mergify neutral | 僅 COMMENTED；16 unresolved threads |
+
+- **外部狀態分開記錄：** #556、#555、#259 的 Vercel 為 FAILURE（build-rate-limit），CircleCI 為 ERROR（no configuration）；#476、#376、#478、#417 的 Vercel 為 SUCCESS，但 CircleCI 均 ERROR（no configuration）。Vercel／CircleCI 狀態不等同 GitHub Actions。
+- **獨立審查：** 本次全部 7 件 OPEN PR 均沒有可確認的 GPT3 正式 APPROVED。作者／CodeRabbit 的 COMMENTED、CodeRabbit check SUCCESS、Mergify 狀態均不能替代 GPT3 對同一 exact HEAD 的正式批准。
+- **合併狀態：** #556／#555 base SHA 與目前 main 一致；其餘五件 PR base SHA 均落後目前 main 且 mergeable=false。所有 PR 仍為 Draft；本次未解除 Draft、未合併、未 rebase。
+
+### GPT2/F–P 自有交付、阻塞與下一步
+
+- **本次唯一明確可寫入的 GPT2 自有範圍：** 本 PR #555 的 allowlist 僅為 `docs/gpt2/PROJECT_COORDINATION.md`；Owner 為 GPT2 — F–P workstream owner。本節只刷新 GitHub main／PR／CI／外部檢查及 owner handoff 證據，不修改程式、Factory、Runner、Secrets、權限、資料庫或部署。
+- **#259 衝突已重新核實：** #259 變更 `lib/fp/release-assurance.ts`、`tests/fp/release-assurance.test.ts`、`lib/fp/observability.ts`、`tests/fp/observability.test.ts`，分別與 Issue #375（G）及 #364（H）明確 allowlist 重疊；#259 本身又包含 A／Factory／P 等跨 owner 檔案且 base 落後。不得在上述重疊檔案上直接寫入、機械 rebase、cherry-pick 或覆蓋。
+- **GPT2 本次實際交付：** 更新本文件第 6.12 節；只屬文件／handoff evidence。#555 既有 exact-head CI run `45506051623` 已成功，但此文件更新會產生新 head，舊 run 不可沿用；本次文件-only 更新未執行本機測試、TypeScript、Lint 或 Build，須等待新 exact-head Actions。
+- **Owner handoff：** #556 的 `tests/ci-trigger-policy.test.mjs`／Factory workflow 失敗交 GPT1／Factory owner；Main Issue #87 的 `Unexpected section: Phase` 交 GPT1／Factory task-ingestion owner；#476、#376、#478、#417 交各自治理／Factory／Product owner。GPT2 不接管。
+- **下一個 GPT2/F–P 程式任務：** 待 #259 owner 明確處置並解除重疊後，依 Issue #375 先做 G 的 duplicate job-run URL regression（限定 `lib/fp/release-assurance.ts`、`tests/fp/release-assurance.test.ts` 及該 Issue 指定文件／manifest）；再依 Issue #364 做 H 的 untrusted observability event snapshot（限定 `lib/fp/observability.ts`、`tests/fp/observability.test.ts`）。目前兩項均 BLOCKED by #259 overlap，未另開競爭 PR。
+- **保護與驗收：** Issue #136 嚴格唯讀；A–E 不修改；L/Federation 停用；B Runtime 暫緩；不正式部署。文件狀態不代表 Runtime 已實作。任何解除 Draft／合併仍需新 exact-head 必要 CI 全成功、GPT3 同 SHA 正式 APPROVED、無未解阻擋、base/mergeability 與專案 gates 全部符合。
