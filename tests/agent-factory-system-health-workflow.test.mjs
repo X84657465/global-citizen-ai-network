@@ -35,4 +35,6 @@ test("Windows fallback is limited to hosted runner allocation failure before any
   assert.ok(job.includes("ref: main"));
   assert.ok(job.includes("persist-credentials: false"));
   assert.ok(job.includes("shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}"));
+  assert.ok(job.includes('$prs = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get'), "PR API response is assigned without an outer array-subexpression");
+  assert.ok(!job.includes('$prs = @(Invoke-RestMethod'), "PR API response must not be wrapped before filtering");
 });
