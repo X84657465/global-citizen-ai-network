@@ -93,5 +93,46 @@ jobs:
           SYSTEM_HEALTH_PULL_REQUEST_NUMBER: ${{ steps.resolve-pr.outputs.number }}
           SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           SYSTEM_HEALTH_PR_HEAD_SHA: ${{ steps.resolve-pr.outputs.head_sha }}
+        id: recovery
         shell: bash
-        run: node scripts/agent-factory-v2-controller.mjs
+        run: |
+          set +e
+          node scripts/agent-factory-v2-controller.mjs 2>&1 | tee "$RUNNER_TEMP/system-health-recovery.log"
+          controller_exit=${PIPESTATUS[0]}
+          exit "$controller_exit"
+
+      - name: Write redacted recovery diagnostic summary
+        if: always()
+        shell: bash
+        env:
+          RECOVERY_RUN_ID: ${{ github.event.workflow_run.id }}
+          RECOVERY_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          RECOVERY_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RECOVERY_HEAD_REF: ${{ github.event.workflow_run.head_branch }}
+          RECOVERY_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RECOVERY_CONTROLLER_OUTCOME: ${{ steps.recovery.outcome }}
+          RECOVERY_PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
+        run: |
+          {
+            printf 'schema_version=1\\n'
+            printf 'recovery_run_id=%s\\n' "$GITHUB_RUN_ID"
+            printf 'recovery_run_attempt=%s\\n' "$GITHUB_RUN_ATTEMPT"
+            printf 'source_ci_run_id=%s\\n' "$RECOVERY_RUN_ID"
+            printf 'source_ci_run_attempt=%s\\n' "$RECOVERY_RUN_ATTEMPT"
+            printf 'source_ci_conclusion=%s\\n' "$RECOVERY_CONCLUSION"
+            printf 'source_ci_head_sha=%s\\n' "$RECOVERY_HEAD_SHA"
+            printf 'source_ci_head_ref=%s\\n' "$RECOVERY_HEAD_REF"
+            printf 'resolved_pr_number=%s\\n' "$RECOVERY_PR_NUMBER"
+            printf 'controller_step_outcome=%s\\n' "$RECOVERY_CONTROLLER_OUTCOME"
+          } > "$RUNNER_TEMP/system-health-recovery-summary.txt"
+
+      - name: Upload recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-health-recovery-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/system-health-recovery.log
+            ${{ runner.temp }}/system-health-recovery-summary.txt
+          if-no-files-found: warn
+          retention-days: 30
