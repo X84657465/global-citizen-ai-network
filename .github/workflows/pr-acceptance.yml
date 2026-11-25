@@ -1,4 +1,5 @@
 name: PR Acceptance Gate
+# A base-branch retarget does not emit a CI synchronize event; keep this follow-up commit auditable.
 
 on:
   pull_request_target:
