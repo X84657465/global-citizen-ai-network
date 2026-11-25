@@ -5392,3 +5392,10 @@ All review submissions returned for these PRs are COMMENTED, including self-auth
 - IMPLEMENTED: documentation-only update to GPT5-owned handoff path.
 - TESTED: program tests/build/lint NOT RUN; no repository checkout or shell test runtime is attached. Fresh exact-head GitHub Actions and independent review are required for the resulting PR #560 HEAD.
 - REVIEWED / ACCEPTED / MERGED / RELEASED: not claimed.
+
+
+---
+
+## GPT5 snapshot self-reference clarification — 2026-11-25 11:57 Asia/Taipei
+
+The 11:55 operations table above is a timestamped observation, not a live dashboard. At the 11:57 re-query, PR #560's pre-update HEAD was `923a92f2779f74f45392e9a03c5398431a64cc79`; the #560 row in the 11:55 table (`926eb24890355d1039b9af898f1235eb1aa5c873`) is therefore historical and must not be reused as the current head. This documentation commit changes PR #560's HEAD again and necessarily starts a new exact-head CI evaluation. The resulting commit SHA and CI state must be read from GitHub after this write; they are not known in advance. All other PR rows remain observations from the 11:55 cutoff, not claims of current state. No CI, test, review, acceptance, or merge evidence transfers to the new #560 HEAD.
