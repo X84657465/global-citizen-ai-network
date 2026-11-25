@@ -89,12 +89,12 @@ const bundle = (overrides: {
         status: "completed",
         conclusion: overrides.releaseConclusion ?? "success",
         runUrl: releaseRunUrl,
-        jobs: G_REQUIRED_CI_JOBS.map((jobId) => ({
+        jobs: G_REQUIRED_CI_JOBS.map((jobId, index) => ({
           jobId,
           runAttempt: releaseAttempt,
           status: "completed" as const,
           conclusion: jobId === overrides.failedJob ? "failure" as const : "success" as const,
-          jobUrl: `${releaseRunBaseUrl}/job/456`,
+          jobUrl: `${releaseRunBaseUrl}/job/${456 + index}`,
         })),
       },
     },
