@@ -16,7 +16,7 @@ test("system-health recovery invokes its Node controller without the Windows Pow
   assert.equal(workflow.includes("    if: >-"), false, "job-level filtering must not suppress diagnostic evidence");
   assert.ok(workflow.includes("WORKFLOW_CONCLUSION"), "resolver must validate source CI conclusion inside the job");
   assert.ok(workflow.includes("WORKFLOW_HEAD_REPOSITORY"), "resolver must reject untrusted source repositories");
-  assert.ok(step.includes("        run: |\\n          set +e\\n"), "controller must preserve its exit status");
-  assert.ok(workflow.includes("      - name: Write redacted recovery diagnostic summary\\n        if: always()"), "diagnostic summary must run even when recovery is ineligible");
-  assert.ok(workflow.includes("      - name: Upload recovery diagnostics\\n        if: always()"), "diagnostic artifact must always be uploaded");
+  assert.ok(step.includes("        run: |\n          set +e\n"), "controller must preserve its exit status");
+  assert.ok(workflow.includes("      - name: Write redacted recovery diagnostic summary\n        if: always()"), "diagnostic summary must run even when recovery is ineligible");
+  assert.ok(workflow.includes("      - name: Upload recovery diagnostics\n        if: always()"), "diagnostic artifact must always be uploaded");
 });
