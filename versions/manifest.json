@@ -37,8 +37,8 @@
     },
     "G": {
       "name": "Release, QA & Integration",
-      "version": "0.1.3",
-      "status": "planned",
+      "version": "0.1.4",
+      "status": "implementation-candidate",
       "responsibility": "Integration sequencing, compatibility matrices, regression suites, release gates and exact-SHA evidence."
     },
     "H": {
