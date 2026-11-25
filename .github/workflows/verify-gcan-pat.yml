@@ -1,0 +1,41 @@
+name: Verify GCAN Branch Protection Access
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/verify-gcan-pat.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-branch-protection:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 3
+    steps:
+      - name: Check runner GitHub CLI authentication
+        shell: pwsh
+        run: |
+          $gh = Get-Command gh -ErrorAction SilentlyContinue
+          if (-not $gh) {
+            Write-Error "GitHub CLI is not installed on this runner."
+            exit 1
+          }
+          gh auth status --hostname github.com
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "No usable GitHub CLI authentication is configured for the runner service account."
+            exit 1
+          }
+      - name: Test branch protection read permission
+        shell: pwsh
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          gh api "repos/$env:REPOSITORY/branches/main/protection" --jq '"PASS: branch protection API returned HTTP 200"'
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Runner GitHub CLI identity cannot read branch protection."
+            exit 1
+          }
