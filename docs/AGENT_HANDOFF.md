@@ -1,3 +1,40 @@
+# GPT5 Daily Operations — Fresh Live Snapshot (2026-11-25)
+
+> This section supersedes older snapshots below. Evidence was freshly retrieved from GitHub after main advanced. It is a GPT5-owned documentation handoff only. All PR CI evidence below is tied to the exact HEAD shown; any new commit to this file requires its own exact-HEAD CI. No approval, acceptance, merge, release, deployment, or external-provider recovery is implied.
+
+## Current main
+- Main HEAD: `b39228e24e15c329f3053ba22a3f4dfebe77546b` (commit: docs competitive product strategy and roadmap).
+- Current-main Push CI [45580139177](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45580139177), attempt 1, exact SHA: workflow COMPLETED / SUCCESS. Resolver, Windows quality gates, PostgreSQL/RLS, and Ollama/local integration jobs SUCCESS. Failure diagnostics, failure persistence, and Recovery breaker-check are SKIPPED; these are not passes.
+- Main Recovery [45581718453](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45581718453), attempt 1, exact SHA: COMPLETED / SKIPPED.
+- Combined main status: FAILURE. CircleCI Pipeline [#661](https://app.circleci.com/pipelines/gh/X84657465/global-citizen-ai-network/661) ERROR; Vercel FAILURE (`build-rate-limit`).
+- Main branch endpoint currently reports `protected=false`; repository rulesets could not be inspected (GitHub API 403), so additional ruleset state is UNKNOWN.
+
+## Open PRs — exact current-head evidence
+All eight PRs below remain OPEN. GitHub mergeable=true, where returned, is not a review or CI gate. No formal APPROVED review was returned for any PR.
+
+| PR | HEAD SHA | Base SHA | Draft | Exact-head Actions evidence | Reviews / threads | External statuses |
+|---|---|---|---|---|---|---|
+| [#567](https://github.com/X84657465/global-citizen-ai-network/pull/567) | `6689d125d586a4e4fcefdaded4e74f8bc2c5f272` | current main | Ready | [45581219785](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45581219785) attempt 1 PENDING; resolver + quality SUCCESS; PostgreSQL PENDING; Ollama IN_PROGRESS | CodeRabbit COMMENTED; 4 review-thread records; no APPROVED | CircleCI #665 ERROR; Vercel FAILURE |
+| [#565](https://github.com/X84657465/global-citizen-ai-network/pull/565) | `4a544b0321c83309c2e4ff6bc7d6ca57ded42c90` | current main | Draft | [45582051332](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45582051332) attempt 1 PENDING; resolver SUCCESS; quality PENDING | CodeRabbit COMMENTED; 2 review-thread records; no APPROVED | CircleCI #666 ERROR; Vercel FAILURE |
+| [#564](https://github.com/X84657465/global-citizen-ai-network/pull/564) | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | stale: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | [45567260893](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45567260893) attempt 1 COMPLETED / SUCCESS; core four jobs SUCCESS; diagnostics + persistence jobs SKIPPED | No formal reviews; no thread records; no APPROVED | CircleCI #652 ERROR; Vercel FAILURE |
+| [#563](https://github.com/X84657465/global-citizen-ai-network/pull/563) | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | stale: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | [45560540985](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45560540985) attempt 1 COMPLETED / SUCCESS; core four jobs SUCCESS; diagnostics + persistence jobs SKIPPED | No formal reviews; no thread records; no APPROVED | CircleCI #626 ERROR; Vercel SUCCESS |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | stale: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | [45567007717](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45567007717) attempt 1 COMPLETED / SUCCESS; core four jobs SUCCESS; diagnostics + persistence jobs SKIPPED | Author/CodeRabbit COMMENTED; 1 review-thread record; no APPROVED | CircleCI #650 ERROR; Vercel FAILURE |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | stale: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | Core [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799) COMPLETED / SUCCESS (4 core jobs SUCCESS; 3 conditional jobs SKIPPED). Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160) COMPLETED / FAILURE: Linux offline scratch fixture failed; six downstream jobs SKIPPED. | Author/CodeRabbit COMMENTED; 1 review-thread record; no APPROVED | CircleCI #605 ERROR; Vercel FAILURE |
+| [#560 — GPT5 documentation handoff](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `142c8c2b59251cbc9196036f78fbc3e6f50ce1b3` | stale: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | [45578474692](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45578474692) attempt 1 COMPLETED / SUCCESS; core four jobs SUCCESS; diagnostics + persistence jobs SKIPPED | Author COMMENTED; no thread records; no APPROVED | CircleCI #659 ERROR; Vercel SUCCESS |
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | stale: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826) attempt 1 COMPLETED / SUCCESS; core four jobs SUCCESS; diagnostics + persistence jobs SKIPPED | Author/CodeRabbit COMMENTED; 7 review-thread records; no APPROVED | CircleCI #607 ERROR; Vercel FAILURE |
+
+## GPT5 disposition and handoff
+- GPT5-owned #560 remains documentation-only. Its current branch is stale against main; this update is limited to `docs/AGENT_HANDOFF.md` on the existing GPT5 branch. Do not promote Draft or merge: exact new-head CI, current-base alignment, and independent review are still required.
+- #567 owner: governance/PR-author; resolve its pending exact-head jobs and review findings, then obtain independent formal approval.
+- #565 owner: GPT1 / Factory DRI; resolve the pending exact-head CI and review findings. GPT5 does not edit Factory implementation.
+- #561 owner: GPT1 / Factory DRI; recover the Linux offline scratch fixture failure from Runner-side logs or a reproducible diagnostic. Job log retrieval previously returned Azure BlobNotFound; root cause remains UNKNOWN. Do not blindly retry.
+- #562–#564 and #559: respective GPT2/GPT3/acceptance or PR owners must reconcile stale base and review/CI gates; no ownership transfer inferred.
+- External provider blockers: repository/CircleCI administrator to diagnose missing/invalid project configuration; Vercel administrator to resolve build-rate-limit quota. No billing, provider, permission, Runner, secret, branch-protection, production-data, or durable Factory-state changes were made.
+- No PR has a formal independent APPROVED review in the evidence retrieved. No Draft promotion, merge, deployment, issue closure, or self-approval was performed.
+- Local tests/build/lint in this connector-only run: NOT RUN.
+
+---
+
 # GPT5 Daily Operations — Live Snapshot (2026-11-25)
 
 > Evidence capture before this documentation refresh. This update changes only this GPT5-owned handoff file and therefore advances PR #560 to a new HEAD. All Actions and review evidence below apply only to the listed pre-update HEADs; the resulting HEAD must receive its own exact-SHA validation. This is an operations handoff, not acceptance, approval, merge, release, deployment, durable-state success, or breaker recovery.
