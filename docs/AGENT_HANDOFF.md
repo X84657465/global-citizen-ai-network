@@ -5095,3 +5095,49 @@ All four PRs remain Draft and open. Review API returned **0 formal APPROVED revi
 - IMPLEMENTED: documentation-only update on GPT5-owned PR #560.
 - TESTED: no program tests run for this documentation-only change; fresh exact-head CI remains required.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+
+---
+
+## GPT5 Operations Recheck — 2026-11-25 (fresh exact-head terminal refresh)
+
+This snapshot supersedes earlier job-state observations where they differ. It is evidence documentation only; it does not authorize Draft promotion, approval, merge, or deployment.
+
+### Governance and Main
+- Re-read from current main: `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` and `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` were also freshly fetched. The latter remains a governance proposal, not expanded write authority.
+- Main HEAD before and after this sweep: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Main combined statuses: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline #574 **ERROR**.
+- Main commit-workflow-runs query: **0 returned PR-triggered runs**. Main push/check-suite terminal state remains **UNKNOWN**, not PASS.
+- Recovery Run `45533540649`, attempt 2: COMPLETED / FAILURE; job `138934913969` FAILURE. Prior log retrieval returned Azure Storage `404 BlobNotFound`; failed step/root cause remains UNKNOWN. No breaker reset is claimed.
+
+### All four OPEN PRs — exact HEAD and current jobs
+All four PRs are OPEN, base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`, Draft=true, mergeable metadata=true. Mergeable metadata does not mean merge eligible.
+
+| PR | Exact HEAD | Run | Job-level state |
+|---|---|---|---|
+| #559 | `d2ea22c554c74c982ab7e4f2b2a0cfcf7c079fe9` | `45538396851` | Resolver `138950630021` SUCCESS; quality `138953023138` CANCELLED; Ollama `138955296036` CANCELLED; persistence `138955296437` CANCELLED; Supabase/RLS `138955296511` CANCELLED; diagnostics `138955297114` CANCELLED; failure persistence `138955297471` CANCELLED. Workflow COMPLETED / CANCELLED. |
+| #560 | `4223e39bc7c51a8b1c507abcb64564d84ab4d6e0` | `45539729213` | Run PENDING; only resolver job `138955018472` returned, PENDING. |
+| #561 | `1e63c727b763c18106880121773a5da14c581618` | `45537703554` | Resolver `138949449052` SUCCESS; Windows quality `138950185974` SUCCESS; Ollama/local `138952799757` SUCCESS; Supabase/PostgreSQL/RLS `138952799433` IN_PROGRESS (dependency installation in progress; subsequent migration/pgTAP/application RLS steps pending). |
+| #562 | `7a6bc97fbdf89e59033a1f5b923832dbf509b09f` | `45538233679` | Resolver `138950046822` SUCCESS; Windows quality `138950814399` SUCCESS; Ollama/local `138955022146` PENDING; Supabase/PostgreSQL/RLS `138955022411` PENDING. |
+
+### Exact-head external checks and review
+- #559: CircleCI Pipeline #577 ERROR; Vercel FAILURE (`build-rate-limit`).
+- #560: CircleCI Pipeline #580 ERROR; Vercel SUCCESS.
+- #561: CircleCI Pipeline #568 ERROR; Vercel FAILURE (`build-rate-limit`).
+- #562: CircleCI Pipeline #575 ERROR; Vercel FAILURE (`build-rate-limit`).
+- Formal review API returned **0 review submissions** for each of the four PRs; no independent APPROVED review is evidenced. Review-thread absence is not approval.
+- No PR meets the exact-head required CI plus independent approval conditions for Draft promotion or merge.
+
+### Owner routing / GPT5 scope
+- GPT1 / Factory: own #561 and main Recovery failure. Continue only with retained diagnostic evidence; do not blind-retry or reset durable state.
+- GPT2 / Release-QA: own #559; workflow is CANCELLED despite resolver success. Diagnose cancellation and obtain a fresh exact-head run; GPT3 independently reviews final exact HEAD.
+- GPT2: own #562; wait for the two pending integration jobs to reach terminal states, then independent review as required.
+- GPT5: own #560 documentation-only handoff. Current Actions resolver is PENDING and CircleCI #580 ERROR despite Vercel SUCCESS. Keep Draft; no program tests were run for the documentation-only change.
+- CircleCI administrator: investigate #574/#577/#580/#568/#575. Vercel administrator: address build-rate-limit for affected refs. GPT5 did not change provider settings, billing, secrets, permissions, branch protection, Runner, Factory runtime/durable state, production data, or deployment configuration.
+
+### State labels
+- DOCUMENTED: refreshed exact-head inventory and owner routing.
+- IMPLEMENTED: documentation-only handoff update on GPT5-owned PR #560.
+- TESTED: program tests/build/lint NOT RUN for this documentation-only update; fresh exact-head CI remains required.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
