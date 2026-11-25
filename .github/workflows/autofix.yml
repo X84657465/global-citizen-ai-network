@@ -6,5 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: cargo fmt
+      - name: Format Rust workspace when present
+        shell: bash
+        run: |
+          if [ -f Cargo.toml ]; then
+            cargo fmt --all
+          else
+            echo "No Cargo.toml found; skipping Rust formatting for this repository."
+          fi
       - uses: autofix-ci/action@8bc06253bec489732e5f9c52884c7cace15c0160
