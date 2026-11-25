@@ -14,7 +14,7 @@ const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence
   runAttempt: 1,
   status: "completed",
   conclusion: "success",
-  jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456",
+  jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${({ "resolve-candidate": 456, quality: 457, build: 458, database: 459 } as Record<string, number>)[jobId] ?? 999}`,
   ...overrides,
 });
 const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle => ({
@@ -256,4 +256,13 @@ test("rejects Proxy-reported canonical job-array indices outside the declared le
     })),
     /bounded dense plain array/,
   );
+});
+
+
+test("rejects distinct required job IDs that reuse one GitHub Actions job URL", () => {
+  const sharedJobUrl = "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456";
+  const reusedEvidence = G_REQUIRED_CI_JOBS.map((id) => job(id, { jobUrl: sharedJobUrl }));
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: reusedEvidence },
+  })), /Duplicate G CI job URL evidence/);
 });
