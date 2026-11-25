@@ -1,3 +1,47 @@
+# GPT5 Daily Operations — Verified Snapshot (2026-11-25 17:40 Asia/Taipei)
+
+> This snapshot supersedes the older top-level snapshot below. It is a read-only operations handoff plus this documentation commit. It does not claim approval, acceptance, merge, deployment, or external-provider recovery. All evidence is bound to the exact SHA/run stated.
+
+## Main
+- Current `main`: `b39228e24e15c329f3053ba22a3f4dfebe77546b`; latest commit message: `docs: establish GCAN competitive product strategy and roadmap`.
+- Push Actions run [45580139177](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45580139177), attempt 1, exact SHA `b39228e24e15c329f3053ba22a3f4dfebe77546b`: COMPLETED / SUCCESS. Windows quality gates, PostgreSQL/RLS integration, Ollama/local integration, and resolver succeeded. Candidate-success revalidation/recording/evidence upload and failure diagnostics/persistence were SKIPPED; these are not passes.
+- Latest Recovery run [45586383871](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45586383871), attempt 1, exact SHA `b39228e24e15c329f3053ba22a3f4dfebe77546b`: COMPLETED / FAILURE. Sole job [139108947529](https://github.com/X84657465/global-citizen-ai-network/global-citizen-ai-network/actions/runs/45586383871/job/139108947529) failed and returned no steps; root cause UNKNOWN. Do not retry blindly or reset the breaker.
+- Latest prior Recovery run [45585189810](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45585189810): COMPLETED / SKIPPED. Recovery is not healthy.
+- Main combined status: FAILURE. Vercel FAILURE: `Deployment rate limited — retry in 24 hours`. CircleCI Pipeline #661 ERROR: no project configuration found.
+- Main disposition: **BLOCKED / NOT ALL GREEN**. A successful push workflow does not cancel Recovery failure, skipped persistence, Vercel rate limit, or CircleCI error.
+
+## All OPEN PRs — current exact heads
+| PR | Exact HEAD | Base SHA | Draft | Exact-head Actions / checks | Formal review |
+|---|---|---|---|---|---|
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | current main | Ready | run 45580139177: quality/Postgres/Ollama checks pending/in progress; earlier recovery runs failure/skipped | COMMENTED only; no APPROVED |
+| #565 | `4a544b0321c83309c2e4ff6bc7d6ca57ded42c90` | current main | Draft | core quality + integrations success; persistence/diagnostics skipped | COMMENTED only; no APPROVED |
+| #564 | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | stale `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | core quality + integrations success; persistence/diagnostics skipped | none; no APPROVED |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | stale `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | core quality + integrations success; persistence/diagnostics skipped | none; no APPROVED |
+| #562 | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | stale `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | core quality + integrations success; persistence/diagnostics skipped | COMMENTED only; no APPROVED |
+| #561 | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | stale `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | Linux offline scratch fixture validation FAILURE; six downstream jobs SKIPPED | COMMENTED only; no APPROVED |
+| #560 GPT5 | `c6e48c51b27e0b4c58d42e8bca25f14e0f507a47` | stale `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | core quality + integrations success; persistence/diagnostics skipped | COMMENTED only; no APPROVED |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | stale `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Draft | PR Acceptance Gate FAILURE (3 runs); core CI success, diagnostics/persistence skipped | COMMENTED only; no APPROVED |
+
+- All eight PRs are OPEN. No formal APPROVED review exists on any of the eight; COMMENTED is not approval. No unresolved review threads were returned in the latest review-thread query.
+- Exact-head external statuses: CircleCI ERROR on all eight. Vercel FAILURE on #567, #565, #564, #562, #561, #560, #559; Vercel SUCCESS on #563. No external-provider check is independently sufficient to approve a PR.
+- #567 has current main as base but still has in-progress/pending integration checks and only COMMENTED reviews.
+- #565 also targets current main, but remains Draft and has only COMMENTED review.
+- #564–#559 are based on the prior main `462eeea5917f3b0750fc2c41c888a4d54c562c1e`; base reconciliation belongs to their respective owners. Do not mechanically rebase or merge across owner boundaries.
+- #559 has three exact-head PR Acceptance Gate failures (runs 45559909285, 45559920138, 45559927442); core CI success does not clear these gates.
+- #561 has a failing Linux offline scratch fixture job [139107741339](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160/job/139107741339); root cause is not established from current job evidence.
+
+## GPT5-owned work and handoff
+- This PR #560 is the GPT5 documentation-only handoff; its declared allowlist is `docs/AGENT_HANDOFF.md`. No A–P implementation, Factory state, Runner, secrets, permissions, provider settings, or production deployment is touched.
+- This update records current main and PR evidence. No Draft was promoted and no PR merged because there is no independent formal approval and multiple checks remain pending, skipped, failed, or externally blocked.
+- No local tests/build/lint were run by this connector-only documentation update. The resulting PR #560 HEAD must receive its own exact-head Actions/status and independent GPT3 review; old-head evidence does not transfer.
+- External blockers: CircleCI project configuration must be diagnosed by the repository/CircleCI administrator; Vercel build-rate-limit must be resolved by the Vercel administrator. GPT5 does not alter billing or provider configuration.
+- Ownership handoff: #565/#561 → GPT1 Factory owner; #564/#562/#563 → respective GPT2/workstream owners; #559 → acceptance/PR owner; #567 → governance/PR author. GPT5 remains read-only on those workstreams.
+
+## Next GPT5 action
+After this documentation commit, verify the resulting #560 HEAD's own Actions, external statuses, and review state. Keep it Draft and do not merge until exact-head CI and independent formal approval satisfy the existing governance gates.
+
+---
+
 # GPT5 Daily Operations — Fresh Live Snapshot (2026-11-25)
 
 > This section supersedes older snapshots below. Evidence was freshly retrieved from GitHub after main advanced. It is a GPT5-owned documentation handoff only. All PR CI evidence below is tied to the exact HEAD shown; any new commit to this file requires its own exact-HEAD CI. No approval, acceptance, merge, release, deployment, or external-provider recovery is implied.
