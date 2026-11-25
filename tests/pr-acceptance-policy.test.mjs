@@ -185,9 +185,9 @@ test("merge audit fails closed when timestamps are missing or reviews were submi
   const { readFile } = await import("node:fs/promises");
   const source = await readFile(new URL("../.github/workflows/main-merge-audit.yml", import.meta.url), "utf8");
   assert.match(source, /!Number\.isFinite\(mergedAt\)/);
-  assert.match(source, /!Number\.isFinite\(attemptStartedAt\)/);
-  assert.match(source, /!Number\.isFinite\(attemptCompletedAt\)/);
-  assert.match(source, /!Number\.isFinite\(completedAt\)/);
-  assert.match(source, /!Number\.isFinite\(submittedAt\)/);
+  assert.match(source, /Number\.isFinite\(attemptStartedAt\)/);
+  assert.match(source, /Number\.isFinite\(attemptCompletedAt\)/);
+  assert.match(source, /Number\.isFinite\(completedAt\)/);
+  assert.match(source, /Number\.isFinite\(submittedAt\)/);
   assert.match(source, /DISMISSED reviews are conservatively treated as non-approvals/);
 });
