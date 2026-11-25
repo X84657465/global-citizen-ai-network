@@ -136,8 +136,12 @@ jobs:
           $payload = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
           $job = @($payload.jobs | Where-Object { $_.name -eq "Verify completed exact-head CI before resetting system breaker" }) | Select-Object -First 1
           if ($null -eq $job) { throw "Hosted recovery job metadata is missing; refusing fallback." }
+          $stepsPropertyExists = $job.PSObject.Properties.Name -contains "steps"
+          $runnerIdPropertyExists = $job.PSObject.Properties.Name -contains "runner_id"
           $steps = @($job.steps)
-          $allocationFailed = ($job.conclusion -eq "failure") -and ([int]$job.runner_id -eq 0) -and ($steps.Count -eq 0)
+          $allocationFailed = ($job.conclusion -eq "failure") -and
+            $runnerIdPropertyExists -and ($null -ne $job.runner_id) -and ([long]$job.runner_id -eq 0) -and
+            $stepsPropertyExists -and ($steps.Count -eq 0)
           $value = if ($allocationFailed) { "true" } else { "false" }
           [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "should_fallback=$value" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
           if ($allocationFailed) {
@@ -183,7 +187,7 @@ jobs:
           $encodedSha = [uri]::EscapeDataString($sha)
           $uri = "$($apiBase.TrimEnd('/'))/repos/$env:GITHUB_REPOSITORY/commits/$encodedSha/pulls?per_page=100"
           $prs = @(Invoke-RestMethod -Uri $uri -Headers $headers -Method Get)
-          $matches = @($prs | Where-Object {
+          $matchingPrs = @($prs | Where-Object {
             $_.state -eq "open" -and
             $_.base.ref -eq "main" -and
             $_.base.repo.full_name -eq $env:GITHUB_REPOSITORY -and
@@ -191,13 +195,13 @@ jobs:
             $_.head.sha -eq $sha -and
             $_.head.ref -eq $ref
           })
-          if ($matches.Count -eq 0) {
+          if ($matchingPrs.Count -eq 0) {
             [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "should_recover=false" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
             Write-Host "No open PR matches completed CI SHA $sha; treating stale or closed-PR CI as a no-op."
             exit 0
           }
-          if ($matches.Count -gt 1) { throw "Ambiguous exact-head PR resolution; found $($matches.Count) matches." }
-          $pr = $matches[0]
+          if ($matchingPrs.Count -gt 1) { throw "Ambiguous exact-head PR resolution; found $($matchingPrs.Count) matches." }
+          $pr = $matchingPrs[0]
           if ($pr.head.ref.StartsWith("ai-task/issue-") -or $pr.head.ref.StartsWith("codex/issue-")) {
             throw "Task PRs cannot reset the system breaker."
           }
