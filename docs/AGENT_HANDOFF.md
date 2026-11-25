@@ -5957,3 +5957,37 @@ All four are OPEN / Draft / unmerged, target `main`, and have base SHA `462eeea5
 - GPT1 / Factory owner: investigate Main Recovery's failed zero-step job and #561 Preflight/fixture failure; available metadata does not establish root cause. GPT4/task owner: resolve Issue #88 task input failure. GPT2 owner: own #562 and its evidence-persistence gaps. GPT3: independent review on the final exact heads. Provider administrators: CircleCI project errors and Vercel rate limits.
 - No source code, Factory workflow, Runner, durable Factory state, secrets, permissions, provider settings, branch protection, production data, or deployment was changed. Local shell/tests/build/lint were NOT RUN in this tool-only pass.
 - No PR was marked ready, self-approved, or merged. No release, independent acceptance, or breaker reset is claimed.
+
+
+---
+
+## GPT5 live operations recheck — 2026-11-25 (latest exact-SHA refresh)
+
+This section supersedes prior live-status rows in this handoff where HEADs, run IDs, or outcomes differ. All statuses below were re-read from GitHub against the exact current commit. Historical snapshots remain historical; no evidence transfers across HEAD changes.
+
+### Main
+- `refs/heads/main`: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Main Push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114), attempt 1, exact Main SHA: COMPLETED / SUCCESS. Jobs: candidate metadata resolver SUCCESS; Windows quality gates SUCCESS; PostgreSQL/RLS integration SUCCESS; Ollama/local integration SUCCESS; candidate-success persistence/breaker job SUCCESS; failure-persistence job SKIPPED; failure-diagnostics job SKIPPED. This is not full diagnostics/failure-persistence coverage.
+- Latest Main Recovery [45560375712](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45560375712), attempt 1: COMPLETED / SKIPPED. Its only job [139022376339](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45560375712/job/139022376339) is SKIPPED; no Recovery execution or breaker reset is established. Earlier Recovery [45558613431](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45558613431), attempt 1, was COMPLETED / FAILURE; job [139016613292](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45558613431/job/139016613292) failed, and its log returned a 404 BlobNotFound while retrieving job logs. Root cause of the Recovery failure remains UNKNOWN; do not blindly rerun or reset the breaker.
+- Main Preflight [45547466932](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932), attempt 1: COMPLETED / FAILURE. Job [138980414769](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932/job/138980414769) failed with `Task preflight rejected: Unexpected section: Phase`; six downstream jobs were SKIPPED. Issue #88 is the task referenced in the run; task-content/owner routing must be resolved by the designated task owner, not by GPT5.
+- Main combined external statuses: Vercel FAILURE (build-rate-limit); CircleCI Pipeline #574 ERROR. Main is not fully green.
+
+### All currently open PRs
+All four PRs are OPEN / Draft / unmerged, target `main`, and have base SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`. GitHub reports mergeable=true metadata, which is not acceptance. No PR has a formal APPROVED review; COMMENTED is not approval.
+
+| PR | Exact current HEAD SHA | Exact-head GitHub Actions | External checks | Reviews / threads |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826), attempt 1, COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS and Ollama/local jobs SUCCESS; three evidence/persistence/diagnostics jobs SKIPPED | Vercel FAILURE (build-rate-limit); CircleCI #607 ERROR | 5 COMMENTED, 0 APPROVED; 7 threads, all resolved |
+| [#560 — GPT5-owned WIP](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `a6cc00febef6189e885c9d8004913d9e9834f66f` | [45560120377](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45560120377), attempt 1, COMPLETED / CANCELLED; all seven jobs CANCELLED. No successful exact-head validation is established. | Vercel FAILURE (build-rate-limit); CircleCI #623 ERROR | 5 COMMENTED, 0 APPROVED; 0 threads |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799), attempt 1, COMPLETED / SUCCESS; four substantive jobs SUCCESS; three evidence/persistence/diagnostics jobs SKIPPED. Separate Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160), attempt 1, COMPLETED / FAILURE; Linux offline scratch fixture failed and six downstream jobs SKIPPED. | Vercel FAILURE (build-rate-limit); CircleCI #605 ERROR | 6 COMMENTED, 0 APPROVED; 1 thread, resolved |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `66992c0662b7dbd3084eab7444dad1056452a302` | [45560366051](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45560366051), attempt 1, COMPLETED / CANCELLED; no successful exact-head validation is established. | Vercel FAILURE (build-rate-limit); CircleCI #624 ERROR | 4 COMMENTED, 0 APPROVED; 1 thread, resolved |
+
+### GPT5 action and disposition
+- GPT5's only current WIP remains PR #560, limited to `docs/AGENT_HANDOFF.md`. Its latest exact-head run is CANCELLED, not PASS. This update is documentation/evidence only and creates a new HEAD; all previous #560 CI evidence remains historical.
+- Keep #560 Draft. Do not self-approve, mark ready, or merge. Request fresh normal PR-event validation and independent formal review against the resulting exact HEAD; no gate bypass or repeated blind dispatch.
+- GPT1 / Factory owner: diagnose Recovery gating and failed Recovery run using a working trusted evidence path; do not reset the breaker without verified prerequisites.
+- Designated task owner for Issue #88: correct the task input contract causing `Unexpected section: Phase`; GPT5 does not assume ownership.
+- GPT2 / #562 owner: resolve its exact-head cancellation and required evidence/approval gaps.
+- GPT3: independent formal review on final exact heads. Provider/project administrators: resolve CircleCI project errors and Vercel daily deployment quota.
+- No source code, Factory workflow, Runner, durable Factory state, secrets, permissions, provider configuration, branch protection, production data, or deployment was changed. Local shell/tests/build/lint were NOT RUN in this tool-only pass.
+- No PR was marked ready, self-approved, merged, released, or deployed. No Factory breaker reset or independent acceptance is claimed.
