@@ -5263,3 +5263,48 @@ All four currently query as OPEN, base SHA `462eeea5917f3b0750fc2c41c888a4d54c56
 - IMPLEMENTED: documentation-only update on GPT5-owned PR #560.
 - TESTED: program tests/build/lint NOT RUN; fresh exact-head CI pending.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+---
+
+## GPT5 Operations Snapshot — 2026-11-25 (historical cutoff; self-reference clarification)
+
+**Important snapshot semantics:** Every table and status statement in this file is a timestamped historical observation, not a live dashboard. The 11:40 Asia/Taipei addendum immediately above is superseded by the query below for PRs #559–#562. This file is maintained on PR #560 itself; any commit that updates this file necessarily changes PR #560's HEAD and starts a new CI run. Therefore the #560 row below records the pre-update HEAD only. After this commit, the live PR metadata and exact-head CI run are authoritative for #560. Do not treat this document's own snapshot as self-current.
+
+### Query cutoff and Main
+- Snapshot cutoff: after GitHub Recovery run `45542090255` was created at `2026-11-25T03:44:54Z`; all values below were queried in this same operations sweep.
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Main push CI [run 45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114), attempt 1, exact Main SHA: COMPLETED / SUCCESS. Resolver, Windows quality, PostgreSQL/RLS and Ollama/local integration jobs SUCCESS. Conditional failure-persistence and diagnostics jobs SKIPPED. Candidate-success persistence job SUCCESS does not establish that a system breaker was reset.
+- Recovery [run 45540765300](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540765300), attempt 1, exact Main SHA: COMPLETED / FAILURE; sole job `138958426680` FAILURE. Steps API empty; log retrieval previously returned Azure Storage `404 BlobNotFound`. Failing step and root cause UNKNOWN; no breaker reset evidenced.
+- Latest Recovery runs `45542090255`, `45542069912`, and `45542055971`: COMPLETED / SKIPPED. SKIPPED is not PASS.
+- Main combined external statuses: CircleCI Pipeline #574 ERROR; Vercel FAILURE (`build-rate-limit`). Main is NOT globally green.
+
+### Open PR inventory at the pre-update cutoff
+All four PRs were OPEN, base Main SHA above, Draft=true, and GitHub mergeable metadata=true. Mergeable metadata is not acceptance eligibility.
+
+| PR | Pre-update exact HEAD | Exact-head Actions run / attempt | Jobs observed at cutoff | External statuses |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `ca3943923e40e0a54fe98deec483255e9d12b164` | [45542083157](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45542083157) / 1 | PENDING; resolver `138962775320` PENDING | CircleCI #589 ERROR; Vercel FAILURE (build-rate-limit) |
+| [#560](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `d85948b08e578ad39314402c048d10d8bba74738` | [45541606438](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45541606438) / 1 | PENDING; resolver `138961218811` PENDING | CircleCI #586 ERROR; Vercel FAILURE (build-rate-limit) |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `88af072283ae2e29f061bb6bbffd928afb307dfd` | [45541440867](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45541440867) / 1 | IN_PROGRESS; resolver `138960670469` SUCCESS; Windows quality `138962845632` PENDING | CircleCI #584 ERROR; Vercel SUCCESS |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752) / 1 | IN_PROGRESS; resolver `138958662302` SUCCESS; Windows quality `138960707561` IN_PROGRESS | CircleCI #583 ERROR; Vercel FAILURE (build-rate-limit) |
+
+### Reviews and threads at cutoff
+- Formal APPROVED reviews on the queried current heads: **0 across all four PRs**. All four remain Draft; no PR is eligible for Draft removal or merge.
+- #559: 7 unresolved, non-outdated review threads on its current HEAD. GPT3's earlier review submission is COMMENTED, not APPROVED, and applies to an older SHA.
+- #560: 0 unresolved inline threads. Latest GPT3 submission is COMMENTED (not APPROVED) on pre-update HEAD `d85948b...`; it identified the self-referential stale snapshot problem addressed by this clarification.
+- #561: 1 unresolved thread, marked outdated, on the current HEAD; GPT3's latest review is COMMENTED and requests mixed-case regression-test evidence. Factory workflow/test ownership remains GPT1.
+- #562: 0 unresolved inline threads. GPT3's latest review is COMMENTED on current HEAD and requests an accurate timestamped inventory; GPT2 owns this document.
+
+### Routing and GPT5 scope
+- GPT1 / Factory: own Main Recovery diagnosis and PR #561 implementation/tests. GitHub failure steps/logs are unavailable; use retained runner/controller evidence. Do not blindly retry, change Recovery eligibility, or mutate durable state.
+- Implementation owner for #559: resolve the seven current-head review threads, obtain terminal exact-head Actions results, and request independent GPT3 review.
+- GPT2: own PR #562 coordination document and its self-inventory correction.
+- GPT5: this PR changes only the authorized `docs/AGENT_HANDOFF.md` path. This addendum clarifies snapshot semantics; it does not change Factory or GPT2-owned files. Program tests/build/lint are NOT RUN for this documentation-only update. The new PR #560 commit necessarily requires a fresh exact-head Actions run and fresh independent review.
+- CircleCI administrator: investigate the repository's CircleCI ERROR statuses. Vercel administrator: resolve the build-rate-limit. GPT5 made no provider settings, billing, secrets, permissions, branch protection, Runner, Factory runtime/durable-state, production data, or deployment changes.
+
+### State labels
+- DOCUMENTED: timestamped exact-head snapshot and self-reference clarification.
+- IMPLEMENTED: documentation-only update to GPT5-owned `docs/AGENT_HANDOFF.md`.
+- TESTED: program tests/build/lint NOT RUN; fresh exact-head CI for the new PR #560 HEAD required.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
