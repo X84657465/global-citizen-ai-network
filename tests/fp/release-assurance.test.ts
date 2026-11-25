@@ -257,3 +257,14 @@ test("rejects Proxy-reported canonical job-array indices outside the declared le
     /bounded dense plain array/,
   );
 });
+
+
+test("rejects distinct required job IDs that reuse one GitHub job URL", () => {
+  const sharedJobUrl = "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456";
+  const duplicatedUrlJobs = G_REQUIRED_CI_JOBS.map((id) => job(id, { jobUrl: sharedJobUrl }));
+  assert.equal(new Set(duplicatedUrlJobs.map((item) => item.jobId)).size, 4);
+  assert.equal(new Set(duplicatedUrlJobs.map((item) => item.jobUrl)).size, 1);
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: duplicatedUrlJobs },
+  })), /Duplicate G CI job evidence/);
+});
