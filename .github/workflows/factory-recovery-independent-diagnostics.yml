@@ -1,0 +1,86 @@
+name: Factory Recovery Independent Diagnostics
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Optional completed CI workflow run ID to inspect"
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
+jobs:
+  diagnose:
+    name: Read-only Factory recovery trigger and exact-head diagnostics
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect trigger provenance without acquiring Factory state locks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id || inputs.source_run_id }}
+          SOURCE_RUN_PATH: ${{ github.event.workflow_run.path }}
+          SOURCE_RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          SOURCE_RUN_EVENT: ${{ github.event.workflow_run.event }}
+          SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SOURCE_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${SOURCE_RUN_ID}" ]]; then
+            echo "::error::A source workflow_run ID is required."
+            exit 1
+          fi
+          api="https://api.github.com/repos/${REPOSITORY}"
+          run_json="$(curl --fail --silent --show-error -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "${api}/actions/runs/${SOURCE_RUN_ID}")"
+          jobs_json="$(curl --fail --silent --show-error -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "${api}/actions/runs/${SOURCE_RUN_ID}/jobs?per_page=100")"
+          export run_json jobs_json
+          node --input-type=module <<'NODE'
+          import { appendFileSync, writeFileSync } from "node:fs";
+          const run = JSON.parse(process.env.run_json);
+          const jobs = JSON.parse(process.env.jobs_json).jobs ?? [];
+          const expectedSha = run.head_sha ?? "";
+          const counts = Object.fromEntries(["queued","in_progress","completed","waiting","pending"].map(s => [s, jobs.filter(j => j.status === s).length]));
+          const report = {
+            schemaVersion: 1,
+            mode: "read-only-diagnostics",
+            sourceRun: {
+              id: run.id, name: run.name, path: run.path, event: run.event,
+              status: run.status, conclusion: run.conclusion, runAttempt: run.run_attempt,
+              headSha: expectedSha, headBranch: run.head_branch,
+              headRepository: run.head_repository?.full_name ?? null,
+              createdAt: run.created_at, updatedAt: run.updated_at
+            },
+            jobs: jobs.map(j => ({
+              id: j.id, name: j.name, status: j.status, conclusion: j.conclusion,
+              startedAt: j.started_at, completedAt: j.completed_at,
+              steps: (j.steps ?? []).map(s => ({name:s.name,status:s.status,conclusion:s.conclusion}))
+            })),
+            jobCounts: counts,
+            verdict: run.status !== "completed" ? "PENDING" :
+              run.conclusion === "success" ? "SOURCE_CI_SUCCESS" : "SOURCE_CI_NOT_SUCCESS",
+            safety: "No Factory state, breaker, lease, issue, PR, or deployment writes were performed."
+          };
+          writeFileSync("factory-recovery-diagnostics.json", JSON.stringify(report, null, 2) + "\n");
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            `## Factory recovery diagnostics\n\n- Source run: ${run.id}\n- Exact SHA: ${expectedSha}\n- Run: ${run.status} / ${run.conclusion ?? "NOT_TERMINAL"}\n- Jobs: ${JSON.stringify(counts)}\n- Verdict: **${report.verdict}**\n- Mode: read-only; no Factory state writes\n`);
+          console.log(JSON.stringify({runId:run.id,headSha:expectedSha,status:run.status,conclusion:run.conclusion,jobCounts:counts,verdict:report.verdict}));
+          NODE
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-recovery-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: factory-recovery-diagnostics.json
+          if-no-files-found: error
+          retention-days: 30
