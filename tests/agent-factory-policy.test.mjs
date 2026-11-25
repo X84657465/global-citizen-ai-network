@@ -386,7 +386,7 @@ test("candidate container classification reads Docker start exit evidence from t
 
 
 test("Recovery diagnostics match GitHub Actions case-insensitive equality and branch-prefix semantics", () => {
-  const workflow = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8");
+  const workflow = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
   const marker = "node --input-type=module <<'NODE'\n";
   const start = workflow.indexOf(marker);
   const end = workflow.indexOf("\n          NODE", start + marker.length);
