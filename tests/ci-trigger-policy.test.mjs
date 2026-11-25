@@ -205,21 +205,21 @@ function hasV2ControllerInvocation(source) {
   const commands = [];
   let runIndent = null;
   for (const line of lines) {
-    const run = line.match(/^(\\s*)run:\\s*(.*)$/);
+    const run = line.match(/^(\s*)run:\s*(.*)$/);
     if (run) {
       runIndent = run[1].length;
       if (run[2] && run[2].trim() !== "|") commands.push(run[2]);
       continue;
     }
     if (runIndent !== null) {
-      const indent = line.match(/^\\s*/)[0].length;
+      const indent = line.match(/^\s*/)[0].length;
       if (line.trim() && indent <= runIndent) runIndent = null;
       else commands.push(line);
     }
   }
-  const executableLines = commands.filter(line => !/^\\s*#/.test(line));
-  return /^\\s*(?:env\\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\\s]+\\s+)*)?node(?:\\s+(?:--[^\\s]+|-r\\s+\\S+))*\\s+(?:\\.\\/)?scripts\\/agent-factory-v2-controller\\.mjs\\b/m
-    .test(executableLines.join("\\n"));
+  const executableLines = commands.filter(line => !/^\s*#/.test(line));
+  return /^\s*(?:env\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\s]+\s+)*)?node(?:\s+(?:--[^\s]+|-r\s+\S+))*\s+(?:\.\/)?scripts\/agent-factory-v2-controller\.mjs\b/m
+    .test(executableLines.join("\n"));
 }
 
 test("every V2 state-writer workflow is serialized by the shared Runner queue", () => {
