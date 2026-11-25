@@ -5852,3 +5852,34 @@ All four PRs are OPEN / Draft, target `main`, use base SHA `462eeea5917f3b0750fc
 - #559 owner and GPT3: complete the remaining acceptance work and formal independent review against the current exact HEAD; prior COMMENTED reviews are not approvals.
 - Provider/project administrators: resolve CircleCI errors (#574, #607, #616, #605, #583) and the Vercel build-rate-limit failures. GPT5 does not change billing, provider settings, secrets, permissions or deployments.
 - GPT5 did not modify source code, Factory workflows, Runner configuration, durable Factory state, branch protection, production data, secrets or permissions in this update.
+
+
+---
+
+## Live evidence delta — 2026-11-25 (latest GitHub refresh)
+
+This delta supersedes earlier point-in-time PR #560 inventory rows where their exact HEAD or run state differs. It is an evidence-only update; no source, Factory workflow, Runner, durable state, permissions, provider configuration, or deployment was changed.
+
+### Main
+- Current `refs/heads/main`: `462eeea5917f3b0750fc2c41c888a4d54c562c1e` (unchanged).
+- Latest observed Main Recovery [45554144805](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45554144805), attempt 1, exact Main SHA: COMPLETED / FAILURE. Sole job `139002042668` (“Verify completed exact-head CI before resetting system breaker”) is FAILURE; the Jobs API returned no step list. Failing step and root cause remain UNKNOWN. No breaker reset is established.
+- Main combined external checks remain Vercel FAILURE (`build-rate-limit`) and CircleCI Pipeline #574 ERROR.
+- Main push CI [45505611114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45505611114) remains COMPLETED / SUCCESS for core quality/integration jobs, but persistence evidence and diagnostics were SKIPPED. This does not override the newer Recovery failure or external provider failures.
+- Main Preflight [45547466932](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45547466932) remains FAILURE; task validation failed and downstream jobs were SKIPPED.
+
+### Current OPEN PR inventory — exact HEADs
+All four PRs remain OPEN / Draft, target current Main SHA, and have no formal APPROVED review. COMMENTED reviews are not approvals. GitHub mergeable metadata=true is not acceptance.
+
+| PR | Exact HEAD SHA | Actions exact-head outcome | External combined checks | Review state |
+|---|---|---|---|---|
+| [#559](https://github.com/X84657465/global-citizen-ai-network/pull/559) | `567f27233103790b07c26c59dab7dbb4b033fced` | [45544850826](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544850826) COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS, Ollama SUCCESS; 3 persistence/diagnostics jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI #607 ERROR | 5 COMMENTED, 0 APPROVED |
+| [#560 — this GPT5 WIP](https://github.com/X84657465/global-citizen-ai-network/pull/560) | `e997af9dad2423737b8ea75ae91562e685e62fda` | [45552888677](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45552888677) COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS, Ollama SUCCESS; 3 persistence/diagnostics jobs SKIPPED | Vercel SUCCESS; CircleCI #618 ERROR | 5 COMMENTED, 0 APPROVED |
+| [#561](https://github.com/X84657465/global-citizen-ai-network/pull/561) | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | CI [45544583799](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544583799) SUCCESS; Preflight [45544584160](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45544584160) FAILURE in Linux offline scratch fixture; 6 downstream jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI #605 ERROR | 6 COMMENTED, 0 APPROVED |
+| [#562](https://github.com/X84657465/global-citizen-ai-network/pull/562) | `9635f8c1102752802100aa466f2b8a5f3feef807` | [45540835752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45540835752) COMPLETED / SUCCESS; resolver, Windows quality, PostgreSQL/RLS, Ollama SUCCESS; 3 persistence/diagnostics jobs SKIPPED | Vercel FAILURE (rate limit); CircleCI #583 ERROR | 3 COMMENTED, 0 APPROVED |
+
+### GPT5 action and disposition
+- GPT5 WIP remains limited to `docs/AGENT_HANDOFF.md` in PR #560. Its exact-head substantive quality/integration jobs are now terminal SUCCESS; persistence/diagnostics remain SKIPPED, CircleCI #618 remains ERROR, and independent formal approval is absent.
+- Keep #560 Draft. Do not self-approve, mark ready, or merge. The current evidence does not satisfy the full project acceptance gate.
+- GPT1 owns Main Recovery and Factory remediation; GPT3 owns independent review; GPT2 owns #562; GPT4 owns Issue #88 task-content correction. Provider-side CircleCI/Vercel blockers must be routed to their administrators.
+- This documentation commit creates a new exact HEAD and invalidates prior-head CI evidence for the changed PR. Re-run only through the normal PR event/CI path; do not claim the new HEAD is green until its own run is terminal and verified.
+- Local tests/build/lint were NOT RUN in this tool-only environment. No independent acceptance, merge, release, deployment, or Factory breaker reset is claimed.
