@@ -4945,3 +4945,41 @@ External checks freshly verified only for main and #565 in this pass: main Verce
 - IMPLEMENTED: documentation-only update on GPT5's own PR branch.
 - TESTED: NOT RUN for this new documentation commit; new exact-head CI is required.
 - REVIEWED / ACCEPTED / MERGED / RELEASED / DEPLOYED: NOT CLAIMED.
+
+
+---
+
+## GPT5 live operations addendum — 2026-11-25 07:38 UTC (fresh exact-head sweep)
+
+### Main baseline and policy documents
+- Latest `refs/heads/main`: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Re-read from current main: `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; `docs/GCAN_MASTER_GOVERNANCE_COORDINATION_CHARTER.md` blob `65becc6bb1bcc667694b7c99e02f405792066429`; `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob `67166a378c92909c8ddf64586f8a2b5202be7d14`.
+- The Master Charter and Execution Operating System both remain proposal-state documents; no GPT5 authority expansion is inferred.
+- Main check-runs query for the exact Main SHA returned 131 records. Latest Recovery job `139050975843`, run `45569074592`, is PENDING on the exact Main SHA. Previous Recovery job `139046486769`, run `45567714627`, is FAILURE. Additional Recovery failures include `45565797654` / job `139040144212` and `45562852106` / job `139030470815`. Several breaker-reset jobs are SKIPPED. No breaker reset or durable success persistence is established.
+- Main Preflight run `45547466932`: task/plan validation job `139031600314` FAILURE; publication, validation and related downstream jobs SKIPPED. Main Nightly Read-only Audit run `45517105621`, job `138879257433`: FAILURE.
+
+### Complete open PR metadata inventory returned by REST (8 PRs)
+All eight target Main SHA `462eeea5917f3b0750fc2c41c888a4d54c562c1e`; all are OPEN and unmerged. Search/pulls endpoint returned eight entries (REST per_page=100).
+
+| PR | Current HEAD SHA | Draft | Exact-head check summary | Formal review summary |
+|---|---|---|---|---|
+| #566 | `c37a9fce63c8120eef7b4688543c40f776d43517` | READY (not Draft) | Actions resolver job `139051921949` PENDING; CodeRabbit check `139052063335` IN_PROGRESS; Vercel Preview success; Mergify neutral. Codex review failed and subsequent bot comment reports Codex usage limit. | REST review submissions: 0. No formal APPROVED review. |
+| #565 | `6babc46633e6c834ed3bae9fa335014ec6701700` | Draft | Run `45566015159`: resolver and substantive Windows quality/Ollama/Postgres-RLS jobs SUCCESS; three persistence/diagnostic jobs `139046451051`, `139046450967`, `139046450510` SKIPPED. | 0 formal reviews. |
+| #564 | `ec4172c052831a4bbd72c9dcfccd20b0b5f60b0d` | Draft | Run `45567260893`: resolver success; Windows quality job `139048948465` IN_PROGRESS at query time; no terminal overall result. | 0 formal reviews. |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | Draft | Run `45560540985`: resolver, Windows quality, Postgres/RLS and Ollama jobs SUCCESS; three persistence/diagnostic jobs `139030436635`, `139030436538`, `139030435774` SKIPPED. | 0 formal reviews. |
+| #562 | `4d0ccb3986c7ccfb911cc283ea381166862dd5b7` | Draft | Run `45567007717`: resolver, Windows quality, Postgres/RLS and Ollama jobs SUCCESS; three persistence/diagnostic jobs `139050947219`, `139050947072`, `139050946473` SKIPPED. | Four submissions, all COMMENTED; 0 APPROVED. |
+| #561 | `ac904aa3d6b787177bd0c2d58f173f9955af64d8` | Draft | Mainline candidate run `45544583799`: substantive quality, Postgres/RLS and Ollama jobs SUCCESS; three persistence/diagnostic jobs SKIPPED. Separate Preflight run `45544584160`: Linux offline scratch fixture job `139036463820` FAILURE; six downstream jobs SKIPPED. | Six submissions, all COMMENTED; 0 APPROVED. |
+| #560 (GPT5) | `a7127fc0c9158c07ea3bca19bd30ba25d8188d6a` | Draft | Run `45567227679`: Windows quality job `139048775631` SUCCESS; Ollama job `139052779191` and Postgres/RLS job `139052778827` PENDING; resolver `139044895497` SUCCESS. No terminal exact-head validation yet. | Five submissions, all COMMENTED; 0 APPROVED. |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | Draft | Run `45544850826`: substantive jobs SUCCESS; three persistence/diagnostic jobs SKIPPED. Three PR Acceptance Gate runs `45559927442`, `45559920138`, `45559909285` each FAILURE. | Five submissions, all COMMENTED; 0 APPROVED. |
+
+### Disposition and next actions
+- No PR meets merge criteria. #566 is no longer Draft, but its resolver is PENDING, CodeRabbit IN_PROGRESS, formal approvals are absent, and Codex review hit usage limits; do not merge or claim accepted.
+- #560 remains GPT5's own documentation/operations PR. Keep Draft while exact-head jobs remain PENDING and independent review is absent. Continue tracking only within its existing documentation scope.
+- #559 remains stacked on #558; dependency/stack and its failing acceptance gate must be resolved by the responsible owner.
+- GPT1 / Factory owner: investigate Main Recovery failures, Main Preflight task/plan validation failure, and #561 Preflight fixture failure.
+- GPT2 / G owner: #564 and #562 exact-head evidence and independent review.
+- GPT3: independent architecture/QA review and formal approval; do not treat developer comments or Codex failed/quota-limited review as approval.
+- Provider/project administrators: investigate external CircleCI failures and Vercel rate limits where applicable. Fresh external status for each current PR head was not independently obtained in this sweep; mark UNKNOWN rather than reusing stale snapshots.
+- Review-thread resolution metadata was not fetched for all eight PRs in this pass; unresolved-thread counts are UNKNOWN unless separately verified. Formal review submission counts above are from the REST reviews endpoint.
+- No Draft transition, merge, workflow dispatch/retry, provider configuration, Runner/state, secrets, permission, database, or deployment changes were made. Local tests/build/lint in this connector-only sweep: NOT RUN.
+- This addendum records live evidence only; it does not claim acceptance, merge, release, deployment, or durable Factory recovery.
