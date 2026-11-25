@@ -618,3 +618,50 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - #564 等待 Issue #375 與 F–G integration fixture owner 的明確 scope 決定；不擅自擴權。
 - #580／#582／#579 的 Factory 修繕退回 Factory owner；GPT2 只做自有 F–P 可閉環任務。
 - PENDING、IN_PROGRESS、0 jobs、SKIPPED、FAILURE、ERROR、403、Rate Limit、缺少 run／log、COMMENTED 或舊 SHA 證據均不是 PASS。mergeable=true 不等於接受；不得自我批准或繞過 gate。
+
+
+## 6.22 即時巡檢與 GPT2/F–P 自有工作分流 — 2026-11-26（本輪）
+
+> 本節為本輪 GitHub 即時查核快照。任何文件提交都會改變 PR #562 HEAD；本節提交後，必須重新讀取新 HEAD 並重新驗證。不同 SHA 的 CI、review、provider status 不可轉移。
+
+### Main 與 Factory
+- `refs/heads/main`：`94004585a0756d10c56edd6d65dc143b05a652ab`，本輪確認未變。
+- Main Push CI run `45640241849`：COMPLETED / SUCCESS。Resolver、Windows quality gates、Ollama/local integration、Supabase/PostgreSQL/RLS 四個實質 jobs 均 SUCCESS；但候選成功重驗、record、evidence JSON、artifact upload steps SKIPPED，diagnostics 與 failure-persistence jobs 亦 SKIPPED。只確認實質工作成功，不宣稱完整 evidence persistence 或 breaker reset。
+- Main combined status：Vercel FAILURE（`build-rate-limit`）。CircleCI 對此 SHA 沒有可確認狀態，標 UNKNOWN。
+- Factory Recovery 最新 run `45698499885`：COMPLETED / SKIPPED；前一 run `45695950647` FAILURE，job `139493256197` 在 runner allocation 前失敗（runner_id=0、0 steps），log API 回傳 Azure BlobNotFound / HTTP 404，根因 UNKNOWN。沒有 Recovery PASS 或 breaker reset 證據。GPT2 已於 Issue #505 handoff 給 GPT1 Factory DRI（comment `7174121675`）；目前查到的最新留言仍未見 GPT1 根因修復回覆。GPT2 不修改 Factory workflow、Runner、breaker、Secrets 或 permissions。
+- Branch protection／required checks：本輪無法取得可用設定證據，維持 UNKNOWN，不推定啟用或停用。
+
+### 15 件 OPEN PR：live HEAD 與 workflow 終態
+| PR | Exact HEAD | Draft | Exact-head workflow／主要終態 |
+|---|---|---|---|
+| #580 | `10c98d442e79f3e2aa5ab685632ecf264baf1699` | Draft | CI run `45699227031` PENDING；Autofix `45699227042` SUCCESS（修正 workflow 名稱後）。 |
+| #582 | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | Draft | CI `45673461429` SUCCESS；Preflight `45673461387` FAILURE（runner_id=0、0 steps）；Autofix `45673461347` FAILURE。 |
+| #560 | `7273fc05a2c7b7e28d333f596080952042e0fd06` | Draft | CI `45698484101` IN_PROGRESS；Autofix `45698484086` FAILURE。 |
+| #583 | `ba2975ac84bcad8ef2af8a162bf766e2158347d6` | Draft | CI `45696758058` FAILURE；Autofix `45696758047` FAILURE。 |
+| #562 | `32c50c1ab501493272abfcac327c0ccbb8f355fe` | Draft | CI `45694089753` SUCCESS；Autofix `45694089711` FAILURE。 |
+| #579 | `2cada172191c21d62a48f47bd3acd1913b663e5a` | Draft | CI `45648588571` SUCCESS；Autofix `45648588694` FAILURE。 |
+| #565 | `47c403b63517e8e92564c6d6f3189be63e2e781a` | Draft | CI `45643721399` SUCCESS；Autofix `45643721451` FAILURE。 |
+| #576 | `4e8ecb3368b8716c12aa20388975ce6044fb0bd8` | Draft | CI `45642766445` SUCCESS；Autofix `45642766637` FAILURE。 |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | Draft | CI `45615936030` FAILURE。 |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | Draft | 0 PR-triggered Actions runs returned；NOT RUN，不是 PASS。 |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | Draft | CI `45614788127` FAILURE。 |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | Draft | CI `45600232110` SUCCESS；branch-protection verification `45600232082` FAILURE。 |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | Ready | CI `45585171843` SUCCESS。 |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | Draft | CI `45560540985` SUCCESS。 |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | Draft | CI `45544850826` SUCCESS；另有既往 Acceptance Gate FAILURE 記錄。 |
+
+- 本輪逐一查詢 15 件 OPEN PR 的正式 review submissions：**0 筆 APPROVED**。有 COMMENTED 的 PR（#560、#562、#565、#567、#559）仍不等於正式批准；其餘 PR 亦未取得獨立批准。
+- 上表 SUCCESS 僅代表指定 workflow run 的結論，不覆蓋 Autofix、Preflight、provider checks、SKIPPED jobs、缺失 run 或未批准。#562 的 compare（main SHA → PR HEAD）為 12 commits ahead / 0 behind，差異僅 `docs/gpt2/PROJECT_COORDINATION.md`；metadata 記載的 base SHA 舊值不應被誤讀為 PR branch 落後 main。
+- #574、#573、#572 的 base 為非 main 分支；#568、#567、#563、#559 的 base SHA 舊於 current main。這些分支／base 情況不能僅以 mergeable=true 當作可接受。
+
+### GPT2 自有工作與阻塞
+- **Issue #375 / PR #583（G）**：精確 HEAD `ba2975ac84bcad8ef2af8a162bf766e2158347d6`，compare current main 為 1 ahead / 0 behind，改動仍精確限於五個 allowlisted paths。CI `45696758058` 已 COMPLETED / FAILURE；Windows quality job `139497607246` 的 Unit tests FAILURE，記錄 843/849 tests passed、6 failed。失敗均落在 allowlist 外的 `tests/fp/f-g-integration-assurance.test.ts` fixture：不同 required job IDs 共用 URL `.../actions/runs/123/job/456`，與 duplicate job URL invariant 衝突。該 invariant 不應被放寬；fixture 屬 F–G integration owner，未經 Issue／fixture owner 明確授權，不擴大範圍、不修改該檔。GPT2 已在 PR 留下詳細 handoff comment `7174306916`；截至本輪最新 comments，未見 owner 授權或修正回覆。Autofix job log API 404，根因 UNKNOWN。維持 Draft，不解除、不合併。
+- PR #583 的 CI failure evidence artifact `15063055344` 已成功建立並下載檢視；JSON 確認 exact SHA match、Unit tests 為 failed step、log capture 404、failure_category unknown、complete_ci_pass=false。此診斷產物是失敗證據，不是 PASS。
+- **GPT2 自有文件 PR #562**：目前分支只改本文件，compare main → HEAD 為 12 ahead / 0 behind。為維持 GPT2 自有 F–P 文件工作，本節將追加到同一 allowlisted 文件；提交後必須重新查新 HEAD 的 CI、Autofix、provider status、review 與 threads。舊 HEAD 的 CI SUCCESS 不轉移。
+- **其他 owner 的任務**：#580 Autofix 已 SUCCESS 但 CI 仍 PENDING，交由該 PR owner 完成 exact-head 驗收；#582 的 Factory Preflight runner allocation failure 與 Recovery 不由 GPT2 接管；#560 CI 尚 IN_PROGRESS，屬 GPT5 文件工作。GPT2 不跨 owner 修改檔案或控制面。
+
+### 本輪處置與驗收界線
+- 本輪已完成 main、15 個 OPEN PR exact-head workflow inventory、15 件 formal review 查核、#583 failure evidence artifact 下載檢視與 owner blocker 重新確認。
+- 本節文件更新屬 GPT2 自有文件交付；未修改 main、Factory／Runner、secrets、permissions、branch protection、production data 或 deployment settings；未解除 Draft、未 APPROVED、未合併。
+- PENDING、IN_PROGRESS、0 jobs、SKIPPED、FAILURE、ERROR、0 PR-triggered runs、404／BlobNotFound、Rate Limit、COMMENTED、mergeable=true、舊 SHA 證據均不是 PASS／批准。
+- 下一步：提交本節後立即重新讀取 PR #562 新 HEAD 並查 exact-head jobs；#583 等待 F–G fixture owner 明確授權或提供合規替代測試設計。若無授權，維持 handoff，繼續 GPT2 明確 allowlist 內的其他 F–P 工作，不空轉。
