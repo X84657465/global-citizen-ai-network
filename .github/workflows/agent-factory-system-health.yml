@@ -37,7 +37,7 @@ jobs:
             source_event_pull_request: env.WORKFLOW_EVENT === "pull_request",
             source_repository_matches: env.HEAD_REPOSITORY === env.TARGET_REPOSITORY,
             branch_not_ai_task: !String(env.HEAD_BRANCH || "").startsWith("ai-task/issue-"),
-            branch_not_codex_task: !env.HEAD_BRANCH.startsWith("codex/issue-"),
+            branch_not_codex_task: !String(env.HEAD_BRANCH || "").startsWith("codex/issue-"),
           };
           console.log(JSON.stringify({
             diagnostic: "factory_recovery_trigger",
