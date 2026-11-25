@@ -5050,3 +5050,48 @@ All four are Draft. Review API returned no formal APPROVED review for any of the
 - IMPLEMENTED: documentation-only update on GPT5-owned PR #560.
 - TESTED: no program tests run for this documentation-only update; fresh exact-head CI is required.
 - REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
+
+
+---
+
+## GPT5 Operations Recheck — 2026-11-25 (latest job-level refresh)
+
+This addendum supersedes the immediately preceding run/job observations where they differ. It records only the queried exact refs and job states; it is not an approval or release authorization.
+
+### Main
+- Main HEAD: `462eeea5917f3b0750fc2c41c888a4d54c562c1e`.
+- Combined statuses: Vercel **FAILURE** (`build-rate-limit`); CircleCI Pipeline #574 **ERROR**.
+- Commit-workflow-runs query returned 0 PR-triggered runs for this SHA. Main push workflow/check-suite terminal state remains **UNKNOWN**, not PASS.
+- System Health Recovery run `45533540649`, attempt 2: **COMPLETED / FAILURE** on this exact SHA. Its only job `138934913969` (Verify completed exact-head CI before resetting system breaker) is **FAILURE**.
+- Downloading that failed job log returned Azure Storage `404 BlobNotFound`; exact failing step/root cause remains **UNKNOWN**. No breaker reset is evidenced.
+
+### Current OPEN PRs — exact refs and latest queried jobs
+
+| PR | Exact HEAD | Base SHA | Draft | Mergeable | GitHub Actions run / job evidence |
+|---|---|---|---:|---:|---|
+| #559 | `d2ea22c554c74c982ab7e4f2b2a0cfcf7c079fe9` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45538396851`: resolver `138950630021` SUCCESS; Windows quality `138953023138` PENDING |
+| #560 | `735f9ca5497f3cf8df137ef7f6cca0c261c1ba02` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45538982069`: resolver `138952537362` PENDING |
+| #561 | `1e63c727b763c18106880121773a5da14c581618` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45537703554`: resolver `138949449052` SUCCESS; Windows quality `138950185974` SUCCESS; Supabase/RLS `138952799433` and Ollama/local `138952799757` PENDING |
+| #562 | `7a6bc97fbdf89e59033a1f5b923832dbf509b09f` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | YES | true | Run `45538233679`: resolver `138950046822` SUCCESS; Windows quality `138950814399` IN_PROGRESS; unit tests/typecheck/lint/security checks SUCCESS; production build IN_PROGRESS |
+
+All four PRs remain Draft and open. Review API returned **0 formal APPROVED reviews** for all four; review-thread queries returned no entries. Empty thread results do not constitute approval. No PR is eligible for Draft promotion or merge while required checks remain pending/in progress and independent approval is absent.
+
+### External provider checks
+- #559: CircleCI Pipeline #577 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- #560: CircleCI Pipeline #579 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- #561: CircleCI Pipeline #568 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- #562: CircleCI Pipeline #575 **ERROR**; Vercel **FAILURE** (`build-rate-limit`).
+- Provider failures are separate from GitHub Actions. GPT5 did not change billing, quotas, provider settings, secrets, or deployment configuration.
+
+### Ownership and next actions
+- GPT1 / Factory: own PR #561 and main Recovery run `45533540649`; diagnose using retained runner/controller evidence because GitHub logs are unavailable. Do not retry unchanged or reset durable state without validated evidence.
+- GPT2 / Release-QA: own PR #559's acceptance workflow implementation; resolver passed but Windows quality remains pending. GPT3 must independently review the final exact HEAD.
+- GPT2: own PR #562 documentation; its quality job remains in progress. Do not treat partial steps as a completed workflow.
+- GPT5: own only this `docs/AGENT_HANDOFF.md` evidence refresh on PR #560. Its resolver remains pending; this new documentation commit requires fresh exact-head CI and independent formal review.
+- CircleCI administrator: diagnose pipelines #574/#577/#579/#568/#575. Vercel administrator: resolve build-rate-limit quota. No blind same-cause retries.
+
+### State labels
+- DOCUMENTED: this job-level live operations refresh.
+- IMPLEMENTED: documentation-only update on GPT5-owned PR #560.
+- TESTED: no program tests run for this documentation-only change; fresh exact-head CI remains required.
+- REVIEWED / ACCEPTED / MERGED / DEPLOYED: not claimed.
