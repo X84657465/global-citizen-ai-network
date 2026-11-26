@@ -1929,3 +1929,14 @@ Selected current exact-head findings:
 ### Disposition
 
 **BLOCKED / NOT GREEN.** Main CI is cancelled with downstream jobs skipped; three main security/scanner workflows fail; Vercel is externally rate-limited; main Acceptance Gate fails; Recovery is cancelled; all ten PRs remain Draft with zero formal approvals. GPT1/Factory must diagnose the resolver and skipped quality pipeline; scanner owners must diagnose Codacy/Debricked/CodeQL; Vercel/project admin must resolve the provider quota; an authorized independent reviewer must review the applicable exact HEAD. Do not retry unchanged cancelled workflows blindly or treat observer success as recovery.
+
+
+## Main scanner root-cause evidence — exact main SHA (2026-11-27 04:52 Asia/Taipei)
+
+Fetched the job-level logs for the three scanner failures on main SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`:
+
+- **Codacy** run [45842161007](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842161007), job `139986379809`: the analyzer step completed, but SARIF upload failed with `Invalid request`. The job log also reports Docker client API version `1.39` is too old; daemon minimum is `1.40`. The same log contains multiple failed metrics/file-read messages. This is a scanner integration/runner compatibility failure, not evidence that the application code passed or failed a security rule.
+- **Debricked** run [45842161001](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842161001), job `139986379162`: the action environment shows `DEBRICKED_TOKEN` empty; scan initialization fails with `Unauthorized. Specify access token.` No secret was inspected or changed. Repository secret/configuration owner must restore a valid authorized token through the approved secret-management path.
+- **CodeQL Advanced** run [45842160612](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842160612), jobs `139986377933` (JavaScript/TypeScript) and `139986378407` (Actions): analysis upload fails with `CodeQL analyses from advanced configurations cannot be processed when the default setup is enabled`. This is a repository Code Scanning configuration conflict; the repository security administrator must choose and configure one supported setup.
+
+These are confirmed causes for the three scanner workflow failures above. They do not explain the separate main CI resolver cancellation or its unavailable logs. GPT5 did not change secrets, scanner workflows, Docker/Runner configuration, Code Scanning settings, or repository permissions. Route Debricked token restoration to the authorized secret owner, CodeQL setup selection to the repository security administrator, and Codacy Docker/SARIF compatibility to the CI/scanner maintainer. Do not claim scanner PASS until new runs on the exact SHA complete successfully.
