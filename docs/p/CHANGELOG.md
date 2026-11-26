@@ -1,3 +1,8 @@
+## P 0.1.5 — 2026-11-26
+
+- Extend the executable A–P version contract to verify the README's displayed H and P track versions against the canonical manifest.
+- Synchronize the H/P version summaries and advance P's governance validator with regression coverage for stale displayed track versions.
+
 ## P 0.1.4 — 2026-11-22
 
 - Require a current, independently versioned changelog entry for every F–P workstream.
