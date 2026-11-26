@@ -244,10 +244,17 @@ test("uses a supplied state Issue number without scanning the full issue list", 
   const body = "Machine-managed V2 factory state. <!-- agent-factory-state:" +
     Buffer.from(JSON.stringify(createInitialFactoryState())).toString("base64") + " -->";
   const fake = fakeApi([{ number: 100, title: FACTORY_STATE_ISSUE_TITLE, body }]);
+  const requests = [];
+  const request = fake.client.request;
+  fake.client.request = async (path, options) => {
+    requests.push(path);
+    return request(path, options);
+  };
   const store = createFactoryStateStore(fake.client, { repository: "owner/repo", issueNumber: 100 });
   const result = await store.read();
   assert.equal(result.issue.number, 100);
   assert.equal(store.getStateIssueNumber(), 100);
+  assert.deepEqual(requests, ["/repos/owner/repo/issues/100"]);
 });
 
 

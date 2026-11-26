@@ -617,6 +617,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           AGENT_FACTORY_MODE: check
+          # A configured Issue is validated by the state store before any write.
+          AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ vars.AGENT_FACTORY_STATE_ISSUE_NUMBER || (github.repository == 'X84657465/global-citizen-ai-network' && '100' || '') }}
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-v2-controller.mjs
       - name: Select one queued task for every queue trigger
