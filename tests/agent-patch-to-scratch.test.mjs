@@ -42,7 +42,7 @@ function fixture(t, { invalidPatch = false, invalidPlan = false, invalidPlanJson
       id: "write-docs", title: "Propose a bounded documentation patch", role: "implementer",
       action: "propose_patch", depends_on: [],
       allowed_paths: [invalidPlan ? "docs/outside-task-allowlist.md" : allowedPath],
-      acceptance_criteria: ["The patch remains within its approved path."], max_output_bytes: 16384,
+      acceptance_criteria: ["The patch remains within its approved path."], max_output_bytes: 1024,
     }],
   }));
   if (invalidPlanJson) writeFileSync(planPath, "{");
