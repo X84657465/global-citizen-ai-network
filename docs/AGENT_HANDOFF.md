@@ -1,3 +1,47 @@
+## GPT5 live operations audit — 2026-11-27 (Asia/Taipei)
+
+This section supersedes earlier moving-head snapshots below. Live repository reads were taken from main `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; re-read before acting on any PR because HEADs and run states can move.
+
+### Main
+- Main HEAD: `078bc72216e3990f9c7c4db2e06e5851a5c8428e` (commit: `docs(gpt2): refresh main CI and F–P handoff snapshot (#617)`).
+- Combined status exposes Vercel `failure` with target `build-rate-limit`.
+- The commit-workflow-runs connector returned no main push runs (it filters PR-triggered runs); main Actions terminal state is **NOT OBSERVED**, not PASS.
+- Main disposition: **NOT ALL GREEN / BLOCKED**.
+
+### Open PR inventory (6/6), exact HEAD and base
+All six PRs are OPEN, unmerged, report mergeable=true, and target the exact base SHA above. Draft status and checks are recorded separately.
+
+| PR | HEAD | Draft | Exact-head GitHub Actions | External checks | Formal review |
+|---|---|---:|---|---|---|
+| [#622](https://github.com/X84657465/global-citizen-ai-network/pull/622) | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | yes | CI run 45846690506 FAILURE; resolver SUCCESS; Windows quality FAILURE at `Verify CI trigger and Runner policy`; unit/type/lint/build and Ollama/RLS jobs SKIPPED. | Codacy FAILURE; CodeQL Advanced FAILURE; Clippy SUCCESS; Vercel SUCCESS. | none |
+| [#623](https://github.com/X84657465/global-citizen-ai-network/pull/623) | `7d86e28b34a38f943ad65de93a2d277c35002f81` | no | CI run 45854489097 CANCELLED; Windows quality CANCELLED with 0 steps; Ollama/RLS/diagnostics/persistence jobs SKIPPED. | Codacy FAILURE; CodeQL Advanced FAILURE; Clippy SUCCESS; Vercel SUCCESS; Autofix SUCCESS. | CodeRabbit COMMENTED only; one inline thread is RESOLVED; no APPROVED. |
+| [#624](https://github.com/X84657465/global-citizen-ai-network/pull/624) | `272642ac7fb9965fba245f65fa3a049429a4068a` | yes | CI run 45852505909 CANCELLED at resolver (0 steps); quality, RLS, Ollama and evidence/persistence jobs SKIPPED. | Codacy FAILURE; CodeQL Advanced FAILURE; Clippy SUCCESS; Vercel SUCCESS. | none |
+| [#625](https://github.com/X84657465/global-citizen-ai-network/pull/625) | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | yes | CI run 45852545103 CANCELLED at resolver (0 steps); quality, RLS, Ollama and evidence/persistence jobs SKIPPED. | Codacy FAILURE; CodeQL Advanced FAILURE; Clippy SUCCESS; Vercel FAILURE (build-rate-limit). | none |
+| [#626](https://github.com/X84657465/global-citizen-ai-network/pull/626) | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | yes | CI run 45853743223 CANCELLED at resolver (0 steps); quality, RLS, Ollama and evidence/persistence jobs SKIPPED. | Codacy FAILURE; CodeQL Advanced FAILURE; Clippy SUCCESS; Vercel FAILURE (build-rate-limit). | none |
+| [#628](https://github.com/X84657465/global-citizen-ai-network/pull/628) | `28f0efad8fa0d2faaeaa0114619a5684da987aa0` | yes | CI run 45857576350 PENDING overall. Resolver SUCCESS; Windows quality gates SUCCESS (tests, typecheck, lint, dependency audits and production build); Windows Ollama/local execution job 140044233429 PENDING; Windows Supabase/PostgreSQL/RLS job 140044233834 PENDING; both pending jobs currently have no steps. | Codacy FAILURE; Clippy SUCCESS; Vercel FAILURE (build-rate-limit). No CodeQL Advanced run observed after removal of the conflicting Advanced workflow; Default setup result is UNKNOWN. | none |
+
+#627 is CLOSED / NOT MERGED as superseded by #628. The #627 and #628 Codacy checkout changes overlapped; #628 is the surviving candidate. No PR has formal APPROVED review in the current review list. COMMENTED is not approval. No PR is accepted or merge-ready from this evidence.
+
+### Confirmed diagnostics and newly surfaced work
+- #628 Codacy run 45857576531: CLI fails reading several existing UTF-8-designated repository files with `java.nio.charset.MalformedInputException` (including TSX and Markdown), then SARIF upload fails with `Invalid request: 1 item required; only 0 were supplied`. The checkout credential setting does not resolve this. Do not mask the issue by broadly excluding files. Root cause (repository bytes vs Codacy CLI/plugin decoder) remains unproven.
+- #628 CodeQL Advanced was removed because the previous exact-head run reported Advanced analysis uploads rejected while GitHub Default setup was enabled. The new HEAD has no CodeQL Advanced run returned; Default setup's own completion must be independently observed before claiming CodeQL coverage.
+- New P0 Factory issue [#629](https://github.com/X84657465/global-citizen-ai-network/issues/629): planner emits `max_output_bytes=4096` for `propose_patch`, truncating a new test file at Ollama `num_predict=4096`; exact evidence is Preflight run 45856814162, job 140037247405, artifact 15136393576. Issue allowlist is exactly `scripts/generate-agent-plan.mjs`, `lib/agent-plan-validation.mjs`, and `tests/agent-plan-validation.test.mjs`. DRI is Factory/GPT1; GPT5 does not modify these files or Factory workflows.
+- Open acceptance-breach issue [#621](https://github.com/X84657465/global-citizen-ai-network/issues/621) records PR #617 merged at main HEAD `078bc72216e3990f9c7c4db2e06e5851a5c8428e` despite missing required CI-success evidence. Related incident #620 records PR #618. Treat these as governance/integration integrity incidents for owner and independent QA follow-up, not as proof that current main is accepted.
+- Factory-owned #619 and #505 remain outside GPT5 code ownership. #619's exact two-path allowlist and #629's three-path allowlist must not be blended or expanded.
+
+### GPT5 disposition and next actions
+- GPT5 role is Global Intelligence & Operations support. This audit is read-only; no Factory/A–E or GPT2 F–P source, workflows, Runner, durable state, secrets, permissions, branch protection, production data, billing, or deployment configuration was changed.
+- #628's Windows quality gates have now passed on its exact HEAD, a real improvement over the earlier PENDING state. Keep #628 Draft because the Ollama and PostgreSQL/RLS jobs remain PENDING, Codacy fails, Vercel is rate-limited, and independent APPROVED is absent.
+- #626 has a previously reported isolated 3-test smoke result, but repository-wide unit/type/lint/build were NOT RUN locally and its exact-head CI was CANCELLED with downstream jobs SKIPPED. GPT2 owner must complete its own lane; GPT5 does not take over P ownership.
+- #622–#625 are Factory-owned. GPT1/Factory must diagnose the quality-gate policy failure, resolver cancellations and overlapping Factory tasks; GPT3/authorized independent reviewer supplies independent QA.
+- No Draft transition, merge, release, deployment, or branch-protection bypass was performed. No local repository tests were run in this connector-only session.
+
+### Automation
+- Existing `GCAN 每日 main／CI／PR 營運檢查` remains enabled for 09:00 Asia/Taipei daily; the separate duplicate 13:00 schedule is disabled. The automation service's reported next-run timestamp was 2026-11-27 09:00 +08:00; this metadata alone is not proof that today's run completed. No duplicate automation was created.
+
+
+---
+
 # LIVE GPT5 HANDOFF — 2026-11-26 18:52 Asia/Taipei
 
 > Current source of truth for the complete engineering sweep: [GPT5 Daily Operations 2026-11-26](ops/GPT5_DAILY_OPS_2026-11-26.md). This short handoff supersedes the older dated snapshots below; those are retained as history, not current state.
