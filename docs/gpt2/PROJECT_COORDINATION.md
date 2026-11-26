@@ -1390,3 +1390,54 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - 本次文件快照只更新 GPT2 自有 PR #631 分支；未寫入 main，未解除 Draft，未合併。
 - 未執行本機 Node tests、typecheck、lint 或 build；本次文件提交仍須以新 HEAD 重新跑 CI，且須 GPT3 對同一新 HEAD 正式 APPROVED。
 - 其他 owner／外部限制不冒充 GPT2 已修復；若新 exact-head CI 仍 CANCELLED／SKIPPED，應交由 runner／queue owner 查明，不盲目重跑。
+
+## 6.22 即時重核：Main／OPEN PR exact-head 狀態 — 2026-11-27
+
+> 本節為本次 GitHub API 即時查核快照，補正前述 6.21 的 check-run 統計。所有 PASS／HOLD 判斷均以本節所列 exact SHA 為界；不得將舊 SHA、局部 SUCCESS、workflow summary SUCCESS 或 Observer SUCCESS 當成完整驗收。
+
+### Main
+
+- Main ref：`078bc72216e3990f9c7c4db2e06e5851a5c8428e`，本輪重新讀取未變。
+- Main exact-SHA check-runs：248 筆，完整分頁 100 + 100 + 48；SUCCESS 69、FAILURE 39、SKIPPED 87、CANCELLED 53。
+- Main push CI `45842160595` attempt 2：CANCELLED。
+- 同一 main SHA 的 push workflows：Codacy `45842161007` FAILURE、Debricked `45842161001` FAILURE、CodeQL `45842160612` FAILURE、Rust Clippy `45842160661` SUCCESS。Clippy SUCCESS 不代表完整 CI PASS。
+- Main PR Acceptance Gate `45876842190`：FAILURE。其 job 的 `Evaluate exact-head acceptance policy` step FAILURE。
+- System Health Recovery `45876842243` workflow summary SUCCESS，但 `Verify completed CI provenance and reset global breaker` step SKIPPED；hosted allocation recovery job 亦 SKIPPED。不可宣稱 breaker 已 reset 或 Recovery 已完成。
+- Recovery Observer `45876883406` SUCCESS 僅代表觀測／證據工作成功，不代表底層 CI 或 Recovery PASS。
+- Ruleset `protect-main` ID `28032767` 為 ACTIVE；傳統 branch protection endpoint 回傳 403，required checks 細節 UNKNOWN。未使用 bypass。Vercel rate-limit、CircleCI context 及外部服務狀態仍按前次可見證據標示 BLOCKED／UNKNOWN，不得假定已解除。
+
+### 全部 OPEN PR（9 件）
+
+所有 PR base SHA 均為 main `078bc72216e3990f9c7c4db2e06e5851a5c8428e`。以下 check-runs 直接依各 PR 當前 HEAD 查詢；mergeable metadata 不構成 CI 或審查批准。
+
+| PR | Exact HEAD SHA | Draft | Total | SUCCESS | FAILURE | SKIPPED | CANCELLED | 其他 |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | YES | 27 | 6 | 5 | 12 | 2 | 2 NEUTRAL |
+| #631 | `eeaa0e8fe72158f868f534d15cc95d10963d8a2c` | YES | 20 | 7 | 4 | 6 | 2 | 1 NEUTRAL |
+| #630 | `4ac0c4e0368335d5a62dea5dedb2b633393f6882` | YES | 20 | 8 | 6 | 4 | 1 | 1 NEUTRAL |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | YES | 16 | 7 | 5 | 0 | 1 | 2 NEUTRAL、1 IN_PROGRESS |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | YES | 22 | 7 | 7 | 5 | 1 | 2 NEUTRAL |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | YES | 20 | 5 | 5 | 6 | 2 | 2 NEUTRAL |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | YES | 20 | 6 | 4 | 6 | 2 | 2 NEUTRAL |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | NO | 21 | 9 | 6 | 4 | 1 | 1 NEUTRAL |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | YES | 20 | 8 | 5 | 4 | 1 | 2 NEUTRAL |
+
+- #631 exact-head 統計較 6.21 舊快照增加：目前 20 checks，含 4 FAILURE、6 SKIPPED、2 CANCELLED；不得沿用舊的 14-check 摘要。
+- #628 有 1 個 IN_PROGRESS，仍同時有 5 FAILURE 與 1 CANCELLED。
+- #623 雖非 Draft，仍有 6 FAILURE、4 SKIPPED、1 CANCELLED；正式 review 只有 COMMENTED，且有 1 個 unresolved review thread。不得合併。
+- #626 與 #631 正式 review submissions 均為空；沒有 GPT3 對目前 exact HEAD 的正式 APPROVED。其他 PR 亦未達可解除 Draft／合併的完整條件。
+- 本輪未發現任何 PR 可安全解除 Draft 或合併；不以 mergeable metadata、局部成功或自我審查替代治理門檻。
+
+### GPT2 自有交付與責任邊界
+
+- 本節僅更新 GPT2 自有協調文件所在 PR #631 分支；不寫 main，不修改 Factory、CI／Runner、Secrets、外部部署、branch protection 或其他 owner 檔案。
+- #626 P 維持既有 allowlist；exact-head 仍有 7 FAILURE、5 SKIPPED、1 CANCELLED，無正式 review。下一步必須先取得可重現 CI／Preflight 證據，再交 GPT3 對同一新 HEAD 正式獨立審查。
+- #631 文件交付已提交但其 exact-head checks 未通過；文件快照更新不等於程式測試或驗收通過。
+- Factory patch-budget／Preflight、Codacy、Debricked、CodeQL、Vercel、branch protection 403 依既有 owner／外部權限邊界交接；GPT2 不擴權處理。
+- 本次未解除 Draft、未合併、未執行本機 tests／typecheck／lint／build、未宣稱任何未執行測試通過。
+
+### 本次查核方法與限制
+
+- 已重新讀取 main ref、全部 9 件 OPEN PR metadata、每個 PR 當前 exact-head check-runs；main check-runs 已完整分頁查詢。
+- 本節統計為 GitHub check-run 終態數，不等同獨立測試套件數。完整必要 checks、CircleCI 及 branch protection 若無法讀取，維持 UNKNOWN。
+- 每日排程仍為 Asia/Taipei 22:30；排程啟用不代表 24/7 即時監控。本輪是額外手動查核，並非新的排程 run。
