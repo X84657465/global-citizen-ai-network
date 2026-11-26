@@ -849,7 +849,6 @@ if (scope === "system") process.exitCode = 1;
             & node $classifierPath
             $classificationExitCode = $LASTEXITCODE
             Remove-Item -LiteralPath $classifierPath -Force -ErrorAction SilentlyContinue
-            $classificationExitCode = $LASTEXITCODE
             Remove-Item Env:CANDIDATE_CONTAINER_STATE_JSON -ErrorAction SilentlyContinue
             if ($classificationExitCode -ne 0 -or $classification -eq "system") {
               throw "Candidate container runtime failed before a normal test-process exit (docker start exit $startExitCode)."
