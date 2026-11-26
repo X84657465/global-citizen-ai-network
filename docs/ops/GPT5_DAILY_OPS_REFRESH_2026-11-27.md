@@ -135,3 +135,58 @@ The existing daily automation remains enabled for 08:00 Asia/Taipei, next schedu
 - Direct full REST pagination for all open PRs, Actions runs, jobs, and check-runs is not exposed by the connector wrappers used here; the 12 PR inventory is the connector's returned open-PR result.
 - No direct branch-protection/required-check re-read or CircleCI inventory was available.
 - No production, billing, secrets, permission, runner, deployment, or branch-protection settings were changed.
+
+
+## GPT5 live operations addendum — 2026-11-27 (fresh exact-head sweep)
+
+This addendum supersedes prior moving-head observations. Main and all currently OPEN PR metadata were fetched live before this update. The check-run counts below are exact-head API aggregates; they are not one workflow run and a SUCCESS count does not imply acceptance.
+
+### Main
+- Exact `refs/heads/main`: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Combined commit status: **FAILURE**, Vercel description `Deployment rate limited — retry in 24 hours.`
+- Check-runs API `total_count=498`; first page only (100 records): 25 SUCCESS, 15 FAILURE, 38 SKIPPED, 21 CANCELLED, 1 IN_PROGRESS. This is a partial page of accumulated records, not a full distribution.
+- Main push CI terminal state is **NOT OBSERVED** from the connector's PR-only workflow-run wrapper. Branch-protection endpoint returns 403 `Resource not accessible by integration`; effective enforcement is **UNKNOWN**.
+
+### All 12 OPEN PRs — exact current HEAD counts
+All are OPEN / Draft / unmerged, base SHA exactly equals Main above; GitHub reports mergeable=true (conflict metadata only). Formal review inventory: **0 APPROVED / 12**. #632 and #623 have COMMENTED only; other ten have no formal review submissions.
+
+| PR | Exact HEAD | Total | SUCCESS | FAILURE | SKIPPED | CANCELLED | IN_PROGRESS | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| #630 | `2a912bc9a2303dccf988663a6722fb7ffc6f8389` | 20 | 8 | 6 | 4 | 0 | 0 | 2 |
+| #643 | `7735ff30653c8e1c24821db86d53c8cfa22da365` | 19 | 12 | 2 | 3 | 0 | 1 | 1 |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | 26 | 5 | 5 | 12 | 2 | 0 | 2 |
+| #631 | `85d56e646c0c82b30d16acd28af82df2f90e18e4` | 20 | 7 | 5 | 5 | 1 | 0 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 0 | 1 |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 0 | 1 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 0 | 2 |
+| #636 | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | 27 | 10 | 5 | 10 | 1 | 0 | 1 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 21 | 8 | 6 | 4 | 1 | 0 | 2 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 0 | 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 0 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 0 | 2 |
+
+No PR meets Ready/merge conditions. No Draft removal or merge was performed.
+
+### GPT5 PR #630 — exact failure diagnosis
+- PR remains OPEN / Draft / unmerged at exact HEAD `2a912bc9a2303dccf988663a6722fb7ffc6f8389`.
+- Exact-head core CI run [45907329244](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45907329244): resolver job `140207092266` SUCCESS; Windows quality job `140207466625` FAILURE; diagnostic evidence job SUCCESS; four downstream integration/persistence jobs SKIPPED.
+- Windows quality failure is now root-caused to a deterministic repository policy test, not runner allocation: test `all workflow checkouts disable persisted Git credentials` fails at `tests/ci-trigger-policy.test.mjs:503` with exact assertion `codacy.yml checkout at line 39 must not persist its token in .git/config`. This is an ownership/security workflow regression. GPT5 must not edit `codacy.yml` or shared workflow policy; route to the owning CI/Security lane. The quality run also logged successful schema guard and several other tests, but overall Job is FAILURE; do not infer the skipped tests/build passed.
+- CodeQL Advanced [45907329233](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45907329233): both Actions and JS/TS analysis jobs FAILURE. Separate default CodeQL jobs are SUCCESS; they do not cancel out Advanced workflow failures.
+- Codacy [45907329209](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45907329209): analysis CLI SUCCESS; SARIF upload FAILURE: `Invalid request. 1 item required; only 0 were supplied.`
+- Vulnerabilities scan: FAILURE; exact run check remains failed.
+- PR Acceptance Gate: FAILURE. rust-clippy/autofix successes and Mergify neutral are auxiliary only.
+- Formal PR #630 reviews: none; review threads: none.
+
+### #643 and cross-PR signal
+- PR #643 title is `fix(ci): remove conflicting advanced CodeQL workflow`; its exact-head core CI run `45904440985` is SUCCESS, including Windows quality and database/Ollama integration jobs. However Codacy run `45904440976` remains IN_PROGRESS, Acceptance Gate FAILURE, Vulnerabilities scan FAILURE, and there is no formal APPROVED review. It remains Draft/HOLD; the proposed CodeQL workflow change is not independently accepted.
+- The #630 failure assertion about `codacy.yml` is a cross-workflow checkout credential policy issue. Existing PR #628 is the remediation candidate in the other lane; GPT5 must not duplicate its source/workflow edit. Route integration to the CI/Security owner after #628's full acceptance and independent review.
+
+### Owner handoff and GPT5 boundary
+1. CI/Security workflow owner: fix `codacy.yml` checkout credential persistence regression and verify the policy test on exact candidate SHA.
+2. Security workflow owner: resolve Codacy SARIF empty-upload rejection and reconcile CodeQL Advanced/Default setup without reducing coverage.
+3. Factory/CI owner: review any remaining skipped integration/persistence gates after the policy regression is fixed.
+4. Vercel/project administrator: resolve Main build-rate-limit.
+5. Independent authorized reviewer: submit formal APPROVED only after substantive exact-head gates pass.
+6. GPT5: maintain operational evidence and owner handoff only. This addendum changes no source/workflow, secrets, permissions, branch protection, Factory state, production, billing, or deployment.
+
+**Disposition: NOT GREEN / HOLD.** Failure, SKIPPED, CANCELLED, IN_PROGRESS, NEUTRAL, COMMENTED, observer-only SUCCESS and partial check-run pages are not acceptance evidence. No self-approval, bypass, Draft transition, merge, blind rerun, or deployment.
