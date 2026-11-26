@@ -29,6 +29,7 @@
 - B Line Lead Charter、Product North Star：B 產品方向、需求與產品決策。
 - `docs/AGENT_HANDOFF.md` 及各工作線 handoff：目前狀態、精確 SHA、阻塞、交付與下一步。
 - Operations Runbook、CI／安全政策與 Branch Protection：實際操作、安全限制及發布規則。
+- `docs/PR_REVIEW_APPROVAL_MATRIX.md`：PR 的 Developer／領域驗收／獨立技術審查／GitHub 合併授權分離、Reviewer 身分驗證、風險分級與當前落差。
 
 若文件內容衝突，依序採用：**安全／資料保護／權限政策與 Branch Protection → 已核准的專案治理章程 → 模組 owner charter／產品 charter → 本總綱 → 一般說明文件／聊天內容**。若無法判定，以較嚴格限制執行並標記 BLOCKED，交由專案負責人裁決。不得以本總綱覆蓋更嚴格的安全政策或既有核准權。
 
