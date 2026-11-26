@@ -3145,3 +3145,57 @@ All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are
 - Formal reviews refreshed across all 17 PRs: zero APPROVED; #567 (2), #565 (1), #560 (6), #559 (5) submissions are COMMENTED only; no CHANGES_REQUESTED.
 - Latest Recovery run `45804766347` COMPLETED/SKIPPED; `45802365481` remains PENDING. Repeated skipped runs are not being retriggered blindly. Automation is enabled daily 08:00 Asia/Taipei; next `2026-11-27T08:00:00+08:00`; last recorded run remains 2026-11-25.
 - GPT5 continued only its own operations evidence document. No Factory/Runner or other GPT-owned code changed; no Draft promotion, merge, deploy, or production write was performed.
+
+
+## Superseding exact-SHA operations audit — 2026-11-26 (latest live connector observation)
+
+This section supersedes earlier SHA/status snapshots above. All states below were re-read against live GitHub refs; exact-head results are not carried across commits.
+
+### Main and CI
+
+- Live `main`: `efbc3c05503dd88fcca68e6987ad1395bd662890`, merge commit for PR #576.
+- Main commit check-runs: **74 total = 14 SUCCESS, 1 FAILURE, 59 SKIPPED**; all 74 are completed. The 59 skipped checks are not passes.
+- Main exact-SHA Actions run `45746587701`, attempt 2: COMPLETED / SUCCESS. This does not override the separate Preflight failure or Recovery skips.
+- Main Preflight run [45760860216](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216), attempt 1: COMPLETED / FAILURE. Failed job [139710255709](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216/job/139710255709), step 18 “Test patched candidate offline inside restricted container”. The exact log shows PowerShell stripped embedded JavaScript quotes from the native `node --input-type=module -e '...'` invocation; Node received `import ... from node:fs` and failed with `SyntaxError: Unexpected identifier 'node'`. Docker start exit was 0; the observed failure is the classifier invocation/quoting defect, not evidence of a candidate test assertion failure. TypeScript had completed and ESLint reported 0 errors / 2 warnings before the classifier failed.
+- Latest Recovery run [45814470815](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45814470815): COMPLETED / SKIPPED. The first 100 main-branch run records contain 94 Recovery runs (73 SKIPPED, 11 SUCCESS, 10 FAILURE), three Preflight runs (2 FAILURE, 1 SKIPPED), one exact-main CI success, and one prior-SHA nightly audit failure. Repeated SKIPPED recovery is not a breaker reset or successful recovery.
+- Main combined status exposes Vercel SUCCESS only; it is deployment-provider status, not Actions acceptance. Branch API reports `protected=true`, while protection metadata says `enabled=false` and required-status-check enforcement `off`; do not assume GitHub is enforcing the documented gates.
+
+### All 17 OPEN pull requests — exact HEAD / base / check-runs / provider status
+
+All 17 are OPEN / Draft. Check counts below are the exact current HEAD check-runs; S=SUCCESS, F=FAILURE, P=PENDING, I=IN_PROGRESS, SK=SKIPPED, N=NEUTRAL.
+
+| PR | Exact HEAD | Base SHA | Exact-head checks | External commit status |
+|---|---|---|---|---|
+| #594 | `d0169ab1d48e548c6ffd2f783dabef8c5493e8e7` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | 2P, 1N, 1S; CI resolver job 139850427549 PENDING with 0 steps; Autofix PENDING | Vercel FAILURE: build-rate-limit |
+| #593 | `450af2c0dafca636b960a498203531ebbdd5ba80` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | 1P, 3S, 1N | Vercel FAILURE: build-rate-limit |
+| #592 | `a3c5f714a602ac904b50a0dd0bb1118886a5a3bf` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | 1P, 3S, 1N | Vercel FAILURE: build-rate-limit |
+| #591 | `a123a3607bdc59dfea0abf819336285e241f0c76` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | 1I, 3S, 1N | Vercel FAILURE: build-rate-limit |
+| #589 | `e67063ba4947a01b22cc3d93388a6d25d14e51eb` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | 2P, 1N, 1S | Vercel FAILURE: build-rate-limit |
+| #587 | `cbfc7253a6f2cf4c01e46b4d9d20bde121d91bff` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | 2P, 5S, 6SK, 1N; Windows quality S; PostgreSQL/RLS and Ollama/local execution P; Preflight outer SUCCESS has six skipped jobs | Vercel FAILURE: build-rate-limit |
+| #586 | `d9650f47cb53a5f844e419c2069d379467ea66bb` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | 1P, 3S, 1N | Vercel FAILURE: build-rate-limit |
+| #582 | `e7c91ef811c2584eb5320b42eb12f3b4d8988879` | `94004585a0756d10c56edd6d65dc143b05a652ab` | 2P, 3S, 6SK, 1N | Vercel SUCCESS |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | `4e70c5487c19acd536ad14780a5bdc24e1d47e54` | 2F, 3SK, 1S, 1N | Vercel FAILURE: build-rate-limit; CircleCI ERROR |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | `6f735c1251907c5016e7eea32ea0253142e537ec` | Only Summary S + Mergify N; no substantive CI validation observed | Vercel FAILURE: build-rate-limit; CircleCI ERROR |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | `c2d2b17b91898f05d0bdc20641fc7bc4fc254be8` | 2F, 3SK, 1S, 1N | Vercel FAILURE: build-rate-limit; CircleCI ERROR |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | 1F, 3SK, 5S, 1N; branch-protection verification failed | Vercel FAILURE: build-rate-limit; CircleCI ERROR |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | 3SK, 6S, 1N | Vercel FAILURE: build-rate-limit; CircleCI ERROR |
+| #565 | `f40730ee6974a8a9c4d8404565f37ce414a30af3` | `fc0a006aa6a7c396388473f1819c06095813945b` | 3SK, 6S, 1N | Vercel FAILURE: build-rate-limit |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | 3SK, 6S, 1N | Vercel SUCCESS; CircleCI ERROR |
+| #560 | `d838162e65c60ab5af145e1df4b1a5fea717f98b` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | 2P, 2S, 1N; CI run 45814456748 PENDING, Autofix run 45814457098 PENDING | Vercel SUCCESS |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | 3F, 3SK, 5S, 1N; three PR Acceptance Gate failures | Vercel FAILURE: build-rate-limit; CircleCI ERROR |
+
+Base SHAs for #565, #567, #568, #559 and #582 are not the current main SHA; rebase/base reconciliation is an owner decision, not implied by `mergeable=true`. PRs #572–#574 intentionally target feature branches rather than main.
+
+### Formal reviews and overlap
+
+- Formal Reviews API was refreshed for all 17 open PRs. **Zero independent APPROVED reviews** were present. #560 and #559 contain author COMMENTED submissions and CodeRabbit COMMENTED; #565 and #567 contain CodeRabbit COMMENTED only; the other 13 PRs have no formal review submissions. No COMMENTED or bot summary counts as approval.
+- PR #594 and PR #587 both modify `.github/workflows/agent-task-preflight.yml`. They are overlapping Factory-owned repairs for the same PowerShell native `node -e` quoting defect. #594 additionally changes `tests/ci-trigger-policy.test.mjs`; #587 changes `tests/agent-patch-to-scratch.test.mjs`. Neither has independent formal review; #594 resolver/Autofix are pending and #587 has pending integration jobs plus six skipped Preflight jobs. Do not independently edit this shared workflow, mark either Ready, or merge either branch until GPT1/Factory owner reconciles the overlapping change into one canonical candidate and the exact-head acceptance gates terminate successfully.
+- Most Vercel failures above resolve to the provider's `upgradeToPro=build-rate-limit` URL. This is an external quota/rate-limit blocker, not evidence of a source test failure. CircleCI ERROR is separately reported and not inferred to be caused by Vercel.
+
+### GPT5-owned work and disposition
+
+- GPT5's authorized operations allowlist remains only `docs/AGENT_HANDOFF.md`, `docs/ops/GPT5_DAILY_OPS_2026-11-26.md`, and `docs/ops/GPT5_DAILY_OPS_2026-11-27.md` in PR #560. This addendum is limited to this existing daily operations file; no Factory/A–P source, workflow, Runner, durable state, secrets, permissions, branch protection, production data, billing, or deployment setting is modified.
+- PR #560 exact HEAD `d838162e65c60ab5af145e1df4b1a5fea717f98b`; base equals current main. Keep OPEN / Draft: CI and Autofix are PENDING, formal independent APPROVED is absent. No Ready transition, merge, release, or production-readiness claim.
+- No local tests/build/lint were run in this connector-only execution. This document update is an operations evidence deliverable, not functional code acceptance.
+- Existing `GCAN Daily Dev Check` automation is ENABLED, daily in Asia/Taipei, next scheduled for 2026-11-27 08:00. It was explicitly invoked for this immediate run; the inline execution is being completed in this conversation. No duplicate schedule was created.
+- Next unique action: GPT1/Factory owner reconciles the overlapping #594/#587 workflow repair into one canonical exact-head candidate; GPT5 continues monitoring its own #560 exact-head checks and maintains the allowlisted operations evidence only.
