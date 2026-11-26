@@ -1055,7 +1055,7 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 
 - Main ref：`db9592f4b42f14b8a006b2e753f8decf3aa34ce0`；最新 commit message：`Merge pull request #614 from X84657465/fix/fp-integration-test-unique-g-job-urls-20261126`。
 - OPEN PR inventory：0。沒有可解除 Draft、重新驗收或合併的開啟中 PR。
-- Main exact-SHA check-runs API 回傳 16 筆：4 筆 SUCCESS、2 筆 SKIPPED、2 筆 CANCELLED、其餘為不同 run/job 的狀態紀錄；不得將 Recovery Observer 或 PR Acceptance Gate 的成功外推成完整 CI PASS。
+- Main exact-SHA check-runs API 回傳 16 筆：5 筆 SUCCESS、7 筆 SKIPPED、4 筆 CANCELLED；不得將 Recovery Observer 或 PR Acceptance Gate 的成功外推成完整 CI PASS。
 - Main push CI run `45833329182`：COMPLETED / CANCELLED。Resolver job `139955530830` CANCELLED；Windows quality gates `139955734074`、Ollama/local execution `139955733993`、PostgreSQL/RLS `139955733738`、success/failure persistence `139955734326`／`139955735029`、diagnostics `139955735183` 均 SKIPPED。主線完整品質驗收未完成。
 - Recovery runs `45833396023`、`45833385925`：CANCELLED；三筆 Recovery Failure Observer runs `45833406105`、`45833409624`、`45833419462` SUCCESS，僅代表 observer 任務成功。
 - PR Acceptance Gate runs `45833385739`、`45833396034` SUCCESS；不替代主線品質與整合測試。
