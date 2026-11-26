@@ -1,3 +1,55 @@
+# GPT5 live operations delta — 2026-11-27 (latest recheck)
+
+This entry supersedes earlier moving-head observations where they conflict. All SHA-specific evidence below is bound to the exact SHA shown. This is an operations/evidence update only, not a functional acceptance certificate.
+
+## Main
+- Exact `refs/heads/main`: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Combined commit status: FAILURE; Vercel reports `Deployment rate limited — retry in 24 hours`.
+- Latest observed Main-branch PR Acceptance Gate run `45891560165`: FAILURE, attempt 1, job `140155275425`; step `Evaluate exact-head acceptance policy` failed. Its log reports PR #630 HOLD: `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, `REQUIRED_JOB_SKIPPED` ×3, `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- Latest observed System Health Recovery `45891560177`: CANCELLED; exact-head verification job CANCELLED and hosted Windows recovery job SKIPPED. Observer run `45891585283` SUCCESS is observation only, not recovery.
+- Main check-runs endpoint reports 330 historical records for this SHA; the returned page is not an exhaustive aggregate. These records include repeated FAILURE/SKIPPED/CANCELLED states and must not be presented as one green run.
+- Branch metadata says `protected=true` while nested protection metadata says `enabled=false`; dedicated branch-protection read returned HTTP 403. Effective required-check / protection policy remains UNKNOWN. No bypass or protection mutation performed.
+
+## All 10 OPEN PRs — exact current inventory
+All ten are OPEN, unmerged, Draft, and target `main` at base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. Each exact-head check-run collection was fetched in this pass. Counts below are check-run records for that SHA, not single workflow runs.
+
+| PR | Exact HEAD | Total | FAILURE | SKIPPED | CANCELLED | NEUTRAL | Notable exact-head evidence |
+|---|---|---:|---:|---:|---:|---:|---|
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 6 | 4 | 0 | 1 | Windows quality, Acceptance, Actions, JS/TS, Codacy, Vulnerabilities fail; diagnostics and Clippy succeed. |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 10 | 2 | 2 | Windows quality and Acceptance fail; Actions/JS-TS, Codacy, Vulnerabilities fail; offline fixture succeeds; Factory/publish/integration steps skipped. |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 6 | 2 | 2 | Acceptance, Actions/JS-TS, Codacy, Vulnerabilities fail; Windows/integration/persistence skipped; resolver/autofix cancelled. |
+| #630 | `cf0c1528453185f2d461c0173be6590bcac255cc` | 19 | 4 | 5 | 2 | 1 | Core CI and Acceptance runs cancelled; Actions/JS-TS, Codacy, CodeQL workflow, Debricked fail; Clippy succeeds. |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 5 | 3 | 1 | 2 | Windows quality, Ollama, PostgreSQL/RLS, Codacy and Clippy succeed; Acceptance, Actions/JS-TS and Vulnerabilities fail; CodeQL neutral. |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 5 | 1 | 2 | Windows quality cancelled; Acceptance, Actions/JS-TS, Codacy and Vulnerabilities fail; integration/persistence skipped. |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 6 | 2 | 2 | Acceptance, Actions/JS-TS, Codacy and Vulnerabilities fail; resolver/autofix cancelled; Windows/integration/persistence skipped. |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 6 | 4 | 1 | 2 | Windows quality, Acceptance, Actions/JS-TS, Codacy and Vulnerabilities fail; diagnostics and Clippy succeed. |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 6 | 4 | 1 | 1 | Windows quality, Acceptance, Actions/JS-TS, Codacy and Vulnerabilities fail; CodeQL and Clippy succeed; integration/persistence skipped. |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 5 | 4 | 1 | 2 | Windows quality, Acceptance, Actions/JS-TS, Codacy and Vulnerabilities fail; diagnostics/Clippy succeed; integration skipped. |
+
+No PR qualifies for Draft removal or merge. Individual successful checks, summary jobs, Clippy, diagnostic evidence, or `mergeable=true` metadata do not override failed acceptance and security gates.
+
+## GPT5-owned PR #630 — current exact-head diagnosis
+- PR remains OPEN / Draft; base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; head branch `gpt5/ops-audit-2026-11-27`; exact HEAD at this read: `cf0c1528453185f2d461c0173be6590bcac255cc`.
+- Exact-head Actions runs: CI `45891550153` CANCELLED; PR Acceptance Gate `45891549851` CANCELLED; autofix `45891550132` CANCELLED; Codacy `45891550020` FAILURE; CodeQL Advanced `45891550083` FAILURE; Debricked `45891544288` FAILURE; rust-clippy `45891550220` SUCCESS; PR summary `45891546705` SUCCESS.
+- Exact-head check-runs show Windows quality, Ollama, PostgreSQL/RLS and failure-diagnostics SKIPPED; resolver and autofix CANCELLED; Actions and JS/TS scans have failure records. No quality/integration PASS is established by the cancelled core run.
+- Acceptance log explicitly identifies `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, three `REQUIRED_JOB_SKIPPED`, `APPROVAL_MISSING`, and `DRAFT_NOT_READY`.
+- Formal review submissions freshly queried for #630: empty. #628 was also freshly queried and returned empty. Full review inventory for the other eight PRs and unresolved review threads was not re-queried in this pass; do not present old review data as a fresh scan.
+- The PR diff is documentation-only (`docs/AGENT_HANDOFF.md`, `docs/ops/GPT5_DAILY_OPS_2026-11-27.md`). This GPT5 update remains in that documentation/evidence lane. No code, workflow, secret, permission, branch protection, billing, production or deployment setting was changed.
+
+## Owner handoff / next actions
+- Vercel deployment rate limit → Vercel/project administrator; wait for provider cooldown rather than blind retries.
+- Main Acceptance / Factory recovery cancellation and skipped hosted runner → GPT1 / Factory and CI runner owner; provide exact run/job evidence above.
+- CodeQL, Codacy and Debricked failures → repository security/workflow owner; inspect each scanner's exact job logs and configuration. Do not infer that scanner failure proves a source vulnerability or fabricate credentials.
+- Independent formal review → authorized reviewer on the current exact HEAD; GPT5 does not self-approve.
+- Branch protection policy → repository administrator; resolve conflicting metadata and API 403 with authoritative settings evidence.
+- GPT5 continues operations evidence and handoff only. No unauthorized Draft transition, merge, rerun loop, or cross-owner source edit.
+
+## Automation
+- Existing GPT5 daily automation `6b03d327186881919adac1a7ed62e1b8` remains enabled at 07:00 Asia/Taipei. It was triggered once for this conversation; that one-off trigger does not prove the daily run completed and is not continuous monitoring.
+- Daily cadence is not 24/7 monitoring and does not establish a 99.99999% SLA.
+
+---
+
 # GPT5 live operations delta — 2026-11-27 14:35 Asia/Taipei
 
 This latest live snapshot supersedes earlier snapshots below. Exact SHAs are mandatory; check evidence must not be carried across commits.
