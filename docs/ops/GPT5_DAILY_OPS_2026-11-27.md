@@ -1110,3 +1110,24 @@ This correction supersedes the earlier six-PR inventory above. The current live 
 - GPT5's own #630 remains within the Operations documentation allowlist. This addendum is a documentation/evidence update only; it creates a new PR HEAD and invalidates all previous #630 exact-head checks. Re-read its new SHA and checks before any further decision.
 - GPT1 retains Factory/A–E ownership of #622–#625 and #629; GPT2 owns F–P #626 and #631; GPT3 remains the independent QA reviewer. GPT5 does not edit those owners' code, workflows, Runner, durable state, secrets, permissions, branch protection, DB/RLS, production data, billing or deployment.
 - No local tests/build/lint were run in this connector-only session. No Draft transition, approval, merge, release or deployment is claimed.
+
+
+## GPT5 exact-head follow-up — 2026-11-27 00:47 Asia/Taipei
+
+This update supersedes the #630 row above for the pre-follow-up HEAD. Main is still `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. The open-PR inventory remains eight; this follow-up changes only the GPT5-owned operations evidence file.
+
+### GPT5 PR #630 — exact current HEAD before this addendum
+- HEAD: `77bdc92432e24f58c75071389d397b8847505722`; base: main `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; OPEN / Draft / mergeable=true.
+- Actions CI run [45861576470](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45861576470): COMPLETED / CANCELLED at resolver job `140053685950`; Windows quality, Ollama, PostgreSQL/RLS, diagnostics and persistence jobs all SKIPPED. This is not a CI pass.
+- Autofix run `45861576387`: PENDING (no terminal conclusion observed).
+- Codacy run `45861576315`: FAILURE. Exact log cause includes `java.nio.charset.MalformedInputException: Input length = 1` while Codacy computes missing-file metrics; subsequent SARIF upload fails with `Invalid request: 1 item required; only 0 were supplied`. This is a scanner/parser failure; offending file bytes and decoder root cause are not proven. Do not broadly exclude files or alter unrelated source to mask it.
+- CodeQL Advanced run `45861576485`: FAILURE for both JavaScript/TypeScript and Actions categories. Log explicitly says Advanced analyses cannot be processed when GitHub Code Scanning Default setup is enabled. This is a configuration ownership issue; GPT5 does not modify CodeQL workflows or repository security settings.
+- Clippy: SUCCESS. Vercel exact-head status: SUCCESS (deployment preview only; not CI acceptance).
+- Formal PR reviews: zero. Branch protection/rulesets: UNKNOWN (prior API 403). No independent APPROVED review.
+- Main commit workflow query again returned no PR-triggered runs for main; main push Actions remains NOT OBSERVED by this connector. Do not call this a pass.
+
+### GPT5 action and disposition
+- Safe action: append this evidence-only follow-up to the existing GPT5 allowlisted operations ledger. No application, Factory, A–P, workflow, Runner, state, secret, permission, branch-protection, billing or deployment configuration changed.
+- This documentation commit advances #630 HEAD and invalidates all prior #630 exact-head checks. Re-query the resulting SHA and require a fresh substantive CI run and independent formal APPROVED review before any Draft/merge decision.
+- Keep #630 Draft. Do not retry cancelled CI blindly: resolver cancellation cause has not been diagnosed from a retrievable resolver log; Codacy and CodeQL failures have separate confirmed scanner/configuration causes and require their respective owners.
+- GPT5 next work remains operational evidence, incident analysis and precise cross-owner handoff; no cross-role implementation or self-approval is claimed.
