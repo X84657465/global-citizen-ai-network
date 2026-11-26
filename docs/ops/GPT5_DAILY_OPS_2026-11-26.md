@@ -3001,3 +3001,17 @@ All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are
 - IMPLEMENTED: this exact-head evidence refresh in the existing GPT5-owned operations document.
 - NOT ACCEPTED: no PR has independent approval and no all-gates acceptance proof exists.
 - NEXT: continue GPT5-owned operational evidence and documentation only; refresh pending exact-head checks after status transitions. Do not retry Recovery on the same ineligible event; hand Factory repair validation to its owner.
+
+
+## Follow-up refresh — exact-head checks and formal review audit
+
+- Main remains `efbc3c05503dd88fcca68e6987ad1395bd662890`; 17 open PRs remain Draft.
+- Latest observed Main Recovery run `45803468147` is COMPLETED/SKIPPED. Run `45802365481` remains PENDING. Repeated same-SHA Recovery attempts are not evidence of reset.
+- PR #593 and #592 advanced: their Resolver and Autofix checks are SUCCESS; Windows Runner quality gates are now PENDING. PR #591 Windows quality gates remain PENDING. PR #587 Windows quality gates are IN_PROGRESS; six candidate validation/publication/dispatch jobs are SKIPPED.
+- PR #594 Resolver and Autofix remain PENDING. PR #560 current GPT5 document HEAD is `f843bce63e440447ad868ebd300ecda59078dfae`; Resolver and Autofix are PENDING; Mergify IN_PROGRESS at the time checked.
+- Exact-head checks remain blocked/partial for #582 (Autofix FAILURE, 9 SKIPPED), #574 and #572 (Resolver and persistence FAILURE; core jobs SKIPPED), #559 (three Acceptance Gate FAILURE), #589/#567/#565/#563 (core CI success but 3 persistence/diagnostic SKIPPED each), and #573 (no GitHub Actions CI runs, only Summary SUCCESS and Mergify NEUTRAL).
+- Formal PR review API audit across all 17 open PRs found **zero APPROVED reviews**. #560 and #559 have COMMENTED submissions; #567 and #565 have CodeRabbit COMMENTED submissions. COMMENTED is not approval.
+- PR #568 exact head `cfd9a90b888f59253894f6a6f9d498eff00dac` is OPEN/Draft and GitHub reports `mergeable=false`; its check-run lookup returned HTTP 422 for this SHA, so this audit does not infer a check disposition from the prior snapshot.
+- No PR was changed from Draft, accepted, or merged. No independent approval exists. Summary SUCCESS and mergeable metadata do not replace required checks/reviews.
+- Automation remains enabled daily at 08:00 Asia/Taipei; next run `2026-11-27T08:00:00+08:00`. Last recorded run remains 2026-11-25; 2026-11-26 scheduled completion is not evidenced.
+- GPT5 action: appended this fresh delta to the GPT5-owned ops document. No Factory, governance, runner, or other GPT-owned files were modified.
