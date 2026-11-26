@@ -1,3 +1,52 @@
+# GPT5 live operations snapshot — 2026-11-27 14:00 Asia/Taipei
+
+> This entry supersedes every older moving-head snapshot below. All refs and PR heads were freshly fetched from GitHub. Do not carry check evidence across SHAs.
+
+## Main — VERIFIED
+
+- Exact `refs/heads/main`: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Exact-SHA check-runs endpoint: **315** historical check-run records, all terminal in this capture: **90 SUCCESS / 52 FAILURE / 105 SKIPPED / 68 CANCELLED**. These are accumulated records associated with this SHA, not one successful CI run.
+- Combined commit status: **Vercel FAILURE**, target `build-rate-limit`.
+- Latest main-side Acceptance Gate [45888699894](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45888699894): FAILURE. Recovery [45888699834](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45888699834): CANCELLED; hosted allocation/recovery job SKIPPED. Observer [45888736589](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45888736589) SUCCESS is evidence capture only, not recovery.
+- No complete exact-main CI PASS is established. Branch-protection/ruleset status is not newly verified in this pass.
+
+## Every currently OPEN PR — exact HEAD and terminal check-run counts
+
+All 10 PRs are OPEN, unmerged, target main at base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`, and report `mergeable=true` (metadata only). **All 10 are Draft.** Formal review API returned **0 APPROVED** across all 10. #623 has no current formal approval; its earlier COMMENTED review is not approval.
+
+| PR | Exact HEAD | Checks | SUCCESS | FAILURE | SKIPPED | CANCELLED | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|
+| [#622](https://github.com/X84657465/global-citizen-ai-network/pull/622) | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 2 |
+| [#623](https://github.com/X84657465/global-citizen-ai-network/pull/623) | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 |
+| [#624](https://github.com/X84657465/global-citizen-ai-network/pull/624) | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 |
+| [#625](https://github.com/X84657465/global-citizen-ai-network/pull/625) | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 |
+| [#626](https://github.com/X84657465/global-citizen-ai-network/pull/626) | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 |
+| [#628](https://github.com/X84657465/global-citizen-ai-network/pull/628) | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 |
+| [#630](https://github.com/X84657465/global-citizen-ai-network/pull/630) | `ea9cae7f08987d8a28785706b6203bb80f2e4082` | 20 | 5 | 5 | 6 | 2 | 2 |
+| [#631](https://github.com/X84657465/global-citizen-ai-network/pull/631) | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 5 | 6 | 2 | 2 |
+| [#632](https://github.com/X84657465/global-citizen-ai-network/pull/632) | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 2 |
+| [#634](https://github.com/X84657465/global-citizen-ai-network/pull/634) | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 |
+
+No PR is eligible for Draft removal or merge: every candidate has failures and/or skipped/cancelled checks, every PR remains Draft, and independent formal approval is absent. `mergeable=true` is not an acceptance result.
+
+## GPT5 lane / issue #117
+
+- GPT5's current PR #630 is documentation/operations evidence only; this update remains within its existing documentation lane. No Factory/A–P implementation ownership is assumed.
+- Issue [#117](https://github.com/X84657465/global-citizen-ai-network/issues/117) remains OPEN and assigned to `X84657465`. Its canonical implementation PRs #439 and #552 are already merged; current main contains the task/system scope policy, typed marker guards, and regression tests (source inspected). This does not prove full test acceptance.
+- Issue #117 remains NOT ACCEPTED because complete current-main CI evidence and an independent formal review are still absent. GPT1/Factory DRI owns system/runner remediation; GPT3 or another separately authorized reviewer owns independent acceptance. Do not create a duplicate implementation PR or close the issue.
+- On PR #630 exact HEAD `ea9cae7f08987d8a28785706b6203bb80f2e4082`: core CI [45888685026](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45888685026) CANCELLED; resolver job CANCELLED and six dependent jobs SKIPPED. Acceptance Gate [45888760822](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45888760822) FAILURE with `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, three `REQUIRED_JOB_SKIPPED`, `APPROVAL_MISSING`, and `DRAFT_NOT_READY`. CodeQL JS/TS and Actions scans report configuration errors; Codacy reports malformed input encoding followed by empty SARIF upload rejection; Debricked CLI exits with usage output. Do not infer a source vulnerability or precise token root cause from these logs.
+- Vercel `build-rate-limit` is an external provider/account blocker; repository/Vercel administrator owns remediation.
+- No safe non-overlapping source fix is established in GPT5's current scope. Continue the documentation/evidence lane; do not touch shared Factory workflows, other agents' paths, secrets, permissions, branch protection, durable state, or deployments.
+
+## Execution boundary
+
+- VERIFIED: live main SHA; all 10 PR state/head/base/draft/mergeability values; all exact-head check-run totals and terminal counts; formal review inventory; main combined Vercel failure; Issue #117 state and source-presence inspection.
+- BLOCKED: main CI/recovery, all 10 PR acceptance gates, independent approvals, Issue #117 full acceptance, Vercel deployment quota.
+- NOT RUN: local tests/build/lint in this connector-only pass.
+- No workflow reruns, Draft transitions, merges, source changes, state resets, permission changes, or deployments were performed. No skipped/cancelled result is treated as PASS.
+
+---
+
 ## GPT5 live operations update — 2026-11-27 (Asia/Taipei, latest recheck)
 
 This snapshot supersedes older moving-head inventories below. Main was re-read at the start and remains `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. All 10 open PRs target that exact base SHA, are OPEN/unmerged, and report mergeable=true (metadata only). Draft status: #623 is Ready; the other nine are Draft. Formal review submissions: zero APPROVED across all 10; #623 has COMMENTED only. No PR is eligible for Draft removal or merge.
