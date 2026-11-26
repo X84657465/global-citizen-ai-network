@@ -147,6 +147,14 @@ test("requires the run URL to identify the exact Actions attempt", () => {
   }
 });
 
+test("rejects distinct required job IDs that reuse one exact GitHub job URL", () => {
+  const sharedUrl = "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456";
+  const duplicatedUrls = G_REQUIRED_CI_JOBS.map((id) => job(id, { jobUrl: sharedUrl }));
+  assert.throws(() => assessGExactHeadEvidence(bundle({
+    run: { ...bundle().run, jobs: duplicatedUrls },
+  })), /Duplicate G CI job URL evidence/);
+});
+
 test("rejects duplicate job records and malformed run evidence", () => {
   assert.throws(() => assessGExactHeadEvidence(bundle({
     run: { ...bundle().run, jobs: [job("quality"), job("quality")] },
