@@ -829,7 +829,26 @@ jobs:
             $state = ConvertFrom-Json -InputObject ($stateJson -join [Environment]::NewLine)
             $state | Add-Member -NotePropertyName DockerStartExitCode -NotePropertyValue $startExitCode -Force
             $env:CANDIDATE_CONTAINER_STATE_JSON = ConvertTo-Json -InputObject $state -Compress -Depth 10
-            $classification = & node --input-type=module -e 'import { appendFileSync } from "node:fs"; import { candidateContainerFailureScope } from "./lib/agent-factory-policy.mjs"; const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null"); const scope = candidateContainerFailureScope(state); if (scope === "task") appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8"); process.stdout.write(scope); if (scope === "system") process.exitCode = 1;'
+            $classifierPath = Join-Path $env:RUNNER_TEMP "classify-candidate-container-failure.mjs"
+            $classifierScript = @'
+import { appendFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const policyUrl = pathToFileURL(resolve(process.env.GITHUB_WORKSPACE, "lib/agent-factory-policy.mjs"));
+const { candidateContainerFailureScope } = await import(policyUrl);
+const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null");
+const scope = candidateContainerFailureScope(state);
+if (scope === "task") {
+  appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+}
+process.stdout.write(scope);
+if (scope === "system") process.exitCode = 1;
+'@
+            [System.IO.File]::WriteAllText($classifierPath, $classifierScript, [System.Text.UTF8Encoding]::new($false))
+            & node $classifierPath
+            $classificationExitCode = $LASTEXITCODE
+            Remove-Item -LiteralPath $classifierPath -Force -ErrorAction SilentlyContinue
             $classificationExitCode = $LASTEXITCODE
             Remove-Item Env:CANDIDATE_CONTAINER_STATE_JSON -ErrorAction SilentlyContinue
             if ($classificationExitCode -ne 0 -or $classification -eq "system") {
