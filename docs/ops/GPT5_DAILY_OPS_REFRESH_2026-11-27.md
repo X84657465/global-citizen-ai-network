@@ -190,3 +190,46 @@ No PR meets Ready/merge conditions. No Draft removal or merge was performed.
 6. GPT5: maintain operational evidence and owner handoff only. This addendum changes no source/workflow, secrets, permissions, branch protection, Factory state, production, billing, or deployment.
 
 **Disposition: NOT GREEN / HOLD.** Failure, SKIPPED, CANCELLED, IN_PROGRESS, NEUTRAL, COMMENTED, observer-only SUCCESS and partial check-run pages are not acceptance evidence. No self-approval, bypass, Draft transition, merge, blind rerun, or deployment.
+
+
+## GPT5 live operations addendum — 2026-11-27 (fresh follow-up exact-head audit)
+
+This is a new observation, not a claim that the blockers below were repaired. Exact live main ref and the current OPEN PR inventory were fetched again before this addendum.
+
+### Main and external status
+- Exact `refs/heads/main`: `078bc72216e3990f9c7c4db2e06e5851a5c8428e` (unchanged in this audit).
+- Combined external commit status: Vercel **FAILURE**, target URL identifies `build-rate-limit`.
+- Main workflow runs most recently returned by Actions include PR Acceptance Gate run [45908593285](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908593285) **FAILURE**, System Health Recovery [45908593261](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908593261) parent **SUCCESS**, and Recovery Failure Observer [45908640385](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908640385) **SUCCESS**. Recovery job [140211360838](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908593261/job/140211360838) is **SKIPPED**; only the other verification job [140211218631](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908593261/job/140211218631) is SUCCESS. Observer and parent success do not establish Windows recovery.
+- Main check-runs endpoint reports 504 records; this audit retrieved only the first 100: 29 SUCCESS, 16 FAILURE, 34 SKIPPED, 21 CANCELLED. Do not extrapolate these first-page counts to the full 504.
+
+### Every OPEN PR — exact current HEAD check-run aggregates
+All 12 current OPEN PRs target the exact Main SHA above, remain Draft, and are unmerged. Every PR has at least one FAILURE and at least one SKIPPED/CANCELLED/NEUTRAL or IN_PROGRESS check. Formal review submissions: **0 APPROVED / 12**; #632 and #623 have COMMENTED only.
+
+| PR | Exact HEAD | Total | SUCCESS | FAILURE | SKIPPED | CANCELLED | IN_PROGRESS | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| #643 | `7735ff30653c8e1c24821db86d53c8cfa22da365` | 19 | 12 | 2 | 3 | 0 | 1 | 1 |
+| #636 | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | 27 | 10 | 5 | 10 | 1 | 0 | 1 |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 0 | 1 |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | 26 | 5 | 5 | 12 | 2 | 0 | 2 |
+| #631 | `85d56e646c0c82b30d16acd28af82df2f90e18e4` | 20 | 7 | 5 | 5 | 1 | 0 | 2 |
+| #630 | `cc2fe72982de6439caeeb3bbdd257e99f382a918` | 20 | 9 | 6 | 4 | 0 | 0 | 1 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 0 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 0 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 0 | 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 0 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 0 | 1 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 21 | 8 | 6 | 4 | 1 | 0 | 2 |
+
+### Exact acceptance and owner blockers
+- Main Acceptance Gate job [140211217642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908593285/job/140211217642) is FAILURE. The prior verified exact log for PR #630 at the same head records HOLD: `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, `REQUIRED_JOB_SKIPPED` ×2, `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- PR #643 Codacy Security Scan remains **IN_PROGRESS** on exact HEAD; its other checks include two FAILURE and three SKIPPED.
+- PR #630 remains OPEN / Draft at exact HEAD above; no formal review submission exists.
+- Issue #117 remains OPEN; no independent acceptance was recorded.
+- Owner routing remains: CI/Factory owner for Resolver/Windows runner and skipped integration gates; Security workflow owner for CodeQL/Codacy/Debricked failures; Vercel/project administrator for build-rate-limit; independent authorized reviewer for formal APPROVED. GPT5 does not have evidence to mutate those external/shared controls.
+
+### GPT5-owned execution in this turn
+- Re-ran the existing daily automation once and performed a fresh live Main/PR/review/check-run audit; no duplicate schedule was created.
+- Updated this GPT5-owned operations evidence file on the existing GPT5 PR branch. No source code, shared workflow, secret, permission, runner, branch-protection, Factory state, production, billing, or deployment change was made.
+- No tests were run for this documentation-only update. PR remains Draft/HOLD pending exact-head CI, all required checks, and independent formal approval.
+
+**Disposition: NOT GREEN / HOLD.** No false green, self-approval, Draft removal, merge, blind rerun, or deployment.
