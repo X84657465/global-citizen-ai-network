@@ -2219,3 +2219,53 @@ Vercel per exact PR SHA: SUCCESS on #636, #624 and #622; FAILURE/build-rate-limi
 - GPT5: maintain auditable evidence and handoff within own docs lane. No cross-owner code edits, self-approval, blind rerun, Draft removal, merge, or privileged mutation.
 
 Disposition: no PR is eligible for Draft removal or merge. PENDING/0-job/SKIPPED/FAILURE/UNKNOWN are not PASS. The 99.99999% target is aspirational, not a measured reliability claim.
+
+
+---
+
+## GPT5 immediate live refresh — 2026-11-27 06:43 Asia/Taipei
+
+This section records a fresh connector-backed snapshot. It supersedes prior moving-head values where they differ. The connector's recent-PR endpoint returned 12 OPEN PRs; it is not a substitute for paginated REST inventory, so this count is the complete set returned by that endpoint, not a claim that every REST page was independently traversed.
+
+### Main
+- Latest commit search result for the repository: `078bc72216e3990f9c7c4db2e06e5851a5c8428e` (same as the prior main baseline; the connector did not expose a direct refs/heads/main endpoint in this run).
+- Combined commit status: Vercel FAILURE, target identifies `build-rate-limit`.
+- The available commit-workflow-runs wrapper returned an empty array for main because it only exposes PR-triggered runs. Therefore main push CI and latest main workflow attempts are NOT VERIFIED by this call; do not infer PASS or claim a complete main Actions inventory from it.
+
+### OPEN PR inventory returned in this run
+All 12 returned PRs are OPEN, Draft=true, base `main`, and base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. GitHub mergeable metadata is true on the returned snapshots; this does not satisfy CI, review, protection or merge gates.
+
+| PR | Exact current HEAD | Core/associated workflow observations | Vercel |
+|---|---|---|---|
+| #643 | `7735ff30653c8e1c24821db86d53c8cfa22da365` | CI SUCCESS run `45904440985`; Clippy SUCCESS `45904441180`; autofix SUCCESS `45904441171`; Codacy IN_PROGRESS `45904440976`; no CodeQL Default Setup success evidence surfaced | SUCCESS |
+| #636 | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | Core CI FAILURE `45896046447`; Preflight SUCCESS `45896046442`; Codacy FAILURE `45896046434`; CodeQL FAILURE `45896046551`; autofix CANCELLED `45896046609`; Clippy SUCCESS `45896046502` | SUCCESS |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | Core CI FAILURE `45882689100`; Codacy FAILURE `45882689117`; CodeQL FAILURE `45882689114`; autofix SUCCESS; Clippy SUCCESS | FAILURE / build-rate-limit |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | Core CI CANCELLED `45895379296`; Preflight FAILURE `45895379391`; Codacy FAILURE `45895379313`; CodeQL FAILURE `45895379425`; autofix CANCELLED; Clippy SUCCESS | FAILURE / build-rate-limit |
+| #631 | `85d56e646c0c82b30d16acd28af82df2f90e18e4` | Core CI CANCELLED `45904771144`; Codacy FAILURE `45904771157`; CodeQL FAILURE `45904771111`; autofix SUCCESS; Clippy SUCCESS | FAILURE / build-rate-limit |
+| #630 | `8672b5669dfc1a7f6856542de556b23d467b1c4b` | Core CI CANCELLED `45902053658`; CodeQL FAILURE `45902053612`; Codacy FAILURE `45902053722`; autofix CANCELLED `45902053733`; Clippy SUCCESS `45902053587` | FAILURE / build-rate-limit |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | Core CI SUCCESS `45875584290`; Codacy SUCCESS `45875584147`; CodeQL FAILURE `45875584300`; autofix CANCELLED; Clippy SUCCESS | FAILURE / build-rate-limit |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | Core CI CANCELLED `45853743223`; Codacy FAILURE `45853743385`; CodeQL FAILURE `45853743402`; autofix SUCCESS; Clippy SUCCESS | FAILURE / build-rate-limit |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | Core CI CANCELLED `45852545103`; Codacy FAILURE `45852545210`; CodeQL FAILURE `45852545235`; autofix CANCELLED; Clippy SUCCESS | FAILURE / build-rate-limit |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | Core CI FAILURE `45852505909`; Codacy FAILURE `45852505988`; CodeQL FAILURE `45852505935`; autofix CANCELLED; Clippy SUCCESS | SUCCESS |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | Core CI FAILURE `45872395266`; Codacy FAILURE `45872395204`; CodeQL FAILURE `45872397668`; autofix CANCELLED; Clippy SUCCESS | FAILURE / build-rate-limit |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | Core CI FAILURE `45846690506`; Codacy FAILURE `45846690577`; CodeQL FAILURE `45846690579`; autofix CANCELLED; Clippy SUCCESS | SUCCESS |
+
+The workflow-run connector is limited to the first page and PR-triggered runs; listed run observations are not a complete check-run census or proof that all required jobs were covered. PENDING, IN_PROGRESS, CANCELLED, SKIPPED, missing runs and UNKNOWN remain non-PASS.
+
+### Confirmed CodeQL root cause from GPT5 PR #630 exact-head logs
+- PR #630 exact HEAD at this snapshot: `8672b5669dfc1a7f6856542de556b23d467b1c4b`.
+- CodeQL run `45902053612` had two failed jobs: Actions job `140189926642` and JavaScript/TypeScript job `140189926869`.
+- Both jobs completed extraction and SARIF upload attempts, then GitHub Code Scanning rejected the upload with the explicit message: `CodeQL analyses from advanced configurations cannot be processed when the default setup is enabled`. This is a repository-level Advanced-vs-Default setup conflict, not a source-code vulnerability finding. The run is FAILURE and cannot be counted as scan PASS.
+- Core CI run `45902053658` is CANCELLED; Codacy `45902053722` is FAILURE; autofix `45902053733` is CANCELLED; Clippy `45902053587` is SUCCESS only. Vercel is FAILURE / build-rate-limit.
+- Formal PR #630 reviews: zero; review threads: zero. It remains OPEN/Draft and is not eligible for ready/merge.
+
+### Ownership and next action
+- GPT1 / CI owner: validate #643 at its current exact HEAD, including successful Default CodeQL evidence and the current Codacy IN_PROGRESS terminal result; do not rely on the PR body’s stale SHA or older run IDs.
+- Security workflow owner: reconcile remaining Codacy and dependency-scan failures without reducing coverage or changing secrets from GPT5.
+- Vercel/project administrator: resolve the account build-rate-limit and supply a new exact-head deployment result.
+- GPT3 / authorized independent reviewer: formal APPROVED review only after exact-head substantive gates complete.
+- GPT5: this is a documentation/evidence refresh within the existing operations lane. No other owner’s code, CI workflows, secrets, permissions, runner policy, branch protection, production, DB/RLS, billing or deployment configuration was changed. No Draft removal, self-approval, merge, release or deployment is claimed.
+
+### Evidence gaps
+- Direct live refs/heads/main SHA retrieval, full paginated REST PR inventory, complete Actions run/check-run pagination for main and every PR, and CircleCI state were not available through the connector methods used in this turn. Those are explicitly UNKNOWN/NOT VERIFIED, not PASS.
+- This report is not a 24/7 monitor and does not establish a 99.99999% reliability SLA.
