@@ -2855,3 +2855,63 @@ All listed PRs are OPEN / Draft. Full HEAD and base SHA values are recorded belo
 - This update is restricted to the three existing GPT5 Operations allowlisted documents in PR #560. No A–P source, Factory workflow/state, Runner, secrets, permissions, branch protection, production data, billing or deployment settings were changed.
 - Issue #505 remains GPT1 / Factory-owned; GPT5 provides operations evidence and handoff only. Root-cause repair and acceptance require GPT1 and GPT3 respectively.
 - Local tests/build/lint: NOT RUN. This is documentation/evidence work only; new exact-head checks must be observed after the resulting commit. No historical check transfers to a new SHA.
+
+
+## Superseding GPT5 live operations snapshot — 2026-11-26 18:29 Asia/Taipei
+
+This is a timestamped historical snapshot captured before the documentation commit that appends it. The resulting commit changes PR #560's HEAD; therefore **no exact-head CI result is claimed for the new commit until GitHub reports its own checks**.
+
+### Main — exact current ref and CI
+
+- `refs/heads/main`: `efbc3c05503dd88fcca68e6987ad1395bd662890` (merge PR #576).
+- Main push CI [45746587701](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45746587701), attempt 2: workflow COMPLETED / SUCCESS. Resolver, Windows quality gates (unit tests, types, lint, audits, production build), Ollama/local integration, and PostgreSQL/RLS integration jobs are SUCCESS.
+- The same run's `Persist candidate success or reset system breaker` job is SUCCESS at job level, but its candidate revalidation, success record, evidence JSON and artifact steps are SKIPPED. Failure-persistence and exact-SHA diagnostics jobs are also SKIPPED. Thus the workflow result does **not** prove a durable system-breaker reset or complete diagnostics.
+- Latest observed main Recovery run [45798311565](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45798311565): COMPLETED / SKIPPED; its sole Recovery job is SKIPPED. Do not count this as a pass.
+- Main combined status currently exposes Vercel SUCCESS only. Branch-protection metadata says `protected=false`, but the detailed Branch Protection API previously returned 403; effective protection and required-status enforcement remain UNKNOWN.
+
+### Main scheduled Preflight — failure root cause evidence
+
+- Run [45760860216](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216), attempt 1, exact main SHA above: COMPLETED / FAILURE.
+- Job [139710255709](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216/job/139710255709) selected Issue #89 and generated a read-only plan and one-file patch in disposable scratch. No repository file was modified.
+- The candidate test output reports 848 passed, 0 failed. The enclosing offline-test step nevertheless FAILED after the tests: its Node ESM classification command raised `SyntaxError: Unexpected identifier 'node'`; the logged eval expression had lost quotes around `node:fs`, the local module path, and string literals. The wrapper then reported that the candidate container runtime failed before a normal test-process exit. Scratch cleanup succeeded.
+- Workflow source location: `.github/workflows/agent-task-preflight.yml:832`. The observed failure is a PowerShell-to-Node argument quoting defect in the classification wrapper, not evidence that the 848 test assertions failed. Candidate validation remains FAILED / NOT ACCEPTED because the wrapper did not complete normally.
+- Downstream Windows project validation, Linux fixture validation, publication, and dispatch jobs were SKIPPED. The Factory owner (GPT1) retains workflow/state repair authority; GPT5 does not modify Factory or Runner code.
+
+### All 16 open PRs — exact HEAD, base, and observed check disposition
+
+All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are full SHAs. Check states below belong only to the listed HEAD; historical runs on other SHAs do not transfer.
+
+| PR | Exact HEAD | Base SHA | Exact-head Actions / check disposition |
+|---|---|---|---|
+| #593 | `450af2c0dafca636b960a498203531ebbdd5ba80` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | Resolver PENDING; Autofix PENDING; Summary SUCCESS; Mergify NEUTRAL |
+| #592 | `a3c5f714a602ac904b50a0dd0bb1118886a5a3bf` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | Resolver PENDING; Autofix PENDING; Summary SUCCESS; Mergify NEUTRAL |
+| #591 | `a123a3607bdc59dfea0abf819336285e241f0c76` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | Resolver PENDING; Autofix SUCCESS; Summary SUCCESS; Mergify NEUTRAL |
+| #589 | `17a8dfe941d2a1f0685a8482afd9b39478a5b56e` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | Resolver/quality/Ollama SUCCESS; PostgreSQL/RLS IN_PROGRESS; Summary SUCCESS; Mergify NEUTRAL |
+| #587 | `cbfc7253a6f2cf4c01e46b4d9d20bde121d91bff` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | Resolver SUCCESS; Windows quality PENDING; Linux offline fixture SUCCESS; six publication/diagnostic jobs SKIPPED; Autofix SUCCESS; Summary SUCCESS; Mergify NEUTRAL |
+| #586 | `d9650f47cb53a5f844e419c2069d379467ea66bb` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | Resolver PENDING; Autofix PENDING; Summary SUCCESS; Mergify NEUTRAL |
+| #582 | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | `94004585a0756d10c56edd6d65dc143b05a652ab` | Core CI SUCCESS; Linux fixture SUCCESS; Autofix FAILURE; nine publication/diagnostic jobs SKIPPED; Summary SUCCESS; Mergify NEUTRAL |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | `4e70c5487c19acd536ad14780a5bdc24e1d47e54` | Resolver FAILURE; failure-persistence FAILURE; three core/persistence jobs SKIPPED; Summary SUCCESS; Mergify NEUTRAL |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | `6f735c1251907c5016e7eea32ea0253142e537ec` | No GitHub Actions check returned for this exact HEAD; Summary SUCCESS and Mergify NEUTRAL only — NOT CI PASS |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | `c2d2b17b91898f05d0bdc20641fc7bc4fc254be8` | Resolver FAILURE; failure-persistence FAILURE; three core/persistence jobs SKIPPED; Summary SUCCESS; Mergify NEUTRAL |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | Core CI SUCCESS; branch-protection verification FAILURE; three persistence/diagnostic jobs SKIPPED; Summary SUCCESS; Mergify NEUTRAL |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | Core CI SUCCESS; three persistence/diagnostic jobs SKIPPED; CodeRabbit COMMENTED; Summary SUCCESS; Mergify NEUTRAL |
+| #565 | `f40730ee6974a8a9c4d8404565f37ce414a30af3` | `fc0a006aa6a7c396388473f1819c06095813945b` | Core CI SUCCESS; three persistence/diagnostic jobs SKIPPED; Autofix SUCCESS; CodeRabbit COMMENTED; Summary SUCCESS; Mergify NEUTRAL |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Core CI SUCCESS; three persistence/diagnostic jobs SKIPPED; Vercel Preview Comments SUCCESS; Summary SUCCESS; Mergify NEUTRAL |
+| #560 | `4226578b0af7166d496e2f718ebbbd3950c0a4e5` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | Resolver PENDING; Autofix PENDING; Vercel FAILURE (provider build-rate limit); Summary SUCCESS; Mergify NEUTRAL |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | Three PR Acceptance Gate FAILURE; core CI SUCCESS; three persistence/diagnostic jobs SKIPPED; Summary SUCCESS; Mergify NEUTRAL |
+
+### Review and disposition
+
+- Formal review submissions: no APPROVED review was observed on any of the 16 PRs. #560 has six COMMENTED submissions; #559 five COMMENTED; #567 two bot COMMENTED; #565 one bot COMMENTED; the remaining 12 PRs returned zero formal review submissions. COMMENTED, CodeRabbit, Summary SUCCESS and Mergify NEUTRAL are not independent approval.
+- PR #560: OPEN / Draft, mergeable metadata true but not acceptance; its two inline review threads are RESOLVED. Vercel's current failure is a provider build-rate-limit block. Its current exact-head Resolver and Autofix are PENDING.
+- All 16 remain OPEN / Draft. No Ready transition, independent acceptance, merge, release or deployment is claimed.
+- No duplicate GPT5 PR was created. No source, Factory workflow/state, Runner, secrets, permissions, branch protection, production data, billing or deployment settings were modified.
+
+### GPT5 work and next action
+
+- OBSERVED: exact current main SHA, main CI jobs, Preflight failure log, all 16 open PR HEAD/base refs and their returned check states, formal review submissions, and PR #560 review-thread status.
+- IMPLEMENTED: this operations evidence addendum only; no application or Factory code changes.
+- TESTED: the Preflight log reports 848 passing assertions, but the enclosing candidate offline-test job FAILED in its post-test Node classification wrapper. This is not accepted validation.
+- CI-PASSING: main push CI workflow 45746587701 is SUCCESS for its core jobs; persistence/evidence and diagnostics remain incomplete due to SKIPPED steps/jobs.
+- BLOCKED: Preflight classification wrapper quoting defect (GPT1/Factory owner); Vercel build-rate limit on #560; pending exact-head checks on #593/#592/#591/#589/#587/#586/#560; older-base and skipped/failure evidence on the remaining PRs.
+- Next single action: obtain the new PR #560 exact HEAD created by this documentation commit, then re-read its own CI/Autofix and Vercel statuses; do not carry the pre-update HEAD's pending/failure results forward.
