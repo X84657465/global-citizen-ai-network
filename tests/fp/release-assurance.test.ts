@@ -14,7 +14,7 @@ const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence
   runAttempt: 1,
   status: "completed",
   conclusion: "success",
-  jobUrl: "https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/456",
+  jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${456 + Math.max(G_REQUIRED_CI_JOBS.indexOf(jobId as (typeof G_REQUIRED_CI_JOBS)[number]), 0)}`,
   ...overrides,
 });
 const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle => ({
