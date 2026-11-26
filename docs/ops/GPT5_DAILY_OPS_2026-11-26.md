@@ -3051,3 +3051,19 @@ All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are
 - Remaining PRs report mergeable=true, but that does not establish readiness. Prior formal-review audit remains zero APPROVED; no independent approval evidence authorizes Draft removal or merge.
 - GPT5 operations document was refreshed after its prior commit; this is GPT5-owned documentation only. No Factory/Runner code, other GPT-owned paths, deployment, or production mutation was performed.
 - Automation remains enabled daily 08:00 Asia/Taipei; next run `2026-11-27T08:00:00+08:00`; last run still 2026-11-25. No completed 2026-11-26 scheduled execution is evidenced.
+
+
+## Follow-up live audit — 2026-11-26 (third refresh)
+
+- Main remains `efbc3c05503dd88fcca68e6987ad1395bd662890`.
+- Open PR count remains 17; all 17 are OPEN/Draft. Exact current heads refreshed:
+  - #589 advanced to `e67063ba4947a01b22cc3d93388a6d25d14e51eb`; its new head has Resolver and Autofix PENDING, Vercel preview absent in current check-run list.
+  - #560 advanced to `f3583b881ec0cdd1ce6383414dcb689af82b314c`; Vercel Preview SUCCESS, Resolver + Autofix PENDING, Summary SUCCESS.
+  - Other heads unchanged from the prior exact-head audit.
+- Current pending/in-progress checks: #594 (2 pending), #593/#592/#591 (quality gates pending), #589 (2 pending), #587 (quality gates in progress; 6 skipped), #586 (2 pending), #560 (2 pending).
+- Completed failures remain: #582 Autofix failure; #574/#572 resolver and persistence failures; #568 branch-protection verification failure (mergeable=false); #559 three Acceptance Gate failures. #589 has changed head and must not inherit its old 3-SKIPPED state; current head instead has 2 PENDING.
+- #589/#567/#565/#563 have current core CI successes but skipped evidence/persistence checks where applicable; #573 still only has Summary SUCCESS + Mergify NEUTRAL.
+- Formal review API refreshed for all 17: zero APPROVED. #567/#565 have COMMENTED only; #560/#559 have COMMENTED only. No independent approvals exist.
+- Main Recovery newest run `45804417363` is COMPLETED/SKIPPED; `45802365481` remains PENDING. Main push CI `45746587701` is COMPLETED/SUCCESS, not evidence that Recovery or skipped evidence steps passed.
+- Automation still enabled daily 08:00 Asia/Taipei; next `2026-11-27T08:00:00+08:00`; last recorded run remains 2026-11-25; no completed 2026-11-26 scheduled run observed.
+- GPT5 action: updated only this GPT5-owned operations evidence document. No other GPT-owned code, Factory/Runner code, production data, Draft status, or merge state changed.
