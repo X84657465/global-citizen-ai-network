@@ -1531,3 +1531,53 @@ All ten check-run sets are terminal, but every PR has at least one FAILURE; SKIP
 ### Daily automation
 - Existing `GCAN 每日工程巡檢` automation ID `6b0333fe43d48191a35a1c83fd72fe6c` was found disabled and re-enabled at 2026-11-27 04:04 Asia/Taipei. Daily flexible schedule remains Asia/Taipei, next target 08:00.
 - One immediate run was requested and its inline prompt executed in this conversation. This is not 24/7 monitoring and does not promise 99.99999% availability.
+
+
+---
+
+## GPT5 live recheck — 2026-11-27 (latest exact-head snapshot)
+
+This entry supersedes earlier moving-head inventories above where they conflict. Live reads were taken in this pass. All ten OPEN PRs target the same Main SHA below. Statuses are exact-head workflow-run conclusions, not a synthetic green aggregate.
+
+### Main
+- Latest commit SHA: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Combined status: Vercel FAILURE; target URL identifies `build-rate-limit`.
+- The available workflow-run query returns PR-triggered runs only; Main push CI is NOT OBSERVED in this pass. Do not infer PASS.
+- Main remains BLOCKED / NOT ALL GREEN.
+
+### All ten OPEN PRs
+
+Every PR is OPEN, unmerged, Draft, metadata `mergeable=true`, and targets base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. Metadata mergeability is not acceptance. All ten have zero formal APPROVED reviews. #632 has a COMMENTED review by the repository account; #623 has a COMMENTED CodeRabbit review. Neither is approval.
+
+| PR | Exact HEAD | Core CI | CodeQL | Codacy | Clippy | Vercel |
+|---|---|---|---|---|---|---|
+| #630 | `ea9cae7f08987d8a28785706b6203bb80f2e4082` | CANCELLED | FAILURE | FAILURE | SUCCESS | FAILURE |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | SUCCESS | FAILURE | SUCCESS | SUCCESS | FAILURE |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | FAILURE | FAILURE | FAILURE | SUCCESS | FAILURE |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | FAILURE | FAILURE | FAILURE | SUCCESS | FAILURE |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | FAILURE | FAILURE | FAILURE | SUCCESS | SUCCESS |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | CANCELLED | FAILURE | FAILURE | SUCCESS | FAILURE |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | CANCELLED | FAILURE | FAILURE | SUCCESS | FAILURE |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | CANCELLED | FAILURE | FAILURE | SUCCESS | FAILURE |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | FAILURE | FAILURE | FAILURE | SUCCESS | FAILURE |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | FAILURE | FAILURE | FAILURE | SUCCESS | SUCCESS |
+
+### New exact-head findings and action
+
+1. **#628 is the strongest CI remediation candidate, but not releasable.** Core CI, Codacy and Clippy are SUCCESS; CodeQL Advanced remains FAILURE because the repository has Default Code Scanning setup enabled while this workflow submits Advanced-configuration SARIF. Vercel remains FAILURE due to build-rate-limit. Formal APPROVED reviews: zero. Draft stays in place.
+2. **Shared checkout credential policy failure is confirmed on five PRs.** Windows Runner quality logs for #632, #634, #624, #623 and #622 fail the policy assertion: `all workflow checkouts disable persisted Git credentials`; specifically Codacy checkout in `codacy.yml` still persists its token. Unit tests, typecheck, lint and production build are SKIPPED downstream. #628 already contains the corresponding `persist-credentials: false` change and its Codacy/core CI are SUCCESS. Do not duplicate overlapping shared-workflow changes before #628 is resolved.
+3. **#630 remains cancelled, not passed.** Exact-head CI run `45888685026` CANCELLED; Clippy SUCCESS; CodeQL and Codacy FAILURE. Resolver cancellation root cause remains UNKNOWN; do not blindly rerun unchanged SHA.
+4. **Vercel**: Main and most PR heads report `build-rate-limit`. #624 and #622 report Vercel SUCCESS, but their core CI/security checks still fail.
+5. **Formal release gate**: no PR has an independent APPROVED review; all ten remain Draft. No Draft removal, merge, or release is justified.
+
+### Handoffs posted this pass
+- #628: exact-head status, CodeQL Default-vs-Advanced conflict, Vercel gate, and independent-review hold.
+- #632, #634, #624, #623, #622: exact Runner policy failure, downstream SKIPPED impact, and safe remediation order.
+- These comments are diagnostic handoffs, not fixes to repository security settings or shared workflows.
+
+### GPT5 scope / next actions
+- Updated only the existing GPT5 Operations evidence ledger on the already-authorized docs branch.
+- No source code, shared workflow, Factory state, Runner, secrets, permissions, branch protection, billing, Vercel account, or production settings were modified.
+- Next: have Security/Admin choose Default vs Advanced Code Scanning; complete independent review on #628; then rebase/revalidate affected PRs against the canonical checkout-policy fix. GPT5 remains in the Operations evidence/handoff lane.
+- Connector-only update: no local test/build/lint was run. The documentation commit creates a new #630 HEAD; all prior #630 check evidence is invalid for the new SHA and must be re-read.
+- Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` is enabled at 08:00 Asia/Taipei. The saved metadata reports next run `2026-11-27T08:00:00+08:00`; this does not establish continuous monitoring or successful future delivery.
