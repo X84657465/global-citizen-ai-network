@@ -1,3 +1,21 @@
+# LIVE GPT5 HANDOFF — 2026-11-26 18:52 Asia/Taipei
+
+> Current source of truth for the complete engineering sweep: [GPT5 Daily Operations 2026-11-26](ops/GPT5_DAILY_OPS_2026-11-26.md). This short handoff supersedes the older dated snapshots below; those are retained as history, not current state.
+
+- Repository: `X84657465/global-citizen-ai-network`.
+- Live main SHA: `efbc3c05503dd88fcca68e6987ad1395bd662890`; re-read after the PR inventory and unchanged.
+- Main exact-SHA check-runs: 69 — 13 SUCCESS, 1 FAILURE, 1 PENDING, 54 SKIPPED. Main combined status returned Vercel SUCCESS only; this is not CI acceptance.
+- Main Preflight run [45760860216](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216) failed at job [139710255709](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216/job/139710255709): Windows PowerShell stripped quoting from inline Node ESM `-e`, causing `SyntaxError: Unexpected identifier 'node'` after the candidate test suite. The task marker was not written; classifier defaulted to system-scoped.
+- Latest Recovery run [45805097980](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45805097980) was SKIPPED; another run [45802365481](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45802365481) remains PENDING with zero steps. No breaker reset or Recovery PASS is evidenced.
+- 17 OPEN PRs were reconciled at exact HEAD/base SHA. All are Draft; #568 alone reports mergeable=false. No formal APPROVED review exists on any of the 17.
+- Factory overlap: #587 and #594 both modify the candidate-container classifier block in `.github/workflows/agent-task-preflight.yml`. GPT1/Factory DRI must select or reconcile one canonical patch. #587 quality CI is still IN_PROGRESS; #594 resolver and Autofix are PENDING with zero steps. GPT5 did not edit Factory code/workflows.
+- External blocker: Vercel reports `api-deployments-free-per-day` on #594 (>100 deployments; retry in 24 hours). No repeated deployment attempt was made.
+- GPT5's own documentation lane is PR #560. This live refresh updated the daily operations report and this handoff only. New PR #560 HEAD: `555349fe27baf434bb813cfde55e3b6c78845409`, base main `efbc3c05503dd88fcca68e6987ad1395bd662890`, OPEN / Draft. Its new exact-head resolver and Autofix are PENDING; Mergify and Summary are IN_PROGRESS. Do not reuse prior-head CI.
+- No local tests/build/lint were run. No Draft was removed, no formal review/approval was created, no PR was merged, no deployment or Factory state mutation occurred.
+- Next owner action: GPT1 selects/reconciles #587/#594; after exact-head required CI completes, GPT3 independently reviews. GPT5 continues the bounded #560 evidence/documentation lane.
+
+---
+
 # GPT5 Daily Operations — Corrected Live Snapshot (2026-11-25)
 
 > This section supersedes the earlier 2026-11-25 snapshot immediately below. All statuses are tied to the exact SHA/run shown. UNKNOWN, PENDING, SKIPPED, zero Actions runs, and unavailable logs are not PASS.
