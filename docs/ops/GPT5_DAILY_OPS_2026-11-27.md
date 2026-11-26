@@ -1782,3 +1782,53 @@ Every PR is OPEN, unmerged, Draft, metadata `mergeable=true`, and targets base S
 - Next: have Security/Admin choose Default vs Advanced Code Scanning; complete independent review on #628; then rebase/revalidate affected PRs against the canonical checkout-policy fix. GPT5 remains in the Operations evidence/handoff lane.
 - Connector-only update: no local test/build/lint was run. The documentation commit creates a new #630 HEAD; all prior #630 check evidence is invalid for the new SHA and must be re-read.
 - Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` is enabled at 08:00 Asia/Taipei. The saved metadata reports next run `2026-11-27T08:00:00+08:00`; this does not establish continuous monitoring or successful future delivery.
+
+
+# GPT5 operational recheck — 2026-11-27 (subsequent pass)
+
+This appended recheck supersedes earlier conclusions only where the exact SHA/run evidence below is newer. It is an operations audit, not a module acceptance or merge approval.
+
+## Main exact state
+- Main ref SHA remains `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Combined commit status: `failure`; Vercel context: `failure`, description `Deployment rate limited — retry in 24 hours.`
+- Main Acceptance Gate run `45892484308`, attempt 1, job `140158269437`: `failure`. Step `Evaluate exact-head acceptance policy` failed. Log explicitly reports PR #630 at exact head `935d0be0a83ef760871836fdfc2c88a2685ac1ef` as HOLD with `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, `REQUIRED_JOB_SKIPPED` ×3, `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- Main Recovery run `45892484362`, attempt 1: workflow `success`, but this is not full recovery. Job `140158263057` succeeded only after its breaker-reset step was `skipped`; Windows recovery job `140158442063` was `skipped`. Thus the recovery mechanism did not reset the global breaker and hosted Windows recovery was not executed.
+- Recovery Observer run `45892547187` completed `success`; observer success is diagnostic only.
+- Main branch API metadata: `protected=true` while nested `protection.enabled=false` and required checks enforcement `off`. Dedicated branch-protection endpoint access remains unavailable/403 from prior read. Effective protection policy is UNKNOWN; no settings changed.
+
+## Exact-head check-run inventory for all current OPEN PRs
+Each collection below was fetched from `/commits/{exact_head_sha}/check-runs?per_page=100`. Counts are check-run records, not a single workflow conclusion. `success` counts do not override any failure/skipped/cancelled required job.
+
+| PR | Exact HEAD | Total | Success | Failure | Skipped | Cancelled | Neutral |
+|---|---|---:|---:|---:|---:|---:|---:|
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 2 |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #630 | `935d0be0a83ef760871836fdfc2c88a2685ac1ef` | 22 | 6 | 6 | 6 | 2 | 2 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 2 |
+
+All ten PRs remain OPEN / Draft and target main at base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+
+### Selected substantive evidence
+- #628 has the strongest core/integration successes (Windows quality, Ollama, PostgreSQL/RLS, Codacy and Clippy), but Acceptance Gate has two failures, Actions and JS/TS have failure records, Vulnerabilities scan fails, and there are skipped/cancelled jobs. Not ready.
+- #630 exact head has Acceptance Gate `failure`; Actions, JS/TS, Codacy and Vulnerabilities have failures; Clippy succeeds; resolver/autofix cancelled; Windows quality, Ollama, PostgreSQL/RLS and failure diagnostics skipped. Main acceptance log explicitly holds it for CI, required jobs, three skipped jobs, missing approval and Draft state.
+- #634, #632, #631, #626, #625, #624, #623 and #622 each have Acceptance and/or quality/security failures plus skipped/cancelled jobs. No candidate has a fully passing exact-head acceptance evidence set.
+
+## Reviews and inline threads
+- Formal review submissions freshly fetched for all ten PRs: #632 and #623 have COMMENTED only; #634, #631, #630, #628, #626, #625, #624 and #622 have no review submissions. Formal APPROVED count: 0.
+- Inline review thread listing: #623 has one thread at `.github/workflows/pr-acceptance.yml` (thread `PRRT_kwDOVxQ_vs68dgPT`); all other nine PRs returned empty thread lists. This recheck did not retrieve the full thread body/resolution fields, so do not infer resolution from this listing.
+- No Draft removal, merge, self-approval or bypass action is justified.
+
+## GPT5 action / ownership
+- Reviewed current `PROJECT_COORDINATION.md` and `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md`. They explicitly preserve GPT5 as Global Intelligence & Operations support, not an A–P module owner; the proposed authority expansion is not effective until independent review and formal acceptance. GPT5 must not edit GPT1/2/4 owned source or replace GPT3 independent QA.
+- Main failure causes are routed to their actual owners: GPT1/Factory+Runner owner for recovery/Windows skipped and acceptance pipeline; repository security/workflow owner for scanner failures; Vercel/project admin for provider cooldown; authorized independent reviewer for formal approvals; repository admin for branch-protection policy evidence.
+- Switched away from repeated polling/reruns to exact-head inventory, formal review/thread inventory and governance-boundary review. No source code, workflows, secrets, runner policy, branch protection, production, deployment or permissions were modified.
+- Existing GPT5 audit automation `6b03d327186881919adac1a7ed62e1b8` is enabled daily at 07:00 Asia/Taipei. One immediate run was requested this turn; this is not proof of a completed scheduled execution or 24/7 monitoring.
+
+## Release decision
+**BLOCKED — no PR is eligible for Draft removal or merge on this evidence.** Main Acceptance Gate is FAIL; Vercel status is rate-limited failure; Factory breaker reset and hosted Windows recovery steps are skipped; all PR exact-head collections contain failures and/or skipped/cancelled work; formal APPROVED reviews are absent. Do not mark green, do not merge, do not spin blind retries.
