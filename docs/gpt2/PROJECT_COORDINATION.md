@@ -1339,3 +1339,54 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - Main latest visible Recovery Observer `45874128834` SUCCESS 仍只代表觀測成功；Recovery `45873494258` CANCELLED、fallback job SKIPPED；Main PR Acceptance `45872631350` FAILURE。Main push CI 最新可見 `45842160595` CANCELLED。
 - #631 最新 HEAD 現已是 `133ea927c1b1102f53fe7b9157c4c7670b799fea`，不得再引用 6.19 表格中更新前的 `e4f1d7...` 作為目前 HEAD。所有後續審查與驗收必須綁定新 SHA。
 - 本次只交付 GPT2 自有協調文件更新；不解除 Draft、不合併、不聲稱測試通過。若新 exact-head CI 再次 CANCELLED／SKIPPED，應回到 runner／queue owner 釐清取消來源，不做無限重跑。
+
+
+## 6.21 即時更正：九件 OPEN PR 與 Main exact-SHA 重核 — 2026-11-27（Asia/Taipei）
+
+> 本節補正前述 6.19／6.20 快照與即時 GitHub 狀態的差異。只代表本次查核所列 SHA／Run ID；不把 observer SUCCESS、mergeable=true、COMMENTED 或局部 SUCCESS 當作驗收通過。
+
+### Main
+
+- Main ref：`078bc72216e3990f9c7c4db2e06e5851a5c8428e`，本次重新讀取未變。
+- Main exact-SHA check-runs：244 筆（已分頁讀取 100 + 100 + 44）；SUCCESS 67、FAILURE 38、SKIPPED 86、CANCELLED 53。這是跨工作流程 check-run 計數，不等同獨立測試套件數。
+- Main push CI `45842160595` attempt 2：CANCELLED；Resolver CANCELLED，Windows quality、Ollama、PostgreSQL/RLS、diagnostics、persistence jobs SKIPPED。
+- 同 SHA push workflows：Codacy `45842161007` FAILURE、Debricked `45842161001` FAILURE、CodeQL `45842160612` FAILURE、Rust Clippy `45842160661` SUCCESS。Clippy SUCCESS 不代表完整 CI PASS。
+- Main Preflight `45858093855`：FAILURE。可讀日誌顯示 Factory Issue #619 patch batch 2 的本地模型輸出達 4096 tokens 上限，產物不完整而在 scratch test 前被拒絕；屬 GPT1／Factory owner 範圍，GPT2 不修改 planner、validator 或 durable state。
+- Main PR Acceptance Gate 最新可見 `45875595788`：FAILURE；Recovery `45875595715`：CANCELLED；Recovery Observer `45875605938`：SUCCESS 僅代表觀測任務成功，不代表 Recovery 已恢復。
+- Vercel：FAILURE，`api-deployments-free-per-day`／`build-rate-limit` 額度限制；不盲目重試、不更動付費方案。CircleCI context 未見，標 UNKNOWN。
+- Ruleset `protect-main` ID `28032767` 為 ACTIVE；傳統 branch protection endpoint 403，required checks 細節標 UNKNOWN。未使用 bypass。
+
+### 全部 OPEN PR（9 件）
+
+所有 PR base SHA 均為 Main `078bc72216e3990f9c7c4db2e06e5851a5c8428e`。`mergeable=true` 僅代表 GitHub 衝突估計，並非 CI／審查通過。
+
+| PR | Exact HEAD SHA | Draft | Check-runs 摘要 |
+|---|---|---|---|
+| #630 | `4ac0c4e0368335d5a62dea5dedb2b633393f6882` | YES | 20：SUCCESS 7、FAILURE 6、SKIPPED 4、CANCELLED 1、IN_PROGRESS 1、NEUTRAL 1 |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | YES | 27：SUCCESS 6、FAILURE 5、SKIPPED 12、CANCELLED 2、NEUTRAL 2 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | YES | 21：SUCCESS 6、FAILURE 5、SKIPPED 6、CANCELLED 2、NEUTRAL 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | NO | 21：SUCCESS 9、FAILURE 6、SKIPPED 4、CANCELLED 1、NEUTRAL 1 |
+| #631 | `e315dbe00f1e670b1552c41323230186b540b5dc` | YES | 19：SUCCESS 6、FAILURE 4、SKIPPED 6、CANCELLED 1、NEUTRAL 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | YES | 22：SUCCESS 7、FAILURE 7、SKIPPED 5、CANCELLED 1、NEUTRAL 2 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | YES | 20：SUCCESS 8、FAILURE 5、SKIPPED 4、CANCELLED 1、NEUTRAL 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | YES | 20：SUCCESS 5、FAILURE 5、SKIPPED 6、CANCELLED 2、NEUTRAL 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | YES | 20：SUCCESS 6、FAILURE 4、SKIPPED 6、CANCELLED 2、NEUTRAL 2 |
+
+- #630 有一個 exact-head job 仍 IN_PROGRESS；其餘各 PR 亦有 FAILURE／SKIPPED／CANCELLED，均不能視為完整驗收。
+- #626、#631 本次正式 review submissions 均為空，未取得 GPT3 對同一 exact HEAD 的正式 APPROVED；兩者 review threads 亦無未解項目，但這不補足 CI／批准缺口。
+- #623 雖非 Draft，仍有 quality、Acceptance、CodeQL、Codacy 等 FAILURE；不得合併。
+- 本輪沒有任何 PR 達到解除 Draft／合併條件。
+
+### GPT2 自有工作與交接
+
+- **#631 文件快照：** 本 PR 只修改 `docs/gpt2/PROJECT_COORDINATION.md`。本節補正舊快照所記錄的 PR 數量與 HEAD，屬 GPT2 自有文件工作；不代表 GPT3 approval、程式驗收或 Runtime IMPLEMENTED。
+- **#626 P 版本治理：** exact HEAD 仍為 `70decb7f32bdbe42571b39fd5280bf5e61ca6d34`；Acceptance Gate FAILURE，quality job CANCELLED，並有多項 security／quality FAILURE 與 SKIPPED。維持 Draft。下一步只在既有 P allowlist 內建立可重現測試證據，再由 GPT3 審查同一新 HEAD；不以舊 SHA 結果代替。
+- **F／Issue #17、H／Issue #85、G 回歸風險：** 不擴張未核准路徑；DRI／allowlist 不齊或有財務唯讀限制時，先要求相應 owner 明確指定，不另開重疊 PR。
+- **GPT1／Factory／CI：** Main resolver cancellation、4096-token patch proposal、Debricked credential、CodeQL workflow permissions、Vercel rate limit 及 branch protection 403 分別交 Factory、Repository／Security、workflow owner、Vercel 管理者及 repository 管理者；GPT2 不碰其 workflows、Runner、Secrets、權限或部署設定。
+
+### 本次動作與驗證界線
+
+- 已重新查 main ref、Actions runs（分頁）、main exact-SHA check-runs（完整三頁）、九件 OPEN PR metadata 與各 exact-head check-runs；並查 #626／#631 正式 reviews 與 review threads。
+- 本次文件快照只更新 GPT2 自有 PR #631 分支；未寫入 main，未解除 Draft，未合併。
+- 未執行本機 Node tests、typecheck、lint 或 build；本次文件提交仍須以新 HEAD 重新跑 CI，且須 GPT3 對同一新 HEAD 正式 APPROVED。
+- 其他 owner／外部限制不冒充 GPT2 已修復；若新 exact-head CI 仍 CANCELLED／SKIPPED，應交由 runner／queue owner 查明，不盲目重跑。
