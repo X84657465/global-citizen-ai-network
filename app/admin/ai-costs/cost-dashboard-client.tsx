@@ -26,7 +26,7 @@ const panel: CSSProperties = { background: "#fff", border: "1px solid #e1e7ef", 
 function money(value: number, currency: string) { return new Intl.NumberFormat("zh-TW", { style: "currency", currency, maximumFractionDigits: 4 }).format(value); }
 const kindLabel: Record<string,string> = { actual_invoice: "已核實發票", estimated_allocation: "分攤估算", internal_estimate: "內部成本估算" };
 const statusLabel: Record<string,string> = { pending: "待對帳", matched: "已匹配", variance: "有差異", rejected: "已拒絕" };
-const invoiceDispositionLabel: Record<string, string> = { matched_actual: "已匹配", variance: "有差異", unmatched_estimate: "未匹配", duplicate_row: "重複列", duplicate_reference: "重複參照" };
+const invoiceDispositionLabel: Record<string, string> = { matched_actual: "已匹配", variance: "有差異", unmatched_estimate: "未匹配", ambiguous_match: "參照不唯一", duplicate_row: "重複列", duplicate_reference: "重複參照" };
 
 export default function AiCostDashboardClient() {
   const [data, setData] = useState<Data | null>(null);
