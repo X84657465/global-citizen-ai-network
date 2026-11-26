@@ -1178,3 +1178,66 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 本次治理提案分支以 main `480f22e484dfa80d301f136cedd5504fbde41407` 為起點。該 SHA 是提案建立基準，不代表 PR 合併時 main 仍相同。main、PR、CI、Runner、Factory durable state、Vercel deployment 均須在交付時重新查證；歷史快照標記 STALE，不可複製成最新狀態。
 
 **本文件只定義協作規範，不代表 GPT1–GPT5 已同時啟動，也不代表尚未觸發的工作已派工成功。** 跨 GPT 交接以 GitHub Issue、PR、commit、CI 與 handoff 為準。
+
+
+---
+
+## 13. 五 GPT 協作與 GPT5 執行席位：必讀交接規則
+
+> **角色校正：** GCAN 是五個 GPT 角色：GPT1、GPT2、GPT3、GPT4、GPT5。本 ChatGPT 在此專案中承擔 GPT5 執行／協調席位；不是「四 GPT 加 ChatGPT」，也不新增 GPT6。詳細治理依 Master Charter §24.10；本節將其轉成日常交接方式。
+
+### 13.1 五個角色的固定分工
+
+- **GPT1：** A–E／Agent Factory V2 開發與整合主責。
+- **GPT2：** F–P 專業工作線主責，優先提供直接解除 P0／P1 阻塞的規格、風險及驗收案例。
+- **GPT3：** 獨立架構、資安、整合與 QA Reviewer；以精確 SHA 驗收，不得審查自己的實作。
+- **GPT4：** B Product 產品負責人；定義 B 需求、UX、產品契約及產品驗收。
+- **GPT5（本 ChatGPT 執行席位）：** 全域證據整合、任務去重、跨角色協調、handoff 維護及明確授權下的工程支援；不接管其他角色 owner，也不代替 GPT3 驗收。
+
+### 13.2 GPT5 每輪必做
+
+1. 先讀最新 main SHA、Master Charter、相關角色文件、Issues／PR／CI／Checks／Jobs 與 docs/AGENT_HANDOFF.md；不得沿用舊快照作為目前狀態。
+2. 檢查現有 Issue／PR 是否已承載相同工作；能延續就不另開重複任務。
+3. 將專案負責人的長期要求更新至 Master Charter；單次工作放入具唯一 DRI、allowlist、DoD、測試與 Reviewer 的 Issue；最新狀態放入 handoff。
+4. 將工作分派給正確 owner：A–E 給 GPT1、F–P 給 GPT2、獨立審查給 GPT3、B Product 給 GPT4；GPT5 只做整合／支援與自己獲授權的工作。
+5. 逐一記錄五個角色的文件讀取、回覆、實際開工、commit／PR、驗收及阻塞；沒有 Repository 證據即標 UNKNOWN／NOT OBSERVED。
+6. 不得聲稱已私訊、喚醒、派遣或讓其他 GPT 背景執行。GitHub 文件／Issue 是可讀取交接，不是模型啟動器；角色須由使用者或已啟用的工作流程實際啟動。
+7. 發現重複工作、衝突檔案或 owner 不明，先停止重疊寫入並保留成果，交正式 owner／專案負責人裁決。
+
+### 13.3 五 GPT 每次交付的標準回報
+
+每個角色都要自行提供以下證據，不得由 GPT5 代答：
+
+    Role: GPT1 / GPT2 / GPT3 / GPT4 / GPT5
+    Main SHA read:
+    Files read:
+    Scope / DRI:
+    Issue / PR:
+    Changed paths:
+    Commit SHA:
+    Actions actually executed:
+    Tests / CI (exact SHA, Run ID, Attempt, job terminal state):
+    Review disposition:
+    Blockers / UNKNOWN:
+    Next action and owner:
+
+狀態分開記錄：DOCUMENT READ、ACKNOWLEDGED、TASK STARTED、DELIVERABLE、INDEPENDENT REVIEW、MERGED、RELEASED。文件已更新不等於程式已實作；Issue 已建立不等於任務已開始；PR 已建立不等於驗收通過。
+
+### 13.4 GPT5 與各角色的當前交接基準
+
+- **GPT1：** Factory 主線 owner。先盤點目前 Factory 能力及最新 P0；Issue #117（任務級與系統級失敗隔離）和 Issue #505（診斷資料／Logs 不可用時保留失敗證據）是既有候選，必須先重查狀態，不得複製開案。
+- **GPT2：** F–P 專業 owner。只針對 GPT1 提出的直接依賴提供領域規格／工具／測試案例；GPT2 過去的採納證據須以目前 main 重新核對。
+- **GPT3：** 對候選變更做獨立審查；先確認 GPT3 自有審查範圍與待審 SHA 一致，不得由 GPT5 代簽。
+- **GPT4：** 提供最小 A→B 公開 Read Adapter／資料契約需求及產品驗收案例；其權威 B 角色文件必須在當前 main 查證，缺少時標 UNKNOWN。
+- **GPT5：** 維護全域任務／證據矩陣、去重、更新總綱與 handoff，執行自身 allowlist 內支援工作。
+
+### 13.5 Vercel／外部配額與批次提交規則
+
+1. Vercel 配額或 Preview Build Pending 不得使不依賴 Preview 的程式開發、測試、Review、文件整理及 PR 準備全面停擺。
+2. 對同一目的、同一 owner、相同驗收時序的相關變更，先完成整批修改及可執行檢查，再集中提交／更新 PR，減少每個小修改造成的重複 Preview。
+3. 不同 owner、不同風險或不同 Reviewer 的變更不得為省配額而硬塞進同一 PR。
+4. GitHub Actions、本地測試、Vercel Preview、Production Deployment 與其他 Provider 必須分開記錄；Rate Limit 是 Provider 阻塞，不是程式碼 PASS／FAIL。
+5. 若 Vercel 是 required check，依 Branch Protection／Ruleset 保持合併 BLOCKED；若非 required check，Preview pending 不應阻止其他已授權且獨立的工程工作。
+6. 不得建立新帳號、反覆強制部署或修改保護規則以規避配額；等待 Provider 恢復時推進不依賴它的工作。
+
+**本節及 Master Charter §24.10–§24.11 都是治理提案；須經既有 GPT3 獨立審查及 Repository 核准流程接受。實際角色是否已讀取／啟動／完成，必須由各角色自己的 Repository 證據確認。**
