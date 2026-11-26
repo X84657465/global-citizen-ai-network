@@ -1327,3 +1327,15 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 2. 對 PENDING／IN_PROGRESS 等待明確終態；對 CANCELLED／SKIPPED／0 Job 記為未驗收，不盲目重跑。
 3. GPT2 僅推進 F–P 中有唯一 DRI、明確 allowlist、無 owner 衝突且可驗收的工作；重疊與外部限制列明 owner、證據及解除條件。
 4. GPT3 必須對當前候選 HEAD 獨立 APPROVED；自我檢查不得替代獨立審查。
+
+
+## 6.20 PR #631 文件快照提交後的 exact-head 追蹤 — 2026-11-27
+
+- 6.19 文件快照提交已建立：`133ea927c1b1102f53fe7b9157c4c7670b799fea`，位於本 PR 分支；PR #631 仍為 Draft，沒有寫入 main。
+- 此提交觸發的新 exact-head CI：run `45874379044` attempt 1，終態 CANCELLED。其 jobs 中 Resolve exact candidate PR metadata CANCELLED；Windows Runner quality、Ollama、PostgreSQL/RLS、diagnostics、persistence 等 6 個 job SKIPPED。故本次文件交付本身尚未取得 CI 驗收。
+- 同一 exact HEAD 的 PR Acceptance Gate `45874376582`、CodeQL `45874380786`、Codacy `45874379106`、Rust Clippy `45874379247`、Debricked `45874373787` 與 dynamic summary `45874372897` 查核時仍 IN_PROGRESS；Autofix `45874379192` 已 CANCELLED。這些尚未完成的工作不能報 PASS。
+- Main exact SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e` check-runs 分頁查核回報 total_count 227；本次三頁回傳 100、100、27 筆。跨工作流統計：SUCCESS 59、FAILURE 34、SKIPPED 84、CANCELLED 49、PENDING 1。此為 check-run 計數，不等同獨立測試套件數，也不能替代 push CI 判斷。
+- Main combined status 精確結果為 FAILURE：Vercel 描述 `Deployment rate limited — retry in 24 hours.`，target 為 build-rate-limit。這是外部部署額度阻塞；不重試刷額度、不更改付費方案。
+- Main latest visible Recovery Observer `45874128834` SUCCESS 仍只代表觀測成功；Recovery `45873494258` CANCELLED、fallback job SKIPPED；Main PR Acceptance `45872631350` FAILURE。Main push CI 最新可見 `45842160595` CANCELLED。
+- #631 最新 HEAD 現已是 `133ea927c1b1102f53fe7b9157c4c7670b799fea`，不得再引用 6.19 表格中更新前的 `e4f1d7...` 作為目前 HEAD。所有後續審查與驗收必須綁定新 SHA。
+- 本次只交付 GPT2 自有協調文件更新；不解除 Draft、不合併、不聲稱測試通過。若新 exact-head CI 再次 CANCELLED／SKIPPED，應回到 runner／queue owner 釐清取消來源，不做無限重跑。
