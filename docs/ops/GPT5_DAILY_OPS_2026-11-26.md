@@ -2695,3 +2695,66 @@ All 14 are OPEN / Draft. PENDING, SKIPPED, NEUTRAL, Summary-only, or historical 
 ### Automation and next action
 - Existing `GCAN Daily Dev Check` remains enabled for 08:00 Asia/Taipei; next scheduled run is 2026-11-27 08:00. No duplicate schedule created.
 - GPT5 next action: verify the new rebased documentation head's exact-head checks, then continue only non-overlapping Operations evidence work. Factory Preflight/Recovery repair remains with GPT1/Factory owner; independent acceptance remains with GPT3/authorized reviewer.
+
+---
+
+## GPT5 superseding live audit — 2026-11-26 17:43 Asia/Taipei
+
+This addendum supersedes earlier live-audit snapshots. The audit began by reading refs/heads/main and re-read main plus the full OPEN PR inventory at the end; both remained unchanged.
+
+### Main
+
+- Main SHA: efbc3c05503dd88fcca68e6987ad1395bd662890.
+- Exact-SHA check-runs: 55 total — 13 SUCCESS, 1 FAILURE, 41 SKIPPED.
+- Main push CI [45746587701, attempt 2](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45746587701): COMPLETED / SUCCESS. Resolver, Windows quality (unit tests, type check, lint, audits, production build), PostgreSQL/RLS, and Windows Ollama/local execution jobs are terminal SUCCESS.
+- Within that same run, the candidate-success persistence job concluded SUCCESS, but its revalidation, success-record write, JSON evidence write, and artifact upload steps were all SKIPPED. Failure-persistence and exact-SHA diagnostics jobs were also SKIPPED. This is not proof that evidence persistence or diagnostics executed.
+- Preflight [45760860216](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216): COMPLETED / FAILURE. Failed job [139710255709](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216/job/139710255709). The captured log shows the inline PowerShell-to-Node classifier invocation lost JavaScript quote boundaries (import specifiers appear unquoted); classifier execution did not produce the task-scope marker, and the controller defaulted the failure to system scope. The candidate offline test step also failed. Do not infer a broader Factory code defect from this run alone.
+- Latest Recovery [45792548740](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45792548740): COMPLETED / SKIPPED; its sole breaker-verification job [139814966829](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45792548740/job/139814966829) is SKIPPED. Repeated SKIPPED Recovery runs are not recovery success.
+- Combined commit status contains Vercel SUCCESS only; that is provider/deployment status, not CI acceptance.
+- Main disposition: core push CI is CI-PASSING for its tested jobs, but Main is NOT ALL GREEN / NOT FULLY ACCEPTED because one check failed and 41 checks were skipped, including the current Recovery path.
+
+### All OPEN PRs — exact HEAD and latest check snapshot
+
+All 14/14 remain OPEN / Draft. No formal APPROVED review exists on any of the 14 PRs. Counts below include the exact-head check-runs observed; Summary SUCCESS and Mergify NEUTRAL are not acceptance gates.
+
+| PR | Current exact HEAD | Check-run conclusions |
+|---|---|---|
+| #587 | cbfc7253a6f2cf4c01e46b4d9d20bde121d91bff | 2 PENDING, 2 SUCCESS, 6 SKIPPED, 1 NEUTRAL |
+| #560 | 09db43a778ea0a0daf60a9faafe8bb8cf2151f29 | 2 PENDING, 2 SUCCESS, 1 NEUTRAL |
+| #589 | 17a8dfe941d2a1f0685a8482afd9b39478a5b56e | 2 PENDING, 5 SUCCESS, 1 NEUTRAL |
+| #591 | a123a3607bdc59dfea0abf819336285e241f0c76 | 2 PENDING, 1 SUCCESS, 1 NEUTRAL |
+| #586 | a3c744ffae06777e583920d372337ada2500c2d1 | 6 SUCCESS, 3 SKIPPED, 1 NEUTRAL |
+| #565 | f40730ee6974a8a9c4d8404565f37ce414a30af3 | 6 SUCCESS, 3 SKIPPED, 1 NEUTRAL |
+| #582 | 528be6dd1dca86c789e9acd1c3dc19dd44509b6c | 1 FAILURE, 6 SUCCESS, 9 SKIPPED, 1 NEUTRAL |
+| #567 | 250645c6b7465c961cb3e364d98e6be8e2586b30 | 6 SUCCESS, 3 SKIPPED, 1 NEUTRAL |
+| #574 | 8145ea2d0a0e99485706b0a6cec01f8e423512cd | 2 FAILURE, 1 SUCCESS, 3 SKIPPED, 1 NEUTRAL |
+| #573 | 1d4d225f299662337254818a9db35015253685c2 | No Actions runs / no substantive Actions checks; Summary SUCCESS and Mergify NEUTRAL only (0-job evidence) |
+| #572 | 58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6 | 2 FAILURE, 1 SUCCESS, 3 SKIPPED, 1 NEUTRAL |
+| #568 | cfd9a90b888f59253894f6a6a6f9d498eff00dac | 1 FAILURE, 5 SUCCESS, 3 SKIPPED, 1 NEUTRAL |
+| #563 | e62f4fc4322432f71f46c9478f1bdbace174dcdc | 6 SUCCESS, 3 SKIPPED, 1 NEUTRAL |
+| #559 | 567f27233103790b07c26c59dab7dbb4b033fced | 3 FAILURE, 5 SUCCESS, 3 SKIPPED, 1 NEUTRAL |
+
+#### PR blocker classification
+
+- Pending exact-head CI: #587, #560, #589, #591. Do not un-Draft while exact-head jobs remain PENDING.
+- Core CI jobs passed, but evidence/persistence steps skipped: #586 and #565. Their success jobs do not execute candidate-success persistence or failure diagnostics. Both are based on older main fc0a006aa6a7c396388473f1819c06095813945b, not current main.
+- CI failure / stale workflow contract: #582 has a successful core CI run but autofix attempt 6 FAILURE; its Preflight publication/validation jobs were SKIPPED. Its base is an older main SHA.
+- External repository-plan limitation: #568 core quality, PostgreSQL/RLS and Ollama jobs passed, but branch-protection verification failed with HTTP 403 and explicit response: "Upgrade to GitHub Pro or make this repository public to enable this feature." This is an external plan/API restriction, not a code fix. Do not claim branch protection was verified.
+- Legacy Factory state-shape failure: #574 and #572 exact-head resolver jobs failed with "Legacy factory state does not match the supported V1 shape"; downstream candidate test jobs were SKIPPED. No code-level fix is justified without an owner-authorized investigation of the Factory state contract.
+- No executable validation: #573 has zero Actions runs / no substantive checks. Summary SUCCESS is not CI.
+- Formal acceptance missing: #567 and #563 core CI jobs passed, but formal reviews are COMMENTED-only / absent; all three evidence persistence/diagnostic jobs were SKIPPED. #559 has three exact-head PR Acceptance Gate FAILURE runs and only COMMENTED reviews.
+- Review integrity: no PR has a formal APPROVED review. Self-authored COMMENTED and CodeRabbit COMMENTED records are not independent approval. mergeable=true is not a substitute for CI, review, or policy.
+
+### GPT5-owned PR #560 — this run's own task
+
+- PR #560 remains OPEN / Draft; current head at this capture: 09db43a778ea0a0daf60a9faafe8bb8cf2151f29; base SHA is current main efbc3c05503dd88fcca68e6987ad1395bd662890.
+- Exact-head CI [45792534054](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45792534054): PENDING; resolver job [139814926390](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45792534054/job/139814926390) PENDING.
+- Autofix [45792534092](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45792534092): PENDING; job [139814918603](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45792534092/job/139814918603) PENDING.
+- Formal reviews are COMMENTED only; no independent APPROVED review.
+- The only file changed by this update is this GPT5-owned Operations report, within PR #560's existing three-file allowlist. No Factory/A–P source, workflow, Runner, durable state, secrets, permissions, branch protection, production data, billing, or deployment settings were changed.
+- This update creates a new PR head. All checks listed above for #560 apply only to the pre-update SHA and must not be carried forward; the new head requires fresh exact-head Actions verification.
+- No local test/build/lint was run in this connector-only execution. This is an evidence/documentation delivery, not an implementation or release claim.
+
+### Next action
+
+Re-read the new PR #560 head and its exact-head Actions jobs once after this documentation commit. Keep Draft and hand off Factory Preflight/Recovery and Legacy Factory state-contract changes to the authorized Factory owner; do not spin on PENDING, 0-job, SKIPPED, or external 403 conditions.
