@@ -5350,3 +5350,14 @@ All ten are OPEN / Draft / not merged, base SHA `078bc72216e3990f9c7c4db2e06e585
 - Active `protect-main` ruleset ID `28032767` prevents deletion/non-fast-forward and requests Copilot review; no required status-check/approval rule is defined in that ruleset. Bypass is available to repository role but was not used.
 - GPT5 scope: ops documentation/evidence only. No other module code, Factory state/workflows, secrets, permissions, branch protection, DB, production data, billing or deployment changes.
 - Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` re-enabled; next flexible daily target 08:00 Asia/Taipei. Immediate run requested. Daily scheduling is not continuous monitoring or an SLA.
+
+
+---
+
+# GPT5 LIVE HANDOFF — latest exact-head audit (2026-11-27)
+
+> Supersedes earlier moving-head handoff snapshots. Main SHA is `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. Full 466 main check-run records: 122 SUCCESS, 71 FAILURE, 175 SKIPPED, 98 CANCELLED; this is cumulative, not one green run. Main Vercel status FAILURE / `build-rate-limit`; CircleCI UNKNOWN. Main Acceptance Gate [45901097492](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45901097492) FAILURE; exact job [140186822275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45901097492/job/140186822275) reports PR #643 `APPROVAL_MISSING`, `DRAFT_NOT_READY`. Latest Recovery [45901097440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45901097440) CANCELLED; hosted Windows recovery SKIPPED. Observer [45901110347](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45901110347) SUCCESS is observation only.
+
+All 12 OPEN PRs remain Draft, based on this main SHA, none formally APPROVED. Exact-head inventory (total / success / failure / skipped / cancelled / neutral): #643 23/11/7/3/1/1; #636 27/10/5/10/1/1; #634 20/9/6/4/0/1; #632 26/5/5/12/2/2; #631 19/5/4/6/2/2; #630 19/5/4/6/2/2; #628 21/10/5/3/1/2; #626 22/7/7/5/1/2; #625 20/5/5/6/2/2; #624 21/8/6/4/1/2; #623 21/9/6/4/1/1; #622 21/8/6/4/1/2. All contain failures and/or skipped/cancelled checks. #632 and #623 have COMMENTED only; #623's one thread is resolved. No Draft removal/merge is eligible.
+
+GPT5 PR #630 remains OPEN/Draft at HEAD `50b62e8dd28127ac6790e2656b40195965a47229`, base current main; documentation-only changes. CodeQL, Codacy and vulnerability scan failures, Factory skips/cancellations, Vercel rate-limit, and no formal independent approval remain blockers. GPT5 remains within documentation/evidence/handoff lane. Owner routing: GPT1 Factory/runner; Security workflow owner; Vercel/project admin; CircleCI admin; GPT3 independent reviewer. No self-approval, blind rerun, permission/secret/runner/branch-protection/production mutation, or cross-owner source edit.
