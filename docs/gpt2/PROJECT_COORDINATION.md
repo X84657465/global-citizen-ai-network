@@ -1086,3 +1086,31 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - 本輪只完成 GitHub ref、PR inventory、exact-SHA check-runs、workflow runs、job 終態、Issue／merge metadata 與 durable state snapshot 的讀取核對。
 - 沒有執行本機 unit tests、TypeScript、Lint 或 Build；沒有對 main 直接寫入；沒有改動 Factory／Runner／Secrets／permissions／資料庫／RLS／部署。
 - 此節文件變更須經自己的 PR exact-head CI 與獨立審查；不得自我批准、不得把文件快照當作程式驗收。
+
+
+## 6.15 即時巡檢更正與 PR #617 exact-head 終態 — 2026-11-26（Asia/Taipei）
+
+> 本節為 6.14 的更新快照；若與前節數字不同，以本節 API 重新讀取的 exact-SHA 結果為準。不得將 observer SUCCESS 解讀為主體 CI PASS。
+
+### Main exact SHA / workflow
+
+- Main：`db9592f4b42f14b8a006b2e753f8decf3aa34ce0`（本輪重新讀取 ref，未變動）。
+- Exact-main Check Runs：23 筆；SUCCESS 7、FAILURE 1、SKIPPED 10、CANCELLED 5。
+- 最新 Main Recovery run `45835501431`：COMPLETED / CANCELLED；Resolver `139963046789` CANCELLED，Windows quality `139963107167`、Ollama `139963108567`、PostgreSQL/RLS `139963108617`、persistence `139963108605`／`139963109103`、diagnostics `139963108895` 均 SKIPPED。
+- Main PR Acceptance Gate run `45835501598`：FAILURE；job `139963171869` 的 Evaluate exact-head acceptance policy 步驟失敗。Recovery evidence-capture observers `45835515408`、`45835516587` SUCCESS，僅證明 observer 執行成功。
+- Branch protection endpoint 再次回傳 403 Resource not accessible by integration；required checks／保護規則維持 UNKNOWN。
+
+### Open PR #617 — 不解除 Draft、不合併
+
+- PR #617 仍 OPEN / DRAFT；base `db9592f4b42f14b8a006b2e753f8decf3aa34ce0`，目前 exact HEAD `6d4e6b1f749dd4e992d1a4e419ab4266fc9c9d49`。
+- Exact-head check-runs：11 筆；SUCCESS 1（Summary）、FAILURE 1（PR Acceptance Gate）、NEUTRAL 1（Mergify）、SKIPPED 6、CANCELLED 2。Summary SUCCESS 不是 CI PASS。
+- Exact-head workflow runs：CI `45835465171` CANCELLED；autofix `45835465080` CANCELLED；PR Acceptance Gate `45835459830` FAILURE。
+- 最新 Gate run `45835501598` 評估 #617 exact HEAD 後回報 HOLD：`CI_NOT_SUCCESS`、`REQUIRED_JOB_NOT_SUCCESS`、三項 `REQUIRED_JOB_SKIPPED`、`APPROVAL_MISSING`、`DRAFT_NOT_READY`。沒有正式 APPROVED review。
+- PR #617 的內容僅為 GPT2 協調文件快照；這不構成解除 Draft 或合併條件。等待 CI/Runner 及獨立 reviewer；不重複盲目觸發同一取消流程。
+
+### GPT2/F–P 工作分流更正
+
+- PR #565 已合併（merge commit `63d0c615338c457e8161b076f4a6af74976b0c1a`），先前記錄的 shared classifier overlap 已解除；但 Issue #204 仍 OPEN，最後可見 Issue 更新時間為 2026-11-25，沒有最新 Factory queue/lease 證據。只能經正常 queue/lease 重新派工，不手動改 durable state。
+- Issue #85 仍 OPEN，最新可見 GPT2 checkpoint 指出 implementation 已在 main，但沒有 exact-main 全套 CI PASS、GPT3 exact-head APPROVED 或 owner acceptance；維持 acceptance BLOCKED 與唯讀財務邊界。
+- 本輪沒有發現其他可由 GPT2 安全接管、且有明確授權與不衝突 allowlist 的即時程式任務。Factory/Runner、外部部署額度、branch protection 權限與獨立審查缺口退回各自 owner。
+- 本輪沒有執行本機測試、typecheck、lint 或 build；沒有 main 直接寫入，也沒有改 Factory workflow、Runner、Secrets、permissions、branch protection、DB/RLS 或 deployment。
