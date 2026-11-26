@@ -1590,3 +1590,55 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - GPT2 docs／#631：本次只更新 GPT2 自有協調文件的查核快照；本次更新會產生新 exact HEAD，舊 HEAD 的 CI／review 證據全部失效，須對新 SHA 重新驗證。
 - Factory／Runner／Recovery、CodeQL/Codacy/Debricked workflow、Secrets、Vercel 配額與 branch protection 不屬 GPT2 可自行改動範圍；分別交 Factory／workflow owner、Repository 管理者或供應商處理。
 - 本輪沒有執行本機 unit tests、TypeScript、Lint、Build 或部署；沒有解除 Draft、合併 PR、修改 main、Secrets、Runner、權限、DB/RLS、branch protection 或付費設定。
+
+
+## 6.25 即時重核與 GPT2/F–P 工作分流 — 2026-11-27（本輪自動巡檢）
+
+> 本節依本輪重新讀取的 GitHub REST 證據記錄。資料範圍、分頁、缺失欄位與外部阻塞均明確標示；不把歷史 Check Runs、Observer 成功或缺失資料視為 PASS。
+
+### Main / Actions / 外部狀態
+
+- Main ref：`078bc72216e3990f9c7c4db2e06e5851a5c8428e`，本輪起始與結束前未觀察到 SHA 變更。
+- `GET /actions/runs?head_sha=<main>`：四頁完整讀取，共 387 runs；event 分布為 workflow_run 360、push 15、issues 10、schedule 1、dynamic 1。
+- `GET /commits/<main>/check-runs`：六頁完整讀取，共 511 筆；SUCCESS 136、FAILURE 80、SKIPPED 187、CANCELLED 108。這是同一 SHA 的累積 Check Run 記錄，不是單次 CI run 終態。
+- Exact-main push workflow：CI run `45842160595` attempt 2 CANCELLED；CodeQL `45842160612` FAILURE；Debricked `45842161001` FAILURE；Codacy `45842161007` FAILURE；rust-clippy `45842160661` SUCCESS。
+- CI run `45842160595` jobs：Metadata Resolver `140046393184` CANCELLED；Windows quality `140047490293` SKIPPED；Ollama `140047491104` SKIPPED；persistence/breaker `140047491118` SKIPPED；diagnostics `140047491175` SKIPPED；PostgreSQL/RLS `140047491193` SKIPPED；failure persistence `140047492242` SKIPPED。
+- CodeQL run `45842160612`：JavaScript/TypeScript job `139986377933` FAILURE；Actions job `139986378407` FAILURE；兩者的 Perform CodeQL Analysis step FAILURE。
+- Debricked run `45842161001` job `139986379162` FAILURE；同 SHA 後續 scan run `45898844306` job `140179375792` 日誌明確顯示 `DEBRICKED_TOKEN` 為空，scan `package-lock.json` 回覆 Unauthorized / Specify access token。這是外部授權／Secrets owner 缺口，GPT2 不讀取或修改 Secrets。
+- Codacy run `45842161007` job `139986379809` 的 SARIF upload step FAILURE。
+- Main combined status：FAILURE，Vercel 描述 `Deployment rate limited — retry in 24 hours`。CircleCI 本輪未取得可用的 main status 證據，標 UNKNOWN。
+- Recovery run `45909870292` CANCELLED：exact-head verification job `140215355673` CANCELLED（該 job log API 404 BlobNotFound，細部 step 根因 UNKNOWN）；hosted Windows recovery job `140215359776` SKIPPED。Observer runs `45909884109`、`45909881220` SUCCESS 只證明觀測工作成功。
+- Acceptance Gate run `45909870385` FAILURE，job `140215371959`。其日誌實際評估 PR #630 的舊 head `84ce7def7addf250aa11635f284e26ff5164f589`，結果 HOLD：`CI_NOT_SUCCESS`、`REQUIRED_JOB_NOT_SUCCESS`、三項 `REQUIRED_JOB_SKIPPED`、`APPROVAL_MISSING`、`DRAFT_NOT_READY`。不得把這次舊 HEAD gate 當成 #630 新 HEAD 的評估結果。
+- `protect-main` ruleset ID `28032767` enforcement ACTIVE，已讀規則 deletion、non-fast-forward、Copilot code review；bypass actor 資訊只作 API 設定記錄，不使用 bypass。Classic branch-protection endpoint 403 Resource not accessible by integration；effective required checks 維持 UNKNOWN。
+
+### 全部 12 件 OPEN PR
+
+本輪 REST OPEN 清單共 12 件，全部 state=OPEN、draft=true、base SHA 均為上述 main SHA，mergeable=true 但 mergeable_state=unstable。正式 review API：12 件均無 APPROVED；#632 只有作者 COMMENTED，#623 只有 CodeRabbit COMMENTED。COMMENTED 不構成獨立批准。
+
+| PR | Exact HEAD SHA | Check-run 終態摘要 | 主要失敗／缺口 |
+|---|---|---|---|
+| #643 | `7735ff30653c8e1c24821db86d53c8cfa22da365` | 20：12 SUCCESS、3 FAILURE、3 SKIPPED、1 IN_PROGRESS、1 NEUTRAL | Acceptance Gate x2、Vulnerabilities scan FAILURE；Codacy IN_PROGRESS |
+| #636 | `f0e61c4dacbb5197ad809cf3511b403a2d1565336` | Check Runs API 422 No commit found；Combined status 404 | Exact-head checks UNKNOWN；不可把 API 422／404 當 PASS |
+| #634 H | `83719781e68b71ecec16ad1911b403a2d1565336` | 20：9 SUCCESS、6 FAILURE、4 SKIPPED、1 NEUTRAL | Windows quality、Acceptance Gate、CodeQL JS/Actions、Codacy、Vulnerabilities FAILURE |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | 26：5 SUCCESS、5 FAILURE、12 SKIPPED、2 CANCELLED、2 NEUTRAL | CodeQL JS/Actions、Linux offline scratch fixture、Codacy、Vulnerabilities FAILURE |
+| #631 GPT2 docs | `85d56e646c0c82b30d16acd28af82df2f90e18e4` | 20：7 SUCCESS、5 FAILURE、5 SKIPPED、1 CANCELLED、2 NEUTRAL | Acceptance Gate、CodeQL JS/Actions、Codacy、Vulnerabilities FAILURE |
+| #630 GPT5 docs | `61efc1ca70b222528511c2f6a286a0fe265ded6f` | 20：8 SUCCESS、6 FAILURE、4 SKIPPED、1 IN_PROGRESS、1 NEUTRAL | Windows quality、Codacy、CodeQL JS/Actions、Acceptance Gate、Vulnerabilities FAILURE；diagnostics IN_PROGRESS |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21：10 SUCCESS、5 FAILURE、3 SKIPPED、1 CANCELLED、2 NEUTRAL | Acceptance Gate x2、CodeQL JS/Actions、Vulnerabilities FAILURE |
+| #626 P | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22：7 SUCCESS、7 FAILURE、5 SKIPPED、1 CANCELLED、2 NEUTRAL | Acceptance Gate x3、CodeQL JS/Actions、Codacy、Vulnerabilities FAILURE |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20：5 SUCCESS、5 FAILURE、6 SKIPPED、2 CANCELLED、2 NEUTRAL | CodeQL JS/Actions、Codacy、Acceptance Gate、Vulnerabilities FAILURE |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21：8 SUCCESS、6 FAILURE、4 SKIPPED、1 CANCELLED、2 NEUTRAL | Acceptance Gate、Windows quality、CodeQL JS/Actions、Codacy、Vulnerabilities FAILURE |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21：9 SUCCESS、6 FAILURE、4 SKIPPED、1 CANCELLED、1 NEUTRAL | Windows quality、Acceptance Gate、CodeQL JS/Actions、Codacy、Vulnerabilities FAILURE |
+| #622 | `eab64f672704d0e9d1d6481defdc7c88a844bf38` | Check Runs API 422 No commit found；Combined status PENDING with 0 statuses | Exact-head checks UNKNOWN；0 statuses 不等於成功 |
+
+- PR detail API 對 12 件回傳 mergeable=true／mergeable_state=unstable；沒有一件符合解除 Draft／合併條件。
+- #636、#622 的 Check Runs 查詢分別回傳 HTTP 422 No commit found；#636 combined status 404，#622 combined status PENDING 且 total_count=0。這些是 API 證據缺口，需重新確認 commit refs／GitHub API 可見性；不得以 0 Job／0 statuses 宣稱通過。
+- #630 最新 PR detail HEAD 為 `61efc1ca70b222528511c2f6a286a0fe265ded6f`；其最新 Check Runs 20 筆。Acceptance Gate run `45909870385` 日誌卻評估前一個 HEAD `84ce7def...`，因此該 Gate 對最新 HEAD 不具驗收效力。
+
+### GPT2/F–P 本輪處置
+
+- **K／PR #631：** 本次更新僅修改 GPT2 自有檔案 `docs/gpt2/PROJECT_COORDINATION.md`，將本輪 exact-SHA／PR／CI／外部服務證據記錄於本節。此次文件 commit 會使 PR #631 HEAD 改變；舊 HEAD 的 checks/reviews 不可沿用，必須對新 HEAD 重新執行 exact-head 查核。這是文件交付，不是程式測試或獨立驗收。
+- **H／PR #634：** GPT2 自有四個 H 檔案的功能變更仍被 Windows quality 與共享 security scans 阻擋；本輪不修改 Factory-owned CI policy／workflow，不解除 Draft。
+- **P／PR #626：** 版本治理修補仍有 Acceptance／CodeQL／Codacy／Vulnerabilities failures、SKIPPED／CANCELLED；本輪不修改 Factory Preflight／控制平面，不解除 Draft。
+- **GPT2 工作邊界：** 依根目錄已核准協作規範，GPT2 僅負責 F–P；GPT1 擁有 A–E／Factory，GPT3 負責獨立審查／QA，GPT4 擁有 B Product。GPT2 不接管 Factory workflow、Runner、Secrets、durable state、DB/RLS、branch protection、Vercel 配額或其他 owner 路徑。
+- **未解決事項：** Debricked owner 需恢復有效 access token；Codacy owner 需修復 SARIF upload；CodeQL owner 需處理兩個分析 job；Factory owner 需查明 CI cancellation／Recovery job skip／Acceptance Gate；部署 owner 需處理 Vercel 24 小時 rate limit；Repository 管理者需提供 branch protection required-check 可讀證據；GPT3 需對每個候選 exact HEAD 提供正式 APPROVED。
+- **驗證限制：** 本輪未執行本機 unit tests、typecheck、lint、build、部署或程式碼功能變更。未修改 main、Factory、Runner、Secrets、權限、DB/RLS、branch protection 或付費設定。未解除 Draft、未合併任何 PR。
