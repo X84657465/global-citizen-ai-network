@@ -821,25 +821,47 @@ jobs:
             $startExitCode = $LASTEXITCODE
             $testOutput | ForEach-Object { Write-Host "$_" }
             $testOutput | Out-File -LiteralPath $testLog -Encoding utf8
-            $stateJson = & docker inspect --format '{{json .State}}' $containerId 2>&1
-            if ($LASTEXITCODE -ne 0) {
-              throw "Docker could not inspect candidate container state after start (exit $LASTEXITCODE; start exit $startExitCode)."
-            }
+          $stateJson = & docker inspect --format '{{json .State}}' $containerId 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            throw "Docker could not inspect candidate container state after start (exit $LASTEXITCODE; start exit $startExitCode)."
+          }
 
-            $state = ConvertFrom-Json -InputObject ($stateJson -join [Environment]::NewLine)
-            $state | Add-Member -NotePropertyName DockerStartExitCode -NotePropertyValue $startExitCode -Force
-            $env:CANDIDATE_CONTAINER_STATE_JSON = ConvertTo-Json -InputObject $state -Compress -Depth 10
-            $classification = & node --input-type=module -e 'import { appendFileSync } from "node:fs"; import { candidateContainerFailureScope } from "./lib/agent-factory-policy.mjs"; const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null"); const scope = candidateContainerFailureScope(state); if (scope === "task") appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8"); process.stdout.write(scope); if (scope === "system") process.exitCode = 1;'
+          $state = ConvertFrom-Json -InputObject ($stateJson -join [Environment]::NewLine)
+          $state | Add-Member -NotePropertyName DockerStartExitCode -NotePropertyValue $startExitCode -Force
+          $env:CANDIDATE_CONTAINER_STATE_JSON = ConvertTo-Json -InputObject $state -Compress -Depth 10
+          $classifierPath = Join-Path $env:RUNNER_TEMP ("candidate-container-classifier-" + $env:GITHUB_RUN_ID + "-" + $env:GITHUB_RUN_ATTEMPT + ".mjs")
+          $classifierSource = @'
+          import { appendFileSync } from "node:fs";
+          import { join } from "node:path";
+          import { pathToFileURL } from "node:url";
+          
+          const workspace = process.env.GITHUB_WORKSPACE;
+          if (!workspace) throw new Error("GITHUB_WORKSPACE is required for candidate classification.");
+          if (!process.env.GITHUB_ENV) throw new Error("GITHUB_ENV is required for candidate classification.");
+          const policyUrl = pathToFileURL(join(workspace, "lib/agent-factory-policy.mjs")).href;
+          const { candidateContainerFailureScope } = await import(policyUrl);
+          const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null");
+          const scope = candidateContainerFailureScope(state);
+          if (scope === "task") appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
+          process.stdout.write(scope);
+          if (scope === "system") process.exitCode = 1;
+          '@
+          try {
+            [System.IO.File]::WriteAllText($classifierPath, $classifierSource, [System.Text.UTF8Encoding]::new($false))
+            $classification = & node $classifierPath
             $classificationExitCode = $LASTEXITCODE
+          } finally {
             Remove-Item Env:CANDIDATE_CONTAINER_STATE_JSON -ErrorAction SilentlyContinue
-            if ($classificationExitCode -ne 0 -or $classification -eq "system") {
-              throw "Candidate container runtime failed before a normal test-process exit (docker start exit $startExitCode)."
-            }
-            if ($classification -eq "task") {
-              throw "Patched candidate test commands failed inside a successfully started isolated container. See the uploaded diagnostic artifact."
-            }
-            if ($classification -ne "none") { throw "Candidate container result was not classifiable; treating it as a system failure." }
-            Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
+            Remove-Item -LiteralPath $classifierPath -Force -ErrorAction SilentlyContinue
+          }
+          if ($classificationExitCode -ne 0) {
+            throw "Candidate container classification failed or reported a system-scoped result (exit $classificationExitCode; scope '$classification'; docker start exit $startExitCode)."
+          }
+          if ($classification -eq "task") {
+            throw "Patched candidate test commands failed inside a successfully started isolated container. See the uploaded diagnostic artifact."
+          }
+          if ($classification -ne "none") { throw "Candidate container result was not classifiable (scope '$classification'); treating as a system failure." }
+          Write-Host "PASS: patched candidate tests ran offline in a restricted, non-root container."
           } finally {
             if ($containerId -match "^[0-9a-f]{12,64}$") { docker rm --force $containerId 2>$null | Out-Null }
           }
