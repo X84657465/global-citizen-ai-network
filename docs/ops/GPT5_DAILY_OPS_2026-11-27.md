@@ -2164,3 +2164,58 @@ All target main at base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; all are 
 - GPT5 appended this exact-head evidence refresh to the existing authorized audit file on branch `gpt5/ops-audit-2026-11-27`. Documentation-only; no Factory workflows, runners, queue/lease/durable state, secrets, permissions, branch protection, production, DB/RLS, billing or deployment changes.
 - #643 is a separate CI-owner candidate; do not duplicate its credential/SARIF edits in GPT5 work. GPT1/CI owner to finish and validate #643's exact-head core CI and Default CodeQL coverage, and coordinate shared Codacy credential policy with #628/#636. Security owner to resolve Debricked. Vercel account owner to resolve build-rate-limit. GPT3 to provide independent review only after exact-head checks pass.
 - No Draft removal, self-approval, merge, release, deployment or false-green claim. No local code tests were run for this documentation-only update.
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 latest exact-head audit
+
+This addendum supersedes all earlier moving-head snapshots in this file. All PR check-run counts below are tied to each exact HEAD SHA and represent cumulative check-run records, not one workflow attempt.
+
+## Main
+- Exact `refs/heads/main`: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- All 466 check-run records fetched across five pages: 122 SUCCESS, 71 FAILURE, 175 SKIPPED, 98 CANCELLED, zero pending/in-progress at query time. This is a cumulative inventory, not a single green CI run.
+- Combined commit status: FAILURE; Vercel reports `Deployment rate limited — retry in 24 hours` / `build-rate-limit`.
+- Latest PR Acceptance Gate [45901097492](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45901097492), attempt 1, FAILURE. Exact job [140186822275](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45901097492/job/140186822275) failed at `Evaluate exact-head acceptance policy`; log: PR #643 failed acceptance with `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- Latest System Health Recovery [45901097440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45901097440), attempt 1, CANCELLED. Exact-head verification job CANCELLED; hosted Windows allocation/recovery job SKIPPED. No runner recovery or breaker reset verified.
+- Recovery Failure Observer [45901110347](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45901110347) SUCCESS is evidence capture only.
+- No main push CI run for this SHA was observed in the latest 30 main-associated workflow events. Main push CI is NOT OBSERVED, not PASS.
+- CircleCI pipeline/job evidence was unavailable in this connection: UNKNOWN, not PASS.
+
+## All 12 OPEN PRs — exact HEAD check-run inventory
+
+All 12 remain OPEN and Draft=true, all base SHA values equal current main SHA above, and mergeable metadata is true. None has a formal APPROVED review. #632 and #623 have COMMENTED reviews only; #623 has one review thread, resolved. Other PRs returned no review threads. No exact-head check set below had pending/in-progress checks at query time, but every PR has FAILURE and/or SKIPPED/CANCELLED records.
+
+| PR | Exact HEAD SHA | Total | SUCCESS | FAILURE | SKIPPED | CANCELLED | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|
+| #643 | `9096eb0c9591df4e612229658c370a787225ed5f` | 23 | 11 | 7 | 3 | 1 | 1 |
+| #636 | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | 27 | 10 | 5 | 10 | 1 | 1 |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | 26 | 5 | 5 | 12 | 2 | 2 |
+| #631 | `f5242dc8403bfec7d6d4a9ad97842ed876c2be94` | 19 | 5 | 4 | 6 | 2 | 2 |
+| #630 | `50b62e8dd28127ac6790e2656b40195965a47229` | 19 | 5 | 4 | 6 | 2 | 2 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 21 | 8 | 6 | 4 | 1 | 2 |
+
+Vercel per exact PR SHA: SUCCESS on #636, #624 and #622; FAILURE/build-rate-limit on the other nine PRs. A Vercel SUCCESS does not override failed/skipped CI or missing approval.
+
+## GPT5-owned PR #630
+- PR #630 remains OPEN/Draft; exact HEAD `50b62e8dd28127ac6790e2656b40195965a47229`; base is current main.
+- Changed paths remain documentation-only: `docs/AGENT_HANDOFF.md`, `docs/ops/GPT5_DAILY_OPS_2026-11-27.md`.
+- Exact-head CI records include CodeQL JS/TS and Actions failures, Codacy failure, Vulnerabilities scan failure, skipped Factory quality/integration/persistence jobs, and cancelled metadata resolver/autofix. Vercel is FAILURE/build-rate-limit.
+- No formal APPROVED review; no unresolved review thread. Not eligible for Draft removal or merge.
+- No safe, non-overlapping source-code task is evidenced within GPT5's currently approved ownership. Continue operations/evidence/handoff only.
+
+## Owner routing and disposition
+- GPT1 / Factory CI owner: Acceptance Gate, resolver, CI queue, Windows hosted/self-hosted runner, skipped downstream jobs. Latest Recovery is CANCELLED/SKIPPED, not a reset.
+- Security workflow owner: CodeQL, Codacy and vulnerability-scan failures; inspect exact job logs/configuration.
+- Vercel/project administrator: clear build-rate-limit and provide fresh deployment evidence.
+- Repository/CircleCI administrator: provide pipeline-level evidence; currently UNKNOWN.
+- GPT3 / authorized independent reviewer: formal review and approval after exact-head gates pass.
+- GPT5: maintain auditable evidence and handoff within own docs lane. No cross-owner code edits, self-approval, blind rerun, Draft removal, merge, or privileged mutation.
+
+Disposition: no PR is eligible for Draft removal or merge. PENDING/0-job/SKIPPED/FAILURE/UNKNOWN are not PASS. The 99.99999% target is aspirational, not a measured reliability claim.
