@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 # rust-clippy is a tool that runs a bunch of lints to catch common
-# mistakes in your code and rust code.
+# mistakes in Rust code and rust code.
 # More details at https://github.com/rust-lang/rust-clippy
 # and https://rust-lang.github.io/rust-clippy/
 
