@@ -1105,3 +1105,24 @@ test("resolver fallback evidence is uploaded only when the resolver did not succ
   assert.ok(upload.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"),
     "failure evidence must retain the pre-checkout fallback path");
 });
+
+
+test("main push CI success invokes exact-SHA Factory system-health persistence", () => {
+  const breaker = findJobSection(workflow, "circuit-breaker-success");
+  const section = workflow.slice(breaker.start, breaker.end);
+  const marker = "      - name: Persist exact-main CI success and reset system breaker";
+  const start = section.indexOf(marker);
+  assert.ok(start >= 0, "main push must have a dedicated durable system-health callback");
+  const next = section.indexOf("\n      - name:", start + marker.length);
+  const step = section.slice(start, next < 0 ? undefined : next);
+  for (const required of [
+    "github.event_name == 'push'",
+    "github.ref == 'refs/heads/main'",
+    "github.actor == github.repository_owner",
+    "AGENT_FACTORY_MODE: main-push-system-health-success",
+    "SYSTEM_HEALTH_RUN_ID: ${{ github.run_id }}",
+    "SYSTEM_HEALTH_RUN_ATTEMPT: ${{ github.run_attempt }}",
+    "SYSTEM_HEALTH_HEAD_SHA: ${{ github.sha }}",
+    "run: node scripts/agent-factory-v2-controller.mjs",
+  ]) assert.ok(step.includes(required), "main-push persistence must include " + required);
+});
