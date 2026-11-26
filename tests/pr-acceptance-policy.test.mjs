@@ -152,12 +152,34 @@ test("PR acceptance gate retains applicable Preflight evidence for final policy 
 });
 
 
-test("acceptance re-evaluates review submit and dismissal events and guards stale HEAD writes", async () => {
+test("acceptance re-evaluates review submit and dismissal events", async () => {
   const { readFile } = await import("node:fs/promises");
   const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
   assert.match(source, /pull_request_review:\s*types: \[submitted, edited, dismissed\]/);
   assert.match(source, /effectiveReviewStates = new Set\(\['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'\]\)/);
-  assert.match(source, /if \(currentPrResponse\.data\.head\.sha !== headSha\) \{[^}]+return;\s*\}/);
+});
+
+test("superseded acceptance evaluations fail before writing advisory state", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
+  const start = source.indexOf("const currentPrResponse =");
+  assert.ok(start >= 0);
+  const finalize = new Function("github", "core", "owner", "repo", "prNumber", "headSha", "evaluation",
+    `return (async () => { ${source.slice(start)} })();`);
+  const github = {
+    rest: {
+      pulls: { get: async () => ({ data: { head: { sha: "b".repeat(40) } } }) },
+      get issues() { assert.fail("superseded evaluation accessed issue operations"); },
+    },
+    paginate() { assert.fail("superseded evaluation read or wrote comments"); },
+  };
+  for (const accepted of [false, true]) {
+    const failures = [];
+    const core = { setFailed: message => failures.push(message), notice() {} };
+    await finalize(github, core, "owner", "repo", 623, sha, { accepted });
+    assert.equal(failures.length, 1);
+    assert.match(failures[0], /skipping stale acceptance updates/);
+  }
 });
 
 test("merge audit uses isolated concurrency and effective review decisions", async () => {

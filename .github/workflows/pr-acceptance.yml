@@ -293,7 +293,7 @@ jobs:
 
             const currentPrResponse = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
             if (currentPrResponse.data.head.sha !== headSha) {
-              core.notice('PR #' + prNumber + ' advanced from evaluated SHA ' + headSha + ' to ' +
+              core.setFailed('PR #' + prNumber + ' advanced from evaluated SHA ' + headSha + ' to ' +
                 currentPrResponse.data.head.sha + '; skipping stale acceptance updates.');
               return;
             }
