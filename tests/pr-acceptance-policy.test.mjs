@@ -198,3 +198,10 @@ test("merge audit fails closed when timestamps are missing or reviews were submi
   assert.match(source, /Number\.isFinite\(submittedAt\)/);
   assert.match(source, /DISMISSED reviews are conservatively treated as non-approvals/);
 });
+
+test("acceptance HOLD does not automatically convert a Ready PR to Draft", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /convertPullRequestToDraft/);
+  assert.match(source, /merge-hold/);
+});
