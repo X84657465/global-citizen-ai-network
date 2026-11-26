@@ -1832,3 +1832,51 @@ All ten PRs remain OPEN / Draft and target main at base SHA `078bc72216e3990f9c7
 
 ## Release decision
 **BLOCKED — no PR is eligible for Draft removal or merge on this evidence.** Main Acceptance Gate is FAIL; Vercel status is rate-limited failure; Factory breaker reset and hosted Windows recovery steps are skipped; all PR exact-head collections contain failures and/or skipped/cancelled work; formal APPROVED reviews are absent. Do not mark green, do not merge, do not spin blind retries.
+
+
+# GPT5 subsequent recheck — current PR state
+
+Rechecked the live open-PR inventory and each of the ten current exact-head `check-runs` and `actions/runs?head_sha=` collections. Main ref remains `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; all ten open PR base SHAs still match it. All ten remain OPEN / Draft at this inspection.
+
+## Exact-head check-run counts (new collection)
+| PR | Exact HEAD | Total | Success | Failure | Skipped | Cancelled | Neutral | In progress |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 | 0 |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 2 | 0 |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 5 | 6 | 2 | 2 | 0 |
+| #630 | `7994d8c45c7116d739387e2ede5bb4a56c105a5e` | 15 | 7 | 5 | 0 | 0 | 2 | 1 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 | 0 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 | 0 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 | 0 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 | 0 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 | 0 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 2 | 0 |
+
+## New #630 exact-head result
+For `7994d8c45c7116d739387e2ede5bb4a56c105a5e`:
+- PR Acceptance Gate run `45892916229`: FAILURE.
+- CI run `45892918938`: IN_PROGRESS at this observation; it is not PASS.
+- Codacy run `45892918989`: FAILURE.
+- CodeQL run `45892919178`: FAILURE.
+- Debricked run `45892912800`: FAILURE.
+- Clippy run `45892919077`: SUCCESS.
+- autofix run `45892918925`: SUCCESS.
+- PR #630 wrapper run `45892913542`: SUCCESS (diagnostic wrapper, not the acceptance gate).
+Therefore the new docs-only Head is still not accepted; keep Draft. Exact-head evidence shows new CodeQL/Codacy/Debricked failures; root-cause logs were not fetched in this pass, so do not attribute specific vulnerability findings without logs.
+
+## Other exact-head run evidence
+- #634: Acceptance Gate `45882793017` FAILURE; CI `45882689100` FAILURE (attempt 2); Codacy `45882689117`, CodeQL `45882689114`, Debricked `45882657061` all FAILURE.
+- #632: Acceptance Gate `45879730530` FAILURE; CI `45871173827` FAILURE (attempt 2); Codacy, CodeQL, Debricked all FAILURE; 10 skipped and 2 cancelled check-run records.
+- #631: Acceptance Gate `45877997376` FAILURE; CI `45877999910` CANCELLED; Codacy, CodeQL, Debricked all FAILURE.
+- #628: Acceptance Gate `45875618469` FAILURE despite CI run `45875584290` SUCCESS (attempt 2); CodeQL and Debricked FAILURE; Codacy SUCCESS.
+- #626: multiple Acceptance Gate attempts FAILURE/CANCELLED; CI `45853743223` CANCELLED (attempt 3); Codacy, CodeQL, Debricked FAILURE.
+- #625: Acceptance Gate `45854058435` FAILURE; CI `45852545103` CANCELLED (attempt 2); Codacy, CodeQL, Debricked FAILURE.
+- #624: Acceptance Gate `45882217483` FAILURE; CI `45852505909` FAILURE (attempt 3); CodeQL, Codacy, Debricked FAILURE.
+- #623: Acceptance Gate `45872566604` FAILURE and later attempt `45879040893` CANCELLED; CI `45872395266` FAILURE (attempt 2); CodeQL, Codacy, Debricked FAILURE.
+- #622: CI `45846690506` FAILURE (attempt 4); Acceptance Gate attempts CANCELLED; Codacy, CodeQL, Debricked FAILURE.
+Run IDs are exact-head matches; these are the latest returned relevant entries, not a claim that every workflow has only one attempt.
+
+## Scope / next action
+- No PR qualifies for Draft removal or merge. No formal approval was established in this pass; prior all-PR review inventory returned zero APPROVED.
+- Main SHA did not change. The latest combined status/Actions summary could not be refreshed in this pass because the GitHub tool call quota was reached after PR exact-head collections; do not carry forward a fresh Main PASS claim. The previously documented Main acceptance failure and Recovery skipped-step evidence remain the last retrieved Main workflow evidence.
+- No blind reruns or cross-owner source edits. GPT5's safe work remains exact evidence, documentation, handoff, and review of its own docs PR.
