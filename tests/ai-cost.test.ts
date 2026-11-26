@@ -140,6 +140,22 @@ test("invoice reconciliation requires exact provider reference, provider, model,
   assert.equal(unmatched.rows[0].disposition, "unmatched_estimate");
 });
 
+test("invoice reconciliation fails closed when a provider reference maps to multiple in-period requests", () => {
+  const parsed = parseProviderInvoiceCsv(invoiceCsv);
+  const baseRequest = {
+    provider: "openai", model: "gpt-test", provider_request_id: "provider-req-1",
+    created_at: "2026-11-10T12:00:00.000Z",
+    provider_billed_cost: "1.25", provider_billed_currency: "USD",
+  };
+  const preview = previewProviderInvoiceReconciliation(parsed, [
+    { ...baseRequest, id: "request-one" },
+    { ...baseRequest, id: "request-two" },
+  ]);
+  assert.equal(preview.rows[0].disposition, "ambiguous_match");
+  assert.equal(preview.rows[0].match, null);
+  assert.equal((preview.counts as Record<string, number>).ambiguous_match, 1);
+});
+
 test("invoice TWD normalization requires an explicit valid rate and timestamp", () => {
   const parsed = parseProviderInvoiceCsv(invoiceCsv);
   const request: Array<{
