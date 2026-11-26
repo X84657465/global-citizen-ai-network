@@ -1,3 +1,56 @@
+# GPT5 live operations delta — 2026-11-27 14:35 Asia/Taipei
+
+This latest live snapshot supersedes earlier snapshots below. Exact SHAs are mandatory; check evidence must not be carried across commits.
+
+## Main
+- Exact `refs/heads/main`: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- 326 check-run records across all four API pages: 93 SUCCESS, 54 FAILURE, 108 SKIPPED, 71 CANCELLED. These are cumulative records for this SHA, not a single CI run and not a green verdict.
+- Combined commit status: Vercel FAILURE, target `build-rate-limit`.
+- Latest observed PR Acceptance Gate [45891002951](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45891002951): FAILURE; exact job log evaluates PR #630 HEAD `6610eb3227663d25d8851fa561c30d8bf379cb5a` as HOLD with CI_NOT_SUCCESS, REQUIRED_JOB_NOT_SUCCESS, REQUIRED_JOB_SKIPPED ×3, APPROVAL_MISSING, DRAFT_NOT_READY.
+- Latest observed System Health Recovery [45891002769](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45891002769): CANCELLED. Its exact jobs: verify exact-head CI before reset = CANCELLED; hosted Windows recovery = SKIPPED. Observer run [45891014452](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45891014452) SUCCESS is observation only, not recovery.
+- Main is NOT verified green. No breaker reset or recovery mutation performed.
+
+## All currently OPEN PRs
+All ten are OPEN, unmerged, Draft, based on exact main SHA above, metadata `mergeable=true`. Current formal review inventory: zero APPROVED reviews on all ten. Mergeable metadata is not acceptance.
+
+| PR | Exact HEAD SHA | Checks | SUCCESS | FAILURE | SKIPPED | CANCELLED | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 |
+| #630 | `6610eb3227663d25d8851fa561c30d8bf379cb5a` | 19 | 5 | 4 | 6 | 2 | 2 |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 2 |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 |
+
+All ten have failures and/or skipped/cancelled checks and no formal approval; do not remove Draft or merge any.
+
+## GPT5-owned PR #630
+- Exact current HEAD `6610eb3227663d25d8851fa561c30d8bf379cb5a`.
+- Latest core CI [45890992736](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890992736): CANCELLED.
+- Latest PR acceptance gate [45890992722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890992722): CANCELLED; a separate gate evaluation in [45891002951](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45891002951) records HOLD with the exact failure codes above.
+- Latest Codacy [45890992790](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890992790): FAILURE.
+- Latest CodeQL [45890992603](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890992603): FAILURE.
+- Latest Debricked [45890989331](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890989331): FAILURE.
+- Previous exact logs on preceding #630 head established empty DEBRICKED_TOKEN / Unauthorized; this current run's secret cause is not independently re-read in this pass, so treat as known prior evidence, not newly confirmed current log.
+- GPT5-owned documentation refresh is the only closed deliverable this pass. No code/workflow/secret/permission/branch-protection/deployment mutation, no repeated rerun, no Draft removal, no merge.
+
+## Owner routing / next safe action
+- Factory resolver cancellation and downstream skips → GPT1 / CI runner owner.
+- Debricked secret → repository secret administrator; do not edit secrets.
+- CodeQL and Codacy SARIF/scan failures → security workflow owner.
+- Vercel build-rate-limit → Vercel/project administrator.
+- Formal PR approvals → independent authorized reviewers; GPT5 cannot self-approve.
+- GPT5 keeps to its documentation/evidence lane; no safe non-overlapping code task is evidenced by current ownership metadata. Do not invent one.
+
+## Automation status
+Existing daily automation remains enabled, schedule `DTSTART;TZID=Asia/Taipei:20261128T090000; RRULE:FREQ=DAILY`, next run 2026-11-28 09:00 Asia/Taipei. Last recorded run is 2026-11-25; enabled scheduling does not prove daily executions have occurred since then.
+
+---
+
 # GPT5 live operations delta — 2026-11-27 14:20 Asia/Taipei
 
 This is the newest live snapshot. It supersedes the 14:00 snapshot below; never reuse check results across SHAs.
