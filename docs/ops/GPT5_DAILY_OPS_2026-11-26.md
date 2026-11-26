@@ -3067,3 +3067,15 @@ All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are
 - Main Recovery newest run `45804417363` is COMPLETED/SKIPPED; `45802365481` remains PENDING. Main push CI `45746587701` is COMPLETED/SUCCESS, not evidence that Recovery or skipped evidence steps passed.
 - Automation still enabled daily 08:00 Asia/Taipei; next `2026-11-27T08:00:00+08:00`; last recorded run remains 2026-11-25; no completed 2026-11-26 scheduled run observed.
 - GPT5 action: updated only this GPT5-owned operations evidence document. No other GPT-owned code, Factory/Runner code, production data, Draft status, or merge state changed.
+
+
+## Follow-up live audit — 2026-11-26 (fourth refresh)
+
+- Main SHA remains `efbc3c05503dd88fcca68e6987ad1395bd662890`.
+- Open PRs: 17, all OPEN/Draft. Current exact-head checks re-read for all 17. #560 is now at `5bd862360a865b28b238bebc970475418ef07f8b`; its current Resolver and Autofix checks are PENDING. All other PR heads are as listed in the previous live audit.
+- Pending/in-progress: #594 (Resolver + Autofix), #593/#592/#591 (Windows quality gates), #589 (Resolver + Autofix), #587 (Windows quality gates IN_PROGRESS plus six SKIPPED publication/validation tasks), #586 (Resolver + Autofix), #560 (Resolver + Autofix).
+- Completed failures: #582 Autofix; #574 and #572 resolver/failure persistence; #568 branch protection verification (mergeable=false); #559 three Acceptance Gate failures.
+- #589 current head check list contains Resolver + Autofix PENDING (do not carry forward any previous SHA's skipped state). #573 has only Summary SUCCESS + Mergify NEUTRAL. #589/#567/#565/#563 have CI evidence/persistence gaps as indicated by current skipped check-runs.
+- Formal reviews refreshed across all 17 PRs: zero APPROVED; #567 (2), #565 (1), #560 (6), #559 (5) submissions are COMMENTED only; no CHANGES_REQUESTED.
+- Latest Recovery run `45804766347` COMPLETED/SKIPPED; `45802365481` remains PENDING. Repeated skipped runs are not being retriggered blindly. Automation is enabled daily 08:00 Asia/Taipei; next `2026-11-27T08:00:00+08:00`; last recorded run remains 2026-11-25.
+- GPT5 continued only its own operations evidence document. No Factory/Runner or other GPT-owned code changed; no Draft promotion, merge, deploy, or production write was performed.
