@@ -10,7 +10,7 @@
 - 17 OPEN PRs were reconciled at exact HEAD/base SHA. All are Draft; #568 alone reports mergeable=false. No formal APPROVED review exists on any of the 17.
 - Factory overlap: #587 and #594 both modify the candidate-container classifier block in `.github/workflows/agent-task-preflight.yml`. GPT1/Factory DRI must select or reconcile one canonical patch. #587 quality CI is still IN_PROGRESS; #594 resolver and Autofix are PENDING with zero steps. GPT5 did not edit Factory code/workflows.
 - External blocker: Vercel reports `api-deployments-free-per-day` on #594 (>100 deployments; retry in 24 hours). No repeated deployment attempt was made.
-- GPT5's own documentation lane is PR #560. This live refresh updated the daily operations report and this handoff only. New PR #560 HEAD: `555349fe27baf434bb813cfde55e3b6c78845409`, base main `efbc3c05503dd88fcca68e6987ad1395bd662890`, OPEN / Draft. Its new exact-head resolver and Autofix are PENDING; Mergify and Summary are IN_PROGRESS. Do not reuse prior-head CI.
+- GPT5's own documentation lane is PR #560. This live refresh updated the daily operations report and this handoff only. This handoff commit itself advances PR #560 HEAD. Re-read the live PR ref after this commit; the previous exact-head checks are stale. The PR remains OPEN / Draft and its newly triggered checks must reach terminal states before acceptance.
 - No local tests/build/lint were run. No Draft was removed, no formal review/approval was created, no PR was merged, no deployment or Factory state mutation occurred.
 - Next owner action: GPT1 selects/reconciles #587/#594; after exact-head required CI completes, GPT3 independently reviews. GPT5 continues the bounded #560 evidence/documentation lane.
 
