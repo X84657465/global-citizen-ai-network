@@ -1544,3 +1544,49 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 ### 排程
 
 - GPT2/F–P 每日巡檢 automation `6b0324f672e48191825dff3fbb8fb766` 仍啟用，Asia/Taipei 每日約 22:30 執行；本輪已透過 run-now 啟動一次 inline audit。這是每日排程，不是 24/7 即時監控，亦不承諾 99.99999% SLA。
+
+
+## 6.24 即時重核與 GPT2/F–P 工作分流 — 2026-11-27（Asia/Taipei，後續查核）
+
+> 本節只記錄本輪重新讀取的 GitHub 證據。Main SHA 與 PR exact HEAD 是本次快照基準；未分頁或未取得的資料明確標示，不把部分資料冒充完整驗收。
+
+### Main / CI
+
+- Main SHA：`078bc72216e3990f9c7c4db2e06e5851a5c8428e`，本輪重新讀取後未變動。
+- Main exact-SHA Check Runs endpoint 回報 482 筆；本輪只讀取第一頁 100 筆，該頁分布為 SUCCESS 21、FAILURE 12、SKIPPED 49、CANCELLED 18。其餘分頁未完成，因此不宣稱 482 筆完整終態統計。
+- Main push CI Run `45842160595` attempt 2：COMPLETED / CANCELLED。Rust Clippy Run `45842160661` SUCCESS；CodeQL `45842160612` FAILURE；Codacy `45842161007` FAILURE；Debricked `45842161001` FAILURE。Clippy SUCCESS 不代表整體 CI PASS。
+- PR Acceptance Gate Run `45904058981` FAILURE。Job `140196528087` 的評估結果為 HOLD，失敗碼：`CI_NOT_SUCCESS`、`REQUIRED_JOB_NOT_SUCCESS`、`APPROVAL_MISSING`、`DRAFT_NOT_READY`；本輪可讀日誌顯示被評估對象為 PR #643 exact HEAD `75b35b2a6f06c52fe5a4c247d7a38562a23f1457`。
+- Agent Factory System Health Recovery Run `45904059010`：Recovery verification Job `140196472694` CANCELLED；hosted allocation recovery Job `140196529797` SKIPPED。Recovery Failure Observer Run `45904082090` SUCCESS 僅代表 observer 成功，不能替代 Recovery 或 Main CI。
+- 本輪沒有取得更新的完整 Main push CI jobs/steps 終態清單；未把缺失資料推定為成功。
+
+### OPEN PR inventory（REST 第一頁 12 件）
+
+本輪取得 12 件 OPEN PR；以下各筆 Base SHA 均為 Main `078bc72216e3990f9c7c4db2e06e5851a5c8428e`。Exact-head Check Runs 統計為本輪 API 回傳結果，SUCCESS 不代表 required checks 全部通過。
+
+| PR | Exact HEAD SHA | Draft | Check Runs 終態摘要 |
+|---|---|---:|---|
+| #643 | `7735ff30653c8e1c24821db86d53c8cfa22da365` | YES | 14：9 SUCCESS、2 FAILURE、2 IN_PROGRESS、1 NEUTRAL |
+| #636 | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | YES | 27：10 SUCCESS、5 FAILURE、10 SKIPPED、1 CANCELLED、1 NEUTRAL |
+| #634 H | `83719781e68b71ecec16ad1911b403a2d1565336` | YES | 20：9 SUCCESS、6 FAILURE、4 SKIPPED、1 NEUTRAL |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | YES | 26：5 SUCCESS、5 FAILURE、12 SKIPPED、2 CANCELLED、2 NEUTRAL |
+| #631 GPT2 docs | `f5242dc8403bfec7d6d4a9ad97842ed876c2be94` | YES | 19：5 SUCCESS、4 FAILURE、6 SKIPPED、2 CANCELLED、2 NEUTRAL |
+| #630 | `8672b5669dfc1a7f6856542de556b23d467b1c4b` | YES | 25：5 SUCCESS、10 FAILURE、6 SKIPPED、2 CANCELLED、2 NEUTRAL |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | YES | 21：10 SUCCESS、5 FAILURE、3 SKIPPED、1 CANCELLED、2 NEUTRAL |
+| #626 P | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | YES | 22：7 SUCCESS、7 FAILURE、5 SKIPPED、1 CANCELLED、2 NEUTRAL |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | YES | 20：5 SUCCESS、5 FAILURE、6 SKIPPED、2 CANCELLED、2 NEUTRAL |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | YES | 21：8 SUCCESS、6 FAILURE、4 SKIPPED、1 CANCELLED、2 NEUTRAL |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | YES | 21：9 SUCCESS、6 FAILURE、4 SKIPPED、1 CANCELLED、1 NEUTRAL |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | YES | 21：8 SUCCESS、6 FAILURE、4 SKIPPED、1 CANCELLED、2 NEUTRAL |
+
+- PR #643 當下仍有 Windows Runner quality gates 與 Codacy Security Scan IN_PROGRESS；不可將尚未終態的工作列為通過。
+- GPT2 自有 PR #631 僅修改本文件。其目前 HEAD 的 CI Run `45894330363` CANCELLED、Acceptance Run `45894326923` CANCELLED；CodeQL、Codacy、Debricked FAILURE；Clippy SUCCESS。Reviews 與 review threads 查詢皆為空。
+- GPT2 H／PR #634 與 P／PR #626 本輪 Reviews submissions 與 review threads 查詢皆為空；兩者均沒有本輪可見的正式 APPROVED，且各自 exact-head Check Runs 有 FAILURE／SKIPPED／CANCELLED。
+- PR 清單與 Check Runs 本輪只查取 REST 第一頁；未聲稱已完成所有可能的分頁或所有 workflow jobs/steps 檢查。
+
+### GPT2/F–P 優先處置與缺口
+
+- H／#634：保留 fail-closed 行為與現有 allowlist；六項 FAILURE、四項 SKIPPED，尚無正式獨立 APPROVED。不要解除 Draft。
+- P／#626：七項 FAILURE、五項 SKIPPED、一項 CANCELLED，尚無正式獨立 APPROVED。不要解除 Draft。
+- GPT2 docs／#631：本次只更新 GPT2 自有協調文件的查核快照；本次更新會產生新 exact HEAD，舊 HEAD 的 CI／review 證據全部失效，須對新 SHA 重新驗證。
+- Factory／Runner／Recovery、CodeQL/Codacy/Debricked workflow、Secrets、Vercel 配額與 branch protection 不屬 GPT2 可自行改動範圍；分別交 Factory／workflow owner、Repository 管理者或供應商處理。
+- 本輪沒有執行本機 unit tests、TypeScript、Lint、Build 或部署；沒有解除 Draft、合併 PR、修改 main、Secrets、Runner、權限、DB/RLS、branch protection 或付費設定。
