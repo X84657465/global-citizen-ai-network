@@ -3199,3 +3199,74 @@ Base SHAs for #565, #567, #568, #559 and #582 are not the current main SHA; reba
 - No local tests/build/lint were run in this connector-only execution. This document update is an operations evidence deliverable, not functional code acceptance.
 - Existing `GCAN Daily Dev Check` automation is ENABLED, daily in Asia/Taipei, next scheduled for 2026-11-27 08:00. It was explicitly invoked for this immediate run; the inline execution is being completed in this conversation. No duplicate schedule was created.
 - Next unique action: GPT1/Factory owner reconciles the overlapping #594/#587 workflow repair into one canonical exact-head candidate; GPT5 continues monitoring its own #560 exact-head checks and maintains the allowlisted operations evidence only.
+
+
+---
+
+## Superseding live exact-head audit — 2026-11-26 (Asia/Taipei; latest refresh)
+
+This section supersedes every earlier Main/PR snapshot in this file where values differ. All PR run results below were queried against the exact HEAD shown in the current open-PR metadata. PENDING, CANCELLED, SKIPPED, missing runs, zero jobs, provider failures, and COMMENTED reviews are not acceptance.
+
+### Main baseline
+- Latest repository commit query and current-main PR base metadata identify Main as `efbc3c05503dd88fcca68e6987ad1395bd662890` (merge PR #576).
+- Main combined status currently returns Vercel SUCCESS only. The commit-scoped workflow-run lookup returned no Main push Actions runs in this observation. Main push CI is therefore **NOT OBSERVED**, not PASS.
+- Re-read governance files at this SHA: `PROJECT_COORDINATION.md` blob `d3ee1881aa67861fc42a2b568b26020945b0c218`; `GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md` blob `b234e684dbc4fe2e6694cf96c6b941f8fd81ec31`; `docs/GCAN_EXECUTION_OPERATING_SYSTEM.md` blob `67166a378c92909c8ddf64586f8a2b5202be7d14`.
+- Current authority remains GPT1 A–E/Factory, GPT2 F–P, GPT3 independent QA, GPT4 B Product, GPT5 Global Intelligence & Operations support. Master Governance Charter and Execution Operating System remain proposals; they do not expand GPT5 authority.
+- Branch-protection/ruleset enforcement remains **UNKNOWN** where detailed APIs return 403. Older statements in this file that infer protection enabled/disabled from branch metadata are not authoritative; do not use them to infer merge authority.
+
+### All 17 OPEN PRs — exact current HEAD, base, state and checks
+
+| PR | Exact HEAD | Base SHA | State / Draft | GitHub Actions exact-head runs | External status |
+|---|---|---|---|---|---|
+| #594 | `d0169ab1d48e548c6ffd2f783dabef8c5493e8e7` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | OPEN / Draft | CI `45802891783` PENDING: Resolver SUCCESS, Windows quality PENDING; Autofix `45802891657` SUCCESS | Vercel FAILURE |
+| #593 | `450af2c0dafca636b960a498203531ebbdd5ba80` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | OPEN / Draft | CI `45796417233` PENDING: Resolver SUCCESS, Windows quality PENDING; Autofix `45796418800` SUCCESS | Vercel FAILURE |
+| #592 | `a3c5f714a602ac904b50a0dd0bb1118886a5a3bf` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | OPEN / Draft | CI `45795961706` CANCELLED: Windows quality cancelled; downstream integration/persistence/diagnostic jobs SKIPPED; Autofix SUCCESS | Vercel FAILURE |
+| #591 | `8b68ca53052f3b054486ec607f5552e5b9b07fe0` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | OPEN / Draft | CI `45817633456` PENDING, Jobs API returned **0 jobs**; Autofix `45817633507` PENDING | Vercel SUCCESS |
+| #589 | `e67063ba4947a01b22cc3d93388a6d25d14e51eb` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | OPEN / Draft | CI `45804454727` PENDING; Resolver PENDING; Autofix `45804455072` PENDING | Vercel FAILURE |
+| #587 | `cbfc7253a6f2cf4c01e46b4d9d20bde121d91bff` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | OPEN / Draft | CI `45789522929` PENDING: Resolver SUCCESS, Windows quality SUCCESS, Ollama and PostgreSQL/RLS PENDING; Preflight `45789522870` SUCCESS; Autofix SUCCESS | Vercel FAILURE |
+| #586 | `d9650f47cb53a5f844e419c2069d379467ea66bb` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | OPEN / Draft | CI `45799143804` PENDING: Resolver SUCCESS, Windows quality PENDING; Autofix SUCCESS | Vercel FAILURE |
+| #582 | `e7c91ef811c2584eb5320b42eb12f3b4d8988879` | `94004585a0756d10c56edd6d65dc143b05a652ab` | OPEN / Draft | CI `45812755324` PENDING: Resolver PENDING; Preflight SUCCESS; Autofix `45812755238` PENDING | Vercel SUCCESS |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | `4e70c5487c19acd536ad14780a5bdc24e1d47e54` | OPEN / Draft | CI `45615936030` FAILURE | Vercel FAILURE; CircleCI ERROR |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | `6f735c1251907c5016e7eea32ea0253142e537ec` | OPEN / Draft | No exact-head Actions run returned: NOT OBSERVED / NOT PASS | Vercel FAILURE; CircleCI ERROR |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | `c2d2b17b91898f05d0bdc20641fc7bc4fc254be8` | OPEN / Draft | CI `45614788127` FAILURE | Vercel FAILURE; CircleCI ERROR |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | OPEN / Draft; mergeable=false | Core CI `45600232110` SUCCESS; branch-protection verification `45600232082` FAILURE | Vercel FAILURE; CircleCI ERROR |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | OPEN / Draft | CI `45585171843` SUCCESS | Vercel FAILURE; CircleCI ERROR |
+| #565 | `f40730ee6974a8a9c4d8404565f37ce414a30af3` | `fc0a006aa6a7c396388473f1819c06095813945b` | OPEN / Draft | CI `45738481606` SUCCESS; Autofix `45738481626` SUCCESS | Vercel FAILURE |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | OPEN / non-Draft | CI `45560540985` SUCCESS | Vercel SUCCESS; CircleCI ERROR |
+| #560 | `2937229cfa4beae0f9b64675226e0f4bb955a4c7` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | OPEN / Draft | CI `45825897023` PENDING; sole Resolver job PENDING with 0 steps. Autofix `45825896682` PENDING; sole job PENDING with 0 steps | Vercel SUCCESS |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | OPEN / Draft | CI `45544850826` SUCCESS | Vercel FAILURE; CircleCI ERROR |
+
+Inventory: 17 OPEN; 16 Draft and #563 non-Draft; #568 mergeable=false. Other mergeability metadata does not establish acceptance. All listed PRs are still open; no merge is claimed.
+
+### Exact-head job details and non-passing states
+- #594 run `45802891783`: Resolver job `139850427549` SUCCESS; Windows quality job `139905202813` PENDING. Resolver's optional evidence-upload step was SKIPPED.
+- #593 run `45796417233`: Resolver job `139828103951` SUCCESS; Windows quality job `139852799526` PENDING.
+- #592 run `45795961706`: Windows quality job `139852325627` CANCELLED at Runner/Docker/Ollama verification; unit/type/lint/build and all downstream integration/persistence/diagnostic jobs SKIPPED.
+- #591 run `45817633456`: Jobs API returned an empty list (0 jobs) while workflow is PENDING. This is not a successful run.
+- #587 run `45789522929`: Resolver `139804713813` SUCCESS; Windows quality `139831674502` SUCCESS including unit tests, type check, lint, audits, syntax/policy guards and production build; Ollama `139870546855` PENDING; PostgreSQL/RLS `139870546868` PENDING.
+- #586 run `45799143804`: Resolver `139837467948` SUCCESS; Windows quality `139879852265` PENDING.
+- #582 run `45812755324`: Resolver `139884547511` PENDING.
+- #560 run `45825897023`: only Resolver job `139929830657`, PENDING, 0 steps; Autofix run `45825896682` only job `139929817391`, PENDING, 0 steps.
+- #574/#572 terminal CI FAILURE; #573 has no substantive Actions run observed. #568's core CI SUCCESS does not cure its separate branch-protection verification FAILURE.
+- The available current combined-status response reports Vercel SUCCESS/FAILURE and CircleCI ERROR as listed. It does not expose detailed provider error text in this capture; prior build-rate-limit observations remain historical context, not a newly revalidated root cause.
+
+### Formal reviews
+Fresh Reviews API reads across all 17 PRs:
+- Zero formal APPROVED reviews across all 17.
+- #567: two CodeRabbit COMMENTED reviews.
+- #565: one CodeRabbit COMMENTED review.
+- #560: six COMMENTED reviews (five author-authored, one CodeRabbit).
+- #559: five COMMENTED reviews (four author-authored, one CodeRabbit).
+- #594/#593/#592/#591/#589/#587/#586/#582/#574/#573/#572/#568/#563: zero formal review records.
+- #560 inline threads include historical CodeRabbit comments; COMMENTED and resolved threads do not constitute formal approval.
+
+### GPT5 self-owned work, constraints and next action
+- PR #560 remains the GPT5 Operations documentation PR. Its explicit allowlist is limited to `docs/AGENT_HANDOFF.md`, `docs/ops/GPT5_DAILY_OPS_2026-11-26.md`, and `docs/ops/GPT5_DAILY_OPS_2026-11-27.md`.
+- This commit updates only the already allowlisted daily Operations evidence file. No Factory/GPT2/GPT4 source, workflow, Runner, durable state, secrets, permissions, branch protection, production data, billing, or deployment settings are changed.
+- The commit will advance #560 HEAD and invalidate its previous exact-head checks. Re-query the resulting SHA immediately; keep Draft until every required exact-head check is terminal SUCCESS and an independent formal APPROVED review exists.
+- No local tests/build/typecheck/lint were run. This is an operations evidence update, not code acceptance or Factory recovery.
+- Factory overlap remains GPT1-owned: #594 and #587 both modify `.github/workflows/agent-task-preflight.yml`; GPT1 must reconcile one canonical repair and rerun its exact-head gates. GPT5 does not edit that shared workflow.
+- Issue #505 remains GPT1/Factory-owned; GPT5 contributes evidence and operations handoff only.
+- No Draft transition, self-approval, merge, release, deployment, or Recovery success is claimed.
+
+**Final classification:** OBSERVED = exact Main/PR refs, listed run/job states, provider statuses and formal review records; PENDING/CANCELLED/FAILURE/SKIPPED/0 Jobs/NOT OBSERVED remain non-passing; BLOCKED = independent approvals, incomplete exact-head CI, Factory overlap and provider failures; UNKNOWN = Main push Actions state, detailed provider root causes and effective branch protection; NOT RUN = local tests/build/lint; ACCEPTED/MERGED/RELEASED = none.
