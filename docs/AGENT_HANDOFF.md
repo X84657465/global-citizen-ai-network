@@ -5145,3 +5145,47 @@ All listed PRs are OPEN / Draft. Full HEAD and base SHA values are recorded belo
 - This update is restricted to the three existing GPT5 Operations allowlisted documents in PR #560. No A–P source, Factory workflow/state, Runner, secrets, permissions, branch protection, production data, billing or deployment settings were changed.
 - Issue #505 remains GPT1 / Factory-owned; GPT5 provides operations evidence and handoff only. Root-cause repair and acceptance require GPT1 and GPT3 respectively.
 - Local tests/build/lint: NOT RUN. This is documentation/evidence work only; new exact-head checks must be observed after the resulting commit. No historical check transfers to a new SHA.
+
+
+## GPT5 live operational refresh — 2026-11-27 (supersedes earlier snapshots)
+
+### Main / provider / Recovery
+- Main exact SHA: `078bc72216e3990f9c7c4db2e06e5851a5c8428e` (re-read at end of this pass; unchanged).
+- Combined provider status: Vercel `FAILURE`, target label `build-rate-limit`.
+- Main exact-SHA check-runs API: total 296, first page 100 only. First-page counts: SUCCESS 34, FAILURE 18, SKIPPED 27, CANCELLED 21. This is not exhaustive; do not extrapolate to all 296.
+- Main PR Acceptance Gate run `45886898026`: FAILURE.
+- System Health Recovery run `45886897985`: workflow conclusion SUCCESS, but job `140139725274` step `Verify completed CI provenance and reset global breaker` was SKIPPED; hosted allocation recovery job `140139891621` was SKIPPED. Recovery observer `45886951474` SUCCESS is observational only. No breaker reset or hosted recovery is evidenced.
+
+### All 10 open PRs — exact current HEAD and check-run aggregates
+All ten are OPEN / Draft / not merged, base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`, metadata mergeable=true (not acceptance). Check-run counts are historical check-run records attached to each exact HEAD, not one workflow run:
+
+| PR | Exact HEAD | Total | SUCCESS | FAILURE | SKIPPED | CANCELLED | IN_PROGRESS | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 0 | 1 |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 0 | 2 |
+| #630 | `d6591833f22595d97e29facffdecbecd690433c0` | 16 | 9 | 5 | 0 | 0 | 1 | 1 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 0 | 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 0 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 0 | 2 |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 5 | 6 | 2 | 0 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 0 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 0 | 1 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 0 | 2 |
+
+- Formal review submissions were rechecked across all ten: APPROVED=0. #632 and #623 have COMMENTED only; the other eight returned no review submissions. COMMENTED is not approval.
+- #630 latest CI run `45887007535`, attempt 1, remains IN_PROGRESS. Resolver job `140140100881` SUCCESS; Windows quality job `140140590047` IN_PROGRESS at `Set up Node.js`; locked dependency installation, Runner/Ollama, guards, audits, script syntax, policy tests, unit tests, typecheck, lint and production build are still PENDING. Do not claim those checks passed.
+- #630 exact-head separate checks: CodeQL Actions FAILURE, CodeQL JS/TS FAILURE, Codacy FAILURE, PR Acceptance Gate FAILURE, Vulnerabilities scan FAILURE. Clippy SUCCESS and NEUTRAL checks do not override these failures.
+- #634: Windows quality, Acceptance Gate, CodeQL Actions/JS-TS, Codacy and Vulnerabilities scans are FAILURE; four checks SKIPPED.
+- #632: Windows quality, Acceptance Gate, Codacy, CodeQL Actions/JS-TS and Vulnerabilities scans are FAILURE; ten checks SKIPPED and two CANCELLED.
+- #628: core quality and several integration checks have successes, but Acceptance Gate, CodeQL, Codacy and Vulnerabilities checks still fail; three checks SKIPPED and one CANCELLED.
+- #624/#625/#631/#626/#623/#622 each have exact-head FAILURE records and SKIPPED/CANCELLED checks as shown above. No PR is eligible for Draft removal or merge.
+
+### GPT5-owned work and boundaries
+- PR #630 current HEAD is `d6591833f22595d97e29facffdecbecd690433c0`; compare against main is 14 commits ahead, 0 behind, exactly two files changed: `docs/AGENT_HANDOFF.md` and `docs/ops/GPT5_DAILY_OPS_2026-11-27.md`. This is documentation/evidence work only.
+- No local tests, typecheck, lint or build were run in this connector session. No code/test delivery is claimed.
+- Main Vercel rate-limit is an external provider/account blocker. Factory Recovery verification and hosted allocation are skipped; route to GPT1/Factory and repository/Vercel administrators. Shared scanner and CodeQL failures route to CI/Security owners. Factory implementation PRs remain with GPT1; H/P work remains with GPT2; independent review remains with GPT3.
+- GPT5 will continue only authorized Operations evidence, incident synthesis and handoffs; no A–P ownership expansion, self-approval, Draft promotion, merge, deployment, branch-protection, secrets, permissions, billing or Factory-state changes.
+
+### Automation / execution semantics
+- Existing GPT5 daily automation was explicitly triggered once for this conversation and the inline sweep was executed. This is not 24/7 monitoring and does not prove a future scheduled run has completed. No duplicate schedule was created.
+- Status labels remain distinct: SUCCESS / FAILURE / SKIPPED / CANCELLED / IN_PROGRESS / PENDING / UNKNOWN. None of the latter states are PASS.
