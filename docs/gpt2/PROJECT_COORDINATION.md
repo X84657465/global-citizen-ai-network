@@ -1114,3 +1114,49 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - Issue #85 仍 OPEN，最新可見 GPT2 checkpoint 指出 implementation 已在 main，但沒有 exact-main 全套 CI PASS、GPT3 exact-head APPROVED 或 owner acceptance；維持 acceptance BLOCKED 與唯讀財務邊界。
 - 本輪沒有發現其他可由 GPT2 安全接管、且有明確授權與不衝突 allowlist 的即時程式任務。Factory/Runner、外部部署額度、branch protection 權限與獨立審查缺口退回各自 owner。
 - 本輪沒有執行本機測試、typecheck、lint 或 build；沒有 main 直接寫入，也沒有改 Factory workflow、Runner、Secrets、permissions、branch protection、DB/RLS 或 deployment。
+
+
+## 6.16 即時巡檢、精確阻塞根因與 GPT2 工作分流 — 2026-11-27（Asia/Taipei）
+
+> 本節為 GPT2 自有協調文件的當輪快照。所有狀態僅對下列精確 SHA／Run ID 有效；PENDING、IN_PROGRESS、SKIPPED、CANCELLED、COMMENTED 與 observer SUCCESS 均不視為通過。
+
+### Main 精確狀態
+
+- Main SHA：`078bc72216e3990f9c7c4db2e06e5851a5c8428e`；commit：`docs(gpt2): refresh main CI and F–P handoff snapshot (#617)`。
+- 最新 Main push CI 可見 run `45842160595` 為 CANCELLED；下游 quality、Ollama、PostgreSQL/RLS、diagnostics 與 persistence jobs 有 SKIPPED，不能宣稱 Main CI PASS。
+- AI Agent Task Preflight run `45858093855` 已終態 FAILURE。其日誌可讀，根因是 Factory 選取 Issue #619 後，在 patch batch 2 為新測試檔配置 `output_tokens=4096`；Ollama 實際回傳 `eval_count=4096`，隨後明確報錯：`Local model output reached the token limit in batch 2 (4096 generated tokens)`。不完整檔案在 scratch test 前被拒絕；Failure scope 標記為 task，artifact `15138650514` 已上傳。這是 GPT1／Factory 任務，不屬 GPT2 F–P 寫入範圍。
+- Main PR Acceptance Gate `45859819831` FAILURE；Recovery runs `45859819590`、`45859801635` CANCELLED；Recovery Observer `45859850475` SUCCESS 僅代表觀測工作完成。
+- Main Debricked 最新 run `45860110146` 查核當下仍 IN_PROGRESS；較早 run `45859189743` FAILURE 的可讀日誌明確指出 `DEBRICKED_TOKEN` 為空，且 `Failed to initialize a scan for package-lock.json. Got the following error: Unauthorized. Specify access token.` 這是憑證設定缺口的直接證據，不是已確認的套件漏洞。GPT2 不讀取或寫入 Secret；由 Repository 管理者補正授權 Secret 後，才可重新驗證。
+- CodeQL run `45859366415` 對 PR #630 的 workflow scan 發現 `actions/missing-workflow-permissions`（Workflow does not contain permissions），CodeQL 回報 configuration error。此為 workflow 權限宣告缺口的證據；需由該 workflow owner 依最小權限原則處理，GPT2 不擅自修改他線 CI／Factory workflow 或權限。
+- Main Preflight 兩個下游驗證 Job（Windows self-hosted、Linux offline）均 SKIPPED；不得將 Preflight 的失敗或 observer SUCCESS 外推為執行環境恢復。
+
+### Open PR inventory（base 均為 Main SHA）
+
+| PR | 精確 HEAD SHA | Draft | 最新可見終態摘要 |
+|---|---|---|---|
+| #628 | `3b54cc4be162b5da42cd62c1947b204f69ab8969` | YES | CI CANCELLED；Acceptance CANCELLED；Codacy SUCCESS；Clippy SUCCESS；Debricked FAILURE |
+| #630 | `5a4ebe89a2348e62df29957d19c8a5c23db50d6a` | YES | CI CANCELLED；Acceptance CANCELLED；CodeQL FAILURE；Codacy FAILURE；Debricked FAILURE；Clippy SUCCESS |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | YES | CI CANCELLED；Acceptance CANCELLED／FAILURE；CodeQL、Codacy、Debricked FAILURE；Clippy SUCCESS |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | YES | CI FAILURE；Acceptance CANCELLED；CodeQL、Codacy、Debricked FAILURE；Clippy SUCCESS |
+| #623 | `7d86e28b34a38f943ad65de93a2d277c35002f81` | NO | CI CANCELLED；Acceptance CANCELLED；CodeQL、Codacy、Debricked FAILURE；Clippy SUCCESS |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | YES | CI CANCELLED；Acceptance FAILURE；CodeQL、Codacy、Debricked FAILURE；Clippy SUCCESS |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | YES | CI CANCELLED；Acceptance CANCELLED；CodeQL、Codacy、Debricked FAILURE；Clippy SUCCESS |
+
+- 七個 PR 均以 Main SHA `078bc722...` 為 base；GitHub 的 `mergeable=true` 只是合併衝突提示，不代表符合驗收。
+- 七個 PR 均無非作者正式 APPROVED。#623 僅有 CodeRabbit COMMENTED，不能作為批准。
+- #628 HEAD 已由舊 SHA 前進至 `3b54cc4...`；舊 HEAD 的 CI 證據不得沿用。新 HEAD 的 Codacy 與 Clippy SUCCESS，但 CI／Acceptance CANCELLED、Debricked FAILURE，仍不得解除 Draft。
+- 本輪沒有 PR 達到解除 Draft／合併條件。
+
+### GPT2/F–P 自有工作與交接
+
+- Issue #384 的 GPT2 自有採納內容已存在於 `docs/gpt2/PROJECT_COORDINATION.md` 第 2–5 節：六層工作流程映射至 F–P，並記錄 GPT1／GPT3／GPT4／GPT5 的依賴及交接；DOCUMENTED=YES、ADOPTED=YES（限 GPT2 文件／工作流程），INDEPENDENT ACCEPTANCE 仍由 GPT3 負責，IMPLEMENTED 不作宣稱。Issue #384 保持 OPEN 是其他角色證據未齊，不由 GPT2 代簽。
+- 本輪更新只修改 GPT2 自有文件，記錄最新 Main／PR 證據及已查明根因；不修改 Factory、CI workflow、Runner、Secret、branch protection、production DB/RLS 或部署。
+- Factory handoff：Issue #619 的 4096-token 新檔案 patch budget 問題，交 GPT1／Factory owner 依 Issue #629 的核准路徑修復；不得重試同一任務以假裝完成。
+- Security/credential handoff：Debricked token 缺失交 Repository 管理者處理；CodeQL missing-workflow-permissions 交各 workflow owner 依最小權限原則處理。GPT2 不要求或接觸任何 Secret 值。
+- GPT2 後續只承接 F–P 明確 owner、allowlist、相依及驗收條件齊備的工作；跨線檔案衝突、Runner／憑證權限及獨立 Reviewer 阻塞，退回正確 owner，不越權修改。
+
+### 本輪變更與驗證界線
+
+- 變更路徑僅 `docs/gpt2/PROJECT_COORDINATION.md`；此為 GPT2 自有協調文件，屬文件／交接快照。
+- 本次沒有執行應用程式測試、TypeScript、Lint 或 Build；文件內容需由 PR exact-head CI 與獨立審查驗收。
+- 不自我 APPROVE；不將文件採納紀錄視為 GPT3 獨立批准或 Runtime IMPLEMENTED。
