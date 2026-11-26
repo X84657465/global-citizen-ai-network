@@ -233,3 +233,47 @@ All 12 current OPEN PRs target the exact Main SHA above, remain Draft, and are u
 - No tests were run for this documentation-only update. PR remains Draft/HOLD pending exact-head CI, all required checks, and independent formal approval.
 
 **Disposition: NOT GREEN / HOLD.** No false green, self-approval, Draft removal, merge, blind rerun, or deployment.
+
+
+## GPT5 follow-up exact-head audit — 2026-11-27 (after evidence commit)
+
+### Current refs and PR inventory
+- Main remains exactly `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- All 12 OPEN PRs were fetched live. Each base SHA is the exact Main SHA above. Every PR remains OPEN / Draft / unmerged; GitHub mergeable metadata is true but mergeable_state is `unstable`, not acceptance. Formal review approvals remain **0/12**; #632 and #623 have COMMENTED only.
+
+| PR | Exact HEAD | Total checks | SUCCESS | FAILURE | SKIPPED | CANCELLED | IN_PROGRESS | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| #643 | `7735ff30653c8e1c24821db86d53c8cfa22da365` | 20 | 12 | 3 | 3 | 0 | 1 | 1 |
+| #636 | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | 27 | 10 | 5 | 10 | 1 | 0 | 1 |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 0 | 1 |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | 26 | 5 | 5 | 12 | 2 | 0 | 2 |
+| #631 | `85d56e646c0c82b30d16acd28af82df2f90e18e4` | 20 | 7 | 5 | 5 | 1 | 0 | 2 |
+| #630 | `a91737d708b82354e76a058947411428edc3def7` | 16 | 9 | 5 | 0 | 0 | 1 | 1 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 0 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 0 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 0 | 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 0 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 0 | 1 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 21 | 8 | 6 | 4 | 1 | 0 | 2 |
+
+### Main workflow and external signals
+- Main check-runs API total_count=504; only first 100 records fetched here: 29 SUCCESS, 16 FAILURE, 34 SKIPPED, 21 CANCELLED. These are partial cumulative records, not a single workflow result.
+- Latest returned Main Acceptance Gate run [45908593285](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908593285) FAILURE.
+- System Health Recovery parent [45908593261](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908593261) SUCCESS, but Windows recovery job [140211360838](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908593261/job/140211360838) SKIPPED; the other verification job SUCCESS is not a recovery.
+- Recovery Observer [45908640385](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45908640385) SUCCESS is observation only.
+- Combined commit status: Vercel FAILURE, target `build-rate-limit`.
+
+### GPT5 PR #630 new exact-head checks
+- Exact HEAD remains `a91737d708b82354e76a058947411428edc3def7`; branch ref and PR head matched when verified.
+- Current check-run aggregate is 16 records: 9 SUCCESS, 5 FAILURE, 1 IN_PROGRESS, 1 NEUTRAL. The in-progress Windows quality job is [140214605916](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45909525384/job/140214605916); it is not yet terminal and must not be counted as passed.
+- CodeQL Advanced JS/TS and Actions jobs both FAILURE; separate CodeQL jobs SUCCESS do not cancel those failures.
+- Codacy Security Scan FAILURE; Vulnerabilities scan FAILURE; PR Acceptance Gate FAILURE. Clippy/autofix successes and Mergify NEUTRAL are auxiliary only.
+- Independent formal APPROVED reviews: none. PR stays Draft/HOLD.
+
+### GPT5 pivot and scope
+- The previous GPT5 documentation commit was independently re-fetched: branch and PR #630 point to the same exact SHA. This audit was refreshed in this document rather than attempting to repair shared CI/security workflows, Vercel billing/limits, Factory runner state, or another lane's source changes.
+- The in-progress Windows job is not being polled indefinitely. Its current exact state is recorded as IN_PROGRESS, and the independently actionable GPT5 task is this evidence update/owner handoff.
+- No tests were run for this documentation-only change. No Draft removal, self-approval, merge, blind rerun, workflow/secret/permission/runner/branch-protection/production/billing/deployment change was made.
+- Issue #117 remains OPEN pending authorized independent acceptance.
+
+**Disposition: NOT GREEN / HOLD.** This documentation update is a GPT5-owned deliverable, not a CI or release acceptance.
