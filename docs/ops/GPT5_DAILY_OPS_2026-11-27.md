@@ -2040,3 +2040,48 @@ Formal review submissions were freshly queried: **zero APPROVED**. #632 has one 
 - No local tests were run by GPT5. GitHub Actions evidence above is cited by exact run/job and SHA; skipped/cancelled work is not represented as passing.
 - The existing daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled for 08:00 Asia/Taipei. This turn also invoked its immediate run once and executed the inline prompt.
 - Current disposition: **BLOCKED / NOT GREEN**. Main Vercel rate limit, skipped breaker reset, PR #630 policy failure, PR #632 resolver cancellation, other PR exact-head failures, and zero independent approvals remain outstanding.
+
+
+## GPT5 live terminal sweep — 2026-11-27 (latest refresh)
+
+### Main exact baseline
+- Main SHA: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Combined status: Vercel FAILURE (`build-rate-limit`).
+- Main PR Acceptance Gate [45896837652](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45896837652), job [140172734587](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45896837652/job/140172734587): FAILURE at exact-head policy evaluation. The log evaluates #630 HEAD `4d01e490a799feaeede44dba5bcaa043f9f8fff9` as HOLD: `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, `REQUIRED_JOB_SKIPPED` ×3, `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- Main System Health Recovery [45896836558](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45896836558): CANCELLED; verification job `140172705224` CANCELLED; hosted allocation recovery job `140172709966` SKIPPED. Observer SUCCESS is not recovery or breaker reset.
+- Latest 100-run main branch inventory returned no push-event run for this exact SHA. Main core push CI is NOT OBSERVED, not PASS.
+
+### All 11 OPEN PRs — exact current HEAD and core CI
+All target main at base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; all are OPEN / Draft / mergeable metadata true.
+
+| PR | Exact HEAD | Core CI run | Result |
+|---|---|---|---|
+| #630 | `4d01e490a799feaeede44dba5bcaa043f9f8fff9` | [45896173724](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45896173724) | CANCELLED at resolver; downstream jobs SKIPPED |
+| #636 | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | [45896046447](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45896046447) | CANCELLED at resolver; Preflight SUCCESS |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | [45895379296](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45895379296) | CANCELLED at resolver; Preflight [45895379391](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45895379391) FAILURE |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | [45875584290](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45875584290) | SUCCESS: resolver, Windows quality, Ollama, PostgreSQL/RLS; persistence/diagnostics SKIPPED |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | [45882689100](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45882689100) | FAILURE at Windows CI trigger / Runner policy step; unit/type/lint/build SKIPPED |
+| #631 | `f5242dc8403bfec7d6d4a9ad97842ed876c2be94` | [45894330363](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45894330363) | CANCELLED at resolver; downstream jobs SKIPPED |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | [45846690506](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45846690506) | FAILURE at Windows CI trigger / Runner policy step; unit/type/lint/build SKIPPED |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | [45872395266](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45872395266) | FAILURE at Windows CI trigger / Runner policy step; unit/type/lint/build SKIPPED |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | [45852505909](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45852505909) | FAILURE at Windows CI trigger / Runner policy step; unit/type/lint/build SKIPPED |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | [45852545103](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45852545103) | CANCELLED at resolver; downstream jobs SKIPPED |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | [45853743223](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45853743223) | CANCELLED; Windows quality job CANCELLED; downstream jobs SKIPPED |
+
+### Secondary checks and review state
+- CodeQL Advanced: FAILURE on all 11 exact heads.
+- Codacy: SUCCESS only on #628; FAILURE on the other 10.
+- rust-clippy: SUCCESS on all 11; does not override required CI failures/cancellations.
+- Vercel: SUCCESS on #622, #624, #636; FAILURE on main and #630/#631/#632/#634/#625/#626/#628/#623.
+- Debricked on #630: FAILURE, run [45896165091](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45896165091).
+- Formal APPROVED reviews: 0/11. #623 and #632 have COMMENTED only; the other nine have no formal submissions. COMMENTED is not APPROVED.
+- #628 is the only core-CI SUCCESS candidate, but CodeQL, Vercel and independent approval remain blockers. Keep Draft.
+
+### Handoffs and GPT5 work
+- GPT1 / Factory CI owner: investigate resolver cancellation and shared Windows checkout/Runner policy failure; inspect #628 as the existing shared fix candidate rather than duplicating changes across Factory PRs.
+- Repository CI/Security owner: reconcile CodeQL Advanced/Default setup and Codacy/Debricked failures without reducing scan coverage or changing secrets from GPT5.
+- Vercel/account administrator: resolve the account-level build-rate-limit.
+- GPT3: independent formal review only after the exact current candidate SHA has substantive CI and applicable security checks complete.
+- GPT5 updated only its own operations evidence and added an evidence handoff to Issue #505. No Factory/A–P implementation, CI workflow, Runner/Queue/Lease/durable state, secrets, permissions, branch protection, DB/RLS, production data, billing or deployment settings changed.
+- This is a documentation-only commit; no local test/typecheck/lint/build was run. No Draft removal, self-approval, merge, release, deployment or green status is claimed.
+- Existing daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled for daily 08:00 Asia/Taipei. This immediate inline execution does not imply 24/7 monitoring or an SLA.
