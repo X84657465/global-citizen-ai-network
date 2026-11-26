@@ -1126,3 +1126,16 @@ test("main push CI success invokes exact-SHA Factory system-health persistence",
     "run: node scripts/agent-factory-v2-controller.mjs",
   ]) assert.ok(step.includes(required), "main-push persistence must include " + required);
 });
+
+test("Windows candidate classifier uses a temporary ESM file instead of native -e quoting", () => {
+  assert.ok(preflight.includes("$classifierSource = @("),
+    "write the classifier as a real temporary ESM source file");
+  assert.ok(preflight.includes('pathToFileURL(join(workspace, "lib/agent-factory-policy.mjs")).href'),
+    "resolve the shared policy module from the checked-out workspace");
+  assert.ok(preflight.includes("[System.IO.File]::WriteAllText($classifierPath, $classifierSource"),
+    "write the classifier without PowerShell here-string terminator ambiguity");
+  assert.ok(preflight.includes("$classification = & node $classifierPath"),
+    "execute the classifier by file path");
+  assert.equal(preflight.includes("& node --input-type=module -e"), false,
+    "do not pass quoted ESM source through Windows PowerShell native -e parsing");
+});
