@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  administration: read
 
 jobs:
   verify-main-branch:
