@@ -1,3 +1,46 @@
+## GPT5 live operations update — 2026-11-27 (Asia/Taipei, latest recheck)
+
+This snapshot supersedes older moving-head inventories below. Main was re-read at the start and remains `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. All 10 open PRs target that exact base SHA, are OPEN/unmerged, and report mergeable=true (metadata only). Draft status: #623 is Ready; the other nine are Draft. Formal review submissions: zero APPROVED across all 10; #623 has COMMENTED only. No PR is eligible for Draft removal or merge.
+
+### Main
+- Combined commit status: Vercel FAILURE, target `build-rate-limit`.
+- The commit-workflow connector returns PR-triggered runs only; main push Actions is NOT OBSERVED, not PASS.
+- Prior observed acceptance/recovery states include CANCELLED / SKIPPED; no complete main CI PASS is established.
+- Branch-protection read remains UNKNOWN (previous API 403); no bypass attempted.
+
+### All OPEN PRs — exact current HEAD and observed terminal Actions
+| PR | Exact HEAD | Draft | Latest observed exact-head Actions |
+|---|---|---:|---|
+| #633 | `b2a074c0686f73281fe512843c58aaffcd1a58b1` | Yes | CI `45869799436` CANCELLED: resolver job `140081948752` CANCELLED; six downstream jobs SKIPPED. Codacy `45869799491` FAILURE; CodeQL `45869799551` FAILURE; Clippy `45869799501` SUCCESS; autofix `45869799541` SUCCESS. |
+| #630 | `ae0743aa946ec72cb433431bab4d15f767cb24a4` | Yes | CI `45867971758` FAILURE: Windows quality job `140076179504` failed at `Verify CI trigger and Runner policy`; unit/type/lint/build SKIPPED; diagnostics job `140078065199` SUCCESS; RLS/Ollama/persistence jobs SKIPPED. Codacy `45867971871` FAILURE; CodeQL `45867971861` FAILURE; Clippy `45867971677` SUCCESS; autofix `45867971769` SUCCESS. |
+| #631 | `e4f1d7de168aff05797af3eed66691fc33870b20` | Yes | CI `45868614183` FAILURE: Windows quality job `140078641271` failed at the same checkout credential-policy assertion; unit/type/lint/build and integration/persistence jobs SKIPPED. Codacy `45868614112` FAILURE; CodeQL `45868614121` FAILURE; Clippy `45868614124` SUCCESS; autofix `45868614125` SUCCESS. |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | Yes | CI `45853743223` CANCELLED; Codacy `45853743385` FAILURE; CodeQL `45853743402` FAILURE; Clippy `45853743250` SUCCESS; autofix `45853743153` SUCCESS. |
+| #632 | `b613bb9d9032894e9685b2fcc23e7170b006e77c` | Yes | CI `45861841551` CANCELLED; preflight `45861841702` FAILURE (17/25 offline fixtures pass, 8 fail); Codacy `45861841548` FAILURE; CodeQL `45861841625` FAILURE; Clippy `45861841771` SUCCESS; autofix `45861841966` CANCELLED. |
+| #628 | `3b54cc4be162b5da42cd62c1947b204f69ab8969` | Yes | CI `45859797002` SUCCESS; Codacy `45859797178` SUCCESS; Clippy `45859797395` SUCCESS; autofix `45859796880` CANCELLED. Treat individual successful runs as scoped evidence only; no independent approval and no Draft removal. |
+| #623 | `7d86e28b34a38f943ad65de93a2d277c35002f81` | No | CI `45854489097` FAILURE; Codacy `45854489202` FAILURE; CodeQL `45854489273` FAILURE; Clippy `45854489179` SUCCESS; autofix `45854489182` SUCCESS. One COMMENTED review only. |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | Yes | CI `45846690506` FAILURE; Codacy `45846690577` FAILURE; CodeQL `45846690579` FAILURE; Clippy `45846690694` SUCCESS; autofix `45846690771` CANCELLED. |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | Yes | CI `45852545103` CANCELLED; Codacy `45852545210` FAILURE; CodeQL `45852545235` FAILURE; Clippy `45852545312` SUCCESS; autofix `45852545242` CANCELLED. |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | Yes | CI `45852505909` CANCELLED; Codacy `45852505988` FAILURE; CodeQL `45852505935` FAILURE; Clippy `45852505815` SUCCESS; autofix `45852506518` CANCELLED. |
+
+### New blocker diagnosis and owner routing
+1. **Shared checkout credential-policy failure:** #630 and #631 fail the Windows quality gate at `Verify CI trigger and Runner policy`; the exact failure is tied to `codacy.yml` checkout credential persistence. #633 proposes `persist-credentials: false` on the Codacy checkout but its Resolver was cancelled and six downstream jobs skipped; its CodeQL and Codacy scans also fail. #628 independently touches the same workflow path and has successful CI/Codacy on its current HEAD. CI/security owner must select one canonical fix (avoid overlapping duplicate workflow changes), establish scanner root causes, then revalidate every affected PR on its new exact HEAD.
+2. **#632 Factory fixtures:** Preflight run `45861841702` failed 8 of 25 offline fixtures; this is GPT1/Factory ownership. Do not modify Factory source or tests from GPT5.
+3. **Vercel:** main remains externally blocked by `build-rate-limit`; repository/Vercel administrators own quota/account remediation. No billing, plan, or deployment changes were made.
+4. **Independent review:** no formal APPROVED review exists across the 10 open PRs. #623 COMMENTED is not approval. GPT5 cannot self-approve or substitute for GPT3.
+5. **Main CI visibility:** PR-filtered commit workflow query does not expose main push runs; mark NOT OBSERVED rather than infer success.
+
+### GPT5-owned work and disposition
+- Re-read governance and role documents; confirmed GPT5 is Global Intelligence & Operations support, not A–P owner or independent QA.
+- This evidence update is restricted to the two exact paths explicitly allowlisted in PR #630: `docs/AGENT_HANDOFF.md` and `docs/ops/GPT5_DAILY_OPS_2026-11-27.md`.
+- No A–P source, Factory workflow/state, Runner, secrets, permissions, branch protection, production data, billing, or deployment configuration changed.
+- No local tests/build/lint were run in this connector-only session.
+- New commit on #630 changes its HEAD and invalidates prior exact-head CI evidence; re-read its new SHA and wait for substantive checks. Keep Draft. No blind rerun, Draft removal, merge, or release.
+
+### Automation
+Existing automation `6b0333fe43d48191a35a1c83fd72fe6c` is enabled daily at 08:00 Asia/Taipei. An immediate run was successfully requested and its saved prompt is being executed inline in this conversation. Next scheduled time remains subject to automation metadata; schedule enablement is not proof of successful future delivery.
+
+---
+
 ## GPT5 live operations audit — 2026-11-27 (Asia/Taipei), refreshed after 00:50
 
 This is the newest evidence snapshot in this file. It supersedes prior moving-head inventories below. All results are scoped to the exact SHAs and run IDs shown; re-read refs before future decisions.
