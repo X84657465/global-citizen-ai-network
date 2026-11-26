@@ -1,3 +1,50 @@
+# GPT5 live operations delta — 2026-11-27 14:20 Asia/Taipei
+
+This is the newest live snapshot. It supersedes the 14:00 snapshot below; never reuse check results across SHAs.
+
+## Main exact SHA and CI
+- `refs/heads/main`: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- All 322 check-run records for this exact SHA were fetched across 4 pages: 92 SUCCESS, 53 FAILURE, 107 SKIPPED, 70 CANCELLED. These are accumulated records, not a single passing run.
+- Combined status: Vercel FAILURE, target `build-rate-limit`.
+- Latest observed Main Acceptance Gate [45890229533](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890229533): FAILURE. Recovery [45890229534](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890229534): verify step CANCELLED; hosted Windows recovery SKIPPED. Observer successes do not mean recovery succeeded.
+- Main is not verified green.
+
+## Exact OPEN PR states and exact-head check counts
+
+All ten listed PRs remain OPEN, unmerged, Draft, base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`, metadata `mergeable=true`. A fresh review inventory finds no current APPROVED review on any of the ten.
+
+| PR | HEAD SHA | Total | SUCCESS | FAILURE | SKIPPED | CANCELLED | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 |
+| #630 | `629604cfee879ae9f3a1f3cb9a3fef65c3cfb3ca` | 20 | 6 | 5 | 6 | 2 | 1 |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 2 |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 |
+
+No PR is eligible for Draft removal or merge. Each has at least one failure and/or skipped/cancelled required work; all lack formal independent approval. `mergeable=true` is not an acceptance gate.
+
+## GPT5-owned PR #630 — exact current blocker diagnosis
+- Exact current HEAD: `629604cfee879ae9f3a1f3cb9a3fef65c3cfb3ca`.
+- Core CI run [45890218636](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890218636): metadata resolver CANCELLED; six dependent jobs SKIPPED. No test/type/lint/build/integration result is established by this run.
+- Acceptance Gate [45890599408](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890599408): HOLD with `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, 3 × `REQUIRED_JOB_SKIPPED`, `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- CodeQL [45890218805](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890218805): both language and Actions analysis reach SARIF upload but Code Scanning rejects the submitted SARIF; job ends `configuration error`. This is scanner/upload integration evidence, not a confirmed source vulnerability.
+- Codacy [45890218719](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890218719): analysis step succeeds; SARIF upload fails with API error `1 item required; only 0 were supplied`.
+- Debricked [45890214680](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890214680): exact log says `DEBRICKED_TOKEN:` is empty and package-lock scan fails `Unauthorized. Specify access token.` This is an external secret/configuration owner action; do not fabricate or change secrets.
+- Acceptance is still blocked by CI and independent approval. No safe code fix for the scanner-side failures belongs to GPT5's docs-only scope.
+
+## Disposition and work boundary
+- GPT5 completed documentation/evidence refresh in its own docs-only branch previously; this pass did not alter code, workflow definitions, credentials, permissions, deployments, or other agents' owned paths.
+- Route missing Debricked secret to repository secret administrator; CodeQL/Codacy SARIF rejection to security workflow owner; resolver cancellation and skipped jobs to Factory/CI runner owner; Vercel rate limit to project/Vercel administrator; formal approval to an independent authorized reviewer.
+- No unchanged CI reruns, Draft removal, merge, branch protection changes, or production state changes were performed.
+- GPT5 continues its non-overlapping documentation/evidence lane; external owner blockers are explicitly returned, not simulated as resolved.
+
+---
+
 # GPT5 live operations snapshot — 2026-11-27 14:00 Asia/Taipei
 
 > This entry supersedes every older moving-head snapshot below. All refs and PR heads were freshly fetched from GitHub. Do not carry check evidence across SHAs.
