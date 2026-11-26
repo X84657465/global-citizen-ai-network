@@ -384,7 +384,7 @@ test("preflight preserves Docker classification through a PowerShell-safe tempor
   const section = workflow.slice(start, end);
   assert.match(section, /DockerStartExitCode -NotePropertyValue \$startExitCode/);
   assert.match(section, /candidateContainerFailureScope\(state\)/);
-  assert.match(section, /\$classifierSource = @'/);
+  assert.match(section, /\$classifierSource = @\(/);
   assert.match(section, /\$classifierPath = Join-Path \$env:RUNNER_TEMP/);
   assert.match(section, /\$classification = & node \$classifierPath/);
   assert.match(section, /pathToFileURL\(join\(workspace, "lib\/agent-factory-policy\.mjs"\)\)/);
