@@ -1271,3 +1271,59 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - 本次沒有執行本機 Node tests、typecheck、lint 或 build；沒有宣稱任何未完成測試通過。
 - 沒有解除 Draft、沒有合併、沒有直接寫入 main；沒有修改 Factory／Runner／Secrets／permissions／branch protection／production DB/RLS／deployment。
 - 下一輪必須重新查 main ref 與全部 OPEN PR；本節所有狀態僅對列出的 SHA／Run ID 有效。
+
+
+## 6.19 即時重核：Main、十件 OPEN PR 與 GPT2/F–P 工作界線 — 2026-11-27（Asia/Taipei）
+
+> 本節取代 6.18 作為最新快照；歷史節不刪除。狀態只對列出的精確 SHA／Run ID 有效。SKIPPED、CANCELLED、PENDING、IN_PROGRESS、NEUTRAL、COMMENTED 與 observer SUCCESS 均不是完整驗收 PASS。
+
+### Main 與平台狀態
+
+- Main ref 重新讀取：`078bc72216e3990f9c7c4db2e06e5851a5c8428e`，與上一快照相同。
+- 最新可見 Main workflow_run：Recovery Failure Observer `45874128834` SUCCESS；該 run 的唯一 job `140096783761` 是 Capture independent Recovery run and step evidence。這只證明觀測證據成功上傳，不代表 Recovery 成功。
+- 最新 Recovery `45873494258` 終態 CANCELLED；job `140094601674` CANCELLED，fallback Windows hosted allocation job `140096744224` SKIPPED。其日誌 blob 回傳 404，根因不能從該 log 直接確認。
+- Main PR Acceptance Gate `45872631350` FAILURE；job `140091725947` 的 evaluator 明確將 PR #628 判定 HOLD，失敗碼 `APPROVAL_MISSING`、`DRAFT_NOT_READY`。此 run 日誌中的 PR #628 evaluated SHA 為舊 SHA `0fbde9cd7fca82a41100743172666b045a9bafb0`，不是目前 #628 HEAD；不可將它當成目前 #628 exact-head 結論。
+- 另一 Recovery Observer `45872658020` SUCCESS 同樣只代表 observer 成功。
+- Main push CI 最近可見 run `45842160595` 為 CANCELLED；不能報 Main CI PASS。Main exact SHA 的多個工作流歷史 check-run 結果不可合併成單一綠燈。
+- Ruleset `protect-main`（ID `28032767`）為 ACTIVE。傳統 branch protection API 回傳 403 `Resource not accessible by integration`，因此 required checks／branch protection 詳細設定仍 UNKNOWN；不使用 bypass。
+
+### 全部 OPEN PR（10 件；均以各自當前 HEAD 查核）
+
+所有 PR base SHA 均為 Main `078bc72216e3990f9c7c4db2e06e5851a5c8428e`。GitHub `mergeable=true` 僅是衝突估計，不是驗收。
+
+| PR | 當前 HEAD SHA | Draft | Exact-head 主要阻塞 |
+|---|---|---|---|
+| #633 | `eb938cadaa8a5d13613e42715dc6087fd0dee72c` | YES | CI attempt 2 CANCELLED；CodeQL FAILURE；Vulnerability scan FAILURE；多個診斷／品質 checks SKIPPED |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | YES | PR Acceptance FAILURE；Codacy、Analyze(actions)、Analyze(JS/TS)、Vulnerability scan FAILURE；其餘多項 SKIPPED |
+| #631 | `e4f1d7de168aff05797af3eed66691fc33870b20` | YES | CI run `45868614183` FAILURE；Windows quality gate FAILURE；Acceptance run `45868611729` FAILURE；Codacy／CodeQL／Debricked FAILURE |
+| #630 | `4ac0c4e0368335d5a62dea5dedb2b633393f6882` | YES | Analyze(actions／JS/TS)、Codacy、Vulnerability scan FAILURE；多項主體 CI SKIPPED |
+| #628 | `e61d6648079447132466432124b54e7b623a358e` | YES | CI run `45873208141` PENDING；Acceptance FAILURE；Debricked FAILURE；不能以 Codacy／Clippy SUCCESS 代替 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | YES | Acceptance FAILURE；Analyze(actions／JS/TS)、Codacy、Vulnerability scan FAILURE；quality job CANCELLED |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | YES | Acceptance FAILURE；Analyze(actions／JS/TS)、Codacy、Vulnerability scan FAILURE；多項主體 CI SKIPPED |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | YES | Analyze(actions／JS/TS)、Codacy、Vulnerability scan FAILURE；多項主體 CI SKIPPED |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | NO | CI attempt 2 FAILURE；Acceptance FAILURE；CodeQL、Codacy、Debricked FAILURE |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | YES | Windows quality gate、Codacy、Analyze(actions／JS/TS)、Vulnerability scan FAILURE |
+
+- 10 件 PR 均未取得非作者正式 APPROVED review。#623 有 COMMENTED review，非 APPROVED；其餘查得 reviews 為空。
+- #633 與 #628 都修改 Codacy／checkout credential 類工作流，存在明顯重疊；#628 另刪除 CodeQL workflow，兩者不可由 GPT2 自行合併或重寫。由 CI owner 協調單一修繕來源。
+- #633 的 Codacy Scan 本身 SUCCESS，但 CodeQL Advanced 與 Vulnerability scan FAILURE，CI attempt 2 CANCELLED；不可因該單項成功而解除 Draft。
+- #628 當前 HEAD 的 CI run 為 PENDING；舊 Acceptance log 所評估的 SHA 不同，不能混用。保留 Draft。
+- #631 的當前 exact-head checks 包含 Windows Runner quality gate FAILURE、Acceptance FAILURE、Codacy／CodeQL／Vulnerability scan FAILURE；主體 CI 不通過。文件更新不等於測試驗收。
+- #623 是唯一非 Draft PR，但仍有 CI、Acceptance、Codacy、CodeQL、Debricked FAILURE；不能因非 Draft 或有 COMMENTED review 而合併。
+- 沒有任何 PR 同時滿足 exact-head 必要 CI、外部掃描、GPT3 對同一 HEAD 的正式 APPROVED、未解 review thread 與 owner gate；不解除 Draft、不合併。
+
+### 可執行 GPT2/F–P 工作與交接
+
+- **GPT2 自有閉環：** 更新本文件 PR #631 的即時快照，保留歷史紀錄並明確區分當前 HEAD 與舊 workflow 證據。此為文件維護，不宣稱程式實作或測試已通過。
+- **P / Issue #166 / PR #626：** 維持既有 P allowlist，不新開重疊 PR；目前 exact-head 有多個失敗 checks，尚無獨立批准。本輪沒有可讀取的可重現本機 Node 測試環境，故不虛構 tests/typecheck/lint/build 結果；下一步在原有 allowlist 內補齊測試證據，再交 GPT3 審查同一新 HEAD。
+- **H / Issue #85：** 未指派 owner；仍限唯讀 CSV reconciliation，不接管 provider polling、credentials、schema/RLS、production data、ledger writes 或 payments。
+- **Factory／CI owner：** #632 patch budget、#622 task path、#624 cooldown、#625 preflight、#623 acceptance queue，以及 #633/#628 workflow checkout／scanner 重疊，交 GPT1／Factory／CI owner；GPT2 不修改其 planner、validator、Runner、lease、queue、secrets 或 workflow policy。
+- **外部管理權限：** branch protection API 403 為 integration 權限缺口；不使用 bypass、不更改 repository security settings。
+- 本輪沒有解除 Draft、沒有合併、沒有直接寫入 main、沒有更動 production DB/RLS／deployment／secrets／permissions；也沒有宣稱未執行的測試通過。
+
+### 下一輪必須重新確認
+
+1. 先讀 main ref 與所有 OPEN PR HEAD，再按各自 exact SHA 查 checks、workflow runs、jobs／steps、reviews。
+2. 對 PENDING／IN_PROGRESS 等待明確終態；對 CANCELLED／SKIPPED／0 Job 記為未驗收，不盲目重跑。
+3. GPT2 僅推進 F–P 中有唯一 DRI、明確 allowlist、無 owner 衝突且可驗收的工作；重疊與外部限制列明 owner、證據及解除條件。
+4. GPT3 必須對當前候選 HEAD 獨立 APPROVED；自我檢查不得替代獨立審查。
