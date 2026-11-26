@@ -374,3 +374,22 @@ test("preflight requires Docker start exit evidence to match inspected container
   assert.match(workflow, /DockerStartExitCode -NotePropertyValue \$startExitCode/);
   assert.match(workflow, /candidateContainerFailureScope\(state\)/);
 });
+
+test("preflight preserves Docker classification through a PowerShell-safe temporary ESM script", () => {
+  const workflowPath = fileURLToPath(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url));
+  const workflow = readFileSync(workflowPath, "utf8");
+  const start = workflow.indexOf("      - name: Test patched candidate offline inside restricted container");
+  const end = workflow.indexOf("      - name: Preserve candidate offline test diagnostics", start);
+  assert.ok(start >= 0 && end > start, "candidate test step must be present");
+  const section = workflow.slice(start, end);
+  assert.match(section, /DockerStartExitCode -NotePropertyValue \$startExitCode/);
+  assert.match(section, /candidateContainerFailureScope\(state\)/);
+  assert.match(section, /AGENT_FACTORY_FAILURE_SCOPE=task\\n/);
+  assert.match(section, /\$classifierSource = @\(/);
+  assert.match(section, /\$classifierPath = Join-Path \$env:RUNNER_TEMP/);
+  assert.match(section, /\$classification = & node \$classifierPath/);
+  assert.match(section, /pathToFileURL\(join\(workspace, "lib\/agent-factory-policy\.mjs"\)\)/);
+  assert.match(section, /Candidate container classification failed or reported a system-scoped result/);
+  assert.match(section, /Remove-Item -LiteralPath \$classifierPath -Force/);
+  assert.doesNotMatch(section, /node --input-type=module -e/);
+});
