@@ -104,6 +104,15 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.ok(workflow.includes("run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}"));
   assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/github-project-showcase, fix/agent-factory-add-output-budget-20261121, fix/agent-factory-new-file-output-budget-20261121, chore/reconcile-ap-governance-on-a-2.0.70-20261121, fix/agent-factory-context-2-0-84-20261121]\n    types: [opened, reopened, synchronize]\n"));
   assert.ok(workflow.includes("  repository_dispatch:\n    types: [ai-task-ci]\n"));
+  for (const job of ["quality", "build", "database"]) {
+    const { start, end } = findJobSection(workflow, job);
+    const section = workflow.slice(start, end);
+    assert.ok(section.includes("github.event_name == 'push' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')"),
+      job + " must run for owner and trusted Mergify main pushes");
+  }
+  assert.equal(workflow.includes("github.event_name == 'push' && github.actor == github.repository_owner"), false,
+    "Mergify-created main commits must not silently skip Factory validation");
+
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
@@ -200,6 +209,28 @@ test("preflight coalesces only scheduled pollers while preserving actionable tri
   assert.ok(runnerSmoke.includes("cancel-in-progress: false"));
 });
 
+function hasV2ControllerInvocation(source) {
+  const lines = source.split(/\r?\n/);
+  const commands = [];
+  let runIndent = null;
+  for (const line of lines) {
+    const run = line.match(/^(\s*)run:\s*(.*)$/);
+    if (run) {
+      runIndent = run[1].length;
+      if (run[2] && run[2].trim() !== "|") commands.push(run[2]);
+      continue;
+    }
+    if (runIndent !== null) {
+      const indent = line.match(/^\s*/)[0].length;
+      if (line.trim() && indent <= runIndent) runIndent = null;
+      else commands.push(line);
+    }
+  }
+  const executableLines = commands.filter(line => !/^\s*#/.test(line));
+  return /^\s*(?:env\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\s]+\s+)*)?node(?:\s+(?:--[^\s]+|-r\s+\S+))*\s+(?:\.\/)?scripts\/agent-factory-v2-controller\.mjs\b/m
+    .test(executableLines.join("\n"));
+}
+
 test("every V2 state-writer workflow is serialized by the shared Runner queue", () => {
   const workflowDirectory = new URL("../.github/workflows/", import.meta.url);
   const workflowFiles = readdirSync(workflowDirectory).filter((name) => /\.ya?ml$/i.test(name));
@@ -207,7 +238,7 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
 
   for (const fileName of workflowFiles) {
     const source = readFileSync(new URL(fileName, workflowDirectory), "utf8").replace(/\r\n/g, "\n");
-    if (!source.includes("scripts/agent-factory-v2-controller.mjs")) continue;
+    if (!hasV2ControllerInvocation(source)) continue;
     writerWorkflowCount += 1;
 
     const jobsMarker = source.indexOf("\njobs:");
@@ -244,6 +275,14 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
   }
 
   assert.ok(writerWorkflowCount > 0, "expected at least one V2 state-writer workflow");
+});
+
+test("controller invocation detection includes Node options and ./ prefixes but ignores comments", () => {
+  assert.equal(hasV2ControllerInvocation("        run: node scripts/agent-factory-v2-controller.mjs"), true);
+  assert.equal(hasV2ControllerInvocation("        run: node ./scripts/agent-factory-v2-controller.mjs"), true);
+  assert.equal(hasV2ControllerInvocation("        run: node --no-warnings ./scripts/agent-factory-v2-controller.mjs"), true);
+  assert.equal(hasV2ControllerInvocation("        run: |\\n          # node scripts/agent-factory-v2-controller.mjs"), false);
+  assert.equal(hasV2ControllerInvocation("        run: echo '# node scripts/agent-factory-v2-controller.mjs'"), false);
 });
 
 test("Next.js output tracing is scoped to the repository and ignores unrelated Runner workspace lockfiles", () => {
@@ -734,11 +773,11 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
     "the in-progress CI workflow must not invoke the legacy non-mutating success callback");
   assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
   for (const guard of [
-    "github.event.workflow_run.conclusion == 'success'",
-    "github.event.workflow_run.event == 'pull_request'",
-    "github.event.workflow_run.path == '.github/workflows/ci.yml'",
-    "github.event.workflow_run.head_repository.full_name == github.repository",
-  ]) assert.ok(recovery.includes(guard), "recovery trigger must retain " + guard);
+    'process.env.WORKFLOW_PATH === ".github/workflows/ci.yml"',
+    'process.env.WORKFLOW_CONCLUSION === "success"',
+    'process.env.WORKFLOW_EVENT === "pull_request"',
+    'process.env.WORKFLOW_HEAD_REPOSITORY === process.env.GITHUB_REPOSITORY',
+  ]) assert.ok(recovery.includes(guard), "in-job eligibility resolver must retain " + guard);
   assert.equal(recovery.includes("workflow_run.pull_requests"), false,
     "PR association must be resolved from the completed workflow's exact SHA, not optional workflow_run metadata");
 
@@ -750,8 +789,7 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
     "pr.head?.repo?.full_name === process.env.GITHUB_REPOSITORY",
     "pr.head?.sha === sha",
     "pr.head?.ref === ref",
-    'pr.head.ref.startsWith("ai-task/issue-")',
-    'pr.head.ref.startsWith("codex/issue-")',
+    '!ref?.startsWith("ai-task/issue-") && !ref?.startsWith("codex/issue-")',
   ]) assert.ok(recovery.includes(guard), "exact-SHA PR resolver must retain " + guard);
 
   const zeroMatchStart = recovery.indexOf("if (matches.length === 0)");
@@ -796,7 +834,13 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ID: " + "$" + "{{ github.event.workflow_run.id }}"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ATTEMPT: " + "$" + "{{ github.event.workflow_run.run_attempt }}"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"));
-  assert.ok(recovery.includes("run: node scripts/agent-factory-v2-controller.mjs"));
+  assert.equal(recoveryJob.includes("    if: >-"), false,
+    "the recovery observer job must not be skipped before it can persist diagnostics");
+  assert.ok(recovery.includes("WORKFLOW_CONCLUSION"));
+  assert.ok(recovery.includes("WORKFLOW_HEAD_REPOSITORY"));
+  assert.ok(recovery.includes("Write redacted recovery diagnostic summary"));
+  assert.ok(recovery.includes("Upload recovery diagnostics"));
+  assert.ok(recovery.includes("run: |\n          set +e\n          node scripts/agent-factory-v2-controller.mjs"));
   assert.equal(recovery.includes("ref: " + "$" + "{{ github.event.workflow_run.head_sha }}"), false,
     "the privileged workflow must execute trusted mainline controller code, never PR code");
 });
@@ -1012,12 +1056,25 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
     "ambiguous exact-head PR matches must still fail closed");
   assert.ok(recoveryWorkflow.includes("if: steps.resolve-pr.outputs.should_recover == 'true'"),
     "the privileged recovery controller must run only after a unique exact-head PR is verified");
-  assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("ai-task/issue-")'));
-  assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("codex/issue-")'));
+  assert.ok(recoveryWorkflow.includes('!ref?.startsWith("ai-task/issue-") && !ref?.startsWith("codex/issue-")'),
+    "task branches must remain ineligible for system-breaker recovery");
   assert.equal(recoveryWorkflow.includes("workflow_run.pull_requests"), false,
     "recovery must not trust optional workflow_run PR associations");
 });
 
+
+test("Recovery observer passes the source HEAD SHA into the capture step environment", () => {
+  const source = readFileSync(
+    new URL("../.github/workflows/agent-factory-recovery-observer.yml", import.meta.url),
+    "utf8",
+  ).replace(/\r\n/g, "\n");
+  const captureStart = source.indexOf("- name: Capture run metadata, job steps and log availability");
+  const captureEnd = source.indexOf("\n      - name:", captureStart + 1);
+  assert.ok(captureStart >= 0 && captureEnd > captureStart, "capture step must exist");
+  const captureStep = source.slice(captureStart, captureEnd);
+  assert.ok(captureStep.includes("SOURCE_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"),
+    "capture step must receive the exact source HEAD SHA independently of the initialization step");
+});
 
 test("resolver skips token and GitHub API requirements for events without a PR candidate", () => {
   const parse = resolver.indexOf('const pullRequestNumber = Number(process.env.PULL_REQUEST_NUMBER ?? 0);');
@@ -1047,4 +1104,38 @@ test("resolver fallback evidence is uploaded only when the resolver did not succ
     "a successful resolver must not publish the pre-checkout failure fallback");
   assert.ok(upload.includes("path: ${{ runner.temp }}/resolver-diagnostics.json"),
     "failure evidence must retain the pre-checkout fallback path");
+});
+
+
+test("main push CI success invokes exact-SHA Factory system-health persistence", () => {
+  const breaker = findJobSection(workflow, "circuit-breaker-success");
+  const section = workflow.slice(breaker.start, breaker.end);
+  const marker = "      - name: Persist exact-main CI success and reset system breaker";
+  const start = section.indexOf(marker);
+  assert.ok(start >= 0, "main push must have a dedicated durable system-health callback");
+  const next = section.indexOf("\n      - name:", start + marker.length);
+  const step = section.slice(start, next < 0 ? undefined : next);
+  for (const required of [
+    "github.event_name == 'push'",
+    "github.ref == 'refs/heads/main'",
+    "github.actor == github.repository_owner",
+    "AGENT_FACTORY_MODE: main-push-system-health-success",
+    "SYSTEM_HEALTH_RUN_ID: ${{ github.run_id }}",
+    "SYSTEM_HEALTH_RUN_ATTEMPT: ${{ github.run_attempt }}",
+    "SYSTEM_HEALTH_HEAD_SHA: ${{ github.sha }}",
+    "run: node scripts/agent-factory-v2-controller.mjs",
+  ]) assert.ok(step.includes(required), "main-push persistence must include " + required);
+});
+
+test("Windows candidate classifier uses a temporary ESM file instead of native -e quoting", () => {
+  assert.ok(preflight.includes("$classifierSource = @("),
+    "write the classifier as a real temporary ESM source file");
+  assert.ok(preflight.includes('pathToFileURL(join(workspace, "lib/agent-factory-policy.mjs")).href'),
+    "resolve the shared policy module from the checked-out workspace");
+  assert.ok(preflight.includes("[System.IO.File]::WriteAllText($classifierPath, $classifierSource"),
+    "write the classifier without PowerShell here-string terminator ambiguity");
+  assert.ok(preflight.includes("$classification = & node $classifierPath"),
+    "execute the classifier by file path");
+  assert.equal(preflight.includes("& node --input-type=module -e"), false,
+    "do not pass quoted ESM source through Windows PowerShell native -e parsing");
 });

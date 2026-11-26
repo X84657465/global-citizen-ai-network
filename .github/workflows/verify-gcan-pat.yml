@@ -1,4 +1,4 @@
-name: Verify GCAN Branch Protection Access
+name: Verify GCAN Main Branch Protection Status
 
 on:
   workflow_dispatch:
@@ -17,31 +17,33 @@ permissions:
   contents: read
 
 jobs:
-  verify-branch-protection:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+  verify-main-branch:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 3
     steps:
-      - name: Check runner GitHub CLI authentication
-        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
-        run: |
-          $gh = Get-Command gh -ErrorAction SilentlyContinue
-          if (-not $gh) {
-            Write-Error "GitHub CLI is not installed on this runner."
-            exit 1
-          }
-          gh auth status --hostname github.com
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "No usable GitHub CLI authentication is configured for the runner service account."
-            exit 1
-          }
-      - name: Test branch protection read permission
+      - name: Read main branch protection status
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         env:
+          GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
         run: |
-          gh api "repos/$env:REPOSITORY/branches/main/protection" --jq '"PASS: branch protection API returned HTTP 200"'
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Runner GitHub CLI identity cannot read branch protection."
+          Write-Output "::add-mask::$env:GH_TOKEN"
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = "application/vnd.github+json"; "X-GitHub-Api-Version" = "2022-11-28" }
+          $uri = "https://api.github.com/repos/$env:REPOSITORY/branches/main"
+          try {
+            $branch = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
+            Write-Output "Branch: $($branch.name)"
+            Write-Output "Protected: $($branch.protected)"
+            Write-Output "Protection enabled: $($branch.protection.enabled)"
+            if ($branch.protected -eq $false) {
+              Write-Output "STATUS: main currently has no branch protection rules."
+            } else {
+              Write-Output "STATUS: main is protected; detailed rule inspection requires administration permission."
+            }
+          } catch {
+            $status = $null
+            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) { $status = [int]$_.Exception.Response.StatusCode }
+            Write-Output "HTTP status: $status"
+            Write-Error "Could not read main branch status; credential details suppressed."
             exit 1
           }

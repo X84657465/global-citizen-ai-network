@@ -114,7 +114,7 @@ jobs:
       needs.resolve-candidate.result == 'success' &&
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
       (
-        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'push' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')) ||
         (github.event_name == 'pull_request' &&
          github.event.pull_request.head.repo.full_name == github.repository &&
          (github.event.pull_request.user.login == github.repository_owner ||
@@ -244,7 +244,7 @@ jobs:
       needs.quality.result == 'success' &&
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
       (
-        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'push' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')) ||
         (github.event_name == 'pull_request' &&
          github.event.pull_request.head.repo.full_name == github.repository &&
          (github.event.pull_request.user.login == github.repository_owner ||
@@ -335,7 +335,7 @@ jobs:
       needs.quality.result == 'success' &&
       needs.resolve-candidate.outputs.is_current_head == 'true' &&
       (
-        (github.event_name == 'push' && github.actor == github.repository_owner) ||
+        (github.event_name == 'push' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')) ||
         (github.event_name == 'pull_request' &&
          github.event.pull_request.head.repo.full_name == github.repository &&
          (github.event.pull_request.user.login == github.repository_owner ||
@@ -669,6 +669,16 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
+      - name: Persist exact-main CI success and reset system breaker
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && (github.actor == github.repository_owner || github.actor == 'mergify[bot]')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: main-push-system-health-success
+          SYSTEM_HEALTH_RUN_ID: ${{ github.run_id }}
+          SYSTEM_HEALTH_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SYSTEM_HEALTH_HEAD_SHA: ${{ github.sha }}
+        run: node scripts/agent-factory-v2-controller.mjs
       - name: Revalidate candidate PR head before recording success
         id: revalidate
         if: needs.resolve-candidate.outputs.is_task_pr == 'true'

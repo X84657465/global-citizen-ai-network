@@ -1,0 +1,81 @@
+name: autofix.ci
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  autofix:
+    # GitHub-hosted Ubuntu allocation repeatedly failed before runner assignment
+    # (runner_id=0, zero steps). Use the repository's verified Windows runner.
+    runs-on: [self-hosted, Windows, X64]
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      cancel-in-progress: false
+      queue: max
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: true
+
+      - name: Format Rust workspace when present
+        id: format
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $logPath = Join-Path $env:RUNNER_TEMP "cargo-fmt.log"
+          if (Test-Path "Cargo.toml") {
+            if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+              throw "Cargo.toml exists but cargo is not installed on this runner."
+            }
+            & cargo fmt --all 2>&1 | Tee-Object -FilePath $logPath
+            if ($LASTEXITCODE -ne 0) {
+              throw "cargo fmt failed with exit code $LASTEXITCODE."
+            }
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "exit_code=0" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          } else {
+            "No Cargo.toml found; skipping Rust formatting for this repository." | Tee-Object -FilePath $logPath
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "exit_code=0" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          }
+
+      - name: Run pinned autofix action
+        id: autofix
+        uses: autofix-ci/action@8bc06253bec489732e5f9c52884c7cace15c0160
+
+      - name: Write redacted Autofix diagnostics
+        if: always()
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        env:
+          FORMAT_OUTCOME: ${{ steps.format.outcome }}
+          FORMAT_EXIT_CODE: ${{ steps.format.outputs.exit_code }}
+          AUTOFIX_OUTCOME: ${{ steps.autofix.outcome }}
+        run: |
+          $directory = Join-Path $env:RUNNER_TEMP "autofix-diagnostics"
+          New-Item -ItemType Directory -Force -Path $directory | Out-Null
+          $summary = @(
+            "schema_version=1"
+            "run_id=$env:GITHUB_RUN_ID"
+            "run_attempt=$env:GITHUB_RUN_ATTEMPT"
+            "repository=$env:GITHUB_REPOSITORY"
+            "head_sha=$env:GITHUB_SHA"
+            "event=$env:GITHUB_EVENT_NAME"
+            "format_step_outcome=$env:FORMAT_OUTCOME"
+            "format_exit_code=$env:FORMAT_EXIT_CODE"
+            "autofix_step_outcome=$env:AUTOFIX_OUTCOME"
+          ) -join [Environment]::NewLine
+          [System.IO.File]::WriteAllText((Join-Path $directory "summary.txt"), $summary + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          $logPath = Join-Path $env:RUNNER_TEMP "cargo-fmt.log"
+          if (Test-Path $logPath) {
+            Copy-Item -LiteralPath $logPath -Destination (Join-Path $directory "cargo-fmt.log") -Force
+          }
+
+      - name: Upload Autofix diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autofix-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/autofix-diagnostics/
+          if-no-files-found: error
+          retention-days: 30

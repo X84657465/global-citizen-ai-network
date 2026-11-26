@@ -169,7 +169,11 @@ test("persists candidate CI success only after exact-head quality and database g
   assert.equal(job.includes("review/"), false);
 
   const healthWorkflow = readFileSync(new URL("../.github/workflows/agent-factory-system-health.yml", import.meta.url), "utf8");
-  assert.ok(healthWorkflow.includes("github.event.workflow_run.conclusion == 'success'"));
+  assert.ok(healthWorkflow.includes('process.env.WORKFLOW_CONCLUSION === "success"'));
+  assert.ok(healthWorkflow.includes('process.env.WORKFLOW_EVENT === "pull_request"'));
+  assert.ok(healthWorkflow.includes('process.env.WORKFLOW_PATH === ".github/workflows/ci.yml"'));
+  assert.ok(healthWorkflow.includes('process.env.WORKFLOW_HEAD_REPOSITORY === process.env.GITHUB_REPOSITORY'));
+  assert.ok(healthWorkflow.includes("AGENT_FACTORY_MODE: system-health-success"));
   assert.ok(healthWorkflow.includes("AGENT_FACTORY_MODE: system-health-success"));
   assert.ok(healthWorkflow.includes("SYSTEM_HEALTH_RUN_ID: ${{ github.event.workflow_run.id }}"));
   assert.ok(healthWorkflow.includes("SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}"));

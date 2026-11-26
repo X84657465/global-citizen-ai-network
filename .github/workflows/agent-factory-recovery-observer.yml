@@ -1,0 +1,246 @@
+name: Agent Factory Recovery Failure Observer
+
+on:
+  workflow_run:
+    workflows: ["Agent Factory System Health Recovery"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  capture-recovery-evidence:
+    name: Capture independent Recovery run and step evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Initialize fallback evidence before API calls
+        shell: bash
+        env:
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SOURCE_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          SOURCE_EVENT: ${{ github.event.workflow_run.event }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/recovery-observer"
+          node --input-type=module <<'NODE'
+          import { writeFileSync } from "node:fs";
+          import { join } from "node:path";
+          import assert from "node:assert/strict";
+
+          const source = {
+            runId: process.env.SOURCE_RUN_ID,
+            runAttempt: process.env.SOURCE_RUN_ATTEMPT,
+            headSha: process.env.SOURCE_HEAD_SHA,
+            branch: process.env.SOURCE_BRANCH,
+            conclusion: process.env.SOURCE_CONCLUSION,
+            event: process.env.SOURCE_EVENT
+          };
+
+          // Regression fixture: JSON serialization must preserve quotes and backslashes
+          // in externally influenced branch names without corrupting the evidence document.
+          const hostileBranch = 'fixture-"quoted"-and-\\-backslash';
+          const fixture = JSON.parse(JSON.stringify({ source: { ...source, branch: hostileBranch } }));
+          assert.equal(fixture.source.branch, hostileBranch);
+          assert.equal(fixture.source.runId, source.runId);
+
+          const evidence = {
+            schemaVersion: 1,
+            captureStatus: "fallback_initialized",
+            failureClassification: "UNKNOWN",
+            source,
+            runMetadata: "NOT_ATTEMPTED",
+            jobs: [],
+            logs: { availability: "NOT_ATTEMPTED", httpStatus: null, error: null },
+            failureStage: "NOT_DETERMINED"
+          };
+          const evidencePath = join(process.env.RUNNER_TEMP, "recovery-observer", "evidence.json");
+          writeFileSync(evidencePath, JSON.stringify(evidence, null, 2) + "\n");
+          NODE
+
+      - name: Capture run metadata, job steps and log availability
+        id: capture
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          EVIDENCE_FILE: ${{ runner.temp }}/recovery-observer/evidence.json
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from "node:fs";
+          const path = process.env.EVIDENCE_FILE;
+          const evidence = JSON.parse(readFileSync(path, "utf8"));
+          const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
+          const base = "https://api.github.com/repos/" + owner + "/" + repo;
+          const headers = {
+            Authorization: "Bearer " + process.env.GH_TOKEN,
+            Accept: "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28"
+          };
+          async function getJson(url) {
+            const response = await fetch(url, { headers });
+            const body = await response.text();
+            if (!response.ok) {
+              const error = new Error("HTTP " + response.status + ": " + body.slice(0, 1500));
+              error.httpStatus = response.status;
+              throw error;
+            }
+            return JSON.parse(body);
+          }
+          let runIdentityVerified = false;
+          try {
+            const run = await getJson(base + "/actions/runs/" + process.env.SOURCE_RUN_ID + "/attempts/" + process.env.SOURCE_RUN_ATTEMPT);
+            if (run.run_attempt !== Number(process.env.SOURCE_RUN_ATTEMPT) || run.head_sha !== process.env.SOURCE_HEAD_SHA) {
+              throw new Error("Run attempt or HEAD SHA does not match the workflow_run event; evidence remains UNKNOWN.");
+            }
+            runIdentityVerified = true;
+            evidence.runMetadata = {
+              availability: "SUCCESS",
+              id: run.id,
+              runAttempt: run.run_attempt,
+              workflowId: run.workflow_id,
+              workflowPath: run.path,
+              status: run.status,
+              conclusion: run.conclusion,
+              headSha: run.head_sha,
+              headBranch: run.head_branch,
+              event: run.event,
+              htmlUrl: run.html_url
+            };
+          } catch (error) {
+            evidence.runMetadata = {
+              availability: "UNAVAILABLE",
+              httpStatus: error.httpStatus || null,
+              error: String(error.message || error).slice(0, 1500)
+            };
+          }
+          try {
+            const jobs = await getJson(base + "/actions/runs/" + process.env.SOURCE_RUN_ID + "/attempts/" + process.env.SOURCE_RUN_ATTEMPT + "/jobs?per_page=100");
+            evidence.jobs = (jobs.jobs || []).map(job => ({
+              id: job.id,
+              name: job.name,
+              status: job.status,
+              conclusion: job.conclusion,
+              startedAt: job.started_at,
+              completedAt: job.completed_at,
+              steps: (job.steps || []).map(step => ({
+                name: step.name,
+                number: step.number,
+                status: step.status,
+                conclusion: step.conclusion,
+                startedAt: step.started_at,
+                completedAt: step.completed_at
+              }))
+            }));
+            evidence.jobsAvailability = "SUCCESS";
+          } catch (error) {
+            evidence.jobs = [];
+            evidence.jobsAvailability = "UNAVAILABLE";
+            evidence.jobsError = {
+              httpStatus: error.httpStatus || null,
+              message: String(error.message || error).slice(0, 1500)
+            };
+          }
+          const failedSteps = evidence.jobs.flatMap(job =>
+            (job.steps || [])
+              .filter(step => step.conclusion === "failure" || step.conclusion === "timed_out" || step.conclusion === "cancelled")
+              .map(step => ({ job: job.name, step: step.name, conclusion: step.conclusion }))
+          );
+          evidence.failedSteps = failedSteps;
+          if (failedSteps.length) {
+            evidence.failureStage = failedSteps[0].job + " / " + failedSteps[0].step;
+          } else if (evidence.jobs.some(job => job.conclusion === "failure")) {
+            evidence.failureStage = "FAILED_JOB_WITHOUT_FAILED_STEP_DETAIL";
+          } else if (evidence.jobsAvailability !== "SUCCESS") {
+            evidence.failureStage = "JOB_METADATA_UNAVAILABLE";
+          } else {
+            evidence.failureStage = "NO_FAILED_STEP_REPORTED";
+          }
+          try {
+            const response = await fetch(base + "/actions/runs/" + process.env.SOURCE_RUN_ID + "/attempts/" + process.env.SOURCE_RUN_ATTEMPT + "/logs", { headers, redirect: "follow" });
+            const contentType = response.headers.get("content-type") || "";
+            if (response.ok) {
+              evidence.logs = {
+                availability: "AVAILABLE",
+                httpStatus: response.status,
+                contentType,
+                note: "Raw logs are not copied into the artifact to avoid exposing secrets; use the source run URL to inspect them."
+              };
+            } else {
+              const body = (await response.text()).slice(0, 1500);
+              evidence.logs = {
+                availability: "UNAVAILABLE",
+                httpStatus: response.status,
+                error: body,
+                classification: /BlobNotFound/i.test(body) ? "LOG_STORAGE_BLOB_NOT_FOUND" : "LOG_FETCH_FAILED"
+              };
+            }
+          } catch (error) {
+            evidence.logs = {
+              availability: "UNAVAILABLE",
+              httpStatus: error.httpStatus || null,
+              error: String(error.message || error).slice(0, 1500),
+              classification: "LOG_FETCH_EXCEPTION"
+            };
+          }
+          evidence.runIdentityVerified = runIdentityVerified;
+          evidence.failureClassification = evidence.source?.conclusion === "success" ? "NONE" :
+            runIdentityVerified && evidence.failedSteps.length ? "FAILED_STEP_IDENTIFIED" : "UNKNOWN";
+          if (evidence.source?.conclusion === "success") evidence.failureStage = "completed_success";
+          else if (!runIdentityVerified) evidence.failureStage = "RUN_IDENTITY_UNVERIFIED";
+          evidence.captureStatus = "complete";
+          evidence.capturedAt = new Date().toISOString();
+          writeFileSync(path, JSON.stringify(evidence, null, 2) + "\n");
+          console.log("Recovery evidence captured. Failed steps: " + failedSteps.length + "; log availability: " + evidence.logs.availability);
+          NODE
+
+      - name: Preserve diagnostic summary
+        if: always()
+        shell: bash
+        env:
+          EVIDENCE_FILE: ${{ runner.temp }}/recovery-observer/evidence.json
+        run: |
+          node --input-type=module <<'NODE'
+          import { existsSync, readFileSync, writeFileSync } from "node:fs";
+          const path = process.env.EVIDENCE_FILE;
+          if (!existsSync(path)) {
+            const fallback = {
+              schemaVersion: 1,
+              captureStatus: "fallback_only",
+              failureClassification: "UNKNOWN",
+              failureStage: "observer_did_not_complete",
+              note: "Evidence capture step did not complete; source workflow run metadata is in this workflow event."
+            };
+            writeFileSync(path, JSON.stringify(fallback, null, 2) + "\n");
+          }
+          const evidence = JSON.parse(readFileSync(path, "utf8"));
+          const summary = [
+            "## Independent Factory Recovery evidence",
+            "- Source run: " + (evidence.source?.runId || "UNKNOWN"),
+            "- Source SHA: " + (evidence.source?.headSha || "UNKNOWN"),
+            "- Source conclusion: " + (evidence.source?.conclusion || "UNKNOWN"),
+            "- Capture: " + evidence.captureStatus,
+            "- Failure stage: " + evidence.failureStage,
+            "- Classification: " + evidence.failureClassification,
+            "- Failed steps captured: " + (evidence.failedSteps?.length ?? "UNKNOWN"),
+            "- Logs: " + (evidence.logs?.availability || "UNKNOWN") + " (" + (evidence.logs?.classification || "no error classification") + ")",
+            "- Missing logs do not get represented as a program failure; root cause remains UNKNOWN unless step evidence supports it."
+          ].join("\n");
+          writeFileSync(process.env.GITHUB_STEP_SUMMARY, summary + "\n", { flag: "a" });
+          process.stdout.write(summary + "\n");
+          NODE
+
+      - name: Upload independent recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-recovery-observer-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+          path: ${{ runner.temp }}/recovery-observer/evidence.json
+          if-no-files-found: error
+          retention-days: 90

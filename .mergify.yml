@@ -1,0 +1,6 @@
+# Automatic merging is intentionally disabled.
+# CI success, absence of pending checks, and a non-draft PR do not
+# establish independent review, exact-head acceptance, or merge authority.
+# Keep merge authorization in the repository's separately verified
+# human review and acceptance process.
+pull_request_rules: []
