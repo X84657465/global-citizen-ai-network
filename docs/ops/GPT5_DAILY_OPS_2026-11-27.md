@@ -1322,3 +1322,44 @@ All nine target `main@078bc72216e3990f9c7c4db2e06e5851a5c8428e`. All are OPEN, u
 - Vercel/account owner: remediate `build-rate-limit`; GPT5 does not change billing, plans or deployments.
 - GPT3 / authorized independent reviewer: provide exact-HEAD formal APPROVED review where appropriate; GPT5 does not self-approve.
 - GPT5 action in this pass: refreshed only this GPT5 Operations evidence ledger on existing PR #630's explicitly allowlisted `docs/ops/GPT5_DAILY_OPS_2026-11-27.md` path. No source code, workflow, Factory state, Runner, secrets, permissions, branch protection, DB/RLS, production data, billing or deployment was changed. No local tests/build/lint were run; the new documentation commit requires its own exact-head checks. Keep Draft.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-27 (subsequent exact-HEAD refresh)
+
+This refresh supersedes the 02:46 table above. Live `main` and all nine OPEN PRs were re-read. All nine PR base refs remain `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. PRs are OPEN and unmerged; mergeable metadata is true for each, which is not acceptance. All nine formal review endpoints were queried again: 0 APPROVED; #623 has one COMMENTED CodeRabbit review only. Draft state was re-read from live PR metadata: all nine are Draft, including #623.
+
+### Main exact state
+- Main SHA: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Combined status: Vercel FAILURE, target URL explicitly carries `build-rate-limit`.
+- Main push Actions / required-check terminal set: NOT OBSERVED by the commit-workflow query used here. Branch protection/ruleset: UNKNOWN. Neither missing data nor Vercel-only status establishes a green main.
+
+### All 9 OPEN PRs — exact HEAD, current observable runs and statuses
+| PR | Exact HEAD | Draft | Latest observed Actions runs | Vercel |
+|---|---|---:|---|---|
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | Yes | CI 45871173827 CANCELLED; Preflight 45871173713 SUCCESS; Codacy 45871173844 FAILURE; CodeQL 45871173741 FAILURE; Clippy 45871173855 SUCCESS; autofix 45871173845 CANCELLED | FAILURE: build-rate-limit |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | Yes | CI 45877999910 CANCELLED; Codacy 45877999905 FAILURE; CodeQL 45877999947 FAILURE; Clippy 45877999908 SUCCESS; autofix 45878000261 CANCELLED | FAILURE: build-rate-limit |
+| #630 | `bdeda418cc09f2c45811b0691c6f5a18f9ccee19` | Yes | CI 45878969708 CANCELLED; Codacy 45878969885 FAILURE; CodeQL 45878969661 FAILURE; Clippy 45878969701 SUCCESS; autofix 45878969674 CANCELLED | SUCCESS |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | Yes | CI 45875584290 SUCCESS; Codacy 45875584147 SUCCESS; CodeQL 45875584300 FAILURE; Clippy 45875584169 SUCCESS; autofix 45875584244 CANCELLED | FAILURE: build-rate-limit |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | Yes | CI 45853743223 CANCELLED; Codacy 45853743385 FAILURE; CodeQL 45853743402 FAILURE; Clippy 45853743250 SUCCESS; autofix 45853743153 SUCCESS | FAILURE: build-rate-limit |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | Yes | CI 45852545103 CANCELLED; Codacy 45852545210 FAILURE; CodeQL 45852545235 FAILURE; Clippy 45852545312 SUCCESS; autofix 45852545242 CANCELLED | FAILURE: build-rate-limit |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | Yes | CI 45852505909 CANCELLED; Codacy 45852505988 FAILURE; CodeQL 45852505935 FAILURE; Clippy 45852505815 SUCCESS; autofix 45852506518 CANCELLED | SUCCESS |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | Yes | CI 45872395266 FAILURE; Codacy 45872395204 FAILURE; CodeQL 45872397668 FAILURE; Clippy 45872395229 SUCCESS; autofix 45872395260 CANCELLED | FAILURE: build-rate-limit |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | Yes | CI 45846690506 FAILURE; Codacy 45846690577 FAILURE; CodeQL 45846690579 FAILURE; Clippy 45846690694 SUCCESS; autofix 45846690771 CANCELLED | SUCCESS |
+
+All run records above were queried by the exact PR HEAD. Run conclusions are terminal unless explicitly stated otherwise. Clippy SUCCESS is scoped lint evidence only and does not offset CI/security failures. Vercel SUCCESS on #630/#624/#622 does not prove CI acceptance.
+
+### New exact diagnostics for GPT5-owned PR #630
+- Current exact HEAD is `bdeda418cc09f2c45811b0691c6f5a18f9ccee19`. CI run 45878969708 terminal CANCELLED: resolver job 140113138644 CANCELLED; Windows quality, PostgreSQL/RLS, Ollama, exact-SHA diagnostics, and persistence jobs are all SKIPPED. This is 0 substantive quality-gate execution, not PASS.
+- Codacy run 45878969885, job 140113137915: scanner CLI step SUCCESS; SARIF upload step FAILURE. Exact log: GitHub API `Invalid request: 1 item required; only 0 were supplied`. Root cause remains unresolved; Security/scanner integration owner must repair.
+- CodeQL run 45878969661: Actions job 140113137183 and JS/TS job 140113137464 both FAILURE at `Perform CodeQL Analysis`; log says `CodeQL job status was configuration error`. Exact underlying configuration issue is not exposed. GPT5 does not alter shared workflow/config without owner authorization.
+- Clippy run 45878969701 SUCCESS is narrow Rust lint only. Autofix run 45878969674 CANCELLED despite its individual steps reporting success; terminal CANCELLED is not accepted as successful full run.
+- Vercel for this PR's current HEAD is SUCCESS, correcting the prior #630 Vercel failure/PENDING snapshot. Main and six other PRs still expose build-rate-limit failure as tabulated.
+- Reviews: #630 has no formal review submission. No APPROVED review exists across the nine queried PRs; #623's COMMENTED review is not approval.
+
+### GPT5-owned action and disposition
+- GPT5 has refreshed this allowlisted Operations evidence ledger only. No source code, CI workflow, Factory queue/Runner/state, secrets, permissions, branch protection, database/RLS, production data, billing or deployment settings were modified.
+- This refresh is documentation-only; it does not repair the underlying shared CI/security blockers. No local tests/build/lint were run. The ledger update creates a new PR #630 head and therefore invalidates all earlier checks on that PR; fresh exact-head runs must be observed after commit.
+- Keep #630 Draft. No self-review, Ready transition, merge, release or deployment. GPT5 cannot close external Vercel billing/plan limits or shared security workflow defects.
+- Owner routing: GPT1/Factory owns #632/#623/#622 implementation and queue issues; CI/Security owner owns CodeQL configuration and Codacy SARIF upload; Vercel/account owner owns main/#632/#631/#628/#626/#625/#623 build-rate-limit; GPT3/authorized independent reviewer owns independent approval. GPT5 continues Operations evidence, intelligence synthesis and handoffs without claiming ownership of those repairs.
