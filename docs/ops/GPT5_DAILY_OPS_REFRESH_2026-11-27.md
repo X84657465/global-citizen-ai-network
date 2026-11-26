@@ -79,3 +79,59 @@ Existing automation ID `6b03d327186881919adac1a7ed62e1b8` is enabled with daily 
 - PR #630 CI remained IN_PROGRESS at last poll; no terminal result was available.
 - Branch protection and required-check configuration were not re-read in this pass.
 - No tests, typecheck, lint, build, deployment, or repository protection mutation were performed by GPT5.
+
+
+---
+
+## Third live refresh addendum — 2026-11-27 (Asia/Taipei)
+
+This addendum supersedes earlier moving-state statements in this document where they differ. Live `main` was fetched again and remains `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. The connector returned 12 OPEN PRs, all Draft, all based on that exact main SHA. Every PR exact HEAD was queried for the first-page PR-triggered workflow runs and combined commit statuses. All 12 remain OPEN/Draft. All show mergeable metadata, but no PR has been authorized for ready/merge because substantive gates are incomplete.
+
+### Fresh exact-head matrix
+
+| PR | Exact HEAD | Core CI | CodeQL | Codacy | Clippy | Autofix | Vercel |
+|---|---|---|---|---|---|---|---|
+| #643 | `7735ff30653c8e1c24821db86d53c8cfa22da365` | SUCCESS `45904440985` | No run surfaced | IN_PROGRESS `45904440976` | SUCCESS | SUCCESS | SUCCESS |
+| #636 | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | FAILURE `45896046447` | FAILURE `45896046551` | FAILURE `45896046434` | SUCCESS | CANCELLED | SUCCESS |
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | FAILURE `45882689100` | FAILURE `45882689114` | FAILURE `45882689117` | SUCCESS | SUCCESS | FAILURE |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | CANCELLED `45895379296` | FAILURE `45895379425` | FAILURE `45895379313` | SUCCESS | CANCELLED | FAILURE |
+| #631 | `85d56e646c0c82b30d16acd28af82df2f90e18e4` | CANCELLED `45904771144` | FAILURE `45904771111` | FAILURE `45904771157` | SUCCESS | SUCCESS | FAILURE |
+| #630 | `248680f73fd77bf8d058ae087bd2ebaa5be831ed` | CANCELLED `45907037292` | FAILURE `45907037233` | FAILURE `45907037359` | SUCCESS | CANCELLED | FAILURE |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | SUCCESS `45875584290` | FAILURE `45875584300` | SUCCESS `45875584147` | SUCCESS | CANCELLED | FAILURE |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | CANCELLED `45853743223` | FAILURE `45853743402` | FAILURE `45853743385` | SUCCESS | SUCCESS | FAILURE |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | CANCELLED `45852545103` | FAILURE `45852545235` | FAILURE `45852545210` | SUCCESS | CANCELLED | FAILURE |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | FAILURE `45852505909` | FAILURE `45852505935` | FAILURE `45852505988` | SUCCESS | CANCELLED | SUCCESS |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | FAILURE `45872395266` | FAILURE `45872397668` | FAILURE `45872395204` | SUCCESS | CANCELLED | FAILURE |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | FAILURE `45846690506` | FAILURE `45846690579` | FAILURE `45846690577` | SUCCESS | CANCELLED | SUCCESS |
+
+Clippy and autofix results are auxiliary checks and do not override core CI/security failures. The available workflow wrapper returns only first-page PR-triggered runs; this is not a full check-run inventory. Main combined status remains Vercel FAILURE. Main Actions push state is NOT VERIFIED by this wrapper.
+
+### Corrected PR #630 terminal evidence
+
+The prior section described PR #630 Core CI as IN_PROGRESS at an earlier poll. A subsequent exact-head poll of the same SHA `248680f73fd77bf8d058ae087bd2ebaa5be831ed` shows the final run states:
+- Core CI `45907037292`: CANCELLED. Jobs: Resolve exact candidate PR metadata `140206216060` CANCELLED; six downstream jobs (Windows integration/RLS, persist success/reset breaker, Windows quality gates, Ollama integration, failure diagnostics/evidence, persist failure) all SKIPPED. This is not a pass and no substantive validation completed.
+- CodeQL `45907037233`: FAILURE. Both JavaScript/TypeScript and Actions jobs failed on the confirmed repository configuration error: Advanced CodeQL SARIF cannot be processed while Default Setup is enabled.
+- Codacy `45907037359`: FAILURE. Logs show Docker client API 1.39 below server minimum 1.40, repeated analyzer failures, file-read errors, and SARIF upload `Invalid request.`.
+- Clippy `45907037258`: SUCCESS only; it does not offset cancelled core CI or security failures.
+- Autofix `45907037295`: CANCELLED.
+- Vercel: FAILURE.
+- Formal PR #630 reviews: zero; inline review threads: zero.
+
+### Current ownership boundary and disposition
+
+- GPT5 has completed the operational evidence refresh and appended this addendum to the GPT5-owned audit file only.
+- GPT1/CI owner: investigate why PR #630's exact metadata resolver was cancelled and why downstream acceptance jobs were skipped; also reconcile the CodeQL setup conflict with PR #643's no-CodeQL-run gap.
+- Security/Codacy owner: resolve Docker API compatibility, analyzer file-read failures and SARIF upload invalid request.
+- Vercel administrator: resolve build-rate-limit / failed deployment state and provide a fresh successful exact-HEAD deployment.
+- GPT3/authorized independent reviewer: formal APPROVED review after all substantive exact-head checks pass.
+- GPT5 will not mark any PR ready, self-approve, merge, alter another lane's workflows/secrets/runners, or bypass any required check. No currently observed PR meets the evidence threshold for ready/merge.
+
+### Automation correction
+
+The existing daily automation remains enabled for 08:00 Asia/Taipei, next scheduled 2026-11-28 08:00. Its last recorded scheduled run remains 2026-11-25 00:02:54Z. The run-now action returned an inline execution prompt and was invoked for this conversation, but the scheduler history has not yet recorded a new completed scheduled run. Do not claim all intervening days ran successfully or that a 99.99999% SLA is achieved.
+
+### Evidence limitations
+
+- Direct full REST pagination for all open PRs, Actions runs, jobs, and check-runs is not exposed by the connector wrappers used here; the 12 PR inventory is the connector's returned open-PR result.
+- No direct branch-protection/required-check re-read or CircleCI inventory was available.
+- No production, billing, secrets, permission, runner, deployment, or branch-protection settings were changed.
