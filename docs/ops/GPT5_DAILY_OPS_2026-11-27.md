@@ -1363,3 +1363,44 @@ All run records above were queried by the exact PR HEAD. Run conclusions are ter
 - This refresh is documentation-only; it does not repair the underlying shared CI/security blockers. No local tests/build/lint were run. The ledger update creates a new PR #630 head and therefore invalidates all earlier checks on that PR; fresh exact-head runs must be observed after commit.
 - Keep #630 Draft. No self-review, Ready transition, merge, release or deployment. GPT5 cannot close external Vercel billing/plan limits or shared security workflow defects.
 - Owner routing: GPT1/Factory owns #632/#623/#622 implementation and queue issues; CI/Security owner owns CodeQL configuration and Codacy SARIF upload; Vercel/account owner owns main/#632/#631/#628/#626/#625/#623 build-rate-limit; GPT3/authorized independent reviewer owns independent approval. GPT5 continues Operations evidence, intelligence synthesis and handoffs without claiming ownership of those repairs.
+
+
+
+## Live recheck — 2026-11-27 (current conversation; exact refs re-read)
+
+### Main
+- `main` HEAD: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Combined status: FAILURE. The only reported commit status is Vercel FAILURE with description `Deployment rate limited — retry in 24 hours.` (status ID `59978426597`).
+- Latest visible main-branch workflow runs: PR Acceptance Gate `45882700396` CANCELLED; Agent Factory System Health Recovery `45882700412` CANCELLED; Recovery Failure Observer `45882719409` SUCCESS (observer only).
+- Acceptance Gate run `45882700396` has 0 jobs. Main push Actions are NOT OBSERVED in the branch-filtered workflow-run listing; do not infer PASS.
+- Branch protection read returns 403 `Resource not accessible by integration`; required-check enforcement remains UNKNOWN.
+
+### All current OPEN PRs
+All ten target base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`. All are OPEN and Draft at this recheck.
+
+| PR | HEAD SHA | Exact-head observed check-run outcomes |
+|---|---|---|
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | Windows quality FAILURE; Acceptance Gate FAILURE; JS/TS, Actions and Codacy/Vulnerability scans FAILURE; diagnostics PENDING; multiple optional jobs SKIPPED. |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | Windows quality IN_PROGRESS; Acceptance Gate and Codacy/JS/TS/Actions/Vulnerability scans FAILURE; publication/preflight-related jobs SKIPPED; autofix CANCELLED. |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | Acceptance Gate, JS/TS, Actions and Codacy/Vulnerability scans FAILURE; integration, quality and persistence jobs SKIPPED; autofix/metadata resolver CANCELLED. |
+| #630 | `5bbed00e69468f62cfe4f01f73d2663a15da8b74` | Windows quality, Acceptance Gate, JS/TS, Actions, Codacy and Vulnerability checks FAILURE; diagnostic evidence SUCCESS; integration/persistence jobs SKIPPED. |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | Windows quality, Ollama and PostgreSQL/RLS checks SUCCESS; Acceptance Gate, JS/TS, Actions and Vulnerability checks FAILURE; autofix CANCELLED. |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | Acceptance Gate, JS/TS, Actions, Codacy and Vulnerability checks FAILURE; Windows quality CANCELLED; several integration/persistence checks SKIPPED. |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | Acceptance Gate, JS/TS, Actions, Codacy and Vulnerability checks FAILURE; quality/integration/persistence checks SKIPPED; resolver/autofix CANCELLED. |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | Acceptance Gate, Windows quality, JS/TS, Actions, Codacy and Vulnerability checks FAILURE; diagnostics SUCCESS; autofix CANCELLED; integration/persistence checks SKIPPED. |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | Acceptance Gate, Windows quality, JS/TS, Actions, Codacy and Vulnerability checks FAILURE; diagnostics SUCCESS; autofix CANCELLED; integration/persistence checks SKIPPED. |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | Windows quality, Acceptance Gate, JS/TS, Actions, Codacy and Vulnerability checks FAILURE; diagnostics SUCCESS; autofix CANCELLED; integration/persistence checks SKIPPED. |
+
+### Formal review recheck
+- Formal APPROVED reviews: 0/10.
+- #632 and #623 have COMMENTED only; the other eight have no formal review submissions.
+- COMMENTED, Clippy SUCCESS, diagnostic SUCCESS, or mergeable metadata do not satisfy independent acceptance.
+
+### Disposition / owner routing
+- No PR is eligible for Draft removal or merge. Keep all ten Draft.
+- Shared checkout/scanner/CodeQL and CI policy failures: CI/Security maintainers; avoid overlapping duplicate workflow fixes.
+- Factory fixtures, queue, task paths and state: GPT1/Factory owner; GPT5 does not alter Factory implementation or durable state.
+- Vercel build-rate-limit: repository/Vercel account administrator; no billing, quota or deployment settings changed.
+- Independent approval: GPT3 or another authorized independent reviewer; GPT5 does not self-approve.
+- Branch protection 403: repository administrator must grant read access or provide verified policy evidence.
+- No source/workflow repair, local tests, build or lint was executed in this pass. This entry is evidence/handoff only; any future commit to this PR changes its HEAD and invalidates all prior exact-head CI evidence. Re-read exact refs before any release decision.
