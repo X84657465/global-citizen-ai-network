@@ -230,12 +230,15 @@ export function assessGExactHeadEvidence(bundle: GAcceptanceBundle): GAcceptance
 
   const expectedJobPrefix = `${expectedRunUrl}/job/`;
   const jobIds = new Set<string>();
+  const jobUrls = new Set<string>();
   for (const job of jobItems) {
     if (jobIds.has(job.jobId)) throw new TypeError("Duplicate G CI job evidence.");
+    if (jobUrls.has(job.jobUrl)) throw new TypeError("Duplicate G CI job URL evidence.");
     if (!job.jobUrl.startsWith(expectedJobPrefix)) {
       throw new TypeError("G job URL does not belong to the candidate workflow run.");
     }
     jobIds.add(job.jobId);
+    jobUrls.add(job.jobUrl);
   }
 
   const jobs: GJobAssessment[] = G_REQUIRED_CI_JOBS.map((jobId) => {
