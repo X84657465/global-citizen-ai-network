@@ -1490,3 +1490,44 @@ All ten are OPEN / Draft / not merged, base SHA `078bc72216e3990f9c7c4db2e06e585
 ### Automation / execution semantics
 - Existing GPT5 daily automation was explicitly triggered once for this conversation and the inline sweep was executed. This is not 24/7 monitoring and does not prove a future scheduled run has completed. No duplicate schedule was created.
 - Status labels remain distinct: SUCCESS / FAILURE / SKIPPED / CANCELLED / IN_PROGRESS / PENDING / UNKNOWN. None of the latter states are PASS.
+
+
+## GPT5 live operational audit — 2026-11-27 04:05 Asia/Taipei (newest exact observation)
+
+### Baseline and Main
+- Main ref re-read directly: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Combined commit status: Vercel `FAILURE`, target `build-rate-limit`.
+- Main Actions query by exact head SHA returns 243 workflow runs overall, but only one direct `push` event is visible in this result: Debricked Scan `45882576931` = FAILURE. A current Main core CI push run is therefore **NOT OBSERVED** by this query; do not infer it passed.
+- Main check-runs API reports 307 total records, but this request returned only the first 100. First-page counts: SUCCESS 34, FAILURE 18, SKIPPED 27, CANCELLED 21. This is a partial page, not an exhaustive aggregate.
+- Latest Main PR Acceptance Gate `45887488553` = FAILURE; its sole job `140141751251` failed at step `Evaluate exact-head acceptance policy`.
+- Latest System Health Recovery `45887488626` = CANCELLED. Recovery observer `45887511901` = SUCCESS but is observational only; it does not establish a successful recovery or durable breaker reset.
+- Active repository ruleset `protect-main` (ID `28032767`) applies to all refs/default branch. Rules: deletion, non-fast-forward, Copilot code review. No required status-check or required-approval rule is declared in this ruleset. Repository-role bypass is `always` and current user can bypass; this audit does not use bypass. Keep independent approval and exact-head acceptance as operational gates.
+
+### All 10 OPEN PRs — exact base/head, current state and exact-head check-run records
+All ten currently target Main at `078bc72216e3990f9c7c4db2e06e5851a5c8428e`, are OPEN, Draft=true, mergeable=true, and not merged. Mergeable metadata is not acceptance. The following check-run aggregates are for the exact HEAD shown and include all records returned by the check-runs endpoint:
+
+| PR | Exact HEAD | Checks | SUCCESS | FAILURE | SKIPPED | CANCELLED | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|
+| #630 GPT5 ops | `e21aa881e101f864ebe7f065d3517206e334c30e` | 19 | 6 | 4 | 6 | 2 | 1 |
+| #628 CI checkout policy | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 |
+| #634 GPT2 H | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 |
+| #632 Factory patch budget | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 2 |
+| #624 Factory cooldown | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 |
+| #625 Factory preflight lookup | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #631 GPT2 coordination | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #626 GPT2 P | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 |
+| #623 Factory acceptance queue | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 |
+| #622 Factory control-plane allowlist | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 2 |
+
+All ten check-run sets are terminal, but every PR has at least one FAILURE; SKIPPED/CANCELLED/NEUTRAL are not PASS. On #630, exact-head core CI run `45887442808` is terminal but cancelled at resolver job `140141658351`; Windows quality, PostgreSQL/RLS, Ollama, persistence and diagnostics jobs are all SKIPPED. Separate exact-head failures: CodeQL Actions, CodeQL JS/TS, Codacy and Vulnerabilities scan. The resolver job's log artifact could not be retrieved (Azure BlobNotFound); root cause remains UNKNOWN, not a proven code failure or successful recovery.
+
+### Formal reviews and disposition
+- Formal review submissions rechecked on all ten PRs: **0 APPROVED**. #632 and #623 have COMMENTED only; eight have no review submissions. COMMENTED is not approval.
+- No PR is eligible for Ready conversion or merge. No self-approval, bypass, merge, deployment or release was performed.
+- Ownership handoff: GPT1/Factory owns implementation and Factory-state follow-up for #632/#624/#625/#622; GPT2 owns #634/#631/#626/#623; GPT5 owns only the operations evidence in #630; shared scanner/CodeQL/Codacy/Vulnerability failures route to CI/Security maintainers; Vercel build-rate-limit routes to repository/account administrator. Preserve GPT3 as independent reviewer.
+- Next actionable sequence: (1) CI/Security maintainers diagnose common Actions/JS-TS, Codacy and Vulnerabilities scan failures from exact run/job logs; (2) Vercel/account administrator resolves build-rate-limit; (3) GPT1/Factory investigates cancelled resolver and skipped dependent jobs, with artifact/log retrieval failure treated as UNKNOWN; (4) independent reviewers submit formal APPROVED on exact current HEAD only after required tests pass.
+- GPT5 scope remained documentation/evidence/handoff only. No Factory/A–P source, workflow, Runner, queue/lease/durable state, secrets, permissions, branch protection, database, production data, billing or deployment settings were modified. No local test/type/lint/build was run in this connector-only audit.
+
+### Daily automation
+- Existing `GCAN 每日工程巡檢` automation ID `6b0333fe43d48191a35a1c83fd72fe6c` was found disabled and re-enabled at 2026-11-27 04:04 Asia/Taipei. Daily flexible schedule remains Asia/Taipei, next target 08:00.
+- One immediate run was requested and its inline prompt executed in this conversation. This is not 24/7 monitoring and does not promise 99.99999% availability.
