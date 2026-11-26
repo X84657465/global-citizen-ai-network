@@ -1983,3 +1983,60 @@ All remain OPEN / Draft, target the same main base SHA above, and report mergeab
 - Security/CI owners: act on confirmed Codacy Docker/SARIF compatibility, Debricked missing token and CodeQL default-setup/advanced-setup conflict documented in the prior section.
 - GPT3: independent review after exact-head substantive CI/security checks become clean. Review-thread status remains NOT OBSERVED.
 - GPT5 did not change source code, workflows, secrets, permissions, rulesets, branch protection, Factory durable state, production data, billing or deployment configuration. No local test suite was run.
+
+
+---
+
+## GPT5 delta refresh — 2026-11-27 (latest verified sweep)
+
+This section supersedes earlier snapshot rows above wherever exact HEADs, run IDs, or states differ. The historical entries are retained as an audit trail, not current status.
+
+### Current baseline and Main recovery semantics
+
+- Main ref was freshly resolved to `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Main combined status remains **FAILURE**, with Vercel context `build-rate-limit`: `Deployment rate limited — retry in 24 hours.`
+- Latest main-ref Recovery run [45895637770](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45895637770) is job-level **SUCCESS**, but it is not a successful breaker recovery. Job `140168712665` successfully resolved the source CI run and uploaded diagnostic artifact [system-health-recovery-diagnostics-45895637770-1](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45895637770/artifacts/15154265358); however, the decisive step `Verify completed CI provenance and reset global breaker` was **SKIPPED**. Its log records source CI run `45894875405` from PR #630, source SHA `38ef5e3b8c7f5b9334155801e69bd11090f023fb`, resolver outcome `success`, controller outcome `skipped`, and an empty `RESOLVED_PR_NUMBER`. Therefore the run's green job conclusion means diagnostic capture succeeded, not that Main CI was restored or the system breaker was reset.
+- Hosted allocation recovery job `140168930568` was SKIPPED.
+- Latest main-ref Acceptance Gate [45895637714](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45895637714) is FAILURE. Its evaluated PR was #630 at exact SHA `38ef5e3b8c7f5b9334155801e69bd11090f023fb`; gate reported `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, two `REQUIRED_JOB_SKIPPED`, `APPROVAL_MISSING`, and `DRAFT_NOT_READY`.
+- Observer [45895713828](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45895713828) SUCCESS remains observer-only and is not recovery proof.
+
+### Ten OPEN PRs — current exact-head check-runs
+
+All ten remain OPEN / Draft, with base SHA equal to current Main. Check-run totals are from the complete per-commit check-runs response for each listed exact HEAD.
+
+| PR | Exact HEAD | Total | SUCCESS | FAILURE | SKIPPED | CANCELLED | IN_PROGRESS | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 0 | 1 |
+| #632 | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | 26 | 5 | 5 | 12 | 2 | 0 | 2 |
+| #631 | `f5242dc8403bfec7d6d4a9ad97842ed876c2be94` | 19 | 5 | 4 | 6 | 2 | 0 | 2 |
+| #630 | `38ef5e3b8c7f5b9334155801e69bd11090f023fb` | 20 | 9 | 6 | 4 | 0 | 0 | 1 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 0 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 0 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 0 | 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 0 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 0 | 1 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 0 | 2 |
+
+Formal review submissions were freshly queried: **zero APPROVED**. #632 has one COMMENTED by `X84657465`; #623 has one COMMENTED by `coderabbitai`; the other eight have no formal review submissions. A COMMENTED review is not approval. No Draft transition or merge is authorized.
+
+### New concrete CI root cause — PR #630
+
+- Core CI [45894875405](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45894875405), Windows Quality job `140166607402`, completed FAILURE.
+- The job log identifies failing test `tests/ci-trigger-policy.test.mjs:503`: `codacy.yml checkout at line 39 must not persist its token in .git/config`. Result: **51 passed / 1 failed**; later unit/type/lint/build gates were skipped.
+- Direct branch comparison confirms Main and PR #630 still have a bare `actions/checkout@v4` at `.github/workflows/codacy.yml` line 39. PR #628 branch `fix/ci-checkout-credential-policy` already includes `persist-credentials: false` immediately after checkout, plus SARIF output validation/empty-SARIF handling.
+- This is a concrete candidate fix owned by CI/PR #628; GPT5 did not cherry-pick or duplicate a workflow change outside its allowlist. PR #628 itself still has separate exact-head security/analysis failures and CodeQL NEUTRAL, so this is not a complete acceptance.
+- #630 also has Codacy FAILURE, CodeQL SUCCESS, Actions analysis FAILURE, JavaScript/TypeScript analysis FAILURE, vulnerability scan FAILURE, and Acceptance Gate FAILURE. Do not summarize its mixed results as a green CI.
+
+### PR #632 resolver and diagnostics
+
+- Current exact HEAD is `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1`, superseding older HEAD `282e668d...`.
+- Core CI [45895379296](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45895379296): resolver job `140167850260` CANCELLED; all six dependent quality/integration/persistence/diagnostics jobs SKIPPED. Attempted log retrieval returned Azure `404 BlobNotFound`; cancellation root cause remains **UNKNOWN**.
+- Acceptance Gate [45895421368](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45895421368) FAILURE, with `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, three `REQUIRED_JOB_SKIPPED`, two `PREFLIGHT_NOT_SUCCESS`, `APPROVAL_MISSING`, and `DRAFT_NOT_READY`.
+- The 2026-11-27 handoffs were posted to Issue #505 (comment `7203386407`), PR #630 (`7203387121`), PR #628 (`7203387787`), and PR #632 (`7203392805`).
+
+### GPT5 disposition
+
+- This delta is an operations/evidence document update only. No source code, workflow, Factory Runner/Queue/Lease/durable state, secrets, permissions, branch protection/rulesets, DB/RLS, production data, billing, or deployment settings were changed.
+- No local tests were run by GPT5. GitHub Actions evidence above is cited by exact run/job and SHA; skipped/cancelled work is not represented as passing.
+- The existing daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled for 08:00 Asia/Taipei. This turn also invoked its immediate run once and executed the inline prompt.
+- Current disposition: **BLOCKED / NOT GREEN**. Main Vercel rate limit, skipped breaker reset, PR #630 policy failure, PR #632 resolver cancellation, other PR exact-head failures, and zero independent approvals remain outstanding.
