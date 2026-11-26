@@ -1,10 +1,6 @@
-pull_request_rules:
-  - name: Automatic merge when CI passes
-    conditions:
-      - "#check-failure = 0"
-      - "#check-pending = 0"
-      - -conflict
-      - -draft
-    actions:
-      merge:
-        method: merge
+# Automatic merging is intentionally disabled.
+# CI success, absence of pending checks, and a non-draft PR do not
+# establish independent review, exact-head acceptance, or merge authority.
+# Keep merge authorization in the repository's separately verified
+# human review and acceptance process.
+pull_request_rules: []
