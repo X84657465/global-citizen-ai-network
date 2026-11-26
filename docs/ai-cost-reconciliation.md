@@ -56,6 +56,7 @@ openai,gpt-model,2026-11-01,2026-11-30,provider-request-id,USD,1.25000000
 - `matched_actual`: exact source reference equals the request's provider request ID, provider/model agree, request creation time falls inside the supplied billing period, and provider-reported billed amount and currency exactly agree.
 - `variance`: exact request evidence exists but billed amount or currency differs. This is never silently corrected.
 - `unmatched_estimate`: no exact request-level evidence supports a match.
+- `ambiguous_match`: more than one in-period request matches the same provider reference, provider, and model; no request is selected and the row requires human review.
 - `duplicate_row`: repeated normalized row; excluded from counted unique rows.
 - `duplicate_reference`: same source reference appears with a different row; excluded from matched actuals pending human review.
 - TWD normalization is emitted only when the operator supplies an explicit positive rate, matching source currency, target TWD, and parseable timestamp. Original amount and currency remain present.
