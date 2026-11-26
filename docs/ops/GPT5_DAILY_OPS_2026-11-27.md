@@ -1,3 +1,62 @@
+## GPT5 live operations audit — 2026-11-27 (fresh exact-head recheck)
+
+This entry supersedes earlier moving-head snapshots below. Re-read refs before any future action. No source, workflow, Factory state, secrets, permission, deployment, or other GPT-owned implementation was changed.
+
+### Main
+- `main` exact SHA: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Exact-SHA check-runs endpoint: 169 records across two pages; aggregate **44 SUCCESS / 26 FAILURE / 65 SKIPPED / 34 CANCELLED**. These are historical check-run records associated with the commit, not one green run.
+- Combined status: Vercel **FAILURE**, target reports `build-rate-limit`.
+- Latest observed PR Acceptance Gate run [45863459714](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45863459714), job `140060239405`: **FAILURE**, step `Evaluate exact-head acceptance policy`.
+- Factory System Health Recovery run [45863459751](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45863459751): precondition job `140060165519` **CANCELLED**; hosted allocation/recovery job `140060242199` **SKIPPED**. Both jobs have no steps. Observer [45863513544](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45863513544) is SUCCESS for observation only, not proof of recovery.
+- Active repository ruleset `protect-main`, ID `28032767`, applies to the default branch and includes deletion, non-fast-forward, and Copilot code-review rules. Ruleset metadata reports RepositoryRole bypass mode `always`; no bypass was used. Traditional branch-protection endpoint remains 403, so do not infer required-check configuration from it.
+- Main disposition: **BLOCKED / NOT ALL GREEN**.
+
+### All 9 OPEN PRs — exact current HEADs
+
+All nine target `main` at base `078bc72216e3990f9c7c4db2e06e5851a5c8428e`, remain OPEN, and report mergeable=true (metadata only). #623 is the only non-Draft PR. Exact-head check-runs below are fully completed terminal records; SUCCESS counts do not offset failures, skipped jobs, cancellations, or neutral results.
+
+| PR | Exact HEAD | Draft | Exact-head checks (success / failure / skipped / cancelled / neutral) |
+|---|---|---:|---|
+| [#632](https://github.com/X84657465/global-citizen-ai-network/pull/632) | `b613bb9d9032894e9685b2fcc23e7170b006e77c` | Yes | 6 / 5 / 12 / 2 / 1 |
+| [#631](https://github.com/X84657465/global-citizen-ai-network/pull/631) | `1f3c47727b86ef0be7221cfd96493c0d09b87e85` | Yes | 6 / 14 / 6 / 2 / 1 |
+| [#630](https://github.com/X84657465/global-citizen-ai-network/pull/630) | `5c70dc93d4b7d1acb87180b5c4b7557c5f2d40b4` | Yes | 5 / 7 / 6 / 2 / 2 |
+| [#628](https://github.com/X84657465/global-citizen-ai-network/pull/628) | `3b54cc4be162b5da42cd62c1947b204f69ab8969` | Yes | 11 / 1 / 3 / 1 / 1 |
+| [#626](https://github.com/X84657465/global-citizen-ai-network/pull/626) | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | Yes | 6 / 7 / 6 / 1 / 2 |
+| [#625](https://github.com/X84657465/global-citizen-ai-network/pull/625) | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | Yes | 5 / 5 / 6 / 2 / 2 |
+| [#624](https://github.com/X84657465/global-citizen-ai-network/pull/624) | `272642ac7fb9965fba245f65fa3a049429a4068a` | Yes | 6 / 4 / 6 / 2 / 2 |
+| [#623](https://github.com/X84657465/global-citizen-ai-network/pull/623) | `7d86e28b34a38f943ad65de93a2d277c35002f81` | No | 9 / 5 / 4 / 1 / 2 |
+| [#622](https://github.com/X84657465/global-citizen-ai-network/pull/622) | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | Yes | 8 / 5 / 4 / 1 / 2 |
+
+Formal review submissions: **0 APPROVED** across all nine. #623 has one COMMENTED submission only. No formal review can be inferred from mergeable=true or successful individual checks.
+
+Latest observed Acceptance Gate runs:
+- #632: [45861841678](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45861841678) CANCELLED.
+- #631: [45866983650](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45866983650) FAILURE; job `140072229748` reports `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, three `REQUIRED_JOB_SKIPPED`, `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- #630: [45864290790](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45864290790) FAILURE; job `140063005190` reports the same HOLD categories: `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, three `REQUIRED_JOB_SKIPPED`, `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- #628: [45859789265](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45859789265) CANCELLED. Its CI [45859797002](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45859797002) attempt 4 is SUCCESS, but exact-head Debricked [45859782775](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45859782775) is FAILURE; Draft and approval requirements remain.
+- #626: [45856938752](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45856938752) CANCELLED.
+- #625: [45854058435](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45854058435) FAILURE.
+- #624: [45854049457](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45854049457) CANCELLED.
+- #623: [45856034167](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45856034167) CANCELLED; its CI run [45854489097](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45854489097) is FAILURE, and COMMENTED review is not approval.
+- #622: [45854039884](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45854039884) CANCELLED.
+
+### Root-cause evidence and handoffs
+1. **Acceptance policy is functioning as a HOLD, not a false green.** The exact logs on #630 and #631 show the explicit failure codes above. Their PRs are Draft, lack independent APPROVED review, and their required CI jobs are not all successful. This is an acceptance outcome, not a defect GPT5 can override.
+2. **Factory recovery is not running.** Main Recovery precondition is cancelled before any step and hosted allocation job is skipped before any step. Factory/Runner owner must inspect the workflow dispatch/cancellation source and provide actual hosted-runner allocation and recovery evidence. Repeated observer SUCCESS is not recovery.
+3. **Vercel is an external provider block.** Main combined status points to `build-rate-limit`; repository/Vercel administrators must resolve the project/account limit. GPT5 did not change plan, billing, quota, or deployment.
+4. **Security scanner failures remain cross-cutting.** Codacy/CodeQL failures affect multiple PRs; Debricked also fails on #628. Security/repository owners must inspect each exact-head scanner log and configuration. No secrets were requested or exposed.
+5. **Ownership remains separated.** GPT1/Factory owns #622–#625 and #632; GPT2 owns #626/#631; GPT5 owns only operations evidence/docs on #630; GPT3 or another independent reviewer owns formal QA/approval.
+
+### GPT5-owned action and disposition
+- This pass revalidated main, all nine exact PR HEADs, all exact-head check-run totals, workflow runs, formal review submissions, Main Vercel status, and active ruleset.
+- GPT5's safe contribution is to refresh the operations evidence ledger and route concrete blockers to their owning roles. No non-overlapping GPT5 source defect or authorized implementation fix was established.
+- No PR is eligible for Draft removal, merge, or release. Do not self-approve, use COMMENTED as approval, or use the ruleset bypass capability.
+- No blind reruns were triggered. No cross-role source, Factory state, workflows, secrets, permissions, branch protection, production data, billing, or deployment settings were modified.
+- Connector-only session: no local tests/build/lint were run.
+- Existing daily automation `6b0333fe43d48191a35a1c83fd72fe6c` is enabled daily at 08:00 Asia/Taipei; next scheduled time reported as `2026-11-27T08:00:00+08:00`. Immediate run was requested for this conversation; schedule metadata alone is not proof of report delivery.
+
+---
+
 ## GPT5 live operations audit — 2026-11-27 (Asia/Taipei), refreshed after 00:50
 
 This is the newest evidence snapshot in this file. It supersedes prior moving-head inventories below. All results are scoped to the exact SHAs and run IDs shown; re-read refs before future decisions.
