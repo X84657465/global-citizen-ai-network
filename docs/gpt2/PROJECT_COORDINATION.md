@@ -1044,3 +1044,73 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - 等待 #591 exact-head quality job 終態；保留 G source/test 的 single-purpose scope。
 - 對 #589 新增本節後的 exact HEAD 重新讀取 Actions/jobs；不沿用舊 SHA 的 SUCCESS。
 - 三件 GPT2 PR 均需授權獨立 reviewer 對同一 exact HEAD 正式 APPROVED，並確認 required/external checks、threads、base 與 protection；未達成前不解除 Draft、不合併。
+
+
+
+## 6.14 即時巡檢與 GPT2/F–P 工作分流 — 2026-11-26（main SHA `db9592f4b42f14b8a006b2e753f8decf3aa34ce0`）
+
+> 本節依本輪 GitHub API 查核更新。這是文件／交接快照，不代表主線驗收通過；本節沒有宣稱任何未執行測試通過。
+
+### Main、CI、PR 與外部阻塞
+
+- Main ref：`db9592f4b42f14b8a006b2e753f8decf3aa34ce0`；最新 commit message：`Merge pull request #614 from X84657465/fix/fp-integration-test-unique-g-job-urls-20261126`。
+- OPEN PR inventory：0。沒有可解除 Draft、重新驗收或合併的開啟中 PR。
+- Main exact-SHA check-runs API 回傳 16 筆：5 筆 SUCCESS、7 筆 SKIPPED、4 筆 CANCELLED；不得將 Recovery Observer 或 PR Acceptance Gate 的成功外推成完整 CI PASS。
+- Main push CI run `45833329182`：COMPLETED / CANCELLED。Resolver job `139955530830` CANCELLED；Windows quality gates `139955734074`、Ollama/local execution `139955733993`、PostgreSQL/RLS `139955733738`、success/failure persistence `139955734326`／`139955735029`、diagnostics `139955735183` 均 SKIPPED。主線完整品質驗收未完成。
+- Recovery runs `45833396023`、`45833385925`：CANCELLED；三筆 Recovery Failure Observer runs `45833406105`、`45833409624`、`45833419462` SUCCESS，僅代表 observer 任務成功。
+- PR Acceptance Gate runs `45833385739`、`45833396034` SUCCESS；不替代主線品質與整合測試。
+- Combined status 的 Vercel context 為 FAILURE，target URL 明示 `build-rate-limit`。這是外部部署額度阻塞；不盲目重試、不修改付費方案。
+- Branch protection API 回傳 HTTP 403 Resource not accessible by integration；required checks／保護規則狀態 UNKNOWN，不推定已啟用或已停用。
+
+### GPT2/F–P 自有交付
+
+1. **G / Issue #375 / PR #591：已合併。**
+   - PR #591 `8b68ca53052f3b054486ec607f5552e5b9b07fe0` 已於 2026-11-26 13:22:37Z 合併，merge commit `416669c51575aa977af8141e999c8c29948ca7bb`。
+   - 交付內容：拒絕不同必要 job ID 重用同一 GitHub job URL，並新增 regression；保留 exact run/attempt/repository/PR/base/SHA 綁定及 advisory-only authorization 欄位。
+2. **G / F–G integration fixture / PR #614：已合併。**
+   - PR #614 `a6a174813604e167a8323a4f197191f88d5b0844` 已於 2026-11-26 13:52:08Z 合併，merge commit 即目前 main `db9592f4b42f14b8a006b2e753f8decf3aa34ce0`。
+   - 僅修改 `tests/fp/f-g-integration-assurance.test.ts`，為必要 job fixture 產生唯一 job URL；沒有放寬 production duplicate-URL validator。
+3. **Issue #384 GPT2 採納證據：已存在。**
+   - `docs/gpt2/PROJECT_COORDINATION.md` 第 2–5 節已映射感知、記憶、認知、規劃、執行、驗證／反思至 F–P，並記錄 GPT1／GPT3／GPT4／GPT5 的責任與交接。
+   - GPT2 DOCUMENTED／ADOPTED（文件與工作流程層級）為 YES；GPT3 獨立接受仍 PENDING；IMPLEMENTED 不作宣稱。Issue #384 仍 OPEN 是其他角色證據未齊，不由 GPT2 代簽。
+
+### 下一項 GPT2 工作與分流
+
+- **Issue #204（F／neuro-symbolic risk gate）：** 最新可讀 durable state snapshot v310（更新時間 2026-11-26 09:43:11Z）記錄 status=queued、attempts=3，且 base SHA `639cbc0aee89e9f97df2a9e664035be8d827f2e8` 已落後目前 main。此為舊快照，不代表目前 lease／queue 即時狀態；依 Issue 要求只透過正常 queue/lease 路徑以最新 main 重新選取，不手動改 durable state、不繞過排程。
+- **Issue #85（H／AI cost reconciliation）：** 同一 v310 歷史快照記錄 quarantined；因快照非即時，先由正常 queue 狀態確認是否仍隔離，不手動解除 quarantine 或重設 retry。
+- **Issue #144（F／Supabase credential log redaction）：** 觸及五份 development-branch `.github/workflows/ci.yml`；Factory workflow／Runner ownership 與 GPT2 禁止越權修改邊界尚未釐清。交由 GPT1／檔案 owner 指定 allowlist 與共同修改安排前，GPT2 不直接改寫 workflow。
+- **GPT1 handoff：** Main CI CANCELLED／下游 SKIPPED、Recovery CANCELLED、Vercel build-rate-limit、Branch Protection 403；請 Factory owner 查明 resolver cancellation 與完整品質 jobs 未執行的根因。GPT2 不修改 Factory workflow、Runner、durable state、Secrets、permissions 或 branch protection。
+
+### 本輪驗證界線
+
+- 本輪只完成 GitHub ref、PR inventory、exact-SHA check-runs、workflow runs、job 終態、Issue／merge metadata 與 durable state snapshot 的讀取核對。
+- 沒有執行本機 unit tests、TypeScript、Lint 或 Build；沒有對 main 直接寫入；沒有改動 Factory／Runner／Secrets／permissions／資料庫／RLS／部署。
+- 此節文件變更須經自己的 PR exact-head CI 與獨立審查；不得自我批准、不得把文件快照當作程式驗收。
+
+
+## 6.15 即時巡檢更正與 PR #617 exact-head 終態 — 2026-11-26（Asia/Taipei）
+
+> 本節為 6.14 的更新快照；若與前節數字不同，以本節 API 重新讀取的 exact-SHA 結果為準。不得將 observer SUCCESS 解讀為主體 CI PASS。
+
+### Main exact SHA / workflow
+
+- Main：`db9592f4b42f14b8a006b2e753f8decf3aa34ce0`（本輪重新讀取 ref，未變動）。
+- Exact-main Check Runs：23 筆；SUCCESS 7、FAILURE 1、SKIPPED 10、CANCELLED 5。
+- 最新 Main Recovery run `45835501431`：COMPLETED / CANCELLED；Resolver `139963046789` CANCELLED，Windows quality `139963107167`、Ollama `139963108567`、PostgreSQL/RLS `139963108617`、persistence `139963108605`／`139963109103`、diagnostics `139963108895` 均 SKIPPED。
+- Main PR Acceptance Gate run `45835501598`：FAILURE；job `139963171869` 的 Evaluate exact-head acceptance policy 步驟失敗。Recovery evidence-capture observers `45835515408`、`45835516587` SUCCESS，僅證明 observer 執行成功。
+- Branch protection endpoint 再次回傳 403 Resource not accessible by integration；required checks／保護規則維持 UNKNOWN。
+
+### Open PR #617 — 不解除 Draft、不合併
+
+- PR #617 仍 OPEN / DRAFT；base `db9592f4b42f14b8a006b2e753f8decf3aa34ce0`，目前 exact HEAD `6d4e6b1f749dd4e992d1a4e419ab4266fc9c9d49`。
+- Exact-head check-runs：11 筆；SUCCESS 1（Summary）、FAILURE 1（PR Acceptance Gate）、NEUTRAL 1（Mergify）、SKIPPED 6、CANCELLED 2。Summary SUCCESS 不是 CI PASS。
+- Exact-head workflow runs：CI `45835465171` CANCELLED；autofix `45835465080` CANCELLED；PR Acceptance Gate `45835459830` FAILURE。
+- 最新 Gate run `45835501598` 評估 #617 exact HEAD 後回報 HOLD：`CI_NOT_SUCCESS`、`REQUIRED_JOB_NOT_SUCCESS`、三項 `REQUIRED_JOB_SKIPPED`、`APPROVAL_MISSING`、`DRAFT_NOT_READY`。沒有正式 APPROVED review。
+- PR #617 的內容僅為 GPT2 協調文件快照；這不構成解除 Draft 或合併條件。等待 CI/Runner 及獨立 reviewer；不重複盲目觸發同一取消流程。
+
+### GPT2/F–P 工作分流更正
+
+- PR #565 已合併（merge commit `63d0c615338c457e8161b076f4a6af74976b0c1a`），先前記錄的 shared classifier overlap 已解除；但 Issue #204 仍 OPEN，最後可見 Issue 更新時間為 2026-11-25，沒有最新 Factory queue/lease 證據。只能經正常 queue/lease 重新派工，不手動改 durable state。
+- Issue #85 仍 OPEN，最新可見 GPT2 checkpoint 指出 implementation 已在 main，但沒有 exact-main 全套 CI PASS、GPT3 exact-head APPROVED 或 owner acceptance；維持 acceptance BLOCKED 與唯讀財務邊界。
+- 本輪沒有發現其他可由 GPT2 安全接管、且有明確授權與不衝突 allowlist 的即時程式任務。Factory/Runner、外部部署額度、branch protection 權限與獨立審查缺口退回各自 owner。
+- 本輪沒有執行本機測試、typecheck、lint 或 build；沒有 main 直接寫入，也沒有改 Factory workflow、Runner、Secrets、permissions、branch protection、DB/RLS 或 deployment。
