@@ -846,7 +846,7 @@ process.stdout.write(scope);
 if (scope === "system") process.exitCode = 1;
 '@
             [System.IO.File]::WriteAllText($classifierPath, $classifierScript, [System.Text.UTF8Encoding]::new($false))
-            & node $classifierPath
+            $classification = & node $classifierPath
             $classificationExitCode = $LASTEXITCODE
             Remove-Item -LiteralPath $classifierPath -Force -ErrorAction SilentlyContinue
             Remove-Item Env:CANDIDATE_CONTAINER_STATE_JSON -ErrorAction SilentlyContinue
