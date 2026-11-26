@@ -719,6 +719,11 @@ test("preflight captures and uploads both synthetic and real candidate offline-t
       assert.ok(section.includes("docker inspect --format '{{json .State}}'"), "inspect the candidate container after attached start");
       assert.ok(section.includes("candidateContainerFailureScope(state)"), "classify the inspected process result with the shared fail-closed policy");
       assert.ok(section.includes("$classificationExitCode"), "preserve classifier execution failure as system evidence");
+      assert.ok(section.includes("$classifierPath = Join-Path $env:RUNNER_TEMP"), "write the classifier as a real module file to avoid PowerShell native -e quote loss");
+      assert.ok(section.includes("Set-Content -LiteralPath $classifierPath -Value $classifierCode -Encoding UTF8"));
+      assert.ok(section.includes("$classification = & node $classifierPath"));
+      assert.ok(section.includes('pathToFileURL(resolve(process.env.GITHUB_WORKSPACE, "lib/agent-factory-policy.mjs"))'), "resolve the shared policy module from the checked-out workspace");
+      assert.equal(section.includes("& node --input-type=module -e"), false, "do not pass quoted ESM source through Windows PowerShell native -e parsing");
     }
   }
 });
