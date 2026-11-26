@@ -2915,3 +2915,41 @@ All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are
 - CI-PASSING: main push CI workflow 45746587701 is SUCCESS for its core jobs; persistence/evidence and diagnostics remain incomplete due to SKIPPED steps/jobs.
 - BLOCKED: Preflight classification wrapper quoting defect (GPT1/Factory owner); Vercel build-rate limit on #560; pending exact-head checks on #593/#592/#591/#589/#587/#586/#560; older-base and skipped/failure evidence on the remaining PRs.
 - Next single action: obtain the new PR #560 exact HEAD created by this documentation commit, then re-read its own CI/Autofix and Vercel statuses; do not carry the pre-update HEAD's pending/failure results forward.
+
+
+## Live delta — 2026-11-26 18:37 Asia/Taipei
+
+### Main and PR inventory refresh
+
+- Re-read `refs/heads/main`: still `efbc3c05503dd88fcca68e6987ad1395bd662890`; no main SHA movement observed.
+- Open PR inventory increased from 16 to **17**. All 17 currently OPEN and Draft.
+- New PR #594: [fix(factory): preserve PowerShell Node classifier quoting](https://github.com/X84657465/global-citizen-ai-network/pull/594), HEAD `d0169ab1d48e548c6ffd2f783dabef8c5493e8e7`, base main `efbc3c05503dd88fcca68e6987ad1395bd662890`. This is the owner-side Factory repair for the Preflight classifier quote defect; it changes only `.github/workflows/agent-task-preflight.yml` and `tests/ci-trigger-policy.test.mjs`. GPT5 does not modify these overlapping Factory-owned files.
+- PR #594 exact-head checks at observation: Resolver PENDING; Autofix PENDING; Mergify NEUTRAL; Summary SUCCESS. No exact-head acceptance, formal independent approval, or Ready transition yet. Its own PR description explicitly says exact-head CI and independent review are pending.
+- Main Recovery run [45802365481](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45802365481) is still PENDING; its single job `Verify completed exact-head CI before resetting system breaker` is PENDING and exposes no steps. Do not infer a breaker reset.
+- Repeated recent Recovery runs [45802906943](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45802906943), [45802587944](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45802587944), [45802097439](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45802097439), and [45802074066](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45802074066) completed SKIPPED. The repeated workflow_run-triggered skips are not passes and no longer justify repeated retries without a new eligible successful exact-head CI event.
+
+### Main CI clarification
+
+- Main push CI [45746587701](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45746587701), attempt 2, has the four core execution jobs SUCCESS: resolver, Windows quality gates, Ollama/local integration, PostgreSQL/RLS.
+- Both evidence/persistence follow-up jobs are SKIPPED: `Exact-SHA CI failure diagnostics and evidence` and `Persist candidate or system CI failures`. The candidate success/persistence job is job-level SUCCESS, but its candidate revalidation, success record, evidence JSON, and artifact steps were SKIPPED. Do not equate job-level SUCCESS with completed persistence evidence.
+- Main Preflight run [45760860216](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45760860216) remains a completed FAILURE at the outer candidate offline-test step after 848 test assertions passed; the confirmed Node ESM classifier quoting defect is now represented by owner PR #594. Candidate validation is not accepted until the fix is tested on exact HEAD.
+
+### GPT5-owned documentation branch follow-up
+
+- PR #560 remains OPEN / Draft, base main `efbc3c05503dd88fcca68e6987ad1395bd662890`, latest GPT5 documentation HEAD `ac6df5de02118d87091b0a9f1952dcd69f88ec14`.
+- Exact-head checks: Resolver PENDING; Autofix PENDING; Mergify NEUTRAL; Summary SUCCESS; external Vercel status FAILURE with provider build-rate-limit URL. This is an external provider blocker, not a source-code failure.
+- No formal APPROVED review is recorded. Do not mark Ready or merge based on Summary SUCCESS or `mergeable=true`.
+- The live PR list currently contains 17 PRs: #594, #593, #592, #591, #589, #587, #586, #582, #574, #573, #572, #568, #567, #565, #563, #560, #559. Exact refs for all were re-read from the current open-PR API; prior per-PR exact-head states remain historical observations until refreshed individually.
+
+### Automation
+
+- Existing `GCAN Daily Dev Check` automation remains ENABLED, timezone `Asia/Taipei`, daily at 08:00; next scheduled run `2026-11-27T08:00:00+08:00`.
+- Last recorded run remains `2026-11-25T00:22:10Z`; there is no evidence yet of a completed 2026-11-26 scheduled run. This manual live inspection is not represented as an automation run.
+
+### GPT5 disposition
+
+- OBSERVED: main SHA, 17 open PRs, new Factory owner PR #594, its exact-head pending checks, main CI job-level and skipped-step caveats, latest Recovery PENDING/SKIPPED states, GPT5 PR #560 exact-head blockers, existing automation schedule.
+- IMPLEMENTED: appended this live delta to the existing GPT5-owned operations document on its existing branch; no new PR or duplicate document created.
+- BLOCKED: PR #594 owner-side exact-head CI/review; Recovery has one PENDING job with no steps; PR #560 has PENDING GitHub checks and external Vercel rate limit; no independent approval exists.
+- NOT PERFORMED: no Draft-to-Ready transition, merge, deployment, Factory source change, Runner/state/secret/permission change, or self-approval.
+- Next action: refresh the exact-head checks for #594 and #560 after GitHub advances them; until then, continue only GPT5-owned documentation/evidence reconciliation and do not retry the skipped Recovery path.
