@@ -3015,3 +3015,21 @@ All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are
 - No PR was changed from Draft, accepted, or merged. No independent approval exists. Summary SUCCESS and mergeable metadata do not replace required checks/reviews.
 - Automation remains enabled daily at 08:00 Asia/Taipei; next run `2026-11-27T08:00:00+08:00`. Last recorded run remains 2026-11-25; 2026-11-26 scheduled completion is not evidenced.
 - GPT5 action: appended this fresh delta to the GPT5-owned ops document. No Factory, governance, runner, or other GPT-owned files were modified.
+
+
+## Live recheck — 2026-11-26 (latest snapshot)
+
+- Main branch SHA is still `efbc3c05503dd88fcca68e6987ad1395bd662890`.
+- All 17 open PRs are still Draft. Exact-head checks were refreshed from the current PR list; #568 now resolved correctly and has `verify-branch-protection` FAILURE (alongside 3 SKIPPED persistence/diagnostic checks). Earlier 422 was a transient API lookup issue, not proof of missing checks.
+- Current notable exact-head blockers:
+  - #594 Resolver + Autofix PENDING.
+  - #593/#592/#591 Windows Runner quality gates PENDING (Resolver/Autofix success).
+  - #587 Windows Runner quality gates IN_PROGRESS; 6 publication/validation/dispatch jobs SKIPPED.
+  - #586 Resolver + Autofix PENDING.
+  - #560 GPT5 doc branch HEAD `53da95e07105067f5b48c8764ffd5caa686afd90`; Resolver + Autofix PENDING; Mergify NEUTRAL; Summary SUCCESS.
+  - #582 Autofix FAILURE and 9 SKIPPED; #574/#572 Resolver and failure-persistence FAILURE with core jobs SKIPPED; #559 three Acceptance Gate FAILURE.
+  - #589/#567/#565/#563 have core CI success but three persistence/diagnostic checks SKIPPED; #573 has only Summary SUCCESS + Mergify NEUTRAL, no CI validation.
+- Main Recovery latest run `45803911469` is COMPLETED/SKIPPED; preceding `45803468147` also SKIPPED; `45802365481` remains PENDING. No reset proof.
+- All 17 PRs remain OPEN/Draft. Prior formal review audit found zero APPROVED; no PR was promoted or merged.
+- Automation remains enabled daily 08:00 Asia/Taipei; next run `2026-11-27T08:00:00+08:00`; last recorded run remains 2026-11-25. No completed 2026-11-26 scheduled run is evidenced.
+- GPT5 action: this refresh is appended to the existing GPT5-owned operations document. No Factory/Runner/other GPT-owned files changed; no code deployment or production write performed.
