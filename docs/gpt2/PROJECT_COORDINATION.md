@@ -905,3 +905,57 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - No PR is eligible for Draft removal or merge on the evidence available: all are Draft, no current exact-head formal APPROVED exists, and several have stale bases, failed checks, PENDING runs, or skipped evidence.
 - Keep Factory continuity first. Do not reset machine-managed state manually, bypass independent review, force-rebase overlapping branches, or claim deployment readiness.
 - Next action: obtain an independent reviewer for PR #587's exact HEAD and close the persistence/diagnostic evidence gap; if that external review cannot be assigned, keep #587 Draft and work a separate explicitly authorized Factory task rather than self-approving.
+
+
+## 6.12 即時重核：main、14 件 OPEN PR 與 GPT2 G 修補 — 2026-11-26（本輪更新）
+
+> 本節為 2026-11-26 本輪 GitHub API 快照。Main SHA、PR HEAD、Actions run 與外部狀態均以本節記錄為準；任何 HEAD 改變都必須重新查核。未查到的外部檢查標 UNKNOWN，不推定成功。
+
+### Main / Factory 狀態
+
+- main HEAD：`efbc3c05503dd88fcca68e6987ad1395bd662890`。
+- Main push CI run `45746587701`：COMPLETED / SUCCESS。Windows quality gates、Unit tests、Type check、Lint、Production build、PostgreSQL/RLS、Ollama integration 等主要技術 jobs SUCCESS。
+- 但同一 run 的 `Persist candidate success or reset system breaker` job 雖為 SUCCESS，其 exact-head revalidation、success record、evidence JSON、artifact upload steps 全部 SKIPPED；failure diagnostics/persistence jobs 亦 SKIPPED。不能將技術測試 SUCCESS 擴張成完整證據持久化 PASS。
+- Main Recovery run `45768791648`：COMPLETED / SUCCESS；唯一 job `139736120290` 的 provenance verification 與 breaker reset steps SUCCESS。
+- Main Preflight run `45760860216`：COMPLETED / FAILURE；`Test patched candidate offline inside restricted container` FAILURE，publication manifest、bundle upload、Windows validation、Linux fixture validation、publish、dispatch 等下游步驟/jobs SKIPPED。
+- Main combined status 查得 Vercel SUCCESS。此輪 status API 未回傳 CircleCI context；CircleCI = UNKNOWN，不推定成功。
+- Main Recovery 成功不會抵銷 Preflight FAILURE；Main 不是完整交付全綠。
+
+### 目前 14 件 OPEN PR — exact base/head 與 Actions
+
+| PR | Base SHA | Exact HEAD SHA | Draft | Exact-head Actions |
+|---|---|---|---|---|
+| #587 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `ee10748dcc1abfe732519a73719eca6de6ade5ac` | NO | CI `45764749446` SUCCESS；Preflight `45764749311` SUCCESS；Autofix SUCCESS。CI persistence/diagnostics 與 Preflight Windows validation/publication/dispatch 多項 SKIPPED。 |
+| #591 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `5b326e3c9f47975daed24170053c5dcc77d733d9` | YES | CI `45778618195` PENDING，唯一可見 resolver job `139768313169` PENDING；Autofix `45778618295` PENDING。 |
+| #560 | `abf6cd976cdb592021ebd6464a216fa13b29b792` | `2ce29afe8ceb8d7f89ae87d9ef9d4520dc82bf49` | YES | CI `45776397751` IN_PROGRESS；quality job 正在安裝 locked dependencies；Autofix SUCCESS。 |
+| #589 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `d2d9801d87b62aa2a5d2eb4622484dcef092a096` | YES | CI `45771193497` CANCELLED；resolver job未完成，quality、DB、Ollama、diagnostics、persistence jobs SKIPPED；Autofix CANCELLED。 |
+| #586 | `fc0a006aa6a7c396388473f1819c06095813945b` | `a3c744ffae06777e583920d372337ada2500c2d1` | YES | CI `45738357789` SUCCESS；Autofix SUCCESS；base 落後 main。 |
+| #565 | `fc0a006aa6a7c396388473f1819c06095813945b` | `f40730ee6974a8a9c4d8404565f37ce414a30af3` | YES | CI `45738481606` SUCCESS；Autofix SUCCESS；base 落後 main。 |
+| #582 | `94004585a0756d10c56edd6d65dc143b05a652ab` | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | YES | CI `45673461429` SUCCESS；Preflight `45673461387` SUCCESS；Autofix `45673461347` FAILURE；base 落後 main。 |
+| #567 | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | `250645c6b7465c961cb3e364d98e6be8e2586b30` | YES | CI `45585171843` SUCCESS；base 落後 main。 |
+| #574 | `4e70c5487c19acd536ad14780a5bdc24e1d47e54` | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | YES | CI `45615936030` FAILURE：exact candidate resolver FAILURE，candidate persistence未執行；其餘主要驗證 SKIPPED。 |
+| #573 | `6f735c1251907c5016e7eea32ea0253142e537ec` | `1d4d225f299662337254818a9db35015253685c2` | YES | 未查得 exact-head Actions run：NOT RUN / UNKNOWN。 |
+| #572 | `c2d2b17b91898f05d0bdc20641fc7bc4fc254be8` | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | YES | CI `45614788127` FAILURE。 |
+| #568 | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | YES | CI `45600232110` SUCCESS；branch-protection access verification `45600232082` FAILURE（runner 無讀取權限）；PR mergeable=false。 |
+| #563 | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | YES | CI `45560540985` SUCCESS；base 落後 main。 |
+| #559 | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `567f27233103790b07c26c59dab7dbb4b033fced` | YES | CI `45544850826` SUCCESS；base 落後 main。 |
+
+- 共 14 件 OPEN PR：13 件 Draft，#587 為非 Draft。mergeable=true 僅代表 GitHub 當下的合併衝突估計，不代表驗收通過。
+- 本輪查得 #587、#591、#589、#586、#565、#582 的正式 review submissions 均無 APPROVED；#560、#565、#559 有 COMMENTED 記錄，但 COMMENTED 不是批准。其餘 PR 的獨立 review 必須在各自 owner 完成後再次核實。
+- Vercel status 本輪對 main 及 #587/#591/#560/#589 回傳 SUCCESS；#586/#565 回傳 FAILURE（build-rate-limit）。其餘 PR 的外部狀態未在本輪完整取得，標 UNKNOWN。CircleCI 本輪未由 status API 回傳，不推定 PASS。
+- #587 屬 GPT1/Factory owner；GPT2 不修改其程式碼、權限或 PR 狀態。#568、#572–#574 等亦不因 CI 結果而取得 GPT2 修改權。
+
+### GPT2 自有 Issue #375 / PR #591
+
+- Issue #375 要求 G exact-head release evidence 拒絕重複 GitHub job URL，並要求兩個 allowlist 程式碼／測試路徑、保留 exact run/attempt/repository/PR/base/SHA 綁定及 advisory-only authorization flags。
+- 舊 PR #259 已核實為 CLOSED / UNMERGED（head `7e71687df663f26e8d7835784dacd898491cf075`；base `a1c1b58e4d1852f5a09a0e7c6c5cbeb38e1f9582`）。因此 Issue #375 所述「#259 remains open」的前置阻塞已解除；#591 是獨立 single-purpose G PR，僅修改 `lib/fp/release-assurance.ts` 與 `tests/fp/release-assurance.test.ts`。
+- #591 exact HEAD：`5b326e3c9f47975daed24170053c5dcc77d733d9`；base 為目前 main。實際變更：新增重複 `jobUrl` Set 檢查，並加入四個不同 job ID 共用同一 URL 的 regression。
+- #591 Actions `45778618195` 與 Autofix `45778618295` 仍 PENDING；resolver job `139768313169` 亦 PENDING。Vercel SUCCESS 不能替代必要 Actions；尚無正式獨立 APPROVED，故維持 Draft，不得宣告驗收或合併。
+- 未執行本機測試；本輪不宣稱測試通過。下一步等待本次 exact-head Actions 進入終態，並由 GPT3／授權獨立 Reviewer 審查同一 HEAD。
+
+### GPT2 文件交付與執行邊界
+
+- 本節追加於 GPT2 自有 `docs/gpt2/PROJECT_COORDINATION.md`，供 PR #589 文件候選更新；文件更新不等於程式驗收。
+- #589 的既有 Actions 已 CANCELLED，且此文件更新會產生新 HEAD；舊 CI/review 不沿用。
+- 目前沒有解除任何 PR Draft、沒有合併 PR、沒有變更 Runner／Factory 私有狀態／Secrets／權限／Branch Protection／資料庫／部署。
+- GPT2 本輪已完成的程式交付是 #591 的 G 重複 job URL 防護；其餘 owner gate、CI PENDING、CI CANCELLED、CI FAILURE、SKIPPED 與外部服務未知狀態均保留為明確缺口。
