@@ -841,7 +841,7 @@ const { candidateContainerFailureScope } = await import(
 const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null");
 const scope = candidateContainerFailureScope(state);
 if (scope === "task") {
-  appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+  appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
 }
 process.stdout.write(scope);
 if (scope === "system") process.exitCode = 1;
