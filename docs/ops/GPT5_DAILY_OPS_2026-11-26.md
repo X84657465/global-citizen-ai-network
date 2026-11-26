@@ -2953,3 +2953,51 @@ All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are
 - BLOCKED: PR #594 owner-side exact-head CI/review; Recovery has one PENDING job with no steps; PR #560 has PENDING GitHub checks and external Vercel rate limit; no independent approval exists.
 - NOT PERFORMED: no Draft-to-Ready transition, merge, deployment, Factory source change, Runner/state/secret/permission change, or self-approval.
 - Next action: refresh the exact-head checks for #594 and #560 after GitHub advances them; until then, continue only GPT5-owned documentation/evidence reconciliation and do not retry the skipped Recovery path.
+
+
+## Live exact-head audit refresh — 2026-11-26 (follow-up)
+
+### Current refs
+- Main remains `efbc3c05503dd88fcca68e6987ad1395bd662890`.
+- Current open PR count: 17; all 17 remain OPEN and Draft.
+- The inventory and exact check-run records below were refreshed from GitHub's PR and Check Runs APIs. Check conclusions apply only to the HEAD SHA shown in the PR inventory; older run results are not transferred to a different commit.
+
+### Exact-head check dispositions (all current open PRs)
+
+| PR | Exact HEAD | GitHub check-run counts | Blocking / caveat |
+|---|---|---|---|
+| #594 | `d0169ab1d48e548c6ffd2f783dabef8c5493e8e7` | 4 total: 1 success, 2 pending, 0 failure | Resolver + Autofix PENDING; Summary SUCCESS is not acceptance |
+| #593 | `450af2c0dafca636b960a498203531ebbdd5ba80` | 4: 1 success, 2 pending | Resolver + Autofix PENDING |
+| #592 | `a3c5f714a602ac904b50a0dd0bb1118886a5a3bf` | 4: 2 success, 1 pending | Resolver IN_PROGRESS |
+| #591 | `a123a3607bdc59dfea0abf819336285e241f0c76` | 5: 3 success, 1 pending | Windows Runner quality gates PENDING |
+| #589 | `17a8dfe941d2a1f0685a8482afd9b39478a5b56e` | 11: 7 success, 3 skipped | Core Windows/Ollama/Postgres checks SUCCESS; all three persistence/diagnostic jobs SKIPPED |
+| #587 | `cbfc7253a6f2cf4c01e46b4d9d20bde121d91bff` | 12: 4 success, 1 pending, 6 skipped | Windows quality PENDING; candidate validation/publication/dispatch chain SKIPPED |
+| #586 | `d9650f47cb53a5f844e419c2069d379467ea66bb` | 4: 1 success, 2 pending | Resolver + Autofix PENDING |
+| #582 | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | 17: 6 success, 1 failure, 9 skipped | Autofix FAILURE; publication/validation/dispatch and persistence/diagnostics SKIPPED |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | 7: 1 success, 2 failure, 3 skipped | Resolver + failure persistence FAILURE; core build and DB tests SKIPPED |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | 2: 1 success, 0 failure, 0 pending | Only Summary SUCCESS + Mergify NEUTRAL; no GitHub Actions validation |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | 7: 1 success, 2 failure, 3 skipped | Resolver + failure persistence FAILURE; core build and DB tests SKIPPED |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | 10: 5 success, 1 failure, 3 skipped | Branch-protection verification FAILURE; persistence/diagnostics SKIPPED |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | 10: 6 success, 0 failure, 3 skipped | Core CI SUCCESS; persistence/diagnostics SKIPPED |
+| #565 | `f40730ee6974a8a9c4d8404565f37ce414a30af3` | 10: 6 success, 0 failure, 3 skipped | Core CI SUCCESS; persistence/diagnostics SKIPPED |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | 10: 6 success, 0 failure, 3 skipped | Core CI SUCCESS; persistence/diagnostics SKIPPED |
+| #560 | `bb1e646514730553d17c460ad72d921bb8e75a51` | 4: 1 success, 2 pending, 0 failure | Resolver + Autofix PENDING; Summary SUCCESS; Mergify NEUTRAL |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | 12: 5 success, 3 failure, 3 skipped | Three PR Acceptance Gate FAILURE; persistence/diagnostics SKIPPED |
+
+### Main Recovery anti-loop state
+- Latest observed Recovery run [45803120055](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45803120055): COMPLETED / SKIPPED.
+- A prior Recovery run [45802365481](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45802365481) remained PENDING at observation with its single job pending and no visible steps.
+- Numerous repeated Recovery workflow_run attempts on the same Main SHA have SKIPPED. Do not retry the same ineligible path absent a new qualifying exact-head CI completion event. No breaker reset is evidenced.
+
+### GPT5-owned delivery and governance
+- GPT5's current documentation PR is #560, exact HEAD `bb1e646514730553d17c460ad72d921bb8e75a51`; its two GitHub Actions checks (Resolver and Autofix) are PENDING. It remains Draft. No self-approval, Ready transition, or merge.
+- The new Factory repair is PR #594 and remains owner-controlled. GPT5 does not edit the overlapping Factory workflow/test files.
+- No PR was promoted or merged: all 17 remain Draft; Mergify statuses are neutral, and Summary SUCCESS is not independent approval.
+- No new code changes, permission changes, branch-protection changes, deployment changes, or production writes were made in this audit.
+- Automation `GCAN Daily Dev Check` remains ENABLED, Asia/Taipei daily 08:00; next run `2026-11-27T08:00:00+08:00`. Last recorded run remains `2026-11-25T00:22:10Z`; no completed 2026-11-26 scheduled execution was observed.
+
+### GPT5 result
+- OBSERVED: current Main SHA, all 17 open PR exact HEAD check-run states, Main Recovery repeated SKIPPED/PENDING state, and current automation metadata.
+- IMPLEMENTED: this exact-head evidence refresh in the existing GPT5-owned operations document.
+- NOT ACCEPTED: no PR has independent approval and no all-gates acceptance proof exists.
+- NEXT: continue GPT5-owned operational evidence and documentation only; refresh pending exact-head checks after status transitions. Do not retry Recovery on the same ineligible event; hand Factory repair validation to its owner.
