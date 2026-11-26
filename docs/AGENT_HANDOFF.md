@@ -5189,3 +5189,15 @@ All ten are OPEN / Draft / not merged, base SHA `078bc72216e3990f9c7c4db2e06e585
 ### Automation / execution semantics
 - Existing GPT5 daily automation was explicitly triggered once for this conversation and the inline sweep was executed. This is not 24/7 monitoring and does not prove a future scheduled run has completed. No duplicate schedule was created.
 - Status labels remain distinct: SUCCESS / FAILURE / SKIPPED / CANCELLED / IN_PROGRESS / PENDING / UNKNOWN. None of the latter states are PASS.
+
+
+## GPT5 live handoff — 2026-11-27 04:05 Asia/Taipei
+
+- Main exact SHA: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; Vercel combined status FAILURE (`build-rate-limit`). Main core CI push run NOT OBSERVED; only direct push event returned by the exact-SHA Actions query is Debricked Scan `45882576931` FAILURE. Main check-runs total 307; only first 100 retrieved (34 success / 18 failure / 27 skipped / 21 cancelled).
+- Latest Main PR Acceptance Gate `45887488553` FAILURE (policy evaluation); System Health Recovery `45887488626` CANCELLED; observer `45887511901` SUCCESS is not recovery.
+- Ten OPEN PRs, all Draft and mergeable metadata true, all target the exact Main SHA. Exact-head check-run sets all contain failures; zero formal APPROVED across all ten. #632/#623 COMMENTED only. No Ready conversion or merge.
+- GPT5 #630 current HEAD `e21aa881e101f864ebe7f065d3517206e334c30e`: run `45887442808` resolver CANCELLED, six dependent jobs SKIPPED; CodeQL Actions/JS-TS, Codacy and Vulnerabilities scan FAILURE. Resolver log unavailable (BlobNotFound), cause UNKNOWN.
+- Handoffs: GPT1/Factory #632/#624/#625/#622; GPT2 #634/#631/#626/#623; CI/Security maintainers common scanner failures; Vercel/account admin build-rate-limit; GPT3 independent formal review after exact-head checks.
+- Active `protect-main` ruleset ID `28032767` prevents deletion/non-fast-forward and requests Copilot review; no required status-check/approval rule is defined in that ruleset. Bypass is available to repository role but was not used.
+- GPT5 scope: ops documentation/evidence only. No other module code, Factory state/workflows, secrets, permissions, branch protection, DB, production data, billing or deployment changes.
+- Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` re-enabled; next flexible daily target 08:00 Asia/Taipei. Immediate run requested. Daily scheduling is not continuous monitoring or an SLA.
