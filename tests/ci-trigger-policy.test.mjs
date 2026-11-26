@@ -116,6 +116,21 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
+test("Preflight runs on every pull request path that requires its evidence", () => {
+  const pullRequest = /^  pull_request:\n([\s\S]*?)(?=^  [\w-]+:)/m.exec(preflight);
+  assert.ok(pullRequest, "Preflight must have a pull_request trigger");
+  const triggerPaths = [...pullRequest[1].matchAll(/^      - "([^"]+)"$/gm)].map(([, path]) => path);
+  assert.ok(triggerPaths.length > 0, "Preflight must have explicit pull request path filters");
+
+  for (const name of ["pr-acceptance.yml", "main-merge-audit.yml"]) {
+    const source = readFileSync(new URL("../.github/workflows/" + name, import.meta.url), "utf8");
+    const requiredPaths = /const preflightPaths = new Set\(\[([\s\S]*?)\]\);/.exec(source);
+    assert.ok(requiredPaths, name + " must declare paths that require Preflight evidence");
+    const paths = [...requiredPaths[1].matchAll(/'([^']+)'/g)].map(([, path]) => path);
+    assert.deepEqual(triggerPaths.toSorted(), paths.toSorted(), name + " must match Preflight's pull request path filters");
+  }
+});
+
 test("CI keeps stateful quality and integration jobs serialized on the Windows Runner", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress:") && workflowLevelConcurrency.includes("ai-task/issue-") && workflowLevelConcurrency.includes("codex/issue-"), "only superseded non-task runs may be cancelled");
