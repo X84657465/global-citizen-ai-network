@@ -829,8 +829,30 @@ jobs:
             $state = ConvertFrom-Json -InputObject ($stateJson -join [Environment]::NewLine)
             $state | Add-Member -NotePropertyName DockerStartExitCode -NotePropertyValue $startExitCode -Force
             $env:CANDIDATE_CONTAINER_STATE_JSON = ConvertTo-Json -InputObject $state -Compress -Depth 10
-            $classification = & node --input-type=module -e 'import { appendFileSync } from "node:fs"; import { candidateContainerFailureScope } from "./lib/agent-factory-policy.mjs"; const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null"); const scope = candidateContainerFailureScope(state); if (scope === "task") appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8"); process.stdout.write(scope); if (scope === "system") process.exitCode = 1;'
-            $classificationExitCode = $LASTEXITCODE
+            $classifierPath = Join-Path $env:RUNNER_TEMP "agent-factory-classify-candidate-failure.mjs"
+            $classifierCode = @'
+import { appendFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const { candidateContainerFailureScope } = await import(
+  pathToFileURL(resolve(process.env.GITHUB_WORKSPACE, "lib/agent-factory-policy.mjs")),
+);
+const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null");
+const scope = candidateContainerFailureScope(state);
+if (scope === "task") {
+  appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");
+}
+process.stdout.write(scope);
+if (scope === "system") process.exitCode = 1;
+'@
+            try {
+              Set-Content -LiteralPath $classifierPath -Value $classifierCode -Encoding UTF8
+              $classification = & node $classifierPath
+              $classificationExitCode = $LASTEXITCODE
+            } finally {
+              Remove-Item -LiteralPath $classifierPath -Force -ErrorAction SilentlyContinue
+            }
             Remove-Item Env:CANDIDATE_CONTAINER_STATE_JSON -ErrorAction SilentlyContinue
             if ($classificationExitCode -ne 0 -or $classification -eq "system") {
               throw "Candidate container runtime failed before a normal test-process exit (docker start exit $startExitCode)."
