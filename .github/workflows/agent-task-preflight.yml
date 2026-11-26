@@ -830,22 +830,22 @@ jobs:
           $state | Add-Member -NotePropertyName DockerStartExitCode -NotePropertyValue $startExitCode -Force
           $env:CANDIDATE_CONTAINER_STATE_JSON = ConvertTo-Json -InputObject $state -Compress -Depth 10
           $classifierPath = Join-Path $env:RUNNER_TEMP ("candidate-container-classifier-" + $env:GITHUB_RUN_ID + "-" + $env:GITHUB_RUN_ATTEMPT + ".mjs")
-          $classifierSource = @'
-          import { appendFileSync } from "node:fs";
-          import { join } from "node:path";
-          import { pathToFileURL } from "node:url";
-          
-          const workspace = process.env.GITHUB_WORKSPACE;
-          if (!workspace) throw new Error("GITHUB_WORKSPACE is required for candidate classification.");
-          if (!process.env.GITHUB_ENV) throw new Error("GITHUB_ENV is required for candidate classification.");
-          const policyUrl = pathToFileURL(join(workspace, "lib/agent-factory-policy.mjs")).href;
-          const { candidateContainerFailureScope } = await import(policyUrl);
-          const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null");
-          const scope = candidateContainerFailureScope(state);
-          if (scope === "task") appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\n", "utf8");
-          process.stdout.write(scope);
-          if (scope === "system") process.exitCode = 1;
-          '@
+          $classifierSource = @(
+            'import { appendFileSync } from "node:fs";'
+            'import { join } from "node:path";'
+            'import { pathToFileURL } from "node:url";'
+            ''
+            'const workspace = process.env.GITHUB_WORKSPACE;'
+            'if (!workspace) throw new Error("GITHUB_WORKSPACE is required for candidate classification.");'
+            'if (!process.env.GITHUB_ENV) throw new Error("GITHUB_ENV is required for candidate classification.");'
+            'const policyUrl = pathToFileURL(join(workspace, "lib/agent-factory-policy.mjs")).href;'
+            'const { candidateContainerFailureScope } = await import(policyUrl);'
+            'const state = JSON.parse(process.env.CANDIDATE_CONTAINER_STATE_JSON || "null");'
+            'const scope = candidateContainerFailureScope(state);'
+            'if (scope === "task") appendFileSync(process.env.GITHUB_ENV, "AGENT_FACTORY_FAILURE_SCOPE=task\\n", "utf8");'
+            'process.stdout.write(scope);'
+            'if (scope === "system") process.exitCode = 1;'
+          ) -join [Environment]::NewLine
           try {
             [System.IO.File]::WriteAllText($classifierPath, $classifierSource, [System.Text.UTF8Encoding]::new($false))
             $classification = & node $classifierPath
