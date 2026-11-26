@@ -985,3 +985,57 @@ All listed PRs are OPEN / Draft. Full HEAD and base SHA values are recorded belo
 - This update is restricted to the three existing GPT5 Operations allowlisted documents in PR #560. No A–P source, Factory workflow/state, Runner, secrets, permissions, branch protection, production data, billing or deployment settings were changed.
 - Issue #505 remains GPT1 / Factory-owned; GPT5 provides operations evidence and handoff only. Root-cause repair and acceptance require GPT1 and GPT3 respectively.
 - Local tests/build/lint: NOT RUN. This is documentation/evidence work only; new exact-head checks must be observed after the resulting commit. No historical check transfers to a new SHA.
+
+
+## GPT5 live exact-head refresh — 2026-11-26 (Asia/Taipei)
+
+This operations-only addendum supersedes earlier snapshots where they conflict. All PR results below apply only to the exact HEAD listed.
+
+### Main and governance
+- Current main baseline: efbc3c05503dd88fcca68e6987ad1395bd662890 (merge PR #576), corroborated by current-main PR base SHAs and recent commit query.
+- Re-read at this baseline: PROJECT_COORDINATION.md blob d3ee1881aa67861fc42a2b568b26020945b0c218 (33,270 chars); GCAN_NEURAL_INTELLIGENCE_AGENT_MODE.md blob b234e684dbc4fe2e6694cf96c6b941f8fd81ec31 (24,286 chars); docs/GCAN_EXECUTION_OPERATING_SYSTEM.md blob 67166a378c92909c8ddf64586f8a2b5202be7d14 (7,012 chars).
+- Commit-scoped Actions lookup returned no Main runs because this endpoint is PR-trigger scoped. Main combined status exposes Vercel SUCCESS only. Main push CI is NOT OBSERVED in this pass; Vercel is not CI acceptance.
+- Ownership remains GPT1 A–E/Factory, GPT2 F–P, GPT3 independent QA, GPT4 B Product, GPT5 Global Intelligence & Operations support only. Governance charter and Execution OS remain proposals, not authority expansion.
+
+### All 17 OPEN PRs — exact HEAD, base, draft, checks
+
+| PR | Exact HEAD | Base SHA | Draft | GitHub Actions | Provider status |
+|---|---|---|---:|---|---|
+| #594 | d0169ab1d48e548c6ffd2f783dabef8c5493e8e7 | efbc3c05503dd88fcca68e6987ad1395bd662890 | Yes | CI 45802891783 PENDING; Resolver SUCCESS; Windows quality PENDING; Autofix SUCCESS | Vercel FAILURE |
+| #593 | 450af2c0dafca636b960a498203531ebbdd5ba80 | efbc3c05503dd88fcca68e6987ad1395bd662890 | Yes | CI 45796417233 PENDING; Resolver SUCCESS; Windows quality PENDING; Autofix SUCCESS | Vercel FAILURE |
+| #592 | a3c5f714a602ac904b50a0dd0bb1118886a5a3bf | efbc3c05503dd88fcca68e6987ad1395bd662890 | Yes | CI 45795961706 CANCELLED; Windows quality CANCELLED; downstream gates SKIPPED | Vercel FAILURE |
+| #591 | 8b68ca53052f3b054486ec607f5552e5b9b07fe0 | efbc3c05503dd88fcca68e6987ad1395bd662890 | Yes | CI 45817633456 PENDING; Jobs API returned 0 jobs; Autofix PENDING | Vercel SUCCESS |
+| #589 | e67063ba4947a01b22cc3d93388a6d25d14e51eb | efbc3c05503dd88fcca68e6987ad1395bd662890 | Yes | CI 45804454727 PENDING; Resolver PENDING; Autofix PENDING | Vercel FAILURE |
+| #587 | cbfc7253a6f2cf4c01e46b4d9d20bde121d91bff | efbc3c05503dd88fcca68e6987ad1395bd662890 | Yes | CI 45789522929 PENDING; Resolver and Windows quality SUCCESS; Ollama and PostgreSQL/RLS PENDING; Preflight 45789522870 SUCCESS; Autofix SUCCESS | Vercel FAILURE |
+| #586 | d9650f47cb53a5f844e419c2069d379467ea66bb | efbc3c05503dd88fcca68e6987ad1395bd662890 | Yes | CI 45799143804 PENDING; Resolver SUCCESS; Windows quality PENDING; Autofix SUCCESS | Vercel FAILURE |
+| #582 | e7c91ef811c2584eb5320b42eb12f3b4d8988879 | 94004585a0756d10c56edd6d65dc143b05a652ab | Yes | CI 45812755324 PENDING; Resolver PENDING; Preflight SUCCESS; Autofix PENDING | Vercel SUCCESS |
+| #574 | 8145ea2d0a0e99485706b0a6cec01f8e423512cd | 4e70c5487c19acd536ad14780a5bdc24e1d47e54 | Yes | CI 45615936030 FAILURE | Vercel FAILURE; CircleCI ERROR |
+| #573 | 1d4d225f299662337254818a9db35015253685c2 | 6f735c1251907c5016e7eea32ea0253142e537ec | Yes | No exact-head Actions run returned: NOT OBSERVED / NOT PASS | Vercel FAILURE; CircleCI ERROR |
+| #572 | 58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6 | c2d2b17b91898f05d0bdc20641fc7bc4fc254be8 | Yes | CI 45614788127 FAILURE | Vercel FAILURE; CircleCI ERROR |
+| #568 | cfd9a90b888f59253894f6a6a6f9d498eff00dac | a772acbeb93e877697bfc315ecc0a29f2f611b9f | Yes | Core CI 45600232110 SUCCESS; branch-protection verification 45600232082 FAILURE | Vercel FAILURE; CircleCI ERROR; mergeable=false |
+| #567 | 250645c6b7465c961cb3e364d98e6be8e2586b30 | b39228e24e15c329f3053ba22a3f4dfebe77546b | Yes | CI 45585171843 SUCCESS | Vercel FAILURE; CircleCI ERROR |
+| #565 | f40730ee6974a8a9c4d8404565f37ce414a30af3 | fc0a006aa7a6c396388473f1819c06095813945b | Yes | CI 45738481606 SUCCESS; Autofix SUCCESS | Vercel FAILURE |
+| #563 | e62f4fc4322432f71f46c9478f1bdbace174dcdc | 462eeea5917f3b0750fc2c41c888a4d54c562c1e | No | CI 45560540985 SUCCESS | Vercel SUCCESS; CircleCI ERROR |
+| #560 | 4cac9127306f98a54e056a132015dc5c8097a59d | efbc3c05503dd88fcca68e6987ad1395bd662890 | Yes | CI 45817795019 PENDING; only Resolver job returned, PENDING; Autofix 45817795017 PENDING | Vercel FAILURE |
+| #559 | 567f27233103790b07c26c59dab7dbb4b033fced | 462eeea5917f3b0750fc2c41c888a4d54c562c1e | Yes | CI 45544850826 SUCCESS | Vercel FAILURE; CircleCI ERROR |
+
+Inventory: 17 OPEN; 16 Draft and #563 non-Draft; 16 mergeable=true and #568 mergeable=false. Mergeability is metadata, not acceptance.
+
+### Formal review status
+- #594/#593/#592/#591/#589/#587/#586/#582/#574/#573/#572/#568/#563: zero formal reviews returned.
+- #567: two CodeRabbit COMMENTED; #565: one CodeRabbit COMMENTED; #560: six COMMENTED (five author, one CodeRabbit); #559: five COMMENTED (four author, one CodeRabbit).
+- Zero independent formal APPROVED reviews across all 17 PRs. #560 has two inline threads and both are RESOLVED; resolved threads are not approval.
+
+### Blockers and owners
+1. GPT1/Factory: #594 and #587 overlap on the PowerShell Node invocation fix in the shared agent-task-preflight workflow. #594 quality is pending; #587 Windows quality is success but Ollama and PostgreSQL/RLS remain pending. GPT1 must reconcile one canonical candidate; GPT5 does not edit shared Factory files.
+2. GPT2/F–P owners: #574/#572 FAILURE; #573 has no Actions run observed; CircleCI returns ERROR (no project configuration found). Route provider configuration to its owner.
+3. Repository/Vercel owner: repeated build-rate-limit failures are external; GPT5 cannot change billing/provider settings. #591 Vercel SUCCESS does not compensate for zero GitHub Actions jobs.
+4. #568: core CI SUCCESS does not cure branch-protection verification FAILURE; effective protection remains UNKNOWN after API 403.
+5. GPT5 own PR #560: exact HEAD 4cac9127306f98a54e056a132015dc5c8097a59d, base matches main efbc3c...; CI and Autofix PENDING, resolver job pending, Vercel FAILURE, no independent approval. Keep Draft. Older #560 checks are historical.
+6. Issue #505 remains GPT1/Factory-owned; GPT5 provides operations evidence and handoff only.
+
+### GPT5 action and disposition
+- This addendum is limited to the existing GPT5 Operations documentation file in PR #560. No Factory/GPT2/GPT4 source, workflows, Runner, durable state, secrets, permissions, branch protection, provider configuration, billing, or deployment settings changed.
+- This commit advances #560 HEAD and invalidates its current exact-head checks; re-query the new SHA immediately. Keep Draft until all required exact-head checks are terminal SUCCESS and an independent formal APPROVED review exists.
+- Local tests/build/typecheck/lint: NOT RUN. Documentation evidence only; no code acceptance or Factory recovery claimed.
+- No Ready transition, approval, merge, release, or deployment claimed.
