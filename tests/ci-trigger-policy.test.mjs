@@ -773,11 +773,11 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
     "the in-progress CI workflow must not invoke the legacy non-mutating success callback");
   assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
   for (const guard of [
-    "github.event.workflow_run.conclusion == 'success'",
-    "github.event.workflow_run.event == 'pull_request'",
-    "github.event.workflow_run.path == '.github/workflows/ci.yml'",
-    "github.event.workflow_run.head_repository.full_name == github.repository",
-  ]) assert.ok(recovery.includes(guard), "recovery trigger must retain " + guard);
+    'process.env.WORKFLOW_PATH === ".github/workflows/ci.yml"',
+    'process.env.WORKFLOW_CONCLUSION === "success"',
+    'process.env.WORKFLOW_EVENT === "pull_request"',
+    'process.env.WORKFLOW_HEAD_REPOSITORY === process.env.GITHUB_REPOSITORY',
+  ]) assert.ok(recovery.includes(guard), "in-job eligibility resolver must retain " + guard);
   assert.equal(recovery.includes("workflow_run.pull_requests"), false,
     "PR association must be resolved from the completed workflow's exact SHA, not optional workflow_run metadata");
 
@@ -789,8 +789,7 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
     "pr.head?.repo?.full_name === process.env.GITHUB_REPOSITORY",
     "pr.head?.sha === sha",
     "pr.head?.ref === ref",
-    'pr.head.ref.startsWith("ai-task/issue-")',
-    'pr.head.ref.startsWith("codex/issue-")',
+    '!ref?.startsWith("ai-task/issue-") && !ref?.startsWith("codex/issue-")',
   ]) assert.ok(recovery.includes(guard), "exact-SHA PR resolver must retain " + guard);
 
   const zeroMatchStart = recovery.indexOf("if (matches.length === 0)");
@@ -835,7 +834,13 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ID: " + "$" + "{{ github.event.workflow_run.id }}"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_RUN_ATTEMPT: " + "$" + "{{ github.event.workflow_run.run_attempt }}"));
   assert.ok(recovery.includes("SYSTEM_HEALTH_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"));
-  assert.ok(recovery.includes("run: node scripts/agent-factory-v2-controller.mjs"));
+  assert.equal(recoveryJob.includes("    if: >-"), false,
+    "the recovery observer job must not be skipped before it can persist diagnostics");
+  assert.ok(recovery.includes("WORKFLOW_CONCLUSION"));
+  assert.ok(recovery.includes("WORKFLOW_HEAD_REPOSITORY"));
+  assert.ok(recovery.includes("Write redacted recovery diagnostic summary"));
+  assert.ok(recovery.includes("Upload recovery diagnostics"));
+  assert.ok(recovery.includes("run: |\n          set +e\n          node scripts/agent-factory-v2-controller.mjs"));
   assert.equal(recovery.includes("ref: " + "$" + "{{ github.event.workflow_run.head_sha }}"), false,
     "the privileged workflow must execute trusted mainline controller code, never PR code");
 });
@@ -1051,8 +1056,8 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
     "ambiguous exact-head PR matches must still fail closed");
   assert.ok(recoveryWorkflow.includes("if: steps.resolve-pr.outputs.should_recover == 'true'"),
     "the privileged recovery controller must run only after a unique exact-head PR is verified");
-  assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("ai-task/issue-")'));
-  assert.ok(recoveryWorkflow.includes('pr.head.ref.startsWith("codex/issue-")'));
+  assert.ok(recoveryWorkflow.includes('!ref?.startsWith("ai-task/issue-") && !ref?.startsWith("codex/issue-")'),
+    "task branches must remain ineligible for system-breaker recovery");
   assert.equal(recoveryWorkflow.includes("workflow_run.pull_requests"), false,
     "recovery must not trust optional workflow_run PR associations");
 });

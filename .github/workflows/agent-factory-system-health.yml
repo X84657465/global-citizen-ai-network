@@ -8,9 +8,10 @@ on:
 jobs:
   reset-system-breaker:
     name: Verify completed exact-head CI before resetting system breaker
-    # Only one trusted, same-repository, non-task PR targeting main may
-    # request system-health recovery after its source CI run has completed.
-    # All other workflow_run events skip before queue acquisition.
+    # Always start a lightweight observer job for completed CI events so
+    # ineligible events are recorded instead of disappearing as zero-job runs.
+    # Only a verified same-repository, non-task PR at the exact source SHA may
+    # reach the state-changing controller step.
     # Recovery is a GitHub API/state operation; keep execution off the Windows
     # Runner so it does not consume local execution capacity. This job still
     # waits in the shared cross-process state-writer queue and may queue behind
@@ -21,13 +22,6 @@ jobs:
       group: global-citizen-ai-network-self-hosted-runner
       cancel-in-progress: false
       queue: max
-    if: >-
-      github.event.workflow_run.path == '.github/workflows/ci.yml' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.head_repository.full_name == github.repository &&
-      !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
-      !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -54,12 +48,33 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           WORKFLOW_HEAD_REF: ${{ github.event.workflow_run.head_branch }}
+          WORKFLOW_PATH: ${{ github.event.workflow_run.path }}
+          WORKFLOW_EVENT: ${{ github.event.workflow_run.event }}
+          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          WORKFLOW_HEAD_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
         shell: bash
         run: |
           node --input-type=module <<'NODE'
           const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
           const sha = process.env.WORKFLOW_HEAD_SHA;
           const ref = process.env.WORKFLOW_HEAD_REF;
+          const reject = async reason => {
+            const { appendFileSync } = await import("node:fs");
+            appendFileSync(process.env.GITHUB_OUTPUT, "should_recover=false\n");
+            console.log(`Recovery not eligible: ${reason}`);
+          };
+          const eligibility = [
+            [process.env.WORKFLOW_PATH === ".github/workflows/ci.yml", "unexpected source workflow path"],
+            [process.env.WORKFLOW_CONCLUSION === "success", "source CI did not succeed"],
+            [process.env.WORKFLOW_EVENT === "pull_request", "source event is not pull_request"],
+            [process.env.WORKFLOW_HEAD_REPOSITORY === process.env.GITHUB_REPOSITORY, "source head repository is not trusted"],
+            [!ref?.startsWith("ai-task/issue-") && !ref?.startsWith("codex/issue-"), "task PR branches cannot reset the breaker"],
+          ];
+          const failed = eligibility.find(([ok]) => !ok);
+          if (failed) {
+            await reject(failed[1]);
+            process.exit(0);
+          }
           if (!/^[0-9a-f]{40}$/i.test(sha || "")) throw new Error("Invalid workflow head SHA.");
           const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits/${sha}/pulls`, {
             headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
@@ -77,12 +92,12 @@ jobs:
           }
           if (matches.length > 1) throw new Error(`Ambiguous exact-head PR resolution; found ${matches.length} matches.`);
           const pr = matches[0];
-          if (pr.head.ref.startsWith("ai-task/issue-") || pr.head.ref.startsWith("codex/issue-")) throw new Error("Task PRs cannot reset the system breaker.");
           await import("node:fs").then(({ appendFileSync }) => appendFileSync(process.env.GITHUB_OUTPUT, `should_recover=true\nnumber=${pr.number}\nhead_sha=${pr.head.sha}\n`));
           console.log(`Verified PR #${pr.number} at exact SHA ${sha}.`);
           NODE
 
       - name: Verify completed CI provenance and reset global breaker
+        id: recovery
         if: steps.resolve-pr.outputs.should_recover == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -94,4 +109,170 @@ jobs:
           SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           SYSTEM_HEALTH_PR_HEAD_SHA: ${{ steps.resolve-pr.outputs.head_sha }}
         shell: bash
+        run: |
+          set +e
+          node scripts/agent-factory-v2-controller.mjs
+          controller_exit=$?
+          exit "$controller_exit"
+
+      - name: Write redacted recovery diagnostic summary
+        if: always()
+        shell: bash
+        env:
+          SOURCE_CI_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_CI_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          SOURCE_CI_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_CI_REF: ${{ github.event.workflow_run.head_branch }}
+          SOURCE_CI_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          SOURCE_CI_EVENT: ${{ github.event.workflow_run.event }}
+          SOURCE_CI_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
+          RESOLVED_PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
+          RESOLVER_OUTCOME: ${{ steps.resolve-pr.outcome }}
+          CONTROLLER_OUTCOME: ${{ steps.recovery.outcome }}
+        run: |
+          {
+            printf 'schema_version=1\n'
+            printf 'recovery_run_id=%s\n' "$GITHUB_RUN_ID"
+            printf 'recovery_run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT"
+            printf 'source_ci_run_id=%s\n' "$SOURCE_CI_RUN_ID"
+            printf 'source_ci_run_attempt=%s\n' "$SOURCE_CI_RUN_ATTEMPT"
+            printf 'source_ci_head_sha=%s\n' "$SOURCE_CI_SHA"
+            printf 'source_ci_head_ref=%s\n' "$SOURCE_CI_REF"
+            printf 'source_ci_conclusion=%s\n' "$SOURCE_CI_CONCLUSION"
+            printf 'source_ci_event=%s\n' "$SOURCE_CI_EVENT"
+            printf 'source_ci_head_repository=%s\n' "$SOURCE_CI_REPOSITORY"
+            printf 'resolved_pr_number=%s\n' "$RESOLVED_PR_NUMBER"
+            printf 'resolver_step_outcome=%s\n' "$RESOLVER_OUTCOME"
+            printf 'controller_step_outcome=%s\n' "$CONTROLLER_OUTCOME"
+          } > "$RUNNER_TEMP/system-health-recovery-summary.txt"
+
+      - name: Upload recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-health-recovery-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/system-health-recovery-summary.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  reset-system-breaker-windows-fallback:
+    name: Verify hosted allocation failure and recover on Windows Runner
+    needs: [reset-system-breaker]
+    if: always() && needs.reset-system-breaker.result == 'failure'
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      cancel-in-progress: false
+      queue: max
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Confirm hosted job failed before runner allocation
+        id: verify-hosted-allocation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RECOVERY_RUN_ID: ${{ github.run_id }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $apiBase = $env:GITHUB_API_URL
+          if ([string]::IsNullOrWhiteSpace($apiBase)) { $apiBase = "https://api.github.com" }
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2022-11-28"
+          }
+          $uri = "$($apiBase.TrimEnd('/'))/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:RECOVERY_RUN_ID/jobs?filter=latest&per_page=100"
+          $payload = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
+          $job = @($payload.jobs | Where-Object { $_.name -eq "Verify completed exact-head CI before resetting system breaker" }) | Select-Object -First 1
+          if ($null -eq $job) { throw "Hosted recovery job metadata is missing; refusing fallback." }
+          $stepsPropertyExists = $job.PSObject.Properties.Name -contains "steps"
+          $runnerIdPropertyExists = $job.PSObject.Properties.Name -contains "runner_id"
+          $steps = @($job.steps)
+          $allocationFailed = ($job.conclusion -eq "failure") -and
+            $runnerIdPropertyExists -and ($null -ne $job.runner_id) -and ([long]$job.runner_id -eq 0) -and
+            $stepsPropertyExists -and ($steps.Count -eq 0)
+          $value = if ($allocationFailed) { "true" } else { "false" }
+          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "should_fallback=$value" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          if ($allocationFailed) {
+            Write-Host "Confirmed hosted runner allocation failure: runner_id=0 and zero steps."
+          } else {
+            Write-Host "Hosted job reached a runner or executed steps; fallback is disabled to prevent replay."
+          }
+
+      - name: Checkout trusted mainline controller
+        if: steps.verify-hosted-allocation.outputs.should_fallback == 'true'
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Node.js
+        if: steps.verify-hosted-allocation.outputs.should_fallback == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+
+      - name: Resolve and verify the unique exact-head main PR
+        id: resolve-pr
+        if: steps.verify-hosted-allocation.outputs.should_fallback == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          WORKFLOW_HEAD_REF: ${{ github.event.workflow_run.head_branch }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $sha = $env:WORKFLOW_HEAD_SHA
+          $ref = $env:WORKFLOW_HEAD_REF
+          if ($sha -notmatch '^[0-9a-fA-F]{40}$') { throw "Invalid workflow head SHA." }
+          $apiBase = $env:GITHUB_API_URL
+          if ([string]::IsNullOrWhiteSpace($apiBase)) { $apiBase = "https://api.github.com" }
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2022-11-28"
+          }
+          $encodedSha = [uri]::EscapeDataString($sha)
+          $uri = "$($apiBase.TrimEnd('/'))/repos/$env:GITHUB_REPOSITORY/commits/$encodedSha/pulls?per_page=100"
+          $prs = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
+          $matchingPrs = @($prs | Where-Object {
+            $_.state -eq "open" -and
+            $_.base.ref -eq "main" -and
+            $_.base.repo.full_name -eq $env:GITHUB_REPOSITORY -and
+            $_.head.repo.full_name -eq $env:GITHUB_REPOSITORY -and
+            $_.head.sha -eq $sha -and
+            $_.head.ref -eq $ref
+          })
+          if ($matchingPrs.Count -eq 0) {
+            [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "should_recover=false" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+            Write-Host "No open PR matches completed CI SHA $sha; treating stale or closed-PR CI as a no-op."
+            exit 0
+          }
+          if ($matchingPrs.Count -gt 1) { throw "Ambiguous exact-head PR resolution; found $($matchingPrs.Count) matches." }
+          $pr = $matchingPrs[0]
+          if ($pr.head.ref.StartsWith("ai-task/issue-") -or $pr.head.ref.StartsWith("codex/issue-")) {
+            throw "Task PRs cannot reset the system breaker."
+          }
+          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "should_recover=true" + [Environment]::NewLine + "number=$($pr.number)" + [Environment]::NewLine + "head_sha=$($pr.head.sha)" + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+          Write-Host "Verified PR #$($pr.number) at exact SHA $sha."
+
+      - name: Verify completed CI provenance and reset global breaker
+        if: steps.verify-hosted-allocation.outputs.should_fallback == 'true' && steps.resolve-pr.outputs.should_recover == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: system-health-success
+          SYSTEM_HEALTH_RUN_ID: ${{ github.event.workflow_run.id }}
+          SYSTEM_HEALTH_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          SYSTEM_HEALTH_PULL_REQUEST_NUMBER: ${{ steps.resolve-pr.outputs.number }}
+          SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SYSTEM_HEALTH_PR_HEAD_SHA: ${{ steps.resolve-pr.outputs.head_sha }}
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: node scripts/agent-factory-v2-controller.mjs
