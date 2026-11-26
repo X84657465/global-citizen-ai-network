@@ -1940,3 +1940,46 @@ Fetched the job-level logs for the three scanner failures on main SHA `078bc7221
 - **CodeQL Advanced** run [45842160612](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842160612), jobs `139986377933` (JavaScript/TypeScript) and `139986378407` (Actions): analysis upload fails with `CodeQL analyses from advanced configurations cannot be processed when the default setup is enabled`. This is a repository Code Scanning configuration conflict; the repository security administrator must choose and configure one supported setup.
 
 These are confirmed causes for the three scanner workflow failures above. They do not explain the separate main CI resolver cancellation or its unavailable logs. GPT5 did not change secrets, scanner workflows, Docker/Runner configuration, Code Scanning settings, or repository permissions. Route Debricked token restoration to the authorized secret owner, CodeQL setup selection to the repository security administrator, and Codacy Docker/SARIF compatibility to the CI/scanner maintainer. Do not claim scanner PASS until new runs on the exact SHA complete successfully.
+
+
+## Exact-head recheck — 2026-11-27 (follow-up sweep)
+
+Re-read main ref, all open PR metadata, exact-head check-runs and formal review submissions. This section supersedes older PR count snapshots above.
+
+### Main
+- Main ref remains `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- Latest observed main push workflow set remains on this SHA: CI run [45842160595](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842160595), attempt 2, COMPLETED / CANCELLED; Codacy [45842161007](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842161007) FAILURE; Debricked [45842161001](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842161001) FAILURE; CodeQL [45842160612](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842160612) FAILURE; rust-clippy [45842160661](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45842160661) SUCCESS.
+- Main combined status remains FAILURE: Vercel `Deployment rate limited — retry in 24 hours` (`build-rate-limit`).
+- Latest observed main-ref Acceptance Gate [45894398489](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45894398489) FAILURE; its only substantive step `Evaluate exact-head acceptance policy` failed. Latest Recovery [45894398558](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45894398558) CANCELLED; verification job `140164594480` CANCELLED and hosted allocation recovery job `140164626252` SKIPPED. Observer [45894424308](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45894424308) SUCCESS is observer-only.
+- Latest main push CI resolver root cause remains UNKNOWN because job-log retrieval returns Azure `404 BlobNotFound`; do not conflate with the separately confirmed scanner causes documented above.
+
+### All ten OPEN PRs — exact current HEAD check-run aggregates
+
+All remain OPEN / Draft, target the same main base SHA above, and report mergeable metadata true. Counts below are the complete check-run records returned for each current exact HEAD; SUCCESS does not override any FAILURE, SKIPPED, CANCELLED or NEUTRAL record.
+
+| PR | Exact HEAD | Total | SUCCESS | FAILURE | SKIPPED | CANCELLED | NEUTRAL |
+|---|---|---:|---:|---:|---:|---:|---:|
+| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 |
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 2 |
+| #631 | `f5242dc8403bfec7d6d4a9ad97842ed876c2be94` | 19 | 5 | 4 | 6 | 2 | 2 |
+| #630 | `50856d3bd8fe72361f64f1e97b178226d441553a` | 19 | 6 | 4 | 6 | 2 | 1 |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 2 |
+
+- Formal review submissions across the ten current PRs: zero APPROVED. #632 has one COMMENTED submission by repository owner `X84657465`; #623 has one COMMENTED submission by `coderabbitai[bot]`; other eight have no review submissions. COMMENTED is not approval.
+- Review-thread resolution state was not independently fetched in this sweep: UNKNOWN / NOT OBSERVED; do not claim all threads resolved.
+- #630 exact-head core CI run [45894367879](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45894367879): resolver `140164542129` CANCELLED; Windows quality, PostgreSQL/RLS, diagnostics, both persistence jobs and Ollama SKIPPED. Its latest security/analysis checks include Codacy and CodeQL failures; Clippy and CodeQL results are mixed across separate records. No acceptance.
+- #631 exact-head core CI run [45894330363](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45894330363): resolver `140164372181` CANCELLED; six dependent jobs SKIPPED. Its acceptance policy job [140164539544](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45894374726) failed with `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, three `REQUIRED_JOB_SKIPPED`, `APPROVAL_MISSING`, `DRAFT_NOT_READY`.
+- #628 has a previously successful core CI run but current exact-head records still include acceptance failure, vulnerability scan failure and CodeQL NEUTRAL; not mergeable for acceptance purposes.
+
+### GPT5 disposition and action boundaries
+- No PR is eligible for Draft removal or merge: no formal APPROVED, and each exact head contains at least one failure/skip/cancel/neutral record. Do not bypass.
+- Vercel quota owner: restore capacity/plan or wait for quota window, then verify deployment on exact SHA.
+- GPT1/Factory: reproduce resolver cancellation, explain dependent SKIPPED jobs, restore diagnostic artifact/log retention. Root cause stays UNKNOWN pending evidence.
+- Security/CI owners: act on confirmed Codacy Docker/SARIF compatibility, Debricked missing token and CodeQL default-setup/advanced-setup conflict documented in the prior section.
+- GPT3: independent review after exact-head substantive CI/security checks become clean. Review-thread status remains NOT OBSERVED.
+- GPT5 did not change source code, workflows, secrets, permissions, rulesets, branch protection, Factory durable state, production data, billing or deployment configuration. No local test suite was run.
