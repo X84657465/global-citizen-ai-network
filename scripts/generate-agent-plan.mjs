@@ -67,6 +67,7 @@ const systemPrompt = [
   "propose_patch tasks must name at least one approved path. report tasks must use an empty allowed_paths array.",
   "acceptance_criteria must contain 1-8 concise strings, each no longer than 300 characters.",
   "max_output_bytes must be an integer from 1 to 65536.",
+  "For every implementer task with action propose_patch, max_output_bytes MUST be at least 16384 and no greater than 65536. Do not use 4096 as the patch proposal budget.",
   "When allowed_paths contains at least one path, the plan MUST include exactly one implementer task with action propose_patch and at least one of those approved paths.",
   "Include a planner inspect task before the implementer task and a tester validate_patch task after it; express these dependencies explicitly.",
   "The plan MUST NOT omit the implementer patch task merely because the task excludes applying or executing the patch.",
