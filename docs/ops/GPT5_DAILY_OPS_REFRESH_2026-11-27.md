@@ -277,3 +277,24 @@ All 12 current OPEN PRs target the exact Main SHA above, remain Draft, and are u
 - Issue #117 remains OPEN pending authorized independent acceptance.
 
 **Disposition: NOT GREEN / HOLD.** This documentation update is a GPT5-owned deliverable, not a CI or release acceptance.
+
+
+## GPT5 subsequent live refresh — 2026-11-27
+
+- Live Main ref re-read: `078bc72216e3990f9c7c4db2e06e5851a5c8428e` (unchanged).
+- Main check-runs API total_count is now 511; first 100 returned records: 31 SUCCESS, 17 FAILURE, 29 SKIPPED, 23 CANCELLED. This is only the first page, not all 511 records.
+- Latest returned Main Acceptance Gate run [45909870385](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45909870385) FAILURE; job [140215371959](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45909870385/job/140215371959) FAILURE.
+- Latest returned Main Recovery run [45909870292](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45909870292) CANCELLED; verification job [140215355673](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45909870292/job/140215355673) CANCELLED; hosted Windows recovery job [140215359776](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45909870292/job/140215359776) SKIPPED. Observer runs succeeded but are observation-only.
+- Vercel combined status remains FAILURE with `build-rate-limit`.
+
+### Exact current GPT5 PR #630 head — `84ce7def7addf250aa11635f284e26ff5164f589`
+- Exact-head check runs: 20 total = 5 SUCCESS, 5 FAILURE, 6 SKIPPED, 2 CANCELLED, 2 NEUTRAL. No check is currently pending/in progress, but this is not green.
+- The Windows Runner quality, Windows Supabase/RLS integration, Windows Ollama/local integration, exact-SHA diagnostics, and persist/breaker jobs are SKIPPED on this exact head; candidate metadata job is CANCELLED. Acceptance Gate FAILURE; CodeQL Advanced Actions FAILURE; CodeQL Advanced JS/TS FAILURE; Codacy FAILURE; Vulnerabilities scan FAILURE. Clippy and auxiliary jobs succeeded but do not offset blockers.
+- PR #630 remains OPEN / Draft, no formal APPROVED review. Issue #117 remains OPEN.
+- The 12-PR inventory remains unchanged: all 12 OPEN / Draft; 0 formal approvals; all have exact-head failures and skipped/cancelled/neutral checks; base SHA is the Main SHA above.
+
+### Pivot / scope outcome
+- A second live refresh established that the prior GPT5 exact-head checks have terminated, but several required workflows were skipped/cancelled and the security/acceptance jobs failed. No useful safe retry or permission to alter shared workflows/security configuration is available to GPT5. Avoid repeated reruns and switch back to this GPT5-owned evidence/handoff deliverable.
+- This update is documentation only. No tests were run. No workflow, runner, secret, permission, Vercel billing, branch protection, Draft state, or merge state was changed.
+
+**Disposition remains NOT GREEN / HOLD.**
