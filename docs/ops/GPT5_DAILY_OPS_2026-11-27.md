@@ -2085,3 +2085,45 @@ All target main at base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; all are 
 - GPT5 updated only its own operations evidence and added an evidence handoff to Issue #505. No Factory/A–P implementation, CI workflow, Runner/Queue/Lease/durable state, secrets, permissions, branch protection, DB/RLS, production data, billing or deployment settings changed.
 - This is a documentation-only commit; no local test/typecheck/lint/build was run. No Draft removal, self-approval, merge, release, deployment or green status is claimed.
 - Existing daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains enabled for daily 08:00 Asia/Taipei. This immediate inline execution does not imply 24/7 monitoring or an SLA.
+
+
+---
+
+## GPT5 live audit addendum — 2026-11-27 (latest refresh)
+
+### Baseline and PR inventory
+- Latest main ref re-read: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- 12 OPEN PRs now target this base SHA: #630, #643, #622, #636, #632, #628, #634, #631, #623, #624, #625, #626. All 12 remain Draft. GitHub `mergeable=true` is conflict metadata only, not acceptance.
+- Exact heads: #630 `a65a822e84e3102c54bcd59a6b4f7e5f101f38db`; #643 `50e8681fb8bab7fcef7139baa6d92da196b21ff5`; #622 `eab64f672704a8d9d1d6481defdc7c88a844bf38`; #636 `f0e61c4dacbb5197ad809cf3515ed574a3c43558`; #632 `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1`; #628 `d7de4b95819575f3462f0fcf9ed2be5b06544688`; #634 `83719781e68b71ecec16ad1911b403a2d1565336`; #631 `f5242dc8403bfec7d6d4a9ad97842ed876c2be94`; #623 `3a4713423a9779435ae9f02e1feb1e270741514a`; #624 `272642ac7fb9965fba245f65fa3a049429a4068a`; #625 `fda8c8968e98a11b8aa4c8c70219a064435c0532`; #626 `70decb7f32bdbe42571b39fd5280bf5e61ca6d34`.
+- Formal APPROVED reviews: 0/12. #623 and #632 have COMMENTED only. No unresolved review threads were surfaced on #643.
+
+### Newly discovered PR #643 — CodeQL configuration
+- PR [#643](https://github.com/X84657465/global-citizen-ai-network/pull/643), exact HEAD `50e8681fb8bab7fcef7139baa6d92da196b21ff5`, deletes only `.github/workflows/codeql.yml` (101 lines). Its stated purpose is to stop Advanced CodeQL SARIF uploads conflicting with already-enabled Default setup.
+- The prior exact-head CodeQL error supports the root cause, but the new PR's latest Core CI run [45898855063](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45898855063) is CANCELLED; resolver job [140179496901](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45898855063/job/140179496901) is CANCELLED and every downstream quality/integration/persistence/diagnostic job is SKIPPED. Acceptance Gate [45898854778](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45898854778) is CANCELLED with no jobs returned. Combined status currently surfaces only Vercel FAILURE; CodeQL Default scan completion is NOT OBSERVED in this response. Therefore #643 is a plausible remediation candidate, not validated, not ready, and remains Draft.
+- GPT5 did not edit or promote #643 because CI workflow changes are outside GPT5's allowlist.
+
+### Main health and CI
+- Main combined status remains Vercel FAILURE (`build-rate-limit`).
+- Latest PR Acceptance Gate [45899100559](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899100559) is CANCELLED with no jobs returned.
+- Latest System Health Recovery [45899100641](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899100641): verification job [140180209931](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899100641/job/140180209931) CANCELLED; hosted allocation recovery [140180340290](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899100641/job/140180340290) SKIPPED.
+- Observer [45899157614](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899157614) SUCCESS is evidence capture only. No recovery success is established. The latest 100 main-branch workflow runs show workflow_run / issues events but no main push CI for this exact SHA: main push CI NOT OBSERVED.
+
+### PR core CI latest exact-head observations
+- #630: FAILURE [45897792525]; latest Acceptance Gate [45899139936] FAILURE.
+- #643: CANCELLED [45898855063]; downstream jobs SKIPPED; Acceptance Gate CANCELLED [45898854778].
+- #622: FAILURE [45846690506].
+- #636: core CI [45896046447] terminal FAILURE. Windows quality job [140178972436] failed at `Verify CI trigger and Runner policy`; assertion at `tests/ci-trigger-policy.test.mjs:503`: `codacy.yml checkout at line 39 must not persist its token in .git/config`. Unit tests, type check, lint and production build were SKIPPED after that policy failure. Windows Runner/Docker/Ollama, migration/schema guards, production/full dependency audits and script syntax had passed. Diagnostic evidence job [140180537027] was still IN_PROGRESS at last observation; do not claim its evidence artifact complete.
+- #632: CANCELLED [45895379296]; Preflight FAILURE [45895379391].
+- #628: core CI SUCCESS [45875584290], Codacy SUCCESS, but CodeQL FAILURE, Debricked FAILURE, Acceptance Gate FAILURE [45875618469].
+- #634: FAILURE [45882689100].
+- #631: CANCELLED [45894330363].
+- #623: FAILURE [45872395266].
+- #624: FAILURE [45852505909].
+- #625: CANCELLED [45852545103].
+- #626: CANCELLED [45853743223].
+- CodeQL Advanced and Debricked failures remain across the earlier exact heads where those workflows ran; #643's deleted Advanced workflow has not yet proved Default scan success. Codacy only succeeded on #628. Clippy success is auxiliary and does not override required CI/security failures.
+
+### GPT5 delivery and boundary
+- GPT5 appended this evidence addendum to the already-authorized operations audit file on branch `gpt5/ops-audit-2026-11-27`; documentation-only change. No Factory implementation, CI workflow, runner, queue/lease/durable state, secret, permission, branch protection, database/RLS, production, billing or deployment setting was changed.
+- Owner handoff: GPT1/CI owner to validate the shared checkout credential-policy fix against the exact assertion (coordinate #628/#636 without duplicate edits); CI/Security owner to verify #643's default CodeQL scan and resolve Codacy/Debricked; Vercel account owner to resolve build rate limit; GPT3 to provide formal independent review only after exact-head substantive checks pass.
+- No Draft removal, self-approval, merge, release, deployment or false-green claim. No local code tests were run for this documentation-only commit.
