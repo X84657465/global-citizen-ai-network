@@ -925,7 +925,7 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 
 | PR | Base SHA | Exact HEAD SHA | Draft | Exact-head Actions |
 |---|---|---|---|---|
-| #587 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `ee10748dcc1abfe732519a73719eca6de6ade5ac` | NO | CI `45764749446` SUCCESS；Preflight `45764749311` SUCCESS；Autofix SUCCESS。CI persistence/diagnostics 與 Preflight Windows validation/publication/dispatch 多項 SKIPPED。 |
+| #587 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `ee10748dcc1abfe732519a73719eca6de6ade5ac` | YES | CI `45764749446` SUCCESS；Preflight `45764749311` SUCCESS；Autofix SUCCESS。CI persistence/diagnostics 與 Preflight Windows validation/publication/dispatch 多項 SKIPPED。 |
 | #591 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `5b326e3c9f47975daed24170053c5dcc77d733d9` | YES | CI `45778618195` PENDING，唯一可見 resolver job `139768313169` PENDING；Autofix `45778618295` PENDING。 |
 | #560 | `abf6cd976cdb592021ebd6464a216fa13b29b792` | `2ce29afe8ceb8d7f89ae87d9ef9d4520dc82bf49` | YES | CI `45776397751` IN_PROGRESS；quality job 正在安裝 locked dependencies；Autofix SUCCESS。 |
 | #589 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `d2d9801d87b62aa2a5d2eb4622484dcef092a096` | YES | CI `45771193497` CANCELLED；resolver job未完成，quality、DB、Ollama、diagnostics、persistence jobs SKIPPED；Autofix CANCELLED。 |
@@ -940,7 +940,7 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 | #563 | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | YES | CI `45560540985` SUCCESS；base 落後 main。 |
 | #559 | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `567f27233103790b07c26c59dab7dbb4b033fced` | YES | CI `45544850826` SUCCESS；base 落後 main。 |
 
-- 共 14 件 OPEN PR：13 件 Draft，#587 為非 Draft。mergeable=true 僅代表 GitHub 當下的合併衝突估計，不代表驗收通過。
+- 共 14 件 OPEN PR：本輪逐件 get_pr_info 均回傳 Draft=true。mergeable=true 僅代表 GitHub 當下的合併衝突估計，不代表驗收通過。
 - 本輪查得 #587、#591、#589、#586、#565、#582 的正式 review submissions 均無 APPROVED；#560、#565、#559 有 COMMENTED 記錄，但 COMMENTED 不是批准。其餘 PR 的獨立 review 必須在各自 owner 完成後再次核實。
 - Vercel status 本輪對 main 及 #587/#591/#560/#589 回傳 SUCCESS；#586/#565 回傳 FAILURE（build-rate-limit）。其餘 PR 的外部狀態未在本輪完整取得，標 UNKNOWN。CircleCI 本輪未由 status API 回傳，不推定 PASS。
 - #587 屬 GPT1/Factory owner；GPT2 不修改其程式碼、權限或 PR 狀態。#568、#572–#574 等亦不因 CI 結果而取得 GPT2 修改權。
