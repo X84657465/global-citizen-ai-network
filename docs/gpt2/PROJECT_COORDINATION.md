@@ -855,3 +855,53 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - PR #562 相對 current main 的 compare 為 DIVERGED、16 commits ahead／3 behind，但目前差異檔案僅 docs/gpt2/PROJECT_COORDINATION.md。原 PR 的歷史 CI FAILURE 與 COMMENTED review 不得沿用；本文件候選採 current main 重建且只保留 GPT2 自有文件路徑，避免帶入原 PR 的 workflow／產品策略變更。
 - 本節只記錄可核實證據與 GPT2 自有文件交付；沒有宣稱程式修復、測試、GPT3 驗收、解除 Draft、合併或部署完成。新的文件候選仍須以其建立後 exact HEAD 重新查 CI 與獨立 review。
 
+
+
+## 6.27 Factory continuity snapshot — 2026-11-26 (fresh GitHub API verification)
+
+> This section supersedes prior sections only for the live status stated here. Snapshot is read-only evidence; this document update itself creates a new PR #589 HEAD, so all checks and reviews must be re-evaluated on that new HEAD. No old SHA evidence transfers.
+
+### Main and Factory control plane
+
+- Repository: `X84657465/global-citizen-ai-network`; `refs/heads/main` currently resolves to `efbc3c05503dd88fcca68e6987ad1395bd662890`.
+- Main push CI run `45746587701`, attempt 1: COMPLETED / SUCCESS. This is the exact-SHA Actions CI result; it is distinct from Recovery.
+- Latest Main recovery run `45768791648`: COMPLETED / SUCCESS. Job `139736120290` completed all steps, including exact-head provenance verification and global breaker reset. Earlier Recovery runs include SKIPPED outcomes; do not collapse those into the latest result.
+- Durable Factory state Issue #100 reports state version 309, consecutive system failures 0, cooldown null, last success `2026-11-26T06:31:46.288Z`. State is machine-managed; do not edit manually.
+- Scheduled Preflight run `45760860216`: COMPLETED / FAILURE. This is a separate task-dispatch failure and is not cancelled out by Main CI or Recovery success.
+
+### Current OPEN PR inventory — exact base/head and Actions status
+
+| PR | Base SHA | Exact HEAD SHA | Draft | Exact-head Actions evidence |
+|---|---|---|---|---|
+| #587 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `ee10748dcc1abfe732519a73719eca6de6ade5ac` | YES | CI run `45764749446` attempt 2 SUCCESS; Preflight `45764749311` SUCCESS; Autofix SUCCESS. CI persistence/failure-diagnostic jobs SKIPPED; Preflight Windows project validation and downstream publication/dispatch jobs SKIPPED. |
+| #589 | `efbc3c05503dd88fcca68e6987ad1395bd662890` | `3652c2c97895981f978a55f6517d76d3082ca2fd` | YES | CI `45750866805` SUCCESS; Autofix SUCCESS. This document update will change the HEAD. |
+| #560 | `abf6cd976cdb592021ebd6464a216fa13b29b792` | `c74b754acde73e53026958e877647d6dcf6d85df` | YES | CI `45770429325` PENDING; Autofix `45770429229` IN_PROGRESS. No terminal result yet. |
+| #586 | `fc0a006aa6a7c396388473f1819c06095813945b` | `a3c744ffae06777e583920d372337ada2500c2d1` | YES | CI `45738357789` SUCCESS; Autofix SUCCESS; base is behind current main. |
+| #565 | `fc0a006aa6a7c396388473f1819c06095813945b` | `f40730ee6974a8a9c4d8404565f37ce414a30af3` | YES | CI `45738481606` attempt 2 SUCCESS; Autofix SUCCESS; base is behind current main. |
+| #582 | `94004585a0756d10c56edd6d65dc143b05a652ab` | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | YES | CI SUCCESS; Preflight SUCCESS (attempt 12); Autofix FAILURE (attempt 6); base is behind current main. |
+| #567 | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | `250645c6b7465c961cb3e364d98e6be8e2586b30` | YES | CI SUCCESS; base is behind current main. |
+| #574 | `4e70c5487c19acd536ad14780a5bdc24e1d47e54` | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | YES | CI FAILURE. |
+| #573 | `6f735c1251907c5016e7eea32ea0253142e537ec` | `1d4d225f299662337254818a9db35015253685c2` | YES | No exact-head Actions run returned; NOT RUN / UNKNOWN. |
+| #572 | `c2d2b17b91898f05d0bdc20641fc7bc4fc254be8` | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | YES | CI FAILURE. |
+| #568 | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | YES | No exact-head Actions run returned; NOT RUN / UNKNOWN; GitHub previously reported mergeable=false. |
+| #563 | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | YES | CI SUCCESS; base is behind current main. |
+| #559 | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | `567f27233103790b07c26c59dab7dbb4b033fced` | YES | CI SUCCESS but three PR Acceptance Gate runs `45559909285`, `45559920138`, `45559927442` FAILURE; base is behind current main. |
+
+- There are 13 OPEN PRs in this inventory; all 13 are Draft. No PR has a formal APPROVED review on its current exact HEAD in the review submissions checked for this snapshot. COMMENTED reviews are not approvals.
+- #587 is the current Factory repair candidate. Its exact-head CI quality gates, Supabase/PostgreSQL/RLS and Ollama integration passed; the Linux offline fixture Preflight passed. However, persistence/diagnostic jobs and Windows project validation/publication jobs were SKIPPED. These are explicit evidence gaps, not green checks.
+- #560 remains PENDING/IN_PROGRESS and must not be described as failed or passed until a terminal conclusion is observed. #573 and #568 have no exact-head Actions runs in the query and remain UNKNOWN, not PASS.
+- Older-base PRs must not be mechanically rebased or merged merely to clear inventory. Their owners must reconcile against current main and rerun exact-head validation.
+
+### Factory failure classification and independent review gate
+
+- Issue #117 requires explicit task/system failure-scope classification, deterministic tests, complete unit/type/lint CI, and a separate independent reviewer on the exact final PR HEAD. The issue explicitly names GPT3 or another separately authorized independent reviewer; implementation delegation does not transfer DRI or review authority.
+- PR #587 changes only `.github/workflows/agent-task-preflight.yml` and `tests/agent-patch-to-scratch.test.mjs`. It replaces the PowerShell inline `node -e` classifier with a temporary `.mjs` file and imports the policy module by file URL, avoiding PowerShell quote corruption.
+- PR #587 currently has zero formal review submissions. No self-review or CI result can satisfy Issue #117's independent APPROVED requirement. Do not mark ready or merge until the independent exact-HEAD review and skipped evidence gates are resolved.
+- Issue #136 remains a separate READ-ONLY Claude adversarial audit with a fixed historical integration SHA; do not silently retarget it to current main or modify files under that issue.
+
+### Decision and handoff
+
+- Main CI and latest Recovery are green, but scheduled Preflight is failing and candidate persistence/diagnostic evidence remains incomplete.
+- No PR is eligible for Draft removal or merge on the evidence available: all are Draft, no current exact-head formal APPROVED exists, and several have stale bases, failed checks, PENDING runs, or skipped evidence.
+- Keep Factory continuity first. Do not reset machine-managed state manually, bypass independent review, force-rebase overlapping branches, or claim deployment readiness.
+- Next action: obtain an independent reviewer for PR #587's exact HEAD and close the persistence/diagnostic evidence gap; if that external review cannot be assigned, keep #587 Draft and work a separate explicitly authorized Factory task rather than self-approving.
