@@ -1280,3 +1280,45 @@ No PR has the combination of complete substantive exact-head checks and formal i
 - No local tests/build/lint were run; this commit is evidence documentation only.
 - No PR was un-Drafted, self-approved, merged, released or deployed.
 - Next GPT5 action: verify the new #630 exact HEAD checks after the documentation commit, while tracking #628's terminal credential-policy result. CI/Factory fixes remain with their owners; independent acceptance remains with GPT3/authorized reviewer.
+
+
+---
+
+## GPT5 live operations delta — 2026-11-27 02:46 Asia/Taipei (fresh exact-ref pass)
+
+This delta supersedes the preceding moving-head inventory. Main and all open PR refs were re-read during this pass. The connector's commit-workflow query exposes PR-triggered runs only; main push Actions remain NOT OBSERVED in this pass.
+
+### Main
+- `main` exact SHA: `078bc72216e3990f9c7c4db2e06e5851a5c8428e` (resolved from the live `main` ref).
+- Combined status: Vercel FAILURE; target URL identifies `build-rate-limit`.
+- Main push Actions / required-check terminal set: NOT OBSERVED by the PR-triggered workflow query. Do not infer PASS from missing runs or the Vercel status.
+- Branch-protection/ruleset enforcement is not re-read in this pass; retain UNKNOWN unless a fresh authorized API result is available.
+
+### All 9 OPEN PRs — live refs and latest observable Actions
+All nine target `main@078bc72216e3990f9c7c4db2e06e5851a5c8428e`. All are OPEN, unmerged, and metadata says mergeable=true; this is not an acceptance result. Formal review submissions were queried for all nine: 0 APPROVED. PR #623 has one COMMENTED CodeRabbit submission; COMMENTED is not approval.
+
+| PR | Exact HEAD | Draft | Latest observable Actions (run ID / conclusion) | External status |
+|---|---|---:|---|---|
+| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | Yes | CI `45871173827` CANCELLED; Preflight `45871173713` SUCCESS; Codacy `45871173844` FAILURE; CodeQL `45871173741` FAILURE; Clippy `45871173855` SUCCESS; autofix `45871173845` CANCELLED | Vercel FAILURE (`build-rate-limit`) |
+| #631 | `947dabd090184df846e669197b60002547184fb9` | Yes | CI `45877999910` CANCELLED; Codacy `45877999905` FAILURE; CodeQL `45877999947` FAILURE; Clippy `45877999908` SUCCESS; autofix `45878000261` CANCELLED | Vercel FAILURE (`build-rate-limit`) |
+| #630 | `08eb8ab7c59854fb32f5d6aa2e7f6edda65fd10f` | Yes | CI `45877678355` CANCELLED; Codacy `45877678205` FAILURE; CodeQL `45877678241` FAILURE; Clippy `45877678157` SUCCESS; autofix `45877678324` CANCELLED | Vercel FAILURE (`build-rate-limit`) |
+| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | Yes | CI `45875584290` SUCCESS; Codacy `45875584147` SUCCESS; CodeQL `45875584300` FAILURE; Clippy `45875584169` SUCCESS; autofix `45875584244` CANCELLED | Vercel FAILURE (`build-rate-limit`) |
+| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | Yes | CI `45853743223` CANCELLED; Codacy `45853743385` FAILURE; CodeQL `45853743402` FAILURE; Clippy `45853743250` SUCCESS; autofix `45853743153` SUCCESS | Vercel FAILURE (`build-rate-limit`) |
+| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | Yes | CI `45852545103` CANCELLED; Codacy `45852545210` FAILURE; CodeQL `45852545235` FAILURE; Clippy `45852545312` SUCCESS; autofix `45852545242` CANCELLED | Vercel FAILURE (`build-rate-limit`) |
+| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | Yes | CI `45852505909` CANCELLED; Codacy `45852505988` FAILURE; CodeQL `45852505935` FAILURE; Clippy `45852505815` SUCCESS; autofix `45852506518` CANCELLED | Vercel SUCCESS |
+| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | No | CI `45872395266` FAILURE; Codacy `45872395204` FAILURE; CodeQL `45872397668` FAILURE; Clippy `45872395229` SUCCESS; autofix `45872395260` CANCELLED | NOT RECHECKED in this pass |
+| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | Yes | CI `45846690506` FAILURE; Codacy `45846690577` FAILURE; CodeQL `45846690579` FAILURE; Clippy `45846690694` SUCCESS; autofix `45846690771` CANCELLED | NOT RECHECKED in this pass |
+
+### Exact diagnostics on GPT5-owned PR #630
+- Exact HEAD `08eb8ab7c59854fb32f5d6aa2e7f6edda65fd10f`; CI run `45877678355` is terminal CANCELLED. Resolver job `140108798141` CANCELLED; Windows quality, PostgreSQL/RLS, Ollama, diagnostics, and both persistence jobs are all SKIPPED. This is not a green run and has no quality-gate execution.
+- Codacy run `45877678205`, job `140108796517`: scanner action itself completed SUCCESS, but SARIF upload failed with `Invalid request: 1 item required; only 0 were supplied`. Root cause is not resolved by the available log; route to security/scanner integration owner.
+- CodeQL run `45877678241`: JavaScript/TypeScript job `140108796554` and Actions job `140108797034` both terminal FAILURE at `Perform CodeQL Analysis`, log says `CodeQL job status was configuration error`. Exact underlying configuration diagnostic is not exposed; mark UNKNOWN, do not patch workflow from GPT5.
+- Clippy run `45877678157` SUCCESS is scoped Rust lint evidence only; it does not offset the cancelled CI or failed security uploads.
+- Formal review submissions for #630: none; no independent APPROVED review. #630 remains Draft. No Ready transition or merge.
+
+### Owner routing and GPT5 next work
+- GPT1 / Factory: #632, #623, #622 and Factory-owned CI/queue/runner/fixture repairs. Do not modify their implementation from GPT5.
+- CI/security owner: resolve the shared CodeQL SARIF configuration and Codacy upload integration; #628's CI success is scoped and CodeQL remains failed, so it is not a canonical complete fix.
+- Vercel/account owner: remediate `build-rate-limit`; GPT5 does not change billing, plans or deployments.
+- GPT3 / authorized independent reviewer: provide exact-HEAD formal APPROVED review where appropriate; GPT5 does not self-approve.
+- GPT5 action in this pass: refreshed only this GPT5 Operations evidence ledger on existing PR #630's explicitly allowlisted `docs/ops/GPT5_DAILY_OPS_2026-11-27.md` path. No source code, workflow, Factory state, Runner, secrets, permissions, branch protection, DB/RLS, production data, billing or deployment was changed. No local tests/build/lint were run; the new documentation commit requires its own exact-head checks. Keep Draft.
