@@ -9,12 +9,23 @@ import {
 
 const sha = "a".repeat(40);
 const repo = "X84657465/global-citizen-ai-network";
+const extraJobUrlIds = new Map<string, number>();
+let nextExtraJobUrlId = 1000;
+const jobUrlSuffix = (jobId: string): number => {
+  const requiredIndex = G_REQUIRED_CI_JOBS.indexOf(jobId as (typeof G_REQUIRED_CI_JOBS)[number]);
+  if (requiredIndex >= 0) return 456 + requiredIndex;
+  const existing = extraJobUrlIds.get(jobId);
+  if (existing !== undefined) return existing;
+  const assigned = nextExtraJobUrlId++;
+  extraJobUrlIds.set(jobId, assigned);
+  return assigned;
+};
 const job = (jobId: string, overrides: Partial<GJobEvidence> = {}): GJobEvidence => ({
   jobId,
   runAttempt: 1,
   status: "completed",
   conclusion: "success",
-  jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${456 + Math.max(G_REQUIRED_CI_JOBS.indexOf(jobId as (typeof G_REQUIRED_CI_JOBS)[number]), 0)}`,
+  jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${jobUrlSuffix(jobId)}`,
   ...overrides,
 });
 const bundle = (overrides: Partial<GAcceptanceBundle> = {}): GAcceptanceBundle => ({
