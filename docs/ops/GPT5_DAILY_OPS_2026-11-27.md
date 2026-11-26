@@ -2127,3 +2127,40 @@ All target main at base SHA `078bc72216e3990f9c7c4db2e06e5851a5c8428e`; all are 
 - GPT5 appended this evidence addendum to the already-authorized operations audit file on branch `gpt5/ops-audit-2026-11-27`; documentation-only change. No Factory implementation, CI workflow, runner, queue/lease/durable state, secret, permission, branch protection, database/RLS, production, billing or deployment setting was changed.
 - Owner handoff: GPT1/CI owner to validate the shared checkout credential-policy fix against the exact assertion (coordinate #628/#636 without duplicate edits); CI/Security owner to verify #643's default CodeQL scan and resolve Codacy/Debricked; Vercel account owner to resolve build rate limit; GPT3 to provide formal independent review only after exact-head substantive checks pass.
 - No Draft removal, self-approval, merge, release, deployment or false-green claim. No local code tests were run for this documentation-only commit.
+
+
+---
+
+## GPT5 live refresh — 2026-11-27 (subsequent run, exact refs)
+
+### Main and inventory
+- Main ref remains `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
+- 12 OPEN PRs still target this base, all Draft and GitHub `mergeable=true` (conflict metadata only). Exact current heads: #630 `5a9b74cde07d9ea0f4ee953472d3a262485b2ad3`; #643 `9096eb0c9591df4e612229658c370a787225ed5f`; #622 `eab64f672704a8d9d1d6481defdc7c88a844bf38`; #636 `f0e61c4dacbb5197ad809cf3515ed574a3c43558`; #632 `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1`; #628 `d7de4b95819575f3462f0fcf9ed2be5b06544688`; #634 `83719781e68b71ecec16ad1911b403a2d1565336`; #631 `f5242dc8403bfec7d6d4a9ad97842ed876c2be94`; #623 `3a4713423a9779435ae9f02e1feb1e270741514a`; #624 `272642ac7fb9965fba245f65fa3a049429a4068a`; #625 `fda8c8968e98a11b8aa4c8c70219a064435c0532`; #626 `70decb7f32bdbe42571b39fd5280bf5e61ca6d34`.
+- Formal APPROVED reviews: 0/12. #623 and #632 only have COMMENTED submissions; all other PRs returned no review submissions. No review comment counts as approval.
+
+### Main exact-head and recovery
+- Combined status remains Vercel FAILURE (`build-rate-limit`). The latest 100 main-branch runs show no push-event CI for the exact main SHA: main push CI NOT OBSERVED.
+- Latest PR Acceptance Gate [45899653272](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899653272) CANCELLED with no jobs returned.
+- Latest System Health Recovery [45899653304](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899653304) CANCELLED: verification [140182029129](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899653304/job/140182029129) CANCELLED; hosted allocation recovery [140182066214](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899653304/job/140182066214) SKIPPED.
+- A preceding Recovery run [45899319438](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899319438) completed SUCCESS, but its verification job [140180919061](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899319438/job/140180919061) explicitly SKIPPED the global breaker reset, and hosted allocation recovery [140180984746](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899319438/job/140180984746) was SKIPPED. This is not proof of breaker reset or hosted recovery. Subsequent recovery executions cancelled.
+- Latest Recovery Failure Observer [45899682511](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899682511) SUCCESS remains observer-only evidence collection.
+
+### PR exact-head CI states
+- #630 HEAD `5a9b74c...`: Core CI [45899410550](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899410550) CANCELLED; CodeQL [45899410572](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899410572) FAILURE; Codacy [45899410510](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899410510) FAILURE; Debricked [45899403887](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899403887) FAILURE; Clippy/autofix SUCCESS (auxiliary); Acceptance Gate [45899471763](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899471763) FAILURE.
+- #643 HEAD changed since previous audit to `9096eb0c9591df4e612229658c370a787225ed5f`. Its current diff is broader than deleting Advanced CodeQL: it also sets `persist-credentials: false` for Codacy and Clippy checkouts, adds SARIF schema/non-empty-runs validation and skips empty SARIF upload, and deletes `.github/workflows/codeql.yml`. Core CI [45899641921](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899641921) CANCELLED; resolver job [140181989526](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899641921/job/140181989526) CANCELLED; downstream quality, integration, diagnostics and persistence jobs SKIPPED. Acceptance Gate [45899730656](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899730656) FAILURE. Codacy [45899641974](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899641974) SUCCESS and Clippy [45899641895](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899641895) SUCCESS; Debricked [45899636731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45899636731) FAILURE. No CodeQL Advanced run is present on this new exact head, but successful Default CodeQL scan is NOT OBSERVED. Thus #643 remains unvalidated and Draft.
+- #622: core CI FAILURE [45846690506], Acceptance Gate FAILURE [45897529409].
+- #636: core CI FAILURE [45896046447], Preflight SUCCESS, CodeQL/Codacy/Debricked FAILURE, Acceptance Gate CANCELLED [45896046234]; diagnostics job [140180537027] SUCCESS (evidence capture only); Windows quality policy failure remains the exact codacy checkout token persistence assertion at `tests/ci-trigger-policy.test.mjs:503`, with tests/types/lint/build skipped.
+- #632: core CI CANCELLED [45895379296], Preflight FAILURE [45895379391], Gate CANCELLED [45895374608].
+- #628: core CI SUCCESS [45875584290], Codacy SUCCESS [45875584147], but CodeQL FAILURE [45875584300], Debricked FAILURE [45875574675], Gate FAILURE [45875618469].
+- #634: core CI FAILURE [45882689100], CodeQL/Codacy/Debricked FAILURE.
+- #631: core CI CANCELLED [45894330363], CodeQL/Codacy/Debricked FAILURE.
+- #623: core CI FAILURE [45872395266], CodeQL/Codacy/Debricked FAILURE, Gate CANCELLED [45879040893].
+- #624: core CI FAILURE [45852505909], CodeQL/Codacy/Debricked FAILURE, Gate FAILURE [45882217483].
+- #625: core CI CANCELLED [45852545103], CodeQL/Codacy/Debricked FAILURE, Gate FAILURE [45854058435].
+- #626: core CI CANCELLED [45853743223], CodeQL/Codacy/Debricked FAILURE, Gate CANCELLED [45856938752].
+- Across all 12 PRs, no formal APPROVED review exists. #643 Codacy success does not override cancelled core CI, failed Debricked, failed acceptance gate or missing Default CodeQL evidence.
+
+### GPT5 own delivery / scope
+- GPT5 appended this exact-head evidence refresh to the existing authorized audit file on branch `gpt5/ops-audit-2026-11-27`. Documentation-only; no Factory workflows, runners, queue/lease/durable state, secrets, permissions, branch protection, production, DB/RLS, billing or deployment changes.
+- #643 is a separate CI-owner candidate; do not duplicate its credential/SARIF edits in GPT5 work. GPT1/CI owner to finish and validate #643's exact-head core CI and Default CodeQL coverage, and coordinate shared Codacy credential policy with #628/#636. Security owner to resolve Debricked. Vercel account owner to resolve build-rate-limit. GPT3 to provide independent review only after exact-head checks pass.
+- No Draft removal, self-approval, merge, release, deployment or false-green claim. No local code tests were run for this documentation-only update.
