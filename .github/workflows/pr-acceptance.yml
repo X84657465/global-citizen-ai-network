@@ -26,8 +26,11 @@ permissions:
   statuses: read
 
 concurrency:
-  group: global-citizen-ai-network-self-hosted-runner
+  # All event types update the same PR advisory state. Keep those writes serial
+  # without waiting for Windows Runner jobs or durable Factory state writers.
+  group: global-citizen-ai-network-pr-acceptance
   cancel-in-progress: false
+  queue: max
 
 jobs:
   evaluate:
@@ -291,8 +294,10 @@ jobs:
             const currentPrResponse = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
             if (currentPrResponse.data.head.sha !== headSha) {
               core.notice('PR #' + prNumber + ' advanced from evaluated SHA ' + headSha + ' to ' +
-                currentPrResponse.data.head.sha + '; skipping stale label and Draft updates.');
-            } else if (!evaluation.accepted) {
+                currentPrResponse.data.head.sha + '; skipping stale acceptance updates.');
+              return;
+            }
+            if (!evaluation.accepted) {
               if (!hasHoldLabel) {
                 try {
                   await github.rest.issues.createLabel({

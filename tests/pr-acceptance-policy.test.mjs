@@ -84,6 +84,13 @@ test("manual PR acceptance dispatch always checks out policy from the repository
   assert.doesNotMatch(source, /github\.event_name == 'workflow_dispatch' && github\.ref/);
 });
 
+test("PR acceptance retains a dedicated serial queue without occupying the Windows Runner queue", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
+  assert.match(source, /^concurrency:\r?\n(?:  #[^\n]*\n)*  group: global-citizen-ai-network-pr-acceptance\r?\n  cancel-in-progress: false\r?\n  queue: max$/m);
+  assert.doesNotMatch(source, /group: global-citizen-ai-network-self-hosted-runner/);
+});
+
 
 test("rejects same-name Preflight check from another workflow without trusted run provenance", () => {
   const input = valid({ preflight: {
@@ -150,7 +157,7 @@ test("acceptance re-evaluates review submit and dismissal events and guards stal
   const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
   assert.match(source, /pull_request_review:\s*types: \[submitted, edited, dismissed\]/);
   assert.match(source, /effectiveReviewStates = new Set\(\['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'\]\)/);
-  assert.match(source, /currentPrResponse\.data\.head\.sha !== headSha/);
+  assert.match(source, /if \(currentPrResponse\.data\.head\.sha !== headSha\) \{[^}]+return;\s*\}/);
 });
 
 test("merge audit uses isolated concurrency and effective review decisions", async () => {
