@@ -1980,3 +1980,185 @@ GCAN 的衡量標準是持續產出可執行、可測試、可審查、可回滾
 四個主要 GPT 不是四條互相競爭的開發線，而是同一交付系統中的不同責任：GPT1 建設並整合 Factory，GPT2 提供必要專業能力，GPT3 獨立驗收，GPT4 定義並驗證 B 產品需求。GPT5 只在明確授權下提供支援執行。
 
 **先修通一條真實閉環，再擴大功能；先消除重複與阻塞，再增加並行；先取得精確證據，再宣稱完成。**
+
+
+---
+
+## 24. Factory 工程可靠性優先策略與正式放行里程碑
+
+> **治理定位：** 本節把 GCAN 的長期自主工程目標轉成可執行、可量測、可獨立驗收的建設順序。它是既有 Factory-first、F0–F12、M0–M4 與安全治理的整合補充，不另建平行 Factory、不新增 GPT 角色、不授予額外權限。
+> **狀態：** PROPOSED — 須依本總綱既有 GPT3 獨立審查與 Repository 治理程序正式接受後生效。文件寫入不代表功能已實作、測試通過、合併或部署。
+
+### 24.1 核心決策：先建立可信任的工程閉環，再擴張能力
+
+GCAN Agent Factory 的目標不是單純增加 Agent、模型、工具、Workflow 或 PR 數量，而是建立一套能把真實需求轉成可驗收交付的受控工程系統：
+
+`需求／Issue → 理解與盤點 → 規劃與依賴拆解 → 唯一 DRI 派工 → 隔離執行 → 受控修改 → 測試與 CI → Draft PR → 獨立審查 → 驗收決策 → 合併／發布（依核准）→ 結果持久化 → 失敗診斷與安全恢復`
+
+每個環節都必須有真實執行紀錄、輸入／輸出、責任人、狀態、精確 SHA 或可重現測試證據。只建立 Prompt、角色、Workflow、文件、Mock、Demo、空 Job 或 PR，不代表該環節已具備可用能力。
+
+**最高工程原則：先修通一條真實、低風險、可重複的單任務閉環；通過獨立驗收後，才逐步增加任務類型、Worker、工具路由與安全併發。**
+
+### 24.2 工程難點分層與治理重點
+
+本專案的主要難度不在單一功能的程式碼量，而在多個子系統的正確協作及失敗時仍能保持可信狀態。建設與審查必須覆蓋：
+
+1. **執行正確性：** Scheduler、Queue、任務狀態機、Lease／Fencing、Runner、Sandbox、鎖、取消、逾時、重試與持久化狀態一致。
+2. **整合可靠性：** GitHub API、Actions、Self-hosted Runner、外部 CI／部署 Provider、資料庫及模型／工具 Adapter 的契約、版本、配額與故障隔離。
+3. **品質驗證：** 靜態檢查、單元／整合／E2E／回歸／安全測試實際執行；檢查必須對應候選 PR HEAD 的精確 SHA、Run ID、Attempt、Job 終態及必要 Logs／Artifacts。
+4. **診斷與修復：** 對失敗建立可重現案例、根因分類、最小修復、回歸測試與有界重試；不得把重新觸發當成修復。
+5. **安全與權限：** 最小權限、路徑／命令／網路 allowlist、隔離、秘密遮罩、審計、成本與資源配額；模型不得自行擴權或修改放行規則。
+6. **持續運作與復原：** 任務級故障與系統級故障分離；能安全停止、保留證據、恢復狀態並證明不影響無關任務。
+7. **可量測營運：** 以真實任務的交付時間、首次驗收率、端到端完成率、恢復成功率、人工介入率、返工率及每項驗收任務成本衡量，不以 Agent 數、文件行數或 PR 數替代。
+
+### 24.3 唯一優先順序與範圍控制
+
+在 Factory 端到端閉環達到 M4 並經獨立驗收前，工作排序固定如下：
+
+- **P0：** Factory 任務正確性、核心可靠性、Runner／Queue／Recovery、證據完整性及真實 Issue-to-PR 閉環。
+- **P1：** 直接解除 P0 的必要介面、版本相容、測試／安全／觀測能力，以及必要 A→B Read Adapter。
+- **P2：** 只有具體證據證明直接阻擋 P0／P1 時，才啟動 F–P 專業修補。
+- **P3：** 不阻擋主線的產品與專業能力準備，維持低成本、低耦合及不影響 P0/P1。
+- **P4：** 非必要重構、外觀、模型／Runner 擴張、額外服務及大規模平行化，延後至有基準數據與明確收益。
+
+所有任務先執行 INVENTORY → REUSE → EXTEND → REPAIR →（有量化理由及 ADR 才可）REPLACE → DEFER。不得為了追求表面進度，同時啟動多個互相依賴的 Factory 核心修復；同一根因、同一檔案或同一契約維持唯一主要 Developer 與唯一 DRI。
+
+### 24.4 正式里程碑與放行條件
+
+以下里程碑是驗收門檻，不代表目前已完成。每一階段都必須提供 Issue／PR、精確 SHA、實際測試／CI、獨立 Review、風險及回滾證據。
+
+**M0 — 現況與瓶頸盤點**
+- 盤點實際可呼叫的 Worker／Agent、模型、工具、Runner、Scheduler、Queue、狀態機、鎖、隔離、驗證器、PR publisher、Recovery、資料持久化及 QA。
+- 每項能力記錄程式路徑、owner、版本、狀態（IMPLEMENTED／PARTIAL／NOT IMPLEMENTED／BLOCKED／NOT RUN／UNKNOWN）、最後驗證時間及精確證據。
+- 對 PENDING、0 Job、SKIPPED、Rate Limit、權限或外部 Provider 問題分類根因；不得把不同故障混成單一「CI 失敗」。
+- 產出一個有證據的最高優先根因、唯一 DRI、allowlist、驗收條件與下一步。
+
+**M1 — 核心可靠性**
+- 任務級失敗與系統級故障能正確區分。
+- Queue、鎖、Lease／Fencing、取消、逾時、Retry Budget、Cooldown、Breaker、Quarantine 與 Recovery 行為可觀測且狀態一致。
+- 一個任務失敗不錯誤終止無關任務；系統級故障能安全停止新工作並保留現況。
+- 重複失敗會停止盲目重試，並留下根因證據與安全替代路徑。
+
+**M2 — 真實單任務自主執行**
+- 至少一個真實、低風險 Issue 可由 Factory 完成理解、規劃、派工、隔離執行、allowlist 內修改、測試並建立 Draft PR。
+- 記錄每個階段的輸入／輸出、Worker、工具、耗時、成本、失敗、重試與產物 SHA。
+- 必須是真實 Runner 與實際程式差異；Mock／Demo 不得冒充真實交付。
+
+**M3 — 獨立驗收與結果持久化**
+- 合格且獨立的 Reviewer 能以候選 PR 精確 HEAD SHA 完成審查。
+- 必要測試、CI Run／Attempt、Jobs、Logs／Artifacts 與 Review 結論均可追溯。
+- 任務成功、失敗、取消、重試、PR、合併及發布狀態分開持久化，不得以單一布林值混淆。
+- 缺少任何必要證據時 Fail-Closed；Developer 不得自我批准。
+
+**M4 — 故障恢復與有限連續運作**
+- 以可控故障注入或可重現案例證明任務級隔離、系統級安全停止、診斷、恢復及重新驗證。
+- 完成多輪真實任務，報告端到端完成率、首次驗收率、Recovery Success Rate、Human Intervention Rate、Rework Rate、Lead Time、成本及恢復時間。
+- 指標必須有樣本數、計算口徑、時間範圍與來源；沒有實測資料填 NOT MEASURED／UNKNOWN。
+- **只有 M0–M4 全部具可追溯證據、通過 GPT3 獨立審查及既有治理放行後，才可宣稱 Factory 已具備受控的自主工程交付能力。**
+
+### 24.5 阻塞處置：停止空轉，但不得繞過治理
+
+遇到 PENDING、0 Job、SKIPPED、Rate Limit、PR 阻塞、Runner 不可用或生成卡住時，必須依序：
+
+1. 重新確認最新 main SHA、PR HEAD SHA、PR 精確狀態、CI Run／Attempt、Job 終態、必要 Checks、Runner／Queue 與外部 Provider 狀態。
+2. 取得失敗日誌、事件、錯誤碼及可重現資訊；無法取得時明確標記 UNKNOWN，不得編造根因。
+3. 分類為程式碼缺陷、測試契約、Workflow／Resolver、Runner／環境、Queue／鎖、權限／核准、外部 Provider／Quota 或未知。
+4. 對程式碼／測試缺陷做最小根因修復；對外部服務阻塞保留證據並推進不依賴該服務的工作；對權限問題提出明確核准需求，不得繞過。
+5. 同一根因未改變時不得盲目重跑；每次重試須指出新變更或新證據。不得手動清除 durable state、Cooldown、Quarantine、Lease 或保護機制以製造綠燈。
+6. 每輪只保留一個最高優先的 Factory 根因修復主線；其他不相依且不衝突的工作可以繼續，但不得擴大 WIP 或同時修改相同檔案。
+
+### 24.6 絕對驗收規則與狀態語義
+
+- PASS 只代表所有適用必要條件已在精確候選 SHA 上實際執行並成功。
+- FAIL 代表有明確失敗或不符合驗收條件。
+- BLOCKED 代表依賴、權限、環境或必要證據不足，無法安全繼續。
+- NOT RUN 代表尚未執行；PENDING 代表等待結果；SKIPPED／CANCELLED／0 Job 不得轉譯為 PASS。
+- GitHub Actions、外部 CI、Vercel Build／Deployment、測試、Review、合併及正式部署必須分開報告；一項通過不代表其他項通過。
+- PR HEAD、base、workflow 或必要測試改變後，重新核對受影響證據；不得把舊 SHA、其他 PR 或 main 的結果移植到目前候選。
+- Rate Limit、Quota、Provider outage 是外部阻塞證據，不自動代表程式碼失敗，也絕不代表整體驗收通過。
+- 不得繞過 Branch Protection、required checks、必要 Review、權限核准或正式環境保護。
+
+### 24.7 指標與管理報告
+
+每個工作週期至少追蹤下列指標；若目前沒有遙測能力，先標示 NOT MEASURED，並將量測能力列為有 owner 的必要工作，不得用推測值填補：
+
+| 指標 | 定義 |
+|---|---|
+| Issue-to-PR Lead Time | Issue 建立至可審查 Draft／Ready PR 的時間 |
+| First-pass Acceptance Rate | 首次獨立驗收即通過的任務比例 |
+| End-to-End Completion Rate | 完成全部必要閉環步驟的真實任務比例 |
+| Recovery Success Rate | 符合恢復條件的故障中安全恢復成功比例 |
+| Human Intervention Rate | 需要人工補資料、解鎖、重跑或修復的任務比例 |
+| Rework Rate | 因重複實作、衝突、規格不清或驗收失敗而返工的比例 |
+| Cost per Accepted Task | 每項獨立驗收通過任務的模型、Runner、CI 與外部服務成本 |
+| Queue／Runner Utilization | 排隊時間、實際執行時間、容量與失敗率；Queued 不等於 Running |
+
+每輪報告分開列出：已實作、已測試、CI 精確終態、獨立 Review、已合併、已部署、未證明、阻塞根因、風險／回滾、指標樣本與唯一下一步。不得用文件數、PR 數、commit 數、Agent 數或巡檢次數作為主要成功指標。
+
+### 24.8 權限、成本與變更邊界
+
+本節不授予新的 GitHub、Runner、Supabase、Vercel、Secrets、正式部署、付費 API 或資料存取權。所有執行仍受現行帳號權限、Repository 政策、Branch Protection、模組 owner、資料保護及專案負責人核准權約束。
+
+低風險、可逆、已授權的盤點、測試、文件及程式修復可依既有流程直接推進；涉及正式環境、不可逆資料操作、schema／RLS、安全政策、權限／Secrets、付費支出、合併政策或重大架構決策，仍須依既有規則取得核准。任何自主改善都必須保留最後已知良好版本、回滾路徑與獨立審查。
+
+### 24.9 最終執行命令
+
+GPT1／A–E 主責 Factory 建設與整合；GPT2／F–P 僅對有證據的專業缺口提供規格、能力與領域驗收；GPT3 維持獨立架構審查與 QA；GPT4／B 提供產品需求與產品驗收，不接觸 Factory 私有執行狀態；GPT5 僅在明確授權與 allowlist 下支援研究、營運或執行。每項任務只有一位 DRI、一位主要 Developer，驗收者必須獨立。
+
+**GCAN 的下一個成功標準不是再增加一批功能，而是讓一條真實任務從需求到獨立驗收、失敗恢復及結果持久化，能夠安全、可重複地完成。先證明可靠，再擴大自主；先取得證據，再宣稱成熟。**
+
+
+### 24.10 五 GPT 協作協定：本 ChatGPT 執行席位為 GPT5
+
+本專案固定是 **GPT1、GPT2、GPT3、GPT4、GPT5 共五個 GPT 協作角色**。本 ChatGPT 在本專案中的執行／協調席位是 **GPT5**；不得寫成「四個 GPT 再加一個 ChatGPT」、不得把 GPT5 排除在五個角色之外，也不得另創 GPT6。
+
+| 角色 | 正式責任 | 每輪必要交付 | 明確禁止 |
+|---|---|---|---|
+| GPT1 | A–E／Agent Factory V2 主責 | 更新 Factory 能力盤點、指定 P0 根因與唯一 DRI、推進最小修復及真實測試 | 不得略過 GPT3 獨立驗收或任意擴大範圍 |
+| GPT2 | F–P 專業能力主責 | 提供必要領域規格、風險、測試案例及對 P0/P1 的專業依賴 | 不得複製 Factory 共用能力或覆蓋 A–E owner |
+| GPT3 | 全域獨立架構、資安、整合與 QA | 以精確 HEAD SHA 審查、記錄 PASS／FAIL／BLOCKED／NOT RUN 及可重現證據 | 不得批准自己實作的成果，不得被 GPT5 自我審查取代 |
+| GPT4 | B Product 產品負責人 | 提供產品需求、UX、A→B 最小公開契約及產品驗收條件 | 不得直接操作 Factory 私有 Runner、Lease、Sandbox、Secrets 或內部狀態 |
+| GPT5（本 ChatGPT 執行席位） | 全域協調、證據整合、任務去重、跨線 handoff、受授權的第二執行支援 | 維護本節及 GPT5 協調操作紀錄；逐輪核對 main／PR／CI／Issue；將對其他角色的要求寫成可讀取的總綱規則或具體 Issue；追蹤角色各自回覆及證據 | 不得宣稱已私訊、喚醒或啟動其他 GPT；不得接管 GPT1／2／4 的 owner 工作或 GPT3 的獨立審查；不得自行擴權、部署或批准自己成果 |
+
+#### 24.10.1 共同工作方式與責任交接
+
+1. **單一事實來源：** 五 GPT 必須以 Repository 的 Master Charter、PROJECT_COORDINATION.md、角色自有協調文件、GitHub Issues／PR／commits、CI／Checks 及 handoff 為共同事實來源；聊天摘要只作線索，不得覆蓋較新的 Repository 證據。
+2. **開工前同步：** 每個角色開始新工作前，讀取最新 main SHA、本總綱、PROJECT_COORDINATION.md、自己的角色文件、相關 Issue／PR、精確 SHA 檢查及最新 handoff。記錄讀取的 SHA 與時間；舊快照標為 STALE。
+3. **一事一主責：** 每項任務只有一位 DRI、一位主要 Developer、一份檔案 allowlist 及明確 Reviewer。需要多角色時，拆成互不衝突的交付子任務；不得用「大家一起做」掩蓋責任不明。
+4. **GPT5 協調責任：** GPT5 負責將總負責人的要求轉成 Repository 可讀取的規則、Issue、PR 說明或 handoff；檢查現有任務避免重複開案；記錄每個角色的已回覆／未回覆、證據及阻塞。GPT5 可以提出與執行自己 allowlist 內的支援工作，但不得把其他 GPT 的工作宣稱為已完成。
+5. **按角色回覆：** GPT1／GPT2／GPT3／GPT4 各自只能代表自己的工作範圍提交採納與交付證據。回覆至少包含：角色、讀取的 main SHA、負責範圍、已執行動作、檔案／Issue／PR、commit SHA、測試／CI 狀態、未完成與下一步。GPT5 不得代簽其他角色。
+6. **GitHub 是交接，不是自動啟動器：** 文件及 Issue 讓其他 GPT 在被使用者或其工作流程啟動時能讀取上下文；GitHub 寫入本身不代表 GPT 已收到通知、已讀取、已回覆或正在背景執行。無法觸發角色時標示 NOT CONTACTED／NOT STARTED，交由使用者在對應 GPT 工作階段交辦。
+7. **即時更新規則：** 每當專案負責人新增、改變或否決一項跨 GPT 要求，GPT5 必須先判斷是長期治理規則還是單次任務：長期規則更新本總綱；單次任務建立／更新 Issue；最新狀態與接手事項更新 handoff／角色操作紀錄。相關更新以 PR 提交，保留獨立審查與既有放行流程。
+8. **角色衝突：** 發現同一檔案多位 Developer、重複 Issue、互斥契約或 owner 不清，先凍結重疊寫入、保留已有成果，再由正式模組 owner 與專案負責人決定；不得由 GPT5 自行改派所有權。
+9. **每輪收斂：** GPT5 每輪需回報五個角色的狀態矩陣：DOCUMENT READ、ACKNOWLEDGED、TASK STARTED、DELIVERABLE、INDEPENDENT REVIEW、BLOCKER。沒有證據的欄位必須填 UNKNOWN／NOT OBSERVED，不得猜測。
+10. **無背景常駐承諾：** 除非確實有已啟用且留下執行紀錄的 Automation／Agent Runtime，任何 GPT 都不得宣稱會在對話結束後持續監控、定時讀取或主動喚醒其他 GPT。
+
+#### 24.10.2 GPT5 本輪固定執行責任
+
+- 每次接手 GCAN 任務，先查最新 main SHA、PR #618 及相關 PR 的精確 HEAD／base／終態、必要 Checks／Jobs、開放 P0 Issue 與最新 handoff。
+- 維持 GPT1 的 Factory 主線、GPT2 的專業支援、GPT3 的獨立驗收、GPT4 的 B 端需求四者不互相取代。
+- 對每個新要求先盤點既有文件、Issue、PR 與程式，採 REUSE／EXTEND／REPAIR／REPLACE／DEFER，避免重複開 PR。
+- 將跨角色決策、交付要求及待回覆事項寫入 Repository；不得只留在 GPT5 的聊天內容。
+- 當任何角色尚未回覆時，列為 NOT OBSERVED／NOT STARTED，不得將指令已發布說成任務已完成。
+- 僅在自身工具權限、任務 allowlist 與安全條件允許時直接執行；高風險獨立審查仍由 GPT3 或其他合格獨立 Reviewer 執行。
+
+#### 24.10.3 本規範的生效限制
+
+本節屬治理提案內容，須經 GPT3 獨立審查及 Repository 既有核准程序接受後生效。它不新增 GitHub 帳號、角色席位、模型權限、Runner 權限、排程、部署權或付費額度；不保證其他 GPT 已收到通知。任何文件、Issue 或 comment 的建立，只能證明該工件已寫入 Repository。
+
+### 24.11 配額感知的批次開發與外部 Provider 隔離
+
+**決策：GCAN 工程進度不得以 Vercel 每日 Preview／Build 配額作為全面等待條件。** 外部 Provider 限額必須被視為一種可隔離的部署／預覽依賴，而不是所有開發、測試、文件整理與程式審查的總開關。
+
+1. **分離狀態：** GitHub Actions／本地測試、Vercel Preview Build、Production Deployment、外部 CircleCI 等 Provider 必須分別記錄。Vercel PENDING／Rate Limit 只表示對應 Preview／部署尚未完成；不得直接推論程式碼失敗，也不得推論必要 CI 已通過。
+2. **配額不阻斷無依賴工作：** Vercel 配額耗盡時，仍可進行程式修改、靜態檢查、單元／整合測試、型別檢查、安全掃描、Diff Review、文件整理、Issue 去重與 PR 準備；只暫停必須依賴該 Preview／部署結果的驗收項目。
+3. **批次提交：** 對同一目標、同一模組或相同依賴的一組相關文件／修復，先在同一受控分支完成盤點、修改及本地／GitHub 可用檢查，再以一個邏輯完整的提交或一個 PR 批次交付。禁止為每一段文件增補、每一個小改字或同一根因的連續微調反覆觸發 Preview。
+4. **PR 邊界：** 批次提交不等於無限制混合無關變更。不同 owner、不同風險、不同發布時序或需要不同 Reviewer 的工作仍應拆分；每個 PR 必須保持單一可審查目的與精確 allowlist。
+5. **何時觸發 Preview：** 只有在完整批次已準備好，且 Preview 結果能提供必要驗收價值時才觸發。若 PR 的檔案變更不影響網站／部署輸出，應依既有 workflow／branch policy 避免不必要的 Preview；不得擅自修改 required checks 或透過假標記跳過檢查。
+6. **不得繞過 Provider 限額：** 不得透過建立新帳號、使用未核准 Token、反覆強制部署、切換未核准專案或其他方式規避供應商配額。應保留 Rate Limit 證據、降低無效請求並等待供應商恢復，期間推進不依賴該服務的工作。
+7. **合併仍服從保護規則：** 若 Vercel 是該 Repository／該 PR 的 required check，該檢查未成功前不得合併；若它只是 Preview／資訊性狀態，則不得把它誤當成 GitHub Actions 或程式碼測試的必要驗收。必須先查明實際 Branch Protection／Ruleset，不得猜測。
+8. **集中驗收：** 批次完成後，再一次核對最新 PR HEAD SHA、required checks、每個 Run／Attempt／Job 終態、Reviewer、Vercel／外部 Provider 及合併資格。HEAD 改變後舊證據不可移植。
+9. **每日配額的工作策略：** 配額未恢復期間先完成可離線／本地／GitHub 驗證的工作，整理完整變更與驗收證據；在下一個合理的 Preview 時機集中觸發，不以每日等待取代持續工程進度。
+10. **報告用語：** 必須分開報告 CODE／TEST／GITHUB CI／PREVIEW／DEPLOYMENT／REVIEW／MERGE 狀態。不得把 Preview Pending 說成全部工作 Pending，也不得因其他檢查成功而宣稱 Preview 或部署成功。
+
+本節不授權改變 Vercel 方案、付費、部署設定、Branch Protection、required check 或正式環境程序。其目的為避免配額浪費、維持工程吞吐量，並確保只有真正依賴 Preview 的驗收步驟受 Provider 狀態影響。
