@@ -3033,3 +3033,21 @@ All 16 PRs were OPEN / Draft in the pull inventory at capture. HEAD and base are
 - All 17 PRs remain OPEN/Draft. Prior formal review audit found zero APPROVED; no PR was promoted or merged.
 - Automation remains enabled daily 08:00 Asia/Taipei; next run `2026-11-27T08:00:00+08:00`; last recorded run remains 2026-11-25. No completed 2026-11-26 scheduled run is evidenced.
 - GPT5 action: this refresh is appended to the existing GPT5-owned operations document. No Factory/Runner/other GPT-owned files changed; no code deployment or production write performed.
+
+
+## Follow-up live audit — 2026-11-26 (second refresh)
+
+- Main remains `efbc3c05503dd88fcca68e6987ad1395bd662890`; latest listed main push CI run `45746587701` is COMPLETED/SUCCESS. Recovery remains unhealthy: latest run `45804146610` COMPLETED/SKIPPED, and `45802365481` still PENDING.
+- All 17 open PRs remain Draft. Current exact-head check snapshots:
+  - #594, #586, #560: Resolver/Autofix PENDING (2 each).
+  - #593, #592, #591: Windows Runner quality gates PENDING (1 each).
+  - #587: Windows Runner quality gates IN_PROGRESS; six publication/validation/dispatch jobs SKIPPED.
+  - #589, #567, #565, #563: core checks SUCCESS; three evidence/persistence jobs SKIPPED.
+  - #582: Autofix FAILURE; nine SKIPPED.
+  - #574 and #572: Resolver + failure persistence FAILURE; core jobs SKIPPED.
+  - #573: only Summary SUCCESS and Mergify NEUTRAL; no substantive CI checks.
+  - #568: branch-protection verification FAILURE, three SKIPPED; mergeable=false.
+  - #559: three PR Acceptance Gate FAILURE; three SKIPPED.
+- Remaining PRs report mergeable=true, but that does not establish readiness. Prior formal-review audit remains zero APPROVED; no independent approval evidence authorizes Draft removal or merge.
+- GPT5 operations document was refreshed after its prior commit; this is GPT5-owned documentation only. No Factory/Runner code, other GPT-owned paths, deployment, or production mutation was performed.
+- Automation remains enabled daily 08:00 Asia/Taipei; next run `2026-11-27T08:00:00+08:00`; last run still 2026-11-25. No completed 2026-11-26 scheduled execution is evidenced.
