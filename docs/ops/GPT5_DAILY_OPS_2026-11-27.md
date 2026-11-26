@@ -942,3 +942,46 @@ All 14 are OPEN / Draft. PENDING, SKIPPED, NEUTRAL, Summary-only, or historical 
 ### Automation and next action
 - Existing `GCAN Daily Dev Check` remains enabled for 08:00 Asia/Taipei; next scheduled run is 2026-11-27 08:00. No duplicate schedule created.
 - GPT5 next action: verify the new rebased documentation head's exact-head checks, then continue only non-overlapping Operations evidence work. Factory Preflight/Recovery repair remains with GPT1/Factory owner; independent acceptance remains with GPT3/authorized reviewer.
+
+
+## Superseding live engineering snapshot — 2026-11-26 18:26 Asia/Taipei
+
+### Main
+- Current main SHA verified from the latest main merge commit: `efbc3c05503dd88fcca68e6987ad1395bd662890` (merge PR #576; disables unverified Mergify auto-merge; `.mergify.yml` now has no auto-merge rules).
+- Main combined commit status currently exposes only Vercel SUCCESS. This is not GitHub Actions CI acceptance.
+- Main push Actions run/jobs for this exact SHA: NOT OBSERVED in the available commit-run query (that query returns PR-triggered runs only). Do not reuse runs from prior main SHA `fc0a006...`.
+- Branch-protection state: UNKNOWN; prior API read returned 403 Resource not accessible by integration. Do not claim protection enabled or disabled.
+
+### All 16 open PRs — exact current refs and observable checks
+All listed PRs are OPEN / Draft. Full HEAD and base SHA values are recorded below; every status is for the stated exact HEAD.
+
+| PR | HEAD | Base SHA | GitHub Actions / exact-head disposition | External status |
+|---|---|---|---|---|
+| #586 | `d9650f47cb53a5f844e419c2069d379467ea66bb` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | CI run 45799143804 PENDING; resolver job 139837467948 PENDING with 0 steps. Autofix 45799143817 PENDING. | Vercel FAILURE |
+| #560 | `e6009bd6ea4c0a64eee77f8faff4ca182dd90b8a` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | CI run 45798295390 PENDING; resolver job 139834557878 PENDING with 0 steps. Autofix 45798295196 PENDING. | Vercel SUCCESS (not CI acceptance) |
+| #593 | `450af2c0dafca636b960a498203531ebbdd5ba80` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | CI 45796417233 PENDING; Autofix 45796418800 PENDING. | Vercel FAILURE |
+| #592 | `a3c5f714a602ac904b50a0dd0bb1118886a5a3bf` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | CI 45795961706 PENDING; Autofix 45795961564 PENDING. | Vercel FAILURE |
+| #587 | `cbfc7253a6f2cf4c01e46b4d9d20bde121d91bff` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | CI 45789522929 PENDING; resolver job 139804713813 SUCCESS; Windows quality job 139831674502 PENDING. Preflight 45789522870 SUCCESS; Autofix 45789523034 SUCCESS. | Vercel FAILURE |
+| #589 | `17a8dfe941d2a1f0685a8482afd9b39478a5b56e` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | CI 45779385220 IN_PROGRESS; resolver and Windows quality SUCCESS; PostgreSQL/RLS job 139811288922 IN_PROGRESS (pgTAP running; application RLS tests not yet run); Ollama/local execution SUCCESS. Autofix 45779385270 SUCCESS. | Vercel SUCCESS |
+| #591 | `a123a3607bdc59dfea0abf819336285e241f0c76` | `efbc3c05503dd88fcca68e6987ad1395bd662890` | CI 45787670552 PENDING; resolver job 139822171675 PENDING with 0 steps. Autofix 45787670640 SUCCESS. | Vercel FAILURE |
+| #565 | `f40730ee6974a8a9c4d8404565f37ce414a30af3` | `fc0a006aa6a7c396388473f1819c06095813945b` | CI 45738481606 SUCCESS; Autofix 45738481626 SUCCESS. | Vercel FAILURE |
+| #582 | `528be6dd1dca86c789e9acd1c3dc19dd44509b6c` | `94004585a0756d10c56edd6d65dc143b05a652ab` | CI 45673461429 SUCCESS; Preflight 45673461387 SUCCESS; Autofix 45673461347 FAILURE. | Vercel FAILURE |
+| #567 | `250645c6b7465c961cb3e364d98e6be8e2586b30` | `b39228e24e15c329f3053ba22a3f4dfebe77546b` | CI 45585171843 SUCCESS. | Vercel FAILURE; CircleCI ERROR |
+| #574 | `8145ea2d0a0e99485706b0a6cec01f8e423512cd` | `4e70c5487c19acd536ad14780a5bdc24e1d47e54` | CI 45615936030 FAILURE. | Vercel FAILURE; CircleCI ERROR |
+| #573 | `1d4d225f299662337254818a9db35015253685c2` | `6f735c1251907c5016e7eea32ea0253142e537ec` | No GitHub Actions run returned for this exact HEAD: NOT OBSERVED / NOT PASS. | Vercel FAILURE; CircleCI ERROR |
+| #572 | `58d16ef556a86a5ec8e0e7a7b9487c72bc7956b6` | `c2d2b17b91898f05d0bdc20641fc7bc4fc254be8` | CI 45614788127 FAILURE. | Vercel FAILURE; CircleCI ERROR |
+| #568 | `cfd9a90b888f59253894f6a6a6f9d498eff00dac` | `a772acbeb93e877697bfc315ecc0a29f2f611b9f` | CI 45600232110 SUCCESS, but Verify GCAN Branch Protection Access run 45600232082 FAILURE; PR mergeable=false. | Vercel FAILURE; CircleCI ERROR |
+| #563 | `e62f4fc4322432f71f46c9478f1bdbace174dcdc` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | CI 45560540985 SUCCESS. | Vercel SUCCESS; CircleCI ERROR |
+| #559 | `567f27233103790b07c26c59dab7dbb4b033fced` | `462eeea5917f3b0750fc2c41c888a4d54c562c1e` | CI 45544850826 SUCCESS. | Vercel FAILURE; CircleCI ERROR |
+
+### Reviews and disposition
+- Formal review API: #560 has six COMMENTED submissions; #565 has one COMMENTED; #567 has two COMMENTED; #559 has five COMMENTED. #586, #593, #592, #587, #589, #591, #582, #574, #573, #572, #568 and #563 returned zero formal review submissions. No independent formal APPROVED review was observed for any of the 16 PRs.
+- #560 has two inline review threads, both RESOLVED. COMMENTED reviews and resolved threads are not formal approval.
+- #560's base is now aligned with current main at `efbc3c05503dd88fcca68e6987ad1395bd662890`; prior statements that its base was stale are superseded. It remains OPEN / Draft because exact-head CI and Autofix are PENDING and formal independent APPROVED is absent.
+- #586 is Factory-owned; its exact-head CI/Autofix are PENDING and Vercel is FAILURE. Do not alter Factory code or state from GPT5.
+- No PR is ready for promotion or merge. No self-approval, Ready transition, merge, release or deployment is claimed.
+
+### GPT5 scope and next action
+- This update is restricted to the three existing GPT5 Operations allowlisted documents in PR #560. No A–P source, Factory workflow/state, Runner, secrets, permissions, branch protection, production data, billing or deployment settings were changed.
+- Issue #505 remains GPT1 / Factory-owned; GPT5 provides operations evidence and handoff only. Root-cause repair and acceptance require GPT1 and GPT3 respectively.
+- Local tests/build/lint: NOT RUN. This is documentation/evidence work only; new exact-head checks must be observed after the resulting commit. No historical check transfers to a new SHA.
