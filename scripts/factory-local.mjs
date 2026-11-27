@@ -16,6 +16,7 @@ function usage() {
   console.log([
     "Factory Local — single-worker, local-only task runner",
     "  node scripts/factory-local.mjs task add --title \"Queue regression tests\"",
+    "  node scripts/factory-local.mjs task add-agent --file <local-task.json> --oracle-file <tracked-tests/*.test.mjs> [--oracle-file <path> ...]",
     "  node scripts/factory-local.mjs run-once",
     "  node scripts/factory-local.mjs run-until-idle [--max-tasks <1-100>]",
     "  node scripts/factory-local.mjs serve",
