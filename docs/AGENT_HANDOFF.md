@@ -6120,3 +6120,36 @@ This append-only delta supersedes no prior evidence; it records a fresh GitHub A
 - External Vercel quota is not retried blindly. Factory/Recovery and PR Acceptance 0-Job/PENDING failures are returned to their respective owners with exact run IDs above.
 
 **Current result: GPT5 handoff evidence refreshed; no release acceptance is claimed.**
+
+
+---
+
+# GPT5 operations delta — 2026-11-27 subsequent audit
+
+Read-only refresh against live GitHub API. Main remains `590d132e338dc5bb47243f372a0547c8dfdbfced`; OPEN main-target PR inventory remains exactly #676, #674 and #672.
+
+## New exact-run evidence
+
+- Main Recovery run [45955062093](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955062093): queued; one job `140359513017` ("Resolve completed exact-head CI before resetting system breaker"), also queued, no steps.
+- Main Acceptance Gate [45955062100](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955062100): completed/failure, **0 jobs**. Run event is `workflow_run`; its API payload has `pull_requests: []`.
+- PR #676 CI [45954669226](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669226): pending; one Resolver job `140358259313`, no steps. Acceptance Gate [45954669700](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669700): failure, 0 jobs.
+- PR #674 CI [45955054386](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955054386): pending; one Resolver job `140359495730`, no steps. Acceptance Gate [45955051529](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955051529): failure, 0 jobs.
+- Main CI [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380): pending; Resolver job `140321897366`, no steps.
+- PR #672 remains pending on CI [45947224484](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484); its Acceptance Gate runs remain failure/0 jobs.
+
+## Root-cause boundary
+
+The trusted workflow YAML has a `workflow_run` fallback that tries to associate the completed workflow's SHA with exactly one open main-target PR; if it cannot, the script emits a notice and returns without changing any PR. The latest main Acceptance Gate event has `pull_requests: []`, consistent with that association path being exercised.
+
+However, the same run has **0 jobs**, so the script's early-return branch cannot be asserted as the cause of that run's zero-job failure: no job/step evidence exists to show the script started. Treat the cause of the 0-job completion as **UNKNOWN / needs Actions platform or workflow scheduling diagnostics**, not as a proven policy-code bug. Similarly, Resolver jobs with no steps are PENDING, not failed or passed.
+
+## Current release disposition
+
+- Main remains NOT GREEN: 31 check-runs, multiple queued/pending checks, required Preflight jobs skipped, Vercel failure with "Deployment rate limited — retry in 24 hours."
+- #676 remains Draft; Vercel success, CI pending, Acceptance Gate failure/0 jobs.
+- #674 remains Draft; Vercel rate-limited, CI pending, Acceptance Gate failure/0 jobs.
+- #672 remains Draft; CI pending, Acceptance Gate failures/0 jobs, Vercel rate-limited.
+- All three PRs have zero formal review submissions and zero inline review comments in the queried endpoints.
+- No code ownership, branch protection, reviewer, or release gate was bypassed. No local build/test was run; this is remote API evidence only.
+
+**Action requested from workflow/Actions owner:** inspect GitHub Actions scheduling/concurrency/runner diagnostics for the listed completed-failure runs with 0 jobs and queued Resolver/Recovery jobs with no steps; return exact event/run/attempt evidence. Do not treat the YAML script's no-PR early return as proof of a 0-job cause.
