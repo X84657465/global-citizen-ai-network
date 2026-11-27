@@ -1150,8 +1150,8 @@ test("Windows candidate classifier uses a temporary ESM file instead of native -
 
 
 test("PR Acceptance Gate resolves a unique PR before acquiring its per-PR queue", () => {
-  const header = acceptance.slice(0, acceptance.indexOf("\\njobs:"));
-  assert.equal(header.includes("\\nconcurrency:\\n"), false,
+  const header = acceptance.slice(0, acceptance.indexOf("\njobs:"));
+  assert.equal(header.includes("\nconcurrency:\n"), false,
     "concurrency must be job-level so it can use the resolved PR identity");
 
   const resolveStart = acceptance.indexOf("  resolve-target:");
