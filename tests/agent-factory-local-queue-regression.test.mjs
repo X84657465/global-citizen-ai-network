@@ -67,3 +67,42 @@ for (const scope of ["task", "system"]) {
     }
   });
 }
+
+
+test("system failures use bounded exponential backoff without consuming task failure budget", () => {
+  const directory = mkdtempSync(join(tmpdir(), "gcan-system-backoff-"));
+  let clock = 10_000;
+  const queue = createLocalFactoryQueue({
+    databasePath: join(directory, "factory.sqlite"),
+    leaseMs: 1_000,
+    systemRetryDelayMs: 1_000,
+    maxSystemRetryDelayMs: 4_000,
+    now: () => clock,
+  });
+  try {
+    const task = queue.add({ title: "system backoff", payload: {} });
+
+    const first = queue.claim("worker");
+    assert.ok(first);
+    queue.fail(task.id, "worker", first.lease_token, "Ollama temporarily unavailable", { scope: "system" });
+    assert.equal(queue.get(task.id).status, "queued");
+    assert.equal(queue.get(task.id).failures, 0);
+    assert.equal(queue.get(task.id).system_failures, 1);
+    assert.equal(queue.claim("worker"), null, "system failure must not be immediately claimable");
+
+    clock += 1_000;
+    const second = queue.claim("worker");
+    assert.ok(second);
+    queue.fail(task.id, "worker", second.lease_token, "Ollama still unavailable", { scope: "system" });
+    assert.equal(queue.get(task.id).failures, 0);
+    assert.equal(queue.get(task.id).system_failures, 2);
+    assert.equal(queue.claim("worker"), null, "second system failure must wait for doubled backoff");
+
+    const systemFailures = queue.events(task.id).filter((entry) => entry.event_type === "system_failure_released");
+    assert.deepEqual(systemFailures.map((entry) => entry.payload.retry_delay_ms), [1_000, 2_000]);
+    assert.deepEqual(systemFailures.map((entry) => entry.payload.next_status), ["queued", "queued"]);
+  } finally {
+    queue.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
