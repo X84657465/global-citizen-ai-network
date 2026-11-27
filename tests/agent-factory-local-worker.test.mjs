@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { join } from "node:path";
 import { createTrustedAcceptanceOracle } from "../lib/agent-factory-trusted-oracle.mjs";
 import { runLocalFactoryAgentTask, runLocalFactoryTask, terminateLocalFactoryProcessTree, LocalFactoryWorkerError } from "../lib/agent-factory-local-worker.mjs";
 
