@@ -132,9 +132,51 @@ function parseMaxTasks(values) {
   throw new Error("run-until-idle accepts only --max-tasks <1-100>.");
 }
 
+let nextPublicationRetryAt = 0;
+
+async function publishAcceptedTask(queue, taskRecord) {
+  const publication = await publishAcceptedLocalFactoryTask({
+    taskRecord,
+    taskEvents: queue.events(taskRecord.id),
+    existingPublication: queue.getPublication(taskRecord.id),
+    repositoryRoot: process.cwd(),
+    persistPublication: (value) => queue.recordPublication(taskRecord.id, value),
+  });
+  return publication;
+}
+
+async function retryPendingPublications(queue, { force = false } = {}) {
+  const now = Date.now();
+  if (!force && now < nextPublicationRetryAt) return [];
+  nextPublicationRetryAt = now + 30_000;
+  const acceptedTasks = queue.list({ status: "succeeded", limit: 500 }).filter((task) =>
+    task.payload?.kind === "local-agent-task" &&
+    task.result?.acceptance_status === "ACCEPTED" &&
+    queue.getPublication(task.id)?.state !== "draft_pr_created"
+  );
+  const outcomes = [];
+  for (const task of acceptedTasks) {
+    try {
+      outcomes.push({ task_id: task.id, state: (await publishAcceptedTask(queue, task)).state });
+    } catch (error) {
+      outcomes.push({
+        task_id: task.id,
+        state: "pending",
+        error: error instanceof Error ? error.message : "Unknown publication error",
+      });
+    }
+  }
+  return outcomes;
+}
+
 async function runNextTask(queue) {
+  const recoveredPublications = await retryPendingPublications(queue);
   const task = queue.claim(workerId);
-  if (!task) return { claimed: false, message: "No eligible task is ready." };
+  if (!task) return {
+    claimed: false,
+    message: "No eligible task is ready.",
+    recovered_publications: recoveredPublications,
+  };
 
   try {
     if (task.payload?.kind === "local-agent-task" && task.payload.task_id !== task.id) {
@@ -148,7 +190,22 @@ async function runNextTask(queue) {
       })
       : await runLocalFactoryTask({ payload: task.payload });
     const completed = queue.complete(task.id, workerId, task.lease_token, result);
-    return { claimed: true, completed: true, task: completed };
+    if (completed.payload?.kind !== "local-agent-task" || completed.result?.acceptance_status !== "ACCEPTED") {
+      return { claimed: true, completed: true, task: completed, recovered_publications: recoveredPublications };
+    }
+    try {
+      const publication = await publishAcceptedTask(queue, completed);
+      return { claimed: true, completed: true, task: completed, publication, recovered_publications: recoveredPublications };
+    } catch (error) {
+      return {
+        claimed: true,
+        completed: true,
+        task: completed,
+        publication: queue.getPublication(task.id),
+        publication_error: error instanceof Error ? error.message : "Unknown publication error",
+        recovered_publications: recoveredPublications,
+      };
+    }
   } catch (error) {
     const scope = error?.scope === "task" ? "task" :
       error instanceof LocalFactoryWorkerError ? error.scope : "system";
@@ -181,6 +238,8 @@ async function serve(queue) {
         task_id: result.task.id,
         status: result.task.status,
         failure_scope: result.failure_scope ?? null,
+        publication_state: result.publication?.state ?? result.publication?.state ?? null,
+        publication_error: result.publication_error ?? null,
       }));
       if (result.failure_scope === "system") {
         const retryAt = result.task.available_at;
@@ -317,7 +376,9 @@ try {
     if (!args[1]) throw new Error("logs requires a task id.");
     print(queue.events(args[1]));
   } else if (command === "recover") {
-    print({ recovered_leases: queue.recoverExpiredLeases() });
+    const recoveredLeases = queue.recoverExpiredLeases();
+    const recoveredPublications = await retryPendingPublications(queue, { force: true });
+    print({ recovered_leases: recoveredLeases, recovered_publications: recoveredPublications });
   } else if (command === "serve" && args.length === 1) {
     await serve(queue);
   } else if (command === "run-once") {
