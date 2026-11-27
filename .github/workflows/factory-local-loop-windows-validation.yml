@@ -135,7 +135,21 @@ jobs:
           Write-Host "FACTORY_AGENT_TASK_ID=$taskId"
 
           $runOutput = & node scripts/factory-local.mjs run-once
-          if ($LASTEXITCODE -ne 0) { throw "Real Ollama agent task did not complete successfully." }
+          $runExitCode = $LASTEXITCODE
+          Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_BEGIN"
+          Write-Host ($runOutput -join [Environment]::NewLine)
+          Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_END"
+          if ($runExitCode -ne 0) {
+            $failureStatus = & node scripts/factory-local.mjs status
+            Write-Host "FACTORY_AGENT_FAILURE_STATUS_BEGIN"
+            Write-Host ($failureStatus -join [Environment]::NewLine)
+            Write-Host "FACTORY_AGENT_FAILURE_STATUS_END"
+            $failureEvents = & node scripts/factory-local.mjs logs $taskId
+            Write-Host "FACTORY_AGENT_FAILURE_EVENTS_BEGIN"
+            Write-Host ($failureEvents -join [Environment]::NewLine)
+            Write-Host "FACTORY_AGENT_FAILURE_EVENTS_END"
+            throw "Real Ollama agent task did not complete successfully."
+          }
           $runResult = ($runOutput -join [Environment]::NewLine) | ConvertFrom-Json
           $agentResult = $runResult.task.result
           if (-not $runResult.claimed -or -not $runResult.completed -or
