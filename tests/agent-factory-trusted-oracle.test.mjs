@@ -74,8 +74,14 @@ test("trusted Oracle accepts Windows CRLF checkout when Git blob identity is unc
     oracleTestFiles: ["tests/oracle.test.mjs"],
   });
   const path = join(root, "tests/oracle.test.mjs");
-  const lf = readFileSync(path, "utf8").replace(/\\r?\\n/g, "\\n");
-  writeFileSync(path, lf.replace(/\\n/g, "\\r\\n"));
+  const lf = readFileSync(path, "utf8").replace(/\r\n?/g, "\n");
+  const crlf = lf.replace(/\n/g, "\r\n");
+  writeFileSync(path, crlf);
+  const written = readFileSync(path);
+  assert.ok(written.includes(Buffer.from("\r\n")), "fixture must contain actual CRLF bytes");
+  for (let index = 0; index < written.length; index += 1) {
+    if (written[index] === 0x0a) assert.equal(written[index - 1], 0x0d, "fixture must not contain a bare LF");
+  }
   const verified = verifyTrustedAcceptanceOracle({
     repositoryRoot: root,
     contract,
