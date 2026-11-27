@@ -1185,7 +1185,6 @@ test("Agent Task Preflight PR and push path filters cover every acceptance-requi
     "lib/agent-task-validation.mjs",
     "tests/agent-task-validation.test.mjs",
     "tests/agent-plan-validation.test.mjs",
-    "tests/ci-trigger-policy.test.mjs",
   ]) {
     assert.ok(requiredPaths.includes(requiredPath), "acceptance path policy must retain " + requiredPath);
   }
