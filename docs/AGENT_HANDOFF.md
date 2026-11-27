@@ -7927,3 +7927,68 @@ All seven target `main`, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, an
 - No local tests/build/lint, Windows quality suite, Ollama E2E, PostgreSQL/RLS integration or deployment were run by GPT5 in this pass.
 
 **Disposition: MAIN NOT GREEN / workflow terminal state UNKNOWN; seven OPEN Draft PRs; zero formal approvals. Evidence handoff only; no acceptance, Draft removal, merge or deployment.**
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (late-day exact-ref refresh)
+
+This append-only checkpoint supersedes earlier moving-head snapshots where values differ. Main, current open PR refs, exact-head workflow runs/jobs, commit statuses, formal review submissions and review threads were re-read during this pass. Missing check-run inventory is explicitly UNKNOWN; no old SHA or job state is promoted as current.
+
+## Main
+- Current main SHA: `590d132e338dc5bb47243f372a0547c8dfdbfced` (latest commit search result; also independently recorded as live `refs/heads/main` in Issue #671's latest mainline incident snapshot).
+- Combined commit status: **FAILURE**, Vercel target `build-rate-limit` (external deployment quota; not a code-test result).
+- Main push CI run [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380): **PENDING**; resolver job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366) remains PENDING with zero reported steps. Job-step query returned an empty array; log download returned Azure BlobNotFound 404. Root cause UNKNOWN.
+- PR Acceptance Gate latest observed runs [45943199270](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943199270) and [45943198638](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943198638): FAILURE / 0 jobs in the recorded incident evidence. A newer live Gate run was not discoverable in this connector pass.
+- Main exact check-run inventory and current terminal count: **UNKNOWN / NOT OBSERVED**. The commit-workflow-runs connector returned no main push runs because its wrapper is PR-triggered-only; do not infer green or reuse accumulated counts.
+- CircleCI: UNKNOWN. Branch-protection endpoint access: previously HTTP 403; effective ruleset remains NOT VERIFIED.
+
+## All seven OPEN PRs — exact refs and latest visible core CI
+All seven were returned by the linked-account repository PR listing, all target `main`, have base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, are OPEN / Draft / unmerged, and GitHub metadata says mergeable=true. Mergeable metadata is not acceptance.
+
+| PR | Exact HEAD SHA | Core CI run | Jobs / conclusion |
+|---|---|---:|---|
+| [#683](https://github.com/X84657465/global-citizen-ai-network/pull/683) | `43c4330f1491908c033c232f7792b73e74c517c0` | [46026204248](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46026204248) | FAILURE; resolver SUCCESS (13 steps); Windows quality FAILURE; diagnostics FAILURE; Windows Ollama, PostgreSQL/RLS and persistence jobs SKIPPED |
+| [#681](https://github.com/X84657465/global-citizen-ai-network/pull/681) | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | [45990254637](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45990254637) | FAILURE; resolver and diagnostics FAILURE; quality, Ollama, PostgreSQL/RLS and persistence jobs SKIPPED |
+| [#679](https://github.com/X84657465/global-citizen-ai-network/pull/679) | `1f954de0050d42d2816398f616116324d3feee3a` | [46007952804](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46007952804) | FAILURE; resolver and diagnostics FAILURE; quality, integrations and persistence jobs SKIPPED |
+| [#677](https://github.com/X84657465/global-citizen-ai-network/pull/677) | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | [45979397241](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45979397241) | PENDING; resolver job [140439144723](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45979397241/job/140439144723) PENDING, zero steps |
+| [#676](https://github.com/X84657465/global-citizen-ai-network/pull/676) | `040b2b412a8226637c5d536466247b507a22b9c6` | [45972034125](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45972034125) | PENDING; resolver job [140414540111](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45972034125/job/140414540111) PENDING, zero steps |
+| [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) | `d5dd573058d24fdc6d58bd30dc90241e0dff535e` | [46024158694](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46024158694) | FAILURE; resolver and diagnostics FAILURE; quality, integrations and persistence jobs SKIPPED |
+| [#672](https://github.com/X84657465/global-citizen-ai-network/pull/672) | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | [45970239642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45970239642) | PENDING; resolver job [140408601846](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45970239642/job/140408601846) PENDING, zero steps |
+
+### Auxiliary checks / provider status
+- #683: Autofix FAILURE; Rust Clippy, Preflight and Codacy QUEUED.
+- #681: Autofix FAILURE; Rust Clippy, Preflight and Codacy QUEUED.
+- #679: Autofix FAILURE; Rust Clippy and Codacy QUEUED.
+- #677: Autofix FAILURE; Rust Clippy and Codacy QUEUED.
+- #676: Autofix PENDING; Rust Clippy and Codacy QUEUED.
+- #674: Autofix FAILURE; Rust Clippy and Codacy QUEUED.
+- #672: Autofix PENDING; Rust Clippy and Codacy QUEUED.
+- All seven exact-head combined statuses report Vercel FAILURE / `build-rate-limit`. This provider status is not GitHub Actions test evidence.
+- Logs for #683 quality job [140599071957](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46026204248/job/140599071957), #683 diagnostics job [140599073657](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46026204248/job/140599073657), and main resolver job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366) all returned Azure BlobNotFound 404. Do not infer the underlying failure cause from unavailable logs.
+
+## Formal reviews and release gates
+- Formal APPROVED reviews: **0/7**. #683 and #679 have author COMMENTED-only submissions; #681, #677, #676, #674 and #672 have no formal review submissions.
+- Inline review threads: **0/7** in the current thread queries.
+- All seven remain Draft. None is eligible for ready-for-review, acceptance or merge: exact-head core CI is failed/pending/incomplete, independent formal approval is absent, and Vercel is rate-limited.
+
+## P0 factory-first handoff
+- Issue [#682](https://github.com/X84657465/global-citizen-ai-network/issues/682) defines Factory Local Loop 1.0, with GPT1 as sole DRI. It requires one real local SQLite queue → worker → Ollama plan/patch → isolated execution → verification → durable evidence → restart read-back loop without hosted CI, Vercel or paid API dependency.
+- PR [#683](https://github.com/X84657465/global-citizen-ai-network/pull/683) is the sole current implementation candidate and remains OPEN / Draft. Its exact HEAD is `43c4330f1491908c033c232f7792b73e74c517c0`; latest CI is FAILURE. Resolver succeeded, but Windows quality and diagnostics failed; Windows Ollama, PostgreSQL/RLS and persistence jobs were SKIPPED. Quality/diagnostics log retrieval returned BlobNotFound, so the failure root cause is UNKNOWN.
+- PR #683 body states Windows-host execution, process-tree containment, real Ollama E2E, generated test execution, SQLite close/reopen evidence and GPT3 independent review are still NOT RUN / NOT VERIFIED. The PR is GPT1-owned; GPT5 did not modify its source, run local commands on the user's Windows machine, or claim the factory loop complete.
+
+## Governance incident and owner routing
+- Issue [#671](https://github.com/X84657465/global-citizen-ai-network/issues/671) records eight PRs (#659, #660, #661, #664, #666, #667, #668, #670) merged with zero formal APPROVED reviews. The incident remains OPEN / BLOCKED pending independent post-merge QA, exact-main CI, and administrator verification of effective branch rules. Branch-protection access is unavailable to this connector; do not assert a bypass or change protections.
+- GPT1: #682/#683 local Factory loop, Factory CI resolver/diagnostics, #681/#672/#676 Factory paths.
+- GPT2: #679/#677 specialist-owned changes.
+- GPT3 / separately authorized independent reviewer: formal exact-SHA reviews and post-merge QA; no self-review substitution.
+- Repository administrator: verify effective branch protection/rulesets and the eight-merge acceptance incident.
+- Vercel/project administrator: resolve provider quota; no blind retry or unapproved paid-resource change.
+- Security administrator: investigate any dependency-scan credential issues through approved secret management; GPT5 does not access or alter secrets.
+
+## GPT5 delivery and boundaries
+- This checkpoint is appended only to the existing GPT5 handoff path `docs/AGENT_HANDOFF.md` on PR #674, whose declared scope is this single file.
+- No Factory/GPT2 source or workflow, Runner, durable state, secrets, permissions, branch protection, billing, production data or deployment setting was changed.
+- No local code tests, Windows smoke test, Ollama E2E, PostgreSQL/RLS integration, or independent acceptance was run by GPT5. This is a verifiable evidence/handoff update only, not a code repair or CI pass.
+
+**Disposition: MAIN NOT GREEN / exact main CI terminal inventory UNKNOWN; seven OPEN Draft PRs; zero formal approvals; Factory Local Loop not yet accepted. Continue only owner-scoped work; no blind retries, no Draft removal, no merge, and no false-green claims.**
