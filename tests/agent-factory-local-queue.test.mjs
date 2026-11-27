@@ -296,6 +296,7 @@ test("SQLite accepts an agent task only when the separate generated and trusted 
         task_id: id,
         task: { allowed_paths: contract.worker_allowed_paths },
         trusted_oracle_contract: contract,
+        publication_target: publicationTarget(id, contract),
       },
     });
     const claimed = queue.claim("worker");
@@ -310,4 +311,95 @@ test("SQLite accepts an agent task only when the separate generated and trusted 
     assert.equal(queue.events(id).at(-1).detail.trusted_oracle_contract_sha256, contract.contract_sha256);
     assert.equal(queue.get(task.id).status, "succeeded");
   });
+});
+
+test("SQLite publication stages survive restart and recover idempotently", () => {
+  const directory = mkdtempSync(join(tmpdir(), "gcan-local-publication-reopen-"));
+  const databasePath = join(directory, "factory.sqlite");
+  const id = "agent-publication-fixture";
+  const contract = {
+    schema_version: 2,
+    kind: "trusted-acceptance-oracle",
+    task_id: id,
+    base_sha: "e".repeat(40),
+    contract_sha256: "f".repeat(64),
+    files: [{ path: "tests/oracle.test.mjs" }],
+    worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+  };
+  const target = publicationTarget(id, contract);
+  const first = createLocalFactoryQueue({ databasePath, retryDelayMs: 0 });
+  let identity;
+  try {
+    first.add({
+      id,
+      title: "Publish accepted task",
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+        publication_target: target,
+      },
+    });
+    const claim = first.claim("worker");
+    const result = acceptedAgentResult(
+      id, contract,
+      ["tests/oracle.test.mjs"],
+      ["tests/generated.test.mjs"],
+    );
+    assert.equal(first.complete(id, "worker", claim.lease_token, result).status, "succeeded");
+    const patchSha = createHash("sha256").update(JSON.stringify(["fixture-patch"])).digest("hex");
+    const branch = "factory/local-task/" + id + "-" + patchSha.slice(0, 12);
+    identity = {
+      idempotency_key: createHash("sha256").update([
+        "gcan-local-factory-publish-v1", id, contract.base_sha, target.target_sha256, patchSha,
+      ].join("\\n")).digest("hex"),
+      repository: target.repository,
+      base_branch: target.base_branch,
+      base_sha: target.base_sha,
+      contract_sha256: target.contract_sha256,
+      target_sha256: target.target_sha256,
+      branch,
+      patch_sha256: patchSha,
+    };
+    assert.equal(first.recordPublication(id, { ...identity, state: "prepared" }).state, "prepared");
+    assert.equal(first.recordPublication(id, {
+      ...identity, state: "branch_created", commit_sha: "1".repeat(40),
+    }).state, "branch_created");
+    assert.equal(first.recordPublication(id, {
+      ...identity, state: "draft_pr_created",
+      commit_sha: "1".repeat(40),
+      pull_request_number: 777,
+      pull_request_url: "https://github.com/test-owner/test-repo/pull/777",
+    }).state, "draft_pr_created");
+    assert.deepEqual(first.events(id).slice(-3).map((event) => event.event_type), [
+      "publication_prepared", "publication_branch_created", "publication_draft_pr_created",
+    ]);
+  } finally {
+    first.close();
+  }
+
+  const reopened = createLocalFactoryQueue({ databasePath });
+  try {
+    const restored = reopened.getPublication(id);
+    assert.equal(restored.state, "draft_pr_created");
+    assert.equal(restored.pull_request_number, 777);
+    assert.equal(restored.commit_sha, "1".repeat(40));
+    const before = reopened.events(id).length;
+    const replay = reopened.recordPublication(id, { ...identity, state: "prepared" });
+    assert.equal(replay.state, "draft_pr_created");
+    assert.equal(reopened.events(id).length, before);
+    assert.throws(() => reopened.recordPublication(id, {
+      ...identity,
+      patch_sha256: "9".repeat(64),
+      state: "draft_pr_created",
+      commit_sha: "1".repeat(40),
+      pull_request_number: 777,
+      pull_request_url: "https://github.com/test-owner/test-repo/pull/777",
+    }), /immutable task\/base\/patch identity/);
+  } finally {
+    reopened.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
