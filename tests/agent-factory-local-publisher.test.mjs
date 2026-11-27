@@ -21,13 +21,14 @@ import { publishAcceptedLocalFactoryTask } from "../lib/agent-factory-local-publ
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 
 function git(root, args, options = {}) {
-  return execFileSync("git", args, {
+  const output = execFileSync("git", args, {
     cwd: root,
     encoding: "utf8",
     windowsHide: true,
     stdio: ["ignore", "pipe", "pipe"],
     ...options,
-  }).trim();
+  });
+  return Buffer.isBuffer(output) ? output.toString("utf8").trim() : output.trim();
 }
 
 function tapEvidence(testFiles, count = 1) {
