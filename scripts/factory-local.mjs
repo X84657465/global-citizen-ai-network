@@ -1,7 +1,8 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createLocalFactoryQueue } from "../lib/agent-factory-local-queue.mjs";
-import { LocalFactoryWorkerError, runLocalFactoryTask } from "../lib/agent-factory-local-worker.mjs";
+import { LocalFactoryWorkerError, runLocalFactoryAgentTask, runLocalFactoryTask } from "../lib/agent-factory-local-worker.mjs";
+import { validateLocalFactoryTask } from "../lib/agent-factory-local-adapter.mjs";
 
 const args = process.argv.slice(2);
 const databasePath = resolve(process.env.GCAN_FACTORY_DB ?? ".factory/factory-local.sqlite");
@@ -28,6 +29,18 @@ function parseTitle(values) {
   return values[index + 1];
 }
 
+function parseAgentTask(values) {
+  const index = values.indexOf("--file");
+  if (index < 0 || !values[index + 1]) throw new Error("task add-agent requires --file <local-task.json>.");
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(resolve(values[index + 1]), "utf8"));
+  } catch {
+    throw new Error("Unable to read or parse the supplied local task JSON file.");
+  }
+  return validateLocalFactoryTask(parsed);
+}
+
 const command = args[0];
 if (!command || command === "--help" || command === "help") {
   usage();
@@ -43,6 +56,13 @@ try {
       payload: { schema_version: 1, kind: "local-queue-tests" },
     });
     print({ accepted: true, task });
+  } else if (command === "task" && args[1] === "add-agent") {
+    const agentTask = parseAgentTask(args.slice(2));
+    const task = queue.add({
+      title: agentTask.title,
+      payload: { schema_version: 1, kind: "local-agent-task", task: agentTask },
+    });
+    print({ accepted: true, task });
   } else if (command === "status") {
     print(queue.list({ limit: 100 }));
   } else if (command === "logs") {
@@ -56,7 +76,9 @@ try {
       print({ claimed: false, message: "No eligible task is ready." });
     } else {
       try {
-        const result = runLocalFactoryTask({ payload: task.payload });
+        const result = task.payload?.kind === "local-agent-task"
+          ? await runLocalFactoryAgentTask({ payload: task.payload })
+          : runLocalFactoryTask({ payload: task.payload });
         const completed = queue.complete(task.id, workerId, task.lease_token, result);
         print({ claimed: true, completed: true, task: completed });
       } catch (error) {
