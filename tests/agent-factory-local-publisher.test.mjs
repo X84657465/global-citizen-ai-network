@@ -191,6 +191,17 @@ function createAcceptedFixture(t) {
 
   const databasePath = join(databaseDirectory, "factory.sqlite");
   const queue = createLocalFactoryQueue({ databasePath, retryDelayMs: 0 });
+  let queueClosed = false;
+  const closeQueue = () => {
+    if (queueClosed) return;
+    queue.close();
+    queueClosed = true;
+  };
+  t.after(() => {
+    closeQueue();
+    rmSync(root, { recursive: true, force: true });
+    rmSync(databaseDirectory, { recursive: true, force: true });
+  });
   const queued = queue.add({
     id: taskId,
     title: task.title,
@@ -217,6 +228,7 @@ function createAcceptedFixture(t) {
     target,
     result,
     queue,
+    closeQueue,
   };
 }
 
@@ -302,7 +314,6 @@ function makeGitHubApi({ baseSha, baseBranch = "main", onCreatePull = "success" 
 
 test("accepted local task is published as one deterministic Draft PR and recovered after SQLite restart", async (t) => {
   const fixture = createAcceptedFixture(t);
-  const records = [];
   const github = makeGitHubApi({
     baseSha: fixture.baseSha,
     onCreatePull: "lost-response",
@@ -339,7 +350,7 @@ test("accepted local task is published as one deterministic Draft PR and recover
     "publication_draft_pr_created",
   ]);
 
-  fixture.queue.close();
+  fixture.closeQueue();
   const reopened = createLocalFactoryQueue({ databasePath: fixture.databasePath });
   try {
     const task = reopened.get(fixture.taskId);
