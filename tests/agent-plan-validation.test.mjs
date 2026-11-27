@@ -46,7 +46,8 @@ test("accepts a minimal data-only plan and marks execution disabled", () => {
 test("topologically orders tasks while preserving stable order among ready tasks", () => {
   const result = validateAgentPlan(plan([
     item({ id: "implement-patch", role: "implementer", action: "propose_patch",
-      depends_on: ["inspect-task"], allowed_paths: ["lib/agent-plan-validation.mjs"] }),
+      depends_on: ["inspect-task"], allowed_paths: ["lib/agent-plan-validation.mjs"],
+      max_output_bytes: 16384 }),
     item({ id: "inspect-task" }),
     item({ id: "review-patch", role: "reviewer", action: "validate_patch",
       depends_on: ["implement-patch"] }),
