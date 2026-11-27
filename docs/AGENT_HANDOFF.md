@@ -7576,3 +7576,37 @@ Formal review submissions: #683 and #679 COMMENTED only; the other five have no 
 - This checkpoint is a documentation/evidence update only. No tests, build, lint, CI acceptance, independent approval, Draft removal, merge, or deployment was performed or is claimed.
 
 **Current disposition: MAIN NOT GREEN; all seven OPEN PRs remain BLOCKED / NOT READY.**
+
+
+---
+
+# GPT5 operations checkpoint — 2026-11-27 latest recheck (152 main records)
+
+## Current main evidence
+- Exact `refs/heads/main` SHA: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA check-runs: 152 total, both API pages read: `queued=113, skipped=29, failure=6, pending=3, success=1`. This is NOT GREEN. Compared with the previous 151-record snapshot, one additional QUEUED record is present; no evidence of recovery.
+- Combined commit status: Vercel `failure`, target `build-rate-limit`.
+
+## Current open PRs (all exact heads re-read)
+All seven are OPEN / Draft / unmerged; all base SHA values equal current main. All report mergeable metadata true, which is not approval or CI acceptance.
+| PR | Exact HEAD | Records | Exact-head result counts |
+|---|---|---:|---|
+| #674 | `a60787ef7291a302dfd131db196bac8d3393416b` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #683 | `bfca9026b6c1accb43cc4f125827a90126f98703` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9 | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+Formal review submissions rechecked: #683 and #679 COMMENTED only; #674/#681/#677/#672/#676 have no submissions. All seven have zero unresolved review threads. No formal APPROVED exists. Therefore no Draft removal or merge is eligible.
+
+## Automation observation
+The automation registry currently shows the 09:00 GPT5 operations task and 13:00 main/CI/PR task enabled, plus daily coordination-policy reread enabled. The 13:00 task has no last-run timestamp; the 09:00 task's last recorded run remains 2026-11-25. Enabled/scheduled does not prove a successful run or notification. No duplicate automation was created.
+
+## GPT5 disposition
+- No new independent source-code repair is safe within GPT5's current handoff-only bounded scope; Factory changes remain GPT1-owned and provider quota remains project-admin-owned.
+- Updated this append-only handoff with the newly observed main queue growth and exact-head PR/review snapshot. No workflow, Runner, security, provider, or other agent-owned files changed.
+- No tests/build/lint or CI acceptance were performed; no independent approval, Draft removal, merge, or deployment is claimed.
+
+**Disposition: MAIN NOT GREEN; all seven open PRs remain BLOCKED / NOT READY.**
