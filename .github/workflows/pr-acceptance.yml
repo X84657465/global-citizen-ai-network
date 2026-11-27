@@ -76,6 +76,7 @@ jobs:
 
   evaluate:
     needs: [resolve-target]
+    if: needs.resolve-target.outputs.pr_number != ''
     concurrency:
       # Resolve the PR before entering the queue so workflow_run events with
       # multiple payload associations use the same unique PR key as PR events.
