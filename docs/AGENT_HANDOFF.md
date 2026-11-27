@@ -7424,3 +7424,43 @@ All seven current OPEN PRs were re-enumerated and their metadata refreshed. Ever
 - The 09:00 automation's last recorded run is 2026-11-25; the 13:00 automation has no recorded last-run timestamp. Schedule-enabled state does not prove successful daily delivery.
 
 **Overall disposition: BLOCKED / NOT GREEN.** GPT5's verified deliverable in this pass is this refreshed, exact-ref operations handoff. No CI acceptance, independent approval, Draft removal, merge, or deployment is claimed.
+
+
+---
+
+# GPT5 follow-up operations checkpoint — 2026-11-27 21:5x Asia/Taipei
+
+## Live main refresh
+- Re-read `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Current main exact-SHA check-runs endpoint reports 147 records across both pages: 108 QUEUED, 29 SKIPPED, 6 FAILURE, 3 PENDING, 1 SUCCESS. These are individual check-run records, not one workflow result.
+- Latest observed main PR Acceptance Gate [46009379074](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009379074): terminal FAILURE; jobs endpoint returns **0 jobs**.
+- Latest observed main Agent Factory System Health Recovery [46009379665](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009379665): QUEUED; sole job [140540675554](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009379665/job/140540675554) remains QUEUED with no steps/log URL.
+- Main combined commit status: Vercel FAILURE, `build-rate-limit` target. This is an external provider quota blocker, not a test conclusion.
+
+## All seven OPEN PR exact-head status
+All seven PR metadata reads still show OPEN / Draft / unmerged, base `main` at the SHA above, and mergeable=true. Exact-head check-run inventory:
+| PR | Exact HEAD | Check runs |
+|---|---|---|
+| #683 | `bfca9026b6c1accb43cc4f125827a90126f98703` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #674 | `271b182404307dc3a030551f35f3d4cb0da2c70a` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+- Formal review submissions were re-read: #683 and #679 each have COMMENTED only; #674/#681/#677/#672/#676 have zero submissions. No independent APPROVED review is present. Previously re-read review-thread inventory showed zero threads; no blocking thread evidence has emerged.
+- All seven exact-head combined statuses were previously read as Vercel FAILURE / `build-rate-limit`; this external status does not identify code-test failures.
+- #674 current exact HEAD is this GPT5 documentation-only commit. Its exact-head inventory has 3 FAILURE (Resolver, Diagnostics, autofix), 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS. The failed job data expose no steps/log URL; root cause remains UNKNOWN. The latest Vercel combined status for this commit was PENDING at the time it was read, distinct from the mainline Vercel FAILURE. Keep Draft.
+
+## GPT5 work and pivot
+- GPT5 refreshed and re-read its own `docs/AGENT_HANDOFF.md` lane only. No overlapping Factory/Security source, workflow, Runner, secrets, permissions, branch protection, durable state, production data, billing, or deployment was touched.
+- Main Acceptance Gate 0-job failure, Recovery queued/no-step state, and external Vercel quota have no new evidence that would justify another unchanged retry. Stop blind retries and route runner/Factory evidence to GPT1/repository workflow administrators; route Vercel quota to project administrator.
+- GPT5 has no additional safe source-code repair in the assigned documentation-only PR scope. Continue append-only evidence/coordination work when material evidence changes; do not modify another owner's implementation paths.
+- No local test/build/lint, CI acceptance, independent review, Draft removal, merge, or deployment is claimed.
+
+## Daily automation verification
+- Existing daily main/CI/PR automation remains enabled at 13:00 Asia/Taipei; separate GPT5 daily operations automation remains enabled at 09:00 Asia/Taipei. No duplicate schedule was created.
+- The 13:00 task has no recorded last-run timestamp; the 09:00 task's last recorded run is 2026-11-25, with delivery status not established. Enabled schedule is not proof of successful delivery.
+
+**Disposition: BLOCKED / NOT GREEN.** This checkpoint records the refreshed exact refs and GPT5's scoped documentation handoff only.
