@@ -7310,3 +7310,45 @@ All PR base refs equal the refreshed main SHA. All remain OPEN/Draft. `mergeable
 - Automation remains enabled, next run 2026-11-28 09:00 Asia/Taipei. Last recorded run remains 2026-11-25; delivery_status is UNKNOWN. No duplicate created.
 
 **Current disposition remains BLOCKED / NOT GREEN.** This follow-up is an evidence update only; no test/build/lint/deploy or acceptance was executed.
+
+
+---
+
+# Live operations checkpoint — 2026-11-27 21:08 Asia/Taipei
+
+## Exact main / CI state
+- Re-read `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA check-runs endpoint reports 123 records: 85 QUEUED, 29 SKIPPED, 5 FAILURE, 3 PENDING, 1 SUCCESS. These are aggregate check-run records, not a single all-green workflow.
+- Latest main PR Acceptance Gate [46004152051](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46004152051), attempt 1: terminal FAILURE; jobs endpoint returns **0 jobs**.
+- Latest main Agent Factory System Health Recovery [46004152088](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46004152088), attempt 1: QUEUED; its only job [140522967886](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46004152088/job/140522967886) is QUEUED with no steps exposed.
+- Main combined status is FAILURE from Vercel: `Deployment rate limited — retry in 24 hours`. This is an external provider quota failure, not a code-test result.
+- Three failed mainline `Validate task and generate read-only AI plan` job-log downloads returned Azure Storage `404 BlobNotFound`; two older `Vulnerabilities scan` check-runs are also FAILURE. Their underlying causes are UNKNOWN from the evidence available here. Do not infer a source-code root cause.
+
+## All current OPEN PRs — exact HEAD checks
+| PR | Exact HEAD SHA | Check-run counts | Formal review |
+|---|---|---|---|
+| #683 | `1974c55d0f34a320034c072fb9433f60e4e4d25b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS | COMMENTED only |
+| #674 | `fb1eb6b258053999b76589c278ffcb8301f2427b` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | 0 reviews |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS | 0 reviews |
+| #679 | `174bd08725bd78a27d9fe44e7ea4bea373a63df9` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS | COMMENTED only |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | 0 reviews |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | 0 reviews |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | 0 reviews |
+
+All seven remain OPEN / Draft / unmerged and target the current main SHA. None has a formal independent APPROVED review. #683 and #679 have author COMMENTED submissions only. No PR is eligible for Draft removal or merge. Summary SUCCESS, Mergify NEUTRAL and `mergeable=true` do not satisfy acceptance.
+
+## Failure classification and owner handoff
+- Factory resolver/diagnostics failures and downstream SKIPPED jobs on #683/#681/#674/#679: return to GPT1 / Factory owner for resolver/runtime evidence and root-cause repair; job-log availability is incomplete, so exact source cause remains UNKNOWN.
+- #672/#676 resolver checks remain PENDING and their dependent validation has not completed: GPT1 / Factory owner.
+- #677 has autofix FAILURE and resolver PENDING: GPT2 / H cost-test owner.
+- #679 has autofix, resolver and diagnostics FAILURE: GPT2 / G release-assurance owner.
+- Vercel build-rate-limit: project/Vercel administrator; do not repeat unchanged deployment attempts.
+- Formal independent reviews: authorized GPT3 / independent reviewer; author comments are not approval.
+- Main Acceptance Gate 0-job failure and Recovery queued/no-step state: Factory/repository workflow administrators. Do not reset durable state or blindly dispatch/retry.
+
+## Actions and disposition
+- This checkpoint is an append-only update to the existing documentation-only handoff scope; no Factory source/workflow, Runner, secrets, permissions, branch protection, durable state, production data or deployment was changed.
+- No local tests/build/lint were run; no CI PASS, independent approval, Draft removal, acceptance or merge is claimed.
+- Continue only non-overlapping, explicitly scoped operations/evidence work while owners address the blockers.
+
+**Disposition: BLOCKED / NOT GREEN.**
