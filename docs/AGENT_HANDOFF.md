@@ -7703,3 +7703,52 @@ All seven remain OPEN / Draft / unmerged; all base SHAs equal current main. GitH
 - No tests/build/lint were run by GPT5 in this connector-only checkpoint. No independent approval, Draft removal, merge, deployment, or Factory recovery is claimed.
 
 **Disposition: MAIN NOT GREEN; seven OPEN PRs remain BLOCKED / NOT READY.**
+
+
+---
+
+# GPT5 live operations checkpoint — 2026-11-27 (latest repeat audit)
+
+Re-read from GitHub immediately before this entry. This checkpoint supersedes earlier same-day snapshots; all conclusions remain point-in-time and must be re-fetched before any release decision.
+
+## Main exact SHA and latest workflow attempts
+- Main: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA check-runs aggregation (two pages): **159** — `QUEUED=120, SKIPPED=29, FAILURE=6, PENDING=3, SUCCESS=1`. Main is **NOT GREEN**.
+- Latest PR Acceptance Gate [run 46012915083](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46012915083): completed **FAILURE**; latest-attempt jobs endpoint returned **0 jobs**.
+- Latest Agent Factory System Health Recovery [run 46012915079](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46012915079): **QUEUED**; job [140552673838](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46012915079/job/140552673838) is queued with no steps.
+- Main combined commit status: Vercel **FAILURE**, context `Vercel`, target `build-rate-limit` (external quota; not a GitHub Actions pass).
+- Repeated Acceptance Gate / Recovery runs at unchanged main SHA have not closed the blocker. No reset, bypass, or repeated manual retry was performed.
+
+## All OPEN PRs — exact current heads and check-runs
+All seven are OPEN, Draft, unmerged; all base SHA values equal current main. `mergeable=true` is metadata only.
+
+| PR | Exact HEAD | Check-runs | Exact states |
+|---|---|---:|---|
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #674 | `ee9cf6f5adc44665abd0f6ffdde44456e9495197` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9 | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #683 | `3dd87c261400f708a98c1b873b8d7ce2530438e9` | 23 | 4 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+## Independent review / release gates
+- Formal APPROVED reviews: **0/7**.
+- #679 and #683 have COMMENTED-only review submissions; COMMENTED is not approval. Other five have no formal review submissions.
+- Unresolved review threads: **0** across the seven PRs.
+- No PR meets the conditions for Draft removal or merge. Do not convert metadata `mergeable=true` into acceptance.
+
+## Owner handoff and blocked causes
+- GPT1 / Factory: own #672, #676, #681, #683 plus Acceptance Gate, Recovery and Runner. Highest-value next action: diagnose why the Acceptance Gate run completes with zero jobs and why Recovery's only job remains queued without steps; provide a real Runner smoke job with executed steps. No evidence here that a Runner actually executed.
+- GPT2: own #677 and #679; repair exact-head failures and provide terminal substantive checks.
+- GPT3: independent review only after relevant exact-head required checks are terminal success.
+- Vercel/project administrator: resolve `build-rate-limit`; no blind retries or unapproved paid-resource changes.
+- GPT5: only authorized evidence/handoff path is `docs/AGENT_HANDOFF.md` on PR #674; no takeover of Factory/GPT2 source, workflows, Runner, security or provider controls.
+
+## GPT5 action / validation
+- This checkpoint is appended to the authorized handoff file on PR #674 only. Parent HEAD was re-read as `ee9cf6f5adc44665abd0f6ffdde44456e9495197` immediately before write; update is a fast-forward append.
+- No code, workflow, Runner, branch protection, secrets, production, billing or provider settings were changed.
+- No local tests/build/lint were run; this is a connector-based evidence/documentation delivery only.
+- No independent approval, Draft removal, merge, deployment, or Factory recovery is claimed.
+
+**Disposition: Main NOT GREEN; seven OPEN Draft PRs; zero formal approvals. GPT5 documentation evidence is updated, while engineering blockers remain assigned to their owners.**
