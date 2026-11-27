@@ -161,9 +161,18 @@ function createAcceptedFixture(t) {
     acceptance_evidence: oracleEvidence,
     plan_artifact: {
       schema_version: 1,
-      tasks: plan.tasks,
-      status: "VALIDATED_PLAN",
       model: "publisher-test-model",
+      plan: {
+        schema_version: 1,
+        execution_mode: "validated_plan_only",
+        ai_execution_enabled: false,
+        tasks: plan.tasks,
+      },
+      decision: {
+        decision: "approve_for_sandbox_validation",
+        blockers: [],
+      },
+      status: "VALIDATED_PLAN",
     },
     patch_artifact: {
       schema_version: 1,
