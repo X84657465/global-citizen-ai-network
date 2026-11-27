@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import { runLocalFactoryAgentTask, runLocalFactoryTask, terminateLocalFactoryProcessTree, LocalFactoryWorkerError } from "../lib/agent-factory-local-worker.mjs";
 
 test("local worker executes only the allowlisted queue regression suite and returns evidence", async () => {
@@ -91,15 +92,25 @@ test("timeout termination kills the worker and its descendant process tree", asy
     });
   });
 
+  const closed = new Promise((resolve) => child.once("close", resolve));
   terminateLocalFactoryProcessTree(child);
-  await new Promise((resolve) => child.once("close", resolve));
+  await closed;
 
   let stillAlive = true;
   for (let attempt = 0; attempt < 20; attempt += 1) {
     try {
       process.kill(grandchildPid, 0);
+      if (process.platform === "linux") {
+        // A terminated child can retain its PID until the container init reaps it.
+        const stat = await readFile(`/proc/${grandchildPid}/stat`, "utf8");
+        const state = stat.slice(stat.lastIndexOf(")") + 2, stat.lastIndexOf(")") + 3);
+        if (state === "Z" || state === "X") {
+          stillAlive = false;
+          break;
+        }
+      }
     } catch (error) {
-      if (error?.code === "ESRCH") {
+      if (error?.code === "ESRCH" || error?.code === "ENOENT") {
         stillAlive = false;
         break;
       }
