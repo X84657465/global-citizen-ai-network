@@ -297,12 +297,23 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
     assert.ok(writerJobs.length > 0, fileName + " references the V2 controller but no writer job was detected");
     if (!workflowWideQueue) {
       for (const job of writerJobs) {
-        assert.ok(
-          job.section.includes("group: global-citizen-ai-network-self-hosted-runner") &&
-          job.section.includes("queue: max") &&
-          job.section.includes("cancel-in-progress: false"),
-          fileName + " job " + job.name + " must use the shared non-cancelling Runner queue",
-        );
+        if (fileName === "ci.yml" && job.name === "build") {
+          assert.ok(
+            job.section.includes("needs.resolve-candidate.outputs.is_task_pr == 'true'") &&
+            job.section.includes("'global-citizen-ai-network-self-hosted-runner'") &&
+            job.section.includes("format('global-citizen-ai-network-readonly-build-{0}', github.run_id)") &&
+            job.section.includes("queue: max") &&
+            job.section.includes("cancel-in-progress: false"),
+            "ci.yml build must lock only when its authorized task-PR path writes durable Factory state",
+          );
+        } else {
+          assert.ok(
+            job.section.includes("group: global-citizen-ai-network-self-hosted-runner") &&
+            job.section.includes("queue: max") &&
+            job.section.includes("cancel-in-progress: false"),
+            fileName + " job " + job.name + " must use the shared non-cancelling Runner queue",
+          );
+        }
       }
     }
   }
@@ -512,17 +523,20 @@ test("preflight reserves and releases V2 leases and does not overproduce roadmap
 });
 
 
-test("Supabase database and RLS integration runs on the shared Windows Runner", () => {
+test("Supabase database and RLS integration uses run-isolated resources outside the durable state-writer queue", () => {
   const { start, end } = findJobSection(workflow, "database");
   const database = workflow.slice(start, end);
   assert.ok(database.includes("runs-on: [self-hosted, Windows, X64]"));
-  assert.ok(database.includes("group: global-citizen-ai-network-self-hosted-runner"));
-  assert.ok(database.includes("queue: max"));
+  assert.equal(database.includes("global-citizen-ai-network-self-hosted-runner"), false,
+    "isolated database validation must not consume durable Factory state-writer queue slots");
+  assert.ok(database.includes('gcan-ci-" + $env:GITHUB_RUN_ID'),
+    "each CI run must have an isolated Supabase project identity");
+  assert.ok(database.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 19998)"),
+    "each CI run must allocate a separate available port range");
   assert.ok(database.includes("$env:ComSpec /d /s /c 'supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1'"), "native stderr must be redirected by cmd.exe before PowerShell captures output");
   assert.equal(database.includes("$startOutput = & supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1 | Out-String"), false, "PowerShell 5.1 must not reinterpret native stderr as NativeCommandError");
   assert.ok(database.includes("supabase test db"));
   assert.ok(database.includes("node --test tests/security/two-member-rls.test.mjs"));
-  assert.ok(database.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 19998)"));
   assert.ok(database.includes("SUPABASE_DB_CONTAINER"));
   assert.ok(database.includes("DOCKER_BIN"));
   assert.ok(database.includes("supabase stop --no-backup"));
