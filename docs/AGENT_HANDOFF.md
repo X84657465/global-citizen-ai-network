@@ -1,3 +1,60 @@
+# GPT5 live operations delta — 2026-11-27 (latest exact-head recheck)
+
+This entry is the newest point-in-time snapshot and supersedes prior moving-head snapshots. Every check result below is tied to the exact SHA shown. Re-fetch before release decisions.
+
+## Main
+- Live `refs/heads/main`: `c2c461029649fda07cc0e440928e896e493b2ea7`.
+- Exact-SHA Check Runs: **27 total — 17 PENDING, 10 QUEUED, zero terminal conclusions**.
+- Latest PR Acceptance Gate run [45939245914](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45939245914): completed **FAILURE**; latest-attempt jobs endpoint returned **0 jobs**.
+- Latest Agent Factory System Health Recovery run [45939246017](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45939246017): **PENDING**; job [140309501072](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45939246017/job/140309501072) remains PENDING with no steps.
+- Combined commit status: **FAILURE**, Vercel reports `Deployment rate limited — retry in 24 hours` (`build-rate-limit`). This is an external provider quota failure, not a GitHub Actions pass/failure.
+- Main is NOT GREEN. No unchanged reruns or breaker/control-plane mutations were performed.
+
+## All nine OPEN PRs — current exact heads and check-run states
+All nine PRs are OPEN, unmerged, Draft, and report `mergeable=true` metadata only. Formal review inventory contains **zero APPROVED**; COMMENTED is not approval.
+
+| PR | Exact base SHA (short) | Exact HEAD SHA (short) | Exact-head checks |
+|---|---|---|---|
+| #666 | `c2c46102` | `4f4b509c` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #664 | `c2c46102` | `3d5dbc76` | 2 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #667 | `c2c46102` | `b2d4c56c` | 2 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #669 | `c2c46102` | `1f0a7403` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #670 | `c2c46102` | `ce87261c` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 6 QUEUED, 6 SKIPPED |
+| #660 | `27890271` | `06f7dff4` | 10 SUCCESS, 1 NEUTRAL, 4 FAILURE, 4 SKIPPED, 1 IN_PROGRESS |
+| #659 | `27890271` | `bb3a1de8` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #668 | `c2c46102` | `53fee05a` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #661 | `27890271` | `0d6a877c` | 2 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+
+Full exact HEADs:
+- #666 `4f4b509c416f93e58410aa76af1ba586ee6c4fc1` (changed since previous pass; old-head checks are not reusable)
+- #664 `3d5dbc76af5ea95a71e3440f9e3749c87b7f1af6`
+- #667 `b2d4c56c6c618602c5bc6d171fb88bcb633c33f6`
+- #669 `1f0a74034f03d5a68ba644fdb2f9ec7f9108be3e`
+- #670 `ce87261c6d1afd5ff99520150fa7054d6d76aff7`
+- #660 `06f7dff4ea984558f92426a6d757bbbd5ea091f8`
+- #659 `bb3a1de8237e408cb85754e496de328af234d741`
+- #668 `53fee05a1df94df142b29cd215ad31b836e57816`
+- #661 `0d6a877c15832e0a9da02bae54f72bbad7bdf58e`
+
+Base SHA for #660/#659/#661 remains `2789027136f1577af5871d300ad6465cab267cab`, behind current main. These are not GPT5-owned branches.
+
+## Review / release disposition
+- Formal review submissions: no APPROVED review found on any of the nine PRs. #664/#667/#660/#659/#661 have COMMENTED-only records; #666/#669/#670/#668 returned no review submissions.
+- All nine remain Draft and unmerged. `mergeable=true` is metadata, not a release gate.
+- #670's six SKIPPED checks are not executed/passing checks.
+- #660's four FAILURE and four SKIPPED checks prevent acceptance.
+- No PR is eligible for Draft removal or merge based on the evidence retrieved.
+
+## GPT5 own-work and owner routing
+- GPT5's authorized write scope remains `docs/AGENT_HANDOFF.md` on PR #664. This append-only evidence refresh stays within that path.
+- #666/#667/#669/#670/#668/#660/#661 are Factory/governance owner lanes as applicable; #659 is the GPT2 security lane. Do not modify their owned paths or take over Factory workflows/Runner controls.
+- Vercel quota requires project/provider administrator action. Do not repeatedly retry unchanged deployments.
+- No local tests/build/lint were run in this connector-only pass. No Factory code, workflows, Runner, queue/lease/durable state, secrets, permissions, branch protection, database, production data, billing, or deployment was modified.
+- No self-approval, Draft removal, merge, or deployment was performed.
+- GPT5 completed this exact-head evidence refresh only. Main and all open PRs remain BLOCKED / NOT READY.
+
+---
+
 # GPT5 live operations delta — 2026-11-27 (fresh exact-SHA audit)
 
 This section supersedes all older moving-head snapshots below. Re-read refs before using any evidence. Every check result is tied to its exact SHA.
