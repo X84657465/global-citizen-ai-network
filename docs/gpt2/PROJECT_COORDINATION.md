@@ -1642,3 +1642,61 @@ All listed HEADs were re-read from the live open-PR inventory. CI SUCCESS above 
 - **GPT2 工作邊界：** 依根目錄已核准協作規範，GPT2 僅負責 F–P；GPT1 擁有 A–E／Factory，GPT3 負責獨立審查／QA，GPT4 擁有 B Product。GPT2 不接管 Factory workflow、Runner、Secrets、durable state、DB/RLS、branch protection、Vercel 配額或其他 owner 路徑。
 - **未解決事項：** Debricked owner 需恢復有效 access token；Codacy owner 需修復 SARIF upload；CodeQL owner 需處理兩個分析 job；Factory owner 需查明 CI cancellation／Recovery job skip／Acceptance Gate；部署 owner 需處理 Vercel 24 小時 rate limit；Repository 管理者需提供 branch protection required-check 可讀證據；GPT3 需對每個候選 exact HEAD 提供正式 APPROVED。
 - **驗證限制：** 本輪未執行本機 unit tests、typecheck、lint、build、部署或程式碼功能變更。未修改 main、Factory、Runner、Secrets、權限、DB/RLS、branch protection 或付費設定。未解除 Draft、未合併任何 PR。
+
+
+## 6.26 即時重核、12 件 OPEN PR 與 GPT2 自有交付 — 2026-11-27（本輪即時查核）
+
+> 本節以本輪重新讀取的 main ref、REST OPEN PR 清單、各 PR exact HEAD、Actions runs/jobs、check-runs、正式 reviews 與 review threads 為依據。此為當輪快照；後續 SHA 改變時，必須重新驗證，不得沿用舊 HEAD 證據。
+
+### Main 精確狀態
+
+- Main ref：`078bc72216e3990f9c7c4db2e06e5851a5c8428e`；本輪開始與寫入前再次核對，SHA 未變。
+- Main push CI run `45842160595` attempt 2：COMPLETED / CANCELLED。Resolver job `140046393184` CANCELLED；Windows quality `140047490293`、Ollama `140047491104`、success persistence `140047491118`、diagnostics `140047491175`、PostgreSQL/RLS `140047491193`、failure persistence `140047492242` 均 SKIPPED。主體測試未完成。
+- 同 SHA 的 Codacy run `45842161007` FAILURE（SARIF upload step FAILURE）；Debricked run `45842161001` FAILURE；CodeQL Advanced run `45842160612` FAILURE（Actions 與 JavaScript/TypeScript 分析失敗）；Rust Clippy run `45842160661` SUCCESS。單一 Clippy SUCCESS 不代表 main CI PASS。
+- Main push event 精確查詢回傳 15 runs；其中主體 CI CANCELLED、Codacy／Debricked／CodeQL FAILURE、Clippy SUCCESS；沒有更新的 main push 核心 CI 成功證據。
+- Main combined status：Vercel FAILURE，target 指向 `build-rate-limit`。CircleCI main status 本輪未觀察到，標 UNKNOWN。
+- `protect-main` ruleset ID `28032767` enforcement ACTIVE；已讀規則包含 deletion、non-fast-forward 與 Copilot code review。Classic branch protection endpoint 回傳 HTTP 403 `Resource not accessible by integration`；effective required checks／classic branch protection 維持 UNKNOWN，不使用 bypass。
+ 
+### Preflight / Recovery
+
+- 最新可見 Preflight run `45914016419`：COMPLETED / FAILURE；job `140228810568` 的 `Validate task and create a safe handoff bundle` FAILURE。精確日誌：`Task preflight rejected: Unexpected section: Operational evidence`。失敗任務為 Issue #629，failure scope 明確標記 task；scratch cleanup SUCCESS。任務 artifact 上傳步驟警告找不到檔案，因此不能聲稱 handoff bundle 已交付。這是 GPT1／Factory 的 task-format/parser 路徑，不屬 GPT2 F–P 寫入範圍。
+- 最新可見 System Health Recovery run `45911006027`：CANCELLED；verification job `140219083995` CANCELLED，hosted allocation recovery job `140219088512` SKIPPED。Recovery observer `45911011838` SUCCESS 僅代表 observer 工作完成；Recovery 本身未通過。Recovery job log API 回傳 404 BlobNotFound，細部取消原因 UNKNOWN。
+- 最新 PR Acceptance Gate run `45914097250` SUCCESS 是 workflow_run 層級事件；不代表 main CI、Preflight 或 Recovery PASS，也不代表任何 PR 已接受。
+
+### 全部 OPEN PR（REST 第一頁完整，共 12 件）
+
+本輪 `GET /pulls?state=open&per_page=100&page=1` 回傳 12 件，第二頁為空；清單完整。所有 PR 的 base SHA 均為 main `078bc72216e3990f9c7c4db2e06e5851a5c8428e`，state 均 OPEN、draft 均 true、mergeable 均 true 但 mergeable_state 均為 unstable。mergeable=true 只表示 GitHub 的衝突估計，不代表驗收或合併許可。所有 PR 的 author 均為 `X84657465`，assignees 欄位均空；不能僅以 author 推定其他 DRI。
+
+| PR | Exact HEAD SHA | 目前可見主要 Actions 終態 |
+|---|---|---|
+| #643 CodeQL/Codacy workflow | `7735ff30653c8e1c24821db86d53c8cfa22da365` | CI SUCCESS；Codacy IN_PROGRESS；PR Acceptance Gate FAILURE（APPROVAL_MISSING、DRAFT_NOT_READY）；Vulnerabilities scan FAILURE |
+| #636 Factory scratch fixture | `f0e61c4dacbb5197ad809cf3515ed574a3c43558` | CI FAILURE；Preflight SUCCESS；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS |
+| #634 H ambiguous invoice match | `83719781e68b71ecec16ad1911b403a2d1565336` | CI FAILURE；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS；Acceptance Gate FAILURE |
+| #632 Factory patch budget | `5b3ecdf11e54d0c60f63f73fbae3237e8ea6f8d1` | CI CANCELLED；Preflight FAILURE；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS |
+| #631 GPT2 coordination docs | `92aa3612c7c7cd4af3d4ce684134c63d95c1232f`（本次更新前） | CI CANCELLED；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS；Acceptance Gate FAILURE |
+| #630 GPT5 operations docs | `61efc1ca70b222528511c2f6a286a0fe265ded6f` | CI FAILURE；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS |
+| #628 CI checkout credentials | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | CI SUCCESS；Codacy SUCCESS；CodeQL Advanced FAILURE；Clippy SUCCESS |
+| #626 P version assurance | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | CI CANCELLED；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS；Acceptance Gate FAILURE |
+| #625 Factory Preflight state lookup | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | CI CANCELLED；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS |
+| #624 Factory Rate Limit handling | `272642ac7fb9965fba245f65fa3a049429a4068a` | CI FAILURE；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS |
+| #623 Factory acceptance queue | `3a4713423a9779435ae9f02e1feb1e270741514a` | CI FAILURE；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS |
+| #622 Factory control-plane task path | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | CI FAILURE；Codacy FAILURE；CodeQL Advanced FAILURE；Clippy SUCCESS |
+
+- 上表每個 run 都是列出的 exact HEAD 對應之 PR-triggered workflow run；workflow_run gate、外部 statuses 與歷史 run 不得混成同一結論。PR #643 的 check-run inventory 有 20 筆（12 SUCCESS、3 FAILURE、3 SKIPPED、1 IN_PROGRESS、1 NEUTRAL）；PR #634 有 20 筆（9 SUCCESS、6 FAILURE、4 SKIPPED、1 NEUTRAL）；PR #631 有 23 筆（9 SUCCESS、6 FAILURE、7 SKIPPED、1 NEUTRAL），其 Windows quality job CANCELLED。
+- 12 件 PR 的正式 review submissions：#632 僅有 COMMENTED；#623 僅有 COMMENTED；其餘 10 件沒有 review submissions。沒有任何 PR 有正式 APPROVED。#623 review-thread API 回傳一個欄位不完整的 thread item，resolution 狀態 UNKNOWN；其他 PR 本輪未觀察到 review threads。不得把 COMMENTED、CodeRabbit 或自我審查當作 APPROVED。
+- 12 件 PR 的變更路徑已查核。GPT2 自有 PR #634 只改 H 的 dashboard client、reconciliation library、tests 與 docs；#626 改 P version assurance、版本檔與文件；#631 只改 `docs/gpt2/PROJECT_COORDINATION.md`。#643/#628 改 CI workflows；#636/#632/#625/#624/#623/#622 屬 Factory 路徑；#630 屬 GPT5 文件。GPT2 不接管其他 owner 路徑。
+
+### GPT2 H／P 根因與可解除條件
+
+- **H／#634：** Exact-head CI run `45882689100`、quality job `140129678045` FAILURE。52 個測試中 51 PASS、1 FAIL；唯一失敗是 `Verify CI trigger and Runner policy`，斷言 `codacy.yml checkout at line 39 must not persist its token in .git/config`。後續 Unit Tests、Type Check、Lint、Production Build 全部 SKIPPED。這是與 #628 共用的 CI checkout credential policy 重疊，不在 #634 重複修改；#628 的目前 exact HEAD 核心 CI 已 SUCCESS，但 CodeQL Advanced 仍 FAILURE。#643 也修改 Codacy／CodeQL workflow，尚有 Codacy IN_PROGRESS、Vulnerability FAILURE、Approval Missing 與 Draft gate，故仍不能解除共享阻塞或宣稱安全掃描通過。
+- **P／#626：** 變更範圍為 H/P README version summary、P manifest/changelog、P version assurance validator、tests 與版本鎖檔。其目前 exact HEAD CI CANCELLED、Codacy／CodeQL Advanced FAILURE、Clippy SUCCESS，無正式 review；沒有證據證明 P 程式測試已通過。需先取得完整 exact-head CI／安全掃描結果，再由 GPT3 對同一 HEAD 正式 APPROVED。
+- **GPT2 文件／#631：** 變更範圍僅此協調文件。更新前 HEAD `92aa3612c7c7cd4af3d4ce684134c63d95c1232f` 的 CI CANCELLED、CodeQL/Codacy/Vulnerability FAILURE、Acceptance Gate FAILURE，且沒有正式 review。下方追加的本輪紀錄會產生新 HEAD；所有舊 HEAD checks/reviews 不得沿用，須對新 SHA 重新驗證。
+
+### 本輪 GPT2 交付與限制
+
+- 本輪完成 main、12 件 OPEN PR、exact-head workflow、reviews、review threads、Factory Preflight failure log 與 Recovery 終態查核。
+- 本次文件 PR 僅允許修改 `docs/gpt2/PROJECT_COORDINATION.md`；未修改 Factory workflow、Runner、Secrets、durable state、DB/RLS、branch protection、付費資源或部署設定。
+- 本節屬文件／交接快照；未執行本機 unit tests、typecheck、lint、build 或部署。PR #631 新 HEAD 仍須 exact-head CI 與 GPT3 正式獨立 APPROVED。
+- 目前沒有任何 PR 同時滿足必要 exact-head CI、安全檢查、正式獨立 APPROVED、無未解阻擋及 branch protection 證據。12 件 PR 全部維持 Draft；不解除 Draft、不合併、不 bypass。
+- 下一個 GPT2 自有優先工作：維持 H／#634 的 fail-closed patch 並等待共用 checkout policy owner 修復後重跑 exact-head 驗證；其次驗證 P／#626 的 README H/P version-summary contract。若外部 CI／review 仍不可用，不空轉，保留明確 handoff。
+
