@@ -6,6 +6,7 @@ const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta
 const acceptance = readFileSync(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflight = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const runnerSmoke = readFileSync(new URL("../.github/workflows/self-hosted-runner-smoke.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const recoveryObserver = readFileSync(new URL("../.github/workflows/agent-factory-recovery-observer.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const resolver = readFileSync(new URL("../scripts/resolve-agent-task-pr.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -1200,4 +1201,20 @@ test("Agent Task Preflight PR and push path filters cover every acceptance-requi
   ]) {
     assert.ok(requiredPaths.includes(requiredPath), "acceptance path policy must retain " + requiredPath);
   }
+});
+
+test("Recovery failure observer allocates a runner only for failed or interrupted recovery runs", () => {
+  assert.ok(recoveryObserver.includes('    types: [completed]'),
+    "observer must retain completed Recovery workflow events");
+  const { start, end } = findJobSection(recoveryObserver, "capture-recovery-evidence");
+  const observerJob = recoveryObserver.slice(start, end);
+  assert.ok(observerJob.includes("    if: >-\\n      github.event.workflow_run.conclusion == 'failure' &&") === false,
+    "failure gate must not accidentally require all conclusions to match");
+  for (const conclusion of ["failure", "cancelled", "timed_out"]) {
+    assert.ok(observerJob.includes("github.event.workflow_run.conclusion == '" + conclusion + "'"),
+      "observer must preserve evidence for " + conclusion + " runs");
+  }
+  assert.ok(observerJob.includes("runs-on: ubuntu-latest"),
+    "eligible failure evidence must still use an independent hosted observer");
+  assert.ok(observerJob.includes("name: Capture independent Recovery run and step evidence"));
 });
