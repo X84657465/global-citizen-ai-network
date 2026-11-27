@@ -6,6 +6,9 @@ on:
       - feat/factory-local-loop-v1
     paths:
       - .github/workflows/factory-local-loop-windows-validation.yml
+      - lib/agent-factory-local-*.mjs
+      - scripts/factory-local.mjs
+      - tests/agent-factory-local-*.test.mjs
   workflow_dispatch:
 
 permissions:
