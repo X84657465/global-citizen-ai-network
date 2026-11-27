@@ -209,13 +209,15 @@ test("strict Trusted Oracle mode rejects a missing generated candidate", (t) => 
     join(root, "tests/factory-local-loop-e2e-oracle.test.mjs"),
     readFileSync(new URL("./factory-local-loop-e2e-oracle.test.mjs", import.meta.url)),
   );
-  const result = spawnSync(process.execPath, ["--test", "tests/factory-local-loop-e2e-oracle.test.mjs"], {
+  const result = spawnSync(process.execPath, ["--test", join(root, "tests/factory-local-loop-e2e-oracle.test.mjs")], {
     cwd: root,
     encoding: "utf8",
     windowsHide: true,
     env: { ...process.env, GCAN_FACTORY_TRUSTED_ORACLE: "1" },
   });
-  assert.notEqual(result.status, 0, "strict acceptance must fail when the candidate is absent");
+  assert.equal(result.error, undefined, "strict Oracle subprocess must start successfully");
+  assert.notEqual(result.status, 0,
+    "strict acceptance must fail when the candidate is absent; stdout: " + result.stdout + "; stderr: " + result.stderr);
   assert.match(result.stdout + result.stderr, /candidate is required in strict acceptance mode/);
 });
 
