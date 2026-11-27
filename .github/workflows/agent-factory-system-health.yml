@@ -12,12 +12,9 @@ jobs:
     # ineligible events are recorded instead of disappearing as zero-job runs.
     # Only a verified same-repository, non-task PR at the exact source SHA may
     # reach the state-changing controller step.
-    # Recovery is a GitHub API/state operation; keep execution off the Windows
-    # Runner so it does not consume local execution capacity. This job still
-    # waits in the shared cross-process state-writer queue and may queue behind
-    # CI workloads. That ordering is intentional: durable Factory state writes
-    # must remain serialized until an independently verified atomic CAS/lease
-    # protocol replaces the repository-wide concurrency fence.
+    # This read-only exact-head observer runs outside the shared state-writer
+    # queue. Only the state-mutating controller job below takes that lock, so
+    # verification can start promptly without weakening durable write ordering.
     outputs:
       should_recover: ${{ steps.resolve-pr.outputs.should_recover }}
       number: ${{ steps.resolve-pr.outputs.number }}
@@ -27,7 +24,6 @@ jobs:
     permissions:
       actions: read
       contents: read
-      issues: write
       pull-requests: read
     steps:
       - name: Checkout trusted mainline controller
