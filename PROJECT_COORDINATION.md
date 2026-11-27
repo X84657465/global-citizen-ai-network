@@ -1324,3 +1324,12 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 - 不可越界：agent worker 僅產生已驗證 patch 並套用到 disposable scratch；生成程式碼／生成測試不執行，直到 OS-level sandbox 與命令 allowlist 真正完成。
 - 待解 P0：固定測試 Worker 的 timeout 必須能終止整個 process tree；GPT5 已指出直接 kill child 不會保證 descendants 終止。需提供 POSIX process-group 與 Windows process-tree containment 的實作與測試。
 - 本次變更只有 GitHub branch source commits；Node tests、完整 suite、Ollama E2E、Windows E2E 均 NOT RUN；不宣稱 CI PASS 或 GPT3 APPROVED。
+
+
+## GPT1｜Process-tree timeout containment implementation update（2026-11-27）
+
+- PR #683 已把固定測試 Worker 改為 async spawn；POSIX 使用 detached process group，逾時對整個 process group 發 SIGKILL。
+- Windows 逾時使用 taskkill.exe /PID <pid> /T /F，並保留 direct-child fallback。
+- stdout/stderr 各自限制 512 KiB、shell=false；scratch cleanup 仍是成功回報必要條件。
+- 新增 worker + grandchild 後代程序存活 regression test。**僅已提交 source/test，POSIX 與 Windows 測試都尚未執行。**
+- 不宣稱 process-tree containment 已通過平台驗收；須在 Linux/macOS 與 Windows 實測後才可關閉此缺口。
