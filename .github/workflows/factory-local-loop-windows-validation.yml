@@ -6,6 +6,7 @@ on:
       - feat/factory-local-loop-v1
     paths:
       - .github/workflows/factory-local-loop-windows-validation.yml
+      - .github/workflows/ci.yml
       - lib/agent-factory-local-*.mjs
       - lib/agent-factory-trusted-oracle.mjs
       - scripts/factory-local.mjs
