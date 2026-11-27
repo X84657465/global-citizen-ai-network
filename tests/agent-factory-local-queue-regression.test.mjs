@@ -99,8 +99,8 @@ test("system failures use bounded exponential backoff without consuming task fai
     assert.equal(queue.claim("worker"), null, "second system failure must wait for doubled backoff");
 
     const systemFailures = queue.events(task.id).filter((entry) => entry.event_type === "system_failure_released");
-    assert.deepEqual(systemFailures.map((entry) => entry.payload.retry_delay_ms), [1_000, 2_000]);
-    assert.deepEqual(systemFailures.map((entry) => entry.payload.next_status), ["queued", "queued"]);
+    assert.deepEqual(systemFailures.map((entry) => entry.detail.retry_delay_ms), [1_000, 2_000]);
+    assert.deepEqual(systemFailures.map((entry) => entry.detail.next_status), ["queued", "queued"]);
   } finally {
     queue.close();
     rmSync(directory, { recursive: true, force: true });
