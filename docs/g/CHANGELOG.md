@@ -1,5 +1,10 @@
 # G — Changelog
 
+## 0.1.4 — 2026-11-27
+
+- Require canonical positive decimal IDs in GitHub Actions job URLs; reject zero and leading-zero aliases.
+- Add regressions for non-canonical job URL suffixes while preserving exact-run evidence and advisory-only release assessment.
+
 ## 0.1.3 — 2026-11-23
 
 - Reject canonical array-index properties outside the declared array length in exact-head CI evidence snapshots.
