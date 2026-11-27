@@ -32,6 +32,9 @@ jobs:
   windows-local-loop-validation:
     name: Windows local queue, worker and SQLite read-back
     runs-on: [self-hosted, Windows, X64]
+    permissions:
+      contents: write
+      pull-requests: write
     timeout-minutes: 25
     defaults:
       run:
@@ -117,6 +120,7 @@ jobs:
 
       - name: Execute one real Ollama-to-sandbox agent task and reopen evidence
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OLLAMA_BASE_URL: http://127.0.0.1:11434
           GCAN_OLLAMA_MODEL: qwen3:8b
           GCAN_FACTORY_SANDBOX_TESTS: "1"
@@ -146,7 +150,7 @@ jobs:
           $json = $task | ConvertTo-Json -Depth 8
           [System.IO.File]::WriteAllText($taskPath, $json, [System.Text.UTF8Encoding]::new($false))
 
-          $addOutput = & node scripts/factory-local.mjs task add-agent --file $taskPath --oracle-file tests/factory-local-loop-e2e-oracle.test.mjs
+          $addOutput = & node scripts/factory-local.mjs task add-agent --file $taskPath --oracle-file tests/factory-local-loop-e2e-oracle.test.mjs --repository $env:GITHUB_REPOSITORY --base-branch $env:GITHUB_REF_NAME
           if ($LASTEXITCODE -ne 0) { throw "Local agent task intake failed." }
           $added = ($addOutput -join [Environment]::NewLine) | ConvertFrom-Json
           if (-not $added.queued -or -not $added.task.id -or
@@ -172,11 +176,11 @@ jobs:
             Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_END"
             if ($runOutput) {
               $candidate = ($runOutput -join [Environment]::NewLine) | ConvertFrom-Json
-              if ($candidate.claimed -and $candidate.completed -and $candidate.task.status -eq "succeeded") {
+              if ($candidate.claimed -and $candidate.completed -and $candidate.task.status -eq "succeeded" -and $candidate.publication.state -eq "draft_pr_created") {
                 $runResult = $candidate
                 break
               }
-              if ($candidate.failure_scope -eq "system" -or $candidate.task.status -ne "retry_wait") {
+              if ($candidate.failure_scope -eq "system" -or $candidate.task.status -ne "retry_wait" -or $candidate.task.status -eq "succeeded") {
                 break
               }
             }
@@ -209,7 +213,12 @@ jobs:
               $agentResult.acceptance_evidence.valid -ne $true -or
               $agentResult.acceptance_evidence.contract_sha256 -ne $contractSha -or
               $agentResult.acceptance_evidence.exit_code -ne 0 -or
-              $agentResult.acceptance_evidence.passed_tests -lt 1) {
+              $agentResult.acceptance_evidence.passed_tests -lt 1 -or
+              $runResult.publication.state -ne "draft_pr_created" -or
+              $runResult.publication.base_branch -ne $env:GITHUB_REF_NAME -or
+              $runResult.publication.base_sha -ne $env:GITHUB_SHA -or
+              -not $runResult.publication.pull_request_number -or
+              -not $runResult.publication.pull_request_url) {
             throw "Real Ollama → generated tests → trusted Oracle → ACCEPTED evidence is incomplete."
           }
           if (-not $agentResult.plan_artifact.model -or -not $agentResult.patch_artifact.model) {
@@ -241,14 +250,16 @@ jobs:
           Write-Host "FACTORY_OLLAMA_SQLITE_REOPEN_READBACK_PASSED"
           Write-Host "FACTORY_LOCAL_AGENT_LOOP_WINDOWS_E2E_PASSED"
 
-          $publishOutput = & node scripts/factory-local.mjs publish $taskId --dry-run
-          if ($LASTEXITCODE -ne 0) { throw "Accepted local task publisher dry-run failed." }
-          $publishPreview = ($publishOutput -join [Environment]::NewLine) | ConvertFrom-Json
-          if ($publishPreview.state -ne "dry_run" -or
-              $publishPreview.task_id -ne $taskId -or
-              $publishPreview.no_remote_writes -ne $true -or
-              -not $publishPreview.branch -or
-              -not $publishPreview.patch_sha256) {
-            throw "Publisher dry-run did not validate the persisted ACCEPTED task and deterministic publication identity."
+          $publishOutput = & node scripts/factory-local.mjs publish $taskId
+          if ($LASTEXITCODE -ne 0) { throw "Accepted local task publisher idempotent replay failed." }
+          $publishResult = ($publishOutput -join [Environment]::NewLine) | ConvertFrom-Json
+          if ($publishResult.state -ne "draft_pr_created" -or
+              $publishResult.task_id -ne $taskId -or
+              $publishResult.pull_request_number -ne $runResult.publication.pull_request_number -or
+              $publishResult.commit_sha -ne $runResult.publication.commit_sha -or
+              $publishResult.automatic_merge -ne $false -or
+              $publishResult.production_deployment -ne $false) {
+            throw "Publisher restart replay did not recover the same open Draft PR without creating a duplicate."
           }
-          Write-Host "FACTORY_ACCEPTED_TASK_PUBLISHER_DRY_RUN_PASSED"
+          Write-Host ("FACTORY_REAL_DRAFT_PR=" + $publishResult.pull_request_url)
+          Write-Host "FACTORY_AUTOMATIC_DRAFT_PR_AND_IDEMPOTENT_RESTART_PASSED"
