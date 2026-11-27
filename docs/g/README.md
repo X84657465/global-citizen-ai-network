@@ -60,4 +60,4 @@ Skipped, cancelled, stale, missing, resolver-only, or different-SHA results neve
 
 ## Versioning
 
-G owns its independent numeric version in `versions/manifest.json` and this changelog. This documentation-only patch advances G from 0.1.1 to 0.1.2. This G workstream patch advances the independent G version from 0.1.3 to 0.1.4 in the canonical manifest, changelog, and this README. The repository-wide version is intentionally unchanged; shared release metadata must be coordinated separately by its owning candidate.
+G owns its independent numeric version in `versions/manifest.json` and this changelog. This G workstream patch advances the independent G version from 0.1.3 to 0.1.4 in the canonical manifest, changelog, and this README. The repository-wide version is intentionally unchanged; shared release metadata must be coordinated separately by its owning candidate.
