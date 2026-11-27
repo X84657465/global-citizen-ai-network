@@ -7504,3 +7504,42 @@ Formal review inventory: #683 and #679 have COMMENTED only; #674/#681/#677/#672/
 - Existing 09:00 and 13:00 Asia/Taipei automations remain enabled. The 09:00 task last recorded run remains 2026-11-25; the 13:00 task has no recorded last-run timestamp. Enabled does not prove successful delivery.
 
 **Disposition: BLOCKED / NOT GREEN.** This is an evidence/documentation correction only.
+
+
+---
+
+# GPT5 operations checkpoint — 2026-11-27 subsequent live pass
+
+## Live repository and governance evidence
+- Re-read main `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced` (unchanged in this pass).
+- Re-read `PROJECT_COORDINATION.md` on main, blob `533d9b4aae45600473ff4264cf080b888ac42926`. Current role table (§20 / §13) defines GPT1 as A–E/Factory owner, GPT2 as F–P owner, GPT3 as independent architecture/security/integration/QA reviewer, GPT4 as B Product owner, and GPT5 as global evidence integration, task deduplication, coordination, handoff maintenance, and engineering support only under explicit authorization. GPT5 does not own A–P modules and cannot self-approve.
+- Issue [#117](https://github.com/X84657465/global-citizen-ai-network/issues/117) remains OPEN, DRI `X84657465`, label `factory-control-plane-approved`; its body documents delegated GPT5 implementation support for the bounded allowlist but requires GPT3/another separately authorized independent reviewer on the final exact HEAD. It remains a Factory-owned task; no source implementation was changed in this pass.
+- Issue [#505](https://github.com/X84657465/global-citizen-ai-network/issues/505) remains OPEN and explicitly says GPT5 is operations support only; Factory owner GPT1 must accept the proposed allowlist/root-cause investigation. No workflow/Runner paths were edited.
+
+## Exact current PR inventory
+All seven OPEN PRs remain OPEN / Draft / unmerged; base SHA is `590d132e338dc5bb47243f372a0547c8dfdbfced`; mergeable metadata is true but is not an approval or release gate.
+| PR | Exact HEAD | Exact-head check-run records |
+|---|---|---|
+| #674 | `a90588528c7231cc499783c3c2e685d65b4423e3` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (15) |
+| #683 | `bfca9026b6c1accb43cc4f125827a90126f98703` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS (22) |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (9) |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (15) |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS (22) |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (9) |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (9) |
+
+Formal review submissions re-read: #683 and #679 COMMENTED only; #674/#681/#677/#672/#676 have no submissions. No formal APPROVED exists. All remain Draft.
+
+## Main and automation
+- Main exact-SHA check-runs: 149 total over two pages: 6 FAILURE, 110 QUEUED, 29 SKIPPED, 3 PENDING, 1 SUCCESS.
+- Latest Acceptance Gate [46009848306](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009848306): FAILURE, 0 jobs.
+- Latest Recovery [46009848285](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009848285): QUEUED; job [140542258037](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009848285/job/140542258037) QUEUED with no steps/log URL.
+- Main Vercel combined status remains FAILURE, `build-rate-limit`.
+- Existing daily 09:00 GPT5 ops and 13:00 main/CI/PR automations are enabled. 09:00 last recorded run: 2026-11-25; 13:00 last-run timestamp: none. The separate daily coordination-policy reread is enabled and has a recorded run 2026-11-27. No duplicate automation was created.
+
+## GPT5 disposition
+- No safe independent Factory source-code change is made in this pass: #117 is Factory-owned and its code allowlist/independent review conditions do not transfer A–E ownership; #505 explicitly limits GPT5 to operations support pending GPT1 allowlist acceptance. Avoid overlapping writes and unauthorized implementation.
+- GPT5 work remains evidence reconciliation, ownership routing, and documentation/handoff maintenance. No tests/build/lint, CI acceptance, independent approval, Draft removal, merge, or deployment is claimed.
+- Main and all seven OPEN PRs remain BLOCKED / NOT GREEN. Route Factory execution and task-scoped failure work to GPT1; diagnostics resilience allowlist/root-cause to GPT1; Vercel quota to project administrator; exact-HEAD independent review to GPT3/authorized reviewer.
+
+**Disposition: BLOCKED / NOT GREEN.** This checkpoint is verified evidence and owner routing only.
