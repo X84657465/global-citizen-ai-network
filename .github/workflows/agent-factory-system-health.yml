@@ -6,28 +6,24 @@ on:
     types: [completed]
 
 jobs:
-  reset-system-breaker:
-    name: Verify completed exact-head CI before resetting system breaker
+  resolve-system-health:
+    name: Resolve completed exact-head CI before resetting system breaker
     # Always start a lightweight observer job for completed CI events so
     # ineligible events are recorded instead of disappearing as zero-job runs.
     # Only a verified same-repository, non-task PR at the exact source SHA may
     # reach the state-changing controller step.
-    # Recovery is a GitHub API/state operation; keep execution off the Windows
-    # Runner so it does not consume local execution capacity. This job still
-    # waits in the shared cross-process state-writer queue and may queue behind
-    # CI workloads. That ordering is intentional: durable Factory state writes
-    # must remain serialized until an independently verified atomic CAS/lease
-    # protocol replaces the repository-wide concurrency fence.
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      cancel-in-progress: false
-      queue: max
+    # This read-only exact-head observer runs outside the shared state-writer
+    # queue. Only the state-mutating controller job below takes that lock, so
+    # verification can start promptly without weakening durable write ordering.
+    outputs:
+      should_recover: ${{ steps.resolve-pr.outputs.should_recover }}
+      number: ${{ steps.resolve-pr.outputs.number }}
+      head_sha: ${{ steps.resolve-pr.outputs.head_sha }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       actions: read
       contents: read
-      issues: write
       pull-requests: read
     steps:
       - name: Checkout trusted mainline controller
@@ -96,24 +92,7 @@ jobs:
           console.log(`Verified PR #${pr.number} at exact SHA ${sha}.`);
           NODE
 
-      - name: Verify completed CI provenance and reset global breaker
-        id: recovery
-        if: steps.resolve-pr.outputs.should_recover == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          AGENT_FACTORY_MODE: system-health-success
-          SYSTEM_HEALTH_RUN_ID: ${{ github.event.workflow_run.id }}
-          SYSTEM_HEALTH_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
-          SYSTEM_HEALTH_PULL_REQUEST_NUMBER: ${{ steps.resolve-pr.outputs.number }}
-          SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          SYSTEM_HEALTH_PR_HEAD_SHA: ${{ steps.resolve-pr.outputs.head_sha }}
-        shell: bash
-        run: |
-          set +e
-          node scripts/agent-factory-v2-controller.mjs
-          controller_exit=$?
-          exit "$controller_exit"
+
 
       - name: Write redacted recovery diagnostic summary
         if: always()
@@ -127,8 +106,8 @@ jobs:
           SOURCE_CI_EVENT: ${{ github.event.workflow_run.event }}
           SOURCE_CI_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
           RESOLVED_PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
-          RESOLVER_OUTCOME: ${{ steps.resolve-pr.outcome }}
-          CONTROLLER_OUTCOME: ${{ steps.recovery.outcome }}
+          RESOLVER_OUTCOME: ${{ steps.resolve-pr.outputs.should_recover }}
+          CONTROLLER_OUTCOME: not_started_in_observer
         run: |
           {
             printf 'schema_version=1\n'
@@ -154,6 +133,53 @@ jobs:
           path: ${{ runner.temp }}/system-health-recovery-summary.txt
           if-no-files-found: error
           retention-days: 30
+
+
+  reset-system-breaker:
+    name: Verify completed exact-head CI before resetting system breaker
+    needs: [resolve-system-health]
+    if: needs.resolve-system-health.outputs.should_recover == 'true'
+    concurrency:
+      group: global-citizen-ai-network-self-hosted-runner
+      cancel-in-progress: false
+      queue: max
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout trusted mainline controller
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+
+      - name: Verify completed CI provenance and reset global breaker
+        id: recovery
+        if: needs.resolve-system-health.outputs.should_recover == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AGENT_FACTORY_MODE: system-health-success
+          SYSTEM_HEALTH_RUN_ID: ${{ github.event.workflow_run.id }}
+          SYSTEM_HEALTH_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          SYSTEM_HEALTH_PULL_REQUEST_NUMBER: ${{ needs.resolve-system-health.outputs.number }}
+          SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          SYSTEM_HEALTH_PR_HEAD_SHA: ${{ needs.resolve-system-health.outputs.head_sha }}
+        shell: bash
+        run: |
+          set +e
+          node scripts/agent-factory-v2-controller.mjs
+          controller_exit=$?
+          exit "$controller_exit"
 
   reset-system-breaker-windows-fallback:
     name: Verify hosted allocation failure and recover on Windows Runner
