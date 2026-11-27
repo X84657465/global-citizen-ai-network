@@ -20,9 +20,9 @@ test("local worker executes only the allowlisted queue regression suite and retu
   assert.match(result.stdout, /tests/);
 });
 
-test("local worker rejects arbitrary task kinds before starting a process", () => {
-  assert.throws(
-    () => runLocalFactoryTask({ payload: { schema_version: 1, kind: "arbitrary-shell" } }),
+test("local worker rejects arbitrary task kinds before starting a process", async () => {
+  await assert.rejects(
+    runLocalFactoryTask({ payload: { schema_version: 1, kind: "arbitrary-shell" } }),
     (error) => error instanceof LocalFactoryWorkerError && error.scope === "task",
   );
 });
@@ -58,7 +58,7 @@ test("timeout termination kills the worker and its descendant process tree", asy
     let output = "";
     child.stdout.on("data", (chunk) => {
       output += chunk.toString();
-      const match = output.match(/(\d+)\r?\n/);
+      const match = output.match(/(\\d+)\\r?\\n/);
       if (match) resolve(Number(match[1]));
     });
   });
