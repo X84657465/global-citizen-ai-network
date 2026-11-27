@@ -239,11 +239,11 @@ function hasV2ControllerInvocation(source) {
     }
   }
   const executableLines = commands.filter(line =>
-    !/^\\s*#/.test(line) &&
-    !/^\\s*(?:env\\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\\s]+\\s+)*)?node\\s+--check\\s+/m.test(line)
+    !/^\s*#/.test(line) &&
+    !/^\s*(?:env\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\s]+\s+)*)?node\s+--check\s+/m.test(line)
   );
-  return /^\\s*(?:env\\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\\s]+\\s+)*)?node(?:\\s+(?:--[^\\s]+|-r\\s+\\S+))*\\s+(?:\\.\\/)?scripts\\/agent-factory-v2-controller\\.mjs\\b/m
-    .test(executableLines.join("\\n"));
+  return /^\s*(?:env\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\s]+\s+)*)?node(?:\s+(?:--[^\s]+|-r\s+\S+))*\s+(?:\.\/)?scripts\/agent-factory-v2-controller\.mjs\b/m
+    .test(executableLines.join("\n"));
 }
 
 test("every V2 state-writer workflow is serialized by the shared Runner queue", () => {
