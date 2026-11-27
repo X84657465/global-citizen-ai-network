@@ -140,11 +140,13 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
   assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 });
 
-test("PR metadata resolution uses the verified Windows Runner and shared queue", () => {
+test("read-only PR metadata resolution uses a dedicated Windows Runner queue", () => {
   const { start, end } = findJobSection(workflow, "resolve-candidate");
   const resolverJob = workflow.slice(start, end);
   assert.ok(resolverJob.includes("runs-on: [self-hosted, Windows, X64]"));
-  assert.ok(resolverJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(resolverJob.includes("group: global-citizen-ai-network-ci-resolver"));
+  assert.doesNotMatch(resolverJob, /group: global-citizen-ai-network-self-hosted-runner/);
+  assert.doesNotMatch(resolverJob, /:\s*write\b/);
   assert.ok(resolverJob.includes("queue: max"));
   assert.ok(resolverJob.includes("cancel-in-progress: false"));
   assert.equal(resolverJob.includes("shell: bash"), false);

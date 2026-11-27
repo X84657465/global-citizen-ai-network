@@ -25,8 +25,8 @@ defaults:
 
 jobs:
   resolve-candidate:
-    # Use the verified Windows self-hosted Runner while hosted Ubuntu
-    # allocation is failing; serialize with other stateful CI work.
+    # Resolve metadata with read-only permissions before entering the shared
+    # queue used by CI jobs that execute tests or mutate durable Factory state.
     name: Resolve exact candidate PR metadata
     if: >-
       github.event_name != 'pull_request' ||
@@ -35,7 +35,7 @@ jobs:
         github.event.pull_request.user.login == 'github-actions[bot]'))
     runs-on: [self-hosted, Windows, X64]
     concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
+      group: global-citizen-ai-network-ci-resolver
       queue: max
       cancel-in-progress: false
     timeout-minutes: 10
