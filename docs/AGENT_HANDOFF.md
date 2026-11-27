@@ -7873,3 +7873,57 @@ Each PR's combined commit status separately reports Vercel FAILURE with the same
 - Vercel quota remains external and assigned to the Vercel/project administrator. CircleCI remains UNKNOWN. GPT3 independent review remains a separate release gate.
 
 **Disposition: main NOT GREEN; seven OPEN Draft PRs; zero formal approvals; no merge or Draft removal. GPT5's append-only evidence handoff is the only delivery completed in this pass.**
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (fresh exact-ref audit after latest PR refresh)
+
+This append-only checkpoint supersedes earlier moving-head snapshots for the exact refs below. All values were re-read from GitHub in this pass; missing main push workflow evidence remains UNKNOWN, not PASS.
+
+## Main
+- Current main SHA: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Combined commit status: Vercel **FAILURE**, target `build-rate-limit` (external provider quota; not a GitHub Actions test result).
+- The commit-workflow-runs connector returned no main push runs for this SHA; main push workflow terminal state is **NOT OBSERVED / UNKNOWN**.
+- CircleCI pipeline/workflow/job state: **UNKNOWN** in this connector pass.
+
+## All seven OPEN PRs — current exact refs and core CI
+
+All seven target `main`, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, and are OPEN / Draft / unmerged. GitHub's `mergeable=true` is conflict metadata only, not acceptance.
+
+| PR | Exact HEAD SHA | Core CI run | Core CI result |
+|---|---|---:|---|
+| #683 | `8ab3b4c587b5e67f4565a998a4a264fd91779f17` | [46021982147](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46021982147) | FAILURE; resolver SUCCESS; Windows quality FAILURE; diagnostics FAILURE; Windows Ollama, PostgreSQL/RLS and persistence jobs SKIPPED |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | [45990254637](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45990254637) | FAILURE; resolver and diagnostics FAILURE; quality, integrations and persistence SKIPPED |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | [46007952804](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46007952804) | FAILURE; resolver and diagnostics FAILURE; quality, integrations and persistence SKIPPED |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | [45979397241](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45979397241) | PENDING; sole resolver job PENDING |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | [45972034125](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45972034125) | PENDING; sole resolver job PENDING |
+| #674 | `16d10946476a672e82731aa4504f1b5d5a4361df` | [46016236030](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46016236030) | FAILURE; resolver and diagnostics FAILURE; quality, integrations and persistence SKIPPED |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | [45970239642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45970239642) | PENDING; sole resolver job PENDING |
+
+### Exact job/log observations
+- PR #683 run #46021982147: resolver job [140583647993](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46021982147/job/140583647993) completed SUCCESS with 13 reported steps. Its log identifies Windows self-hosted runner `DESKTOP-S2S4BM9`, runner group `Default`; the resolver successfully fetched PR #683 metadata and confirmed its exact HEAD. This proves at least this runner executed a job; it does **not** prove the quality job's runner labels/dispatch are healthy.
+- In the same run, Windows quality job [140583951056](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46021982147/job/140583951056) and diagnostics job [140583952350](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46021982147/job/140583952350) both concluded FAILURE with **0 reported steps**. Both step queries returned empty arrays and both log downloads returned Azure `BlobNotFound 404`. Root cause remains **UNKNOWN**; no source-test failure is established.
+- #683 auxiliary runs: Autofix [46021981994] FAILURE; Rust Clippy [46021982037] QUEUED; AI Agent Task Preflight [46021982074] QUEUED; Codacy [46021982070] QUEUED.
+- #681 auxiliary runs: Autofix FAILURE; Clippy, Preflight and Codacy QUEUED.
+- #679 auxiliary runs: Autofix FAILURE; Clippy and Codacy QUEUED.
+- #677 auxiliary runs: Autofix FAILURE; Clippy and Codacy QUEUED.
+- #676 auxiliary runs: Autofix PENDING; Clippy and Codacy QUEUED.
+- #674 auxiliary runs: Autofix FAILURE; Clippy and Codacy QUEUED.
+- #672 auxiliary runs: Autofix PENDING; Clippy and Codacy QUEUED.
+- Commit-status provider signal is Vercel SUCCESS for #683 and #674, and FAILURE / `build-rate-limit` for #681, #679, #677, #676 and #672. These are deployment-provider statuses, not substitutes for CI.
+
+## Review and release gates
+- Formal APPROVED reviews: **0/7**. #683 and #679 have COMMENTED-only submissions; #681, #677, #676, #674 and #672 have no formal review submissions.
+- Inline review threads: **0 across all seven PRs**.
+- No PR is eligible for Draft removal, acceptance or merge. Do not treat COMMENTED, Vercel SUCCESS, `mergeable=true`, queued checks, pending checks or skipped jobs as PASS.
+
+## Owner routing / GPT5 action
+- GPT1 / Factory owns #683, #681, #672, #676 and the Runner / CI resolver / diagnostics root-cause investigation. Next useful evidence is to compare runner group/labels and job-level dispatch for the resolver versus quality/diagnostics jobs, then obtain retained logs and a real quality job with executed steps. Do not rerun unchanged 0-step failures blindly.
+- GPT2 owns #679 and #677; their CI remains failed/pending with no exact-head substantive acceptance.
+- GPT3 remains the independent reviewer; no author self-approval.
+- Vercel quota failures route to the project/provider administrator; do not trigger paid-resource changes or repeated unchanged deployment retries.
+- GPT5's authorized scope for this PR remains append-only `docs/AGENT_HANDOFF.md` on PR #674. This checkpoint changes no Factory/GPT2 source, workflow, Runner, secrets, permissions, branch protection, billing, production data or deployment.
+- No local tests/build/lint, Windows quality suite, Ollama E2E, PostgreSQL/RLS integration or deployment were run by GPT5 in this pass.
+
+**Disposition: MAIN NOT GREEN / workflow terminal state UNKNOWN; seven OPEN Draft PRs; zero formal approvals. Evidence handoff only; no acceptance, Draft removal, merge or deployment.**
