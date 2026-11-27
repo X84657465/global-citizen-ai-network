@@ -1285,3 +1285,17 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 
 至少一筆真實本機任務完成 queue → worker → Ollama plan → validated patch → isolated apply → real test → SQLite evidence persistence；重啟後可恢復讀取；三次失敗隔離與系統級失敗分流有測試；GPT3 獨立審查通過。所有狀態須分開標示 IMPLEMENTED、TESTED、ACCEPTED、PARTIAL、BLOCKED、NOT RUN。
 
+
+
+## GPT1 最新執行交接 — Factory Local Loop（2026-11-27）
+
+- 負責人：GPT1｜工廠負責人。
+- P0 PR：#683，分支 `feat/factory-local-loop-v1`，維持 OPEN / Draft。
+- 最新 Main：`590d132e338dc5bb47243f372a0547c8dfdbfced`。
+- 已完成：SQLite 任務佇列、Lease/重啟恢復、三次 task failure quarantine、system failure 指數退避；新增有限範圍 CLI 與固定 allowlist Worker，可執行本機 Queue regression tests 並持久化結果。
+- system failure 退避：獨立計數，預設 30 秒起跳、上限 5 分鐘；不增加 task failure 次數。
+- 未完成：Planner/Patch adapter、Scratch patch apply、真實 Ollama 端到端任務、Windows 本機實測、精確 HEAD CI PASS、GPT3 獨立 APPROVED。
+- 最近一次觀察到 #683 exact HEAD CI Resolver 與 Diagnostics 失敗且 0 steps；工作日誌 API 回傳 BlobNotFound，根因 UNKNOWN。不得盲目重跑同一個 0-step 失敗。
+- Vercel `build-rate-limit` 是外部部署配額阻塞，不是程式測試結果；本機 Worker 工作不依賴 Vercel。
+- 下一步唯一 P0：在保留單 Worker 與固定 allowlist 的前提下，實作不偽造 Issue 身分的 Planner/Patch local adapter，串接安全 scratch apply 和真實測試。
+
