@@ -1221,3 +1221,137 @@ test("PR Acceptance Gate resolves a unique PR before acquiring its per-PR queue"
   assert.equal(acceptance.includes("github.event.workflow_run.pull_requests[0].number ||"),
     false, "never select the first PR from an ambiguous workflow_run association");
 });
+
+function extractAcceptanceGithubScript(jobName, stepName) {
+  const job = findJobSection(acceptance, jobName);
+  const step = findNamedStepBlock(acceptance, stepName, job.start, job.end);
+  const match = step.match(/\\n          script: \\|\\n([\\s\\S]*)$/);
+  assert.ok(match, "GitHub Script block must exist for " + stepName);
+  return match[1].split("\\n")
+    .map((line) => line.startsWith("            ") ? line.slice(12) : line)
+    .join("\\n")
+    .trimEnd();
+}
+
+function runAcceptanceGithubScript(script, { github, context, core, env = {} }) {
+  const mockedRequire = (id) => id === "path"
+    ? { join: (...parts) => parts.join("/") }
+    : { evaluateAcceptance: () => ({ accepted: false, failures: [] }), REQUIRED_CI_JOBS: [] };
+  const execute = new Function("github", "context", "core", "process", "require",
+    `return (async () => { ${script}\\n})();`);
+  return execute(github, context, core, { env: { GITHUB_WORKSPACE: "/workspace", ...env } }, mockedRequire);
+}
+
+test("shared source SHA across multiple PR associations falls back to SHA serialization, not an arbitrary PR", async () => {
+  const script = extractAcceptanceGithubScript("resolve-target", "Resolve PR identity before acquiring its advisory-write queue");
+  const sha = "a".repeat(40);
+  const outputs = {};
+  const context = {
+    repo: { owner: "X84657465", repo: "global-citizen-ai-network" },
+    eventName: "workflow_run",
+    sha,
+    payload: { workflow_run: { head_sha: sha, pull_requests: [{ number: 41 }, { number: 42 }] } },
+  };
+  const github = {
+    request: async () => ({ data: [41, 42].map((number) => ({
+      number, state: "open", base: { ref: "main", repo: { full_name: "X84657465/global-citizen-ai-network" } },
+      head: { sha },
+    })) }),
+  };
+  const core = { setOutput: (key, value) => { outputs[key] = value; } };
+
+  await runAcceptanceGithubScript(script, { github, context, core });
+  assert.equal(outputs.pr_number, "", "multiple exact-SHA matches must not select an arbitrary PR");
+  assert.equal(outputs.head_sha, sha, "the exact SHA remains available as the conservative queue key");
+  assert.ok(acceptance.includes("needs.resolve-target.outputs.pr_number || needs.resolve-target.outputs.head_sha || github.sha"));
+});
+
+test("ambiguous or unresolved PR identity exits before any evaluator read or write", async () => {
+  const resolverScript = extractAcceptanceGithubScript("resolve-target", "Resolve PR identity before acquiring its advisory-write queue");
+  const evaluatorScript = extractAcceptanceGithubScript("evaluate", "Evaluate exact-head acceptance policy");
+  const sha = "b".repeat(40);
+  const outputs = {};
+  const resolverContext = {
+    repo: { owner: "X84657465", repo: "global-citizen-ai-network" },
+    eventName: "workflow_run", sha,
+    payload: { workflow_run: { head_sha: sha, pull_requests: [] } },
+  };
+  const resolverGithub = { request: async () => ({ data: [] }) };
+  const resolverCore = { setOutput: (key, value) => { outputs[key] = value; } };
+  await runAcceptanceGithubScript(resolverScript, { github: resolverGithub, context: resolverContext, core: resolverCore });
+
+  let touched = 0;
+  const forbidden = () => { touched += 1; throw new Error("unresolved identity must not touch PR state"); };
+  const evaluatorGithub = {
+    request: forbidden,
+    rest: new Proxy({}, { get: () => forbidden }),
+  };
+  const evaluatorCore = { notice() {}, warning() {}, setFailed: forbidden, info() {} };
+  await runAcceptanceGithubScript(evaluatorScript, {
+    github: evaluatorGithub,
+    context: resolverContext,
+    core: evaluatorCore,
+    env: { RESOLVED_PR_NUMBER: outputs.pr_number, RESOLVED_HEAD_SHA: outputs.head_sha },
+  });
+  assert.equal(outputs.pr_number, "");
+  assert.equal(touched, 0, "no PR lookup, label mutation, or comment write may occur without a unique PR");
+});
+
+test("a post-queue workflow association change cannot redirect the evaluator away from the resolved PR", async () => {
+  const resolverScript = extractAcceptanceGithubScript("resolve-target", "Resolve PR identity before acquiring its advisory-write queue");
+  const evaluatorScript = extractAcceptanceGithubScript("evaluate", "Evaluate exact-head acceptance policy");
+  const sha = "c".repeat(40);
+  const outputs = {};
+  const resolverContext = {
+    repo: { owner: "X84657465", repo: "global-citizen-ai-network" },
+    eventName: "pull_request", sha,
+    payload: { pull_request: { number: 41, head: { sha } } },
+  };
+  const resolverGithub = { request: async () => { throw new Error("pull_request event should not require association lookup"); } };
+  const resolverCore = { setOutput: (key, value) => { outputs[key] = value; } };
+  await runAcceptanceGithubScript(resolverScript, { github: resolverGithub, context: resolverContext, core: resolverCore });
+
+  const lookedUp = [];
+  const evaluatorContext = {
+    repo: resolverContext.repo,
+    eventName: "workflow_run",
+    sha,
+    payload: { workflow_run: { head_sha: sha, pull_requests: [{ number: 99 }] } },
+  };
+  const evaluatorGithub = {
+    request: async () => { throw new Error("evaluator must not re-resolve PR associations"); },
+    rest: { pulls: { get: async (args) => {
+      lookedUp.push(args.pull_number);
+      return { data: { state: "closed", base: { ref: "main" }, head: { sha: "d".repeat(40) } } };
+    } } },
+  };
+  const evaluatorCore = { notice() {}, warning() {}, setFailed() {}, info() {} };
+  await runAcceptanceGithubScript(evaluatorScript, {
+    github: evaluatorGithub,
+    context: evaluatorContext,
+    core: evaluatorCore,
+    env: { RESOLVED_PR_NUMBER: outputs.pr_number, RESOLVED_HEAD_SHA: outputs.head_sha },
+  });
+  assert.equal(outputs.pr_number, "41");
+  assert.deepEqual(lookedUp, [41], "the evaluator must consume the resolver's immutable PR identity, not a later payload association");
+});
+
+test("unique pull-request events export and use the PR number as the first-choice queue identity", async () => {
+  const script = extractAcceptanceGithubScript("resolve-target", "Resolve PR identity before acquiring its advisory-write queue");
+  const sha = "e".repeat(40);
+  const outputs = {};
+  const context = {
+    repo: { owner: "X84657465", repo: "global-citizen-ai-network" },
+    eventName: "pull_request", sha,
+    payload: { pull_request: { number: 73, head: { sha } } },
+  };
+  const github = { request: async () => { throw new Error("unique pull_request identity must be resolved from its event payload"); } };
+  const core = { setOutput: (key, value) => { outputs[key] = value; } };
+  await runAcceptanceGithubScript(script, { github, context, core });
+
+  assert.equal(outputs.pr_number, "73");
+  assert.equal(outputs.head_sha, sha);
+  assert.ok(acceptance.includes("group: global-citizen-ai-network-pr-acceptance-${{ needs.resolve-target.outputs.pr_number || needs.resolve-target.outputs.head_sha || github.sha }}"));
+  assert.ok(acceptance.includes("cancel-in-progress: false"));
+  assert.ok(acceptance.includes("queue: max"));
+});
