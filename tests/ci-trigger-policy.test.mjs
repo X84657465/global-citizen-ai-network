@@ -780,6 +780,18 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.equal(ci.includes("AGENT_FACTORY_MODE: success"), false,
     "the in-progress CI workflow must not invoke the legacy non-mutating success callback");
   assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
+  const { start: resolverJobStart, end: resolverJobEnd } = findJobSection(recovery, "resolve-system-health");
+  const resolverJob = recovery.slice(resolverJobStart, resolverJobEnd);
+  for (const guard of [
+    "    if: >-\n      github.event.workflow_run.conclusion == 'success' &&",
+    "      github.event.workflow_run.event == 'pull_request' &&",
+    "      github.event.workflow_run.path == '.github/workflows/ci.yml' &&",
+    "      github.event.workflow_run.head_repository.full_name == github.repository &&",
+    "      !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&",
+    "      !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')",
+  ]) assert.ok(resolverJob.includes(guard), "pre-allocation Recovery eligibility must retain " + guard);
+  assert.ok(resolverJob.includes("Upload recovery diagnostics"),
+    "eligible Recovery runs must retain their diagnostic artifact");
   for (const guard of [
     'process.env.WORKFLOW_PATH === ".github/workflows/ci.yml"',
     'process.env.WORKFLOW_CONCLUSION === "success"',
