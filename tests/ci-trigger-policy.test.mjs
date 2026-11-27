@@ -136,7 +136,25 @@ test("CI reserves the shared Runner queue for durable state writers, not read-on
   assert.ok(quality.includes("needs: [resolve-candidate]"));
   assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 
-  const stateWriterJobs = ["build", "database", "circuit-breaker", "circuit-breaker-success"];
+  const { start: buildStart, end: buildEnd } = findJobSection(workflow, "build");
+  const build = workflow.slice(buildStart, buildEnd);
+  assert.ok(build.includes("needs.resolve-candidate.outputs.is_task_pr == 'true'"));
+  assert.ok(build.includes("global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(build.includes("global-citizen-ai-network-readonly-build-"));
+  assert.ok(build.includes("format('global-citizen-ai-network-readonly-build-{0}', github.run_id)"));
+  assert.ok(build.includes("if: needs.resolve-candidate.outputs.is_task_pr == 'true'"));
+  assert.ok(build.includes("run: node scripts/agent-factory-v2-controller.mjs"),
+    "candidate-state mutation must stay within the authorized task-PR path");
+
+  const { start: databaseStart, end: databaseEnd } = findJobSection(workflow, "database");
+  const database = workflow.slice(databaseStart, databaseEnd);
+  assert.ok(database.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.equal(database.includes("global-citizen-ai-network-self-hosted-runner"), false,
+    "run-isolated Supabase integration must not consume durable Factory state-writer slots");
+  assert.ok(database.includes('gcan-ci-" + $env:GITHUB_RUN_ID'),
+    "Supabase projects must remain isolated by exact workflow run");
+
+  const stateWriterJobs = ["circuit-breaker", "circuit-breaker-success"];
   for (const job of stateWriterJobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
