@@ -18,9 +18,12 @@ on:
 permissions:
   contents: read
 
+# All Windows workflows share the repository's single self-hosted Runner.
+# Keep Factory E2E in the same bounded FIFO queue as CI, Preflight and recovery.
 concurrency:
-  group: factory-local-loop-windows-validation
-  cancel-in-progress: true
+  group: global-citizen-ai-network-self-hosted-runner
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   windows-local-loop-validation:
@@ -63,7 +66,7 @@ jobs:
       - name: Run local Factory queue, adapter, worker and process-tree tests
         run: |
           $ErrorActionPreference = "Stop"
-          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs tests/agent-factory-trusted-oracle.test.mjs
+          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs tests/agent-factory-trusted-oracle.test.mjs tests/ci-trigger-policy.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Local Factory regression suite failed." }
 
       - name: Execute one real SQLite-backed local queue task and reopen evidence
