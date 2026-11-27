@@ -6802,3 +6802,28 @@ All five PRs target the exact main base SHA above. All are OPEN, Draft, unmerged
 - No Factory source/workflow, Runner, queue/lease/durable state, secret, permission, branch protection, database, billing, production data or deployment setting was changed. No local tests/build/lint were run.
 
 **Disposition: BLOCKED / NOT GREEN.** GPT5's bounded deliverable is this exact-head evidence refresh. Factory/Actions owners must diagnose job allocation and resolver failures; Vercel/project administration owns quota remediation; independent authorized reviewers own formal acceptance.
+
+
+---
+
+# GPT5 follow-up exact-head delta — 2026-11-27
+
+## Revalidation after the previous documentation commit
+- Main remains `590d132e338dc5bb47243f372a0547c8dfdbfced`; combined status remains FAILURE with Vercel failure. Main-associated Actions runs were not returned by the workflow-runs query.
+- Current OPEN PR inventory remains #674, #676, #672, #679, #677. All target main SHA above, remain Draft and unmerged.
+- #674 now points to this exact HEAD: `789b3fde179c7d336e94bc0c701fb8fbbbf89af0`. Its new CI run [45978127322](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45978127322) completed FAILURE; PR Acceptance Gate [45978124247](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45978124247) completed FAILURE; autofix [45978127247](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45978127247) completed FAILURE; Codacy [45978127313](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45978127313), Clippy [45978127249](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45978127249), dynamic PR runner [45978120777](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45978120777), and Debricked [45978119751](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45978119751) were queued at query time.
+- #674 CI jobs: exact candidate metadata resolver FAILURE; diagnostics FAILURE; Windows local integration, candidate persistence, quality gates and Supabase/RLS integration SKIPPED. Both failed jobs had zero steps. Thus no tests or quality gates ran; do not call this test failure in source code—the resolver failed before those jobs.
+- #679 exact HEAD remains `472768fee083e782a716b18733cb36b3be42f7da`; CI run [45977871159](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45977871159) and Autofix [45977871098](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45977871098) FAILURE; resolver and diagnostics jobs failed with zero steps; all downstream persistence/integration/quality jobs SKIPPED. Codacy [45977871149](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45977871149), Clippy [45977871133](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45977871133), dynamic PR runner [45977866791](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45977866791), and Debricked [45977788429](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45977788429) were queued at query time.
+- #677 CI [45976398359] remains PENDING; Autofix [45976398306] FAILURE; Acceptance Gate [45976443509] FAILURE.
+- #676 CI [45972034125] and Autofix [45972034098] remain PENDING; Acceptance Gate [45974778061] FAILURE.
+- #672 exact-head runs were not returned in the current latest-100 run query; retain prior pending/queued status only as last observed, and re-query before any action.
+- Vercel still reports FAILURE on main and all checked PR heads, with known `build-rate-limit` external quota marker. No blind retry.
+- No formal independent APPROVED review has been observed in the previous review audit. Re-check reviews on current heads before any governance transition.
+
+## GPT5 scope / disposition
+- The documentation refresh itself is committed, but its exact-head CI/Acceptance Gate failed at metadata resolution with zero-step resolver/diagnostics jobs and downstream SKIPPED. This is a CI orchestration/metadata blocker, not evidence of a docs source test failure.
+- Do not remove Draft or merge #674. Keep all PRs Draft until exact-head required checks genuinely execute and pass, and a separate authorized reviewer submits APPROVED.
+- GPT5 remains within the documentation-only scope. Factory workflow/runner allocation, PR metadata resolution, Vercel quota, and the other PR owners' source changes are handed back to their owners.
+- No local tests/build/lint were run; no source/workflow, Factory runtime state, secrets, permissions, branch protection, database, billing, production data or deployment setting was modified.
+
+**Disposition: BLOCKED / NOT GREEN.** The GPT5 handoff document now records this second exact-head failure and the zero-step/SKIPPED evidence. Root cause remains UNKNOWN because the resolver and diagnostic jobs executed zero steps and their logs are unavailable.
