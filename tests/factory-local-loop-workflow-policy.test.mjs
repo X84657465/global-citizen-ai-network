@@ -8,10 +8,9 @@ const workflow = readFileSync(
 ).replace(/\r\n/g, "\n");
 
 test("Factory Windows E2E coalesces only superseded runs in its dedicated queue", () => {
-  const start = workflow.indexOf("\\nconcurrency:\\n");
-  const end = workflow.indexOf("\\njobs:\\n", start);
-  assert.ok(start >= 0 && end > start, "workflow-level concurrency block must exist");
-  const concurrency = workflow.slice(start, end);
+  const match = /^concurrency:\n([\s\S]*?)^jobs:\n/m.exec(workflow);
+  assert.ok(match, "workflow-level concurrency block must exist");
+  const concurrency = match[0];
   assert.ok(concurrency.includes("group: factory-local-loop-windows-validation"));
   assert.ok(concurrency.includes("cancel-in-progress: true"));
   assert.equal(concurrency.includes("global-citizen-ai-network-self-hosted-runner"), false);
