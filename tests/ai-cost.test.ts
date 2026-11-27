@@ -522,3 +522,51 @@ test("invoice preview POST returns 413 when oversized stream cancellation never 
   assert.equal(response.status, 413);
   assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
+
+test("invoice preview POST returns a non-sensitive 503 when authentication lookup throws", async () => {
+  const deps = makePreviewRouteDependencies({
+    getAuthenticatedClient: async () => { throw new Error("auth provider detail must not escape"); },
+  });
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { error: "無法驗證登入狀態。" });
+  assert.deepEqual(deps.calls, []);
+});
+
+test("invoice preview POST fails closed when profile lookup returns an error result", async () => {
+  const deps = makePreviewRouteDependencies({
+    getProfile: async () => ({ data: null, error: new Error("profile detail must not escape") }),
+  });
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { error: "無法驗證管理員權限。" });
+  assert.deepEqual(deps.calls, ["auth"]);
+});
+
+test("invoice preview POST fails closed when database-key configuration lookup throws", async () => {
+  const deps = makePreviewRouteDependencies({
+    hasServiceRoleKey: () => { throw new Error("configuration detail must not escape"); },
+  });
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { error: "伺服器尚未設定管理端資料庫金鑰。" });
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
+});
+
+test("invoice preview POST fails closed when admin database client creation throws", async () => {
+  const deps = makePreviewRouteDependencies({
+    createAdminClient: () => { throw new Error("database client detail must not escape"); },
+  });
+  const response = await handleProviderInvoicePreviewPost(
+    makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
+  );
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), { error: "AI 請求證據讀取失敗，無法安全產生預覽。" });
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
+});
