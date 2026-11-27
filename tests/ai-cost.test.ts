@@ -386,7 +386,7 @@ test("invoice preview POST fails closed when server database configuration is mi
     makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
   );
   assert.equal(response.status, 503);
-  assert.deepEqual(deps.calls, ["auth", "profile", "admin-client"]);
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
 
 test("invoice preview POST rejects malformed JSON, invalid UTF-8, null, arrays and primitives", async () => {
