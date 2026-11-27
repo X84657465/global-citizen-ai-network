@@ -107,7 +107,19 @@ test("sandbox evidence requires a real exit code and at least one passing test",
       assert.deepEqual(testFiles, [testPath]);
       assert.equal(readFileSync(join(scratchRoot, dependency), "utf8"), "export const value = 42;\n");
       assert.ok(existsSync(join(scratchRoot, testPath)));
-      return evidence;
+      return {
+        ...evidence,
+        test_files: [...testFiles],
+        tap_summary: {
+          tests: evidence.passed_tests,
+          pass: evidence.passed_tests,
+          fail: 0,
+          cancelled: 0,
+          skipped: 0,
+          todo: 0,
+          valid: evidence.exit_code === 0 && evidence.passed_tests > 0,
+        },
+      };
     },
   });
 
