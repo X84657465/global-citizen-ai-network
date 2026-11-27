@@ -98,8 +98,9 @@ async function serve(queue) {
         failure_scope: result.failure_scope ?? null,
       }));
       if (result.failure_scope === "system") {
-        process.exitCode = 1;
-        return;
+        const retryAt = result.task.available_at;
+        console.log(JSON.stringify({ event: "worker_backoff", retry_at: retryAt }));
+        await delay(Math.max(1_000, retryAt - Date.now()), undefined, { signal: shutdown.signal });
       }
     }
   } catch (error) {
