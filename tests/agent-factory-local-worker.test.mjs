@@ -40,6 +40,47 @@ test("local agent worker rejects malformed task envelopes before contacting Olla
   );
 });
 
+test("local agent worker hands the validated model plan to patch generation", async (t) => {
+  const path = "docs/gcan-local-worker-fixture.md";
+  const task = {
+    schema_version: 1,
+    title: "Documentation fixture",
+    goal: "Add a documentation example",
+    allowed_paths: [path],
+    acceptance_criteria: ["Document the example"],
+    explicit_exclusions: [],
+  };
+  const criteria = { acceptance_criteria: task.acceptance_criteria };
+  const plan = { schema_version: 1, tasks: [
+    { ...criteria, id: "inspect", title: "Inspect task", role: "planner", action: "inspect",
+      depends_on: [], allowed_paths: [], max_output_bytes: 4096 },
+    { ...criteria, id: "implement", title: "Draft example", role: "implementer", action: "propose_patch",
+      depends_on: ["inspect"], allowed_paths: [path], max_output_bytes: 16384 },
+    { ...criteria, id: "check", title: "Check example", role: "tester", action: "validate_patch",
+      depends_on: ["implement"], allowed_paths: [path], max_output_bytes: 4096 },
+  ] };
+  const patch = {
+    schema_version: 1,
+    files: [{ path, operation: "add", content: "# Local example\n" }],
+  };
+  t.mock.method(globalThis, "fetch", async (url, options) => {
+    if (url.endsWith("/api/tags")) {
+      return Response.json({ models: [{ name: process.env.GCAN_OLLAMA_MODEL || "fixture-model" }] });
+    }
+    assert.ok(url.endsWith("/api/generate"));
+    const request = JSON.parse(options.body);
+    const response = request.format.properties.tasks ? plan : patch;
+    return Response.json({ response: JSON.stringify(response) });
+  });
+
+  const result = await runLocalFactoryAgentTask({ payload: { schema_version: 1, kind: "local-agent-task", task } });
+  assert.equal(result.outcome, "proposal_ready");
+  assert.equal(result.plan_artifact.status, "VALIDATED_PLAN");
+  assert.equal(result.patch_artifact.status, "VALIDATED_PATCH");
+  assert.deepEqual(result.scratch_evidence.patched_files.map((file) => file.path), [path]);
+  assert.equal(result.scratch_evidence.generated_code_executed, false);
+});
+
 
 test("timeout termination kills the worker and its descendant process tree", async () => {
   const childCode = [
