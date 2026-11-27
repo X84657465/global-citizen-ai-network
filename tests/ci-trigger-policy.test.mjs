@@ -104,8 +104,13 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.ok(workflow.includes("  push:\n    branches: [main]\n"));
   assert.equal(workflow.includes("  push:\n    branches: [main, feat/agent-factory-v2]\n"), false);
   assert.ok(workflow.includes("run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}"));
-  assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/github-project-showcase, fix/agent-factory-add-output-budget-20261121, fix/agent-factory-new-file-output-budget-20261121, chore/reconcile-ap-governance-on-a-2.0.70-20261121, fix/agent-factory-context-2-0-84-20261121]\n    types: [opened, reopened, synchronize]\n"));
+  assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/factory-local-loop-v1, feat/github-project-showcase, fix/agent-factory-add-output-budget-20261121, fix/agent-factory-new-file-output-budget-20261121, chore/reconcile-ap-governance-on-a-2.0.70-20261121, fix/agent-factory-context-2-0-84-20261121]\n    types: [opened, edited, reopened, synchronize]\n"));
   assert.ok(workflow.includes("  repository_dispatch:\n    types: [ai-task-ci]\n"));
+  const { start: localQualityStart, end: localQualityEnd } = findJobSection(workflow, "quality");
+  const localQuality = workflow.slice(localQualityStart, localQualityEnd);
+  for (const contract of ["github.event.pull_request.user.login == 'github-actions[bot]'", "github.event.pull_request.base.ref == 'feat/factory-local-loop-v1'", "startsWith(github.event.pull_request.head.ref, 'factory/local-task/')", "contains(github.event.pull_request.body, '<!-- gcan-local-task:')"]) {
+    assert.ok(localQuality.includes(contract), "read-only quality must independently validate Factory-generated local task PRs: " + contract);
+  }
   for (const job of ["quality", "build", "database"]) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
@@ -120,7 +125,7 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
 
 test("CI reserves the shared Runner queue for durable state writers, not read-only quality gates", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
-  assert.ok(workflowLevelConcurrency.includes("cancel-in-progress:") && workflowLevelConcurrency.includes("ai-task/issue-") && workflowLevelConcurrency.includes("codex/issue-"), "only superseded non-task runs may be cancelled");
+  assert.ok(workflowLevelConcurrency.includes("cancel-in-progress:") && workflowLevelConcurrency.includes("ai-task/issue-") && workflowLevelConcurrency.includes("codex/issue-") && workflowLevelConcurrency.includes("factory/local-task/"), "task PR runs must not be cancelled as superseded work");
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
 
   const { start: qualityStart, end: qualityEnd } = findJobSection(workflow, "quality");
