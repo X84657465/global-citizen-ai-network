@@ -28,7 +28,7 @@ test("local queue persists a task, claim, result and events across database reop
   const claimed = first.claim("worker-one");
   assert.equal(claimed.id, task.id);
   assert.equal(claimed.status, "running");
-  first.complete(task.id, "worker-one", { test_exit_code: 0, evidence: "unit-test" });
+  first.complete(task.id, "worker-one", claimed.lease_token, { test_exit_code: 0, evidence: "unit-test" });
   first.close();
 
   const reopened = createLocalFactoryQueue({ databasePath });
@@ -50,8 +50,8 @@ test("only one worker can claim a queued task and lease ownership is enforced", 
     const task = queue.add({ title: "single worker", payload: { goal: "exclusive claim" } });
     assert.equal(queue.claim("worker-a").id, task.id);
     assert.equal(queue.claim("worker-b"), null);
-    assert.throws(() => queue.complete(task.id, "worker-b", { ok: true }), /lease is not owned/);
-    assert.equal(queue.complete(task.id, "worker-a", { ok: true }).status, "succeeded");
+    assert.throws(() => queue.complete(task.id, "worker-b", queue.get(task.id).lease_token, { ok: true }), /lease is not owned/);
+    const claimed = queue.get(task.id);\n    assert.equal(queue.complete(task.id, "worker-a", claimed.lease_token, { ok: true }).status, "succeeded");
   });
 });
 
@@ -84,13 +84,13 @@ test("expired worker lease is recovered without inventing a task failure", () =>
   let current = 1_800_000_000_000;
   withQueue((queue) => {
     const task = queue.add({ title: "expired lease", payload: { goal: "recover" } });
-    queue.claim("worker",);
+    queue.claim("worker");
     current += 2_000;
     assert.equal(queue.recoverExpiredLeases(), 1);
     const recovered = queue.get(task.id);
     assert.equal(recovered.status, "queued");
     assert.equal(recovered.failures, 0);
-    assert.equal(recovered.lease_owner, null);
+    assert.equal(recovered.lease_owner, null);\n    assert.equal(recovered.lease_token, null);
   }, { now: () => current, leaseMs: 1_000 });
 });
 
@@ -100,4 +100,43 @@ test("queue rejects invalid payloads, retry limits and unknown states", () => {
     assert.throws(() => queue.add({ title: "bad retry", payload: {}, maxFailures: 4 }), /from 1 to 3/);
     assert.throws(() => queue.list({ status: "pending" }), /Unsupported task status/);
   });
+});
+
+\ntest("expired leases are quarantined after the bounded recovery limit", () => {
+  let current = 1_800_000_000_000;
+  withQueue((queue) => {
+    const task = queue.add({ title: "crash loop", payload: { goal: "bounded recovery" } });
+    for (let expiry = 1; expiry <= 3; expiry += 1) {
+      const claimed = queue.claim("worker");
+      assert.equal(claimed.id, task.id);
+      current += 2_000;
+      assert.equal(queue.recoverExpiredLeases(), 1);
+      const recovered = queue.get(task.id);
+      assert.equal(recovered.lease_expiries, expiry);
+      assert.equal(recovered.failures, 0);
+      assert.equal(recovered.status, expiry === 3 ? "quarantined" : "queued");
+    }
+    assert.equal(queue.claim("worker"), null);
+  }, { now: () => current, leaseMs: 1_000 });
+});
+
+test("stale lease token is rejected after same worker reclaims an expired task", () => {
+  let current = 1_800_000_000_000;
+  withQueue((queue) => {
+    const task = queue.add({ title: "fencing", payload: { goal: "reject stale worker" } });
+    const oldClaim = queue.claim("same-worker");
+    current += 2_000;
+    assert.equal(queue.recoverExpiredLeases(), 1);
+    const newClaim = queue.claim("same-worker");
+    assert.equal(newClaim.id, task.id);
+    assert.notEqual(newClaim.lease_token, oldClaim.lease_token);
+    assert.throws(
+      () => queue.complete(task.id, "same-worker", oldClaim.lease_token, { stale: true }),
+      /lease is not owned/,
+    );
+    assert.equal(
+      queue.complete(task.id, "same-worker", newClaim.lease_token, { current: true }).status,
+      "succeeded",
+    );
+  }, { now: () => current, leaseMs: 1_000 });
 });
