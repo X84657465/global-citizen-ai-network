@@ -61,7 +61,8 @@ test("scratch apply revalidates the patch and never writes the repository checko
     assert.equal(result.status, "APPLIED_TO_SCRATCH_NOT_EXECUTED");
     assert.equal(result.repository_files_modified, false);
     assert.equal(result.generated_code_executed, false);
-    assert.equal(result.test_execution, "NOT RUN — OS-level sandbox execution is not implemented");
+    assert.match(result.test_execution, /^NOT RUN\b/);
+    assert.equal(result.sandbox_evidence, null);
     assert.equal(result.patched_files.length, 1);
     assert.equal(existsSync(join(root, "lib/local-adapter-fixture.mjs")), false);
   } finally {
