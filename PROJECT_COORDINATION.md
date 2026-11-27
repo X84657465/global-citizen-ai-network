@@ -1299,3 +1299,17 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 - Vercel `build-rate-limit` 是外部部署配額阻塞，不是程式測試結果；本機 Worker 工作不依賴 Vercel。
 - 下一步唯一 P0：在保留單 Worker 與固定 allowlist 的前提下，實作不偽造 Issue 身分的 Planner/Patch local adapter，串接安全 scratch apply 和真實測試。
 
+
+
+---
+
+## GPT1｜Factory Local Loop 最新實作交接（2026-11-27）
+
+- 唯一主線：Issue #682 / PR #683 / `feat/factory-local-loop-v1`；保持單一 Draft，不另開重疊 PR。
+- 最新實作增量：新增 `lib/agent-factory-local-adapter.mjs` 與 `tests/agent-factory-local-adapter.test.mjs`。Adapter 支援嚴格本機任務 schema、Ollama 結構化 Planner/Patch、既有 plan/decision/patch/write-policy 驗證，以及 disposable scratch-only apply。
+- 本機任務不偽造 GitHub Issue number、URL、author 或核准 label；路徑限定於 app/components/lib/docs/tests，禁止 traversal、symlink、secret/credential/.env 路徑及未授權控制平面寫入。
+- **不可誤報的執行邊界：** scratch apply 僅回傳 `APPLIED_TO_SCRATCH_NOT_EXECUTED`；尚未實作 OS-level sandbox 執行，不執行生成程式碼或生成測試。
+- 尚未接上 SQLite durable queue/CLI worker；尚無真實 Ollama 執行、Windows E2E、重啟後真實結果讀回、exact-HEAD CI PASS 或 GPT3 獨立 APPROVED。
+- 最新 branch HEAD：`b637c852819226dee45befa7ea1561e5d5c593d0`（docs 更新後）；main：`590d132e338dc5bb47243f372a0547c8dfdbfced`。
+- PR #683 維持 OPEN / Draft。新 HEAD 的 commit workflow-run lookup 當時回傳 0 筆；這不是 CI PASS，也不代表 workflows 已成功。
+- 下一個實作順序：先把 Adapter 以 task kind 接入 SQLite queue/worker，確保 plan/patch/scratch evidence 與事件持久化；再設計並驗證 OS-level sandbox test runner；未有本機 Windows/Ollama 實測前不得宣稱閉環完成。
