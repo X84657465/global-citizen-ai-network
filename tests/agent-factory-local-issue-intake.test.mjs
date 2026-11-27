@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   buildGitHubIssueSourceEnvelope,
   selectEligibleGitHubTask,
+  intakeNextGitHubIssue,
 } from "../lib/agent-factory-local-issue-intake.mjs";
 
 function taskIssue(overrides = {}) {
@@ -89,4 +90,18 @@ test("selector excludes planner lookalikes, closed Issues and tasks with unresol
   assert.equal(selected.selected, null);
   assert.equal(selected.reason, "dependencies_blocked");
   assert.equal(selected.blocked_by_dependencies, 1);
+});
+
+test("Issue intake fails closed before GitHub reads until cross-executor lease fencing exists", async () => {
+  let requests = 0;
+  await assert.rejects(() => intakeNextGitHubIssue({
+    api: { request: async () => { requests += 1; throw new Error("unexpected GitHub request"); } },
+    queue: { addFromSource() { throw new Error("unexpected SQLite write"); } },
+    repository: "owner/repo",
+    repositoryRoot: "/tmp/repo",
+    oracleTestFiles: ["tests/oracle.test.mjs"],
+    baseSha: "a".repeat(40),
+    baseBranch: "main",
+  }), /cross-executor V2 lease\/fencing coordinator/);
+  assert.equal(requests, 0);
 });
