@@ -21,7 +21,7 @@ function usage() {
     "Factory Local — single-worker, local-only task runner",
     "  node scripts/factory-local.mjs task add --title \"Queue regression tests\"",
     "  node scripts/factory-local.mjs task add-agent --file <local-task.json> --oracle-file <tracked-tests/*.test.mjs> [--repository <owner/name>] [--base-branch <branch>]",
-    "  node scripts/factory-local.mjs intake-next  (requires GITHUB_TOKEN and GCAN_FACTORY_ORACLE_FILES)",
+    "  node scripts/factory-local.mjs intake-next  (DISABLED: requires a verified cross-executor V2 lease/fencing coordinator)",
     "  node scripts/factory-local.mjs run-once",
     "  node scripts/factory-local.mjs run-until-idle [--max-tasks <1-100>]",
     "  node scripts/factory-local.mjs serve",
