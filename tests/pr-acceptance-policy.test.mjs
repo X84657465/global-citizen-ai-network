@@ -84,11 +84,25 @@ test("manual PR acceptance dispatch always checks out policy from the repository
   assert.doesNotMatch(source, /github\.event_name == 'workflow_dispatch' && github\.ref/);
 });
 
-test("PR acceptance retains a dedicated serial queue without occupying the Windows Runner queue", async () => {
+test("PR acceptance serializes only the evaluator by resolved PR identity without occupying the Windows Runner queue", async () => {
   const { readFile } = await import("node:fs/promises");
   const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
-  assert.match(source, /^concurrency:\r?\n(?:  #[^\n]*\n)*  group: global-citizen-ai-network-pr-acceptance\r?\n  cancel-in-progress: false\r?\n  queue: max$/m);
-  assert.doesNotMatch(source, /group: global-citizen-ai-network-self-hosted-runner/);
+  const header = source.slice(0, source.indexOf("\njobs:"));
+  assert.equal(header.includes("\nconcurrency:"), false,
+    "the workflow must not serialize unrelated PRs through a global queue");
+
+  const evaluateStart = source.indexOf("\n  evaluate:");
+  assert.ok(evaluateStart >= 0, "the evaluator job must exist");
+  const evaluator = source.slice(evaluateStart);
+  assert.ok(evaluator.includes("\n    needs: [resolve-target]"),
+    "the evaluator must wait for the read-only PR identity resolver");
+  assert.ok(evaluator.includes("\n    concurrency:\n"),
+    "serialization must be scoped to the evaluator job");
+  assert.ok(evaluator.includes("group: global-citizen-ai-network-pr-acceptance-${{ needs.resolve-target.outputs.pr_number || needs.resolve-target.outputs.head_sha || github.sha }}"),
+    "the evaluator queue must key by resolved PR number, falling back to exact source SHA");
+  assert.ok(evaluator.includes("cancel-in-progress: false"));
+  assert.ok(evaluator.includes("queue: max"));
+  assert.doesNotMatch(evaluator, /group: global-citizen-ai-network-self-hosted-runner/);
 });
 
 
