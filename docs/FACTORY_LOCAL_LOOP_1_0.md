@@ -140,3 +140,16 @@ Added:
 **Hard execution boundary:** scratch apply returns `APPLIED_TO_SCRATCH_NOT_EXECUTED`; generated code and tests are not executed. OS-level sandbox execution is not implemented or verified. This adapter is not yet connected to the durable SQLite queue/CLI worker, and there is no real Ollama run or post-restart result evidence. These remain NOT RUN / NOT IMPLEMENTED, not PASS.
 
 **Exact branch checkpoint:** PR #683 HEAD `146873f609f1a2bce93ed90a28014d6549b872a4`; main remains `590d132e338dc5bb47243f372a0547c8dfdbfced`. GitHub commit workflow-run lookup returned no PR-triggered runs for this new HEAD at the time of this update. No CI or local test PASS is claimed. Keep PR #683 Draft.
+
+
+## GPT1 實作增量 — SQLite local-agent-task 接線（2026-11-27）
+
+**狀態：已提交程式碼；尚未執行測試／Ollama／Windows E2E，不代表驗收。**
+
+- local-agent-task 已接入既有 SQLite queue 與單一 Worker；CLI 新增 task add-agent --file <local-task.json>，入列前執行嚴格本機 task schema 驗證。
+- Worker 順序執行 Ollama Planner → plan/decision validation → Patch proposal → patch validation → disposable scratch apply。
+- SQLite complete() 持久化完整結果 JSON，包含 plan artifact、patch artifact、scratch SHA-256 evidence；可透過既有 status／logs 讀回任務狀態與事件。程序重啟讀回尚待實際執行驗證。
+- Agent pipeline 的終態刻意標示 proposal_ready；生成程式碼及生成測試仍不執行，因 OS-level sandbox 尚未完成。
+- Ollama endpoint 已收斂為 loopback HTTP origin（127.0.0.1／::1），拒絕外部主機、localhost 名稱、URL path/query/fragment、認證資訊及 HTTP redirect，避免將 source context 傳送到外部服務。
+- 仍須處理並驗證固定測試 Worker 的 process-tree timeout containment；直接終止子程序不保證其 descendants 同時終止。未完成平台適配及 Windows 測試前，不得把 timeout 視為完整程序樹隔離。
+- 本次 Connector 僅提交 GitHub branch 檔案變更，未在本機執行 Node tests、完整測試套件或 Ollama。
