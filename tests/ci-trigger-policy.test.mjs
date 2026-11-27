@@ -1166,6 +1166,8 @@ test("PR Acceptance Gate serializes advisory writes per PR instead of globally",
     "new events must not cancel an in-progress advisory update");
   assert.ok(block.includes("queue: max"),
     "events for the same PR must remain queued rather than silently discarded");
-  assert.equal(block.includes("group: global-citizen-ai-network-pr-acceptance\\n"),
+  assert.ok(block.includes("group: global-citizen-ai-network-pr-acceptance-${{"),
+    "the concurrency group must include a per-PR or exact-SHA discriminator");
+  assert.equal(block.includes("group: global-citizen-ai-network-pr-acceptance\n  cancel-in-progress"),
     false, "unrelated PRs must not contend for one repository-wide acceptance queue");
 });
