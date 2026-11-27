@@ -15,7 +15,7 @@ function fixture() {
   execFileSync("git", ["config", "user.email", "factory-test@example.invalid"], { cwd: root });
   execFileSync("git", ["config", "user.name", "Factory Test"], { cwd: root });
   mkdirSync(join(root, "tests"));
-  writeFileSync(join(root, "tests/oracle.test.mjs"), 'import test from "node:test";\\ntest("trusted oracle fixture", () => {});\\n');
+  writeFileSync(join(root, "tests/oracle.test.mjs"), 'import test from "node:test";\ntest("trusted oracle fixture", () => {});\n');
   execFileSync("git", ["add", "tests/oracle.test.mjs"], { cwd: root });
   execFileSync("git", ["commit", "-m", "fixture"], { cwd: root, stdio: "ignore" });
   return { root, baseSha: execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim() };
@@ -49,7 +49,7 @@ test("trusted Oracle rejects a modified checkout file", (t) => {
   const contract = createTrustedAcceptanceOracle({
     repositoryRoot: root, baseSha, oracleTestFiles: ["tests/oracle.test.mjs"],
   });
-  writeFileSync(join(root, "tests/oracle.test.mjs"), "tampered\\n");
+  writeFileSync(join(root, "tests/oracle.test.mjs"), "tampered\n");
   assert.throws(() => verifyTrustedAcceptanceOracle({ repositoryRoot: root, contract }), /changed/);
 });
 
