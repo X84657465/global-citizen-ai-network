@@ -6487,3 +6487,49 @@ The current open-PR search returned exactly three PRs. Each targets main at base
 - This appendix is a documentation-only update to `docs/AGENT_HANDOFF.md` on the existing #674 branch. No Factory source/workflow, Runner, durable Factory state, secret, permission, branch protection, production data, billing, or deployment was changed.
 - No CI rerun, Draft removal, approval, merge, or bypass was performed. Local tests/build/lint were **NOT RUN** in this connector-only update.
 - **Overall: BLOCKED / NOT GREEN.** The 99.99999% reliability target is an aspiration, not a measured SLA.
+
+---
+
+## GPT5 live operations handoff — 2026-11-27 (subsequent exact-head refresh)
+
+This appendix supersedes earlier point-in-time snapshots in this file. All SHA/run/job references below were re-fetched during this pass. Recheck before any later release decision.
+
+### Main: exact SHA and workflow evidence
+
+- Exact `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA check-runs inventory: **43 total = 29 QUEUED, 3 PENDING, 11 SKIPPED, 0 SUCCESS**. This is not a green main.
+- Latest main PR Acceptance Gate: [run 45962230782](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45962230782), attempt 1, completed **FAILURE**; Jobs API returned **0 jobs**. Zero jobs is not a pass.
+- Latest main Agent Factory System Health Recovery: [run 45962230769](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45962230769), attempt 1, **QUEUED**. Its only materialized job [140382532335](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45962230769/job/140382532335) remains QUEUED with no steps.
+- Latest scheduled AI Agent Task Preflight: [run 45962825967](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45962825967), attempt 1, **PENDING**. Plan job [140384422969](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45962825967/job/140384422969) is PENDING with zero steps; Windows job [140384424485](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45962825967/job/140384424485) and Linux job [140384425029](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45962825967/job/140384425029) are **SKIPPED**. Neither skipped validation executed.
+- Main combined commit status: Vercel **FAILURE**, target identifies `build-rate-limit` (external provider quota). Do not retry blindly or change billing/quota from this lane.
+
+### Complete current OPEN PR inventory
+
+Exactly three PRs are currently OPEN; all target the exact current main SHA above and all remain Draft / unmerged / mergeable metadata true. Mergeable metadata is not acceptance.
+
+| PR | Exact HEAD | Exact-head checks | External status | Reviews |
+|---|---|---|---|---|
+| [#672](https://github.com/X84657465/global-citizen-ai-network/pull/672) | `7948c32dde3e3f39e2aa2d4973d4703de1e733d1` | 9: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (Mergify summary only) | Vercel FAILURE / build-rate-limit | 0 formal reviews; 0 threads |
+| [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) | `7a6dc1632b1d014aba12d16b36ac8f9dd8a88c88` | 9: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (Mergify summary only) | Vercel FAILURE / build-rate-limit | 0 formal reviews; 0 threads |
+| [#676](https://github.com/X84657465/global-citizen-ai-network/pull/676) | `a54013a52189b21624dfa0604a9231b1896cdd53` | 10: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS (Preview + Mergify summary only) | Vercel Preview SUCCESS only | 0 formal reviews; 0 threads |
+
+- All three PR heads are based on `590d132e338dc5bb47243f372a0547c8dfdbfced`; no base-behind condition is present in this snapshot.
+- No PR has formal APPROVED review or completed exact-head CI acceptance. Preview and summary successes do not substitute for CI.
+- No PR is eligible for Draft removal or merge based on current evidence.
+
+### GPT5-owned work and disposition
+
+- GPT5's permitted work remains operations evidence / handoff documentation; Factory implementation remains GPT1-owned, and independent architecture/QA acceptance remains GPT3 or another separately authorized reviewer.
+- This pass updated only this documentation path on the existing GPT5-owned #674 branch. No Factory source/workflow, Runner, durable state, secrets, permissions, branch protection, production data, billing, or deployment was changed.
+- Issue [#117](https://github.com/X84657465/global-citizen-ai-network/issues/117) remains OPEN. Its task/system failure-scope implementation and regression-test paths were previously confirmed present on current main, but exact-main executable unit suite, TypeScript check, lint, and end-to-end Runner acceptance remain **NOT VERIFIED** because CI evidence is stalled / skipped / absent. Keep the issue open pending executable verification and independent acceptance.
+- No local tests/build/lint were run in this connector-only documentation update (**NOT RUN**). No CI rerun, Draft removal, approval, merge, deployment, or branch-protection bypass was performed.
+
+### Owner handoff
+
+- GitHub Actions / Runner / Factory workflow owner: diagnose why resolver and preflight plan jobs remain PENDING with zero steps, why Acceptance Gate completes FAILURE with zero jobs, and why Recovery remains QUEUED with a zero-step job. Capture dispatch, runner allocation, and workflow logs before claiming root cause.
+- Factory owner (GPT1): retain implementation ownership for #672 / #676 and Issue #117; provide exact-head CI and deterministic test evidence once execution is restored.
+- Project/Vercel administrator: resolve external `build-rate-limit` quota for main, #672, and #674; #676's preview success is limited to that deployment only.
+- Independent reviewer (GPT3 or separately authorized reviewer): review the exact final candidate HEAD and record formal APPROVED review only after required checks pass. GPT5 must not self-approve or self-resolve.
+- Continue non-overlapping GPT5 evidence/handoff work while those owners address their blockers; do not spin on pending/zero-job runs.
+
+**Overall: BLOCKED / NOT GREEN.** PENDING, QUEUED, zero-job, SKIPPED, NEUTRAL, Preview SUCCESS, and Mergify summary SUCCESS are not CI acceptance. The 99.99999% figure remains an aspiration, not a measured reliability guarantee.
