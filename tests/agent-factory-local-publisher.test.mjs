@@ -54,11 +54,6 @@ function tapEvidence(testFiles, count = 1) {
 function createAcceptedFixture(t) {
   const root = mkdtempSync(join(tmpdir(), "gcan-local-publisher-repo-"));
   const databaseDirectory = mkdtempSync(join(tmpdir(), "gcan-local-publisher-db-"));
-  t.after(() => {
-    rmSync(root, { recursive: true, force: true });
-    rmSync(databaseDirectory, { recursive: true, force: true });
-  });
-
   git(root, ["init", "-b", "main"]);
   git(root, ["config", "user.email", "factory-publisher-test@example.invalid"]);
   git(root, ["config", "user.name", "Factory Publisher Test"]);
