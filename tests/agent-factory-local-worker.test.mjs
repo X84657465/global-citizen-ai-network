@@ -54,12 +54,40 @@ test("timeout termination kills the worker and its descendant process tree", asy
     shell: false,
   });
   const grandchildPid = await new Promise((resolve, reject) => {
-    child.once("error", reject);
     let output = "";
+    let settled = false;
+    const finish = (callback, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(pidTimeout);
+      callback(value);
+    };
+    const pidTimeout = setTimeout(() => {
+      let terminationError = null;
+      try {
+        terminateLocalFactoryProcessTree(child);
+      } catch (error) {
+        terminationError = error;
+      }
+      finish(
+        reject,
+        new Error(
+          "Worker did not report its descendant PID within 5000ms." +
+            (terminationError ? " Process-tree termination also failed: " + terminationError.message : ""),
+        ),
+      );
+    }, 5_000);
+    child.once("error", (error) => finish(reject, error));
+    child.once("close", (code, signal) => {
+      finish(reject, new Error(
+        "Worker exited before reporting its descendant PID (code " + String(code) +
+          ", signal " + String(signal) + ").",
+      ));
+    });
     child.stdout.on("data", (chunk) => {
       output += chunk.toString();
       const match = output.match(/(\d+)\r?\n/);
-      if (match) resolve(Number(match[1]));
+      if (match) finish(resolve, Number(match[1]));
     });
   });
 
