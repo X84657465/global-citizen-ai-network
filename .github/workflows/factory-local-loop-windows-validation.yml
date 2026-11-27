@@ -61,6 +61,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Worker syntax check failed." }
           node --check lib/agent-factory-local-adapter.mjs
           if ($LASTEXITCODE -ne 0) { throw "Adapter syntax check failed." }
+          node --check lib/agent-factory-local-publisher.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Publisher syntax check failed." }
           node --check lib/agent-factory-local-sandbox.mjs
           if ($LASTEXITCODE -ne 0) { throw "Sandbox syntax check failed." }
           node --check lib/agent-factory-trusted-oracle.mjs
