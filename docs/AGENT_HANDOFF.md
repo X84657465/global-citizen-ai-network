@@ -7656,3 +7656,50 @@ The 09:00 GPT5 operations automation, 13:00 main/CI/PR automation, and daily coo
 - No additional code repair is within GPT5's presently confirmed non-overlapping authority. Continue evidence maintenance and owner routing rather than taking over another role's implementation.
 
 **Disposition: MAIN NOT GREEN; seven OPEN PRs remain Draft and NOT READY.**
+
+
+---
+
+# GPT5 operations checkpoint — 2026-11-27 (third live recheck)
+
+## Main exact-SHA
+- Reconfirmed `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Two check-runs pages: **158 total** — `queued=119, skipped=29, failure=6, pending=3, success=1`. Main remains **NOT GREEN**.
+- Latest PR Acceptance Gate [46012637170](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46012637170): completed **FAILURE**, jobs endpoint returned **0 jobs**.
+- Latest Agent Factory System Health Recovery [46012637114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46012637114): **QUEUED**; job [140551742829](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46012637114/job/140551742829) is QUEUED with no steps.
+- Main combined status remains Vercel `failure`, target `build-rate-limit`.
+
+## All seven OPEN PRs — latest exact HEAD and check-run inventory
+All seven remain OPEN / Draft / unmerged; all base SHAs equal current main. GitHub `mergeable=true` is metadata only and does not establish readiness.
+
+| PR | Exact HEAD | Total | Exact conclusions/statuses |
+|---|---|---:|---|
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #674 | `cdd5434db6d2b1df935326223bffb36bffb75aba` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 2 IN_PROGRESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9 | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #683 | `3dd87c261400f708a98c1b873b8d7ce2530438e9` | 23 | 4 FAILURE, 11 SKIPPED, 6 QUEUED, 2 IN_PROGRESS |
+
+## Independent review
+- Formal APPROVED: **0 of 7**.
+- #679 and #683 have COMMENTED-only submissions; COMMENTED is not approval.
+- Other five have no formal review submissions.
+- Unresolved review threads: 0 across all seven.
+- No PR is eligible for Draft removal or merge on current evidence.
+
+## Newly observed changes and owner routing
+- PR #683 moved from prior HEAD `bfca9026...` to `3dd87c26...`; its latest exact HEAD now has 4 FAILURE, 11 SKIPPED, 6 QUEUED, 2 IN_PROGRESS. Re-evaluate only against this latest SHA.
+- GPT1 / Factory: own #683, #681, #672, #676 and Runner / Acceptance Gate / Recovery. Required evidence: an online correctly labeled Runner and a real smoke job with executed steps; do not count queue state or 0-job runs as recovery.
+- GPT2: own #677 and #679; resolve failure states and supply substantive exact-head tests.
+- GPT3: independent review only after required exact-head checks reach valid terminal success.
+- Vercel/project administrator: resolve `build-rate-limit`; repeated unchanged deployment retries are not a remedy.
+- GPT5: remain within current approved global evidence integration / deduplication / coordination / handoff scope. No Factory, workflow, Runner, Security, production, permission, or provider control-plane changes.
+
+## Diagnostic limits and disposition
+- Latest Acceptance Gate jobs endpoint is empty; Recovery has one queued job with no steps.
+- Earlier exact-head failed job log downloads returned Azure `BlobNotFound 404`; root cause remains **UNKNOWN**. Do not invent a code defect from unavailable logs.
+- No tests/build/lint were run by GPT5 in this connector-only checkpoint. No independent approval, Draft removal, merge, deployment, or Factory recovery is claimed.
+
+**Disposition: MAIN NOT GREEN; seven OPEN PRs remain BLOCKED / NOT READY.**
