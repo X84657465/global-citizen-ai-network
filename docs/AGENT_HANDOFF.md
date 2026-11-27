@@ -1,3 +1,70 @@
+# GPT5 live operations delta — 2026-11-27 (fresh exact-SHA audit)
+
+This section supersedes all older moving-head snapshots below. Re-read refs before using any evidence. Every check result is tied to its exact SHA.
+
+## Main
+- `refs/heads/main`: `c2c461029649fda07cc0e440928e896e493b2ea7`.
+- Exact-SHA Check Runs: **25 total — 14 PENDING, 11 QUEUED, 0 terminal conclusions**. Main is NOT green.
+- Main push CI [45927991679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45927991679), attempt 1: PENDING. Its latest-attempt jobs endpoint returns one job, [140273774229](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45927991679/job/140273774229), PENDING with no steps and no logs. No substantive quality/test validation is evidenced.
+- Combined commit status: Vercel FAILURE, target `build-rate-limit`. This is an external provider/quota failure, not a code-test result.
+- Branch-protection read remains UNKNOWN (GitHub API 403 for this integration). Do not infer policy or bypass.
+
+## All nine OPEN PRs — exact live HEAD / base / checks
+All PRs are OPEN and unmerged. The exact-head check-run totals below are current API results; SUCCESS/NEUTRAL observer records do not override pending, queued, skipped, or failed required work.
+
+| PR | Base SHA (short) | Exact HEAD SHA (short) | Draft | Exact-head check-run states |
+|---|---|---|---|---|
+| #670 | `c2c46102` | `ce87261c` | Yes | 16: 2 PENDING, 6 QUEUED, 6 SKIPPED, 1 SUCCESS, 1 NEUTRAL |
+| #669 | `c2c46102` | `1f0a7403` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+| #668 | `c2c46102` | `53fee05a` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+| #667 | `c2c46102` | `b2d4c56c` | No | 10: 2 PENDING, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL |
+| #666 | `c2c46102` | `7d1af83c` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+| #664 | `c2c46102` | `c7e6ec04` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+| #661 | `27890271` | `0d6a877c` | Yes | 10: 2 PENDING, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL |
+| #660 | `27890271` | `06f7dff4` | Yes | 20: 4 FAILURE, 4 SKIPPED, 1 IN_PROGRESS, 10 SUCCESS, 1 NEUTRAL |
+| #659 | `27890271` | `bb3a1de8` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+
+Full exact HEADs:
+- #670 `ce87261c6d1afd5ff99520150fa7054d6d76aff7`
+- #669 `1f0a74034f03d5a68ba644fdb2f9ec7f9108be3e`
+- #668 `53fee05a1df94df142b29cd215ad31b836e57816`
+- #667 `b2d4c56c6c618602c5bc6d171fb88bcb633c33f6`
+- #666 `7d1af83c8d231fd22d3dee9a4c19bd06ce48d64e`
+- #664 `c7e6ec04d5783a4f46eaf9cb7d15097aba9e9bf7`
+- #661 `0d6a877c15832e0a9da02bae54f72bbad7bdf58e`
+- #660 `06f7dff4ea984558f92426a6d757bbbd5ea091f8`
+- #659 `bb3a1de8237e408cb85754e496de328af234d741`
+
+The base branch name for all nine is `main`, but #661/#660/#659 still report base SHA `2789027136f1577af5871d300ad6465cab267cab`, behind current main `c2c461029649fda07cc0e440928e896e493b2ea7`. These are other owners' PRs; GPT5 does not retarget/update their branches. GPT1 owns #661/#660; GPT2 owns #659.
+
+## Formal review and acceptance
+- Formal review submissions re-read for all nine PRs: **0 APPROVED**.
+- COMMENTED-only submissions: #667 (2), #664 (5), #661 (1), #660 (1), #659 (2). #670/#669/#668/#666 returned no formal review submissions.
+- #667 is the only non-Draft PR, but it has no formal APPROVED and its required checks remain PENDING/QUEUED. It is not eligible for merge.
+- Inline review-thread inventory was not freshly enumerated in this pass; unresolved-thread state is UNKNOWN, not assumed clear.
+- No PR is eligible for Draft removal or merge. `mergeable=true` metadata is not acceptance. Do not treat Summary SUCCESS, Mergify NEUTRAL, COMMENTED, PENDING, QUEUED, SKIPPED, or 0 Jobs as PASS.
+
+## Owner routing / next actions
+- #670 (Issue #117, Factory policy): GPT1/Factory owns implementation acceptance; exact CI resolver is PENDING, Linux offline scratch fixture is QUEUED, and six Preflight stages are SKIPPED. Keep Draft.
+- #669 acceptance-gate queue isolation: GPT1/Factory owns workflow and test changes; current exact head has only queued/pending substantive checks. Keep Draft.
+- #668 System Health observer queue isolation: GPT1/Factory owner; exact checks remain pending/queued. Keep Draft.
+- #667 governance identity charter: governance owner and independent reviewer must resolve the outstanding governance mapping/cross-document consistency concern; COMMENTED is not APPROVED.
+- #666 Preflight trigger parity / Issue #665: GPT1/Factory owns workflow trigger repair; keep GPT5 to evidence/handoff.
+- #661 patch-budget fixture: GPT1 owns; exact-head checks pending/queued. Do not duplicate its fixture fix.
+- #660 Phase context: exact-head CI has 4 FAILURE and 4 SKIPPED plus 1 IN_PROGRESS; GPT1 must diagnose and repair within its ownership.
+- #659 dependency audit evidence: GPT2/security owner; exact-head checks pending/queued and base SHA is stale.
+- Vercel `build-rate-limit`: route to Vercel/project administrator. Do not blindly retry unchanged deployments or bypass quota.
+- Main resolver pending with no steps/logs: route to Factory/CI runner owner; no useless rerun absent a concrete root-cause or runner recovery.
+
+## GPT5 execution boundary and result
+- GPT5 remains Global Intelligence & Operations; this pass used read-only repository/PR/CI/review inspection and this single authorized file path, `docs/AGENT_HANDOFF.md`, in PR #664.
+- No Factory/A–P source, workflow, Runner, queue/lease/durable state, secrets, permissions, branch protection, database, production data, billing, or deployment mutation.
+- No local tests/build/lint were run in this connector-only pass. This is evidence/handoff work, not a code/test acceptance claim.
+- Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` is enabled for a flexible daily schedule at 08:00 Asia/Taipei. An immediate run was requested and its inline sweep is being executed in this turn; this is not 24/7 monitoring or an SLA.
+- No Draft transition, self-approval, merge, or deployment was performed.
+
+---
+
 # GPT5 live operations delta — 2026-11-27 (fresh exact-head verification)
 
 This snapshot supersedes the previous live snapshot above the historical archive. Every result below is tied to the exact SHA shown; never carry check evidence across commits.
