@@ -66,6 +66,7 @@
 
 - `factory-local task add`：建立一筆受 schema 驗證的任務。
 - `factory-local run-once`：領取並執行一筆任務；不啟動常駐 loop。
+- `factory-local serve`：在前景持續領取同一個 SQLite 佇列的任務，空閒時每秒檢查一次。收到 SIGINT 或 SIGTERM 後，完成手上任務的入帳再結束。系統故障會留下紀錄並以非零狀態離開。
 - `factory-local run-until-idle [--max-tasks <1-100>]`：按順序執行目前可領取的任務，預設最多 25 次。沒有可領取的任務、達到上限或發生系統錯誤時結束。任務錯誤會依既有規則入帳，批次繼續處理其他可領取任務，並以非零狀態結束。
 - 模型任務可用 `GCAN_FACTORY_SANDBOX_TESTS=1` 啟用離線驗證。Docker Engine 必須先備妥與 Preflight 相同的 `node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a`。Worker 在唯讀、無網路的容器中只執行補丁新增的 allowlisted `tests/*.test.mjs`，SQLite 保存實際退出碼與通過數；未啟用時維持 `proposal_ready`。
 - `factory-local status`：列出 queued/running/retry_wait/succeeded/failed/quarantined。

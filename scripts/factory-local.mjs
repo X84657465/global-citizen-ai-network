@@ -1,5 +1,6 @@
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { createLocalFactoryQueue } from "../lib/agent-factory-local-queue.mjs";
 import { LocalFactoryWorkerError, runLocalFactoryAgentTask, runLocalFactoryTask } from "../lib/agent-factory-local-worker.mjs";
 import { validateLocalFactoryTask } from "../lib/agent-factory-local-adapter.mjs";
@@ -14,6 +15,7 @@ function usage() {
     "  node scripts/factory-local.mjs task add --title \"Queue regression tests\"",
     "  node scripts/factory-local.mjs run-once",
     "  node scripts/factory-local.mjs run-until-idle [--max-tasks <1-100>]",
+    "  node scripts/factory-local.mjs serve",
     "  node scripts/factory-local.mjs status",
     "  node scripts/factory-local.mjs logs <task-id>",
     "  node scripts/factory-local.mjs recover",
@@ -76,6 +78,39 @@ async function runNextTask(queue) {
   }
 }
 
+async function serve(queue) {
+  const shutdown = new AbortController();
+  const stop = () => shutdown.abort();
+  process.on("SIGINT", stop);
+  process.on("SIGTERM", stop);
+  try {
+    console.log(JSON.stringify({ event: "worker_started", worker_id: workerId }));
+    while (!shutdown.signal.aborted) {
+      const result = await runNextTask(queue);
+      if (!result.claimed) {
+        await delay(1_000, undefined, { signal: shutdown.signal });
+        continue;
+      }
+      console.log(JSON.stringify({
+        event: "task_finished",
+        task_id: result.task.id,
+        status: result.task.status,
+        failure_scope: result.failure_scope ?? null,
+      }));
+      if (result.failure_scope === "system") {
+        process.exitCode = 1;
+        return;
+      }
+    }
+  } catch (error) {
+    if (!shutdown.signal.aborted || error?.name !== "AbortError") throw error;
+  } finally {
+    process.off("SIGINT", stop);
+    process.off("SIGTERM", stop);
+    console.log(JSON.stringify({ event: "worker_stopped" }));
+  }
+}
+
 const command = args[0];
 if (!command || command === "--help" || command === "help") {
   usage();
@@ -105,6 +140,8 @@ try {
     print(queue.events(args[1]));
   } else if (command === "recover") {
     print({ recovered_leases: queue.recoverExpiredLeases() });
+  } else if (command === "serve" && args.length === 1) {
+    await serve(queue);
   } else if (command === "run-once") {
     const result = await runNextTask(queue);
     print(result);
