@@ -2221,7 +2221,7 @@ P-ID 與 R-ID 分開管理：P-ID 是固定席位識別碼；R-ID 是該席位�
 
 尚未完成唯一辨識者，使用：
 
-`[GCAN 人員代碼：P-UNCONFIRMED｜職責代碼：R-UNCONFIRMED｜職務：歷史工作辨識待核實]`
+`[GCAN 人員代碼：P-UNCONFIRMED｜職責代碼：R-UNCONFIRMED｜職務：<本次實際職責>]`
 
 執行時必須遵守：
 
