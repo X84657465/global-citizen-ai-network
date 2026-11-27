@@ -22,6 +22,10 @@ test("system-health recovery invokes its Node controller without the Windows Pow
   assert.equal(observer.includes("global-citizen-ai-network-self-hosted-runner"), false,
     "read-only observer must not wait behind the shared state-writer lock");
   assert.ok(observer.includes("outputs:\n      should_recover:"), "observer must export exact-head eligibility");
+  assert.ok(observer.includes("Write redacted recovery diagnostic summary"),
+    "observer must record diagnostics even when the source CI is ineligible");
+  assert.ok(observer.includes("Upload recovery diagnostics"),
+    "observer must retain an artifact for every completed CI event");
   assert.ok(controller.includes("group: global-citizen-ai-network-self-hosted-runner"),
     "state-mutating controller must retain the shared serialization lock");
   assert.ok(controller.includes("needs: [resolve-system-health]"), "controller must consume verified observer output");
