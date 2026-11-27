@@ -41,7 +41,7 @@ The root manifest continues to declare Next.js `15.5.29`, ESLint `^9.30.1`, and 
 
 ## Remediation assessment
 
-- The two resolved picomatch lines are at or beyond the patched 2.3.2 and 4.0.4 releases for the previously tracked ReDoS advisories GHSA-c2c7-rcm5-vvqj and GHSA-3v7f-55p6-f55.
+- The resolved picomatch lines are at or beyond the patched 2.3.2 and 4.0.4 releases for the previously tracked advisories: GHSA-c2c7-rcm5-vvqj (ReDoS) and GHSA-3v7f-55p6-f55p (POSIX character-class method injection causing incorrect glob matching).
 - The nested `tinyglobby` / `fdir` and `fast-glob` versions were included in the successful full-tree audit; no high-severity finding was reported for this exact dependency graph in the recorded run.
 - No direct dependency upgrade or additional override is indicated by the current audit output. Avoid adding overrides without a reproducible advisory, a compatible fixed release, and a fresh audit of the resulting lockfile.
 - Keep the existing Next.js 15 and ESLint 9 major lines. Any future update should be a narrowly scoped compatible release, followed by both audit commands and the normal CI suite.
