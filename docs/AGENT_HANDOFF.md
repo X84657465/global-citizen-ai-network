@@ -6572,3 +6572,42 @@ This newest snapshot supersedes all earlier moving-head status claims in this fi
 
 ## Post-write validation requirement
 - This append creates a new commit on PR #674's existing GPT5 documentation branch. The prior #674 exact-head checks are stale for the new HEAD. Re-fetch the new branch HEAD and its exact-SHA CI/review state; keep Draft until all required checks and independent formal approval are satisfied.
+
+
+---
+
+# GPT5 live exact-head audit delta — 2026-11-27 08:31 UTC
+
+This snapshot supersedes earlier live-state claims above. It is a read-only operational audit recorded on the existing GPT5-owned documentation branch. All checks below are tied to the exact SHAs listed; re-fetch after any branch update.
+
+## Main
+- Direct `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced` (unchanged).
+- Main exact-SHA Check Runs: **45 total — 31 QUEUED, 11 SKIPPED, 3 PENDING; zero terminal PASS conclusions**. Main is NOT GREEN.
+- Latest PR Acceptance Gate run [45966325765](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45966325765): **FAILURE, 0 jobs**. There are no job steps/logs to diagnose below workflow level.
+- Latest Agent Factory System Health Recovery run [45966325731](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45966325731): **QUEUED**. Its sole job [140395747530](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45966325731/job/140395747530) is QUEUED, `runner_id=0`, **0 steps**.
+- Latest scheduled AI Agent Task Preflight run [45962825967](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45962825967): task-validation job PENDING; Linux offline scratch fixture and Windows self-hosted validation jobs SKIPPED. This is not successful preflight.
+- Repository reports `main` protected. Detailed branch-protection requirements were not re-read in this pass; do not infer them.
+
+## Complete current OPEN PR inventory
+All three open PRs target current main SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, remain Draft / unmerged, and have no formal APPROVED review submissions.
+
+| PR | Exact HEAD SHA | Exact-head Check Runs | Formal review |
+|---|---|---|---|
+| [#672](https://github.com/X84657465/global-citizen-ai-network/pull/672) | `7948c32dde3e3f39e2aa2d4973d4703de1e733d1` | 9: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (Mergify summary only) | 0 |
+| [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) | `aca4cf20a842afb43a2f6fe2cc1def9c0b160da3` | 10: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS (Vercel preview + Mergify summary) | 0 |
+| [#676](https://github.com/X84657465/global-citizen-ai-network/pull/676) | `a54013a52189b21624dfa0604a9231b1896cdd53` | 10: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS (Vercel preview + Mergify summary) | 0 |
+
+- Latest #674 CI run [45966313848](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45966313848): PENDING; resolver job [140395715971](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45966313848/job/140395715971) has no steps and no runner allocated (`runner_id=null`). Its dynamic Analyze run [45966307765](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45966307765) has two QUEUED jobs, each `runner_id=0`, zero steps.
+- Latest PR Acceptance Gate run for #674 [45966310415](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45966310415): FAILURE, 0 jobs.
+- #672 and #676 exact-head checks are also pending/queued; neither has formal approval. Do not use prior-SHA evidence as current evidence.
+- All three PRs remain Draft/open/unmerged. `mergeable=true` metadata, if returned, is not acceptance. Summary SUCCESS, Preview SUCCESS, NEUTRAL, PENDING, QUEUED, SKIPPED, and zero-job workflow failures are not required CI PASS.
+
+## Blocker classification and routing
+- **GitHub Actions execution / runner allocation:** multiple unrelated workflows remain QUEUED or PENDING with zero steps; Recovery's job explicitly reports `runner_id=0`. This is the active execution blocker. The API evidence does not establish the underlying provider/runner root cause; runner/Actions administrator must inspect service health, concurrency limits, runner availability, and dispatch diagnostics.
+- **Acceptance Gate:** workflow-level FAILURE with zero jobs on main and #674; route workflow-event/job-creation diagnosis to the Factory workflow owner. Do not claim a code-step failure when no job ran.
+- **Vercel:** external deployment quota/rate-limit remains a separate provider issue where reported. Do not repeatedly retry unchanged deployments or conflate it with GitHub Actions runner allocation.
+- **Ownership:** #672 and #676 are Factory implementation lanes (GPT1/Factory owner); GPT5 remains limited to operations evidence and `docs/AGENT_HANDOFF.md`. Independent reviewer must assess exact final HEADs; GPT5 must not self-approve.
+- **Issue #117:** remains OPEN with `factory-control-plane-approved`; its required executable verification is not evidenced by these pending/skipped jobs. Keep open until complete unit tests, TypeScript check, lint, and independent acceptance are recorded.
+- No code/workflow/Runner/control-plane mutation, test/build/lint execution, rerun, Draft removal, approval, merge, deployment, or branch-protection bypass occurred in this audit.
+
+**Disposition: BLOCKED / NOT GREEN.** Do not start B mainline or create duplicate PRs while the Factory execution lane is stalled. The next actionable owner task is to restore and diagnose GitHub Actions job allocation, then re-run exact-head validation once execution is available.
