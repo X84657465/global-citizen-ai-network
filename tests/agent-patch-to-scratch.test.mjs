@@ -213,7 +213,7 @@ test("only typed plan and patch validation errors may request task-scoped marker
 });
 
 
-test("classifies ambiguous SIGKILL exit 137 and Docker OOM/dead containers as system failures", () => {
+test("classifies ambiguous SIGINT/SIGKILL/SIGTERM and Docker OOM/dead containers as system failures", () => {
   const healthyRuntimeFailure = {
     Status: "exited",
     Error: "",
@@ -223,6 +223,11 @@ test("classifies ambiguous SIGKILL exit 137 and Docker OOM/dead containers as sy
   };
 
   assert.equal(candidateContainerFailureScope(healthyRuntimeFailure), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 130 }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 137 }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 143 }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 130, DockerStartExitCode: 130 }), "system");
+  assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 143, DockerStartExitCode: 143 }), "system");
   assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 1 }), "task");
   assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 0 }), "none");
   assert.equal(candidateContainerFailureScope({ ...healthyRuntimeFailure, ExitCode: 1, OOMKilled: true }), "system");
