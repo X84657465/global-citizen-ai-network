@@ -6611,3 +6611,39 @@ All three open PRs target current main SHA `590d132e338dc5bb47243f372a0547c8dfdb
 - No code/workflow/Runner/control-plane mutation, test/build/lint execution, rerun, Draft removal, approval, merge, deployment, or branch-protection bypass occurred in this audit.
 
 **Disposition: BLOCKED / NOT GREEN.** Do not start B mainline or create duplicate PRs while the Factory execution lane is stalled. The next actionable owner task is to restore and diagnose GitHub Actions job allocation, then re-run exact-head validation once execution is available.
+
+
+---
+
+# GPT5 live exact-head audit delta — 2026-11-27 latest scheduled pass
+
+This entry supersedes the preceding live audit snapshots. Evidence was re-fetched from the exact current refs; all statuses below are point-in-time and must be refreshed after any new commit or event.
+
+## Main
+- `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA Check Runs: **46 total — 32 QUEUED, 3 PENDING, 11 SKIPPED; 0 completed SUCCESS**. Main is NOT GREEN.
+- Latest PR Acceptance Gate [45968225533](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45968225533): **FAILURE, Jobs API total_count=0**.
+- Latest Agent Factory System Health Recovery [45968225519](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45968225519): **QUEUED**; job [140401972161](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45968225519/job/140401972161) is QUEUED with `runner_id=0` and **0 steps**.
+- Repeated earlier Gate workflow_run attempts in this same Main snapshot also ended FAILURE with 0 jobs; Recovery attempts remained queued. These observations establish the execution symptom, not its root cause.
+
+## Exact current OPEN PR inventory
+All three PRs target Main SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`; all remain OPEN / Draft / unmerged. Each has **0 formal APPROVED reviews** and **0 review threads**.
+
+| PR | Exact HEAD SHA | Exact-head checks | Combined status / external context |
+|---|---|---|---|
+| [#672](https://github.com/X84657465/global-citizen-ai-network/pull/672) | `7948c32dde3e3f39e2aa2d4973d4703de1e733d1` | 9: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | FAILURE; Vercel: deployment rate limited, retry in 24 hours |
+| [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) | `73697454437543a2d6c47e000e215710acaa323e` | 10: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS | Combined SUCCESS; Vercel preview completed |
+| [#676](https://github.com/X84657465/global-citizen-ai-network/pull/676) | `a54013a52189b21624dfa0604a9231b1896cdd53` | 10: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS | Combined SUCCESS; Vercel preview completed |
+
+- #674 exact-head CI [45968214798](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45968214798): PENDING; resolver job [140401946023](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45968214798/job/140401946023) has 0 steps and no runner assigned (`runner_id=null`). Its autofix check is also PENDING; Codacy, Rust Clippy, Debricked and two dynamic analysis jobs are QUEUED.
+- #672 remains externally rate-limited and has pending/queued checks. #674 and #676 combined SUCCESS does **not** mean acceptance: required checks remain pending/queued and neither has formal approval.
+- `mergeable=true` metadata is not acceptance. No PR may be marked ready, approved, or merged on this evidence.
+
+## Ownership, blocker routing, and disposition
+- **Actions job creation / runner allocation:** Main and #674 resolver jobs are PENDING/QUEUED with zero steps; Recovery is queued with runner_id=0. The GitHub API evidence does not identify the underlying service-side cause. Factory / Actions DRI must inspect event delivery, workflow_run dispatch, queue/concurrency state, runner availability and platform diagnostics. Do not blind-rerun or reset breakers.
+- **Acceptance Gate:** latest Main workflow_run failure has zero jobs, so there is no job-level log to attribute to application code. Root cause remains UNKNOWN.
+- **Vercel:** #672's deployment rate limit is a separate external-provider constraint; do not conflate it with GitHub Actions.
+- **Role boundary:** the GPT5 role-to-GitHub identity mapping remains NOT CONFIRMED in the accepted governance documents. This handoff-only PR path is the extant scoped documentation lane; no Factory source/workflow, runner, secret, permission, billing, production-data or branch-protection changes were made.
+- **Independent review:** 0 APPROVED on every open PR. Self-review is not an independent release gate.
+- **Disposition: BLOCKED / NOT GREEN.** Keep all PRs Draft. No rerun, bypass, approval, merge, deployment, or code/workflow mutation was performed.
+
