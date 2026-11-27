@@ -73,6 +73,9 @@ async function runNextTask(queue) {
   if (!task) return { claimed: false, message: "No eligible task is ready." };
 
   try {
+    if (task.payload?.kind === "local-agent-task" && task.payload.task_id !== task.id) {
+      throw new LocalFactoryWorkerError("Queued task ID does not match its persisted Trusted Oracle contract identity.", "task");
+    }
     const result = task.payload?.kind === "local-agent-task"
       ? await runLocalFactoryAgentTask({
         payload: task.payload,
@@ -83,7 +86,8 @@ async function runNextTask(queue) {
     const completed = queue.complete(task.id, workerId, task.lease_token, result);
     return { claimed: true, completed: true, task: completed };
   } catch (error) {
-    const scope = error instanceof LocalFactoryWorkerError ? error.scope : "system";
+    const scope = error?.scope === "task" ? "task" :
+      error instanceof LocalFactoryWorkerError ? error.scope : "system";
     const failed = queue.fail(
       task.id,
       workerId,
