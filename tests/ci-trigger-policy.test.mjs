@@ -1212,6 +1212,10 @@ test("PR Acceptance Gate resolves a unique PR before acquiring its per-PR queue"
 
   assert.ok(acceptance.includes("needs: [resolve-target]"),
     "the evaluator must wait for target resolution");
+  const { start: evaluatorStart, end: evaluatorEnd } = findJobSection(acceptance, "evaluate");
+  const evaluatorJob = acceptance.slice(evaluatorStart, evaluatorEnd);
+  assert.ok(evaluatorJob.includes("if: needs.resolve-target.outputs.pr_number != ''"),
+    "events without a unique PR target must skip evaluator before hosted runner allocation");
   assert.ok(acceptance.includes("needs.resolve-target.outputs.pr_number || needs.resolve-target.outputs.head_sha || github.sha"),
     "all events must serialize by the resolved PR number or exact source SHA");
   assert.ok(acceptance.includes("cancel-in-progress: false"),
