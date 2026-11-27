@@ -104,10 +104,9 @@ jobs:
           retention-days: 90
 
   quality:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
+    # Read-only validation does not mutate durable Factory state. Let the
+    # single self-hosted Runner's native queue serialize it instead of placing
+    # quality checks behind the shared state-writer concurrency queue.
     name: Windows Runner quality gates — tests, types, lint, audit and production build
     needs: [resolve-candidate]
     if: >-
