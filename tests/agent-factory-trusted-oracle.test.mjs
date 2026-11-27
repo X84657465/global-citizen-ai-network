@@ -41,7 +41,7 @@ test("trusted Oracle rejects worker write overlap", (t) => {
   t.after(() => rmSync(root, { recursive: true, force: true }));
   assert.throws(() => createTrustedAcceptanceOracle({
     repositoryRoot: root, baseSha, taskId: "oracle-fixture-task", oracleTestFiles: ["tests/oracle.test.mjs"],
-    workerAllowedPaths: ["tests"],
+    workerAllowedPaths: ["tests/oracle.test.mjs"],
   }), /overlaps/);
 });
 
