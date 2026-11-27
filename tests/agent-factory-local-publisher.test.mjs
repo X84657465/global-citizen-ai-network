@@ -52,7 +52,7 @@ function tapEvidence(testFiles, count = 1) {
   };
 }
 
-function createAcceptedFixture(t) {
+function createAcceptedFixture(t, { sourceEnvelope = null, taskId: suppliedTaskId = randomUUID() } = {}) {
   const root = mkdtempSync(join(tmpdir(), "gcan-local-publisher-repo-"));
   const databaseDirectory = mkdtempSync(join(tmpdir(), "gcan-local-publisher-db-"));
   git(root, ["init", "-b", "main"]);
@@ -67,7 +67,7 @@ function createAcceptedFixture(t) {
   git(root, ["commit", "-m", "trusted Oracle fixture"]);
   const baseSha = git(root, ["rev-parse", "HEAD"]);
 
-  const taskId = randomUUID();
+  const taskId = suppliedTaskId;
   const task = validateLocalFactoryTask({
     schema_version: 1,
     title: "Publish a local Factory patch",
@@ -236,6 +236,7 @@ function createAcceptedFixture(t) {
       schema_version: 1,
       kind: "local-agent-task",
       task_id: taskId,
+      ...(sourceEnvelope ? { source_envelope: sourceEnvelope } : {}),
       task,
       trusted_oracle_contract: contract,
       publication_target: target,
@@ -338,6 +339,36 @@ function makeGitHubApi({ baseSha, baseBranch = "main", onCreatePull = "success" 
     get blobs() { return blobs; },
   };
 }
+
+test("published Issue-origin Draft PR preserves the V2 ai-task marker", async (t) => {
+  const sourceEnvelope = {
+    schema_version: 1,
+    kind: "github-issue-source",
+    repository: "test-owner/test-repo",
+    issue_number: 42,
+    canonical_url: "https://github.com/test-owner/test-repo/issues/42",
+    updated_at: "2026-11-28T00:00:00Z",
+    source_state_version: 3,
+    stable_dedupe_key: sha("test-owner/test-repo#42"),
+    issue_body_sha256: "b".repeat(64),
+  };
+  const fixture = createAcceptedFixture(t, {
+    taskId: "github-issue-42",
+    sourceEnvelope,
+  });
+  const github = makeGitHubApi({ baseSha: fixture.baseSha });
+  const result = await publishAcceptedLocalFactoryTask({
+    taskRecord: fixture.queue.get(fixture.taskId),
+    taskEvents: fixture.queue.events(fixture.taskId),
+    repositoryRoot: fixture.root,
+    api: github.api,
+    persistPublication: (record) => fixture.queue.recordPublication(fixture.taskId, record),
+  });
+  assert.equal(result.state, "draft_pr_created");
+  assert.equal(github.pulls.length, 1);
+  assert.match(github.pulls[0].body, /<!-- ai-task:42 -->/);
+  assert.match(github.pulls[0].body, /<!-- gcan-local-task:github-issue-42 -->/);
+});
 
 test("accepted local task is published as one deterministic Draft PR and recovered after SQLite restart", async (t) => {
   const fixture = createAcceptedFixture(t);
