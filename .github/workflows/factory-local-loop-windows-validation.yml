@@ -62,6 +62,8 @@ jobs:
           node --check lib/agent-factory-local-adapter.mjs
           if ($LASTEXITCODE -ne 0) { throw "Adapter syntax check failed." }
           node --check lib/agent-factory-local-publisher.mjs
+          node --check lib/agent-factory-local-publication-contract.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Publication contract syntax check failed." }
           if ($LASTEXITCODE -ne 0) { throw "Publisher syntax check failed." }
           node --check lib/agent-factory-local-sandbox.mjs
           if ($LASTEXITCODE -ne 0) { throw "Sandbox syntax check failed." }
@@ -71,7 +73,7 @@ jobs:
       - name: Run local Factory queue, adapter, worker and process-tree tests
         run: |
           $ErrorActionPreference = "Stop"
-          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs tests/agent-factory-trusted-oracle.test.mjs tests/factory-local-loop-workflow-policy.test.mjs tests/ci-trigger-policy.test.mjs
+          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs tests/agent-factory-local-publisher.test.mjs tests/agent-factory-trusted-oracle.test.mjs tests/factory-local-loop-workflow-policy.test.mjs tests/ci-trigger-policy.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Local Factory regression suite failed." }
 
       - name: Execute one real SQLite-backed local queue task and reopen evidence
