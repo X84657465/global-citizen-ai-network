@@ -157,7 +157,7 @@ test("read-only PR metadata resolution uses a dedicated Windows Runner queue", (
 });
 
 test("Factory Windows E2E shares the single self-hosted Runner FIFO queue", () => {
-  const header = factoryWindows.split("\\non:\\n", 1)[0];
+  const header = factoryWindows.slice(0, factoryWindows.indexOf("\non:\n"));
   assert.ok(header.includes("group: global-citizen-ai-network-self-hosted-runner"));
   assert.ok(header.includes("cancel-in-progress: false"));
   assert.ok(header.includes("queue: max"));
