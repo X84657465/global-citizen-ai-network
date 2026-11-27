@@ -461,6 +461,13 @@ test("preflight passes the durable V2 state Issue ID to the task selector", () =
   assert.ok(preflight.includes("AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ steps.factory-gate.outputs.state_issue_number }}"));
 });
 
+test("preflight cooldown lookup is pinned to the canonical state Issue and supports an override", () => {
+  const { start, end } = findJobSection(preflight, "prepare-task");
+  const gate = findNamedStepBlock(preflight, "Check durable circuit-breaker cooldown", start, end);
+  assert.match(gate, /AGENT_FACTORY_MODE: check/);
+  assert.ok(gate.includes("AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ vars.AGENT_FACTORY_STATE_ISSUE_NUMBER || (github.repository == 'X84657465/global-citizen-ai-network' && '100' || '') }}"));
+});
+
 test("preflight reserves and releases V2 leases and does not overproduce roadmap tasks", () => {
   assert.ok(preflight.includes("AGENT_FACTORY_MODE: reserve"));
   assert.ok(preflight.includes("AGENT_FACTORY_MODE: transition"));
