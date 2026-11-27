@@ -78,7 +78,7 @@ try {
       try {
         const result = task.payload?.kind === "local-agent-task"
           ? await runLocalFactoryAgentTask({ payload: task.payload })
-          : runLocalFactoryTask({ payload: task.payload });
+          : await runLocalFactoryTask({ payload: task.payload });
         const completed = queue.complete(task.id, workerId, task.lease_token, result);
         print({ claimed: true, completed: true, task: completed });
       } catch (error) {
