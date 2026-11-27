@@ -7826,3 +7826,50 @@ Review submissions and inline review threads were re-queried: #674 has zero form
 - No code tests were run for this documentation-only update. Do not treat this handoff as independent QA, CI acceptance, or merge authorization.
 - Continue GPT5-owned evidence/coordination work while Factory/Runner owners address the 0-job/queued recovery path, Vercel administration addresses quota, and GPT3 supplies independent review.
 
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (current exact-head recheck)
+
+This append-only evidence snapshot supersedes earlier live values where they differ. Checked against current GitHub PR metadata, exact commit status, Actions run records, job records, review submissions and review threads.
+
+## Main
+- `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced` (latest commit search result).
+- Main combined commit status: Vercel **FAILURE**, provider target identifies `build-rate-limit`.
+- The connected commit-workflow-runs lookup returned no main push runs for this SHA; main Actions terminal inventory is **UNKNOWN**, not PASS. CircleCI pipeline/workflow/job status remains **UNKNOWN** because no readable CircleCI evidence was available.
+
+## All currently OPEN PRs — exact GitHub head refs and latest visible core CI run
+All seven PRs are OPEN / Draft / unmerged, target `main`, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, and GitHub metadata reports `mergeable=true`. That metadata is not acceptance.
+
+| PR | Exact HEAD SHA | Core CI run | Core CI conclusion / job evidence |
+|---|---|---:|---|
+| #683 | `d0e962e456b5a213ea184df5fbe8f764ffb71711` | [46015571856](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46015571856) | FAILURE; Resolver and diagnostics FAILURE with empty steps; quality, Ollama, PostgreSQL/RLS and persistence jobs SKIPPED |
+| #674 | `826f90ceac6cb6c9c8a10b919c25b0bc8806e87e` | [46014618444](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46014618444) | FAILURE; Resolver and diagnostics FAILURE with empty steps; quality, Ollama, PostgreSQL/RLS and persistence jobs SKIPPED |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | [45979397241](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45979397241) | PENDING; sole Resolver job is PENDING with empty steps |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | [46007952804](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46007952804) | FAILURE; Resolver and diagnostics FAILURE with empty steps; downstream quality/integration/persistence jobs SKIPPED |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | [45990254637](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45990254637) | FAILURE; Resolver and diagnostics FAILURE with empty steps; downstream quality/integration/persistence jobs SKIPPED |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | [45970239642](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45970239642) | PENDING; sole Resolver job is PENDING with empty steps |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | [45972034125](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45972034125) | PENDING; sole Resolver job is PENDING with empty steps |
+
+Each PR's combined commit status separately reports Vercel FAILURE with the same `build-rate-limit` provider target. This is an external deployment quota signal, not a source-test conclusion. Other queued provider runs remain queued and are not PASS.
+
+## Review / thread inventory
+- Formal APPROVED submissions: **0/7**.
+- #683 and #679 have COMMENTED-only records from the PR author; these are not independent approval.
+- #674, #677, #681, #672 and #676 have no formal review submissions in the current review query.
+- Review-thread queries returned 0 threads for all seven PRs.
+- No PR qualifies for Draft removal, acceptance or merge.
+
+## Independent read-only QA findings (not execution evidence)
+- #683: inspected the exact current HEAD's `lib/agent-factory-local-queue.mjs` and `tests/agent-factory-local-queue.test.mjs`. Source now includes a separate bounded exponential system-failure delay and a regression test explicitly named for preventing system-failure hot loops without consuming task-failure budget. This appears to address the earlier COMMENTED observation at source level; tests were **not executed** in this connector pass, and current exact-head CI remains pre-step FAILURE. Do not label runtime behavior verified.
+- #679: inspected the exact current HEAD's `docs/g/README.md`. It consistently states G Track version 0.1.4 and the 0.1.3→0.1.4 increment; the earlier contradictory 0.1.1→0.1.2 sentence is absent. This addresses that documentation observation at source level, not CI acceptance.
+
+## GPT5-owned delivery and disposition
+- Appended this exact-ref evidence snapshot to the GPT5-authorized `docs/AGENT_HANDOFF.md` path on PR #674 only; no Factory/GPT2 source, workflow, Runner, secrets, permissions, branch protection, billing, production data or deployment settings were changed.
+- PR #674 remains OPEN / Draft. This append-only documentation delivery does not cure its failed exact-head CI or supply independent approval.
+- No local tests/build/lint, Windows Runner smoke test, Ollama E2E, PostgreSQL/RLS integration or deployment were run in this pass.
+- Root cause of pre-step Resolver/diagnostics failures remains **UNKNOWN**; empty step arrays prove no steps were reported, not why runner allocation/resolution failed. Owner: GPT1 / Factory Runner workflow owner. Required next evidence: an actual smoke job with at least one executed step and retained logs, then exact-head CI.
+- Vercel quota remains external and assigned to the Vercel/project administrator. CircleCI remains UNKNOWN. GPT3 independent review remains a separate release gate.
+
+**Disposition: main NOT GREEN; seven OPEN Draft PRs; zero formal approvals; no merge or Draft removal. GPT5's append-only evidence handoff is the only delivery completed in this pass.**
