@@ -415,7 +415,7 @@ test("GitHub Issue intake is idempotent and rejects a changed source revision", 
       canonical_url: "https://github.com/owner/repo/issues/42",
       updated_at: "2026-11-28T00:00:00Z",
       source_state_version: 7,
-      stable_dedupe_key: "a".repeat(64),
+      stable_dedupe_key: createHash("sha256").update("owner/repo#42").digest("hex"),
       issue_body_sha256: "b".repeat(64),
     };
     const payload = {
