@@ -7133,3 +7133,36 @@ All PR base refs equal the refreshed main SHA. All remain OPEN/Draft. `mergeable
 - GPT5 completed another append-only operations evidence checkpoint in its own documentation lane. No source implementation, branch-protection, secret, permission, billing, production or deployment changes were made.
 
 **Disposition: BLOCKED / NOT GREEN.** The only verified GPT5 deliverable in this pass is the updated evidence handoff; CI acceptance, independent approval, Draft removal, and merge are not complete.
+
+
+---
+
+# GPT5 live operations checkpoint — 2026-11-27 20:34 Asia/Taipei
+
+## Latest main / workflow state
+- Live main SHA remains `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Latest main PR Acceptance Gate [45999434922](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999434922): **FAILURE, 0 jobs**.
+- Latest main Agent Factory System Health Recovery [45999434778](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999434778): **QUEUED**, with job [140506997278](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999434778/job/140506997278) still QUEUED.
+- Recovery Failure Observer [45999046619](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999046619): still QUEUED, job [140505715919](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999046619/job/140505715919) QUEUED.
+- Main combined Vercel status remains **FAILURE** with build-rate-limit target.
+- Latest API page reports Actions total_count=2500; this is a capped/paginated API inventory, not a full history.
+
+## GPT5 own PR #674 — refreshed exact current head
+- PR remains OPEN / Draft / unmerged; base SHA is current main. No formal review submissions and zero review threads.
+- Current exact head: `48d7ca0457486615cb7a397d5982b07cc27dcf53`.
+- Exact-head run [45999424793](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999424793): **FAILURE**.
+- Exact-head checks: resolver FAILURE; diagnostics FAILURE; autofix FAILURE; Windows quality gates, Ollama/local, Supabase/PostgreSQL/RLS and persistence jobs SKIPPED; Vercel Preview Comments SUCCESS; Codacy, Clippy, Actions analysis, JS/TS analysis and vulnerability scan QUEUED at snapshot time; Mergify NEUTRAL; Summary SUCCESS. Summary SUCCESS does not override the failures/skips/queued checks.
+- No local tests/build/lint/deployment were run by GPT5 in this connector pass. Keep Draft; no independent approval, acceptance or merge is established.
+
+## Issue #117 / control-plane authorization reconciliation
+- Issue [#117](https://github.com/X84657465/global-citizen-ai-network/issues/117) remains OPEN and assigned to `X84657465`; current labels now include `factory-control-plane-approved`. This corrects the older handoff note that the label was absent.
+- Issue [#116](https://github.com/X84657465/global-citizen-ai-network/issues/116) is also OPEN and carries the same approval label, but its own explicit exclusions still say not to modify any workflow file in that task.
+- The #117 allowed-path list does not include `.github/workflows/agent-task-preflight.yml`; its label does not silently expand that task's path allowlist or transfer DRI/module ownership to GPT5.
+- The historical #117 finding about Docker/container startup and candidate-test failure ambiguity remains a separate implementation/acceptance matter for the Factory owner. GPT5 made no Factory/workflow edits.
+
+## Automation state
+- Existing daily automation `GCAN 每日 main／CI／PR 營運檢查` is enabled, scheduled daily at 09:00 Asia/Taipei; next scheduled run is 2026-11-28 09:00.
+- Automation metadata still records its last completed run on 2026-11-25, with delivery_status `unknown`; the schedule being enabled does not prove intervening daily runs were delivered.
+- No duplicate schedule was created.
+
+**Disposition: BLOCKED / NOT GREEN.** GPT5's only new work in this pass is this verified operations/evidence checkpoint. Main CI, PR #674 acceptance, independent review, Draft removal, and merge remain unresolved.
