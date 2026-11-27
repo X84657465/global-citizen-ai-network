@@ -255,8 +255,14 @@ try {
     print({ queued: true, trusted_oracle_contract: trustedOracleContract, publication_target: publicationTarget, task });
   } else if (command === "intake-next" && args.length === 1) {
     const repository = resolvePublicationRepository(null);
-    const baseBranch = resolvePublicationBaseBranch(null);
+    const baseBranch = process.env.GCAN_FACTORY_BASE_BRANCH ?? "";
+    if (!baseBranch || !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$/.test(baseBranch)) {
+      throw new Error("intake-next requires an explicit GCAN_FACTORY_BASE_BRANCH; the current branch is never inferred as a publication target.");
+    }
     const baseSha = gitOutput(["rev-parse", "HEAD"]);
+    if (gitOutput(["rev-parse", baseBranch]) !== baseSha) {
+      throw new Error("intake-next requires the checked-out HEAD to equal the configured publication base branch SHA.");
+    }
     const token = process.env.GITHUB_TOKEN ?? "";
     if (!token) throw new Error("intake-next requires GITHUB_TOKEN; no anonymous or fallback identity is permitted.");
     const oracleTestFiles = (process.env.GCAN_FACTORY_ORACLE_FILES ?? "")
