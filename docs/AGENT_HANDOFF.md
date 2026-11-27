@@ -7464,3 +7464,43 @@ All seven PR metadata reads still show OPEN / Draft / unmerged, base `main` at t
 - The 13:00 task has no recorded last-run timestamp; the 09:00 task's last recorded run is 2026-11-25, with delivery status not established. Enabled schedule is not proof of successful delivery.
 
 **Disposition: BLOCKED / NOT GREEN.** This checkpoint records the refreshed exact refs and GPT5's scoped documentation handoff only.
+
+
+---
+
+# GPT5 live correction — 2026-11-27 latest API recheck
+
+This correction supersedes the preceding checkpoint's main check-run total and the #674 HEAD/check inventory. It is append-only evidence on the existing GPT5 documentation branch.
+
+## Main exact state
+- Exact `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Check-runs endpoint: **149 records** across two pages: 6 FAILURE, 110 QUEUED, 29 SKIPPED, 3 PENDING, 1 SUCCESS. These are check-run records, not workflow counts. Main is NOT GREEN.
+- Latest Acceptance Gate [46009848306](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009848306): terminal FAILURE; jobs endpoint returned **0 jobs**.
+- Latest System Health Recovery [46009848285](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009848285): QUEUED; its single job [140542258037](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009848285/job/140542258037) remains QUEUED, with no steps/log URL.
+- Combined main commit status: Vercel FAILURE, target `build-rate-limit` (external quota; not source test evidence).
+
+## Current OPEN PR exact heads
+All seven remain OPEN / Draft / unmerged, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, mergeable metadata true (not acceptance or authorization).
+
+| PR | Exact HEAD | Exact-head check-run records |
+|---|---|---|
+| #674 | `a5f850b56dd0121b15155cabba1980fc59ed95d2` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (15) |
+| #683 | `bfca9026b6c1accb43cc4f125827a90126f98703` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS (22) |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (9) |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (15) |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS (22) |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (9) |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (9) |
+
+Formal review inventory: #683 and #679 have COMMENTED only; #674/#681/#677/#672/#676 have no review submissions. No formal APPROVED review is present. COMMENTED is not approval. No Draft removal or merge is justified.
+
+## Closed historical GPT5 PR
+- PR #664 is now CLOSED and MERGED; it is no longer an OPEN PR and must not appear in the current open-PR inventory. Its historical handoff remains evidence, not an active blocker.
+
+## GPT5 action and disposition
+- Re-read this existing GPT5 branch's `docs/AGENT_HANDOFF.md`; appended this exact-state correction only. No other owner's implementation, workflow, Runner, secrets, permissions, branch protection, durable state, production data, billing, or deployment was modified.
+- No local tests/build/lint were run. No CI acceptance, independent approval, Draft removal, merge, or deployment is claimed for #674.
+- Main and all seven open PRs remain BLOCKED / NOT GREEN. Resolver/Factory and 0-job workflow issues route to GPT1/repository workflow administrators; Vercel quota routes to project administrator; independent review routes to an authorized reviewer.
+- Existing 09:00 and 13:00 Asia/Taipei automations remain enabled. The 09:00 task last recorded run remains 2026-11-25; the 13:00 task has no recorded last-run timestamp. Enabled does not prove successful delivery.
+
+**Disposition: BLOCKED / NOT GREEN.** This is an evidence/documentation correction only.
