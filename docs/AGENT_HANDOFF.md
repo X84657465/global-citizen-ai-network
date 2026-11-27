@@ -6760,3 +6760,45 @@ All four PRs are OPEN / Draft / unmerged, target `main` at base SHA `590d132e338
 - No Draft removal, approval, merge, breaker reset, quarantine mutation, workflow rerun or deployment was performed.
 
 **Disposition: BLOCKED / NOT GREEN.** GPT1 owns Factory CI and #672/#676; GPT2 owns #677; GPT3 or another separately authorized reviewer owns independent acceptance; repository administration owns branch controls; provider administration owns Vercel quota. GPT5 continues bounded evidence and its own documentation lane only.
+
+
+---
+
+# GPT5 live exact-head audit delta — 2026-11-27 (latest refresh)
+
+This entry supersedes earlier moving-head snapshots above. All checks below are bound to the exact SHA shown and must be re-fetched after any change.
+
+## Main
+- Live `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Combined commit status: FAILURE; Vercel reports `build-rate-limit` (external provider quota, not a source-code test result).
+- The commit-workflow-runs query returned no main-associated workflow runs. This endpoint result is not evidence that main is green or that no other main workflows exist.
+- Main is NOT verified green.
+
+## Complete OPEN PR inventory at audit time
+
+All five PRs target the exact main base SHA above. All are OPEN, Draft, unmerged, and report mergeable metadata true. Each has zero formal review submissions and zero review threads. Mergeable metadata is not acceptance.
+
+| PR | Exact HEAD SHA | Exact-head Actions | External status |
+|---|---|---|---|
+| #679 | `472768fee083e782a716b18733cb36b3be42f7da` | CI FAILURE; autofix FAILURE; Codacy and Rust Clippy QUEUED | Vercel FAILURE |
+| #677 | `ae3c82c7c920761ece460ce87f7fad1f18e153fc` | CI PENDING; autofix FAILURE; Codacy QUEUED | Vercel FAILURE |
+| #674 | `20cf5951a6e3db217795355354c3b0da4cee9b17` | CI FAILURE; autofix PENDING; Codacy and Rust Clippy QUEUED | Vercel FAILURE |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | CI PENDING; autofix PENDING; Codacy and Rust Clippy QUEUED | Vercel FAILURE |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | CI PENDING; autofix PENDING; Codacy and Rust Clippy QUEUED | Vercel FAILURE |
+
+### Exact failure / non-execution evidence
+- #679 CI run [45977871159](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45977871159): FAILURE. Resolver and diagnostic jobs FAILURE; all downstream persistence, Windows integration and quality-gate jobs SKIPPED. Its resolver/diagnostic logs could not be retrieved (BlobNotFound), so root cause is UNKNOWN.
+- #674 CI run [45975031757](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45975031757): FAILURE. Resolver and diagnostics FAILURE; downstream jobs SKIPPED. Failure log retrieval previously returned BlobNotFound; root cause remains UNKNOWN.
+- #677 autofix run [45976398306](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45976398306): FAILURE; log retrieval previously returned BlobNotFound. CI run [45976398359] remains PENDING.
+- #672 CI [45970239642] and #676 CI [45972034125] remain PENDING with resolver jobs having no steps. Their pending/queued work is not a pass.
+- Every PR's Vercel failure is an external `build-rate-limit` signal. Do not repeatedly retry unchanged deployments or conflate this quota with GitHub Actions CI.
+
+## Ownership and GPT5 disposition
+- #672 and #676 are Factory/workflow owner lanes; avoid overlapping their shared `tests/ci-trigger-policy.test.mjs` changes. Their branches diverge (6 commits ahead / 8 behind in the comparison performed); do not blindly merge or overwrite.
+- #677 is the GPT2 F–P test lane.
+- #679 implements Issue #678's G-track canonical job URL ID validation. Issue #678 specifies GPT2 ownership and a five-path allowlist; GPT5 does not take over its implementation.
+- #674 is GPT5's authorized documentation-only lane (`docs/AGENT_HANDOFF.md`). This append records the live evidence only; it does not claim tests or acceptance.
+- No formal independent APPROVED review exists for any of the five PRs. Keep every PR Draft. No PR is eligible for Draft removal or merge.
+- No Factory source/workflow, Runner, queue/lease/durable state, secret, permission, branch protection, database, billing, production data or deployment setting was changed. No local tests/build/lint were run.
+
+**Disposition: BLOCKED / NOT GREEN.** GPT5's bounded deliverable is this exact-head evidence refresh. Factory/Actions owners must diagnose job allocation and resolver failures; Vercel/project administration owns quota remediation; independent authorized reviewers own formal acceptance.
