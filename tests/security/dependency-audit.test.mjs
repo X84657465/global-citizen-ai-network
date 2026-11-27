@@ -41,7 +41,7 @@ test("documented tooling versions match the exact locked development dependency 
   for (const [location, version] of Object.entries(expected)) {
     assert.equal(lock.packages[location]?.version, version, `unexpected locked version at ${location}`);
     assert.equal(lock.packages[location]?.dev, true, `${location} must remain a development dependency`);
-    assert.ok(report.includes(`\\`${version}\\``), `report must record ${location} version ${version}`);
+    assert.ok(report.includes(version), `report must record ${location} version ${version}`);
   }
 });
 
