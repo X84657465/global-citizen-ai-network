@@ -19,12 +19,11 @@ on:
 permissions:
   contents: read
 
-# All Windows workflows share the repository's single self-hosted Runner.
-# Keep Factory E2E in the same bounded FIFO queue as CI, Preflight and recovery.
+# Coalesce superseded Factory E2E runs; the single self-hosted Runner
+# itself serializes execution against CI and Preflight jobs.
 concurrency:
-  group: global-citizen-ai-network-self-hosted-runner
-  cancel-in-progress: false
-  queue: max
+  group: factory-local-loop-windows-validation
+  cancel-in-progress: true
 
 jobs:
   windows-local-loop-validation:
