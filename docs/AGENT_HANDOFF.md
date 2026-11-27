@@ -1,3 +1,9 @@
+# GPT5 post-write exact-head delta — 2026-11-27
+
+This short correction supersedes the #664 row in the immediately following full snapshot. The append-only update to the authorized handoff path produced commit / new PR HEAD `aadc5fdc08a371bc6cbf03b8f21d3684ffe9ab52`. After the write, PR #664 remains OPEN / Draft / unmerged, base SHA `c2c461029649fda07cc0e440928e896e493b2ea7`, mergeable metadata true; its exact new HEAD has **9 check runs: 2 PENDING, 5 QUEUED, 2 IN_PROGRESS**. These are not passing checks. Main was re-read after the write and remains `c2c461029649fda07cc0e440928e896e493b2ea7`. No approval, Draft removal, merge, test run, or deployment occurred.
+
+---
+
 # GPT5 live operations delta — 2026-11-27 (latest exact-head recheck)
 
 This entry is the newest point-in-time snapshot and supersedes prior moving-head snapshots. Every check result below is tied to the exact SHA shown. Re-fetch before release decisions.
