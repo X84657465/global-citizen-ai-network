@@ -6153,3 +6153,47 @@ However, the same run has **0 jobs**, so the script's early-return branch cannot
 - No code ownership, branch protection, reviewer, or release gate was bypassed. No local build/test was run; this is remote API evidence only.
 
 **Action requested from workflow/Actions owner:** inspect GitHub Actions scheduling/concurrency/runner diagnostics for the listed completed-failure runs with 0 jobs and queued Resolver/Recovery jobs with no steps; return exact event/run/attempt evidence. Do not treat the YAML script's no-PR early return as proof of a 0-job cause.
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (fresh exact-ref refresh)
+
+This append-only update supersedes earlier status snapshots for the refs below. All values are tied to exact SHAs; re-fetch before any release decision.
+
+## Main
+- Live `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA Check Runs: **32 total** — 21 QUEUED, 9 SKIPPED, 2 PENDING.
+- Main has no evidenced terminal substantive CI PASS. Main push CI [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380) is PENDING; sole resolver job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366) is PENDING with no steps.
+- Latest Recovery [45955369810](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955369810) is QUEUED; sole job [140360517883](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955369810/job/140360517883) is QUEUED with no steps.
+- Latest Acceptance Gate [45955369882](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955369882) is terminal FAILURE; jobs endpoint returned **0 jobs**.
+- Combined status is FAILURE from Vercel `Deployment rate limited — retry in 24 hours`; external provider quota is not CI acceptance.
+
+## All OPEN PRs — exact current heads
+All three target main at `590d132e338dc5bb47243f372a0547c8dfdbfced`; all remain OPEN / Draft / unmerged with mergeable metadata true only. No PR has formal APPROVED review or observed review thread.
+
+| PR | Exact HEAD | Exact-head checks | Acceptance Gate |
+|---|---|---|---|
+| [#672](https://github.com/X84657465/global-citizen-ai-network/pull/672) | `7948c32dde3e3f39e2aa2d4973d4703de1e733d1` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (summary only) | FAILURE; runs 45947324701, 45947281426, 45947221715 |
+| [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) | `85a9f66cec7b83cd57633572b5dd6f9b51fa4989` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS (summary only) | FAILURE; run 45955356654 |
+| [#676](https://github.com/X84657465/global-citizen-ai-network/pull/676) | `a54013a52189b21624dfa0604a9231b1896cdd53` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS (preview/summary only) | FAILURE; run 45954669700 |
+
+Exact-head resolver jobs:
+- #672 run 45947224484 / job 140334592163: PENDING, no steps.
+- #674 run 45955359973 / job 140360490424: PENDING, no steps.
+- #676 run 45954669226 / job 140358259313: PENDING, no steps.
+
+The SUCCESS/NEUTRAL records above are auxiliary/observer results, not substantive CI acceptance. PENDING, QUEUED, SKIPPED, 0 Jobs and provider rate limits are never PASS. None of these PRs is eligible for Draft removal or merge.
+
+## Automation
+Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains Enabled; next scheduled run is 2026-11-28 08:00 Asia/Taipei. Latest recorded output still references stale Main `2789027…`; delivery status is UNKNOWN. This live refresh is not proof of successful scheduled delivery or continuous monitoring.
+
+## GPT5 work and owner routing
+- This write is limited to the already authorized PR #674 path `docs/AGENT_HANDOFF.md`; it does not touch Factory source/workflows.
+- GPT1 / Factory: investigate resolver scheduling/runner allocation and Acceptance Gate 0-job failures; validate #672/#676 exact heads.
+- GPT3 / authorized independent reviewer: review exact final heads after substantive checks complete; no self-approval.
+- Repository administrator: verify effective branch protection/rulesets.
+- Vercel administrator: resolve provider quota.
+- GPT5: evidence/documentation handoff only. No secrets, permissions, runners, Factory state, branch protection, Draft state, merge, billing, or deployment changed. No local tests were run.
+
+**Disposition: BLOCKED / NOT GREEN.** This is an operations evidence update, not CI acceptance or code repair.
