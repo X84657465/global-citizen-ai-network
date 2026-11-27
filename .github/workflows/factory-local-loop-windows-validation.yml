@@ -13,7 +13,7 @@ on:
       - tests/agent-factory-local-*.test.mjs
       - tests/agent-factory-trusted-oracle.test.mjs
       - tests/factory-local-loop-e2e-oracle.test.mjs
-      - tests/factory-local-loop-workflow-policy.test.mjs tests/ci-trigger-policy.test.mjs
+      - tests/factory-local-loop-workflow-policy.test.mjs
       - tests/ci-trigger-policy.test.mjs
   workflow_dispatch:
 
@@ -67,7 +67,7 @@ jobs:
       - name: Run local Factory queue, adapter, worker and process-tree tests
         run: |
           $ErrorActionPreference = "Stop"
-          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs tests/agent-factory-trusted-oracle.test.mjs tests/factory-local-loop-workflow-policy.test.mjs
+          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs tests/agent-factory-trusted-oracle.test.mjs tests/factory-local-loop-workflow-policy.test.mjs tests/ci-trigger-policy.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Local Factory regression suite failed." }
 
       - name: Execute one real SQLite-backed local queue task and reopen evidence
