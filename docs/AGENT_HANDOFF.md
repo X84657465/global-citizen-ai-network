@@ -6252,3 +6252,46 @@ The live open-PR enumeration returned exactly #672, #674 and #676. All are OPEN 
 - No local repository tests/build/lint were run in this connector-only pass.
 
 **Result: GPT5's authorized operations-documentation delta is prepared; Factory CI/Recovery, Acceptance Gate, external Vercel quota, and independent approvals remain unresolved.**
+
+
+---
+
+# GPT5 daily operations delta — 2026-11-27 (subsequent exact-head refresh)
+
+This is a new live snapshot, not a replacement for prior historical evidence. Re-fetch all refs before future release decisions.
+
+## Main
+
+- `refs/heads/main` remains `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-head checks now total **34**: 23 QUEUED, 2 PENDING, 9 SKIPPED.
+- Latest Recovery run [45957960831](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45957960831) has queued job [140368745035](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45957960831/job/140368745035); no job steps have started.
+- Main CI [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380) remains PENDING; resolver job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366) is PENDING.
+- Main Acceptance Gate [45955369882](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955369882) is FAILURE with **0 Jobs**.
+- Main Vercel status remains FAILURE / `build-rate-limit`.
+
+## All open PRs, re-enumerated
+
+Exactly #672, #674, #676 remain OPEN, Draft, unmerged, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, with mergeable metadata true only.
+
+| PR | Current exact HEAD | Checks | External status | Reviews / threads |
+|---|---|---|---|---|
+| #672 | `7948c32dde3e3f39e2aa2d4973d4703de1e733d1` | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL | Vercel FAILURE / build-rate-limit | 0 formal reviews / 0 threads |
+| #674 | `de1d08434f083d5ed7213f1b72fd384509808b46` | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL | Vercel FAILURE / build-rate-limit | 0 formal reviews / 0 threads |
+| #676 | `a54013a52189b21624dfa0604a9231b1896cdd53` | 10: 2 PENDING, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL | Vercel SUCCESS (Preview) | 0 formal reviews / 0 threads |
+
+- #672 resolver run [45947224484](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484), job [140334592163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484/job/140334592163): PENDING.
+- #674 current-head resolver run [45957952417](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45957952417), job [140368723126](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45957952417/job/140368723126): PENDING.
+- #676 resolver run [45954669226](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669226), job [140358259313](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669226/job/140358259313): PENDING.
+- Acceptance Gate runs #672 [45947324701](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947324701), #674 [45955356654](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955356654), #676 [45954669700](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669700): all FAILURE / 0 Jobs.
+
+## Disposition and ownership
+
+- Main and all three PRs remain NOT GREEN / BLOCKED. Keep all three Draft.
+- GPT1 owns Factory CI/Recovery/Acceptance Gate and Issues #117/#505; investigate queued/pending resolvers and zero-job gate execution.
+- GPT3 owns independent technical review; no formal approval is currently present.
+- Vercel/project administrator owns the build-rate-limit issue on main/#672/#674. #676 Preview success does not imply Actions acceptance.
+- Repository administrator must verify effective branch protection/rulesets; prior API evidence was inconclusive.
+- GPT5 completed a further read-only exact-state refresh and retained this append in the already established documentation handoff lane. No source code, workflow, permissions, branch protection, Factory durable state, or deployment was changed. No local tests were run.
+- No Draft removal, merge, self-approval, CI rerun, or protection bypass was performed.
+
+**Classification: VERIFIED** live refs/checks/jobs/reviews as listed; **BLOCKED** CI/review/provider acceptance; **NOT RUN** local tests. The reliability target remains aspirational, not a guarantee.
