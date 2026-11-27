@@ -1241,3 +1241,46 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 6. 不得建立新帳號、反覆強制部署或修改保護規則以規避配額；等待 Provider 恢復時推進不依賴它的工作。
 
 **本節及 Master Charter §24.10–§24.11 都是治理提案；須經既有 GPT3 獨立審查及 Repository 核准流程接受。實際角色是否已讀取／啟動／完成，必須由各角色自己的 Repository 證據確認。**
+
+
+---
+
+# P0 緊急優先指令 — Factory Local Loop 1.0（2026-11-27）
+
+> **狀態：已建立協作任務與實作分支；功能尚未實作或驗收。**
+> **唯一 DRI：GPT1｜工廠負責人。**
+> **追蹤 Issue：#682。實作分支：`feat/factory-local-loop-v1`。**
+
+## 最高優先級
+
+暫停所有非必要 A–P 擴充與 B Product 新功能，優先讓 Agent Factory 在使用者本機完成第一筆可重現的自主任務。第一階段不得把 GitHub Actions、Vercel、雲端 Runner 或付費 API 當成執行前提。這是 Factory-first 的最小可驗收切片，不是降低 A-Core 長期自主交付目標。
+
+## 最小閉環與驗收
+
+`SQLite task queue → single local worker → Ollama plan → validated patch → isolated apply/test → evidence persistence → recovery`
+
+必須有真實端到端執行證據：任務入列、Worker 領取、模型計畫、Patch 驗證、隔離執行、實際測試 exit code、結果與事件寫入 SQLite、程序重啟後可讀回。mock 測試不能代替真實本機驗收。單 Worker、單任務、有限資源與最多三次 task retry；第三次失敗隔離。不得直接修改 main。
+
+## 五 GPT 任務分工（共同事實來源：Issue #682 與本文件）
+
+- **GPT1｜A–E／Factory DRI：** 唯一整合負責人；盤點重用現有 Planner、Patch Validator、Scratch、狀態機；建立最小本機執行入口、SQLite adapter、單 Worker、真實驗收與單一 PR。
+- **GPT2｜F–P：** 不得平行重寫 Factory 核心。支援任務限於盤點既有 Factory Commander v0.1／SQLite ledger／Cindy adapter 的可重用證據、資源上限與必要介面建議；提出結果到 Issue #682，不得修改 GPT1 核心檔案。
+- **GPT3｜獨立架構審查／整合／QA：** 審查資料持久性、冪等、lease/fencing、path allowlist、scratch 隔離、命令 allowlist、timeout、重試隔離、證據真實性與重啟恢復；提供獨立 PASS／FAIL／BLOCKED／NOT RUN 結論。不得以 GPT1 自我審查代替。
+- **GPT4｜B Product：** 暫停 B 新功能；只整理未來消費 Factory 成果所需的唯讀輸出契約，不得讀取 Factory 私有狀態或修改 A 核心。
+- **GPT5｜Global Intelligence & Operations：** 提供最新 main／PR／CI／Runner 阻塞證據與免費本機資源方案；不新增重複 Runner／資料庫，不宣稱具有背景常駐或跨 GPT 私訊能力。
+
+## 共同操作規則
+
+1. 五 GPT 開始工作前必須讀取 Issue #682、本節及 `docs/FACTORY_LOCAL_LOOP_1_0.md`。
+2. 以 GitHub Issue／PR／commit／測試證據作為唯一共同事實來源；本文件不是即時私訊通道。
+3. GPT1 維持唯一整合分支與單一 PR；其他角色先交付分析／審查，不得各自開重疊 PR。
+4. 先 REUSE，再 EXTEND；不得新建第二套互相競爭的 scheduler/state store。
+5. 嚴禁模型 Patch 任意 shell、網路、套件安裝、secrets 存取、正式資料寫入或未授權部署。
+6. PENDING、SKIPPED、0 Job、NOT RUN、mock-only 均非 PASS；精確 SHA 與真實執行結果必須記錄。
+7. 若本機環境或工具不可用，標記 BLOCKED 並列出最小缺口，不得假報已執行。
+8. 不更改 main、secrets、Runner 權限、branch protection、DB/RLS 或正式環境。
+
+## Definition of Done
+
+至少一筆真實本機任務完成 queue → worker → Ollama plan → validated patch → isolated apply → real test → SQLite evidence persistence；重啟後可恢復讀取；三次失敗隔離與系統級失敗分流有測試；GPT3 獨立審查通過。所有狀態須分開標示 IMPLEMENTED、TESTED、ACCEPTED、PARTIAL、BLOCKED、NOT RUN。
+
