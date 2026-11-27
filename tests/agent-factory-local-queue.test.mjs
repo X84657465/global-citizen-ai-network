@@ -4,6 +4,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createLocalFactoryQueue } from "../lib/agent-factory-local-queue.mjs";
+import { createLocalFactoryPublicationTarget } from "../lib/agent-factory-local-publication-contract.mjs";
+import { createHash } from "node:crypto";
 
 function withQueue(run, options = {}) {
   const directory = mkdtempSync(join(tmpdir(), "gcan-local-queue-test-"));
@@ -162,6 +164,16 @@ test("queue rejects invalid payloads, retry limits and unknown states", () => {
 });
 
 
+function publicationTarget(taskId, contract) {
+  return createLocalFactoryPublicationTarget({
+    taskId,
+    repository: "test-owner/test-repo",
+    baseBranch: "main",
+    baseSha: contract.base_sha,
+    contractSha256: contract.contract_sha256,
+  });
+}
+
 function acceptedAgentResult(taskId, contract, oracleFiles, generatedFiles) {
   const evidence = (testFiles) => ({
     exit_code: 0,
@@ -177,6 +189,15 @@ function acceptedAgentResult(taskId, contract, oracleFiles, generatedFiles) {
       valid: true,
     },
   });
+  const patchFiles = generatedFiles.map((path) => ({
+    path, operation: "add", content: "fixture",
+  }));
+  const patchedFiles = patchFiles.map((file) => ({
+    path: file.path,
+    operation: file.operation,
+    bytes: Buffer.byteLength(file.content, "utf8"),
+    sha256: createHash("sha256").update(file.content, "utf8").digest("hex"),
+  }));
   return {
     schema_version: 1,
     kind: "local-agent-task",
@@ -197,14 +218,14 @@ function acceptedAgentResult(taskId, contract, oracleFiles, generatedFiles) {
       ...evidence(oracleFiles),
     },
     patch_artifact: {
-      patch: {
-        files: generatedFiles.map((path) => ({ path, operation: "add", content: "fixture" })),
-      },
+      status: "VALIDATED_PATCH",
+      patch: { schema_version: 1, files: patchFiles },
     },
     scratch_evidence: {
       status: "SANDBOX_TESTS_PASSED",
       generated_code_executed: true,
       repository_files_modified: false,
+      patched_files: patchedFiles,
       sandbox_evidence: evidence(generatedFiles),
     },
   };
@@ -231,6 +252,7 @@ test("SQLite refuses to complete a local agent task from proposal or model-only 
         task_id: id,
         task: { allowed_paths: contract.worker_allowed_paths },
         trusted_oracle_contract: contract,
+        publication_target: publicationTarget(id, contract),
       },
     });
     const claimed = queue.claim("worker");
