@@ -118,12 +118,26 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
-test("CI keeps stateful quality and integration jobs serialized on the Windows Runner", () => {
+test("CI reserves the shared Runner queue for durable state writers, not read-only quality gates", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
   assert.ok(workflowLevelConcurrency.includes("cancel-in-progress:") && workflowLevelConcurrency.includes("ai-task/issue-") && workflowLevelConcurrency.includes("codex/issue-"), "only superseded non-task runs may be cancelled");
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
-  const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success"];
-  for (const job of jobs) {
+
+  const { start: qualityStart, end: qualityEnd } = findJobSection(workflow, "quality");
+  const quality = workflow.slice(qualityStart, qualityEnd);
+  assert.ok(quality.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.equal(quality.includes("group: global-citizen-ai-network-self-hosted-runner"), false,
+    "read-only quality gates must use the Runner's native queue, not the shared durable-state writer lock");
+  assert.ok(quality.includes("does not mutate durable Factory state"));
+  assert.equal(quality.includes("shell: bash"), false);
+  for (const command of ["npm ci --no-audit --no-fund", "npm run test:unit", "npx --no-install tsc --noEmit", "npm run lint", "npm run build", "npm audit --audit-level=high", "node --test tests/ci-trigger-policy.test.mjs"]) {
+    assert.ok(quality.includes(command), "Windows quality job must execute " + command);
+  }
+  assert.ok(quality.includes("needs: [resolve-candidate]"));
+  assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
+
+  const stateWriterJobs = ["build", "database", "circuit-breaker", "circuit-breaker-success"];
+  for (const job of stateWriterJobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
     assert.ok(section.includes("runs-on: [self-hosted, Windows, X64]"), job + " must use the available Windows Runner");
@@ -132,13 +146,6 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
     assert.ok(section.includes("cancel-in-progress: false"), job + " must not cancel active Runner work");
     assert.equal(section.includes("shell: bash"), false, job + " must use the native PowerShell Runner shell");
   }
-  const { start: qualityStart, end: qualityEnd } = findJobSection(workflow, "quality");
-  const quality = workflow.slice(qualityStart, qualityEnd);
-  for (const command of ["npm ci --no-audit --no-fund", "npm run test:unit", "npx --no-install tsc --noEmit", "npm run lint", "npm run build", "npm audit --audit-level=high", "node --test tests/ci-trigger-policy.test.mjs"]) {
-    assert.ok(quality.includes(command), "Windows quality job must execute " + command);
-  }
-  assert.ok(quality.includes("needs: [resolve-candidate]"));
-  assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 });
 
 test("read-only PR metadata resolution uses a dedicated Windows Runner queue", () => {
