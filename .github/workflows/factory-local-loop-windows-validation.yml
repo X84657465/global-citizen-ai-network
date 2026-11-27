@@ -7,8 +7,12 @@ on:
     paths:
       - .github/workflows/factory-local-loop-windows-validation.yml
       - lib/agent-factory-local-*.mjs
+      - lib/agent-factory-trusted-oracle.mjs
       - scripts/factory-local.mjs
+      - scripts/run-unit-tests.mjs
       - tests/agent-factory-local-*.test.mjs
+      - tests/agent-factory-trusted-oracle.test.mjs
+      - tests/factory-local-loop-e2e-oracle.test.mjs
   workflow_dispatch:
 
 permissions:
@@ -53,11 +57,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Adapter syntax check failed." }
           node --check lib/agent-factory-local-sandbox.mjs
           if ($LASTEXITCODE -ne 0) { throw "Sandbox syntax check failed." }
+          node --check lib/agent-factory-trusted-oracle.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Trusted Oracle syntax check failed." }
 
       - name: Run local Factory queue, adapter, worker and process-tree tests
         run: |
           $ErrorActionPreference = "Stop"
-          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs
+          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs tests/agent-factory-trusted-oracle.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Local Factory regression suite failed." }
 
       - name: Execute one real SQLite-backed local queue task and reopen evidence
@@ -109,12 +115,12 @@ jobs:
           $task = @{
             schema_version = 1
             title = "Real local Ollama agent pipeline E2E"
-            goal = "Create exactly one self-contained Node.js test file at tests/factory-local-loop-e2e.generated.test.mjs. Import test from node:test and assert from node:assert/strict. In that same file, define exactly this function: function normalizeInput(value) { return String(value ?? '').trim().toLowerCase(); }. Add one test that calls normalizeInput('  GCAN Factory  ') and asserts the result equals 'gcan factory'. The function declaration and the test must both be in the generated file. Use the exact identifier normalizeInput everywhere; never call normalize, normalizeString, or any undeclared identifier. Do not import project files, use filesystem/network/process APIs, or require dependencies."
+            goal = "Create exactly one self-contained Node.js test file at tests/factory-local-loop-e2e.generated.test.mjs. Import test from node:test and assert from node:assert/strict. In that same file export exactly this function: export function normalizeInput(value) { return String(value ?? '').trim().toLowerCase(); }. Add one test that calls normalizeInput('  GCAN Factory  ') and asserts the result equals 'gcan factory'. The exported function and test must both be in the generated file. Use the exact identifier normalizeInput everywhere; never call normalize, normalizeString, or any undeclared identifier. Do not import project files, use filesystem/network/process APIs, or require dependencies."
             allowed_paths = @("tests/factory-local-loop-e2e.generated.test.mjs")
             acceptance_criteria = @(
               "Add exactly one new file at tests/factory-local-loop-e2e.generated.test.mjs.",
               "Use node:test and node:assert/strict with at least one real assertion.",
-              "The generated file must declare function normalizeInput(value) and the test must call that exact declared identifier.",
+              "The generated file must export function normalizeInput(value) and the test must call that exact exported identifier.",
               "The test must assert normalizeInput('  GCAN Factory  ') equals 'gcan factory'; no undefined identifiers are allowed.",
               "The generated test must pass under the pinned network-disabled Node sandbox."
             )
@@ -128,12 +134,98 @@ jobs:
           $json = $task | ConvertTo-Json -Depth 8
           [System.IO.File]::WriteAllText($taskPath, $json, [System.Text.UTF8Encoding]::new($false))
 
-          $addOutput = & node scripts/factory-local.mjs task add-agent --file $taskPath
+          $addOutput = & node scripts/factory-local.mjs task add-agent --file $taskPath --oracle-file tests/factory-local-loop-e2e-oracle.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Local agent task intake failed." }
           $added = ($addOutput -join [Environment]::NewLine) | ConvertFrom-Json
-          if (-not $added.accepted -or -not $added.task.id) { throw "Local agent task intake evidence is invalid." }
+          if (-not $added.queued -or -not $added.task.id -or
+              $added.task.payload.trusted_oracle_contract.schema_version -ne 2 -or
+              $added.task.payload.trusted_oracle_contract.task_id -ne $added.task.id) {
+            throw "Local agent task intake or Trusted Oracle contract evidence is invalid."
+          }
+          $contractSha = [string]$added.trusted_oracle_contract.contract_sha256
+          if ($contractSha -notmatch '^[a-f0-9]{64}
+
+          $runResult = $null
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+            $runOutput = & node scripts/factory-local.mjs run-once
+            $runExitCode = $LASTEXITCODE
+            Write-Host ("FACTORY_AGENT_ATTEMPT=" + $attempt)
+            Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_BEGIN"
+            Write-Host ($runOutput -join [Environment]::NewLine)
+            Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_END"
+            if ($runOutput) {
+              $candidate = ($runOutput -join [Environment]::NewLine) | ConvertFrom-Json
+              if ($candidate.claimed -and $candidate.completed -and $candidate.task.status -eq "succeeded") {
+                $runResult = $candidate
+                break
+              }
+              if ($candidate.failure_scope -eq "system" -or $candidate.task.status -ne "retry_wait") {
+                break
+              }
+            }
+            if ($attempt -lt 3) {
+              Write-Host "FACTORY_AGENT_BOUNDED_TASK_RETRY_WAIT=6s"
+              Start-Sleep -Seconds 6
+            }
+          }
+          if (-not $runResult) {
+            $failureStatus = & node scripts/factory-local.mjs status
+            Write-Host "FACTORY_AGENT_FAILURE_STATUS_BEGIN"
+            Write-Host ($failureStatus -join [Environment]::NewLine)
+            Write-Host "FACTORY_AGENT_FAILURE_STATUS_END"
+            $failureEvents = & node scripts/factory-local.mjs logs $taskId
+            Write-Host "FACTORY_AGENT_FAILURE_EVENTS_BEGIN"
+            Write-Host ($failureEvents -join [Environment]::NewLine)
+            Write-Host "FACTORY_AGENT_FAILURE_EVENTS_END"
+            throw "Real Ollama agent task did not complete within the bounded three-attempt retry policy."
+          }
+          $agentResult = $runResult.task.result
+          if (-not $runResult.claimed -or -not $runResult.completed -or
+              $runResult.task.status -ne "succeeded" -or
+              $agentResult.outcome -ne "accepted" -or
+              $agentResult.acceptance_status -ne "ACCEPTED" -or
+              $agentResult.generated_code_executed -ne $true -or
+              $agentResult.test_execution -ne "GENERATED_TESTS_AND_TRUSTED_ORACLE_PASSED_IN_SEPARATE_NETWORK_DISABLED_RUNS" -or
+              $agentResult.scratch_evidence.sandbox_evidence.exit_code -ne 0 -or
+              $agentResult.scratch_evidence.sandbox_evidence.passed_tests -lt 1 -or
+              $agentResult.acceptance_evidence.valid -ne $true -or
+              $agentResult.acceptance_evidence.contract_sha256 -ne $contractSha -or
+              $agentResult.acceptance_evidence.exit_code -ne 0 -or
+              $agentResult.acceptance_evidence.passed_tests -lt 1) {
+            throw "Real Ollama → generated tests → trusted Oracle → ACCEPTED evidence is incomplete."
+          }
+          if (-not $agentResult.plan_artifact.model -or -not $agentResult.patch_artifact.model) {
+            throw "The actual Ollama model identity was not persisted."
+          }
+          Write-Host ("FACTORY_OLLAMA_MODEL=" + $agentResult.plan_artifact.model)
+          Write-Host "FACTORY_OLLAMA_AND_TRUSTED_ORACLE_ACCEPTED"
+
+          $statusOutput = & node scripts/factory-local.mjs status
+          if ($LASTEXITCODE -ne 0) { throw "Agent task SQLite read-back failed." }
+          $statusRows = @(($statusOutput -join [Environment]::NewLine) | ConvertFrom-Json)
+          $restored = $statusRows | Where-Object { $_.id -eq $taskId } | Select-Object -First 1
+          if (-not $restored -or $restored.status -ne "succeeded" -or
+              $restored.result.outcome -ne "accepted" -or
+              $restored.result.acceptance_status -ne "ACCEPTED" -or
+              $restored.result.acceptance_evidence.contract_sha256 -ne $contractSha -or
+              $restored.result.acceptance_evidence.exit_code -ne 0 -or
+              $restored.result.scratch_evidence.sandbox_evidence.exit_code -ne 0) {
+            throw "Complete Ollama and sandbox evidence did not survive SQLite reopen."
+          }
+
+          $logsOutput = & node scripts/factory-local.mjs logs $taskId
+          if ($LASTEXITCODE -ne 0) { throw "Agent task event read-back failed." }
+          $events = @(($logsOutput -join [Environment]::NewLine) | ConvertFrom-Json)
+          if (-not ($events | Where-Object { $_.event_type -eq "task_succeeded" })) {
+            throw "Persisted agent task_succeeded event is missing."
+          }
+
+          Write-Host "FACTORY_OLLAMA_SQLITE_REOPEN_READBACK_PASSED"
+          Write-Host "FACTORY_LOCAL_AGENT_LOOP_WINDOWS_E2E_PASSED"
+) { throw "Trusted Oracle contract digest is invalid." }
           $taskId = [string]$added.task.id
           Write-Host "FACTORY_AGENT_TASK_ID=$taskId"
+          Write-Host "FACTORY_TRUSTED_ORACLE_CONTRACT_SHA256=$contractSha"
 
           $runResult = $null
           for ($attempt = 1; $attempt -le 3; $attempt++) {
