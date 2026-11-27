@@ -122,6 +122,40 @@ test("Windows process-tree termination only reports success after taskkill confi
   }
 });
 
+test("Windows process-tree termination requires confirmed taskkill success", () => {
+  const child = { pid: 4242, exitCode: null, signalCode: null, kill() {
+    throw new Error("direct-child fallback must not mask tree termination failure");
+  } };
+  const options = {
+    platform: "win32",
+    env: { SystemRoot: "C:\\Windows", PATH: "C:\\Windows\\System32" },
+    spawnSyncImpl(command, args, spawnOptions) {
+      assert.equal(command, "C:\\Windows\\System32\\taskkill.exe");
+      assert.deepEqual(args, ["/PID", "4242", "/T", "/F"]);
+      assert.equal(spawnOptions.shell, false);
+      return { error: null, signal: null, status: 0 };
+    },
+  };
+  assert.deepEqual(terminateLocalFactoryProcessTree(child, options), {
+    strategy: "windows-taskkill-tree", pid: 4242, confirmed: true,
+  });
+
+  for (const result of [
+    { error: null, signal: null, status: 5 },
+    { error: null, signal: "SIGTERM", status: null },
+    { error: Object.assign(new Error("spawn denied"), { code: "EACCES" }), signal: null, status: null },
+  ]) {
+    assert.throws(
+      () => terminateLocalFactoryProcessTree(child, {
+        ...options,
+        spawnSyncImpl: () => result,
+      }),
+      (error) => error instanceof LocalFactoryWorkerError &&
+        error.scope === "system" && /termination was not confirmed/.test(error.message),
+    );
+  }
+});
+
 test("timeout termination kills the worker and its descendant process tree", async () => {
   const childCode = [
     "const { spawn } = require('node:child_process');",
