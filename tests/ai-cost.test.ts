@@ -386,7 +386,7 @@ test("invoice preview POST fails closed when server database configuration is mi
     makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
   );
   assert.equal(response.status, 503);
-  assert.deepEqual(deps.calls, ["auth", "profile"]);
+  assert.deepEqual(deps.calls, ["auth", "profile", "admin-client"]);
 });
 
 test("invoice preview POST rejects malformed JSON, invalid UTF-8, null, arrays and primitives", async () => {
@@ -525,26 +525,26 @@ test("invoice preview POST returns 413 when oversized stream cancellation never 
 
 test("invoice preview POST returns a non-sensitive 503 when authentication lookup throws", async () => {
   const deps = makePreviewRouteDependencies({
-    getAuthenticatedClient: async () => { throw new Error("auth provider detail must not escape"); },
+    getAuthenticatedClient: async () => { deps.calls.push("auth"); throw new Error("auth provider detail must not escape"); },
   });
   const response = await handleProviderInvoicePreviewPost(
     makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
   );
   assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), { error: "無法驗證登入狀態。" });
-  assert.deepEqual(deps.calls, []);
+  assert.deepEqual(deps.calls, ["auth"]);
 });
 
 test("invoice preview POST fails closed when profile lookup returns an error result", async () => {
   const deps = makePreviewRouteDependencies({
-    getProfile: async () => ({ data: null, error: new Error("profile detail must not escape") }),
+    getProfile: async () => { deps.calls.push("profile"); return { data: null, error: new Error("profile detail must not escape") }; },
   });
   const response = await handleProviderInvoicePreviewPost(
     makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
   );
   assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), { error: "無法驗證管理員權限。" });
-  assert.deepEqual(deps.calls, ["auth"]);
+  assert.deepEqual(deps.calls, ["auth", "profile"]);
 });
 
 test("invoice preview POST fails closed when database-key configuration lookup throws", async () => {
@@ -561,7 +561,7 @@ test("invoice preview POST fails closed when database-key configuration lookup t
 
 test("invoice preview POST fails closed when admin database client creation throws", async () => {
   const deps = makePreviewRouteDependencies({
-    createAdminClient: () => { throw new Error("database client detail must not escape"); },
+    createAdminClient: () => { deps.calls.push("admin-client"); throw new Error("database client detail must not escape"); },
   });
   const response = await handleProviderInvoicePreviewPost(
     makeInvoicePreviewRequest(JSON.stringify({ csv: routeInvoiceCsv })), deps,
