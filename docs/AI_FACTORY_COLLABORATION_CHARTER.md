@@ -145,7 +145,7 @@ A task is DONE only when all applicable conditions are true:
 - Required Main CI and regression checks pass against that Main state.
 - The final report links the evidence and identifies any non-blocking external provider status without misrepresenting it.
 
-If any condition is false or unknown, the task is NOT DONE.
+If any critical condition is false or unknown, the task is NOT DONE. Applicable non-critical checks may be explicitly waived under Section 12; a waiver must remain visible in the final report and must never be described as PASS.
 
 ## 10. Immediate adoption order
 
@@ -172,3 +172,68 @@ All five agents must acknowledge the charter by reporting their assigned role, c
 - No declaring that another agent, reviewer, or external service has acted unless the GitHub evidence confirms it.
 
 **Final principle:** Finish the current change completely, prove it on Main, then start the next one. Delivery closure outranks parallel activity.
+
+
+## 12. Risk-based acceptance: non-critical checks may be waived
+
+The purpose of acceptance is to control material delivery risk, not to force every informational or low-value check to block a safe change. Acceptance requirements must therefore be classified **before implementation** by GPT-1, with GPT-3 and GPT-4 consulted.
+
+### 12.1 Critical gates — never bypass for convenience
+
+The following remain mandatory whenever applicable to the changed scope:
+
+- The change is syntactically valid and the application can build or package successfully where a build is applicable.
+- Tests covering the changed behavior pass; no known regression or data-loss defect remains.
+- Security-sensitive changes receive the required security review. Authentication, authorization, secrets, privacy, payment, RLS, database migration, and externally exposed API changes cannot waive their relevant security/integration checks.
+- No unresolved critical/high severity security issue, destructive migration risk, permission escalation, or known production-breaking defect.
+- The exact candidate HEAD is identified, the diff is reviewed, and mergeability is confirmed.
+- Any check explicitly required by repository policy or branch protection remains mandatory unless the repository owner formally changes that policy.
+
+A critical gate that is pending, failed, skipped, missing, or unverified blocks merge. Do not relabel a critical gate as non-critical after it fails.
+
+### 12.2 Non-critical checks — may be skipped or waived with a record
+
+Examples that may be classified as non-critical depending on the actual change:
+
+- Informational documentation link checks or spelling/style checks unrelated to executable behavior.
+- Optional preview deployments, non-production visual previews, or provider status checks that are not part of the required release path.
+- Redundant test suites that duplicate stronger coverage already passing for the same changed behavior.
+- Optional benchmarks, advisory scans, or non-blocking reports with no relevant finding.
+- Unrelated platform-specific checks when the change demonstrably does not touch that platform or its shared code.
+
+GPT-1 may authorize a non-critical check to be skipped or waived and proceed to merge readiness **without waiting for that check**, provided all conditions below are recorded:
+
+1. The check is explicitly named and marked `NON_CRITICAL`; never hide it as PASS.
+2. The reason it is non-critical is specific to the files and behavior changed.
+3. GPT-3 records what equivalent or stronger evidence covers the risk, or explains why no additional evidence is needed.
+4. GPT-4 confirms that the waiver does not create a security, privacy, data integrity, compliance, or architectural risk.
+5. GPT-1 records the waiver decision, approver, date, and any follow-up action.
+6. The PR description and final delivery report disclose the skipped/waived check.
+
+A non-critical waiver is not a failed check being converted to green. Report it as `WAIVED_NON_CRITICAL` or `SKIPPED_NON_CRITICAL`, with the reason.
+
+### 12.3 Fast path for low-risk changes
+
+For documentation-only, comment-only, typo, or similarly low-risk changes, GPT-1 may use a streamlined path:
+
+1. Verify the diff contains only the claimed low-risk changes.
+2. Run a lightweight validation appropriate to the change (for example Markdown rendering/link checks when relevant).
+3. Obtain one independent review when required by repository policy; otherwise record the review decision.
+4. Confirm no critical gate applies and no required branch protection check is being bypassed.
+5. Merge when the required conditions are met; do not wait for unrelated optional checks.
+
+This fast path does not apply merely because a PR is small. Scope and impact, not line count or labels, determine risk.
+
+### 12.4 Required acceptance classification
+
+Every task must include this compact matrix before implementation:
+
+| Check / gate | Classification | Why it applies or does not apply | Evidence / waiver owner |
+|---|---|---|---|
+| Build / syntax | CRITICAL or N/A | Scope-based reason | Run/job or reason |
+| Changed-behavior tests | CRITICAL or N/A | Scope-based reason | Run/job or reason |
+| Security / privacy / data integrity | CRITICAL or N/A | Scope-based reason | Review/evidence |
+| Integration / migration / RLS | CRITICAL or N/A | Scope-based reason | Run/job or reason |
+| Optional quality / preview checks | NON_CRITICAL or N/A | Scope-based reason | Evidence or waiver |
+
+**Decision rule:** Critical gates must pass. Applicable non-critical gates may pass, be skipped, or be waived with an explicit record. The PR may merge once all critical gates and repository-mandated requirements are satisfied; it does not need to wait for unrelated non-critical checks.
