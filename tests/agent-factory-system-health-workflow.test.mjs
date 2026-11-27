@@ -12,7 +12,19 @@ test("system-health recovery invokes its Node controller without the Windows Pow
   const step = workflow.slice(start, next < 0 ? undefined : next);
   assert.ok(workflow.includes("runs-on: ubuntu-latest"), "system-health workflow must use its hosted Ubuntu runner");
   assert.ok(step.includes("        shell: bash\n"), "controller step must use the Bash shell declared by the Ubuntu runner");
-  assert.ok(workflow.includes("    runs-on: ubuntu-latest"), "observer job must start for every completed CI event");
+  assert.ok(workflow.includes("  resolve-system-health:"), "a dedicated observer job must start for every completed CI event");
+  const observerStart = workflow.indexOf("  resolve-system-health:");
+  const controllerStart = workflow.indexOf("  reset-system-breaker:");
+  assert.ok(observerStart >= 0 && controllerStart > observerStart, "observer must precede the state-mutating controller");
+  const observer = workflow.slice(observerStart, controllerStart);
+  const controller = workflow.slice(controllerStart, workflow.indexOf("  reset-system-breaker-windows-fallback:"));
+  assert.ok(observer.includes("runs-on: ubuntu-latest"), "observer must use hosted Ubuntu");
+  assert.equal(observer.includes("global-citizen-ai-network-self-hosted-runner"), false,
+    "read-only observer must not wait behind the shared state-writer lock");
+  assert.ok(observer.includes("outputs:\\n      should_recover:"), "observer must export exact-head eligibility");
+  assert.ok(controller.includes("group: global-citizen-ai-network-self-hosted-runner"),
+    "state-mutating controller must retain the shared serialization lock");
+  assert.ok(controller.includes("needs: [resolve-system-health]"), "controller must consume verified observer output");
   assert.equal(workflow.includes("    if: >-"), false, "job-level filtering must not suppress diagnostic evidence");
   assert.ok(workflow.includes("WORKFLOW_CONCLUSION"), "resolver must validate source CI conclusion inside the job");
   assert.ok(workflow.includes("WORKFLOW_HEAD_REPOSITORY"), "resolver must reject untrusted source repositories");
