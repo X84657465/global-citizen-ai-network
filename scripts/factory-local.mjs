@@ -238,7 +238,7 @@ async function serve(queue) {
         task_id: result.task.id,
         status: result.task.status,
         failure_scope: result.failure_scope ?? null,
-        publication_state: result.publication?.state ?? result.publication?.state ?? null,
+        publication_state: result.publication?.state ?? null,
         publication_error: result.publication_error ?? null,
       }));
       if (result.failure_scope === "system") {
