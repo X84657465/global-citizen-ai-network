@@ -128,3 +128,16 @@ test("a system failure ends the batch and leaves the remaining task queued", (t)
     ["queued", 1, 1], ["queued", 0, 0],
   ]);
 });
+
+
+test("publish command is wired and refuses a task absent from durable SQLite", (t) => {
+  const { invoke } = openFixture(t);
+  const result = invoke(["publish", "missing-accepted-task"], { exit: 1 });
+  assert.equal(result, null);
+});
+
+test("publish command rejects malformed task IDs before any GitHub request", (t) => {
+  const { invoke } = openFixture(t);
+  const result = invoke(["publish", "../outside"], { exit: 1 });
+  assert.equal(result, null);
+});
