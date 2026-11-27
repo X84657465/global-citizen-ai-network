@@ -282,7 +282,7 @@ test("controller invocation detection includes Node options and ./ prefixes but 
   assert.equal(hasV2ControllerInvocation("        run: node scripts/agent-factory-v2-controller.mjs"), true);
   assert.equal(hasV2ControllerInvocation("        run: node ./scripts/agent-factory-v2-controller.mjs"), true);
   assert.equal(hasV2ControllerInvocation("        run: node --no-warnings ./scripts/agent-factory-v2-controller.mjs"), true);
-  assert.equal(hasV2ControllerInvocation("        run: |\\n          # node scripts/agent-factory-v2-controller.mjs"), false);
+  assert.equal(hasV2ControllerInvocation("        run: |\n          # node scripts/agent-factory-v2-controller.mjs"), false);
   assert.equal(hasV2ControllerInvocation("        run: echo '# node scripts/agent-factory-v2-controller.mjs'"), false);
 });
 
@@ -1225,11 +1225,11 @@ test("PR Acceptance Gate resolves a unique PR before acquiring its per-PR queue"
 function extractAcceptanceGithubScript(jobName, stepName) {
   const job = findJobSection(acceptance, jobName);
   const step = findNamedStepBlock(acceptance, stepName, job.start, job.end);
-  const match = step.match(/\\n          script: \\|\\n([\\s\\S]*)$/);
+  const match = step.match(/\n          script: \\|\n([\\s\\S]*)$/);
   assert.ok(match, "GitHub Script block must exist for " + stepName);
-  return match[1].split("\\n")
+  return match[1].split("\n")
     .map((line) => line.startsWith("            ") ? line.slice(12) : line)
-    .join("\\n")
+    .join("\n")
     .trimEnd();
 }
 
@@ -1238,7 +1238,7 @@ function runAcceptanceGithubScript(script, { github, context, core, env = {} }) 
     ? { join: (...parts) => parts.join("/") }
     : { evaluateAcceptance: () => ({ accepted: false, failures: [] }), REQUIRED_CI_JOBS: [] };
   const execute = new Function("github", "context", "core", "process", "require",
-    `return (async () => { ${script}\\n})();`);
+    `return (async () => { ${script}\n})();`);
   return execute(github, context, core, { env: { GITHUB_WORKSPACE: "/workspace", ...env } }, mockedRequire);
 }
 
