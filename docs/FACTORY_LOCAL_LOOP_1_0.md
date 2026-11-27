@@ -216,4 +216,6 @@ Added:
 - SQLite 相同來源冪等重播、來源變更拒絕。
 - Publisher Draft PR 保留 V2 Issue task marker。
 
+**額外 P0 安全缺口（不可忽略）：**目前 Issue intake 只讀取 V2 durable state／state_version，尚未呼叫 V2 `reserveTask` 建立跨執行器 active lease，也未在 local Worker／Publisher 終態時透過 state machine 完成 transition/release。因此 SQLite 的 idempotency 僅保證本機資料庫內不重複進件，不能防止 GitHub Actions V2 Worker 與本機 Worker 同時 claim 同一 Issue。這個 adapter 目前只能作為未啟用的實作切片；在完成 V2 lease/fencing、crash recovery、local completion/release 與跨系統重播測試前，禁止在 production 執行 `intake-next`，不得宣稱 V2→Local handoff 已驗收。
+
 **尚未實證：** 新增測試與完整 `npm run test:unit` 尚未在此 connector 工作階段執行；Windows 真實 Ollama → intake → SQLite → Trusted Oracle → publisher → GitHub Draft PR → restart recovery 的同一 task ID E2E 尚未執行。Exact-HEAD CI 若未完成，仍是 NOT RUN／PENDING；不能解除 Draft。
