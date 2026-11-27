@@ -143,86 +143,9 @@ jobs:
             throw "Local agent task intake or Trusted Oracle contract evidence is invalid."
           }
           $contractSha = [string]$added.trusted_oracle_contract.contract_sha256
-          if ($contractSha -notmatch '^[a-f0-9]{64}
-
-          $runResult = $null
-          for ($attempt = 1; $attempt -le 3; $attempt++) {
-            $runOutput = & node scripts/factory-local.mjs run-once
-            $runExitCode = $LASTEXITCODE
-            Write-Host ("FACTORY_AGENT_ATTEMPT=" + $attempt)
-            Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_BEGIN"
-            Write-Host ($runOutput -join [Environment]::NewLine)
-            Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_END"
-            if ($runOutput) {
-              $candidate = ($runOutput -join [Environment]::NewLine) | ConvertFrom-Json
-              if ($candidate.claimed -and $candidate.completed -and $candidate.task.status -eq "succeeded") {
-                $runResult = $candidate
-                break
-              }
-              if ($candidate.failure_scope -eq "system" -or $candidate.task.status -ne "retry_wait") {
-                break
-              }
-            }
-            if ($attempt -lt 3) {
-              Write-Host "FACTORY_AGENT_BOUNDED_TASK_RETRY_WAIT=6s"
-              Start-Sleep -Seconds 6
-            }
+          if ($contractSha -notmatch '^[a-f0-9]{64}$') {
+            throw "Trusted Oracle contract digest is invalid."
           }
-          if (-not $runResult) {
-            $failureStatus = & node scripts/factory-local.mjs status
-            Write-Host "FACTORY_AGENT_FAILURE_STATUS_BEGIN"
-            Write-Host ($failureStatus -join [Environment]::NewLine)
-            Write-Host "FACTORY_AGENT_FAILURE_STATUS_END"
-            $failureEvents = & node scripts/factory-local.mjs logs $taskId
-            Write-Host "FACTORY_AGENT_FAILURE_EVENTS_BEGIN"
-            Write-Host ($failureEvents -join [Environment]::NewLine)
-            Write-Host "FACTORY_AGENT_FAILURE_EVENTS_END"
-            throw "Real Ollama agent task did not complete within the bounded three-attempt retry policy."
-          }
-          $agentResult = $runResult.task.result
-          if (-not $runResult.claimed -or -not $runResult.completed -or
-              $runResult.task.status -ne "succeeded" -or
-              $agentResult.outcome -ne "accepted" -or
-              $agentResult.acceptance_status -ne "ACCEPTED" -or
-              $agentResult.generated_code_executed -ne $true -or
-              $agentResult.test_execution -ne "GENERATED_TESTS_AND_TRUSTED_ORACLE_PASSED_IN_SEPARATE_NETWORK_DISABLED_RUNS" -or
-              $agentResult.scratch_evidence.sandbox_evidence.exit_code -ne 0 -or
-              $agentResult.scratch_evidence.sandbox_evidence.passed_tests -lt 1 -or
-              $agentResult.acceptance_evidence.valid -ne $true -or
-              $agentResult.acceptance_evidence.contract_sha256 -ne $contractSha -or
-              $agentResult.acceptance_evidence.exit_code -ne 0 -or
-              $agentResult.acceptance_evidence.passed_tests -lt 1) {
-            throw "Real Ollama → generated tests → trusted Oracle → ACCEPTED evidence is incomplete."
-          }
-          if (-not $agentResult.plan_artifact.model -or -not $agentResult.patch_artifact.model) {
-            throw "The actual Ollama model identity was not persisted."
-          }
-          Write-Host ("FACTORY_OLLAMA_MODEL=" + $agentResult.plan_artifact.model)
-          Write-Host "FACTORY_OLLAMA_AND_TRUSTED_ORACLE_ACCEPTED"
-
-          $statusOutput = & node scripts/factory-local.mjs status
-          if ($LASTEXITCODE -ne 0) { throw "Agent task SQLite read-back failed." }
-          $statusRows = @(($statusOutput -join [Environment]::NewLine) | ConvertFrom-Json)
-          $restored = $statusRows | Where-Object { $_.id -eq $taskId } | Select-Object -First 1
-          if (-not $restored -or $restored.status -ne "succeeded" -or
-              $restored.result.outcome -ne "accepted" -or
-              $restored.result.acceptance_status -ne "ACCEPTED" -or
-              $restored.result.acceptance_evidence.contract_sha256 -ne $contractSha -or
-              $restored.result.acceptance_evidence.exit_code -ne 0 -or
-              $restored.result.scratch_evidence.sandbox_evidence.exit_code -ne 0) {
-            throw "Complete Ollama and sandbox evidence did not survive SQLite reopen."
-          }
-
-          $logsOutput = & node scripts/factory-local.mjs logs $taskId
-          if ($LASTEXITCODE -ne 0) { throw "Agent task event read-back failed." }
-          $events = @(($logsOutput -join [Environment]::NewLine) | ConvertFrom-Json)
-          if (-not ($events | Where-Object { $_.event_type -eq "task_succeeded" })) {
-            throw "Persisted agent task_succeeded event is missing."
-          }
-
-          Write-Host "FACTORY_OLLAMA_SQLITE_REOPEN_READBACK_PASSED"
-          Write-Host "FACTORY_LOCAL_AGENT_LOOP_WINDOWS_E2E_PASSED"
-) { throw "Trusted Oracle contract digest is invalid." }
           $taskId = [string]$added.task.id
           Write-Host "FACTORY_AGENT_TASK_ID=$taskId"
           Write-Host "FACTORY_TRUSTED_ORACLE_CONTRACT_SHA256=$contractSha"
@@ -261,30 +184,39 @@ jobs:
             Write-Host "FACTORY_AGENT_FAILURE_EVENTS_END"
             throw "Real Ollama agent task did not complete within the bounded three-attempt retry policy."
           }
+
           $agentResult = $runResult.task.result
           if (-not $runResult.claimed -or -not $runResult.completed -or
               $runResult.task.status -ne "succeeded" -or
-              $agentResult.outcome -ne "sandbox_tests_passed" -or
+              $agentResult.outcome -ne "accepted" -or
+              $agentResult.acceptance_status -ne "ACCEPTED" -or
               $agentResult.generated_code_executed -ne $true -or
-              $agentResult.test_execution -ne "PASSED_IN_NETWORK_DISABLED_CONTAINER" -or
+              $agentResult.test_execution -ne "GENERATED_TESTS_AND_TRUSTED_ORACLE_PASSED_IN_SEPARATE_NETWORK_DISABLED_RUNS" -or
               $agentResult.scratch_evidence.sandbox_evidence.exit_code -ne 0 -or
-              $agentResult.scratch_evidence.sandbox_evidence.passed_tests -lt 1) {
-            throw "Real Ollama → validated patch → sandbox test evidence is incomplete."
+              $agentResult.scratch_evidence.sandbox_evidence.passed_tests -lt 1 -or
+              $agentResult.acceptance_evidence.valid -ne $true -or
+              $agentResult.acceptance_evidence.contract_sha256 -ne $contractSha -or
+              $agentResult.acceptance_evidence.exit_code -ne 0 -or
+              $agentResult.acceptance_evidence.passed_tests -lt 1) {
+            throw "Real Ollama → generated tests → trusted Oracle → ACCEPTED evidence is incomplete."
           }
           if (-not $agentResult.plan_artifact.model -or -not $agentResult.patch_artifact.model) {
             throw "The actual Ollama model identity was not persisted."
           }
           Write-Host ("FACTORY_OLLAMA_MODEL=" + $agentResult.plan_artifact.model)
-          Write-Host "FACTORY_OLLAMA_SANDBOX_TESTS_PASSED"
+          Write-Host "FACTORY_OLLAMA_AND_TRUSTED_ORACLE_ACCEPTED"
 
           $statusOutput = & node scripts/factory-local.mjs status
           if ($LASTEXITCODE -ne 0) { throw "Agent task SQLite read-back failed." }
           $statusRows = @(($statusOutput -join [Environment]::NewLine) | ConvertFrom-Json)
           $restored = $statusRows | Where-Object { $_.id -eq $taskId } | Select-Object -First 1
           if (-not $restored -or $restored.status -ne "succeeded" -or
-              $restored.result.outcome -ne "sandbox_tests_passed" -or
+              $restored.result.outcome -ne "accepted" -or
+              $restored.result.acceptance_status -ne "ACCEPTED" -or
+              $restored.result.acceptance_evidence.contract_sha256 -ne $contractSha -or
+              $restored.result.acceptance_evidence.exit_code -ne 0 -or
               $restored.result.scratch_evidence.sandbox_evidence.exit_code -ne 0) {
-            throw "Complete Ollama and sandbox evidence did not survive SQLite reopen."
+            throw "Complete Ollama and Trusted Oracle evidence did not survive SQLite reopen."
           }
 
           $logsOutput = & node scripts/factory-local.mjs logs $taskId
