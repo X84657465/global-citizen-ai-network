@@ -7090,3 +7090,46 @@ Review inventory retrieved for #683/#679/#677/#681/#672/#676: no formal APPROVED
 - Continue non-overlapping operations/evidence work; return resolver/runner failures to the Factory/repository administrators, quota to the Vercel/project administrator, and formal review to an authorized independent reviewer.
 
 **Disposition: BLOCKED / NOT GREEN.** This is a verified evidence handoff, not a claim that all project problems are solved.
+
+
+---
+
+# GPT5 live operations checkpoint — 2026-11-27 20:31 Asia/Taipei
+
+## Refreshed live state
+- `refs/heads/main` exact SHA: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Seven OPEN PRs remain, all Draft and unmerged; all seven base SHAs currently equal the main SHA above.
+- Main latest PR Acceptance Gate run [45999020723](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999020723): **FAILURE, 0 jobs**.
+- Main latest Recovery run [45999020683](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999020683): QUEUED; job [140505626980](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999020683/job/140505626980) QUEUED, no steps materialized.
+- Newest Recovery Failure Observer [45999046619](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999046619): QUEUED; job [140505715919](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999046619/job/140505715919) QUEUED.
+- Main combined status: Vercel **FAILURE**, build-rate-limit URL; external provider/admin action required.
+- Latest observed run IDs and exact job inventories supersede earlier run snapshots above; no pass inferred from a queued job or zero-job run.
+
+## Exact-head PR inventory refreshed
+| PR | HEAD SHA | Exact-head check inventory | Formal review |
+|---|---|---|---|
+| #674 | `999b89b9404005fb99b67c543b4a9db432cd7a37` | 15: 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | No review submissions; 0 threads |
+| #683 | `7cabdefa13595884f8e6f094b16957acd4eb6a86` | 15: 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | COMMENTED only; 0 threads |
+| #679 | `174bd08725bd78a27d9fe44e7ea4bea373a63df9` | 16: 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS | COMMENTED only; 0 threads |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9: 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | No review submissions; 0 threads |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 22: 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS | No review submissions; 0 threads |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | No review submissions; 0 threads |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | No review submissions; 0 threads |
+
+All PR base refs equal the refreshed main SHA. All remain OPEN/Draft. `mergeable=true` metadata is not acceptance, independent review, or merge permission. COMMENTED is not APPROVED.
+
+## GPT5 own PR #674: latest exact-head failure evidence
+- Latest PR-triggered workflow run [45999010727](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999010727), attempt 1, for exact head `999b89b...`.
+- Jobs: Resolve exact candidate PR metadata **FAILURE** (job 140505599304); Exact-SHA CI failure diagnostics **FAILURE** (job 140505601102); autofix **FAILURE** (job 140505594826); Windows Runner quality gates, Ollama/local integration, Supabase/PostgreSQL/RLS integration, and both persistence jobs **SKIPPED**.
+- GitHub job-log retrieval for the failed resolver returned HTTP 404 BlobNotFound; diagnostic/autofix log retrieval was not established. Therefore root cause is **UNKNOWN / evidence unavailable**, not guessed.
+- Current PR metadata rechecked: OPEN, Draft=true, mergeable=true. Formal reviews remain zero. Keep Draft; no self-approval or merge.
+- GPT5 did not run local tests/build/lint or deployment in this connector-only pass.
+
+## Pivot and owner routing
+- Rechecked exact current main SHA and all seven PR exact-head check inventories before taking further action.
+- Repeated main Acceptance Gate failures with zero jobs and Recovery jobs remaining queued provide no new executable validation evidence. Stop blind reruns; route the orchestration/runner evidence gap to Factory/repository administrators.
+- Vercel rate-limit remains external; route to project/Vercel administrator and do not repeat unchanged deployments.
+- #683/#681/#672 Factory workflow paths remain GPT1-owned; #677/#679 remain GPT2-owned. Do not write overlapping implementation paths.
+- GPT5 completed another append-only operations evidence checkpoint in its own documentation lane. No source implementation, branch-protection, secret, permission, billing, production or deployment changes were made.
+
+**Disposition: BLOCKED / NOT GREEN.** The only verified GPT5 deliverable in this pass is the updated evidence handoff; CI acceptance, independent approval, Draft removal, and merge are not complete.
