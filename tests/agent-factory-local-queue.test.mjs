@@ -160,3 +160,132 @@ test("queue rejects invalid payloads, retry limits and unknown states", () => {
     assert.throws(() => queue.list({ status: "pending" }), /Unsupported task status/);
   });
 });
+
+
+function acceptedAgentResult(taskId, contract, oracleFiles, generatedFiles) {
+  const evidence = (testFiles) => ({
+    exit_code: 0,
+    passed_tests: testFiles.length,
+    test_files: testFiles,
+    tap_summary: {
+      tests: testFiles.length,
+      pass: testFiles.length,
+      fail: 0,
+      cancelled: 0,
+      skipped: 0,
+      todo: 0,
+      valid: true,
+    },
+  });
+  return {
+    schema_version: 1,
+    kind: "local-agent-task",
+    outcome: "accepted",
+    acceptance_status: "ACCEPTED",
+    generated_code_executed: true,
+    trusted_oracle: {
+      valid: true,
+      task_id: taskId,
+      base_sha: contract.base_sha,
+      contract_sha256: contract.contract_sha256,
+    },
+    acceptance_evidence: {
+      valid: true,
+      task_id: taskId,
+      base_sha: contract.base_sha,
+      contract_sha256: contract.contract_sha256,
+      ...evidence(oracleFiles),
+    },
+    patch_artifact: {
+      patch: {
+        files: generatedFiles.map((path) => ({ path, operation: "add", content: "fixture" })),
+      },
+    },
+    scratch_evidence: {
+      status: "SANDBOX_TESTS_PASSED",
+      generated_code_executed: true,
+      repository_files_modified: false,
+      sandbox_evidence: evidence(generatedFiles),
+    },
+  };
+}
+
+test("SQLite refuses to complete a local agent task from proposal or model-only test evidence", () => {
+  withQueue((queue) => {
+    const id = "agent-acceptance-gate";
+    const contract = {
+      schema_version: 2,
+      kind: "trusted-acceptance-oracle",
+      task_id: id,
+      base_sha: "b".repeat(40),
+      contract_sha256: "a".repeat(64),
+      files: [{ path: "tests/oracle.test.mjs" }],
+      worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+    };
+    const task = queue.add({
+      id,
+      title: "Agent task must fail closed",
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+      },
+    });
+    const claimed = queue.claim("worker");
+    assert.equal(claimed.id, task.id);
+    assert.throws(
+      () => queue.complete(id, "worker", claimed.lease_token, {
+        schema_version: 1,
+        kind: "local-agent-task",
+        outcome: "proposal_ready",
+        generated_code_executed: true,
+      }),
+      /SQLite Trusted Acceptance Gate rejected task completion/,
+    );
+    assert.equal(queue.get(id).status, "running");
+    const failed = queue.fail(id, "worker", claimed.lease_token, "missing trusted acceptance evidence");
+    assert.equal(failed.status, "retry_wait");
+    assert.deepEqual(queue.events(id).map((event) => event.event_type), [
+      "task_queued", "task_claimed", "task_failure_recorded",
+    ]);
+  });
+});
+
+test("SQLite accepts an agent task only when the separate generated and trusted TAP evidence match intake", () => {
+  withQueue((queue) => {
+    const id = "agent-accepted-fixture";
+    const contract = {
+      schema_version: 2,
+      kind: "trusted-acceptance-oracle",
+      task_id: id,
+      base_sha: "c".repeat(40),
+      contract_sha256: "d".repeat(64),
+      files: [{ path: "tests/oracle.test.mjs" }],
+      worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+    };
+    const task = queue.add({
+      id,
+      title: "Valid agent task",
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+      },
+    });
+    const claimed = queue.claim("worker");
+    const result = acceptedAgentResult(
+      id, contract,
+      ["tests/oracle.test.mjs"],
+      ["tests/generated.test.mjs"],
+    );
+    const completed = queue.complete(id, "worker", claimed.lease_token, result);
+    assert.equal(completed.status, "succeeded");
+    assert.equal(completed.result.acceptance_status, "ACCEPTED");
+    assert.equal(queue.events(id).at(-1).detail.trusted_oracle_contract_sha256, contract.contract_sha256);
+    assert.equal(queue.get(task.id).status, "succeeded");
+  });
+});
