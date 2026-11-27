@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Verify runner execution and toolchain
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
         run: |
           $ErrorActionPreference = 'Stop'
           Write-Host "RUNNER_SMOKE_STARTED"
