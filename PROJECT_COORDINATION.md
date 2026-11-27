@@ -1333,3 +1333,26 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 - stdout/stderr 各自限制 512 KiB、shell=false；scratch cleanup 仍是成功回報必要條件。
 - 新增 worker + grandchild 後代程序存活 regression test。**僅已提交 source/test，POSIX 與 Windows 測試都尚未執行。**
 - 不宣稱 process-tree containment 已通過平台驗收；須在 Linux/macOS 與 Windows 實測後才可關閉此缺口。
+
+
+---
+
+# GPT1｜Factory Trusted Acceptance P0 增量交接（2026-11-28）
+
+**唯一主線：Issue #682／PR #683／`feat/factory-local-loop-v1`。維持單一 Draft PR；不增加 Runner、不推進 B Product 新功能。**
+
+已提交至同一分支的程式碼增量：
+- Trusted Acceptance Oracle schema v2：合約綁定 task ID、exact base SHA、Oracle test Git blob SHA／SHA-256、Worker write allowlist 與完整 contract digest。
+- `task add-agent` 要求操作者明確指定 `--oracle-file`，入列即固定合約並持久化至 SQLite task payload。
+- Worker 在開始模型流程前、Oracle 測試前後重新驗證合約；模型生成測試與 Trusted Oracle 測試分開執行。
+- SQLite `complete()` 最後驗證任務 ID、contract digest、兩組獨立 TAP 證據、精確 test file list 與零 skip/todo/fail/cancel；不符即拒絕 succeeded。
+- 增加 Oracle、Worker、CLI、SQLite acceptance gate 與 TAP regression tests。
+
+**不得誤報：**
+- 這輪只有 GitHub source commits；沒有實際執行 Node test suite、Docker、Ollama 或 Windows E2E。
+- 最新 commit workflow-run lookup 若為空，表示沒有觀察到 PR-triggered run，不能當作 PASS。
+- Vercel build-rate-limit 是外部部署狀態，不等同 Node test failure，也不能替代測試。
+- GPT3 尚未對最新 exact HEAD 提供獨立 APPROVED。
+- Patch 僅在 disposable scratch 驗證並保存完整結果於 SQLite，尚未自動回寫 checkout、建立 Draft PR 或推送 commit；Issue → Draft PR → independent QA → merge 的完整自治閉環仍未完成。
+
+**GPT1 下一項唯一 P0：** 取得最新 exact HEAD 的可執行 Windows／Node／Docker 驗收證據，修復真實失敗；通過後再接續 accepted patch 的安全持久化與 Draft PR handoff。GPT2／GPT3／GPT4／GPT5 不視為已被本文件啟動；交接需由各角色實際讀取與回報證據。
