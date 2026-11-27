@@ -397,6 +397,24 @@ test("local publisher refuses a base SHA that differs from the intake checkout b
   assert.equal(fixture.queue.getPublication(fixture.taskId).state, "prepared");
 });
 
+test("local publisher refuses a dirty checkout before any GitHub write", async (t) => {
+  const fixture = createAcceptedFixture(t);
+  writeFileSync(join(fixture.root, "unrelated-local-change.txt"), "must not be published\\n");
+  const github = makeGitHubApi({ baseSha: fixture.baseSha });
+  await assert.rejects(
+    publishAcceptedLocalFactoryTask({
+      taskRecord: fixture.queue.get(fixture.taskId),
+      taskEvents: fixture.queue.events(fixture.taskId),
+      repositoryRoot: fixture.root,
+      api: github.api,
+      persistPublication: (record) => fixture.queue.recordPublication(fixture.taskId, record),
+    }),
+    /checkout is dirty/,
+  );
+  assert.equal(github.calls.filter((call) => call.method === "POST").length, 0);
+  assert.equal(fixture.queue.getPublication(fixture.taskId), null);
+});
+
 test("local publisher dry-run verifies accepted evidence without API or SQLite writes", async (t) => {
   const fixture = createAcceptedFixture(t);
   let apiCalls = 0;
