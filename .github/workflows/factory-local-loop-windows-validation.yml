@@ -109,12 +109,13 @@ jobs:
           $task = @{
             schema_version = 1
             title = "Real local Ollama agent pipeline E2E"
-            goal = "Create exactly one new self-contained Node.js test file at tests/factory-local-loop-e2e.generated.test.mjs. The file must use node:test and node:assert/strict, define a small pure deterministic normalization function locally, and include a passing test for that function. Do not import project files, use filesystem/network/process APIs, or require dependencies."
+            goal = "Create exactly one self-contained Node.js test file at tests/factory-local-loop-e2e.generated.test.mjs. Import test from node:test and assert from node:assert/strict. In that same file, define exactly this function: function normalizeInput(value) { return String(value ?? \"\").trim().toLowerCase(); }. Add one test that calls normalizeInput(\'  GCAN Factory  \') and asserts the result equals \'gcan factory\'. The function declaration and the test must both be in the generated file. Use the exact identifier normalizeInput everywhere; never call normalize, normalizeString, or any undeclared identifier. Do not import project files, use filesystem/network/process APIs, or require dependencies."
             allowed_paths = @("tests/factory-local-loop-e2e.generated.test.mjs")
             acceptance_criteria = @(
               "Add exactly one new file at tests/factory-local-loop-e2e.generated.test.mjs.",
               "Use node:test and node:assert/strict with at least one real assertion.",
-              "The test must exercise a pure deterministic function defined in the same file.",
+              "The generated file must declare function normalizeInput(value) and the test must call that exact declared identifier.",
+              "The test must assert normalizeInput('  GCAN Factory  ') equals 'gcan factory'; no undefined identifiers are allowed.",
               "The generated test must pass under the pinned network-disabled Node sandbox."
             )
             explicit_exclusions = @(
@@ -134,12 +135,30 @@ jobs:
           $taskId = [string]$added.task.id
           Write-Host "FACTORY_AGENT_TASK_ID=$taskId"
 
-          $runOutput = & node scripts/factory-local.mjs run-once
-          $runExitCode = $LASTEXITCODE
-          Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_BEGIN"
-          Write-Host ($runOutput -join [Environment]::NewLine)
-          Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_END"
-          if ($runExitCode -ne 0) {
+          $runResult = $null
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+            $runOutput = & node scripts/factory-local.mjs run-once
+            $runExitCode = $LASTEXITCODE
+            Write-Host ("FACTORY_AGENT_ATTEMPT=" + $attempt)
+            Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_BEGIN"
+            Write-Host ($runOutput -join [Environment]::NewLine)
+            Write-Host "FACTORY_AGENT_RUN_ONCE_OUTPUT_END"
+            if ($runOutput) {
+              $candidate = ($runOutput -join [Environment]::NewLine) | ConvertFrom-Json
+              if ($candidate.claimed -and $candidate.completed -and $candidate.task.status -eq "succeeded") {
+                $runResult = $candidate
+                break
+              }
+              if ($candidate.failure_scope -eq "system" -or $candidate.task.status -ne "retry_wait") {
+                break
+              }
+            }
+            if ($attempt -lt 3) {
+              Write-Host "FACTORY_AGENT_BOUNDED_TASK_RETRY_WAIT=6s"
+              Start-Sleep -Seconds 6
+            }
+          }
+          if (-not $runResult) {
             $failureStatus = & node scripts/factory-local.mjs status
             Write-Host "FACTORY_AGENT_FAILURE_STATUS_BEGIN"
             Write-Host ($failureStatus -join [Environment]::NewLine)
@@ -148,9 +167,8 @@ jobs:
             Write-Host "FACTORY_AGENT_FAILURE_EVENTS_BEGIN"
             Write-Host ($failureEvents -join [Environment]::NewLine)
             Write-Host "FACTORY_AGENT_FAILURE_EVENTS_END"
-            throw "Real Ollama agent task did not complete successfully."
+            throw "Real Ollama agent task did not complete within the bounded three-attempt retry policy."
           }
-          $runResult = ($runOutput -join [Environment]::NewLine) | ConvertFrom-Json
           $agentResult = $runResult.task.result
           if (-not $runResult.claimed -or -not $runResult.completed -or
               $runResult.task.status -ne "succeeded" -or
