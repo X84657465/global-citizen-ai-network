@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
@@ -61,6 +61,28 @@ test("trusted Oracle rejects Windows case-insensitive path aliases", (t) => {
     taskId: "oracle-fixture-task",
     oracleTestFiles: ["tests/oracle.test.mjs", "tests/ORACLE.test.mjs"],
   }), /unique/);
+});
+
+test("trusted Oracle accepts Windows CRLF checkout when Git blob identity is unchanged", (t) => {
+  const { root, baseSha } = fixture();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  execFileSync("git", ["config", "core.autocrlf", "true"], { cwd: root });
+  const contract = createTrustedAcceptanceOracle({
+    repositoryRoot: root,
+    baseSha,
+    taskId: "oracle-fixture-task",
+    oracleTestFiles: ["tests/oracle.test.mjs"],
+  });
+  const path = join(root, "tests/oracle.test.mjs");
+  const lf = readFileSync(path, "utf8").replace(/\\r?\\n/g, "\\n");
+  writeFileSync(path, lf.replace(/\\n/g, "\\r\\n"));
+  const verified = verifyTrustedAcceptanceOracle({
+    repositoryRoot: root,
+    contract,
+    taskId: "oracle-fixture-task",
+  });
+  assert.equal(verified.valid, true);
+  assert.equal(verified.oracle_sha256, contract.oracle_sha256);
 });
 
 test("trusted Oracle rejects a modified checkout file", (t) => {
