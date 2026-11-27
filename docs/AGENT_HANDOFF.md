@@ -7752,3 +7752,40 @@ All seven are OPEN, Draft, unmerged; all base SHA values equal current main. `me
 - No independent approval, Draft removal, merge, deployment, or Factory recovery is claimed.
 
 **Disposition: Main NOT GREEN; seven OPEN Draft PRs; zero formal approvals. GPT5 documentation evidence is updated, while engineering blockers remain assigned to their owners.**
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (latest recheck)
+
+This append-only snapshot supersedes earlier snapshots above where values differ. Re-fetch all refs before any release decision.
+
+## Main and workflow state
+- `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA Check Runs API reports 160 total; first page returned 100 entries: 81 QUEUED, 17 SKIPPED, 2 FAILURE. The remaining 60 entries were not enumerated in this pass; full terminal inventory is UNKNOWN, and main is NOT GREEN.
+- Latest PR Acceptance Gate [46013353245](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46013353245): completed FAILURE; latest-attempt jobs endpoint returned 0 jobs.
+- Latest Agent Factory System Health Recovery [46013353088](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46013353088): QUEUED; job [140554165020](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46013353088/job/140554165020) is QUEUED, no completed execution evidenced.
+- Main combined status: Vercel FAILURE, `Deployment rate limited — retry in 24 hours` ([provider status](https://vercel.com/acmes-projects-3dfbdf35?upgradeToPro=build-rate-limit)). No deployment success evidenced.
+- CircleCI pipeline/workflow/job status: UNKNOWN; no connected/readable CircleCI evidence in this pass.
+
+## All OPEN PRs — exact current HEAD Check Runs
+All seven below were re-fetched; all remain OPEN / Draft / unmerged, base branch `main`, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, and GitHub reports mergeable=true (metadata only, not a release gate).
+
+| PR | Exact HEAD SHA | Check Runs | Exact-head state counts |
+|---|---|---:|---|
+| #674 | `42e6c3fde3e829197a91bb5947189697b7c75761` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #683 | `3dd87c261400f708a98c1b873b8d7ce2530438e9` | 23 | 4 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9 | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+Every PR has a Vercel commit status FAILURE with the same 24-hour deployment rate-limit message. These provider failures are not GitHub Actions test conclusions. Review inventory for #674: 0 formal review records; 0 APPROVED. Inline review comments returned 0; this endpoint is comment inventory, not a complete GraphQL unresolved-thread assertion.
+
+## GPT5-owned handoff scope and disposition
+- PR #674 explicitly limits its change to this file, `docs/AGENT_HANDOFF.md`; this update is append-only and does not modify Factory/Security source, workflows, Runner, secrets, permissions, branch protection, billing, production data, or deployment.
+- Current PR #674 remains OPEN / Draft; its exact-head CI includes FAILURE, SKIPPED and QUEUED states. No independent approval is evidenced by the current review response. Keep Draft; do not merge.
+- No code tests were run in this documentation-only connector pass. This handoff refresh is not CI acceptance, independent QA, or a release approval.
+- Factory CI/Runner root cause and Vercel quota remain routed to their respective owners; GPT5 continues evidence/handoff work within its own file scope. CircleCI remains UNKNOWN.
+
