@@ -93,6 +93,48 @@ jobs:
           NODE
 
 
+
+      - name: Write redacted recovery diagnostic summary
+        if: always()
+        shell: bash
+        env:
+          SOURCE_CI_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_CI_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          SOURCE_CI_SHA: ${{ github.event.workflow_run.head_sha }}
+          SOURCE_CI_REF: ${{ github.event.workflow_run.head_branch }}
+          SOURCE_CI_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          SOURCE_CI_EVENT: ${{ github.event.workflow_run.event }}
+          SOURCE_CI_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
+          RESOLVED_PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
+          RESOLVER_OUTCOME: ${{ steps.resolve-pr.outcome }}
+          CONTROLLER_OUTCOME: not_started_in_observer
+        run: |
+          {
+            printf 'schema_version=1\n'
+            printf 'recovery_run_id=%s\n' "$GITHUB_RUN_ID"
+            printf 'recovery_run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT"
+            printf 'source_ci_run_id=%s\n' "$SOURCE_CI_RUN_ID"
+            printf 'source_ci_run_attempt=%s\n' "$SOURCE_CI_RUN_ATTEMPT"
+            printf 'source_ci_head_sha=%s\n' "$SOURCE_CI_SHA"
+            printf 'source_ci_head_ref=%s\n' "$SOURCE_CI_REF"
+            printf 'source_ci_conclusion=%s\n' "$SOURCE_CI_CONCLUSION"
+            printf 'source_ci_event=%s\n' "$SOURCE_CI_EVENT"
+            printf 'source_ci_head_repository=%s\n' "$SOURCE_CI_REPOSITORY"
+            printf 'resolved_pr_number=%s\n' "$RESOLVED_PR_NUMBER"
+            printf 'resolver_step_outcome=%s\n' "$RESOLVER_OUTCOME"
+            printf 'controller_step_outcome=%s\n' "$CONTROLLER_OUTCOME"
+          } > "$RUNNER_TEMP/system-health-recovery-summary.txt"
+
+      - name: Upload recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-health-recovery-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/system-health-recovery-summary.txt
+          if-no-files-found: error
+          retention-days: 30
+
+
   reset-system-breaker:
     name: Verify completed exact-head CI before resetting system breaker
     needs: [resolve-system-health]
@@ -138,46 +180,6 @@ jobs:
           node scripts/agent-factory-v2-controller.mjs
           controller_exit=$?
           exit "$controller_exit"
-
-      - name: Write redacted recovery diagnostic summary
-        if: always()
-        shell: bash
-        env:
-          SOURCE_CI_RUN_ID: ${{ github.event.workflow_run.id }}
-          SOURCE_CI_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
-          SOURCE_CI_SHA: ${{ github.event.workflow_run.head_sha }}
-          SOURCE_CI_REF: ${{ github.event.workflow_run.head_branch }}
-          SOURCE_CI_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
-          SOURCE_CI_EVENT: ${{ github.event.workflow_run.event }}
-          SOURCE_CI_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
-          RESOLVED_PR_NUMBER: ${{ needs.resolve-system-health.outputs.number }}
-          RESOLVER_OUTCOME: ${{ needs.resolve-system-health.outputs.should_recover }}
-          CONTROLLER_OUTCOME: ${{ steps.recovery.outcome }}
-        run: |
-          {
-            printf 'schema_version=1\n'
-            printf 'recovery_run_id=%s\n' "$GITHUB_RUN_ID"
-            printf 'recovery_run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT"
-            printf 'source_ci_run_id=%s\n' "$SOURCE_CI_RUN_ID"
-            printf 'source_ci_run_attempt=%s\n' "$SOURCE_CI_RUN_ATTEMPT"
-            printf 'source_ci_head_sha=%s\n' "$SOURCE_CI_SHA"
-            printf 'source_ci_head_ref=%s\n' "$SOURCE_CI_REF"
-            printf 'source_ci_conclusion=%s\n' "$SOURCE_CI_CONCLUSION"
-            printf 'source_ci_event=%s\n' "$SOURCE_CI_EVENT"
-            printf 'source_ci_head_repository=%s\n' "$SOURCE_CI_REPOSITORY"
-            printf 'resolved_pr_number=%s\n' "$RESOLVED_PR_NUMBER"
-            printf 'resolver_step_outcome=%s\n' "$RESOLVER_OUTCOME"
-            printf 'controller_step_outcome=%s\n' "$CONTROLLER_OUTCOME"
-          } > "$RUNNER_TEMP/system-health-recovery-summary.txt"
-
-      - name: Upload recovery diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: system-health-recovery-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/system-health-recovery-summary.txt
-          if-no-files-found: error
-          retention-days: 30
 
   reset-system-breaker-windows-fallback:
     name: Verify hosted allocation failure and recover on Windows Runner
