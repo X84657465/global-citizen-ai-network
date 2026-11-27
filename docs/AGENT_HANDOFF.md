@@ -6197,3 +6197,58 @@ Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` remains Enabled; next schedu
 - GPT5: evidence/documentation handoff only. No secrets, permissions, runners, Factory state, branch protection, Draft state, merge, billing, or deployment changed. No local tests were run.
 
 **Disposition: BLOCKED / NOT GREEN.** This is an operations evidence update, not CI acceptance or code repair.
+
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (fresh exact-ref audit)
+
+This append records the current remote inspection. It supersedes earlier live-state snapshots above only for the exact refs and run IDs listed here. Re-fetch before any later release decision.
+
+## Repository and main
+
+- Repository: `X84657465/global-citizen-ai-network`.
+- Live `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Main exact-SHA Check Runs: **32 total — 21 QUEUED, 2 PENDING, 9 SKIPPED**. No complete substantive core-CI acceptance set is established.
+- Main CI [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380): PENDING; sole resolver job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366) is PENDING with no steps.
+- Latest System Health Recovery [45955369810](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955369810): QUEUED; job [140360517883](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955369810/job/140360517883) is QUEUED with no steps.
+- Latest main PR Acceptance Gate [45955369882](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955369882): terminal FAILURE; Jobs API returns **0 jobs**. Zero jobs is not a pass and provides no job-level root cause.
+- Main combined commit status: Vercel **FAILURE / build-rate-limit**. This is an external provider quota signal, not source-code test evidence.
+
+## All OPEN main-target PRs
+
+The live open-PR enumeration returned exactly #672, #674 and #676. All are OPEN / Draft / unmerged, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, and report `mergeable=true` metadata only.
+
+| PR | Exact HEAD SHA | Exact-head check runs | Combined external status | Formal reviews |
+|---|---|---|---|---|
+| [#672](https://github.com/X84657465/global-citizen-ai-network/pull/672) | `7948c32dde3e3f39e2aa2d4973d4703de1e733d1` | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL | Vercel FAILURE / build-rate-limit | 0 |
+| [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) | `85a9f66cec7b83cd57633572b5dd6f9b51fa4989` | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL | Vercel FAILURE / build-rate-limit | 0 |
+| [#676](https://github.com/X84657465/global-citizen-ai-network/pull/676) | `a54013a52189b21624dfa0604a9231b1896cdd53` | 10: 2 PENDING, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL | Vercel SUCCESS (Preview only) | 0 |
+
+- All three PRs have zero observed review threads and zero formal APPROVED reviews. A neutral Mergify status or Summary SUCCESS does not substitute for required CI or independent approval.
+- #672 CI [45947224484](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484): resolver job [140334592163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484/job/140334592163) remains PENDING with no steps.
+- #674 resolver check [45955359973](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955359973) is reported PENDING by check-runs, while the latest-attempt Jobs API simultaneously returns **7 jobs completed CANCELLED**, including resolver, Windows quality gates, Supabase/RLS, diagnostics, persistence, and Ollama integration. This is a status-source inconsistency; treat the candidate as UNKNOWN/BLOCKED, not PASS, until reconciled on the exact HEAD.
+- #676 CI [45954669226](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669226): resolver job [140358259313](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669226/job/140358259313) remains PENDING with no steps.
+- Acceptance Gate runs for #672 [45947324701](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947324701), #674 [45955356654](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45955356654), and #676 [45954669700](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669700) are terminal FAILURE with **0 jobs each**.
+
+## GPT5-owned work and owner routing
+
+- GPT5 completed an append-only live evidence refresh in this already-authorized documentation lane: `docs/AGENT_HANDOFF.md` on PR #674. This is documentation/operations handoff only, not code repair, CI acceptance, or independent review.
+- GPT1 / Factory owns PR #672 (acceptance-gate queue policy) and #676 (recovery trigger gate), plus main CI/Recovery and Acceptance Gate 0-job root-cause investigation. Their job-level execution/runner cause remains UNKNOWN where no steps/logs exist.
+- GPT3 or another separately authorized independent reviewer owns formal review of exact final PR HEADs. No formal approval exists for any of the three.
+- Vercel/project administrator owns the main/#672/#674 build-rate-limit failure. #676 Preview success does not complete its GitHub Actions checks.
+- Repository administrator must verify effective branch protection/rulesets through an authorized view; this connector's earlier protection read was insufficient to establish enforcement or bypass state.
+- Keep Issue #117 and #505 open until their own acceptance criteria and independent evidence are satisfied. Issue #671 remains the P0 post-merge acceptance incident record.
+
+## Release disposition
+
+- Main: **NOT GREEN / BLOCKED**.
+- PR #672: **BLOCKED — keep Draft**.
+- PR #674: **BLOCKED — keep Draft**.
+- PR #676: **BLOCKED — keep Draft**.
+- PENDING, QUEUED, SKIPPED, CANCELLED, 0 Jobs, NEUTRAL, status-source disagreement, and external rate limits are not PASS.
+- No self-approval, Draft removal, merge, branch-protection bypass, secret/permission mutation, Factory durable-state mutation, or deployment was performed.
+- No local repository tests/build/lint were run in this connector-only pass.
+
+**Result: GPT5's authorized operations-documentation delta is prepared; Factory CI/Recovery, Acceptance Gate, external Vercel quota, and independent approvals remain unresolved.**
