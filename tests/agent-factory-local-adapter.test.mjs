@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, rmSync, symlinkSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -199,6 +200,24 @@ test("Ollama transport rejects non-loopback origins and URL redirection inputs b
   }
 });
 
+
+test("strict Trusted Oracle mode rejects a missing generated candidate", (t) => {
+  const root = mkdtempSync(join(tmpdir(), "gcan-strict-oracle-missing-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  mkdirSync(join(root, "tests"));
+  writeFileSync(
+    join(root, "tests/factory-local-loop-e2e-oracle.test.mjs"),
+    readFileSync(new URL("./factory-local-loop-e2e-oracle.test.mjs", import.meta.url)),
+  );
+  const result = spawnSync(process.execPath, ["--test", "tests/factory-local-loop-e2e-oracle.test.mjs"], {
+    cwd: root,
+    encoding: "utf8",
+    windowsHide: true,
+    env: { ...process.env, GCAN_FACTORY_TRUSTED_ORACLE: "1" },
+  });
+  assert.notEqual(result.status, 0, "strict acceptance must fail when the candidate is absent");
+  assert.match(result.stdout + result.stderr, /candidate is required in strict acceptance mode/);
+});
 
 test("strict TAP evidence rejects missing, failed, skipped, todo and empty test summaries", () => {
   const valid = [
