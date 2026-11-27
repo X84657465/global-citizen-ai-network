@@ -7352,3 +7352,31 @@ All seven remain OPEN / Draft / unmerged and target the current main SHA. None h
 - Continue only non-overlapping, explicitly scoped operations/evidence work while owners address the blockers.
 
 **Disposition: BLOCKED / NOT GREEN.**
+
+
+## 2026-11-27 live operations refresh (follow-up)
+
+### Verified refs
+- `main`: `590d132e338dc5bb47243f372a0547c8dfdbfced` (latest commit query; no newer commit observed).
+- Current open PRs: #683 `1974c55d0f34a320034c072fb9433f60e4e4d25b`; #681 `f93ebb7aca06c9869dd80bbd87180c251fd6d01b`; #679 `174bd08725bd78a27d9fe44e7ea4bea373a63df9`; #677 `452010fbb81546bf0b0a8f44512a1acc1583b5eb`; #676 `040b2b412a8226637c5d536466247b507a22b9c6`; #674 `874dc6e1764338c021e1e3abb469e2892f87826c`; #672 `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd`.
+- All seven remain OPEN / Draft / unmerged; each reports `mergeable=true`, but none has a formal review. Mergeability is not acceptance.
+
+### Exact-head CI and external status
+- `main` combined status: Vercel `failure` (`build-rate-limit` URL); commit-based workflow-run query returned no runs, so main Actions status is UNKNOWN rather than green.
+- #683: CI run `46001773137` FAILURE; autofix `46001773282` FAILURE; Codacy, Clippy and Preflight QUEUED; Vercel FAILURE.
+- #681: CI run `45990254637` FAILURE; autofix `45990254445` FAILURE; Codacy, Clippy and Preflight QUEUED; Vercel FAILURE.
+- #679: CI run `45988683409` FAILURE; autofix `45988683208` FAILURE; Codacy and Clippy QUEUED; Vercel SUCCESS only (not overall acceptance).
+- #677: CI run `45979397241` PENDING; autofix `45979397128` FAILURE; Codacy and Clippy QUEUED; Vercel FAILURE.
+- #676: CI run `45972034125` PENDING; autofix `45972034098` PENDING; Codacy and Clippy QUEUED; Vercel FAILURE.
+- #674: CI run `46004872662` FAILURE; autofix `46004872728` FAILURE; Codacy and Clippy QUEUED; Vercel FAILURE. CI jobs: Resolver `140525409542` FAILURE; Diagnostics `140525412194` FAILURE; Windows quality gates, Supabase/PostgreSQL/RLS, persistence and Ollama jobs SKIPPED. Steps endpoint returned an empty list; log retrieval returned Azure BlobNotFound 404. Root cause remains UNKNOWN.
+- #672: CI run `45970239642` PENDING; autofix `45970239590` PENDING; Codacy and Clippy QUEUED; Vercel FAILURE.
+
+### Disposition and owner handoff
+- No PR is eligible for Draft removal or merge: exact-head CI is failing or pending, required checks are queued/unknown, and no formal independent APPROVED review is present on #674 (reviews and review threads both empty).
+- Resolver/diagnostics and Factory acceptance workflow failures: GPT1 / Factory workflow owner; provide valid run/job logs and repair resolver eligibility/dispatch without blind retries.
+- #677 cost-test failure: GPT2 cost-test owner. #679 release-assurance failure: GPT2 G owner. Remaining Factory PR validation: GPT1 owner.
+- Vercel `build-rate-limit`: project/Vercel administrator; do not repeatedly redeploy against unchanged quota.
+- GPT3 / authorized independent reviewer: provide formal approval only after exact-head evidence is complete.
+- GPT5 action this pass: documentation-only evidence refresh in this existing PR branch. No Factory/Security source, workflow, runner, secrets, permissions, branch protection, durable state, billing, production data or deployment was changed. No code tests were run.
+
+**Disposition: BLOCKED / NOT GREEN.** No CI pass, independent acceptance, Draft removal or merge is claimed.
