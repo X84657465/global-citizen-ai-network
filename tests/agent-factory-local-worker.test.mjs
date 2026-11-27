@@ -6,6 +6,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { createTrustedAcceptanceOracle } from "../lib/agent-factory-trusted-oracle.mjs";
+import { createLocalFactoryPublicationTarget } from "../lib/agent-factory-local-publication-contract.mjs";
 import { runLocalFactoryAgentTask, runLocalFactoryTask, terminateLocalFactoryProcessTree, LocalFactoryWorkerError } from "../lib/agent-factory-local-worker.mjs";
 
 test("local worker executes only the allowlisted queue regression suite and returns evidence", async () => {
@@ -66,6 +67,15 @@ test("local agent worker accepts only after separate generated and trusted Oracl
     oracleTestFiles: ["tests/agent-factory-local-queue.test.mjs"],
     workerAllowedPaths: task.allowed_paths,
   });
+  const publicationTarget = createLocalFactoryPublicationTarget({
+    taskId,
+    repository: process.env.GITHUB_REPOSITORY || "X84657465/global-citizen-ai-network",
+    baseBranch: process.env.GITHUB_REF_NAME || execFileSync("git", ["symbolic-ref", "--short", "HEAD"], {
+      cwd: process.cwd(), encoding: "utf8",
+    }).trim(),
+    baseSha,
+    contractSha256: trustedOracleContract.contract_sha256,
+  });
   const criteria = { acceptance_criteria: task.acceptance_criteria };
   const plan = { schema_version: 1, tasks: [
     { ...criteria, id: "inspect", title: "Inspect task", role: "planner", action: "inspect",
@@ -101,6 +111,7 @@ test("local agent worker accepts only after separate generated and trusted Oracl
       task_id: taskId,
       task,
       trusted_oracle_contract: trustedOracleContract,
+      publication_target: publicationTarget,
     },
     sandboxTests: true,
     sandboxTestRunner({ scratchRoot, testFiles }) {
