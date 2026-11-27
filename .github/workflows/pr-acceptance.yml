@@ -26,9 +26,9 @@ permissions:
   statuses: read
 
 concurrency:
-  # All event types update the same PR advisory state. Keep those writes serial
-  # without waiting for Windows Runner jobs or durable Factory state writers.
-  group: global-citizen-ai-network-pr-acceptance
+  # Serialize advisory writes per PR, not across the entire repository.
+  # workflow_run events without an embedded PR use the exact source SHA as a safe fallback.
+  group: global-citizen-ai-network-pr-acceptance-${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number || inputs.pr_number || github.event.workflow_run.head_sha || github.sha }}
   cancel-in-progress: false
   queue: max
 
