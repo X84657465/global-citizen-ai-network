@@ -1,6 +1,6 @@
 # G — Release, QA & Integration
 
-**Track version:** 0.1.2  
+**Track version:** 0.1.4  
 **Status:** implementation candidate; operational release authority is not implied.  
 **Owner:** GPT 2 / G workstream.
 
