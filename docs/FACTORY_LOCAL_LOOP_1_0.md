@@ -99,3 +99,26 @@
 ## 7. 風險與限制
 
 Node 內建 `node:sqlite` 在目前支援版本仍可能顯示 experimental warning；實作需檢查最低 Node 版本並提供明確錯誤。使用者本機只有有限 RAM，Worker 預設單一併發，禁止為此新增 Runner。第一版只對明確允許的測試命令執行，不把一般 shell agent 偽裝成安全 sandbox。
+
+
+## 8. 已提交的第一個可執行 Worker 切片（尚未驗收）
+
+分支 `feat/factory-local-loop-v1` 已新增以下有限範圍：
+
+- `scripts/factory-local.mjs`：提供 `task add`、`run-once`、`status`、`logs`、`recover`。
+- `npm run factory:local -- task add --title "Queue regression tests"`：建立一筆本機佇列回歸測試任務。
+- `npm run factory:local -- run-once`：單 Worker 領取任務，在 disposable scratch 目錄複製固定 allowlist 檔案，使用目前 Node 執行固定的兩組 Queue regression tests，並將 exit code、Node 版本、平台、duration、stdout/stderr 摘要寫回 SQLite。
+- Worker 不接受模型或任務 payload 提供的 shell command；只接受固定的 `local-queue-tests` 任務種類。測試失敗計為 task failure；執行環境／scratch 清理問題計為 system failure。
+- 新增 Worker allowlist 與真實子程序執行測試。
+
+這是「SQLite → claim → 固定命令執行 → 結果持久化 → logs 讀回」的第一個可執行切片，不是完整 Agent Factory V2，也不是 Ollama 自主改碼閉環。
+
+### 尚未完成的 P0 工作
+
+1. 將既有 Planner / Patch Generator / Patch Validator 轉成明確的 local task adapter，不得偽造 GitHub Issue 身分。
+2. 以安全 scratch workspace 套用已驗證 Patch，並只執行明確 allowlist 的測試命令。
+3. 加入真實 Ollama plan/patch 執行、逾時／輸出上限與重啟後 evidence read-back。
+4. 在 Windows 本機實際執行 CLI 與 Node 測試，保存命令、Node 版本、exit code、task ID、結果 JSON。
+5. 精確 HEAD CI 與 GPT3 獨立審查通過後才可解除 Draft。
+
+目前此切片的程式碼已提交，但本 connector 工作階段未執行 Node 測試；不得標記 PASS。
