@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { runLocalFactoryAgentTask, runLocalFactoryTask, terminateLocalFactoryProcessTree, LocalFactoryWorkerError } from "../lib/agent-factory-local-worker.mjs";
 
-test("local worker executes only the allowlisted queue regression suite and returns evidence", () => {
-  const result = runLocalFactoryTask({
+test("local worker executes only the allowlisted queue regression suite and returns evidence", async () => {
+  const result = await runLocalFactoryTask({
     payload: { schema_version: 1, kind: "local-queue-tests" },
     repositoryRoot: process.cwd(),
     timeoutMs: 120_000,
@@ -46,7 +46,7 @@ test("timeout termination kills the worker and its descendant process tree", asy
     "const grandchild = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });",
     "process.stdout.write(String(grandchild.pid) + '\\n');",
     "setInterval(() => {}, 1000);",
-  ].join("\\n");
+  ].join("\n");
   const child = spawn(process.execPath, ["-e", childCode], {
     detached: process.platform !== "win32",
     stdio: ["ignore", "pipe", "ignore"],
@@ -58,7 +58,7 @@ test("timeout termination kills the worker and its descendant process tree", asy
     let output = "";
     child.stdout.on("data", (chunk) => {
       output += chunk.toString();
-      const match = output.match(/(\\d+)\\r?\\n/);
+      const match = output.match(/(\d+)\r?\n/);
       if (match) resolve(Number(match[1]));
     });
   });
