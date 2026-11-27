@@ -25,6 +25,7 @@ function usage() {
     "  node scripts/factory-local.mjs status",
     "  node scripts/factory-local.mjs logs <task-id>",
     "  node scripts/factory-local.mjs recover",
+    "  node scripts/factory-local.mjs publish <accepted-task-id> [--dry-run]",
     "  node scripts/factory-local.mjs publish <accepted-task-id>",
   ].join("\n"));
 }
