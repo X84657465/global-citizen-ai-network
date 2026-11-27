@@ -1208,7 +1208,9 @@ test("Recovery failure observer allocates a runner only for failed or interrupte
     "observer must retain completed Recovery workflow events");
   const { start, end } = findJobSection(recoveryObserver, "capture-recovery-evidence");
   const observerJob = recoveryObserver.slice(start, end);
-  const gate = observerJob.match(/    if: >-\\n([\\s\\S]*?)\\n    runs-on:/);
+  const gate = observerJob.match(/    if: >-
+([\s\S]*?)
+    runs-on:/);
   assert.ok(gate, "observer must have a job-level pre-allocation conclusion gate");
   assert.ok(gate[1].includes("||"), "failure and interruption outcomes must be alternatives");
   for (const conclusion of ["failure", "cancelled", "timed_out"]) {
