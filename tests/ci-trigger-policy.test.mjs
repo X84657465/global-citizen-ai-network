@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 
 const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const acceptance = readFileSync(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflight = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const runnerSmoke = readFileSync(new URL("../.github/workflows/self-hosted-runner-smoke.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -1145,4 +1146,45 @@ test("Windows candidate classifier uses a temporary ESM file instead of native -
     "execute the classifier by file path");
   assert.equal(preflight.includes("& node --input-type=module -e"), false,
     "do not pass quoted ESM source through Windows PowerShell native -e parsing");
+});
+
+test("Agent Task Preflight PR and push path filters cover every acceptance-required path", () => {
+  const policyMatch = acceptance.match(/const preflightPaths = new Set\\(\\[([\\s\\S]*?)\\]\\);/);
+  assert.ok(policyMatch, "PR Acceptance Gate must expose its authoritative Preflight path set");
+  const requiredPaths = [...policyMatch[1].matchAll(/^\\s*'([^']+)'[,]?\\s*$/gm)].map((match) => match[1]);
+  assert.ok(requiredPaths.length > 0, "the authoritative Preflight path set must not be empty");
+  assert.equal(new Set(requiredPaths).size, requiredPaths.length,
+    "the authoritative Preflight path set must not contain duplicates");
+
+  function extractEventPaths(source, eventName) {
+    const header = source.slice(0, source.indexOf("\\npermissions:"));
+    const marker = "  " + eventName + ":\\n";
+    const start = header.indexOf(marker);
+    assert.ok(start >= 0, "missing workflow event: " + eventName);
+    const rest = header.slice(start + marker.length);
+    const nextEvent = rest.search(/\\n  [A-Za-z0-9_-]+:\\n/);
+    const eventBlock = nextEvent >= 0 ? rest.slice(0, nextEvent) : rest;
+    const pathsMatch = eventBlock.match(/(?:^|\\n)    paths:\\n((?:      - "[^"]+"\\n?)+)/);
+    assert.ok(pathsMatch, eventName + " must declare an explicit paths filter");
+    const entries = [...pathsMatch[1].matchAll(/^      - "([^"]+)"\\s*$/gm)].map((match) => match[1]);
+    assert.ok(entries.length > 0, eventName + " paths filter must not be empty");
+    assert.equal(new Set(entries).size, entries.length,
+      eventName + " paths filter must not contain duplicate entries");
+    return entries;
+  }
+
+  const expected = [...requiredPaths].sort();
+  for (const eventName of ["push", "pull_request"]) {
+    const actual = extractEventPaths(preflight, eventName).sort();
+    assert.deepEqual(actual, expected,
+      "AI Agent Task Preflight " + eventName + ".paths must exactly match PR Acceptance Gate preflightPaths");
+  }
+  for (const requiredPath of [
+    "lib/agent-task-validation.mjs",
+    "tests/agent-task-validation.test.mjs",
+    "tests/agent-plan-validation.test.mjs",
+    "tests/ci-trigger-policy.test.mjs",
+  ]) {
+    assert.ok(requiredPaths.includes(requiredPath), "acceptance path policy must retain " + requiredPath);
+  }
 });
