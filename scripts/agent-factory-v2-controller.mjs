@@ -50,6 +50,9 @@ async function main() {
       } catch {
         // Keep the original failure; the normal breaker cooldown remains the fallback.
       }
+      // The telemetry read also calls GitHub. Respect the cooldown before
+      // making any further requests, even when exporting the deadline fails.
+      throw error;
     }
     // A capacity guard can reject a write before run() returns a result.
     // On failure only, re-read the durable state and emit count-only telemetry
