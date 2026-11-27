@@ -1189,3 +1189,35 @@ test("Agent Task Preflight PR and push path filters cover every acceptance-requi
     assert.ok(requiredPaths.includes(requiredPath), "acceptance path policy must retain " + requiredPath);
   }
 });
+
+
+test("PR Acceptance Gate resolves a unique PR before acquiring its per-PR queue", () => {
+  const header = acceptance.slice(0, acceptance.indexOf("\njobs:"));
+  assert.equal(header.includes("\nconcurrency:\n"), false,
+    "concurrency must be job-level so it can use the resolved PR identity");
+
+  const resolveStart = acceptance.indexOf("  resolve-target:");
+  const evaluateStart = acceptance.indexOf("  evaluate:");
+  assert.ok(resolveStart >= 0 && evaluateStart > resolveStart,
+    "a read-only target resolver must run before the serialized evaluator");
+  const resolver = acceptance.slice(resolveStart, evaluateStart);
+  assert.ok(resolver.includes("payloadPrs.length === 1"),
+    "workflow_run may use an embedded PR number only when the association is unique");
+  assert.ok(resolver.includes("matches.length === 1"),
+    "ambiguous or missing payload associations must be resolved by exact SHA and unique PR match");
+  assert.ok(resolver.includes("core.setOutput('pr_number'"),
+    "the resolver must export the unique PR number when available");
+  assert.ok(resolver.includes("core.setOutput('head_sha'"),
+    "the resolver must always export the exact source SHA fallback");
+
+  assert.ok(acceptance.includes("needs: [resolve-target]"),
+    "the evaluator must wait for target resolution");
+  assert.ok(acceptance.includes("needs.resolve-target.outputs.pr_number || needs.resolve-target.outputs.head_sha || github.sha"),
+    "all events must serialize by the resolved PR number or exact source SHA");
+  assert.ok(acceptance.includes("cancel-in-progress: false"),
+    "new events must not cancel an in-progress advisory update");
+  assert.ok(acceptance.includes("queue: max"),
+    "events for the same PR must remain queued rather than silently discarded");
+  assert.equal(acceptance.includes("github.event.workflow_run.pull_requests[0].number ||"),
+    false, "never select the first PR from an ambiguous workflow_run association");
+});
