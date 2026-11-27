@@ -1,53 +1,179 @@
-# GPT5 live operations delta — 2026-11-27 14:35 Asia/Taipei
+# GPT5 post-write exact-head delta — 2026-11-27
 
-This latest live snapshot supersedes earlier snapshots below. Exact SHAs are mandatory; check evidence must not be carried across commits.
+This short correction supersedes the #664 row in the immediately following full snapshot. The append-only update to the authorized handoff path produced commit / new PR HEAD `aadc5fdc08a371bc6cbf03b8f21d3684ffe9ab52`. After the write, PR #664 remains OPEN / Draft / unmerged, base SHA `c2c461029649fda07cc0e440928e896e493b2ea7`, mergeable metadata true; its exact new HEAD has **9 check runs: 2 PENDING, 5 QUEUED, 2 IN_PROGRESS**. These are not passing checks. Main was re-read after the write and remains `c2c461029649fda07cc0e440928e896e493b2ea7`. No approval, Draft removal, merge, test run, or deployment occurred.
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (latest exact-head recheck)
+
+This entry is the newest point-in-time snapshot and supersedes prior moving-head snapshots. Every check result below is tied to the exact SHA shown. Re-fetch before release decisions.
 
 ## Main
-- Exact `refs/heads/main`: `078bc72216e3990f9c7c4db2e06e5851a5c8428e`.
-- 326 check-run records across all four API pages: 93 SUCCESS, 54 FAILURE, 108 SKIPPED, 71 CANCELLED. These are cumulative records for this SHA, not a single CI run and not a green verdict.
-- Combined commit status: Vercel FAILURE, target `build-rate-limit`.
-- Latest observed PR Acceptance Gate [45891002951](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45891002951): FAILURE; exact job log evaluates PR #630 HEAD `6610eb3227663d25d8851fa561c30d8bf379cb5a` as HOLD with CI_NOT_SUCCESS, REQUIRED_JOB_NOT_SUCCESS, REQUIRED_JOB_SKIPPED ×3, APPROVAL_MISSING, DRAFT_NOT_READY.
-- Latest observed System Health Recovery [45891002769](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45891002769): CANCELLED. Its exact jobs: verify exact-head CI before reset = CANCELLED; hosted Windows recovery = SKIPPED. Observer run [45891014452](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45891014452) SUCCESS is observation only, not recovery.
-- Main is NOT verified green. No breaker reset or recovery mutation performed.
+- Live `refs/heads/main`: `c2c461029649fda07cc0e440928e896e493b2ea7`.
+- Exact-SHA Check Runs: **27 total — 17 PENDING, 10 QUEUED, zero terminal conclusions**.
+- Latest PR Acceptance Gate run [45939245914](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45939245914): completed **FAILURE**; latest-attempt jobs endpoint returned **0 jobs**.
+- Latest Agent Factory System Health Recovery run [45939246017](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45939246017): **PENDING**; job [140309501072](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45939246017/job/140309501072) remains PENDING with no steps.
+- Combined commit status: **FAILURE**, Vercel reports `Deployment rate limited — retry in 24 hours` (`build-rate-limit`). This is an external provider quota failure, not a GitHub Actions pass/failure.
+- Main is NOT GREEN. No unchanged reruns or breaker/control-plane mutations were performed.
 
-## All currently OPEN PRs
-All ten are OPEN, unmerged, Draft, based on exact main SHA above, metadata `mergeable=true`. Current formal review inventory: zero APPROVED reviews on all ten. Mergeable metadata is not acceptance.
+## All nine OPEN PRs — current exact heads and check-run states
+All nine PRs are OPEN, unmerged, Draft, and report `mergeable=true` metadata only. Formal review inventory contains **zero APPROVED**; COMMENTED is not approval.
 
-| PR | Exact HEAD SHA | Checks | SUCCESS | FAILURE | SKIPPED | CANCELLED | NEUTRAL |
-|---|---|---:|---:|---:|---:|---:|---:|
-| #622 | `eab64f672704a8d9d1d6481defdc7c88a844bf38` | 20 | 8 | 5 | 4 | 1 | 2 |
-| #623 | `3a4713423a9779435ae9f02e1feb1e270741514a` | 21 | 9 | 6 | 4 | 1 | 1 |
-| #624 | `272642ac7fb9965fba245f65fa3a049429a4068a` | 21 | 8 | 6 | 4 | 1 | 2 |
-| #625 | `fda8c8968e98a11b8aa4c8c70219a064435c0532` | 20 | 5 | 5 | 6 | 2 | 2 |
-| #626 | `70decb7f32bdbe42571b39fd5280bf5e61ca6d34` | 22 | 7 | 7 | 5 | 1 | 2 |
-| #628 | `d7de4b95819575f3462f0fcf9ed2be5b06544688` | 21 | 10 | 5 | 3 | 1 | 2 |
-| #630 | `6610eb3227663d25d8851fa561c30d8bf379cb5a` | 19 | 5 | 4 | 6 | 2 | 2 |
-| #631 | `947dabd090184df846e669197b60002547184fb9` | 20 | 5 | 5 | 6 | 2 | 2 |
-| #632 | `282e668d60e2b7c3d04011371065642b325ce822` | 28 | 7 | 7 | 10 | 2 | 2 |
-| #634 | `83719781e68b71ecec16ad1911b403a2d1565336` | 20 | 9 | 6 | 4 | 0 | 1 |
+| PR | Exact base SHA (short) | Exact HEAD SHA (short) | Exact-head checks |
+|---|---|---|---|
+| #666 | `c2c46102` | `4f4b509c` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #664 | `c2c46102` | `3d5dbc76` | 2 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #667 | `c2c46102` | `b2d4c56c` | 2 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #669 | `c2c46102` | `1f0a7403` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #670 | `c2c46102` | `ce87261c` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 6 QUEUED, 6 SKIPPED |
+| #660 | `27890271` | `06f7dff4` | 10 SUCCESS, 1 NEUTRAL, 4 FAILURE, 4 SKIPPED, 1 IN_PROGRESS |
+| #659 | `27890271` | `bb3a1de8` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #668 | `c2c46102` | `53fee05a` | 1 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
+| #661 | `27890271` | `0d6a877c` | 2 SUCCESS, 1 NEUTRAL, 2 PENDING, 5 QUEUED |
 
-All ten have failures and/or skipped/cancelled checks and no formal approval; do not remove Draft or merge any.
+Full exact HEADs:
+- #666 `4f4b509c416f93e58410aa76af1ba586ee6c4fc1` (changed since previous pass; old-head checks are not reusable)
+- #664 `3d5dbc76af5ea95a71e3440f9e3749c87b7f1af6`
+- #667 `b2d4c56c6c618602c5bc6d171fb88bcb633c33f6`
+- #669 `1f0a74034f03d5a68ba644fdb2f9ec7f9108be3e`
+- #670 `ce87261c6d1afd5ff99520150fa7054d6d76aff7`
+- #660 `06f7dff4ea984558f92426a6d757bbbd5ea091f8`
+- #659 `bb3a1de8237e408cb85754e496de328af234d741`
+- #668 `53fee05a1df94df142b29cd215ad31b836e57816`
+- #661 `0d6a877c15832e0a9da02bae54f72bbad7bdf58e`
 
-## GPT5-owned PR #630
-- Exact current HEAD `6610eb3227663d25d8851fa561c30d8bf379cb5a`.
-- Latest core CI [45890992736](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890992736): CANCELLED.
-- Latest PR acceptance gate [45890992722](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890992722): CANCELLED; a separate gate evaluation in [45891002951](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45891002951) records HOLD with the exact failure codes above.
-- Latest Codacy [45890992790](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890992790): FAILURE.
-- Latest CodeQL [45890992603](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890992603): FAILURE.
-- Latest Debricked [45890989331](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45890989331): FAILURE.
-- Previous exact logs on preceding #630 head established empty DEBRICKED_TOKEN / Unauthorized; this current run's secret cause is not independently re-read in this pass, so treat as known prior evidence, not newly confirmed current log.
-- GPT5-owned documentation refresh is the only closed deliverable this pass. No code/workflow/secret/permission/branch-protection/deployment mutation, no repeated rerun, no Draft removal, no merge.
+Base SHA for #660/#659/#661 remains `2789027136f1577af5871d300ad6465cab267cab`, behind current main. These are not GPT5-owned branches.
 
-## Owner routing / next safe action
-- Factory resolver cancellation and downstream skips → GPT1 / CI runner owner.
-- Debricked secret → repository secret administrator; do not edit secrets.
-- CodeQL and Codacy SARIF/scan failures → security workflow owner.
-- Vercel build-rate-limit → Vercel/project administrator.
-- Formal PR approvals → independent authorized reviewers; GPT5 cannot self-approve.
-- GPT5 keeps to its documentation/evidence lane; no safe non-overlapping code task is evidenced by current ownership metadata. Do not invent one.
+## Review / release disposition
+- Formal review submissions: no APPROVED review found on any of the nine PRs. #664/#667/#660/#659/#661 have COMMENTED-only records; #666/#669/#670/#668 returned no review submissions.
+- All nine remain Draft and unmerged. `mergeable=true` is metadata, not a release gate.
+- #670's six SKIPPED checks are not executed/passing checks.
+- #660's four FAILURE and four SKIPPED checks prevent acceptance.
+- No PR is eligible for Draft removal or merge based on the evidence retrieved.
 
-## Automation status
-Existing daily automation remains enabled, schedule `DTSTART;TZID=Asia/Taipei:20261128T090000; RRULE:FREQ=DAILY`, next run 2026-11-28 09:00 Asia/Taipei. Last recorded run is 2026-11-25; enabled scheduling does not prove daily executions have occurred since then.
+## GPT5 own-work and owner routing
+- GPT5's authorized write scope remains `docs/AGENT_HANDOFF.md` on PR #664. This append-only evidence refresh stays within that path.
+- #666/#667/#669/#670/#668/#660/#661 are Factory/governance owner lanes as applicable; #659 is the GPT2 security lane. Do not modify their owned paths or take over Factory workflows/Runner controls.
+- Vercel quota requires project/provider administrator action. Do not repeatedly retry unchanged deployments.
+- No local tests/build/lint were run in this connector-only pass. No Factory code, workflows, Runner, queue/lease/durable state, secrets, permissions, branch protection, database, production data, billing, or deployment was modified.
+- No self-approval, Draft removal, merge, or deployment was performed.
+- GPT5 completed this exact-head evidence refresh only. Main and all open PRs remain BLOCKED / NOT READY.
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (fresh exact-SHA audit)
+
+This section supersedes all older moving-head snapshots below. Re-read refs before using any evidence. Every check result is tied to its exact SHA.
+
+## Main
+- `refs/heads/main`: `c2c461029649fda07cc0e440928e896e493b2ea7`.
+- Exact-SHA Check Runs: **25 total — 14 PENDING, 11 QUEUED, 0 terminal conclusions**. Main is NOT green.
+- Main push CI [45927991679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45927991679), attempt 1: PENDING. Its latest-attempt jobs endpoint returns one job, [140273774229](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45927991679/job/140273774229), PENDING with no steps and no logs. No substantive quality/test validation is evidenced.
+- Combined commit status: Vercel FAILURE, target `build-rate-limit`. This is an external provider/quota failure, not a code-test result.
+- Branch-protection read remains UNKNOWN (GitHub API 403 for this integration). Do not infer policy or bypass.
+
+## All nine OPEN PRs — exact live HEAD / base / checks
+All PRs are OPEN and unmerged. The exact-head check-run totals below are current API results; SUCCESS/NEUTRAL observer records do not override pending, queued, skipped, or failed required work.
+
+| PR | Base SHA (short) | Exact HEAD SHA (short) | Draft | Exact-head check-run states |
+|---|---|---|---|---|
+| #670 | `c2c46102` | `ce87261c` | Yes | 16: 2 PENDING, 6 QUEUED, 6 SKIPPED, 1 SUCCESS, 1 NEUTRAL |
+| #669 | `c2c46102` | `1f0a7403` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+| #668 | `c2c46102` | `53fee05a` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+| #667 | `c2c46102` | `b2d4c56c` | No | 10: 2 PENDING, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL |
+| #666 | `c2c46102` | `7d1af83c` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+| #664 | `c2c46102` | `c7e6ec04` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+| #661 | `27890271` | `0d6a877c` | Yes | 10: 2 PENDING, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL |
+| #660 | `27890271` | `06f7dff4` | Yes | 20: 4 FAILURE, 4 SKIPPED, 1 IN_PROGRESS, 10 SUCCESS, 1 NEUTRAL |
+| #659 | `27890271` | `bb3a1de8` | Yes | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL |
+
+Full exact HEADs:
+- #670 `ce87261c6d1afd5ff99520150fa7054d6d76aff7`
+- #669 `1f0a74034f03d5a68ba644fdb2f9ec7f9108be3e`
+- #668 `53fee05a1df94df142b29cd215ad31b836e57816`
+- #667 `b2d4c56c6c618602c5bc6d171fb88bcb633c33f6`
+- #666 `7d1af83c8d231fd22d3dee9a4c19bd06ce48d64e`
+- #664 `c7e6ec04d5783a4f46eaf9cb7d15097aba9e9bf7`
+- #661 `0d6a877c15832e0a9da02bae54f72bbad7bdf58e`
+- #660 `06f7dff4ea984558f92426a6d757bbbd5ea091f8`
+- #659 `bb3a1de8237e408cb85754e496de328af234d741`
+
+The base branch name for all nine is `main`, but #661/#660/#659 still report base SHA `2789027136f1577af5871d300ad6465cab267cab`, behind current main `c2c461029649fda07cc0e440928e896e493b2ea7`. These are other owners' PRs; GPT5 does not retarget/update their branches. GPT1 owns #661/#660; GPT2 owns #659.
+
+## Formal review and acceptance
+- Formal review submissions re-read for all nine PRs: **0 APPROVED**.
+- COMMENTED-only submissions: #667 (2), #664 (5), #661 (1), #660 (1), #659 (2). #670/#669/#668/#666 returned no formal review submissions.
+- #667 is the only non-Draft PR, but it has no formal APPROVED and its required checks remain PENDING/QUEUED. It is not eligible for merge.
+- Inline review-thread inventory was not freshly enumerated in this pass; unresolved-thread state is UNKNOWN, not assumed clear.
+- No PR is eligible for Draft removal or merge. `mergeable=true` metadata is not acceptance. Do not treat Summary SUCCESS, Mergify NEUTRAL, COMMENTED, PENDING, QUEUED, SKIPPED, or 0 Jobs as PASS.
+
+## Owner routing / next actions
+- #670 (Issue #117, Factory policy): GPT1/Factory owns implementation acceptance; exact CI resolver is PENDING, Linux offline scratch fixture is QUEUED, and six Preflight stages are SKIPPED. Keep Draft.
+- #669 acceptance-gate queue isolation: GPT1/Factory owns workflow and test changes; current exact head has only queued/pending substantive checks. Keep Draft.
+- #668 System Health observer queue isolation: GPT1/Factory owner; exact checks remain pending/queued. Keep Draft.
+- #667 governance identity charter: governance owner and independent reviewer must resolve the outstanding governance mapping/cross-document consistency concern; COMMENTED is not APPROVED.
+- #666 Preflight trigger parity / Issue #665: GPT1/Factory owns workflow trigger repair; keep GPT5 to evidence/handoff.
+- #661 patch-budget fixture: GPT1 owns; exact-head checks pending/queued. Do not duplicate its fixture fix.
+- #660 Phase context: exact-head CI has 4 FAILURE and 4 SKIPPED plus 1 IN_PROGRESS; GPT1 must diagnose and repair within its ownership.
+- #659 dependency audit evidence: GPT2/security owner; exact-head checks pending/queued and base SHA is stale.
+- Vercel `build-rate-limit`: route to Vercel/project administrator. Do not blindly retry unchanged deployments or bypass quota.
+- Main resolver pending with no steps/logs: route to Factory/CI runner owner; no useless rerun absent a concrete root-cause or runner recovery.
+
+## GPT5 execution boundary and result
+- GPT5 remains Global Intelligence & Operations; this pass used read-only repository/PR/CI/review inspection and this single authorized file path, `docs/AGENT_HANDOFF.md`, in PR #664.
+- No Factory/A–P source, workflow, Runner, queue/lease/durable state, secrets, permissions, branch protection, database, production data, billing, or deployment mutation.
+- No local tests/build/lint were run in this connector-only pass. This is evidence/handoff work, not a code/test acceptance claim.
+- Daily automation `6b0333fe43d48191a35a1c83fd72fe6c` is enabled for a flexible daily schedule at 08:00 Asia/Taipei. An immediate run was requested and its inline sweep is being executed in this turn; this is not 24/7 monitoring or an SLA.
+- No Draft transition, self-approval, merge, or deployment was performed.
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (fresh exact-head verification)
+
+This snapshot supersedes the previous live snapshot above the historical archive. Every result below is tied to the exact SHA shown; never carry check evidence across commits.
+
+## Main
+
+- Exact `refs/heads/main`: `2789027136f1577af5871d300ad6465cab267cab`.
+- Commit: `fix(factory): accept Operational evidence in task preflight (#645)`.
+- Combined commit status: Vercel **FAILURE**, target reports `build-rate-limit`. This is an external deployment quota failure, not a successful deployment.
+- The commit-workflow endpoint used here returns only PR-triggered runs; it returned no main-associated PR runs. This does **not** establish that main CI is green or that no main-branch workflows ran.
+- Main is **NOT verified green**. No breaker reset, recovery mutation, secret/permission change, deployment mutation, Draft removal, or merge was performed.
+
+## Historical PR observation snapshot — captured before the latest Main advance on 2026-11-27
+
+**Historical snapshot only:** the SHAs, CI run IDs, review counts, and statuses in the table immediately below describe the observation time of this document update. They are not the current PR heads or current CI state. Always query each PR's live `head.sha` and checks for that exact SHA before making a delivery decision; do not update a branch merely to refresh this historical table.
+
+All four PRs were OPEN, unmerged, Draft, targeted `main`, based on `2789027136f1577af5871d300ad6465cab267cab`, and reported `mergeable=true` (metadata only) at the time of this snapshot. This historical statement must not be interpreted as current status.
+
+| PR | Exact HEAD SHA | CI / other checks | Disposition |
+|---|---|---|---|
+| #664 | `0ec7d17abf70a3909af349df44d85026ea86e007` | CI run 45923824861: resolver job SUCCESS; Windows quality-gates job PENDING. Codacy 45923824841 IN_PROGRESS; rust-clippy 45923824991 QUEUED; autofix 45923824821 SUCCESS. Vercel FAILURE (`build-rate-limit`). | Docs-only; not CI-green; no formal review. |
+| #661 | `0d6a877c15832e0a9da02bae54f72bbad7bdf58e` | CI run 45924363983: resolver job PENDING and no substantive quality-gates job has appeared. Codacy 45924364010 QUEUED; rust-clippy 45924363974 QUEUED; autofix 45924364020 PENDING. Vercel FAILURE (`build-rate-limit`). | Authorized fixture correction is present in the branch, but exact-head validation is not complete. |
+| #660 | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | CI run 45918138646 FAILURE. Unit tests: 902/903 pass, one failure (#308); type check, lint, production build, Ollama integration, Supabase/RLS and persistence jobs SKIPPED. Codacy 45918138708 IN_PROGRESS; rust-clippy 45918138545 SUCCESS; autofix 45918138683 SUCCESS. Vercel FAILURE (`build-rate-limit`). | Blocked by unrelated shared plan-validation fixture failure; no formal review. |
+| #659 | `ba790fc12ee17e964b704d33888e941f506fdb51` | CI run 45918533156 FAILURE. Unit tests: 904/905 pass, one failure (#308); type check, lint, production build, Ollama integration, Supabase/RLS and persistence jobs SKIPPED. Codacy 45918533096 IN_PROGRESS; rust-clippy 45918533054 SUCCESS; autofix 45918533115 SUCCESS. Vercel FAILURE (`build-rate-limit`). | Blocked by the same shared plan-validation fixture failure; no formal review. |
+
+`PENDING`, `QUEUED`, `IN_PROGRESS`, `SKIPPED`, missing jobs, and individual successful auxiliary workflows are not a complete CI PASS. `mergeable=true` is not acceptance.
+
+## Factory blocker diagnosis and owner routing
+
+- #659 and #660 exact-head Windows logs both fail test #308, “topologically orders tasks while preserving stable order among ready tasks”. The validator error is: `Patch proposal task max_output_bytes must be an integer between 16384 and 65536.`
+- On current main, `tests/agent-plan-validation.test.mjs` line 21 supplies a 4096-byte default; the ordering fixture at line 48 uses a `propose_patch` task without overriding it. The #661 branch adds the required 16384-byte override at that fixture. This is the narrow, authorized fix under #662; its current exact HEAD still requires fresh full CI and independent approval.
+- Do not modify #659 or #660 outside their authorized paths to hide this shared test-fixture defect. After #661 is independently validated and accepted through normal governance, refresh/revalidate dependent candidates against the resulting main.
+- Issue #665 remains the owner-routed Preflight path-trigger mismatch. GPT1 / Factory control-plane owner must own the workflow trigger repair; GPT3 is the independent reviewer; GPT5 remains in evidence/documentation scope. Do not widen workflow triggers or alter Factory state without that owner decision.
+- Main and all four PR heads report Vercel `build-rate-limit`; route quota/configuration to the Vercel/project administrator. Do not represent this as source-code success or repeatedly rerun unchanged deployments.
+- Issue #663's Debricked token restoration is a repository-secret-administrator task. Never request, print, commit, or alter secret values in source or issue comments.
+- Merge-acceptance incidents #651 and #653 remain audit records; this refresh does not imply remediation or revert.
+
+## GPT5 disposition
+
+- This pass is limited to exact-head evidence and the documentation handoff. No Factory implementation, workflow, Runner, durable state, queue, lease, retry, quarantine, cooldown, secret, permission, database, branch-protection, or production/deployment mutation was performed.
+- No check was retried merely to convert a pending or failed result into a green appearance. No PR was marked ready, approved, or merged.
+- Next owner actions: GPT1 resolves Issue #665; the #661 exact-head CI must finish and pass; an independent authorized reviewer must approve the exact current head; Vercel administrator resolves the quota failure where deployment is required.
+
+## Evidence boundary
+
+The job counts above are exact job states returned for the named workflow runs at the time of this capture. The #659/#660 unit-test counts and failure text come from their exact Windows quality-gates job logs. This snapshot is not a claim that any PR has passed its complete acceptance gate.
 
 ---
 
@@ -5361,3 +5487,404 @@ All ten are OPEN / Draft / not merged, base SHA `078bc72216e3990f9c7c4db2e06e585
 All 12 OPEN PRs remain Draft, based on this main SHA, none formally APPROVED. Exact-head inventory (total / success / failure / skipped / cancelled / neutral): #643 23/11/7/3/1/1; #636 27/10/5/10/1/1; #634 20/9/6/4/0/1; #632 26/5/5/12/2/2; #631 19/5/4/6/2/2; #630 19/5/4/6/2/2; #628 21/10/5/3/1/2; #626 22/7/7/5/1/2; #625 20/5/5/6/2/2; #624 21/8/6/4/1/2; #623 21/9/6/4/1/1; #622 21/8/6/4/1/2. All contain failures and/or skipped/cancelled checks. #632 and #623 have COMMENTED only; #623's one thread is resolved. No Draft removal/merge is eligible.
 
 GPT5 PR #630 remains OPEN/Draft at HEAD `50b62e8dd28127ac6790e2656b40195965a47229`, base current main; documentation-only changes. CodeQL, Codacy and vulnerability scan failures, Factory skips/cancellations, Vercel rate-limit, and no formal independent approval remain blockers. GPT5 remains within documentation/evidence/handoff lane. Owner routing: GPT1 Factory/runner; Security workflow owner; Vercel/project admin; CircleCI admin; GPT3 independent reviewer. No self-approval, blind rerun, permission/secret/runner/branch-protection/production mutation, or cross-owner source edit.
+
+
+---
+
+# GPT5 LIVE HANDOFF — exact main / CI / PR audit (2026-11-27 14:55 Asia/Taipei)
+
+> This entry supersedes earlier moving-head snapshots above. It is an evidence handoff, not an acceptance or release decision. All check results below are tied to the exact SHAs and run IDs stated.
+
+## Main
+
+- Live `refs/heads/main` was re-read immediately before this update: `2789027136f1577af5871d300ad6465cab267cab`.
+- Combined commit status for this exact SHA: Vercel `FAILURE`, target URL identifies a Vercel build-rate-limit condition. This is an external provider blocker, not a GitHub Actions pass/fail.
+- Latest main Actions run inventory (all on the exact SHA above):
+  - Agent Factory System Health Recovery [45919105868](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45919105868): `PENDING`, attempt 1. Its only job [140245301844](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45919105868/job/140245301844), “Verify completed exact-head CI before resetting system breaker”, remained `PENDING` on a second read. Not zero jobs, but not a terminal success; no breaker reset or recovery mutation was performed.
+  - PR Acceptance Gate [45919105861](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45919105861): `FAILURE`, attempt 1. Its exact job [140245301761](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45919105861/job/140245301761) evaluated PR #659 HEAD `ba790fc12ee17e964b704d33888e941f506fdb51` and returned HOLD: `CI_NOT_SUCCESS`, `REQUIRED_JOB_NOT_SUCCESS`, `REQUIRED_JOB_MISSING` ×3, `APPROVAL_MISSING`, `DRAFT_NOT_READY`. The log also records an earlier event SHA as stale and says it evaluated the current PR SHA.
+  - AI Agent Task Preflight [45918434316](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918434316): `FAILURE` at “Validate task and create a safe handoff bundle”; downstream plan/patch/test/publish steps were `SKIPPED`. The failure-classification and cooldown-recording steps completed successfully. A prior preflight [45918345023](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918345023) failed at “Generate and validate a bounded patch proposal”; subsequent apply/test/publish stages were `SKIPPED`. These are task/Factory execution failures, not successful autonomous delivery.
+  - Other PR Acceptance Gate runs [45919055303](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45919055303) and [45918975235](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918975235) reported `SUCCESS`; they do not erase the later failed gate, pending recovery, or provider failure.
+- Main is **NOT VERIFIED GREEN**. CircleCI was not independently queried in this pass and remains `UNKNOWN / NOT VERIFIED`.
+
+## All currently OPEN PRs
+
+A fresh GitHub `pulls?state=open` enumeration returned exactly three open PRs. All are unmerged, Draft, target `main` at base SHA `2789027136f1577af5871d300ad6465cab267cab`, and have `mergeable=true` metadata. All three formal review inventories are empty (zero APPROVED). Mergeability metadata is not an acceptance decision.
+
+| PR | Exact HEAD SHA | Exact-head evidence | Formal review | Decision |
+|---|---|---|---|---|
+| [#659](https://github.com/X84657465/global-citizen-ai-network/pull/659) | `ba790fc12ee17e964b704d33888e941f506fdb51` | CI [45918533156](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156) / resolver job [140245280836](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156/job/140245280836) remained `PENDING`. Acceptance Gate [45919105861](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45919105861) = `FAILURE / HOLD` with CI, required-job, approval and Draft-readiness failures. | No reviews | Keep Draft; no merge |
+| [#660](https://github.com/X84657465/global-citizen-ai-network/pull/660) | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | CI [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646): quality-gates job [140243524784](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646/job/140243524784) = `FAILURE` at Unit tests; type check, lint and production build = `SKIPPED`; diagnostics job [140246502258](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646/job/140246502258) = `PENDING`; downstream integration/persistence jobs = `SKIPPED`. Clippy and autofix runs succeeded; Codacy was still `IN_PROGRESS` on the latest returned inventory. | No reviews | Keep Draft; return test failure to GPT1/Factory owner |
+| [#661](https://github.com/X84657465/global-citizen-ai-network/pull/661) | `5f97c5f5e3a95f27de1df2f81d5e20f6a0a4fb5a` | CI [45918253514](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918253514): quality-gates job [140243867972](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918253514/job/140243867972) was `IN_PROGRESS` at Unit tests; later checks were `PENDING`. Clippy and autofix succeeded; Codacy was `IN_PROGRESS`. | No reviews | Keep Draft; await terminal exact-head CI and independent review |
+
+Vercel combined status for each of the three PR head SHAs also returned `FAILURE` with the build-rate-limit target. No PR is eligible for Ready conversion, acceptance, or merge. Do not treat any in-progress, pending, skipped, missing, or partial-green result as PASS.
+
+## Owner routing and GPT5 execution
+
+- PR #659 security audit evidence / dependency documentation → GPT2/security workstream owner; GPT5 does not rewrite its owned scope.
+- PR #660 Phase preflight / task-validation implementation and PR #661 plan-validation fixture → GPT1 / Factory owner; GPT5 does not edit overlapping Factory code or tests.
+- Factory preflight failure and Recovery pending → GPT1 / Factory and CI runner owner. Exact pending job and failed/skipped steps are linked above; no repeated reruns or state reset attempted.
+- Vercel build-rate-limit → Vercel/project administrator. CircleCI → `UNKNOWN` pending an accessible source.
+- Independent formal PR approvals → authorized independent reviewers; GPT5 does not self-approve.
+- GPT5 stayed within its operations/evidence/handoff lane. This update is documentation/evidence only; it is not functional Factory delivery, test acceptance, PR approval, or merge.
+
+## Automation execution truth
+
+- Existing daily main/CI/PR automations remain enabled; no duplicate schedule was created.
+- The 13:00 Asia/Taipei inspection automation is enabled with next scheduled run 2026-11-28 13:00; its recorded last-run time is null. The separate 09:00 inspection automation is enabled, but its last recorded run is 2026-11-25. The separate daily coordination-policy reread automation has a 2026-11-26 last recorded run.
+- Enabled schedules do not prove successful daily execution. This live GitHub sweep is verified from the tool reads above; no 99.99999% reliability or continuous-monitoring SLA is claimed.
+
+## Status summary
+
+- Main: `BLOCKED / NOT VERIFIED GREEN` (Factory Recovery PENDING, preflight FAILURE with downstream SKIPPED, PR Acceptance Gate FAILURE, Vercel rate-limit FAILURE).
+- PR #659: `BLOCKED` (CI PENDING, acceptance HOLD, no approval, Draft).
+- PR #660: `BLOCKED` (unit-test FAILURE, required checks SKIPPED, diagnostics PENDING, no approval, Draft).
+- PR #661: `PENDING` (unit tests still running, downstream checks pending, no approval, Draft).
+- Safe Draft removal / merge candidates: **0**.
+- GPT5 deliverable in this pass: exact-SHA evidence and owner-routed handoff update only. No tests, code repairs, approvals, merges, deployments, secrets, permissions, branch-protection, or Factory durable-state changes were performed.
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 latest exact-head refresh
+
+This entry is an incremental refresh against the live GitHub state checked in this conversation. It supersedes older moving-head claims above where the exact SHA or PR set differs. No check result is carried across SHAs.
+
+## Main
+- Exact `refs/heads/main`: `2789027136f1577af5871d300ad6465cab267cab` (unchanged at this inspection).
+- Main core CI [45916809209](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809209), attempt 1: COMPLETED / FAILURE. Windows quality job [140239281189](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809209/job/140239281189): 901/902 tests passed; test 308 failed because the patch-plan fixture used 4,096 bytes while the validator requires 16,384–65,536 bytes. Type check, lint and production build were SKIPPED after the test failure.
+- Latest Main Debricked push scan [45922939039](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922939039): FAILURE. Prior exact job logs for the same main SHA show the scan cannot initialize because the Debricked access token is missing/Unauthorized; secret repair remains with the repository secret administrator. This is not a vulnerability finding.
+- Main PR Acceptance Gate [45922339452](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922339452): FAILURE.
+- Main exact-SHA check-runs endpoint reports 107 total records. The fetched first page contained 100: 37 SUCCESS, 18 FAILURE, 45 SKIPPED; the remaining 7 were not fetched in this pass and are UNKNOWN. This is a cumulative check-run inventory, not one CI run and not a green verdict.
+- Recovery workflow [45921646405](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45921646405): workflow conclusion SUCCESS, but the hosted Windows recovery job [140253628441](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45921646405/job/140253628441) was SKIPPED; its verify job [140253515710](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45921646405/job/140253515710) succeeded. Therefore no successful hosted recovery action is established. Observer successes are evidence capture only.
+
+## All currently OPEN PRs (4)
+All four are OPEN, unmerged, Draft, base SHA `2789027136f1577af5871d300ad6465cab267cab`, and GitHub mergeable metadata is true. No formal APPROVED reviews or review threads were observed on any of the four. Mergeable metadata does not mean accepted.
+
+| PR | Exact HEAD SHA | Latest exact-head disposition |
+|---|---|---|
+| [#659](https://github.com/X84657465/global-citizen-ai-network/pull/659) | `ba790fc12ee17e964b704d33888e941f506fdb51` | Core CI [45918533156](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156) FAILURE; quality gates failed on the same test 308; Supabase/Ollama integration jobs SKIPPED; Codacy IN_PROGRESS; Debricked FAILURE. |
+| [#660](https://github.com/X84657465/global-citizen-ai-network/pull/660) | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | Core CI [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646) FAILURE; quality gates failed on test 308; required integration jobs SKIPPED; Codacy IN_PROGRESS; Debricked FAILURE. |
+| [#661](https://github.com/X84657465/global-citizen-ai-network/pull/661) | `437ad946c0e70973064f64fa3aba1e28649fa216` | Core CI [45922264000](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922264000) still IN_PROGRESS at last check: quality gates SUCCESS, Ollama/local integration SUCCESS, Supabase/PostgreSQL/RLS integration [140257131552](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922264000/job/140257131552) IN_PROGRESS. Codacy IN_PROGRESS; Debricked FAILURE; PR Acceptance Gate [45922261714](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922261714) FAILURE with CI identity/required jobs/preflight/approval/draft blockers. |
+| [#664](https://github.com/X84657465/global-citizen-ai-network/pull/664) | `4dc126cdd549d28da739a0539b4b4e0f34a817f9` | Core CI [45919923594](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45919923594) FAILURE; quality gates FAILURE; integration jobs SKIPPED; Codacy IN_PROGRESS; Debricked FAILURE. Documentation-only change does not waive configured required CI or independent review. |
+
+## Exact scope violation on #661
+Fresh GitHub changed-file enumeration still returns exactly two paths:
+- `.github/workflows/agent-task-preflight.yml`
+- `tests/agent-plan-validation.test.mjs`
+
+Issue #662 authorizes only the test file. The PR body now says only the test path, but the actual diff still includes the workflow file. The body text does not override the changed-file evidence. GPT1 must remove the unauthorized workflow change (or obtain explicit new authorization) and revalidate the resulting new HEAD. Do not remove Draft or merge the current HEAD.
+
+## GPT5-owned documentation lane / actual work
+- Existing GPT5 documentation PR [#664](https://github.com/X84657465/global-citizen-ai-network/pull/664) changes only `docs/AGENT_HANDOFF.md`; this refresh is confined to that already-open documentation branch and path.
+- This entry records current exact SHA, job terminal states, all four PR heads, the #661 scope violation, and owner handoffs. No Factory implementation, workflow, Runner, secrets, permissions, branch protection, database, deployment, or production mutation was performed.
+- No formal independent approval was observed; GPT5 cannot self-approve.
+
+## Owner handoff
+1. GPT1: remove #661 workflow path from the diff under Issue #662, then run exact-head full CI including required Windows integrations and Preflight.
+2. GPT1: resolve the Main fixture failure; after a new Main SHA exists, downstream #659/#660/#664 must be re-evaluated against their own new heads/base.
+3. GPT2: revalidate #659 after the Main test blocker is resolved; keep audit evidence separate from scan-provider failures.
+4. GPT3: provide formal independent review only after the final exact PR head and required checks are available.
+5. Repository secret administrator: repair Debricked token; do not expose or edit secrets in this operations lane.
+6. CI/security workflow owners: investigate recurring Codacy IN_PROGRESS and Debricked FAILURE; Vercel rate-limit remains with project/Vercel administrator if still present (not newly re-observed in this exact capture).
+
+## Automation
+The existing daily automation was explicitly triggered for this conversation and returned “Ready to run in this conversation”; the current prompt was executed inline here. This is not proof of unattended background execution or of a completed external automation run. Its current schedule/next-run time was not re-verified in this pass.
+
+
+---
+
+# GPT5 fresh live delta — 2026-11-27 (latest exact-head pass)
+
+## Current repository and automation
+- Live `refs/heads/main` remains `2789027136f1577af5871d300ad6465cab267cab`.
+- Existing daily automation `GCAN 每日工程巡檢` is ENABLED, daily 08:00 Asia/Taipei; latest recorded run completed on 2026-11-27 and next run is 2026-11-28 08:00 +08:00. This is schedule/run metadata, not proof of continuous background execution.
+- Latest Main SHA recovery workflow [45923236377](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923236377) reports workflow conclusion SUCCESS, but its hosted recovery action was SKIPPED (job [140259305748](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923236377/job/140259305748)); only the verifier completed SUCCESS. Recovery observer [45923466902](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923466902) succeeded at capturing evidence. Neither is a successful hosted repair.
+- Main core CI remains [45916809209](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809209) FAILURE on this unchanged SHA: 901/902 unit tests pass; typecheck/lint/build SKIPPED. Main PR Acceptance Gate latest [45923236324](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923236324) FAILURE. Main Debricked [45922939039](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922939039) FAILURE.
+
+## Current exact PR heads and changed paths
+All four remain OPEN / Draft / unmerged, base `2789027136f1577af5871d300ad6465cab267cab`; formal review submissions = 0 and unresolved review threads = 0.
+| PR | Exact HEAD | Core CI / exact-head disposition | Actual changed paths |
+|---|---|---|---|
+| [#659](https://github.com/X84657465/global-citizen-ai-network/pull/659) | `ba790fc12ee17e964b704d33888e941f506fdb51` | CI [45918533156](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156) FAILURE; Codacy IN_PROGRESS; Debricked FAILURE; required Windows integration jobs SKIPPED. | `docs/security/dependency-audit-remediation.md`; `tests/security/dependency-audit.test.mjs` |
+| [#660](https://github.com/X84657465/global-citizen-ai-network/pull/660) | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | CI [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646) FAILURE; Codacy IN_PROGRESS; Debricked FAILURE; required Windows integrations SKIPPED. | `lib/agent-task-validation.mjs`; `tests/agent-task-validation.test.mjs` |
+| [#661](https://github.com/X84657465/global-citizen-ai-network/pull/661) | `437ad946c0e70973064f64fa3aba1e28649fa216` | Core CI [45922264000](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922264000) COMPLETED / SUCCESS; quality gates, Ollama, Supabase/PostgreSQL/RLS, Linux offline fixture SUCCESS. Preflight workflow [45922264008](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922264008) COMPLETED / SUCCESS. Acceptance Gate [45922261714](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922261714) FAILURE; Codacy IN_PROGRESS; Debricked FAILURE. | `.github/workflows/agent-task-preflight.yml`; `tests/agent-plan-validation.test.mjs` |
+| [#664](https://github.com/X84657465/global-citizen-ai-network/pull/664) | `6f0985031a300bf9eb80f1fc51ca29c88cd42873` | CI [45923210814](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923210814) IN_PROGRESS; Acceptance Gates [45923208558](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923208558) and [45923248136](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923248136) FAILURE; Codacy IN_PROGRESS; Debricked FAILURE. | `docs/AGENT_HANDOFF.md` only. |
+
+## #661 acceptance failure is not a CI test failure
+The gate log explicitly reports: `CI_RUN_IDENTITY_INVALID`, `CI_NOT_SUCCESS`, four `REQUIRED_JOB_MISSING`, `PREFLIGHT_NOT_SUCCESS` (twice), `APPROVAL_MISSING`, `DRAFT_NOT_READY`. The gate is not accepting the available successful CI and Preflight evidence as the exact required identities/jobs. GPT1 / CI workflow owner must reconcile the gate's expected run identity and required-job names with the actual exact-head workflow runs; GPT3 must provide a formal current-HEAD review. #661's workflow-file diff remains outside Issue #662's one-file authorization. Both scope and acceptance-gate issues must be resolved before Draft removal.
+
+## Debricked / recovery
+- Main Debricked [45922939039](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922939039) and PR scans are FAILURE; previously captured token error was Unauthorized/missing credential. This is a credential/provider configuration blocker, not a confirmed vulnerability result.
+- Recovery workflow conclusion SUCCESS is not proof the repair action ran: the actual hosted recovery job is SKIPPED. Do not reset the system breaker or claim recovery based on the verifier/observer alone.
+
+## GPT5 action and boundaries
+- This delta is documentation/evidence only on the existing GPT5 handoff branch; no Factory code or workflow was changed.
+- No Draft was removed and no PR was merged: all PRs lack formal current-head independent approval and required acceptance.
+- Owner return: GPT1 — #661 scope and Acceptance Gate run identity/job mapping; GPT1 — Main fixture failure; GPT2 — #659 validation after Main repair; GPT3 — formal review of final exact HEAD; Security administrator — Debricked token; CI owner — Codacy terminal result.
+
+
+---
+
+# GPT5 live operations refresh — 2026-11-27 follow-up
+
+This addendum records a fresh connector re-read. It does not supersede exact-SHA evidence unless the same SHA and run are explicitly named.
+
+## Main and provider state
+- Main remains `2789027136f1577af5871d300ad6465cab267cab` at the latest commit search.
+- Main combined commit status currently exposes Vercel `FAILURE` with the free daily deployment quota/rate-limit target. No successful deployment is inferred.
+- Main CI run `45916809209`, attempt 1, remains terminal `FAILURE`: Windows quality job `140239281189` failed; exact job list shows diagnostics `SUCCESS`, failure persistence `SUCCESS`, Supabase and Ollama integration `SKIPPED`, and breaker reset/persistence success job `SKIPPED`.
+- Main Debricked run `45922939039`, job `140257669659`, is terminal `FAILURE`. The currently fetched step list confirms the Debricked action failed; it does not independently expose the latest failure text. Issue #663 records earlier exact-job evidence of an empty/unauthorized token. Keep root cause classified as credential/provider blocker until the latest job log is inspected by an authorized maintainer.
+- Main PR Acceptance Gate `45922339452`, job `140255726754`, is terminal `FAILURE`.
+
+## Open PR re-read
+The four currently known open PRs remain OPEN; exact current formal review submissions are empty and review-thread counts are zero in the fetched GraphQL results. No approval or Ready/merge action is justified.
+
+| PR | Current changed paths | Exact evidence |
+|---|---|---|
+| #659 | `docs/security/dependency-audit-remediation.md`, `tests/security/dependency-audit.test.mjs` | Run `45918533156`: quality gates FAILURE; integrations and persistence SKIPPED. |
+| #660 | `lib/agent-task-validation.mjs`, `tests/agent-task-validation.test.mjs` | Run `45918138646`: quality gates FAILURE; integrations and persistence SKIPPED. |
+| #661 | `.github/workflows/agent-task-preflight.yml`, `tests/agent-plan-validation.test.mjs` | Run `45922264000`: Windows quality gates SUCCESS, Ollama integration SUCCESS, Supabase/PostgreSQL/RLS integration SUCCESS; success persistence, diagnostics, and failure persistence jobs SKIPPED. Acceptance run `45922261714` is FAILURE. The workflow file remains outside Issue #662's one-file allowlist; body text does not change the actual changed-file list. |
+| #664 | `docs/AGENT_HANDOFF.md` | Run `45919923594`: quality gates FAILURE and downstream jobs SKIPPED. Latest Vercel deployment comment reports `api-deployments-free-per-day` / retry after 24 hours. |
+
+- PR #661 is the strongest CI candidate, but not accepted: its full observed CI jobs above passed while Acceptance failed, formal reviews remain zero, and its actual two-file diff conflicts with Issue #662's one-file authorization.
+- Vercel PR #664 deployment limit is an external quota blocker; do not repeatedly redeploy or call the preview green.
+- No Draft removal, approval, merge, secret mutation, workflow mutation, or Factory durable-state mutation was performed.
+
+## Durable state and ownership
+- Machine-managed Issue #100 was re-read: state version 363, updated `2026-11-27T01:34:32.626Z`, system consecutive failures 0, cooldown null. This is recorded scheduler state only; it does not prove the hosted recovery/reset step executed.
+- GPT1 owns #661 scope/Preflight and Factory/main fixture repair; GPT3 owns independent formal review; GPT2 revalidates the security PR #659 after its base is repaired; repository secret administrator owns Debricked credentials; Vercel/project administrator owns deployment quota.
+- GPT5 action in this refresh: exact-head/status/job/review/thread and changed-file evidence re-read; this documentation addendum only. No code or control-plane authority was assumed.
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (latest verified pass)
+
+This addendum supersedes older moving-head snapshots above where they disagree. Evidence below was re-read from live refs, pull-request metadata, Actions run lists and job lists in this pass. No status is carried across SHAs.
+
+## Repository / Main
+
+- Live `refs/heads/main`: `2789027136f1577af5871d300ad6465cab267cab`.
+- Main core CI [45916809209](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809209), attempt 1: COMPLETED / FAILURE. Resolver job `140237897628` SUCCESS. Windows quality job [140239281189](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809209/job/140239281189) FAILURE: Unit tests failed (901/902 pass); type check, lint and production build SKIPPED. Diagnostics job `140240677728` SUCCESS and failure-persistence job `140240677990` SUCCESS. Supabase/PostgreSQL/RLS job `140240678078`, Ollama job `140240678300`, and success persistence job `140240679483` SKIPPED.
+- Main same-SHA Preflight [45916809249](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809249) SKIPPED; Clippy [45916809179](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809179) SUCCESS; Codacy [45916809259](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809259) IN_PROGRESS; Debricked [45922939039](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922939039) FAILURE.
+- Main combined status exposes Vercel FAILURE with target `build-rate-limit`. Latest Main PR Acceptance Gate [45923830381](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923830381) is PENDING and currently returns 0 jobs. System Health Recovery [45923830425](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923830425) is QUEUED; its verify job `140260490945` is QUEUED. Recovery observer [45923929657](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923929657) is QUEUED. Observer/verifier SUCCESS from earlier runs is not proof that hosted repair ran.
+- The test failure previously isolated as test #308 is the shared fixture contract mismatch: `propose_patch.max_output_bytes` must be an integer from 16,384 to 65,536. Main's exact failed run did not pass downstream typecheck/lint/build.
+
+## All OPEN PRs (4; exact base SHA above)
+
+All four are OPEN, unmerged, Draft, base `2789027136f1577af5871d300ad6465cab267cab`, GitHub mergeable metadata `true`. Formal review submissions = 0 and unresolved review threads = 0 for each. Mergeable metadata is not approval or acceptance.
+
+| PR | Exact HEAD | Exact-head Actions disposition |
+|---|---|---|
+| [#659](https://github.com/X84657465/global-citizen-ai-network/pull/659) | `ba790fc12ee17e964b704d33888e941f506fdb51` | CI [45918533156](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156) FAILURE; quality job `140248502289` fails unit tests; typecheck/lint/build and Supabase/Ollama/persistence jobs SKIPPED. Codacy IN_PROGRESS, Clippy SUCCESS, Autofix SUCCESS, Debricked FAILURE. |
+| [#660](https://github.com/X84657465/global-citizen-ai-network/pull/660) | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | CI [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646) FAILURE; quality job `140243524784` fails unit tests; typecheck/lint/build and Supabase/Ollama/persistence jobs SKIPPED. Codacy IN_PROGRESS, Clippy SUCCESS, Autofix SUCCESS, Debricked FAILURE. |
+| [#661](https://github.com/X84657465/global-citizen-ai-network/pull/661) | `0d6a877c15832e0a9da02bae54f72bbad7bdf58e` | CI [45924363983](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983) PENDING; sole visible resolver job `140262163145` PENDING with no steps; quality job not present. Acceptance [45924371635](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924371635) and [45924360406](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924360406) PENDING. Codacy/Clippy/Autofix/Debricked queued or pending; Vercel FAILURE. |
+| [#664](https://github.com/X84657465/global-citizen-ai-network/pull/664) | `0ec7d17abf70a3909af349df44d85026ea86e007` | CI [45923824861](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923824861) PENDING; resolver job `140260478425` SUCCESS; Windows quality job `140261035497` PENDING with no steps. Acceptance [45924114868](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924114868) and [45923822602](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45923822602) PENDING. Codacy IN_PROGRESS, Clippy queued, Autofix SUCCESS, Debricked queued; Vercel FAILURE. |
+
+## Confirmed blockers and ownership
+
+1. **Shared test fixture blocker:** #659 and #660 exact-head logs both fail test #308 with the same `propose_patch.max_output_bytes` range error. This is a base/fixture contract blocker, not evidence of an independent security-audit or Phase parser defect. GPT1/Factory owns the Main fixture repair; revalidate dependent PR heads only after a new Main baseline exists.
+2. **Preflight trigger mismatch:** Issue [#665](https://github.com/X84657465/global-citizen-ai-network/issues/665) records 44 acceptance-required paths versus 7 PR trigger paths (37 missing, 0 extras). GPT1/Factory control-plane owns the workflow correction; GPT3 independently reviews. Do not widen PR task allowlists or weaken acceptance to work around the gap.
+3. **Provider blockers:** Debricked scan FAILURE remains with repository secret/security administrator; Vercel FAILURE is build-rate-limit and belongs to project/Vercel administrator. No secrets changed and no repeated deploy/rerun attempted.
+4. **Independent review:** formal APPROVED reviews = 0 on all four PRs. GPT3 must review final exact heads after substantive checks complete.
+5. **No Draft promotion / merge:** none is eligible. #659/#660 CI FAILURE; #661/#664 PENDING; all lack independent approval and acceptance closure.
+
+## GPT5-owned work and authority
+
+- GPT5's current documentation/evidence scope is confined to this existing PR #664 path, `docs/AGENT_HANDOFF.md`; this addendum updates that file only.
+- No Factory source/workflow, Runner/queue/lease/durable state, secrets, permissions, rulesets, DB/RLS, production, billing or deployment changes were made.
+- No tests were run locally; no code repair, independent approval, Draft removal, merge or deployment is claimed.
+- Existing daily automation was explicitly invoked for this conversation and returned "Ready to run in this conversation"; this pass was executed inline. Schedule remains enabled, but this does not establish continuous background monitoring or an unattended SLA.
+
+**Disposition:** Main NOT GREEN; #659/#660 FAILURE; #661/#664 PENDING; zero PRs ready for Draft removal or merge. PENDING, QUEUED, SKIPPED, 0 jobs/steps, observer-only SUCCESS and stale-SHA success are not PASS.
+
+
+---
+
+# GPT5 follow-up exact-head refresh — 2026-11-27
+
+This is the newest live pass. Earlier entries above are historical snapshots and must not be carried forward when HEADs or runs have changed.
+
+## Current refs and pull requests
+
+- Main remains `2789027136f1577af5871d300ad6465cab267cab`.
+- Exactly four OPEN PRs were returned by the repository open-PR listing. All are based on this Main SHA, OPEN, Draft, unmerged, and have zero formal APPROVED reviews and zero unresolved review threads.
+
+| PR | Exact current HEAD | Exact-head run state |
+|---|---|---|
+| [#659](https://github.com/X84657465/global-citizen-ai-network/pull/659) | `ba790fc12ee17e964b704d33888e941f506fdb51` | CI [45918533156](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156) FAILURE. Resolver SUCCESS; Windows quality job [140248502289](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156/job/140248502289) FAILURE at unit tests; typecheck/lint/build and Ollama/Supabase/persistence jobs SKIPPED. Debricked FAILURE, Codacy IN_PROGRESS, Clippy/Autofix SUCCESS. |
+| [#660](https://github.com/X84657465/global-citizen-ai-network/pull/660) | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | CI [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646) FAILURE. Resolver SUCCESS; Windows quality job [140243524784](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646/job/140243524784) FAILURE at unit tests; typecheck/lint/build and Ollama/Supabase/persistence jobs SKIPPED. Debricked FAILURE, Codacy IN_PROGRESS, Clippy/Autofix SUCCESS. |
+| [#661](https://github.com/X84657465/global-citizen-ai-network/pull/661) | `0d6a877c15832e0a9da02bae54f72bbad7bdf58e` | CI [45924363983](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983) PENDING; resolver job [140262163145](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983/job/140262163145) PENDING with no steps; no quality job. Acceptance [45924371635](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924371635) PENDING. Earlier successes belong to older HEADs and are not valid for this SHA. |
+| [#664](https://github.com/X84657465/global-citizen-ai-network/pull/664) | `26330c9a2077be6815c78ab93089cb0e4970a004` | CI [45926706579](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926706579) PENDING; sole resolver job [140269599141](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926706579/job/140269599141) PENDING, no steps. Acceptance [45926727328](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926727328) PENDING with 0 jobs. Debricked [45926701307](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926701307) QUEUED; Codacy [45926706611](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926706611) and Clippy [45926706477](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926706477) QUEUED; Autofix PENDING. Only changed file is `docs/AGENT_HANDOFF.md`. |
+
+## Main latest run delta
+
+- Main CI [45916809209](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809209) remains FAILURE at the Windows quality job: unit tests 901/902; typecheck/lint/build SKIPPED.
+- Main Preflight [45916809249](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809249) SKIPPED; Debricked [45922939039](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45922939039) FAILURE; Codacy [45916809259](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809259) IN_PROGRESS; Clippy [45916809179](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809179) SUCCESS.
+- Latest Main Acceptance [45926716380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926716380) PENDING with 0 jobs. Another Acceptance run [45926716380] is not a PASS; newly queued Main Acceptance [45926716380] is pending. Recovery [45926716502](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926716502) PENDING; verifier job [140269627071](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926716502/job/140269627071) PENDING with no steps. Additional Acceptance [45926682337] and Recovery [45926682356] remain pending / no acceptance jobs / pending verifier.
+- Main combined status currently reports Vercel FAILURE with `build-rate-limit`.
+
+## Confirmed blockers and ownership
+
+1. #659/#660 share the exact test-fixture failure: test #308 expects `propose_patch.max_output_bytes` to be an integer in [16,384, 65,536]. GPT1/Factory owns the Main fixture repair. Do not patch either dependent PR as if it independently resolves the shared Main contract.
+2. Issue [#665](https://github.com/X84657465/global-citizen-ai-network/issues/665) still documents Preflight trigger coverage: 44 required paths vs 7 configured, 37 missing, 0 extra. GPT1/Factory owns the control-plane workflow; GPT3 independently reviews.
+3. #661's historical full test/integration success belongs to a previous SHA; current HEAD has a resolver pending with no steps. It is not accepted and cannot be Draft-promoted.
+4. #664's latest SHA was advanced after the prior GPT5 documentation commit. Its new CI and Acceptance are pending, not validated.
+5. Debricked credential/security administration and Vercel build-rate-limit are external owner blockers. No secret changes or repeated deployment attempts were made.
+6. No PR meets the requirements for Draft removal or merge: exact-head substantive checks incomplete/failed, zero independent approvals, acceptance gates not passed.
+
+## GPT5 scope and disposition
+
+- GPT5 performed this documentation/evidence refresh only on the already authorized `docs/AGENT_HANDOFF.md` path in PR #664.
+- No Factory source/workflow, Runner/queue/lease/durable state, secrets, permissions, rulesets, DB/RLS, production, billing, or deployment mutations.
+- No local tests, approval, Draft removal, merge, or deployment are claimed.
+- The daily automation was invoked for this turn and returned `Ready to run in this conversation`; the audit ran inline. This is not continuous background monitoring.
+
+**Disposition:** Main NOT GREEN. #659/#660 FAILURE. #661/#664 PENDING. Zero PRs ready for Draft removal or merge. PENDING, QUEUED, SKIPPED, CANCELLED, zero jobs/steps, observer-only success, and stale-SHA success are not PASS.
+
+
+---
+
+# GPT5 live follow-up — 2026-11-27 02:15 UTC exact-head delta
+
+This is a new live observation after commit `5465f7fbbc0f7eb481663bc59989ec35d4b2573a`. Older run states above are historical snapshots.
+
+## Main
+- `refs/heads/main` remains `2789027136f1577af5871d300ad6465cab267cab`.
+- Core CI [45916809209](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809209) remains FAILURE; quality job [140239281189](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45916809209/job/140239281189) fails test #308 (901/902 pass); typecheck/lint/build and downstream integration/persistence jobs SKIPPED.
+- Latest Acceptance [45926957969](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926957969) is PENDING with **0 jobs** returned.
+- Latest System Health Recovery [45926958031](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926958031) is PENDING; verifier job [140270403408](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926958031/job/140270403408) is PENDING, no terminal result.
+- Combined status for this exact Main SHA: Vercel FAILURE, target `build-rate-limit`.
+
+## All four OPEN PRs — current exact heads
+
+All remain OPEN / Draft / unmerged, base `2789027136f1577af5871d300ad6465cab267cab`, mergeable metadata true only. Formal APPROVED reviews: 0 each; inline review threads: 0 each.
+
+| PR | Exact HEAD | Exact-head runs / jobs |
+|---|---|---|
+| #659 | `ba790fc12ee17e964b704d33888e941f506fdb51` | CI [45918533156](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156) FAILURE; quality job [140248502289](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156/job/140248502289) unit tests FAILURE; typecheck/lint/build and integration/persistence jobs SKIPPED. Acceptance [45918531483](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918531483) FAILURE. Codacy IN_PROGRESS, Debricked FAILURE, Clippy/Autofix SUCCESS. |
+| #660 | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | CI [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646) FAILURE; quality job [140243524784](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646/job/140243524784) unit tests FAILURE; typecheck/lint/build and integration/persistence jobs SKIPPED. Acceptance [45918189950](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918189950) FAILURE. Codacy IN_PROGRESS, Debricked FAILURE, Clippy/Autofix SUCCESS. |
+| #661 | `0d6a877c15832e0a9da02bae54f72bbad7bdf58e` | CI [45924363983](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983) PENDING; resolver [140262163145](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983/job/140262163145) PENDING, no steps. Acceptance [45924371635](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924371635) PENDING with 0 jobs; other scans queued/pending. |
+| #664 | `5465f7fbbc0f7eb481663bc59989ec35d4b2573a` | CI [45926951596](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926951596) PENDING; resolver [140270386005](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926951596/job/140270386005) PENDING, no steps. Acceptance [45927143114](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45927143114) PENDING with 0 jobs; earlier Acceptance [45926948748](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926948748) also PENDING. Debricked [45926945802](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45926945802) QUEUED; Codacy/Clippy QUEUED; Autofix PENDING. |
+
+Vercel combined status for Main and all four current PR heads is FAILURE with `build-rate-limit`. This is external provider quota evidence, not source-level success.
+
+## GPT5 action and disposition
+- GPT5's documentation/evidence scope remains only `docs/AGENT_HANDOFF.md` on PR #664. This addendum is an append-only evidence refresh; no other file changed.
+- The shared test #308 fixture mismatch and Issue #665's 37 missing Preflight trigger paths remain GPT1/Factory-owned. Debricked credential repair remains Security administrator-owned; Vercel quota remains project administrator-owned; independent approval remains GPT3/authorized reviewer-owned.
+- No blind reruns, secret changes, workflow/Runner/durable-state changes, branch-protection bypass, Draft removal, approval, merge, or deployment performed.
+- Main NOT GREEN. #659/#660 FAILURE; #661/#664 PENDING. No PR is eligible for Draft removal or merge. Zero jobs, pending jobs, skipped jobs, queued scans, and mergeable metadata are not PASS.
+
+
+---
+
+# GPT5 live follow-up — 2026-11-27 10:35 UTC exact-head recheck
+
+This append-only operations evidence refresh supersedes the prior 02:15 UTC snapshot above. It does not change Factory implementation or other owners' files.
+
+## Main exact state
+- Live `refs/heads/main`: `c2c461029649fda07cc0e440928e896e493b2ea7`.
+- Current-main check-runs: 6 total = 5 QUEUED, 1 PENDING (resolver); no terminal green result.
+- Main CI [45927991679](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45927991679): PENDING; sole job [140273774229](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45927991679/job/140273774229) "Resolve exact candidate PR metadata" is PENDING.
+- Latest main Acceptance Gate [45928970944](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45928970944): PENDING, **0 jobs** returned.
+- Main combined status: Vercel FAILURE, target `build-rate-limit`.
+
+## Four OPEN PRs — current exact heads
+All four remain OPEN, Draft, unmerged, with base SHA `2789027136f1577af5871d300ad6465cab267cab` (behind current main). Each has zero formal APPROVED reviews; CodeRabbit COMMENTED is not approval.
+
+| PR | Exact HEAD | Current exact-head checks | External combined status |
+|---|---|---|---|
+| #659 | `ba790fc12ee17e964b704d33888e941f506fdb51` | 9 SUCCESS / 3 FAILURE / 4 SKIPPED / 2 IN_PROGRESS / 1 NEUTRAL | Vercel FAILURE: build-rate-limit |
+| #660 | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | 10 SUCCESS / 4 FAILURE / 4 SKIPPED / 1 IN_PROGRESS / 1 NEUTRAL | Vercel FAILURE: build-rate-limit |
+| #661 | `0d6a877c15832e0a9da02bae54f72bbad7bdf58e` | 2 SUCCESS / 2 PENDING / 5 QUEUED / 1 NEUTRAL | Vercel FAILURE: build-rate-limit |
+| #664 | `053ab19e90e5b6594a29b8b9ee96168e4d28641d` | 1 SUCCESS / 2 PENDING / 5 QUEUED / 1 NEUTRAL | Vercel SUCCESS preview status only; does not satisfy required CI |
+
+Exact-head workflow references:
+- #659 CI [45918533156](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156); quality-gates job [140248502289](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918533156/job/140248502289) FAILURE; Acceptance job [140243439151](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918531483/job/140243439151) FAILURE.
+- #660 CI [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646); quality-gates job [140243524784](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646/job/140243524784) FAILURE; Acceptance job [140242349654](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918189950/job/140242349654) FAILURE.
+- #661 resolver [140262163145](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983/job/140262163145) PENDING; other required scans queued.
+- #664 resolver [140276872510](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45928961320/job/140276872510) PENDING; autofix PENDING; other scans queued.
+
+## Confirmed failure root cause and skipped work
+- Re-read logs for #659 job 140248502289 and #660 job 140243524784.
+- Both fail test 308: `topologically orders tasks while preserving stable order among ready tasks`.
+- Exact exception: `Patch proposal task max_output_bytes must be an integer between 16384 and 65536.`
+- #659: 905 tests, 904 pass, 1 fail. #660: 903 tests, 902 pass, 1 fail.
+- In both runs, Type Check, Lint, Production Build and downstream integration/persistence jobs are SKIPPED. They are not passes.
+- This shared Factory fixture/contract failure belongs to GPT1/Factory; no GPT5 edit was made to those overlapping paths.
+
+## GPT5 action, scope and disposition
+- Re-read current `PROJECT_COORDINATION.md`: GPT5 remains Global Intelligence & Operations support and does not own A–P modules. Issue #117's explicit GPT5 delegation does not transfer ownership or independent-review authority; its canonical implementation PR #439 is already merged, while Issue #117 remains OPEN pending independent acceptance.
+- GPT5's currently authorized non-overlapping write scope is this handoff file on the existing GPT5 PR #664 branch. This update records the exact live state only; no Factory source/workflow, Runner, durable state, secrets, permissions, branch protection, database, billing or deployment mutation.
+- No local tests, independent approval, Draft removal, merge or deployment are claimed.
+- Main is NOT GREEN. #659/#660 are FAILURE; #661/#664 are PENDING/QUEUED with no formal approval. No PR is eligible for Draft removal or merge.
+- Vercel build-rate-limit on Main/#659/#660/#661 is external owner work; #664's preview SUCCESS is limited to that preview status and does not establish CI acceptance. Stop retries; project/Vercel administrator owns quota remediation.
+
+
+---
+
+# GPT5 live follow-up — 2026-11-27 current API recheck (Asia/Taipei)
+
+This append-only snapshot supersedes earlier live snapshots above. It was collected from the current GitHub connector responses; older SHA/run references above are historical. Main HEAD is independently corroborated by the repository's latest-commit search, but the branch-search connector does not expose a direct refs/heads/main object; treat the SHA below as latest observed commit on main, not a separately fetched raw ref payload.
+
+## Main
+- Latest observed main SHA: `c2c461029649fda07cc0e440928e896e493b2ea7` ([commit](https://github.com/X84657465/global-citizen-ai-network/commit/c2c461029649fda07cc0e440928e896e493b2ea7)).
+- Combined status: Vercel FAILURE, target `build-rate-limit` (external provider quota).
+- PR-triggered workflow-run lookup for this SHA returned no runs. This connector method filters to PR-triggered runs; therefore main workflow terminal state is UNKNOWN / NOT VERIFIED, not PASS.
+- Main Acceptance/Recovery run IDs from older snapshots must not be treated as current without an exact-SHA recheck.
+
+## All currently returned OPEN PRs (5)
+All five are OPEN / Draft / unmerged. The repository metadata reports `mergeable=true`, which is not approval or acceptance. Each current HEAD has Vercel FAILURE with `build-rate-limit`.
+
+| PR | Current exact HEAD | Current CI / workflow state | Review / blocker |
+|---|---|---|---|
+| [#666](https://github.com/X84657465/global-citizen-ai-network/pull/666) | `7d1af83c8d231fd22d3dee9a4c19bd06ce48d64e` | CI run [45929374665](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929374665) PENDING; resolver job [140278180786](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929374665/job/140278180786) PENDING; autofix PENDING; Codacy/Clippy QUEUED | No formal APPROVED review recorded; independent reviewer identity not confirmed. |
+| [#664](https://github.com/X84657465/global-citizen-ai-network/pull/664) | `f2d29b283090d39763ba80bdd53f69583a263032` | CI run [45929212968](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929212968) PENDING; resolver job [140277656805](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929212968/job/140277656805) PENDING; autofix PENDING; Codacy/Clippy QUEUED | No formal APPROVED review; one unresolved, non-outdated inline thread remains at `docs/AGENT_HANDOFF.md`. GPT5 owns only this documentation path. |
+| [#661](https://github.com/X84657465/global-citizen-ai-network/pull/661) | `0d6a877c15832e0a9da02bae54f72bbad7bdf58e` | CI run [45924363983](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983) PENDING; resolver job [140262163145](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983/job/140262163145) PENDING; autofix PENDING; Codacy/Clippy QUEUED | No formal APPROVED review recorded; Factory-owned fixture scope. |
+| [#660](https://github.com/X84657465/global-citizen-ai-network/pull/660) | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | CI run [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646) FAILURE; quality job [140243524784](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646/job/140243524784) FAILURE at Unit tests; Type Check, Lint, Production Build and downstream integration/persistence jobs SKIPPED | No formal APPROVED review recorded. Resolver succeeded, but substantive quality gate failed; Factory owns code repair. |
+| [#659](https://github.com/X84657465/global-citizen-ai-network/pull/659) | `bb3a1de8237e408cb85754e496de328af234d741` | CI run [45929221376](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929221376) PENDING; resolver job [140277683896](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929221376/job/140277683896) PENDING; autofix PENDING; Codacy/Clippy QUEUED | No formal APPROVED review recorded. Prior advisory thread is resolved/outdated; current-head CI still not terminal. |
+
+## GPT5 own-work and disposition
+- Re-read the live #664 handoff branch file before this update. GPT5 scope remains `docs/AGENT_HANDOFF.md` only; no Factory, Security, Runner, permissions, secrets, production or deployment paths were changed.
+- This follow-up records current evidence only. No local tests were run in this connector session; no independent approval, Draft removal, acceptance, merge or deployment is claimed.
+- #664's unresolved review thread remains open by design until an independent reviewer confirms the latest HEAD. GPT5 cannot self-resolve its own review as independent acceptance.
+- #666/#661/#660 are GPT1/Factory-owned; #659 is GPT2/Security-owned. Vercel quota is project/Vercel-admin-owned. Do not retry the same blocked provider or take over overlapping implementation paths.
+- Main NOT GREEN / workflow state UNKNOWN. #660 FAILURE; #659/#661/#664/#666 PENDING or QUEUED. Zero PRs are eligible for Draft removal or merge. Continue GPT5's non-overlapping evidence/coordination work while waiting for external owners and independent reviewers.
+
+
+## GPT5 live exact-head refresh — 2026-11-27 (Asia/Taipei, subsequent pass)
+
+This section supersedes the earlier five-PR snapshot above. It is a point-in-time evidence record; re-fetch all refs and runs before any release action.
+
+### Main
+- Exact `refs/heads/main`: `c2c461029649fda07cc0e440928e896e493b2ea7`.
+- PR Acceptance Gate run [45930062967](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45930062967), attempt 1, exact main SHA: PENDING; Jobs endpoint returned **0 jobs**. This is NOT PASS.
+- Agent Factory System Health Recovery run [45930062952](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45930062952), attempt 1, same SHA: PENDING; job [140280385070](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45930062952/job/140280385070) PENDING.
+- Combined commit status: Vercel FAILURE, `build-rate-limit`.
+
+### All current OPEN PRs (6)
+All are OPEN / Draft / unmerged. Every current HEAD has Vercel FAILURE `build-rate-limit`. No PR has a formal APPROVED review in the current review inventory.
+
+| PR | Exact HEAD | CI run / exact job | Review state |
+|---|---|---|---|
+| [#667](https://github.com/X84657465/global-citizen-ai-network/pull/667) | `bc42ce59773966ab6583dde13c43652528e4b452` | [45930301775](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45930301775) PENDING; job [140281126677](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45930301775/job/140281126677) PENDING; Codacy/Clippy QUEUED; autofix PENDING | No review / no threads |
+| [#666](https://github.com/X84657465/global-citizen-ai-network/pull/666) | `7d1af83c8d231fd22d3dee9a4c19bd06ce48d64e` | [45929374665](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929374665) PENDING; job [140278180786](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929374665/job/140278180786) PENDING; Codacy/Clippy QUEUED; autofix PENDING | No review / no threads |
+| [#664](https://github.com/X84657465/global-citizen-ai-network/pull/664) | `d604469337c7046a1ec22964f29e7f72bdd8f744` | [45930053170](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45930053170) PENDING; job [140280357916](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45930053170/job/140280357916) PENDING; Codacy/Clippy QUEUED; autofix PENDING | COMMENTED only; one unresolved, non-outdated thread at `docs/AGENT_HANDOFF.md:21` |
+| [#661](https://github.com/X84657465/global-citizen-ai-network/pull/661) | `0d6a877c15832e0a9da02bae54f72bbad7bdf58e` | [45924363983](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983) PENDING; job [140262163145](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45924363983/job/140262163145) PENDING; Codacy/Clippy QUEUED; autofix PENDING | COMMENTED only; no threads |
+| [#660](https://github.com/X84657465/global-citizen-ai-network/pull/660) | `06f7dff4ea984558f92426a6d757bbbd5ea091f8` | [45918138646](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646) FAILURE; quality job [140243524784](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45918138646/job/140243524784) FAILURE at Unit tests; Type Check, Lint, Production Build and downstream integration/persistence jobs SKIPPED | COMMENTED only; no threads |
+| [#659](https://github.com/X84657465/global-citizen-ai-network/pull/659) | `bb3a1de8237e408cb85754e496de328af234d741` | [45929221376](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929221376) PENDING; job [140277683896](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45929221376/job/140277683896) PENDING; Codacy/Clippy QUEUED; autofix PENDING | COMMENTED only; prior thread resolved and outdated |
+
+### Base synchronization
+- #667 and #666 base SHA equals current main: `c2c461029649fda07cc0e440928e896e493b2ea7`.
+- #664, #661, #660 and #659 still report base SHA `2789027136f1577af5871d300ad6465cab267cab`; base is behind main.
+- All six PRs report `mergeable=true` metadata; this is not approval, CI acceptance, or merge authorization.
+
+### Exact dispositions and owner handoff
+- #660 is terminal FAILURE on Unit tests; its type/lint/build and downstream integration/persistence steps are SKIPPED. Factory must repair and rerun the exact candidate SHA; resolver/diagnostic success does not override the failed quality gate.
+- #667/#666/#664/#661/#659 CI are PENDING with only resolver jobs currently materialized; do not call these PASS or infer successful downstream checks from absent jobs.
+- Vercel build-rate-limit is external; project/Vercel administrator owns quota remediation. Continue non-dependent work rather than repeated provider retries.
+- GPT5 remains restricted to `docs/AGENT_HANDOFF.md`. GPT5 must not self-resolve #664's inline thread, self-approve, remove Draft, alter Factory/Security implementation, or merge. Independent reviewer must inspect the exact resulting HEAD and resolve/approve if satisfied.
+- Main branch protection endpoint returned 403 `Resource not accessible by integration`; formal required-check policy remains UNKNOWN. Do not weaken rules to bypass this evidence gap.
+- This connector-only pass ran no local tests. No acceptance, Draft removal, merge, or deployment is claimed.
+
+**Overall: BLOCKED / NOT GREEN.** Keep GPT5 work in the documentation/evidence lane; return Factory, Security, Vercel quota, and repository policy items to their respective owners with the exact evidence above.
