@@ -46,6 +46,8 @@ test("a stored local agent task reaches Ollama configuration validation after CL
   const added = invoke([
     "task", "add-agent", "--file", inputFile,
     "--oracle-file", "tests/agent-factory-local-queue.test.mjs",
+    "--repository", "X84657465/global-citizen-ai-network",
+    "--base-branch", "main",
   ]);
   assert.equal(added.queued, true);
   assert.equal(added.task.payload.task.mode, "local_only");
@@ -53,6 +55,10 @@ test("a stored local agent task reaches Ollama configuration validation after CL
   assert.equal(added.task.payload.trusted_oracle_contract.schema_version, 2);
   assert.equal(added.task.payload.trusted_oracle_contract.task_id, added.task.id);
   assert.match(added.task.payload.trusted_oracle_contract.contract_sha256, /^[a-f0-9]{64}$/);
+  assert.equal(added.task.payload.publication_target.repository, "X84657465/global-citizen-ai-network");
+  assert.equal(added.task.payload.publication_target.base_branch, "main");
+  assert.equal(added.task.payload.publication_target.base_sha, added.task.payload.trusted_oracle_contract.base_sha);
+  assert.match(added.task.payload.publication_target.target_sha256, /^[a-f0-9]{64}$/);
 
   const claimed = invoke(["run-once"], {
     exit: 1,
