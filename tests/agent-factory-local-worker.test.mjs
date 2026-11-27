@@ -58,7 +58,7 @@ test("timeout termination kills the worker and its descendant process tree", asy
     let output = "";
     child.stdout.on("data", (chunk) => {
       output += chunk.toString();
-      const match = output.match(/(\\d+)\\r?\\n/);
+      const match = output.match(/(\d+)\r?\n/);
       if (match) resolve(Number(match[1]));
     });
   });
