@@ -229,8 +229,11 @@ jobs:
       pull-requests: read
     env:
       AGENT_FACTORY_STATE_ISSUE_NUMBER: ${{ needs.resolve-candidate.outputs.state_issue_number }}
+    # Only an authorized AI-task PR writes durable Factory candidate state.
+    # Ordinary PR validation is read-only and uses the native single-runner queue,
+    # avoiding the 100-pending shared state-writer concurrency cap.
     concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
+      group: ${{ needs.resolve-candidate.outputs.is_task_pr == 'true' && 'global-citizen-ai-network-self-hosted-runner' || format('global-citizen-ai-network-readonly-build-{0}', github.run_id) }}
       queue: max
       cancel-in-progress: false
     name: Windows Ollama and local execution integration
@@ -315,10 +318,9 @@ jobs:
           [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "scope=system`n", [System.Text.UTF8Encoding]::new($false))
           Write-Host "Windows/Docker/Ollama integration failure is system-scoped."
   database:
-    concurrency:
-      group: global-citizen-ai-network-self-hosted-runner
-      queue: max
-      cancel-in-progress: false
+    # Supabase uses a run-scoped project ID and isolated ports. It does not
+    # mutate durable Factory state; the one self-hosted Runner serializes it
+    # with other local Docker workloads without consuming the state-writer queue.
     needs: [resolve-candidate, quality]
     permissions:
       contents: read
