@@ -7543,3 +7543,36 @@ Formal review submissions re-read: #683 and #679 COMMENTED only; #674/#681/#677/
 - Main and all seven OPEN PRs remain BLOCKED / NOT GREEN. Route Factory execution and task-scoped failure work to GPT1; diagnostics resilience allowlist/root-cause to GPT1; Vercel quota to project administrator; exact-HEAD independent review to GPT3/authorized reviewer.
 
 **Disposition: BLOCKED / NOT GREEN.** This checkpoint is verified evidence and owner routing only.
+
+
+---
+
+# GPT5 operations checkpoint — 2026-11-27 latest follow-up
+
+## Fresh exact-SHA recheck
+- Main remains `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Main check-runs now total **151** (both pages read): `failure=6, queued=112, skipped=29, pending=3, success=1`. Compared with the prior 149-record snapshot, two additional records are QUEUED; this is not recovery or green status.
+- Main combined commit status: Vercel `failure`, target identifies `build-rate-limit`.
+- Failure check records include three `Validate task and generate read-only AI plan` failures ([45992027921](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45992027921/job/140481970637), [45984916531](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45984916531/job/140457938150), [45977653601](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45977653601/job/140433331083)) and three `Vulnerabilities scan` failures ([45954654667](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954654667/job/140358211932), [45947661590](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947661590/job/140335964888), [45947050042](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947050042/job/140334033075)). These are individual check records; do not infer workflow counts from them.
+- Main page 1 exposes many queued Recovery resolver jobs, including run [46010956561](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46010956561/job/140546021565), [46010599978](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46010599978/job/140544798814), and [46009848285](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46009848285/job/140542258037). They remain QUEUED; do not count them as successful execution.
+
+## Current OPEN PRs and exact HEAD check records
+All seven remain OPEN / Draft / unmerged; all base the same main SHA. All show mergeable metadata true, which is not a release gate.
+| PR | Exact HEAD | Total | Exact-head records |
+|---|---|---:|---|
+| #674 (GPT5 docs) | `da71b51c5710ca1e5b598e1506af26c44f898066` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #683 | `bfca9026b6c1accb43cc4f125827a90126f98703` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9 | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+Formal review submissions: #683 and #679 COMMENTED only; the other five have no submissions. All seven have zero unresolved review threads. No formal APPROVED exists. All remain Draft. #674's current HEAD still fails checks and has no independent review, so no Draft removal or merge is permitted.
+
+## GPT5 disposition and pivot
+- GPT5's own bounded deliverable remains the append-only `docs/AGENT_HANDOFF.md` evidence handoff. No overlapping Factory/Runner/workflow/provider/security files were edited.
+- The open Factory issues #117 and #505 remain under GPT1's ownership/acceptance boundary; Vercel `build-rate-limit` remains an external project-admin dependency. Repeating the same workflow or provider calls without new evidence is not a productive repair.
+- This checkpoint is a documentation/evidence update only. No tests, build, lint, CI acceptance, independent approval, Draft removal, merge, or deployment was performed or is claimed.
+
+**Current disposition: MAIN NOT GREEN; all seven OPEN PRs remain BLOCKED / NOT READY.**
