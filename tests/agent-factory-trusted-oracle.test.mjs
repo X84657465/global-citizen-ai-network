@@ -45,6 +45,24 @@ test("trusted Oracle rejects worker write overlap", (t) => {
   }), /overlaps/);
 });
 
+test("trusted Oracle rejects Windows case-insensitive path aliases", (t) => {
+  const { root, baseSha } = fixture();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  assert.throws(() => createTrustedAcceptanceOracle({
+    repositoryRoot: root,
+    baseSha,
+    taskId: "oracle-fixture-task",
+    oracleTestFiles: ["tests/oracle.test.mjs"],
+    workerAllowedPaths: ["tests/ORACLE.test.mjs"],
+  }), /overlaps/);
+  assert.throws(() => createTrustedAcceptanceOracle({
+    repositoryRoot: root,
+    baseSha,
+    taskId: "oracle-fixture-task",
+    oracleTestFiles: ["tests/oracle.test.mjs", "tests/ORACLE.test.mjs"],
+  }), /unique/);
+});
+
 test("trusted Oracle rejects a modified checkout file", (t) => {
   const { root, baseSha } = fixture();
   t.after(() => rmSync(root, { recursive: true, force: true }));
