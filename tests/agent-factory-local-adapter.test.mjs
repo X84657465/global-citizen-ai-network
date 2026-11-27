@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, symlinkSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { parseStrictTapSummary } from "../lib/agent-factory-local-sandbox.mjs";
 import {
   validateLocalFactoryTask,
   restoreLocalFactoryTask,
@@ -184,4 +185,26 @@ test("Ollama transport rejects non-loopback origins and URL redirection inputs b
     if (original === undefined) delete process.env.OLLAMA_BASE_URL;
     else process.env.OLLAMA_BASE_URL = original;
   }
+});
+
+
+test("strict TAP evidence rejects missing, failed, skipped, todo and empty test summaries", () => {
+  const valid = [
+    "TAP version 13",
+    "ok 1 - one",
+    "1..1",
+    "# tests 1",
+    "# pass 1",
+    "# fail 0",
+    "# cancelled 0",
+    "# skipped 0",
+    "# todo 0",
+  ].join("\n");
+  assert.equal(parseStrictTapSummary(valid).valid, true);
+  assert.equal(parseStrictTapSummary(valid.replace("# skipped 0", "# skipped 1")).valid, false);
+  assert.equal(parseStrictTapSummary(valid.replace("# todo 0", "# todo 1")).valid, false);
+  assert.equal(parseStrictTapSummary(valid.replace("# pass 1", "# pass 0").replace("# tests 1", "# tests 0")).valid, false);
+  assert.equal(parseStrictTapSummary(valid.replace("# fail 0", "# fail 1").replace("ok 1 - one", "not ok 1 - one")).valid, false);
+  assert.equal(parseStrictTapSummary(valid.replace("# todo 0", "# todo 0").replace("1..1", "")).valid, false);
+  assert.equal(parseStrictTapSummary("TAP version 13\n1..0\n# tests 0\n# pass 0\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0").valid, false);
 });
