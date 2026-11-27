@@ -5929,3 +5929,23 @@ This append-only section supersedes the earlier `c2c461029649fda07cc0e440928e896
 - Release disposition: BLOCKED / NOT GREEN. Keep #672 Draft; GPT1 / Factory owns candidate code and CI diagnostics; GPT3 owns independent review; Actions/Runner administrator owns runner/dispatch diagnostics; Vercel administrator owns quota; repository administrator owns secret and branch-policy verification.
 
 **Current result: evidence and handoff refreshed; engineering acceptance remains blocked.**
+
+
+---
+
+# GPT5 follow-up delta — latest same-SHA run events (2026-11-27)
+
+This follow-up supersedes the 22-check-run count in the immediately preceding snapshot. `main` SHA did not change; two additional workflow events appeared on that same SHA after the prior read.
+
+## Main latest exact-SHA state
+- Main remains `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA check-runs are now 24 total: 13 QUEUED, 2 PENDING, 9 SKIPPED, 0 SUCCESS.
+- New main Acceptance Gate [45949955200](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45949955200) completed FAILURE; newest System Health Recovery [45949955256](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45949955256) remains QUEUED.
+- Main CI [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380) remains PENDING at resolver job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366). Combined main status remains Vercel FAILURE / `build-rate-limit`.
+
+## GPT5 documentation PR #674
+- PR [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) is OPEN / Draft / unmerged, one changed file (`docs/AGENT_HANDOFF.md`), exact HEAD `882cb3c653d90d0522f6bb0c050073ae2d398c5d`, base `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-head check-runs: 10 total — 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS. The SUCCESS checks are Vercel Preview Comments and Mergify Summary only; neither is code CI or independent acceptance. Resolver job [140343226473](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45949945396/job/140343226473) remains PENDING.
+- Formal reviews: 0; review threads: 0. Keep Draft until applicable exact-head checks and independent review complete.
+
+**Disposition remains BLOCKED / NOT GREEN. No new main commit, test pass, independent review, acceptance, merge, or deployment is recorded by this delta.**
