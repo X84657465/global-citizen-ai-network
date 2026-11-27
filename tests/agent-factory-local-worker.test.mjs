@@ -82,6 +82,46 @@ test("local agent worker hands the validated model plan to patch generation", as
 });
 
 
+test("Windows process-tree termination only reports success after taskkill confirms exit zero", () => {
+  let directKillCalls = 0;
+  const child = {
+    pid: 4242,
+    exitCode: null,
+    signalCode: null,
+    kill() { directKillCalls += 1; },
+  };
+  const env = { SystemRoot: "C:\\Windows", PATH: "" };
+  const successful = terminateLocalFactoryProcessTree(child, {
+    platform: "win32",
+    env,
+    spawnSyncImpl: (command, args, options) => {
+      assert.equal(command, "C:\\Windows\\System32\\taskkill.exe");
+      assert.deepEqual(args, ["/PID", "4242", "/T", "/F"]);
+      assert.equal(options.shell, false);
+      return { status: 0, signal: null, error: null, stdout: "", stderr: "" };
+    },
+  });
+  assert.deepEqual(successful, { strategy: "windows-taskkill-tree", pid: 4242, confirmed: true });
+  assert.equal(directKillCalls, 0, "successful tree termination must not silently fall back to direct-child kill");
+
+  for (const failedResult of [
+    { status: 1, signal: null, error: null, stdout: "", stderr: "Access is denied." },
+    { status: null, signal: "SIGTERM", error: null, stdout: "", stderr: "" },
+    { status: null, signal: null, error: Object.assign(new Error("spawn failed"), { code: "ENOENT" }), stdout: "", stderr: "" },
+  ]) {
+    assert.throws(
+      () => terminateLocalFactoryProcessTree(child, {
+        platform: "win32",
+        env,
+        spawnSyncImpl: () => failedResult,
+      }),
+      (error) => error instanceof LocalFactoryWorkerError &&
+        error.scope === "system" &&
+        /termination outcome is not confirmed/.test(error.message),
+    );
+  }
+});
+
 test("timeout termination kills the worker and its descendant process tree", async () => {
   const childCode = [
     "const { spawn } = require('node:child_process');",
