@@ -5949,3 +5949,68 @@ This follow-up supersedes the 22-check-run count in the immediately preceding sn
 - Formal reviews: 0; review threads: 0. Keep Draft until applicable exact-head checks and independent review complete.
 
 **Disposition remains BLOCKED / NOT GREEN. No new main commit, test pass, independent review, acceptance, merge, or deployment is recorded by this delta.**
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (fresh exact-SHA audit; latest in this file)
+
+This append-only snapshot supersedes all older operational snapshots above for the refs listed here. Captured from GitHub REST during this run. Re-fetch before any release decision; evidence is exact-SHA scoped.
+
+## Repository and main
+
+- Repository: `X84657465/global-citizen-ai-network`.
+- `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Complete OPEN PR REST inventory: page 1 returned 2 records (<100), so the inventory is complete for this query: #674 and #672. Both target `main`.
+- Main exact-SHA check-runs: **25 total — 14 QUEUED, 2 PENDING, 9 SKIPPED; zero completed-success checks that establish the required CI gate**. Main is NOT GREEN.
+- Main push CI run [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380), attempt 1: **PENDING**; sole job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366), “Resolve exact candidate PR metadata”, is PENDING with no steps/logs.
+- Latest main PR Acceptance Gate [45950252398](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950252398), attempt 1: completed **FAILURE**; jobs endpoint returned **0 jobs**.
+- Latest main Agent Factory System Health Recovery [45950252342](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950252342), attempt 1: **QUEUED**; sole job [140344182121](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950252342/job/140344182121) is QUEUED with no steps.
+- Main AI Agent Task Preflight push run [45943191364](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191364), attempt 1: **SKIPPED**. A separate issues-triggered Preflight run [45944135009](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45944135009) remains PENDING.
+- Main combined commit status: **Vercel FAILURE**, target `build-rate-limit`. This is an external provider quota failure, not GitHub Actions test evidence.
+- No main CI PASS, Recovery PASS, or successful Preflight is claimed. No blind rerun, breaker reset, runner mutation, or bypass was performed.
+
+## OPEN PR #672 — Factory owner lane
+
+- State: **OPEN / Draft / unmerged**; mergeable metadata: `true` (not an acceptance gate).
+- Base: `main` at `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact HEAD: `7948c32dde3e3f39e2aa2d4973d4703de1e733d1`; compare: **6 ahead / 0 behind**, merge base is current main.
+- Exact changed files: `.github/workflows/pr-acceptance.yml`, `tests/ci-trigger-policy.test.mjs`, `tests/pr-acceptance-policy.test.mjs`.
+- Exact-head check-runs: **9 total — 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS**. The success/neutral records do not satisfy substantive CI.
+- Exact-head CI [45947224484](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484), attempt 1: **PENDING**; sole job [140334592163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484/job/140334592163), “Resolve exact candidate PR metadata”, remains PENDING with no steps.
+- Exact-head Autofix [45947224526](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224526): PENDING. Codacy [45947224565](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224565), Rust Clippy [45947224473](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224473), and Debricked [45947218545](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947218545): QUEUED.
+- Latest PR Acceptance Gate [45947324701](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947324701), attempt 1: completed **FAILURE**; jobs endpoint returned **0 jobs**.
+- Combined status: Vercel **FAILURE / build-rate-limit**.
+- Formal review submissions: **0 APPROVED**; review threads: **0 observed**.
+- Owner: GPT1 / Factory. GPT5 does not modify this PR's workflow or tests.
+
+## OPEN PR #674 — GPT5 handoff documentation lane
+
+- State: **OPEN / Draft / unmerged**; mergeable metadata: `true` (not an acceptance gate).
+- Base: `main` at `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact HEAD before this append: `24e877c0d531b4282d81561da788ae3f3bd2a941`; compare: **3 ahead / 0 behind**, merge base is current main.
+- Exact changed-file set before this append: `docs/AGENT_HANDOFF.md` only.
+- Exact-head check-runs before this append: **9 total — 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS**. Summary/queue metadata is not substantive CI acceptance.
+- Exact-head CI [45950247382](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950247382), attempt 1: **PENDING**; sole job [140344170367](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950247382/job/140344170367), “Resolve exact candidate PR metadata”, remains PENDING with no steps.
+- Exact-head Autofix [45950247372](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950247372): PENDING. Codacy [45950247363](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950247363), Rust Clippy [45950247380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950247380), and Debricked [45950241745](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950241745): QUEUED.
+- Latest PR Acceptance Gate [45950244892](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45950244892), attempt 1: completed **FAILURE**; jobs endpoint returned **0 jobs**.
+- Combined status: Vercel **FAILURE / build-rate-limit**.
+- Formal review submissions: **0 APPROVED**; review threads: **0 observed**.
+- This append is GPT5 operational evidence/handoff documentation only. It does not assert code validation, independent approval, Draft removal, merge, or deployment.
+
+## Blocker diagnosis, routing, and next action
+
+1. **Main/PR CI resolver stall:** exact candidate metadata resolver jobs remain PENDING with no steps on main and both open PR heads. The latest Recovery job is QUEUED. This is a GitHub Actions execution/queue blocker; available evidence does not expose a failing step or logs, so the underlying runner/root cause is **UNKNOWN**. Route to GPT1/Factory CI owner; do not repeatedly rerun unchanged workflows.
+2. **Acceptance Gate:** latest main and both PR Acceptance Gate runs completed FAILURE with 0 jobs. No job-level failure is available to diagnose from those runs. Route to GPT1/Factory workflow owner for investigation of the observer/evaluator path; do not treat these failures as candidate code test results.
+3. **Vercel quota:** Vercel combined status is FAILURE / `build-rate-limit` on main and both PR heads. Route to Vercel/project administrator to inspect quota/plan/provider limits. Do not retry unchanged deployments.
+4. **Independent approval:** both PRs have zero formal APPROVED submissions. GPT3/independent reviewer must review the exact current HEADs after required checks become available. Zero observed review threads does not replace formal approval.
+5. **GPT5 fallback:** continue read-only exact-ref monitoring, owner routing, risk analysis, and this authorized `docs/AGENT_HANDOFF.md` handoff path. No Factory workflow, runner, secrets, permissions, branch protection, production data, billing, or deployment mutation is authorized by this snapshot.
+
+## Release disposition
+
+- PR #672: **BLOCKED — keep Draft**.
+- PR #674: **BLOCKED — keep Draft**.
+- Main: **NOT GREEN**.
+- PENDING, QUEUED, SKIPPED, 0 Jobs, NEUTRAL, external rate limits, and missing logs are not PASS.
+- No self-approval, Draft removal, merge, branch-protection bypass, or deployment was performed.
+- No local test/build/lint was run in this connector-only pass. This is a verified operations/handoff update, not a code/test acceptance claim.
