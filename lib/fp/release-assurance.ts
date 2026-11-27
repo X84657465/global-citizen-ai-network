@@ -133,7 +133,7 @@ function snapshotSafeArray(value: unknown, maximumLength: number): unknown[] | n
     return null;
   }
 }
-const GITHUB_JOB_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+\/job\/\d+$/;
+const GITHUB_JOB_URL_PATTERN = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/actions\/runs\/\d+\/job\/[1-9]\d*$/;
 
 function validPositiveInteger(value: number): boolean {
   return Number.isSafeInteger(value) && value > 0;
