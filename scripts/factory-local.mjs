@@ -9,6 +9,8 @@ import { validateLocalFactoryTask } from "../lib/agent-factory-local-adapter.mjs
 import { createTrustedAcceptanceOracle } from "../lib/agent-factory-trusted-oracle.mjs";
 import { createLocalFactoryPublicationTarget } from "../lib/agent-factory-local-publication-contract.mjs";
 import { publishAcceptedLocalFactoryTask } from "../lib/agent-factory-local-publisher.mjs";
+import { createGitHubApiClient } from "../lib/github-api-client.mjs";
+import { intakeNextGitHubIssue } from "../lib/agent-factory-local-issue-intake.mjs";
 
 const args = process.argv.slice(2);
 const databasePath = resolve(process.env.GCAN_FACTORY_DB ?? ".factory/factory-local.sqlite");
@@ -19,6 +21,7 @@ function usage() {
     "Factory Local — single-worker, local-only task runner",
     "  node scripts/factory-local.mjs task add --title \"Queue regression tests\"",
     "  node scripts/factory-local.mjs task add-agent --file <local-task.json> --oracle-file <tracked-tests/*.test.mjs> [--repository <owner/name>] [--base-branch <branch>]",
+    "  node scripts/factory-local.mjs intake-next  (requires GITHUB_TOKEN and GCAN_FACTORY_ORACLE_FILES)",
     "  node scripts/factory-local.mjs run-once",
     "  node scripts/factory-local.mjs run-until-idle [--max-tasks <1-100>]",
     "  node scripts/factory-local.mjs serve",
@@ -250,6 +253,39 @@ try {
       },
     });
     print({ queued: true, trusted_oracle_contract: trustedOracleContract, publication_target: publicationTarget, task });
+  } else if (command === "intake-next" && args.length === 1) {
+    const repository = resolvePublicationRepository(null);
+    const baseBranch = resolvePublicationBaseBranch(null);
+    const baseSha = gitOutput(["rev-parse", "HEAD"]);
+    const token = process.env.GITHUB_TOKEN ?? "";
+    if (!token) throw new Error("intake-next requires GITHUB_TOKEN; no anonymous or fallback identity is permitted.");
+    const oracleTestFiles = (process.env.GCAN_FACTORY_ORACLE_FILES ?? "")
+      .split(";").map((value) => value.trim()).filter(Boolean);
+    if (oracleTestFiles.length === 0) {
+      throw new Error("intake-next requires operator-configured GCAN_FACTORY_ORACLE_FILES (semicolon-separated tracked test paths).");
+    }
+    const api = createGitHubApiClient({
+      baseUrl: process.env.GITHUB_API_URL || undefined,
+      token,
+      timeoutMs: 15_000,
+      maxRetries: 2,
+      maxInlineRetryDelayMs: 30_000,
+    });
+    const skippedIssueNumbers = (process.env.AGENT_FACTORY_SKIPPED_ISSUES ?? "")
+      .split(",").map((value) => Number(value))
+      .filter((value) => Number.isSafeInteger(value) && value > 0);
+    const result = await intakeNextGitHubIssue({
+      api,
+      queue,
+      repository,
+      repositoryRoot: process.cwd(),
+      oracleTestFiles,
+      baseSha,
+      baseBranch,
+      stateIssueNumber: process.env.AGENT_FACTORY_STATE_ISSUE_NUMBER,
+      skippedIssueNumbers,
+    });
+    print(result);
   } else if (command === "publish") {
     const taskId = args[1];
     const dryRun = args.length === 3 && args[2] === "--dry-run";
