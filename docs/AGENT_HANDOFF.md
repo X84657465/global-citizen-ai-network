@@ -1,3 +1,43 @@
+# GPT5 live operations delta — 2026-11-27 (third fresh audit)
+
+Fresh follow-up audit after the previous handoff commit. This section supersedes earlier snapshots where it differs.
+
+## Main
+- Main SHA remains `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA Check Runs: **121 total** across both API pages — **83 QUEUED, 3 PENDING, 29 SKIPPED, 5 FAILURE, 1 SUCCESS**. Inventory only, not a single green run.
+- Newest PR Acceptance Gate [46003853743](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003853743): completed **FAILURE**, jobs endpoint **0 jobs**.
+- Newest System Health Recovery [46003853720](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003853720): **QUEUED**, job [140521970815](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003853720/job/140521970815) QUEUED.
+- Recovery Failure Observer [46002109162](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46002109162): **QUEUED**, job [140516100964](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46002109162/job/140516100964) QUEUED.
+- Combined status **FAILURE**: Vercel `build-rate-limit`.
+
+## OPEN PR exact heads and Check Runs
+All remain OPEN / Draft / unmerged; base SHA equals current main; `mergeable=true` is metadata only.
+
+| PR | HEAD | Check Runs |
+|---|---|---|
+| #674 | `46cb48b2a7ce7b74225b1e710ebc27e7d446c90a` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS |
+| #683 | `1974c55d0f34a320034c072fb9433f60e4e4d25b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `174bd08725bd78a27d9fe44e7ea4bea373a63df9` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+## GPT5 #674 diagnostics
+- Latest exact-head CI run [46003842078](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003842078): `Exact-SHA CI failure diagnostics and evidence` FAILURE; `Resolve exact candidate PR metadata` FAILURE; quality gates, Windows integrations, and persistence jobs SKIPPED; Rust clippy, Codacy, CodeQL, vulnerability scan QUEUED. Autofix [46003842056](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003842056) FAILURE.
+- Failed diagnostic, metadata and autofix job step retrievals returned empty arrays. Root cause remains **UNKNOWN**; do not infer code defect or claim tests ran.
+- Formal independent approval has not been evidenced in this audit; prior #674 review query returned no submissions and no inline threads.
+- PR remains Draft; no self-approval, ready transition, merge, test run, or deployment action.
+
+## Ownership and disposition
+- GPT1 owns Factory PRs #681/#683/#672/#676 and Acceptance Gate / Recovery / Observer root cause.
+- GPT2 owns #679/#677. GPT3 provides independent QA/review. Vercel quota requires project administrator.
+- GPT5's change remains limited to `docs/AGENT_HANDOFF.md`.
+- **BLOCKED / NOT GREEN**. Evidence refresh only; no release gate passed.
+
+
+---
+
 # GPT5 live operations delta — 2026-11-27 (follow-up exact-head audit)
 
 This follow-up supersedes the preceding live snapshot for the values below. Main and PR heads were re-read from GitHub immediately before recording.
