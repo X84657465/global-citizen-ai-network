@@ -96,6 +96,21 @@ test("rejects malformed acceptance criteria and oversized output", () => {
     /max_output_bytes/);
 });
 
+test("requires bounded 16-64 KiB output budgets for patch proposals only", () => {
+  const patch = (maxOutputBytes) => item({
+    id: "propose-patch",
+    role: "implementer",
+    action: "propose_patch",
+    allowed_paths: ["lib/agent-plan-validation.mjs"],
+    max_output_bytes: maxOutputBytes,
+  });
+  rejects(() => validateAgentPlan(plan([patch(4096)]), task), /between 16384 and 65536/);
+  assert.equal(validateAgentPlan(plan([patch(16384)]), task).tasks[0].max_output_bytes, 16384);
+  assert.equal(validateAgentPlan(plan([patch(65536)]), task).tasks[0].max_output_bytes, 65536);
+  rejects(() => validateAgentPlan(plan([patch(65537)]), task), /between 1 and 65536/);
+  assert.equal(validateAgentPlan(plan([item({ max_output_bytes: 4096 })]), task).tasks[0].max_output_bytes, 4096);
+});
+
 test("rejects plans with too many tasks", () => {
   const tasks = Array.from({ length: 13 }, (_, index) => item({
     id: `task-${String(index).padStart(2, "0")}`,
