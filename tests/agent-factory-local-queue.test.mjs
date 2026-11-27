@@ -403,3 +403,56 @@ test("SQLite publication stages survive restart and recover idempotently", () =>
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+
+test("GitHub Issue intake is idempotent and rejects a changed source revision", () => {
+  withQueue((queue) => {
+    const sourceEnvelope = {
+      schema_version: 1,
+      kind: "github-issue-source",
+      repository: "owner/repo",
+      issue_number: 42,
+      canonical_url: "https://github.com/owner/repo/issues/42",
+      updated_at: "2026-11-28T00:00:00Z",
+      source_state_version: 7,
+      stable_dedupe_key: "a".repeat(64),
+      issue_body_sha256: "b".repeat(64),
+    };
+    const payload = {
+      schema_version: 1,
+      kind: "local-agent-task",
+      task_id: "github-issue-42",
+      source_envelope: sourceEnvelope,
+    };
+    const first = queue.addFromSource({
+      id: "github-issue-42",
+      title: "Issue 42 task",
+      payload,
+      sourceEnvelope,
+    });
+    assert.equal(first.created, true);
+    assert.equal(first.task.status, "queued");
+    const replay = queue.addFromSource({
+      id: "github-issue-42",
+      title: "Issue 42 task",
+      payload,
+      sourceEnvelope,
+    });
+    assert.equal(replay.created, false);
+    assert.equal(replay.task.id, first.task.id);
+    assert.equal(queue.events(first.task.id).filter((entry) => entry.event_type === "task_queued_from_github_issue").length, 1);
+
+    const changedSource = {
+      ...sourceEnvelope,
+      updated_at: "2026-11-28T00:01:00Z",
+      issue_body_sha256: "c".repeat(64),
+    };
+    assert.throws(() => queue.addFromSource({
+      id: "github-issue-42",
+      title: "Issue 42 revised task",
+      payload: { ...payload, source_envelope: changedSource },
+      sourceEnvelope: changedSource,
+    }), /source changed after prior intake/);
+    assert.equal(queue.get("github-issue-42").payload.source_envelope.updated_at, sourceEnvelope.updated_at);
+  });
+});
