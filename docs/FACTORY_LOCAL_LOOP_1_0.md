@@ -153,3 +153,12 @@ Added:
 - Ollama endpoint 已收斂為 loopback HTTP origin（127.0.0.1／::1），拒絕外部主機、localhost 名稱、URL path/query/fragment、認證資訊及 HTTP redirect，避免將 source context 傳送到外部服務。
 - 仍須處理並驗證固定測試 Worker 的 process-tree timeout containment；直接終止子程序不保證其 descendants 同時終止。未完成平台適配及 Windows 測試前，不得把 timeout 視為完整程序樹隔離。
 - 本次 Connector 僅提交 GitHub branch 檔案變更，未在本機執行 Node tests、完整測試套件或 Ollama。
+
+
+## Process-tree timeout containment implementation — 2026-11-27
+
+- Replaced synchronous child-only spawn timeout with asynchronous fixed-command execution.
+- POSIX worker processes are launched in a detached process group; timeout sends SIGKILL to the complete group.
+- Windows timeout invokes taskkill.exe /PID <pid> /T /F to terminate the complete descendant tree, then falls back to direct child kill if required.
+- Captured stdout/stderr are bounded to 512 KiB each; no shell is used; scratch cleanup remains mandatory.
+- Added a descendant-survival regression test. **This code and test are committed but NOT RUN on POSIX or Windows in this connector session.** Platform-specific behavior remains unverified until actual test execution on both platforms.
