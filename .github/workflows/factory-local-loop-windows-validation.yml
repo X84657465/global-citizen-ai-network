@@ -59,6 +59,7 @@ jobs:
             tests/agent-factory-local-queue.test.mjs `
             tests/agent-factory-local-queue-regression.test.mjs `
             tests/agent-factory-local-adapter.test.mjs `
+            tests/agent-factory-local-cli.test.mjs `
             tests/agent-factory-local-worker.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Local Factory regression suite failed." }
 

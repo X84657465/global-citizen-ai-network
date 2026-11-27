@@ -66,6 +66,7 @@
 
 - `factory-local task add`：建立一筆受 schema 驗證的任務。
 - `factory-local run-once`：領取並執行一筆任務；不啟動常駐 loop。
+- `factory-local run-until-idle [--max-tasks <1-100>]`：按順序執行目前可領取的任務，預設最多 25 次。沒有可領取的任務、達到上限或發生系統錯誤時結束。任務錯誤會依既有規則入帳，批次繼續處理其他可領取任務，並以非零狀態結束。
 - `factory-local status`：列出 queued/running/retry_wait/succeeded/failed/quarantined。
 - `factory-local logs <task-id>`：讀取任務事件與驗證證據。
 - `factory-local recover`：只處理過期 lease，採冪等恢復。

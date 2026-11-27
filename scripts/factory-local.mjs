@@ -13,6 +13,7 @@ function usage() {
     "Factory Local — single-worker, local-only task runner",
     "  node scripts/factory-local.mjs task add --title \"Queue regression tests\"",
     "  node scripts/factory-local.mjs run-once",
+    "  node scripts/factory-local.mjs run-until-idle [--max-tasks <1-100>]",
     "  node scripts/factory-local.mjs status",
     "  node scripts/factory-local.mjs logs <task-id>",
     "  node scripts/factory-local.mjs recover",
@@ -39,6 +40,37 @@ function parseAgentTask(values) {
     throw new Error("Unable to read or parse the supplied local task JSON file.");
   }
   return validateLocalFactoryTask(parsed);
+}
+
+function parseMaxTasks(values) {
+  if (values.length === 0) return 25;
+  if (values.length === 2 && values[0] === "--max-tasks" && /^(?:[1-9][0-9]?|100)$/.test(values[1])) {
+    return Number(values[1]);
+  }
+  throw new Error("run-until-idle accepts only --max-tasks <1-100>.");
+}
+
+async function runNextTask(queue) {
+  const task = queue.claim(workerId);
+  if (!task) return { claimed: false, message: "No eligible task is ready." };
+
+  try {
+    const result = task.payload?.kind === "local-agent-task"
+      ? await runLocalFactoryAgentTask({ payload: task.payload })
+      : await runLocalFactoryTask({ payload: task.payload });
+    const completed = queue.complete(task.id, workerId, task.lease_token, result);
+    return { claimed: true, completed: true, task: completed };
+  } catch (error) {
+    const scope = error instanceof LocalFactoryWorkerError ? error.scope : "system";
+    const failed = queue.fail(
+      task.id,
+      workerId,
+      task.lease_token,
+      error instanceof Error ? error.message : "Unknown worker error",
+      { scope },
+    );
+    return { claimed: true, completed: false, failure_scope: scope, task: failed };
+  }
 }
 
 const command = args[0];
@@ -71,29 +103,31 @@ try {
   } else if (command === "recover") {
     print({ recovered_leases: queue.recoverExpiredLeases() });
   } else if (command === "run-once") {
-    const task = queue.claim(workerId);
-    if (!task) {
-      print({ claimed: false, message: "No eligible task is ready." });
-    } else {
-      try {
-        const result = task.payload?.kind === "local-agent-task"
-          ? await runLocalFactoryAgentTask({ payload: task.payload })
-          : await runLocalFactoryTask({ payload: task.payload });
-        const completed = queue.complete(task.id, workerId, task.lease_token, result);
-        print({ claimed: true, completed: true, task: completed });
-      } catch (error) {
-        const scope = error instanceof LocalFactoryWorkerError ? error.scope : "system";
-        const failed = queue.fail(
-          task.id,
-          workerId,
-          task.lease_token,
-          error instanceof Error ? error.message : "Unknown worker error",
-          { scope },
-        );
-        print({ claimed: true, completed: false, failure_scope: scope, task: failed });
-        process.exitCode = 1;
+    const result = await runNextTask(queue);
+    print(result);
+    if (result.claimed && !result.completed) process.exitCode = 1;
+  } else if (command === "run-until-idle") {
+    const maxTasks = parseMaxTasks(args.slice(1));
+    const summary = { processed: 0, completed: 0, failed: 0, stop_reason: "limit_reached" };
+    for (let index = 0; index < maxTasks; index += 1) {
+      const result = await runNextTask(queue);
+      if (!result.claimed) {
+        summary.stop_reason = "no_eligible_task";
+        break;
+      }
+      summary.processed += 1;
+      if (result.completed) {
+        summary.completed += 1;
+      } else {
+        summary.failed += 1;
+        if (result.failure_scope === "system") {
+          summary.stop_reason = "system_failure";
+          break;
+        }
       }
     }
+    print(summary);
+    if (summary.failed > 0) process.exitCode = 1;
   } else {
     usage();
     throw new Error("Unknown command.");
