@@ -1,0 +1,34 @@
+name: Factory Windows Runner Smoke
+
+on:
+  push:
+    branches:
+      - feat/factory-local-loop-v1
+    paths:
+      - .github/workflows/factory-runner-smoke.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: factory-windows-runner-smoke
+  cancel-in-progress: false
+
+jobs:
+  windows-runner-smoke:
+    name: Windows self-hosted runner smoke
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 5
+    steps:
+      - name: Verify runner execution and toolchain
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Write-Host "RUNNER_SMOKE_STARTED"
+          Write-Host "Runner: $env:RUNNER_NAME"
+          Write-Host "OS: $([System.Environment]::OSVersion.VersionString)"
+          Write-Host "PowerShell: $($PSVersionTable.PSVersion)"
+          node --version
+          git --version
+          Write-Host "RUNNER_SMOKE_PASSED"
