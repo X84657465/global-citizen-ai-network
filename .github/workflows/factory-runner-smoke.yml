@@ -26,9 +26,10 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           Write-Host "RUNNER_SMOKE_STARTED"
+          Write-Host "Commit: $env:GITHUB_SHA"
           Write-Host "Runner: $env:RUNNER_NAME"
           Write-Host "OS: $([System.Environment]::OSVersion.VersionString)"
           Write-Host "PowerShell: $($PSVersionTable.PSVersion)"
           node --version
           git --version
-          Write-Host "RUNNER_SMOKE_PASSED"
+          Write-Host "RUNNER_SMOKE_PASSED: $env:GITHUB_SHA"
