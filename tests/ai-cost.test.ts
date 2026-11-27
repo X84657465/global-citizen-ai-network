@@ -568,5 +568,5 @@ test("invoice preview POST fails closed when admin database client creation thro
   );
   assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), { error: "AI 請求證據讀取失敗，無法安全產生預覽。" });
-  assert.deepEqual(deps.calls, ["auth", "profile"]);
+  assert.deepEqual(deps.calls, ["auth", "profile", "admin-client"]);
 });
