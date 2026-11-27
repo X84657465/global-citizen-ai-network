@@ -6074,3 +6074,49 @@ This append-only delta supersedes earlier live status snapshots in this file for
 - No self-approval, Draft removal, merge, branch-protection bypass, secret mutation, or deployment was performed.
 
 **Current result: handoff evidence refreshed; Factory CI, Recovery, provider quota, secret restoration, and independent governance acceptance remain unresolved.**
+
+
+---
+
+# GPT5 live operations handoff — 2026-11-27 (subsequent exact-ref pass)
+
+This append-only delta supersedes no prior evidence; it records a fresh GitHub API snapshot. Re-fetch refs, runs, jobs, checks and reviews before any release decision.
+
+## Main and open PR inventory
+
+- Main remains `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Three OPEN PRs target main:
+  - #676 HEAD `a54013a52189b21624dfa0604a9231b1896cdd53`, Draft, mergeable=true, mergeable_state=unstable.
+  - #674 HEAD `f71a281317fdb5b0e6ed24e14addca25c3e93c33`, Draft, mergeable=true, mergeable_state=unstable.
+  - #672 HEAD `7948c32dde3e3f39e2aa2d4973d4703de1e733d1`, Draft, mergeable=true, mergeable_state=unstable.
+- All three PRs have zero formal reviews and zero inline review comments in the queried endpoints.
+
+## Exact SHA CI / checks
+
+- Main check-runs: 30 total. Multiple queued checks remain; main CI run [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380) is PENDING with its sole job "Resolve exact candidate PR metadata" also PENDING and no steps reported.
+- Main Preflight run [45944135009](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45944135009) remains PENDING: "Validate task and generate read-only AI plan" is PENDING; Linux offline scratch fixture validation and Windows self-hosted project validation are SKIPPED.
+- Main Preflight run [45943191364](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191364) is completed/SKIPPED, including its required validation and publishing-related jobs.
+- Main combined status is FAILURE solely from Vercel status: "Deployment rate limited — retry in 24 hours."
+- PR #676: CI run [45954669226](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669226) PENDING; its single resolver job is PENDING with no steps. Acceptance Gate run [45954669700](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669700) is FAILURE with 0 Jobs. Vercel status is SUCCESS.
+- PR #674: CI run [45953440296](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45953440296) PENDING; autofix is PENDING and Codacy/rust-clippy/dynamic/security jobs are QUEUED. Acceptance Gate run [45953436674](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45953436674) is FAILURE with 0 Jobs. Vercel status is SUCCESS.
+- PR #672: CI run [45947224484](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484) PENDING; autofix is PENDING and Codacy/rust-clippy/dynamic/security jobs are QUEUED. Acceptance Gate runs [45947324701](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947324701), [45947281426](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947281426), and [45947221715](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947221715) are FAILURE with 0 Jobs. Vercel status is FAILURE with the same rate-limit message.
+- Mergify checks on all three PRs are NEUTRAL, not PASS.
+
+## Ownership and action boundaries
+
+- PR #676 changes `.github/workflows/agent-factory-system-health.yml` (11 additions / 4 deletions). This is Factory/Recovery workflow scope, not GPT5's documentation lane. Do not edit or mark Ready without the owning agent's validation and authorization.
+- PR #672 changes PR Acceptance workflow and tests. It remains unvalidated on its exact HEAD; do not infer that the proposed per-PR serialization change fixes the observed 0-Job failures.
+- PR #674 is GPT5's append-only documentation/evidence lane. This snapshot is appended here only; it does not certify the PR or its content independently.
+- Branch-protection/ruleset enforcement and bypass state remain unverified by this integration. No assumption of authorization is made.
+- No local test suite was run; this was a remote GitHub API-only audit.
+
+## Disposition
+
+- Main: **NOT GREEN**.
+- PR #676: **BLOCKED / keep Draft**.
+- PR #674: **BLOCKED / keep Draft**.
+- PR #672: **BLOCKED / keep Draft**.
+- No Draft removal, self-approval, merge, branch-protection bypass, secrets change, or deployment was performed.
+- External Vercel quota is not retried blindly. Factory/Recovery and PR Acceptance 0-Job/PENDING failures are returned to their respective owners with exact run IDs above.
+
+**Current result: GPT5 handoff evidence refreshed; no release acceptance is claimed.**
