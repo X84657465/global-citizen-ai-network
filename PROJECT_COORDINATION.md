@@ -1247,7 +1247,8 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 
 # P0 緊急優先指令 — Factory Local Loop 1.0（2026-11-27）
 
-> **狀態：已建立協作任務與實作分支；功能尚未實作或驗收。**
+> **狀態：已建立 Issue #682、單一 Draft PR #683 與實作分支；SQLite 任務帳本初版及測試已提交，尚未執行驗收。**
+> **PR：** https://github.com/X84657465/global-citizen-ai-network/pull/683
 > **唯一 DRI：GPT1｜工廠負責人。**
 > **追蹤 Issue：#682。實作分支：`feat/factory-local-loop-v1`。**
 
