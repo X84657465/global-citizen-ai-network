@@ -68,7 +68,7 @@
 - `factory-local run-once`：領取並執行一筆任務；不啟動常駐 loop。
 - `factory-local serve`：在前景持續領取同一個 SQLite 佇列的任務，空閒時每秒檢查一次。收到 SIGINT 或 SIGTERM 後，完成手上任務的入帳再結束。系統故障會留下紀錄，Worker 等到 SQLite 登記的重試時間後繼續領取，期間暫停整個 Worker 的新任務。
 - `factory-local run-until-idle [--max-tasks <1-100>]`：按順序執行目前可領取的任務，預設最多 25 次。沒有可領取的任務、達到上限或發生系統錯誤時結束。任務錯誤會依既有規則入帳，批次繼續處理其他可領取任務，並以非零狀態結束。
-- 模型任務可用 `GCAN_FACTORY_SANDBOX_TESTS=1` 啟用離線驗證。Docker Engine 必須先備妥與 Preflight 相同的 `node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a`。Worker 在唯讀、無網路的容器中只執行補丁新增的 allowlisted `tests/*.test.mjs`，SQLite 保存實際退出碼與通過數；未啟用時維持 `proposal_ready`。
+- Agent 任務入列必須明確提供一個以上操作者選定且已追蹤的 `--oracle-file tests/*.test.mjs`；CLI 會在入列時固定任務 ID、精確 Base SHA、Oracle Git blob SHA／SHA-256、Worker 寫入 allowlist 與完整合約摘要，並將合約持久化於 SQLite payload。執行時必須設定 `GCAN_FACTORY_SANDBOX_TESTS=1` 並備妥 Docker Engine 與固定 image `node@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a`。Worker 在唯讀、無網路容器中分開執行模型生成的測試與 Trusted Oracle；兩組 TAP 都必須有非零測試、零 fail/cancel/skip/todo，且 Oracle 合約在執行前後保持一致，才輸出 `ACCEPTED`。未啟用 sandbox 時 Agent 任務標記 system failure／backoff，不會以 `proposal_ready` 假裝完成。
 - `factory-local status`：列出 queued/running/retry_wait/succeeded/failed/quarantined。
 - `factory-local logs <task-id>`：讀取任務事件與驗證證據。
 - `factory-local recover`：只處理過期 lease，採冪等恢復。
@@ -165,3 +165,28 @@ Added:
 - Windows timeout invokes taskkill.exe /PID <pid> /T /F to terminate the complete descendant tree, then falls back to direct child kill if required.
 - Captured stdout/stderr are bounded to 512 KiB each; no shell is used; scratch cleanup remains mandatory.
 - Added a descendant-survival regression test. **This code and test are committed but NOT RUN on POSIX or Windows in this connector session.** Platform-specific behavior remains unverified until actual test execution on both platforms.
+
+
+---
+
+## GPT1｜Trusted Acceptance Oracle 全生命週期接線（2026-11-28）
+
+**狀態：程式碼已提交到 PR #683 同一分支；本 connector 工作階段未執行 Node、Docker、Ollama 或 Windows E2E。未有 exact-HEAD CI PASS／獨立 GPT3 APPROVED，不得標記驗收完成。**
+
+本次實作增量：
+- Trusted Oracle 合約升為 schema v2，完整 digest 綁定 task ID、精確 base SHA、Oracle test 檔案 Git blob SHA／SHA-256、Worker write allowlist 與 Oracle aggregate hash；Worker intake、測試前後都重新驗證。
+- CLI `task add-agent` 必須明確提供一個以上操作者選定的 `--oracle-file`。入列時擷取 exact HEAD、建立 task ID、產生合約，並將合約與任務一同保存於 SQLite payload。
+- Oracle 測試檔案不得與 Worker 寫入 allowlist 重疊；Worker allowlist 在建立與重新驗證合約時必須保持乾淨，避免以未提交程式碼作為可信基準。
+- Worker 僅在 `GCAN_FACTORY_SANDBOX_TESTS=1` 時執行 Agent 任務；模型生成測試與 Trusted Oracle 測試在同一 disposable read-only／network-none container workspace 中以兩次獨立執行分開驗證。
+- TAP 證據必須包含精確 test file list、非零 tests/pass、零 fail/cancelled/skipped/todo、exit code 0，以及完整有效摘要；Oracle 合約與 scratch 內 Oracle source 在執行前後都必須吻合。
+- SQLite `complete()` 增加最後一道 Trusted Acceptance Gate：沒有匹配的 task／contract identity、模型測試證據與 Oracle 獨立證據，不得把 Agent 任務標成 `succeeded`；拒絕後仍保留 running lease，讓 CLI 能以 task failure 正確入帳。
+- 新增 Oracle contract、Worker acceptance lifecycle、CLI intake、SQLite 假完成拒絕／有效證據與 TAP summary regression tests。
+
+**尚未證明的項目：**
+1. 上述新測試與完整 `npm run test:unit` 尚未由本 connector 實際執行。
+2. 真實 Ollama model、Docker image、Windows Runner／本機服務 E2E 尚未執行。
+3. 已驗收的 Patch 目前仍只在 disposable scratch 執行並將完整 artifact 持久化於 SQLite；尚未自動寫回工作樹、建立 Draft PR 或提交 Git commit。這是下一個交付階段，不可把 scratch acceptance 說成 PR 已交付。
+4. 最新 HEAD 的 GitHub Actions 若無 exact-HEAD run/job 證據，一律為 NOT RUN；Vercel build-rate-limit 不等於 Node 測試結果。
+5. 仍需 GPT3 對相同 exact HEAD 進行獨立架構／資安／整合審查。
+
+**目前判斷：** Trusted Acceptance Oracle 已從孤立 helper 接入 CLI intake → SQLite payload → Worker preflight → separate sandbox test execution → pre/post contract verification → SQLite completion gate。這是第一個有可信驗收閘門的 Agent local loop 切片，並非完整 Issue → Draft PR → independent QA → merge 自主交付閉環。
