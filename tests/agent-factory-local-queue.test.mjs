@@ -73,16 +73,30 @@ test("task failures retry and quarantine after the configured third failure", ()
   });
 });
 
-test("system failures release a task without incrementing task failure count", () => {
+test("system failures use bounded exponential backoff without consuming task failures or hot-looping", () => {
+  let current = 1_800_000_000_000;
   withQueue((queue) => {
     const task = queue.add({ title: "system failure", payload: { goal: "do not quarantine" } });
-    const claimed = queue.claim("worker");
-    const released = queue.fail(task.id, "worker", claimed.lease_token, "local Ollama unavailable", { scope: "system" });
-    assert.equal(released.status, "queued");
-    assert.equal(released.failures, 0);
-    assert.equal(released.last_error, "local Ollama unavailable");
-    assert.equal(queue.events(task.id).at(-1).event_type, "system_failure_released");
-  });
+    const firstClaim = queue.claim("worker");
+    const firstRelease = queue.fail(task.id, "worker", firstClaim.lease_token, "local Ollama unavailable", { scope: "system" });
+    assert.equal(firstRelease.status, "queued");
+    assert.equal(firstRelease.failures, 0);
+    assert.equal(firstRelease.system_failures, 1);
+    assert.equal(firstRelease.available_at, current + 10_000);
+    assert.equal(queue.claim("worker"), null);
+    assert.equal(firstRelease.last_error, "local Ollama unavailable");
+
+    current += 10_000;
+    const secondClaim = queue.claim("worker");
+    assert.equal(secondClaim.id, task.id);
+    const secondRelease = queue.fail(task.id, "worker", secondClaim.lease_token, "Ollama still unavailable", { scope: "system" });
+    assert.equal(secondRelease.status, "queued");
+    assert.equal(secondRelease.failures, 0);
+    assert.equal(secondRelease.system_failures, 2);
+    assert.equal(secondRelease.available_at, current + 20_000);
+    assert.equal(queue.claim("worker"), null);
+    assert.equal(queue.events(task.id).at(-1).detail.retry_delay_ms, 20_000);
+  }, { now: () => current, systemRetryDelayMs: 10_000, maxSystemRetryDelayMs: 40_000 });
 });
 
 test("expired worker lease is recovered without inventing a task failure", () => {
