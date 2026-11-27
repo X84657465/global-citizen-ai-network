@@ -6356,3 +6356,46 @@ Exactly **3** OPEN PRs; page 2 returned empty. All target `main`, base SHA `590d
 - No local tests/build/lint were run. No CI rerun, Draft removal, merge, self-approval, or protection bypass was performed.
 
 **Disposition: Main and #672/#674/#676 remain BLOCKED / NOT GREEN.** PENDING, QUEUED, SKIPPED, 0 Jobs, NEUTRAL, and external rate limits are not PASS. The 99.99999% reliability target remains an aspiration, not a measured SLA.
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (fresh rerun after prior handoff)
+
+This append is a new point-in-time observation. It supersedes earlier same-day counts above only for the exact refs and run IDs stated here. The complete OPEN-PR REST inventory returned page 1 with three entries; page 2 is not yet re-queried in this pass, so count is **3 observed on page 1** (previous complete inventory also showed three). Re-fetch before any release decision.
+
+## Main exact SHA
+- `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA check-runs: **37 total**. Current observed distribution includes 19 QUEUED (including 9 repeated Recovery resolver checks), 1 PENDING Preflight, 1 PENDING main CI resolver, 9 SKIPPED and 7 other completed/diagnostic records; no complete required-check PASS set. Check names/statuses are from `/commits/<main-sha>/check-runs`; the repeated resolver records are not independent successful validations.
+- Main push CI [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380), attempt 1: **PENDING**. Jobs endpoint: exactly 1 job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366), “Resolve exact candidate PR metadata”, PENDING with **0 steps**.
+- Main Preflight [45943191364](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191364), attempt 1: **SKIPPED**.
+- Latest observed main Acceptance Gate [45958885532](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45958885532), attempt 1: **FAILURE**, jobs endpoint **0 jobs**.
+- Latest observed Recovery [45958885652](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45958885652), attempt 1: **QUEUED**; 1 resolver job [140371735919](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45958885652/job/140371735919), QUEUED with **0 steps**.
+- Main combined status: **FAILURE**, Vercel `Deployment rate limited — retry in 24 hours` (`build-rate-limit`).
+
+## All OPEN PRs observed
+All three observed PRs target `main`, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, are OPEN / Draft / unmerged, and report mergeable metadata true. That metadata is not acceptance.
+
+| PR | Exact HEAD | Check runs | Combined status |
+|---|---|---|---|
+| [#672](https://github.com/X84657465/global-citizen-ai-network/pull/672) | `7948c32dde3e3f39e2aa2d4973d4703de1e733d1` | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL | FAILURE — Vercel rate limit |
+| [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) | `57f4239cad59b1e3099f882eed446b73d0b20da2` | 9: 2 PENDING, 5 QUEUED, 1 SUCCESS, 1 NEUTRAL | FAILURE — Vercel rate limit |
+| [#676](https://github.com/X84657465/global-citizen-ai-network/pull/676) | `a54013a52189b21624dfa0604a9231b1896cdd53` | 10: 2 PENDING, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL | SUCCESS — Vercel Preview only |
+
+- #674 exact-head CI [45958875524](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45958875524), attempt 1: **PENDING**; sole job [140371710691](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45958875524/job/140371710691) has zero steps. Autofix [45958875634](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45958875634), attempt 1: **PENDING**; sole job [140371706087](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45958875634/job/140371706087) has zero steps.
+- #672/#674 combined statuses are Vercel FAILURE; #676 combined status is Vercel SUCCESS for Preview only. Preview success does not substitute for GitHub Actions acceptance.
+- Formal review submissions: **0** for #672/#674/#676. Inline review threads: **0** for all three. No independent formal APPROVED exists.
+
+## Root-cause classification and routing
+- Main CI and #674 exact-head CI are blocked before substantive execution: resolver job is PENDING with zero steps. Recovery is queued before any step starts. The available job evidence does not expose a runner allocation or actionable script failure; root cause below the resolver/queue boundary remains **UNKNOWN** from this connector view. Do not blindly rerun.
+- Acceptance Gate repeatedly completes FAILURE with 0 jobs; no job log is available from those run IDs because the jobs endpoint is empty. This is not a passing gate and the precise underlying trigger failure remains **UNKNOWN**.
+- GPT1 / Factory owner: investigate main CI resolver, Recovery queue, and Acceptance Gate 0-job path. GPT5 does not modify Factory workflows, runners, breakers, or other owner paths.
+- Vercel/project administrator: resolve the provider quota for main/#672/#674; no blind deployment retry or billing change by GPT5.
+- GPT3 / authorized independent reviewer: formal APPROVED is absent for all three PRs.
+- Repository administrator: confirm effective branch protection and required checks; connector evidence does not establish full protection configuration.
+
+## GPT5 disposition
+- GPT5 rechecked exact refs, checks, combined statuses, selected run/job details, formal reviews and review threads; appended this evidence only to the already established `docs/AGENT_HANDOFF.md` documentation lane on PR #674.
+- No Factory/Product/F–P source code, workflow, runner policy, secret, permission, branch protection, production data, billing, or deployment was changed. No CI rerun, Draft removal, merge, self-approval, or bypass was performed. Local tests/build/lint were **NOT RUN** in this connector-only pass.
+
+**Disposition: main and #672/#674/#676 remain BLOCKED / NOT GREEN.** PENDING, QUEUED, SKIPPED, 0 jobs, NEUTRAL and external rate limits are never PASS. The 99.99999% reliability target remains aspirational, not a measured SLA.
