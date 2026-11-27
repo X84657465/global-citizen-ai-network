@@ -16,7 +16,7 @@ permissions:
 
 concurrency:
   group: factory-local-loop-windows-validation
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   windows-local-loop-validation:
