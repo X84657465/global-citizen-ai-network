@@ -7610,3 +7610,10 @@ The automation registry currently shows the 09:00 GPT5 operations task and 13:00
 - No tests/build/lint or CI acceptance were performed; no independent approval, Draft removal, merge, or deployment is claimed.
 
 **Disposition: MAIN NOT GREEN; all seven open PRs remain BLOCKED / NOT READY.**
+
+
+## Post-commit exact-HEAD correction — 2026-11-27
+- The immediately preceding handoff update created commit `a9c309afe7a46371aa7a3d75c59cf71b21f4b975`; PR #674 remains OPEN / Draft / unmerged, base `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Re-read the new exact HEAD checks: 16 records = 3 FAILURE, 5 SKIPPED, 5 QUEUED, 2 IN_PROGRESS, 1 SUCCESS.
+- Re-read combined status on this exact HEAD: Vercel is now `pending` (target deployment URL recorded by API), not a terminal success. Do not carry forward the prior HEAD's Vercel failure as this commit's current status; equally do not call pending green.
+- The main SHA snapshot remains `590d132e338dc5bb47243f372a0547c8dfdbfced` with 152 records at the last full two-page read. No tests/build/lint, approval, Draft removal, merge, or deployment was performed.
