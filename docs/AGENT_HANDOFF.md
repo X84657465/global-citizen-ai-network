@@ -1,3 +1,49 @@
+# GPT5 live operations delta — 2026-11-27 (follow-up exact-head audit)
+
+This follow-up supersedes the preceding live snapshot for the values below. Main and PR heads were re-read from GitHub immediately before recording.
+
+## Main and latest workflows
+- Main SHA remains `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA Check Runs: **120 total** across both API pages — **82 QUEUED, 3 PENDING, 29 SKIPPED, 5 FAILURE, 1 SUCCESS**. This is an accumulated inventory, not a single successful CI run.
+- Newest PR Acceptance Gate [46003447215](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003447215): completed **FAILURE**, jobs endpoint **0 jobs**.
+- Newest System Health Recovery [46003446856](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003446856): **QUEUED**; job [140520613291](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003446856/job/140520613291) is QUEUED.
+- Recovery Failure Observer [46002109162](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46002109162): **QUEUED**; job [140516100964](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46002109162/job/140516100964) is QUEUED.
+- Combined commit status remains **FAILURE**, Vercel `build-rate-limit`.
+- No green main, no breaker reset, no unchanged rerun, no production/deployment change.
+
+## Seven OPEN PRs — exact HEADs and current check states
+All remain OPEN / Draft / unmerged, base SHA equals current main, and metadata says mergeable=true only. This metadata does not authorize release.
+
+| PR | Exact HEAD SHA | Check Runs |
+|---|---|---|
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #683 | `1974c55d0f34a320034c072fb9433f60e4e4d25b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #674 | `0d3243a0487ddd7a77947ee8626778eedf1cb527` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `174bd08725bd78a27d9fe44e7ea4bea373a63df9` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+## GPT5 #674 latest diagnostics
+- Exact HEAD is `0d3243a0487ddd7a77947ee8626778eedf1cb527`; PR remains OPEN / Draft / unmerged, base current main.
+- Formal reviews: **0 APPROVED / no submissions**; inline review threads: **0**.
+- New exact-head run contains failures in `autofix`, `Exact-SHA CI failure diagnostics and evidence`, and `Resolve exact candidate PR metadata`; quality gates, Windows integration and persistence jobs are SKIPPED; Rust clippy, Codacy, CodeQL and vulnerability scan remain QUEUED.
+- Job-step retrieval for the failed diagnostics/metadata/autofix jobs returned empty step arrays. Log retrieval for diagnostic job [140520578801](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46003433131/job/140520578801) returned Azure BlobNotFound 404. Therefore the failure root cause remains **UNKNOWN**; do not claim tests ran or infer code defect.
+- GPT5 did not self-approve, mark ready, merge, or claim successful tests. The only current own-scope change remains the handoff documentation path.
+
+## Owner routing
+- GPT1: Factory-owned #681/#683/#672/#676 and Acceptance Gate / Recovery / Observer root-cause investigation.
+- GPT2: #679/#677.
+- GPT3: independent QA/review.
+- Vercel/project administrator: resolve external build quota.
+- GPT5: preserve exact evidence and work only within `docs/AGENT_HANDOFF.md`; no takeover of Factory control plane or other owners' files.
+
+**Disposition: BLOCKED / NOT GREEN.** This audit produced evidence, not a release approval or test pass.
+
+
+
+---
+
 # GPT5 live operations delta — 2026-11-27 (fresh exact-SHA audit; supersedes older snapshots)
 
 Re-read live refs, all current OPEN PR metadata, exact-head check runs, formal review submissions, inline review threads, latest main workflow jobs, and combined status. This section supersedes all older snapshots below; re-fetch before any release decision.
