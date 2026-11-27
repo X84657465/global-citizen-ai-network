@@ -7,6 +7,7 @@ import { createLocalFactoryQueue } from "../lib/agent-factory-local-queue.mjs";
 import { LocalFactoryWorkerError, runLocalFactoryAgentTask, runLocalFactoryTask } from "../lib/agent-factory-local-worker.mjs";
 import { validateLocalFactoryTask } from "../lib/agent-factory-local-adapter.mjs";
 import { createTrustedAcceptanceOracle } from "../lib/agent-factory-trusted-oracle.mjs";
+import { createLocalFactoryPublicationTarget } from "../lib/agent-factory-local-publication-contract.mjs";
 
 const args = process.argv.slice(2);
 const databasePath = resolve(process.env.GCAN_FACTORY_DB ?? ".factory/factory-local.sqlite");
@@ -16,13 +17,14 @@ function usage() {
   console.log([
     "Factory Local — single-worker, local-only task runner",
     "  node scripts/factory-local.mjs task add --title \"Queue regression tests\"",
-    "  node scripts/factory-local.mjs task add-agent --file <local-task.json> --oracle-file <tracked-tests/*.test.mjs> [--oracle-file <path> ...]",
+    "  node scripts/factory-local.mjs task add-agent --file <local-task.json> --oracle-file <tracked-tests/*.test.mjs> [--repository <owner/name>] [--base-branch <branch>]",
     "  node scripts/factory-local.mjs run-once",
     "  node scripts/factory-local.mjs run-until-idle [--max-tasks <1-100>]",
     "  node scripts/factory-local.mjs serve",
     "  node scripts/factory-local.mjs status",
     "  node scripts/factory-local.mjs logs <task-id>",
     "  node scripts/factory-local.mjs recover",
+    "  node scripts/factory-local.mjs publish <accepted-task-id>",
   ].join("\n"));
 }
 
@@ -38,14 +40,20 @@ function parseTitle(values) {
 
 function parseAgentTask(values) {
   let inputPath = null;
+  let repository = null;
+  let baseBranch = null;
   const oracleTestFiles = [];
   for (let index = 0; index < values.length; index += 1) {
     if (values[index] === "--file" && values[index + 1] && inputPath === null) {
       inputPath = values[++index];
     } else if (values[index] === "--oracle-file" && values[index + 1]) {
       oracleTestFiles.push(values[++index]);
+    } else if (values[index] === "--repository" && values[index + 1] && repository === null) {
+      repository = values[++index];
+    } else if (values[index] === "--base-branch" && values[index + 1] && baseBranch === null) {
+      baseBranch = values[++index];
     } else {
-      throw new Error("task add-agent accepts only --file <local-task.json> and one or more --oracle-file <tracked-tests/*.test.mjs> arguments.");
+      throw new Error("task add-agent accepts --file, one or more --oracle-file, and optional --repository / --base-branch arguments.");
     }
   }
   if (!inputPath) throw new Error("task add-agent requires --file <local-task.json>.");
@@ -58,7 +66,57 @@ function parseAgentTask(values) {
   } catch {
     throw new Error("Unable to read or parse the supplied local task JSON file.");
   }
-  return { task: validateLocalFactoryTask(parsed), oracleTestFiles };
+  return {
+    task: validateLocalFactoryTask(parsed),
+    oracleTestFiles,
+    repository,
+    baseBranch,
+  };
+}
+
+function gitOutput(args) {
+  try {
+    return execFileSync("git", args, {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      windowsHide: true,
+      stdio: ["ignore", "pipe", "pipe"],
+    }).trim();
+  } catch {
+    throw new Error("Unable to resolve the local Git repository and publication base.");
+  }
+}
+
+function resolvePublicationRepository(explicitRepository) {
+  const candidate = explicitRepository ||
+    process.env.GCAN_FACTORY_REPOSITORY ||
+    process.env.GITHUB_REPOSITORY ||
+    "";
+  if (candidate) {
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(candidate)) {
+      throw new Error("Publication repository must use owner/name format.");
+    }
+    return candidate;
+  }
+  const remote = gitOutput(["remote", "get-url", "origin"]);
+  const match = /github\.com[:/]([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+?)(?:\.git)?$/i.exec(remote);
+  if (!match) throw new Error("Unable to derive a GitHub owner/name from origin; pass --repository explicitly.");
+  return match[1];
+}
+
+function resolvePublicationBaseBranch(explicitBranch) {
+  const candidate = explicitBranch ||
+    process.env.GCAN_FACTORY_BASE_BRANCH ||
+    process.env.GITHUB_BASE_REF ||
+    process.env.GITHUB_REF_NAME ||
+    (() => {
+      try { return gitOutput(["symbolic-ref", "--quiet", "--short", "HEAD"]); }
+      catch { return ""; }
+    })();
+  if (!candidate || candidate === "HEAD") {
+    throw new Error("Publication base branch is unavailable; pass --base-branch explicitly when using a detached checkout.");
+  }
+  return candidate;
 }
 
 function parseMaxTasks(values) {
@@ -150,7 +208,7 @@ try {
     });
     print({ accepted: true, task });
   } else if (command === "task" && args[1] === "add-agent") {
-    const { task: agentTask, oracleTestFiles } = parseAgentTask(args.slice(2));
+    const { task: agentTask, oracleTestFiles, repository: requestedRepository, baseBranch: requestedBaseBranch } = parseAgentTask(args.slice(2));
     const taskId = randomUUID();
     let baseSha;
     try {
@@ -170,6 +228,13 @@ try {
       oracleTestFiles,
       workerAllowedPaths: agentTask.allowed_paths,
     });
+    const publicationTarget = createLocalFactoryPublicationTarget({
+      taskId,
+      repository: resolvePublicationRepository(requestedRepository),
+      baseBranch: resolvePublicationBaseBranch(requestedBaseBranch),
+      baseSha,
+      contractSha256: trustedOracleContract.contract_sha256,
+    });
     const task = queue.add({
       id: taskId,
       title: agentTask.title,
@@ -179,9 +244,10 @@ try {
         task_id: taskId,
         task: agentTask,
         trusted_oracle_contract: trustedOracleContract,
+        publication_target: publicationTarget,
       },
     });
-    print({ queued: true, trusted_oracle_contract: trustedOracleContract, task });
+    print({ queued: true, trusted_oracle_contract: trustedOracleContract, publication_target: publicationTarget, task });
   } else if (command === "status") {
     print(queue.list({ limit: 100 }));
   } else if (command === "logs") {
