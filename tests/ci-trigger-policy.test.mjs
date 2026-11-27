@@ -238,9 +238,12 @@ function hasV2ControllerInvocation(source) {
       else commands.push(line);
     }
   }
-  const executableLines = commands.filter(line => !/^\s*#/.test(line));
-  return /^\s*(?:env\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\s]+\s+)*)?node(?:\s+(?:--[^\s]+|-r\s+\S+))*\s+(?:\.\/)?scripts\/agent-factory-v2-controller\.mjs\b/m
-    .test(executableLines.join("\n"));
+  const executableLines = commands.filter(line =>
+    !/^\\s*#/.test(line) &&
+    !/^\\s*(?:env\\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\\s]+\\s+)*)?node\\s+--check\\s+/m.test(line)
+  );
+  return /^\\s*(?:env\\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\\s]+\\s+)*)?node(?:\\s+(?:--[^\\s]+|-r\\s+\\S+))*\\s+(?:\\.\\/)?scripts\\/agent-factory-v2-controller\\.mjs\\b/m
+    .test(executableLines.join("\\n"));
 }
 
 test("every V2 state-writer workflow is serialized by the shared Runner queue", () => {
@@ -268,7 +271,7 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
       const start = jobHeaders[index].index;
       const end = index + 1 < jobHeaders.length ? jobHeaders[index + 1].index : jobsSource.length;
       const section = jobsSource.slice(start, end);
-      if (section.includes("scripts/agent-factory-v2-controller.mjs")) {
+      if (hasV2ControllerInvocation(section)) {
         writerJobs.push({ name: jobHeaders[index][1], section });
       }
     }
@@ -293,6 +296,7 @@ test("controller invocation detection includes Node options and ./ prefixes but 
   assert.equal(hasV2ControllerInvocation("        run: node scripts/agent-factory-v2-controller.mjs"), true);
   assert.equal(hasV2ControllerInvocation("        run: node ./scripts/agent-factory-v2-controller.mjs"), true);
   assert.equal(hasV2ControllerInvocation("        run: node --no-warnings ./scripts/agent-factory-v2-controller.mjs"), true);
+  assert.equal(hasV2ControllerInvocation("        run: node --check scripts/agent-factory-v2-controller.mjs"), false);
   assert.equal(hasV2ControllerInvocation("        run: |\\n          # node scripts/agent-factory-v2-controller.mjs"), false);
   assert.equal(hasV2ControllerInvocation("        run: echo '# node scripts/agent-factory-v2-controller.mjs'"), false);
 });
