@@ -1149,24 +1149,26 @@ test("Windows candidate classifier uses a temporary ESM file instead of native -
 });
 
 test("Agent Task Preflight PR and push path filters cover every acceptance-required path", () => {
-  const policyMatch = acceptance.match(/const preflightPaths = new Set\\(\\[([\\s\\S]*?)\\]\\);/);
+  const policyMatch = acceptance.match(/const preflightPaths = new Set\(\[([\s\S]*?)\]\);/);
   assert.ok(policyMatch, "PR Acceptance Gate must expose its authoritative Preflight path set");
-  const requiredPaths = [...policyMatch[1].matchAll(/^\\s*'([^']+)'[,]?\\s*$/gm)].map((match) => match[1]);
+  const requiredPaths = [...policyMatch[1].matchAll(/^\s*'([^']+)'[,]?\s*$/gm)].map((match) => match[1]);
   assert.ok(requiredPaths.length > 0, "the authoritative Preflight path set must not be empty");
   assert.equal(new Set(requiredPaths).size, requiredPaths.length,
     "the authoritative Preflight path set must not contain duplicates");
 
   function extractEventPaths(source, eventName) {
-    const header = source.slice(0, source.indexOf("\\npermissions:"));
-    const marker = "  " + eventName + ":\\n";
+    const permissionsIndex = source.indexOf("\npermissions:");
+    assert.ok(permissionsIndex >= 0, "workflow permissions boundary must exist");
+    const header = source.slice(0, permissionsIndex);
+    const marker = "  " + eventName + ":\n";
     const start = header.indexOf(marker);
     assert.ok(start >= 0, "missing workflow event: " + eventName);
     const rest = header.slice(start + marker.length);
-    const nextEvent = rest.search(/\\n  [A-Za-z0-9_-]+:\\n/);
+    const nextEvent = rest.search(/\n  [A-Za-z0-9_-]+:\n/);
     const eventBlock = nextEvent >= 0 ? rest.slice(0, nextEvent) : rest;
-    const pathsMatch = eventBlock.match(/(?:^|\\n)    paths:\\n((?:      - "[^"]+"\\n?)+)/);
+    const pathsMatch = eventBlock.match(/(?:^|\n)    paths:\n((?:      - "[^"]+"\n?)+)/);
     assert.ok(pathsMatch, eventName + " must declare an explicit paths filter");
-    const entries = [...pathsMatch[1].matchAll(/^      - "([^"]+)"\\s*$/gm)].map((match) => match[1]);
+    const entries = [...pathsMatch[1].matchAll(/^      - "([^"]+)"\s*$/gm)].map((match) => match[1]);
     assert.ok(entries.length > 0, eventName + " paths filter must not be empty");
     assert.equal(new Set(entries).size, entries.length,
       eventName + " paths filter must not contain duplicate entries");
