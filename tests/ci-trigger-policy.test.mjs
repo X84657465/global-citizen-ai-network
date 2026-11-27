@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 
 const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflight = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const acceptance = readFileSync(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const runnerSmoke = readFileSync(new URL("../.github/workflows/self-hosted-runner-smoke.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -1145,4 +1146,26 @@ test("Windows candidate classifier uses a temporary ESM file instead of native -
     "execute the classifier by file path");
   assert.equal(preflight.includes("& node --input-type=module -e"), false,
     "do not pass quoted ESM source through Windows PowerShell native -e parsing");
+});
+
+
+test("PR Acceptance Gate serializes advisory writes per PR instead of globally", () => {
+  const header = acceptance.slice(0, acceptance.indexOf("\njobs:"));
+  const start = header.indexOf("\nconcurrency:\n");
+  assert.ok(start >= 0, "PR Acceptance Gate must declare workflow-level concurrency");
+  const block = header.slice(start);
+  assert.ok(block.includes("github.event.pull_request.number"),
+    "pull_request and pull_request_review events must share the PR-specific queue");
+  assert.ok(block.includes("github.event.workflow_run.pull_requests[0].number"),
+    "workflow_run events with an associated PR must share that PR-specific queue");
+  assert.ok(block.includes("inputs.pr_number"),
+    "manual dispatches must serialize against the selected PR");
+  assert.ok(block.includes("github.event.workflow_run.head_sha"),
+    "workflow_run events without an embedded PR must fall back to their exact source SHA");
+  assert.ok(block.includes("cancel-in-progress: false"),
+    "new events must not cancel an in-progress advisory update");
+  assert.ok(block.includes("queue: max"),
+    "events for the same PR must remain queued rather than silently discarded");
+  assert.equal(block.includes("group: global-citizen-ai-network-pr-acceptance\\n"),
+    false, "unrelated PRs must not contend for one repository-wide acceptance queue");
 });
