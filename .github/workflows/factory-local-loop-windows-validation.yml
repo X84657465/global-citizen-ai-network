@@ -109,7 +109,7 @@ jobs:
           $task = @{
             schema_version = 1
             title = "Real local Ollama agent pipeline E2E"
-            goal = "Create exactly one self-contained Node.js test file at tests/factory-local-loop-e2e.generated.test.mjs. Import test from node:test and assert from node:assert/strict. In that same file, define exactly this function: function normalizeInput(value) { return String(value ?? \"\").trim().toLowerCase(); }. Add one test that calls normalizeInput(\'  GCAN Factory  \') and asserts the result equals \'gcan factory\'. The function declaration and the test must both be in the generated file. Use the exact identifier normalizeInput everywhere; never call normalize, normalizeString, or any undeclared identifier. Do not import project files, use filesystem/network/process APIs, or require dependencies."
+            goal = "Create exactly one self-contained Node.js test file at tests/factory-local-loop-e2e.generated.test.mjs. Import test from node:test and assert from node:assert/strict. In that same file, define exactly this function: function normalizeInput(value) { return String(value ?? '').trim().toLowerCase(); }. Add one test that calls normalizeInput('  GCAN Factory  ') and asserts the result equals 'gcan factory'. The function declaration and the test must both be in the generated file. Use the exact identifier normalizeInput everywhere; never call normalize, normalizeString, or any undeclared identifier. Do not import project files, use filesystem/network/process APIs, or require dependencies."
             allowed_paths = @("tests/factory-local-loop-e2e.generated.test.mjs")
             acceptance_criteria = @(
               "Add exactly one new file at tests/factory-local-loop-e2e.generated.test.mjs.",
