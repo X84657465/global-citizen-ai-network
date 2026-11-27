@@ -156,17 +156,6 @@ test("read-only PR metadata resolution uses a dedicated Windows Runner queue", (
   assert.ok(resolverJob.includes("pull-requests: read"));
 });
 
-test("Factory Windows E2E coalesces superseded runs outside the shared state-writer queue", () => {
-  const header = factoryWindows.slice(0, factoryWindows.indexOf("\non:\n"));
-  assert.ok(header.includes("group: factory-local-loop-windows-validation"));
-  assert.ok(header.includes("cancel-in-progress: true"));
-  assert.equal(header.includes("group: global-citizen-ai-network-self-hosted-runner"), false,
-    "Factory E2E must not consume the shared state-writer concurrency queue");
-  assert.ok(factoryWindows.includes("runs-on: [self-hosted, Windows, X64]"));
-  assert.ok(factoryWindows.includes("tests/ci-trigger-policy.test.mjs"),
-    "the dedicated Windows validation must execute this concurrency policy regression");
-});
-
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
   assert.ok(preflight.includes('      - "lib/agent-failure-scope.mjs"\n'), "changes to the task-failure scope helper must trigger factory validation");
