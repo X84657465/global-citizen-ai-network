@@ -56,7 +56,10 @@ async function runNextTask(queue) {
 
   try {
     const result = task.payload?.kind === "local-agent-task"
-      ? await runLocalFactoryAgentTask({ payload: task.payload })
+      ? await runLocalFactoryAgentTask({
+        payload: task.payload,
+        sandboxTests: process.env.GCAN_FACTORY_SANDBOX_TESTS === "1",
+      })
       : await runLocalFactoryTask({ payload: task.payload });
     const completed = queue.complete(task.id, workerId, task.lease_token, result);
     return { claimed: true, completed: true, task: completed };

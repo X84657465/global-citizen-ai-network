@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, rmSync, symlinkSync, existsSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -80,6 +80,43 @@ test("stored agent tasks can be restored without trusting derived permissions", 
     () => restoreLocalFactoryTask({ ...stored, control_plane_authorized: true }),
     /canonical queue format/,
   );
+});
+
+test("sandbox evidence requires a real exit code and at least one passing test", (t) => {
+  const root = mkdtempSync(join(tmpdir(), "gcan-local-sandbox-evidence-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const testPath = "tests/local-adapter-fixture.test.mjs";
+  const dependency = "lib/local-adapter-fixture.mjs";
+  mkdirSync(join(root, "lib"));
+  writeFileSync(join(root, dependency), "export const value = 42;\n");
+  const proposal = {
+    task: task({ allowed_paths: [testPath, dependency] }),
+    repositoryRoot: root,
+    patchArtifact: {
+      status: "VALIDATED_PATCH",
+      patch: {
+        schema_version: 1,
+        files: [{ path: testPath, operation: "add", content: "import test from 'node:test';\ntest('fixture', () => {});\n" }],
+      },
+    },
+  };
+  const run = (evidence) => applyLocalFactoryPatchToScratch({
+    ...proposal,
+    sandboxTestRunner({ scratchRoot, testFiles }) {
+      assert.deepEqual(testFiles, [testPath]);
+      assert.equal(readFileSync(join(scratchRoot, dependency), "utf8"), "export const value = 42;\n");
+      assert.ok(existsSync(join(scratchRoot, testPath)));
+      return evidence;
+    },
+  });
+
+  assert.throws(() => run({ exit_code: 0, passed_tests: 0 }), /exit code 0, passed 0/);
+  assert.throws(() => run({ exit_code: 1, passed_tests: 0 }), /exit code 1, passed 0/);
+  const result = run({ exit_code: 0, passed_tests: 1 });
+  assert.equal(result.status, "SANDBOX_TESTS_PASSED");
+  assert.equal(result.generated_code_executed, true);
+  assert.equal(result.sandbox_evidence.exit_code, 0);
+  assert.equal(existsSync(join(root, testPath)), false);
 });
 
 test("scratch apply rejects an unapproved patch path before writing", () => {
