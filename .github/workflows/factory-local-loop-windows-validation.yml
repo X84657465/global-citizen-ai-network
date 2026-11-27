@@ -1,0 +1,99 @@
+name: Factory Local Loop Windows Validation
+
+on:
+  push:
+    branches:
+      - feat/factory-local-loop-v1
+    paths:
+      - .github/workflows/factory-local-loop-windows-validation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: factory-local-loop-windows-validation
+  cancel-in-progress: false
+
+jobs:
+  windows-local-loop-validation:
+    name: Windows local queue, worker and SQLite read-back
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
+    steps:
+      - name: Checkout exact branch revision
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.13.0"
+
+      - name: Verify local Factory source syntax
+        run: |
+          $ErrorActionPreference = "Stop"
+          node --version
+          if ($LASTEXITCODE -ne 0) { throw "Node.js is unavailable." }
+          node --check scripts/factory-local.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Factory CLI syntax check failed." }
+          node --check lib/agent-factory-local-queue.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Queue syntax check failed." }
+          node --check lib/agent-factory-local-worker.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Worker syntax check failed." }
+          node --check lib/agent-factory-local-adapter.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Adapter syntax check failed." }
+
+      - name: Run local Factory queue, adapter, worker and process-tree tests
+        run: |
+          $ErrorActionPreference = "Stop"
+          node --test `
+            tests/agent-factory-local-queue.test.mjs `
+            tests/agent-factory-local-queue-regression.test.mjs `
+            tests/agent-factory-local-adapter.test.mjs `
+            tests/agent-factory-local-worker.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Local Factory regression suite failed." }
+
+      - name: Execute one real SQLite-backed local queue task and reopen evidence
+        run: |
+          $ErrorActionPreference = "Stop"
+          $env:GCAN_FACTORY_DB = Join-Path $env:RUNNER_TEMP ("factory-local-e2e-" + $env:GITHUB_RUN_ID + ".sqlite")
+
+          $addOutput = & node scripts/factory-local.mjs task add --title "Windows Runner local Factory E2E"
+          if ($LASTEXITCODE -ne 0) { throw "Factory task intake failed." }
+          $added = ($addOutput -join [Environment]::NewLine) | ConvertFrom-Json
+          if (-not $added.accepted -or -not $added.task.id) { throw "Factory task intake evidence is invalid." }
+          $taskId = [string]$added.task.id
+          Write-Host "FACTORY_TASK_ID=$taskId"
+
+          $runOutput = & node scripts/factory-local.mjs run-once
+          if ($LASTEXITCODE -ne 0) { throw "Factory run-once failed." }
+          $runResult = ($runOutput -join [Environment]::NewLine) | ConvertFrom-Json
+          if (-not $runResult.claimed -or -not $runResult.completed -or $runResult.task.status -ne "succeeded") {
+            throw "Factory worker did not persist a succeeded task."
+          }
+
+          # Each CLI invocation opens and closes SQLite independently. These
+          # reads prove the completed result survived process/database reopen.
+          $statusOutput = & node scripts/factory-local.mjs status
+          if ($LASTEXITCODE -ne 0) { throw "Factory status read-back failed." }
+          $statusRows = @(($statusOutput -join [Environment]::NewLine) | ConvertFrom-Json)
+          $restored = $statusRows | Where-Object { $_.id -eq $taskId } | Select-Object -First 1
+          if (-not $restored -or $restored.status -ne "succeeded" -or $restored.result.exit_code -ne 0) {
+            throw "SQLite close/reopen read-back did not preserve the successful result."
+          }
+
+          $logsOutput = & node scripts/factory-local.mjs logs $taskId
+          if ($LASTEXITCODE -ne 0) { throw "Factory event read-back failed." }
+          $events = @(($logsOutput -join [Environment]::NewLine) | ConvertFrom-Json)
+          if (-not ($events | Where-Object { $_.event_type -eq "task_succeeded" })) {
+            throw "Persisted task_succeeded event is missing."
+          }
+
+          Write-Host "FACTORY_SQLITE_REOPEN_READBACK_PASSED"
+          Write-Host "FACTORY_LOCAL_LOOP_WINDOWS_VALIDATION_PASSED"
