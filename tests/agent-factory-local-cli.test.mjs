@@ -43,12 +43,23 @@ test("a stored local agent task reaches Ollama configuration validation after CL
     explicit_exclusions: [],
   }));
 
-  const added = invoke(["task", "add-agent", "--file", inputFile]);
+  const added = invoke([
+    "task", "add-agent", "--file", inputFile,
+    "--oracle-file", "tests/agent-factory-local-queue.test.mjs",
+  ]);
+  assert.equal(added.queued, true);
   assert.equal(added.task.payload.task.mode, "local_only");
+  assert.equal(added.task.payload.task_id, added.task.id);
+  assert.equal(added.task.payload.trusted_oracle_contract.schema_version, 2);
+  assert.equal(added.task.payload.trusted_oracle_contract.task_id, added.task.id);
+  assert.match(added.task.payload.trusted_oracle_contract.contract_sha256, /^[a-f0-9]{64}$/);
 
   const claimed = invoke(["run-once"], {
     exit: 1,
-    env: { OLLAMA_BASE_URL: "https://127.0.0.1:11434" },
+    env: {
+      OLLAMA_BASE_URL: "https://127.0.0.1:11434",
+      GCAN_FACTORY_SANDBOX_TESTS: "1",
+    },
   });
   assert.equal(claimed.task.id, added.task.id);
   assert.match(claimed.task.last_error, /OLLAMA_BASE_URL must be a plain HTTP loopback origin/);
