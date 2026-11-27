@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { createTrustedAcceptanceOracle } from "../lib/agent-factory-trusted-oracle.mjs";
 import { runLocalFactoryAgentTask, runLocalFactoryTask, terminateLocalFactoryProcessTree, LocalFactoryWorkerError } from "../lib/agent-factory-local-worker.mjs";
 
 test("local worker executes only the allowlisted queue regression suite and returns evidence", async () => {
@@ -40,28 +43,44 @@ test("local agent worker rejects malformed task envelopes before contacting Olla
   );
 });
 
-test("local agent worker hands the validated model plan to patch generation", async (t) => {
-  const path = "docs/gcan-local-worker-fixture.md";
+test("local agent worker accepts only after separate generated and trusted Oracle tests pass", async (t) => {
+  const documentPath = "docs/gcan-local-worker-fixture.md";
+  const generatedTestPath = "tests/gcan-local-worker-fixture.test.mjs";
+  const taskId = "worker-oracle-fixture";
   const task = {
     schema_version: 1,
     title: "Documentation fixture",
-    goal: "Add a documentation example",
-    allowed_paths: [path],
-    acceptance_criteria: ["Document the example"],
+    goal: "Add a documentation example and an independently executed regression test",
+    allowed_paths: [documentPath, generatedTestPath],
+    acceptance_criteria: ["Document the example", "Add a deterministic regression test"],
     explicit_exclusions: [],
   };
+  const baseSha = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: process.cwd(), encoding: "utf8",
+  }).trim();
+  const trustedOracleContract = createTrustedAcceptanceOracle({
+    repositoryRoot: process.cwd(),
+    baseSha,
+    taskId,
+    oracleTestFiles: ["tests/agent-factory-local-queue.test.mjs"],
+    workerAllowedPaths: task.allowed_paths,
+  });
   const criteria = { acceptance_criteria: task.acceptance_criteria };
   const plan = { schema_version: 1, tasks: [
     { ...criteria, id: "inspect", title: "Inspect task", role: "planner", action: "inspect",
       depends_on: [], allowed_paths: [], max_output_bytes: 4096 },
-    { ...criteria, id: "implement", title: "Draft example", role: "implementer", action: "propose_patch",
-      depends_on: ["inspect"], allowed_paths: [path], max_output_bytes: 16384 },
-    { ...criteria, id: "check", title: "Check example", role: "tester", action: "validate_patch",
-      depends_on: ["implement"], allowed_paths: [path], max_output_bytes: 4096 },
+    { ...criteria, id: "implement", title: "Draft example and test", role: "implementer", action: "propose_patch",
+      depends_on: ["inspect"], allowed_paths: [documentPath, generatedTestPath], max_output_bytes: 16384 },
+    { ...criteria, id: "check", title: "Check example and test", role: "tester", action: "validate_patch",
+      depends_on: ["implement"], allowed_paths: [documentPath, generatedTestPath], max_output_bytes: 4096 },
   ] };
   const patch = {
     schema_version: 1,
-    files: [{ path, operation: "add", content: "# Local example\n" }],
+    files: [
+      { path: documentPath, operation: "add", content: "# Local example\\n" },
+      { path: generatedTestPath, operation: "add",
+        content: 'import test from "node:test";\\ntest("generated fixture", () => {});\\n' },
+    ],
   };
   t.mock.method(globalThis, "fetch", async (url, options) => {
     if (url.endsWith("/api/tags")) {
@@ -73,14 +92,43 @@ test("local agent worker hands the validated model plan to patch generation", as
     return Response.json({ response: JSON.stringify(response) });
   });
 
-  const result = await runLocalFactoryAgentTask({ payload: { schema_version: 1, kind: "local-agent-task", task } });
-  assert.equal(result.outcome, "proposal_ready");
+  const calls = [];
+  const result = await runLocalFactoryAgentTask({
+    payload: {
+      schema_version: 1,
+      kind: "local-agent-task",
+      task_id: taskId,
+      task,
+      trusted_oracle_contract: trustedOracleContract,
+    },
+    sandboxTests: true,
+    sandboxTestRunner({ scratchRoot, testFiles }) {
+      calls.push([...testFiles]);
+      for (const path of testFiles) assert.equal(existsSync(join(scratchRoot, path)), true);
+      if (testFiles.includes(generatedTestPath)) {
+        assert.equal(readFileSync(join(scratchRoot, documentPath), "utf8"), "# Local example\\n");
+      } else {
+        assert.deepEqual(testFiles, ["tests/agent-factory-local-queue.test.mjs"]);
+      }
+      return {
+        exit_code: 0,
+        passed_tests: 1,
+        test_files: [...testFiles],
+        tap_summary: {
+          tests: 1, pass: 1, fail: 0, cancelled: 0, skipped: 0, todo: 0, valid: true,
+        },
+      };
+    },
+  });
+  assert.equal(result.outcome, "accepted");
+  assert.equal(result.acceptance_status, "ACCEPTED");
   assert.equal(result.plan_artifact.status, "VALIDATED_PLAN");
   assert.equal(result.patch_artifact.status, "VALIDATED_PATCH");
-  assert.deepEqual(result.scratch_evidence.patched_files.map((file) => file.path), [path]);
-  assert.equal(result.scratch_evidence.generated_code_executed, false);
+  assert.deepEqual(calls, [[generatedTestPath], ["tests/agent-factory-local-queue.test.mjs"]]);
+  assert.equal(result.scratch_evidence.generated_code_executed, true);
+  assert.equal(result.acceptance_evidence.valid, true);
+  assert.equal(result.acceptance_evidence.contract_sha256, trustedOracleContract.contract_sha256);
 });
-
 
 test("Windows process-tree termination only reports success after taskkill confirms exit zero", () => {
   let directKillCalls = 0;
