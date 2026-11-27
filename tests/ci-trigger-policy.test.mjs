@@ -6,6 +6,7 @@ const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta
 const acceptance = readFileSync(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflight = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const runnerSmoke = readFileSync(new URL("../.github/workflows/self-hosted-runner-smoke.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const factoryWindows = readFileSync(new URL("../.github/workflows/factory-local-loop-windows-validation.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const resolver = readFileSync(new URL("../scripts/resolve-agent-task-pr.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -154,6 +155,19 @@ test("read-only PR metadata resolution uses a dedicated Windows Runner queue", (
   assert.ok(resolverJob.includes("issues: read"));
   assert.ok(resolverJob.includes("pull-requests: read"));
 });
+
+test("Factory Windows E2E shares the single self-hosted Runner FIFO queue", () => {
+  const header = factoryWindows.split("\\non:\\n", 1)[0];
+  assert.ok(header.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(header.includes("cancel-in-progress: false"));
+  assert.ok(header.includes("queue: max"));
+  assert.equal(header.includes("group: factory-local-loop-windows-validation"), false);
+  assert.equal(header.includes("cancel-in-progress: true"), false);
+  assert.ok(factoryWindows.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.ok(factoryWindows.includes("tests/ci-trigger-policy.test.mjs"),
+    "the dedicated Windows validation must execute this shared-runner policy regression");
+});
+
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
   assert.ok(preflight.includes('      - "lib/agent-failure-scope.mjs"\n'), "changes to the task-failure scope helper must trigger factory validation");
