@@ -8,10 +8,17 @@ on:
 jobs:
   resolve-system-health:
     name: Resolve completed exact-head CI before resetting system breaker
-    # Always start a lightweight observer job for completed CI events so
-    # ineligible events are recorded instead of disappearing as zero-job runs.
-    # Only a verified same-repository, non-task PR at the exact source SHA may
-    # reach the state-changing controller step.
+    # Allocate a hosted runner only for successful CI from a trusted, same-repo
+    # pull_request on a non-task branch. Failed, untrusted, and task CI events
+    # cannot reset the breaker and must not consume runner capacity merely to
+    # be rejected by the first script step.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.path == '.github/workflows/ci.yml' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
+      !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')
     # This read-only exact-head observer runs outside the shared state-writer
     # queue. Only the state-mutating controller job below takes that lock, so
     # verification can start promptly without weakening durable write ordering.
