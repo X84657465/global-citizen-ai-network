@@ -50,7 +50,7 @@ The root manifest continues to declare Next.js `15.5.29`, ESLint `^9.30.1`, and 
 
 1. The audit result is tied to the exact lockfile blob and timestamp above. Re-run both commands after any dependency or lockfile change and periodically as the advisory database changes.
 2. A zero-result npm audit does not assess application logic, malicious package publication, compromised maintainer accounts, license obligations, or vulnerabilities not yet present in the advisory database.
-3. The same core CI run has an unrelated unit-test failure in `tests/agent-plan-validation.test.mjs` (test 308: patch-proposal `max_output_bytes` lower-bound fixture). Type check, lint, and production build were skipped after that failure. This does not invalidate the two audit command results, but it means the overall CI run is not green.
+3. The same core CI run has an unrelated unit-test failure in `tests/agent-plan-validation.test.mjs` (test 308: patch-proposal `max_output_bytes` lower-bound fixture). Type check, lint, and production build were skipped after that failure. This does not invalidate the two audit command results, but it means the overall CI is not green.
 4. No package manifest or lockfile change is proposed by this task because the fresh production and full-tree audits both reported zero vulnerabilities.
 
 ## Evidence boundary
