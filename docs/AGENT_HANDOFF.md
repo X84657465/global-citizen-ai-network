@@ -7043,3 +7043,50 @@ Important: #683 HEAD advanced from the previously observed `dfec2da9...` to `2f0
 - Existing daily 09:00 Asia/Taipei automation remains enabled, with next scheduled run 2026-11-28 09:00. Its last recorded execution remains 2026-11-25; this manual audit is not evidence that the daily automation executed today.
 
 **Disposition: BLOCKED / NOT GREEN.** The GPT5 deliverable in this pass is the refreshed exact-ref operations handoff; implementation and provider blockers are routed to their actual owners rather than masked or taken over.
+
+
+---
+
+# GPT5 live operations checkpoint — 2026-11-27 20:26 Asia/Taipei
+
+This checkpoint supersedes earlier moving-ref snapshots only for the exact refs and API observations below. Re-fetch before any release decision.
+
+## Main
+- Live `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Main Actions runs API reports `total_count=2500`; the endpoint page returned 50 recent runs, not the full historical inventory.
+- Latest observed Agent Factory System Health Recovery run [45997338321](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45997338321): **QUEUED**; its only materialized job [140499928767](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45997338321/job/140499928767) is QUEUED with no steps.
+- Latest observed PR Acceptance Gate run [45997338366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45997338366): **FAILURE, 0 jobs**. This is not PASS.
+- Main combined commit status: Vercel **FAILURE**, description `Deployment rate limited — retry in 24 hours.` External provider quota; not a code-test result.
+- Overall main disposition: **BLOCKED / NOT GREEN**.
+
+## All seven OPEN PRs — exact current HEADs and check-run inventories
+All seven currently OPEN PRs target main at base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced` and are Draft / unmerged. `mergeable=true` metadata, where present, is not acceptance or merge authorization.
+
+| PR | Exact HEAD SHA | Check-run counts on that exact HEAD |
+|---|---|---|
+| [#683](https://github.com/X84657465/global-citizen-ai-network/pull/683) | `7cabdefa13595884f8e6f094b16957acd4eb6a86` | 15 total: 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| [#681](https://github.com/X84657465/global-citizen-ai-network/pull/681) | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 22 total: 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| [#679](https://github.com/X84657465/global-citizen-ai-network/pull/679) | `174bd08725bd78a27d9fe44e7ea4bea373a63df9` | 16 total: 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS |
+| [#677](https://github.com/X84657465/global-citizen-ai-network/pull/677) | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9 total: 1 PENDING, 1 FAILURE, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| [#676](https://github.com/X84657465/global-citizen-ai-network/pull/676) | `040b2b412a8226637c5d536466247b507a22b9c6` | 9 total: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| [#674](https://github.com/X84657465/global-citizen-ai-network/pull/674) — GPT5 documentation handoff | `ac19be3f433d2f1a0a709a82dd2c9e5236d6858d` | 15 total: 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| [#672](https://github.com/X84657465/global-citizen-ai-network/pull/672) | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9 total: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+Review inventory retrieved for #683/#679/#677/#681/#672/#676: no formal APPROVED submissions; #683 and #679 have COMMENTED only; the others have no review submissions. All six have zero review threads. For #674, formal review submissions = 0 and review threads = 0. COMMENTED, Summary SUCCESS, Mergify NEUTRAL, PENDING, QUEUED and SKIPPED are not independent approval or passing required CI.
+
+## Failure classification and owner handoff
+- Main Acceptance Gate repeatedly completes FAILURE with zero jobs; Recovery resolver repeatedly remains QUEUED with no steps. Treat this as orchestration/runner evidence gap, not a source-code diagnosis. Do not blind-rerun or count it green.
+- #683/#681/#679 each have resolver/diagnostics/autofix failures and downstream quality/integration jobs SKIPPED; their current check inventories do not establish successful validation. Factory implementation paths remain with GPT1; #679 is GPT2/G-owned.
+- #677 has a PENDING resolver, failed autofix, and queued scanners. GPT2 owns its AI-cost test scope.
+- #676 and #672 have PENDING resolver/autofix and queued scanners. GPT1 owns their Factory workflow paths.
+- #674 exact HEAD has resolver/diagnostics/autofix FAILURE, five downstream jobs SKIPPED, and five scanner jobs QUEUED. Formal independent review is absent. Keep Draft; GPT5 cannot self-approve or merge its own PR.
+- Vercel quota remediation belongs to the project/Vercel administrator. Do not repeat unchanged deployment attempts or change billing/plan.
+- GPT5 scope remains append-only `docs/AGENT_HANDOFF.md` operations/evidence work. No Factory/Security source, workflow, Runner, secrets, permissions, branch protection, database, production, billing or deployment changes were made.
+
+## GPT5 execution record and disposition
+- Re-read the current #674 branch handoff file and live main/PR refs before recording this checkpoint.
+- This update is documentation/evidence only. No local tests, build, lint, deployment, Draft removal, approval, acceptance or merge were executed.
+- No safe authority to take over the other PRs' overlapping implementation paths or to bypass independent review / exact-head CI / branch protection is present.
+- Continue non-overlapping operations/evidence work; return resolver/runner failures to the Factory/repository administrators, quota to the Vercel/project administrator, and formal review to an authorized independent reviewer.
+
+**Disposition: BLOCKED / NOT GREEN.** This is a verified evidence handoff, not a claim that all project problems are solved.
