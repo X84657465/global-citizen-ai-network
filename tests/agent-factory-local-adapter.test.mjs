@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   validateLocalFactoryTask,
+  generateLocalFactoryPlan,
   applyLocalFactoryPatchToScratch,
 } from "../lib/agent-factory-local-adapter.mjs";
 
@@ -109,5 +110,28 @@ test("local task refuses a path whose existing parent is a symlink", () => {
   } finally {
     rmSync(root, { recursive: true, force: true });
     rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test("Ollama transport rejects non-loopback origins and URL redirection inputs before network access", async () => {
+  const original = process.env.OLLAMA_BASE_URL;
+  try {
+    for (const value of [
+      "https://example.invalid",
+      "http://192.0.2.1:11434",
+      "http://localhost:11434",
+      "http://127.0.0.1:11434/proxy",
+      "http://127.0.0.1:11434/?target=example.invalid",
+      "http://user:pass@127.0.0.1:11434",
+    ]) {
+      process.env.OLLAMA_BASE_URL = value;
+      await assert.rejects(
+        generateLocalFactoryPlan({ task: task() }),
+        /OLLAMA_BASE_URL must be a plain HTTP loopback origin/,
+      );
+    }
+  } finally {
+    if (original === undefined) delete process.env.OLLAMA_BASE_URL;
+    else process.env.OLLAMA_BASE_URL = original;
   }
 });
