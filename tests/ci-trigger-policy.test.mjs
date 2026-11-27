@@ -1225,14 +1225,14 @@ test("PR Acceptance Gate resolves a unique PR before acquiring its per-PR queue"
 function extractAcceptanceGithubScript(jobName, stepName) {
   const job = findJobSection(acceptance, jobName);
   const step = findNamedStepBlock(acceptance, stepName, job.start, job.end);
-  const match = step.match(/\n          script: \\|\n([\\s\\S]*)$/);
-  assert.ok(match, "GitHub Script block must exist for " + stepName);
-  return match[1].split("\n")
+  const marker = "\n          script: |\n";
+  const scriptStart = step.indexOf(marker);
+  assert.ok(scriptStart >= 0, "GitHub Script block must exist for " + stepName);
+  return step.slice(scriptStart + marker.length).split("\n")
     .map((line) => line.startsWith("            ") ? line.slice(12) : line)
     .join("\n")
     .trimEnd();
 }
-
 function runAcceptanceGithubScript(script, { github, context, core, env = {} }) {
   const mockedRequire = (id) => id === "path"
     ? { join: (...parts) => parts.join("/") }
