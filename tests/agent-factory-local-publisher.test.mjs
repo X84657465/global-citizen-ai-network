@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { createLocalFactoryQueue } from "../lib/agent-factory-local-queue.mjs";
 import { validateLocalFactoryTask } from "../lib/agent-factory-local-adapter.mjs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+import { evaluateAgentDecision } from "../lib/agent-neural-decision.mjs";
 import { validatePatchManifest } from "../lib/agent-patch-validation.mjs";
 import { createTrustedAcceptanceOracle, verifyTrustedAcceptanceOracle } from "../lib/agent-factory-trusted-oracle.mjs";
 import { createLocalFactoryPublicationTarget } from "../lib/agent-factory-local-publication-contract.mjs";
@@ -92,17 +93,41 @@ function createAcceptedFixture(t) {
 
   const plan = validateAgentPlan({
     schema_version: 1,
-    tasks: [{
-      id: "implement-result",
-      title: "Create result and regression test",
-      role: "implementer",
-      action: "propose_patch",
-      depends_on: [],
-      allowed_paths: [...task.allowed_paths],
-      acceptance_criteria: [...task.acceptance_criteria],
-      max_output_bytes: 16_384,
-    }],
+    tasks: [
+      {
+        id: "planner-inspect",
+        title: "Inspect accepted task",
+        role: "planner",
+        action: "inspect",
+        depends_on: [],
+        allowed_paths: [...task.allowed_paths],
+        acceptance_criteria: [...task.acceptance_criteria],
+        max_output_bytes: 4096,
+      },
+      {
+        id: "implementer-propose-patch",
+        title: "Create result and regression test",
+        role: "implementer",
+        action: "propose_patch",
+        depends_on: ["planner-inspect"],
+        allowed_paths: [...task.allowed_paths],
+        acceptance_criteria: [...task.acceptance_criteria],
+        max_output_bytes: 16_384,
+      },
+      {
+        id: "tester-validate-patch",
+        title: "Validate result and regression test",
+        role: "tester",
+        action: "validate_patch",
+        depends_on: ["implementer-propose-patch"],
+        allowed_paths: [...task.allowed_paths],
+        acceptance_criteria: [...task.acceptance_criteria],
+        max_output_bytes: 4096,
+      },
+    ],
   }, task);
+  const decision = evaluateAgentDecision(plan, task);
+  assert.equal(decision.decision, "approve_for_sandbox_validation");
 
   const patchFiles = [
     {
@@ -168,10 +193,7 @@ function createAcceptedFixture(t) {
         ai_execution_enabled: false,
         tasks: plan.tasks,
       },
-      decision: {
-        decision: "approve_for_sandbox_validation",
-        blockers: [],
-      },
+      decision,
       status: "VALIDATED_PLAN",
     },
     patch_artifact: {
