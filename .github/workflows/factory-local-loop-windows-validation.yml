@@ -22,7 +22,7 @@ jobs:
   windows-local-loop-validation:
     name: Windows local queue, worker and SQLite read-back
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 20
+    timeout-minutes: 25
     defaults:
       run:
         shell: powershell -NoProfile -ExecutionPolicy Bypass -File {0}
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
-          ref: ${{ github.sha }}
+          ref: \${{ github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v5
@@ -51,16 +51,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Worker syntax check failed." }
           node --check lib/agent-factory-local-adapter.mjs
           if ($LASTEXITCODE -ne 0) { throw "Adapter syntax check failed." }
+          node --check lib/agent-factory-local-sandbox.mjs
+          if ($LASTEXITCODE -ne 0) { throw "Sandbox syntax check failed." }
 
       - name: Run local Factory queue, adapter, worker and process-tree tests
         run: |
           $ErrorActionPreference = "Stop"
-          node --test `
-            tests/agent-factory-local-queue.test.mjs `
-            tests/agent-factory-local-queue-regression.test.mjs `
-            tests/agent-factory-local-adapter.test.mjs `
-            tests/agent-factory-local-cli.test.mjs `
-            tests/agent-factory-local-worker.test.mjs
+          node --test tests/agent-factory-local-queue.test.mjs tests/agent-factory-local-queue-regression.test.mjs tests/agent-factory-local-adapter.test.mjs tests/agent-factory-local-cli.test.mjs tests/agent-factory-local-worker.test.mjs
           if ($LASTEXITCODE -ne 0) { throw "Local Factory regression suite failed." }
 
       - name: Execute one real SQLite-backed local queue task and reopen evidence
@@ -82,8 +79,6 @@ jobs:
             throw "Factory worker did not persist a succeeded task."
           }
 
-          # Each CLI invocation opens and closes SQLite independently. These
-          # reads prove the completed result survived process/database reopen.
           $statusOutput = & node scripts/factory-local.mjs status
           if ($LASTEXITCODE -ne 0) { throw "Factory status read-back failed." }
           $statusRows = @(($statusOutput -join [Environment]::NewLine) | ConvertFrom-Json)
@@ -101,3 +96,79 @@ jobs:
 
           Write-Host "FACTORY_SQLITE_REOPEN_READBACK_PASSED"
           Write-Host "FACTORY_LOCAL_LOOP_WINDOWS_VALIDATION_PASSED"
+
+      - name: Execute one real Ollama-to-sandbox agent task and reopen evidence
+        env:
+          OLLAMA_BASE_URL: http://127.0.0.1:11434
+          GCAN_OLLAMA_MODEL: qwen3:8b
+          GCAN_FACTORY_SANDBOX_TESTS: "1"
+        run: |
+          $ErrorActionPreference = "Stop"
+          $env:GCAN_FACTORY_DB = Join-Path $env:RUNNER_TEMP ("factory-agent-e2e-" + $env:GITHUB_RUN_ID + ".sqlite")
+          $taskPath = Join-Path $env:RUNNER_TEMP "factory-agent-task.json"
+          $task = @{
+            schema_version = 1
+            title = "Real local Ollama agent pipeline E2E"
+            goal = "Create exactly one new self-contained Node.js test file at tests/factory-local-loop-e2e.generated.test.mjs. The file must use node:test and node:assert/strict, define a small pure deterministic normalization function locally, and include a passing test for that function. Do not import project files, use filesystem/network/process APIs, or require dependencies."
+            allowed_paths = @("tests/factory-local-loop-e2e.generated.test.mjs")
+            acceptance_criteria = @(
+              "Add exactly one new file at tests/factory-local-loop-e2e.generated.test.mjs.",
+              "Use node:test and node:assert/strict with at least one real assertion.",
+              "The test must exercise a pure deterministic function defined in the same file.",
+              "The generated test must pass under the pinned network-disabled Node sandbox."
+            )
+            explicit_exclusions = @(
+              "Do not modify any existing repository file.",
+              "Do not execute shell commands, access the network, read environment variables, or access secrets.",
+              "Do not install packages or import project modules.",
+              "Do not create, modify, or delete files outside the one allowlisted test path."
+            )
+          }
+          $json = $task | ConvertTo-Json -Depth 8
+          [System.IO.File]::WriteAllText($taskPath, $json, [System.Text.UTF8Encoding]::new($false))
+
+          $addOutput = & node scripts/factory-local.mjs task add-agent --file $taskPath
+          if ($LASTEXITCODE -ne 0) { throw "Local agent task intake failed." }
+          $added = ($addOutput -join [Environment]::NewLine) | ConvertFrom-Json
+          if (-not $added.accepted -or -not $added.task.id) { throw "Local agent task intake evidence is invalid." }
+          $taskId = [string]$added.task.id
+          Write-Host "FACTORY_AGENT_TASK_ID=$taskId"
+
+          $runOutput = & node scripts/factory-local.mjs run-once
+          if ($LASTEXITCODE -ne 0) { throw "Real Ollama agent task did not complete successfully." }
+          $runResult = ($runOutput -join [Environment]::NewLine) | ConvertFrom-Json
+          $agentResult = $runResult.task.result
+          if (-not $runResult.claimed -or -not $runResult.completed -or
+              $runResult.task.status -ne "succeeded" -or
+              $agentResult.outcome -ne "sandbox_tests_passed" -or
+              $agentResult.generated_code_executed -ne $true -or
+              $agentResult.test_execution -ne "PASSED_IN_NETWORK_DISABLED_CONTAINER" -or
+              $agentResult.scratch_evidence.sandbox_evidence.exit_code -ne 0 -or
+              $agentResult.scratch_evidence.sandbox_evidence.passed_tests -lt 1) {
+            throw "Real Ollama → validated patch → sandbox test evidence is incomplete."
+          }
+          if (-not $agentResult.plan_artifact.model -or -not $agentResult.patch_artifact.model) {
+            throw "The actual Ollama model identity was not persisted."
+          }
+          Write-Host ("FACTORY_OLLAMA_MODEL=" + $agentResult.plan_artifact.model)
+          Write-Host "FACTORY_OLLAMA_SANDBOX_TESTS_PASSED"
+
+          $statusOutput = & node scripts/factory-local.mjs status
+          if ($LASTEXITCODE -ne 0) { throw "Agent task SQLite read-back failed." }
+          $statusRows = @(($statusOutput -join [Environment]::NewLine) | ConvertFrom-Json)
+          $restored = $statusRows | Where-Object { $_.id -eq $taskId } | Select-Object -First 1
+          if (-not $restored -or $restored.status -ne "succeeded" -or
+              $restored.result.outcome -ne "sandbox_tests_passed" -or
+              $restored.result.scratch_evidence.sandbox_evidence.exit_code -ne 0) {
+            throw "Complete Ollama and sandbox evidence did not survive SQLite reopen."
+          }
+
+          $logsOutput = & node scripts/factory-local.mjs logs $taskId
+          if ($LASTEXITCODE -ne 0) { throw "Agent task event read-back failed." }
+          $events = @(($logsOutput -join [Environment]::NewLine) | ConvertFrom-Json)
+          if (-not ($events | Where-Object { $_.event_type -eq "task_succeeded" })) {
+            throw "Persisted agent task_succeeded event is missing."
+          }
+
+          Write-Host "FACTORY_OLLAMA_SQLITE_REOPEN_READBACK_PASSED"
+          Write-Host "FACTORY_LOCAL_AGENT_LOOP_WINDOWS_E2E_PASSED"
