@@ -485,14 +485,14 @@ test("preserves Operational evidence as supplemental task context without relaxi
 
 
 test("preserves Phase as supplemental task context without weakening fail-closed section validation", () => {
-  const phaseContent = "Phase 4 — governance and transparency\\nSecond line remains intact.";
-  const body = validIssue().body + "\\n\\n## Phase\\n" + phaseContent;
+  const phaseContent = "Phase 4 — governance and transparency\nSecond line remains intact.";
+  const body = validIssue().body + "\n\n## Phase\n" + phaseContent;
   const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
   assert.equal(task.additional_context.Phase, phaseContent);
   assert.equal(buildAgentTaskContext(task).additional_context.Phase, phaseContent);
 
   const duplicate = validIssue({
-    body: body + "\\n\\n## Phase\\nDuplicate Phase must be rejected.",
+    body: body + "\n\n## Phase\nDuplicate Phase must be rejected.",
   });
   assert.throws(
     () => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"),
@@ -500,7 +500,7 @@ test("preserves Phase as supplemental task context without weakening fail-closed
   );
 
   const unknown = validIssue({
-    body: validIssue().body + "\\n\\n## Arbitrary execution override\\nMust remain rejected.",
+    body: validIssue().body + "\n\n## Arbitrary execution override\nMust remain rejected.",
   });
   assert.throws(
     () => validateAndBuildTask(unknown, "X84657465/global-citizen-ai-network"),
