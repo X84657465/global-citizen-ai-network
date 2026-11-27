@@ -1168,7 +1168,6 @@ test("PR Acceptance Gate resolves a unique PR before acquiring its per-PR queue"
   assert.ok(resolver.includes("core.setOutput('head_sha'"),
     "the resolver must always export the exact source SHA fallback");
 
-  const evaluator = acceptance.slice(evaluateStart, acceptance.indexOf("\\n  ", evaluateStart + 10));
   assert.ok(acceptance.includes("needs: [resolve-target]"),
     "the evaluator must wait for target resolution");
   assert.ok(acceptance.includes("needs.resolve-target.outputs.pr_number || needs.resolve-target.outputs.head_sha || github.sha"),
