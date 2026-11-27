@@ -25,11 +25,13 @@ test("trusted Oracle binds exact base SHA and file hashes", (t) => {
   const { root, baseSha } = fixture();
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const contract = createTrustedAcceptanceOracle({
-    repositoryRoot: root, baseSha, oracleTestFiles: ["tests/oracle.test.mjs"],
+    repositoryRoot: root, baseSha, taskId: "oracle-fixture-task", oracleTestFiles: ["tests/oracle.test.mjs"],
     workerAllowedPaths: ["lib/agent-factory-local-queue.mjs"],
   });
-  const verified = verifyTrustedAcceptanceOracle({ repositoryRoot: root, contract });
+  const verified = verifyTrustedAcceptanceOracle({ repositoryRoot: root, contract, taskId: "oracle-fixture-task" });
   assert.equal(verified.valid, true);
+  assert.equal(contract.schema_version, 2);
+  assert.match(contract.contract_sha256, /^[a-f0-9]{64}$/);
   assert.equal(verified.base_sha, baseSha);
   assert.equal(verified.test_file_count, 1);
 });
@@ -38,7 +40,7 @@ test("trusted Oracle rejects worker write overlap", (t) => {
   const { root, baseSha } = fixture();
   t.after(() => rmSync(root, { recursive: true, force: true }));
   assert.throws(() => createTrustedAcceptanceOracle({
-    repositoryRoot: root, baseSha, oracleTestFiles: ["tests/oracle.test.mjs"],
+    repositoryRoot: root, baseSha, taskId: "oracle-fixture-task", oracleTestFiles: ["tests/oracle.test.mjs"],
     workerAllowedPaths: ["tests"],
   }), /overlaps/);
 });
@@ -47,17 +49,17 @@ test("trusted Oracle rejects a modified checkout file", (t) => {
   const { root, baseSha } = fixture();
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const contract = createTrustedAcceptanceOracle({
-    repositoryRoot: root, baseSha, oracleTestFiles: ["tests/oracle.test.mjs"],
+    repositoryRoot: root, baseSha, taskId: "oracle-fixture-task", oracleTestFiles: ["tests/oracle.test.mjs"],
   });
   writeFileSync(join(root, "tests/oracle.test.mjs"), "tampered\n");
-  assert.throws(() => verifyTrustedAcceptanceOracle({ repositoryRoot: root, contract }), /changed/);
+  assert.throws(() => verifyTrustedAcceptanceOracle({ repositoryRoot: root, contract, taskId: "oracle-fixture-task" }), /changed/);
 });
 
 test("trusted Oracle rejects an empty or untracked test source", (t) => {
   const { root, baseSha } = fixture();
   t.after(() => rmSync(root, { recursive: true, force: true }));
   assert.throws(() => createTrustedAcceptanceOracle({
-    repositoryRoot: root, baseSha, oracleTestFiles: ["tests/missing.test.mjs"],
+    repositoryRoot: root, baseSha, taskId: "oracle-fixture-task", oracleTestFiles: ["tests/missing.test.mjs"],
   }));
 });
 
@@ -67,4 +69,46 @@ test("trusted Oracle requires exact checked-out base SHA", (t) => {
   assert.throws(() => createTrustedAcceptanceOracle({
     repositoryRoot: root, baseSha: "0".repeat(40), oracleTestFiles: ["tests/oracle.test.mjs"],
   }), /exact checked-out base SHA/);
+});
+
+
+test("complete contract digest binds task identity, base SHA and worker allowlist", (t) => {
+  const { root, baseSha } = fixture();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const base = {
+    repositoryRoot: root,
+    baseSha,
+    taskId: "oracle-fixture-task",
+    oracleTestFiles: ["tests/oracle.test.mjs"],
+  };
+  const first = createTrustedAcceptanceOracle({
+    ...base,
+    workerAllowedPaths: ["lib/agent-factory-local-queue.mjs"],
+  });
+  const differentAllowlist = createTrustedAcceptanceOracle({
+    ...base,
+    workerAllowedPaths: ["docs/local-factory.md"],
+  });
+  assert.notEqual(first.oracle_sha256, differentAllowlist.oracle_sha256);
+  assert.notEqual(first.contract_sha256, differentAllowlist.contract_sha256);
+
+  execFileSync("git", ["commit", "--allow-empty", "-m", "advance exact base"], {
+    cwd: root, stdio: "ignore",
+  });
+  const nextBase = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: root, encoding: "utf8",
+  }).trim();
+  const differentBase = createTrustedAcceptanceOracle({
+    ...base,
+    baseSha: nextBase,
+    workerAllowedPaths: ["lib/agent-factory-local-queue.mjs"],
+  });
+  assert.equal(first.oracle_sha256, differentBase.oracle_sha256);
+  assert.notEqual(first.contract_sha256, differentBase.contract_sha256);
+  assert.throws(
+    () => verifyTrustedAcceptanceOracle({
+      repositoryRoot: root, contract: first, taskId: "different-task",
+    }),
+    /another task/,
+  );
 });
