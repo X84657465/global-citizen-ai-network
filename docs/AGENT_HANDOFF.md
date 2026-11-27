@@ -6912,3 +6912,52 @@ Combined Vercel status is FAILURE / `build-rate-limit` on main and all five PR h
 - No local tests/build/lint were run in this documentation-only connector pass. This update is an evidence handoff, not CI acceptance or code validation.
 
 **Disposition: BLOCKED / NOT GREEN.** The only GPT5 deliverable in this refresh is the exact-ref documentation update; remaining implementation, provider, and independent-review actions are routed to their accountable owners.
+
+
+---
+
+# GPT5 live exact-ref audit delta — 2026-11-27 (latest recheck)
+
+This entry supersedes earlier moving-head observations only for the exact refs below. Re-fetch before any acceptance or merge decision.
+
+## Main exact ref and current workflow state
+
+- Live `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Main exact-SHA check-runs: **80 total — 52 QUEUED, 3 PENDING, 2 FAILURE, 23 SKIPPED**. No green conclusion is supported.
+- Main combined status: **Vercel FAILURE / build-rate-limit** (external provider quota; not a source-test result).
+- Main PR Acceptance Gate run [45988697240](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45988697240): completed FAILURE with **0 jobs**.
+- Main Agent Factory System Health Recovery run [45988697117](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45988697117): QUEUED; one resolver job is QUEUED.
+- Main AI Agent Task Preflight run [45984916531](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45984916531): FAILURE; task validation/plan job failed and downstream publishing/dispatch jobs were SKIPPED.
+- Repeated queued Recovery jobs and Acceptance Gate zero-job failures are execution/orchestration blockers. Do not treat them as code PASS or blindly rerun identical attempts.
+
+## Current OPEN PR inventory
+
+All five PRs are OPEN / Draft / unmerged, target main at base SHA above, and report mergeable=true metadata only. The five review queries returned **0 formal review submissions and 0 inline review threads** each.
+
+| PR | Exact HEAD SHA | Exact-head checks / current combined status |
+|---|---|---|
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9 checks: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS; Vercel FAILURE / build-rate-limit. |
+| #674 (current before this append) | `169408e9d93d2cfe6a20919e9443fe6c8204cebe` | 16 checks: 3 FAILURE, 5 SKIPPED, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL; Vercel SUCCESS. |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9 checks: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS; Vercel FAILURE / build-rate-limit. |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9 checks: 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS; Vercel FAILURE / build-rate-limit. |
+| #679 | `174bd08725bd78a27d9fe44e7ea4bea373a63df9` | 16 checks: 3 FAILURE, 5 SKIPPED, 5 QUEUED, 2 SUCCESS, 1 NEUTRAL; Vercel SUCCESS. |
+
+## Exact failure evidence and interpretation
+
+- #679 current CI run [45988683409](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45988683409): resolver job [140470690474] and diagnostics job [140470693961] both FAILURE. Downstream quality, Windows Ollama, Supabase/PostgreSQL/RLS and persistence jobs were SKIPPED.
+- #679 autofix run [45988683208](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45988683208): FAILURE.
+- Fetching logs for resolver, diagnostics, autofix and the main recovery resolver returned HTTP 404 BlobNotFound. Root cause remains **UNKNOWN**; this is not evidence of a code-test failure and not PASS.
+- #674 current exact-head run [45986152937](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45986152937): resolver and diagnostics FAILURE; quality, Windows integration, Ollama and database/RLS jobs SKIPPED; autofix FAILURE. Vercel is SUCCESS but does not replace CI or review.
+- #677 current exact-head resolver remains PENDING, autofix FAILURE, and the security/static analysis jobs QUEUED.
+- #672 and #676 current exact-head resolver/autofix jobs remain PENDING, with Clippy/Codacy/CodeQL/Debricked work QUEUED.
+- #679 source diff tightens GitHub Actions job URL IDs to canonical positive decimal values and adds regressions for `000456` and `0`; tests have not been observed running on the current HEAD.
+
+## GPT5 ownership, action and disposition
+
+- GPT5 updates only this documentation file on its existing PR #674 branch. No Factory/GPT1 workflow, GPT2 source, runner controls, secrets, permissions, branch protection, billing, production data or deployment configuration is changed.
+- #672/#676 and the resolver/runner/Acceptance Gate diagnosis remain with the Factory owner. #677/#679 implementation remains with GPT2. Vercel quota on main/#672/#676/#677 remains with the provider/project administrator. Independent technical approval remains with an authorized reviewer.
+- Vercel is currently SUCCESS on #674 and #679; do not repeat the stale blanket statement that every PR is rate-limited. Main/#672/#676/#677 still report build-rate-limit.
+- No PR is eligible for acceptance/merge: required exact-head CI is incomplete or failed, formal independent APPROVED reviews are absent, and the current failures have no retrievable logs.
+- No Draft was removed, no self-approval was submitted, no PR was merged, no workflow rerun was triggered, and no local tests/build/lint were run in this documentation-only pass.
+
+**Disposition: BLOCKED / NOT GREEN.** The new GPT5 deliverable is this refreshed exact-ref handoff. CI resolver/diagnostics failures are pre-step orchestration evidence with unavailable logs; root cause remains UNKNOWN. Keep all five PRs Draft pending real exact-head checks and independent approval.
