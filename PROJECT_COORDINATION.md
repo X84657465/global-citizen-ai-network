@@ -1313,3 +1313,14 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 - 最新 branch HEAD：`b637c852819226dee45befa7ea1561e5d5c593d0`（docs 更新後）；main：`590d132e338dc5bb47243f372a0547c8dfdbfced`。
 - PR #683 維持 OPEN / Draft。新 HEAD 的 commit workflow-run lookup 當時回傳 0 筆；這不是 CI PASS，也不代表 workflows 已成功。
 - 下一個實作順序：先把 Adapter 以 task kind 接入 SQLite queue/worker，確保 plan/patch/scratch evidence 與事件持久化；再設計並驗證 OS-level sandbox test runner；未有本機 Windows/Ollama 實測前不得宣稱閉環完成。
+
+
+## GPT1｜Factory Local Loop 最新實作增量（2026-11-27）
+
+- 唯一主線仍為 Issue #682／PR #683／feat/factory-local-loop-v1；不新增重疊 PR。
+- 已把固定 local-agent-task payload 接入 SQLite queue／單 Worker／CLI：task add-agent --file <local-task.json>；Worker 依序執行 Ollama Planner、既有 plan/decision validator、Patch proposal、既有 Patch validator、disposable scratch apply。
+- Queue complete() 持久化完整 plan／patch artifact 與 scratch SHA-256 evidence；透過既有 SQLite task result/events 可讀回。重啟後真實讀回仍 NOT RUN。
+- 安全修正：Ollama transport 限定 HTTP loopback 127.0.0.1／::1，拒絕外部 origin、localhost hostname、URL path/query/fragment、credentials 與 redirect。
+- 不可越界：agent worker 僅產生已驗證 patch 並套用到 disposable scratch；生成程式碼／生成測試不執行，直到 OS-level sandbox 與命令 allowlist 真正完成。
+- 待解 P0：固定測試 Worker 的 timeout 必須能終止整個 process tree；GPT5 已指出直接 kill child 不會保證 descendants 終止。需提供 POSIX process-group 與 Windows process-tree containment 的實作與測試。
+- 本次變更只有 GitHub branch source commits；Node tests、完整 suite、Ollama E2E、Windows E2E 均 NOT RUN；不宣稱 CI PASS 或 GPT3 APPROVED。
