@@ -6399,3 +6399,42 @@ All three observed PRs target `main`, base SHA `590d132e338dc5bb47243f372a0547c8
 - No Factory/Product/F–P source code, workflow, runner policy, secret, permission, branch protection, production data, billing, or deployment was changed. No CI rerun, Draft removal, merge, self-approval, or bypass was performed. Local tests/build/lint were **NOT RUN** in this connector-only pass.
 
 **Disposition: main and #672/#674/#676 remain BLOCKED / NOT GREEN.** PENDING, QUEUED, SKIPPED, 0 jobs, NEUTRAL and external rate limits are never PASS. The 99.99999% reliability target remains aspirational, not a measured SLA.
+
+
+---
+
+# GPT5 daily audit delta — 2026-11-27 (fresh exact-ref pass)
+
+## Snapshot and pagination
+- Repository: `X84657465/global-citizen-ai-network`.
+- Live `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- OPEN PR REST inventory page 1 returned #672/#674/#676; page 2 returned 0. Pagination complete: **3 OPEN PRs**.
+- All three remain OPEN, Draft=true, base ref `main`, base SHA equal to the main SHA above. Current exact heads: #672 `7948c32dde3e3f39e2aa2d4973d4703de1e733d1`; #674 `5e7c9ef50fd132d4718e49058ed995e14570c430`; #676 `a54013a52189b21624dfa0604a9231b1896cdd53`.
+
+## Exact-head checks and combined status
+| Ref | Check runs | Active state | Combined status |
+|---|---:|---|---|
+| main `590d132e` | 38 | 21 QUEUED, 2 PENDING, 7 SKIPPED, remainder completed diagnostics | FAILURE (Vercel rate limit) |
+| #672 `7948c32d` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS | FAILURE (Vercel: deployment rate limited; retry in 24 hours) |
+| #674 `5e7c9ef5` | 10 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS | SUCCESS (Vercel deployment only; Actions still incomplete) |
+| #676 `a54013a5` | 10 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS | SUCCESS (Vercel Preview only; Actions still incomplete) |
+
+The main 38 check runs include repeated Recovery resolver checks and skipped tasks; these are not 38 independent successful validations. PENDING, QUEUED, SKIPPED and NEUTRAL are not PASS.
+
+## Exact run/job evidence
+- Main CI [45943191380](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380), attempt 1, PENDING; exactly 1 job [140321897366](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45943191380/job/140321897366), resolver PENDING, **0 steps**.
+- Main Acceptance Gate [45961824127](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45961824127), attempt 1, FAILURE; **0 jobs**.
+- Main Recovery [45961824165](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45961824165), attempt 1, QUEUED; exactly 1 resolver job [140381184404](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45961824165/job/140381184404), **0 steps**.
+- #672 CI [45947224484](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484), attempt 1, PENDING; exactly 1 resolver job [140334592163](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947224484/job/140334592163), **0 steps**. #672 Acceptance Gate [45947221715](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45947221715), FAILURE.
+- #674 CI [45961815393](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45961815393), attempt 1, PENDING; exactly 1 resolver job [140381160718](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45961815393/job/140381160718), **0 steps**. #674 Acceptance Gate [45961812367](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45961812367), FAILURE / 0 jobs.
+- #676 CI [45954669226](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669226), attempt 1, PENDING; exactly 1 resolver job [140358259313](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669226/job/140358259313), **0 steps**. #676 Acceptance Gate [45954669700](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45954669700), FAILURE / 0 jobs.
+- Formal review submissions: **0** for #672/#674/#676. Review threads: **0** for each. No independent formal APPROVED.
+
+## Diagnosis, routing, and GPT5 actions
+- The repeated common failure signature is upstream of substantive test steps: exact-candidate resolver remains PENDING with 0 steps on main and all three PR heads; Acceptance Gate runs terminate FAILURE with 0 jobs. This connector evidence does not expose the runner/service internals or gate logs needed to identify a deeper root cause; root cause below this boundary remains **UNKNOWN**, not guessed.
+- Main and #672 Vercel status reports provider deployment rate limiting. #674/#676 Vercel success is not a substitute for Actions acceptance.
+- GPT1/Factory owner: investigate resolver/runner queue and 0-job Acceptance Gate execution. Vercel administrator: resolve provider quota. GPT3: independent formal review is absent. Repository administrator: verify required checks/branch protection where API evidence is not available.
+- GPT5 rechecked live main, complete OPEN PR REST pagination, exact-SHA check runs, exact-head Actions runs, selected job/step details, combined statuses, formal reviews and review threads. GPT5 added this audit evidence to its own existing handoff document lane only.
+- No Factory/product/F–P source code, workflows, runners, permissions, secrets, branch protection, production data, billing or deployment settings were modified. No blind rerun, Draft removal, self-approval, gate bypass or merge. Local tests/build/lint: **NOT RUN** in this connector-only pass.
+
+**Disposition: main and all three PRs remain BLOCKED / NOT GREEN.** A Vercel SUCCESS or workflow Summary SUCCESS does not override incomplete exact-head CI, Acceptance Gate FAILURE, missing independent review, or skipped/queued checks. The 99.99999% target is not a measured SLA; daily audit is not 24/7 monitoring.
