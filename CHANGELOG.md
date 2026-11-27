@@ -1,3 +1,9 @@
+## 0.3.138 — 2026-11-26
+
+- P: validate the README's displayed H and P workstream versions against the canonical A–P manifest.
+- Synchronize the H/P README summaries and advance P to 0.1.5; add regression coverage for stale track-version display.
+- Preserve the existing per-track implementation maturity and all merge, deployment and human-approval gates.
+
 ## 0.3.137 — 2026-11-23
 
 - F: reject canonical array-index properties outside the declared array length in security evidence snapshots.

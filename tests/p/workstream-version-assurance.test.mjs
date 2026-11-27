@@ -6,7 +6,7 @@ const manifest = {
   overall: "0.3.134",
   tracks: Object.fromEntries(WORKSTREAM_IDS.map((id) => [id, {
     name: `Workstream ${id}`,
-    version: id === "P" ? "0.1.3" : "0.1.0",
+    version: id === "P" ? "0.1.3" : id === "H" ? "0.1.4" : "0.1.0",
     status: "planned",
   }])),
 };
@@ -16,7 +16,7 @@ const validInput = () => ({
   packageVersion: "0.3.134",
   lockfileVersion: "0.3.134",
   lockfileRootVersion: "0.3.134",
-  readme: "**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` · P 線 Governance `" + manifest.tracks.P.version + "` ·",
+  readme: "**Release:** `0.3.134` · A 線 Agent Factory V2 `2.0.84` · H 線 Observability `" + manifest.tracks.H.version + "` · P 線 Governance `" + manifest.tracks.P.version + "` ·",
   governance: "**Repository release baseline: 0.3.134**",
   workstreams: "**Planning baseline:** repository release 0.3.134",
   changelog: "## 0.3.134 — 2026-11-22\n\n- P governance validator.",
@@ -193,4 +193,13 @@ test("does not close a Markdown fence with a shorter delimiter or the wrong char
   ].join("\n");
   assert.equal(validateWorkstreamVersionContract(input).valid, true);
   assert.deepEqual(validateWorkstreamVersionContract(input).errors, []);
+});
+
+test("rejects README H and P track-version summaries that drift from the manifest", () => {
+  const staleH = validInput();
+  staleH.readme = staleH.readme.replace("H 線 Observability `" + manifest.tracks.H.version + "`", "H 線 Observability `0.9.9`");
+  assert.ok(validateWorkstreamVersionContract(staleH).errors.some((error) => error.includes("README H 線 Observability")));
+  const staleP = validInput();
+  staleP.readme = staleP.readme.replace("P 線 Governance `" + manifest.tracks.P.version + "`", "P 線 Governance `0.9.9`");
+  assert.ok(validateWorkstreamVersionContract(staleP).errors.some((error) => error.includes("README P 線 Governance")));
 });
