@@ -209,11 +209,15 @@ test("strict Trusted Oracle mode rejects a missing generated candidate", (t) => 
     join(root, "tests/factory-local-loop-e2e-oracle.test.mjs"),
     readFileSync(new URL("./factory-local-loop-e2e-oracle.test.mjs", import.meta.url)),
   );
+  const childEnv = { ...process.env, GCAN_FACTORY_TRUSTED_ORACLE: "1" };
+  // Node test workers set NODE_TEST_CONTEXT; nested test runners inherit it
+  // and can suppress their TAP output, producing a false zero-test success.
+  delete childEnv.NODE_TEST_CONTEXT;
   const result = spawnSync(process.execPath, ["--test", join(root, "tests/factory-local-loop-e2e-oracle.test.mjs")], {
     cwd: root,
     encoding: "utf8",
     windowsHide: true,
-    env: { ...process.env, GCAN_FACTORY_TRUSTED_ORACLE: "1" },
+    env: childEnv,
   });
   assert.equal(result.error, undefined, "strict Oracle subprocess must start successfully");
   assert.notEqual(result.status, 0,
