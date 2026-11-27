@@ -21,11 +21,12 @@ on:
 permissions:
   contents: read
 
-# Coalesce superseded Factory E2E runs; the single self-hosted Runner
-# itself serializes execution against CI and Preflight jobs.
+# Never cancel an in-flight local E2E run: duplicate pushes/dispatches
+# previously interrupted the regression suite and converted the remaining
+# evidence steps into SKIPPED. The single self-hosted Runner serializes jobs.
 concurrency:
   group: factory-local-loop-windows-validation
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   windows-local-loop-validation:
