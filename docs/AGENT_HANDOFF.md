@@ -7617,3 +7617,42 @@ The automation registry currently shows the 09:00 GPT5 operations task and 13:00
 - Re-read the new exact HEAD checks: 16 records = 3 FAILURE, 5 SKIPPED, 5 QUEUED, 2 IN_PROGRESS, 1 SUCCESS.
 - Re-read combined status on this exact HEAD: Vercel is now `pending` (target deployment URL recorded by API), not a terminal success. Do not carry forward the prior HEAD's Vercel failure as this commit's current status; equally do not call pending green.
 - The main SHA snapshot remains `590d132e338dc5bb47243f372a0547c8dfdbfced` with 152 records at the last full two-page read. No tests/build/lint, approval, Draft removal, merge, or deployment was performed.
+
+
+---
+
+# GPT5 operations checkpoint — 2026-11-27 (fresh recheck)
+
+## Governance and scope
+- Re-read current `main:PROJECT_COORDINATION.md` before writing. It confirms GPT5 is limited to global evidence integration, deduplication, coordination, handoff maintenance, and explicitly authorized support; GPT5 does not own A–P, cannot self-approve, and cannot bypass independent review or protected gates.
+- Master Charter / expanded GPT5 execution authority remains PROPOSED; it does not expand current write authority.
+
+## Main exact-SHA evidence
+- Current `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Both check-runs API pages read: 154 total records — `queued=115, skipped=29, failure=6, pending=3, success=1`. Main is NOT GREEN. Relative to the previous 152-record read, queued increased by two; failures and pending remain.
+- Combined status on this SHA: Vercel `failure`, target `build-rate-limit`.
+
+## Current OPEN PRs (all seven re-read)
+All are OPEN / Draft / unmerged, base SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`, and GitHub reports `mergeable=true` (not an approval or acceptance gate).
+| PR | Exact HEAD | Check records | Counts |
+|---|---|---:|---|
+| #674 | `a1983921cbaec467f4ef87714d3957ffe6631993` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #683 | `bfca9026b6c1accb43cc4f125827a90126f98703` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9 | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 15 | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 22 | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9 | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+Formal reviews: #683 and #679 have COMMENTED only; the other five have no review submissions. No APPROVED submission. All seven have zero unresolved review threads. No PR qualifies for Draft removal or merge.
+
+## Automation status
+The 09:00 GPT5 operations automation, 13:00 main/CI/PR automation, and daily coordination-policy reread are enabled. The 13:00 check has no last-run timestamp; the 09:00 operations check's last recorded run remains 2026-11-25. Enabled does not prove successful execution or delivery. No duplicate automation was created.
+
+## GPT5 work and disposition
+- Updated this GPT5-owned handoff only; no Factory, workflow, Runner, Security, provider, or other owner source paths were modified.
+- No tests/build/lint were run. No CI acceptance, independent approval, Draft removal, merge, or deployment is claimed.
+- The currently observable blocker set has not become green. Factory/Runner and Factory PR fixes remain GPT1-owned; Vercel quota remains project-admin-owned; independent PR approval remains with an authorized separate reviewer.
+- No additional code repair is within GPT5's presently confirmed non-overlapping authority. Continue evidence maintenance and owner routing rather than taking over another role's implementation.
+
+**Disposition: MAIN NOT GREEN; seven OPEN PRs remain Draft and NOT READY.**
