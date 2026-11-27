@@ -67,7 +67,7 @@ test("trusted Oracle requires exact checked-out base SHA", (t) => {
   const { root } = fixture();
   t.after(() => rmSync(root, { recursive: true, force: true }));
   assert.throws(() => createTrustedAcceptanceOracle({
-    repositoryRoot: root, baseSha: "0".repeat(40), oracleTestFiles: ["tests/oracle.test.mjs"],
+    repositoryRoot: root, baseSha: "0".repeat(40), taskId: "oracle-fixture-task", oracleTestFiles: ["tests/oracle.test.mjs"],
   }), /exact checked-out base SHA/);
 });
 
@@ -89,7 +89,7 @@ test("complete contract digest binds task identity, base SHA and worker allowlis
     ...base,
     workerAllowedPaths: ["docs/local-factory.md"],
   });
-  assert.notEqual(first.oracle_sha256, differentAllowlist.oracle_sha256);
+  assert.equal(first.oracle_sha256, differentAllowlist.oracle_sha256);
   assert.notEqual(first.contract_sha256, differentAllowlist.contract_sha256);
 
   execFileSync("git", ["commit", "--allow-empty", "-m", "advance exact base"], {
