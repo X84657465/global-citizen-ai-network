@@ -13,7 +13,8 @@ on:
       - tests/agent-factory-local-*.test.mjs
       - tests/agent-factory-trusted-oracle.test.mjs
       - tests/factory-local-loop-e2e-oracle.test.mjs
-      - tests/factory-local-loop-workflow-policy.test.mjs
+      - tests/factory-local-loop-workflow-policy.test.mjs tests/ci-trigger-policy.test.mjs
+      - tests/ci-trigger-policy.test.mjs
   workflow_dispatch:
 
 permissions:
