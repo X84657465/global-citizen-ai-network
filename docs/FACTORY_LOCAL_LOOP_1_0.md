@@ -122,3 +122,21 @@ Node 內建 `node:sqlite` 在目前支援版本仍可能顯示 experimental warn
 5. 精確 HEAD CI 與 GPT3 獨立審查通過後才可解除 Draft。
 
 目前此切片的程式碼已提交，但本 connector 工作階段未執行 Node 測試；不得標記 PASS。
+
+
+---
+
+## GPT1 implementation delta — local Planner/Patch adapter (2026-11-27)
+
+**Code status: IMPLEMENTED IN BRANCH / NOT TESTED IN THIS connector session.** This is an incremental adapter slice, not completion of the Factory Local Loop.
+
+Added:
+- `lib/agent-factory-local-adapter.mjs`: explicit local task schema; no synthetic GitHub Issue number, URL, author, or approval label; strict task keys and size bounds.
+- Ollama local model discovery and generation for structured plan and patch JSON; task/plan/patch outputs are independently validated with the existing plan validator, neuro-symbolic decision gate, patch validator, and write policy.
+- Exact path allowlist, bounded source context/output, no symlink/path traversal, no control-plane authorization, and no production/deployment scope.
+- Disposable scratch-only patch application with SHA-256 file evidence. The checkout is never written.
+- `tests/agent-factory-local-adapter.test.mjs`: local task schema, fabricated Issue identity rejection, path traversal/denied roots, unapproved patch rejection, scratch non-write behavior, and symlink-parent rejection.
+
+**Hard execution boundary:** scratch apply returns `APPLIED_TO_SCRATCH_NOT_EXECUTED`; generated code and tests are not executed. OS-level sandbox execution is not implemented or verified. This adapter is not yet connected to the durable SQLite queue/CLI worker, and there is no real Ollama run or post-restart result evidence. These remain NOT RUN / NOT IMPLEMENTED, not PASS.
+
+**Exact branch checkpoint:** PR #683 HEAD `146873f609f1a2bce93ed90a28014d6549b872a4`; main remains `590d132e338dc5bb47243f372a0547c8dfdbfced`. GitHub commit workflow-run lookup returned no PR-triggered runs for this new HEAD at the time of this update. No CI or local test PASS is claimed. Keep PR #683 Draft.
