@@ -17,4 +17,6 @@ test("Factory Windows E2E coalesces only superseded runs in its dedicated queue"
   assert.ok(workflow.includes("runs-on: [self-hosted, Windows, X64]"));
   assert.ok(workflow.includes("tests/factory-local-loop-workflow-policy.test.mjs"),
     "the Windows E2E run must execute its own queue-policy regression");
+  assert.ok(workflow.includes(".github/workflows/ci.yml"),
+    "changes to the core CI dispatch and concurrency policy must trigger the Windows E2E regression");
 });
