@@ -7789,3 +7789,40 @@ Every PR has a Vercel commit status FAILURE with the same 24-hour deployment rat
 - No code tests were run in this documentation-only connector pass. This handoff refresh is not CI acceptance, independent QA, or a release approval.
 - Factory CI/Runner root cause and Vercel quota remain routed to their respective owners; GPT5 continues evidence/handoff work within its own file scope. CircleCI remains UNKNOWN.
 
+
+
+---
+
+# GPT5 live operations delta — 2026-11-27 (subsequent exact-ref check)
+
+This append-only record supersedes earlier live snapshots where values differ. All claims below are scoped to the exact refs fetched in this pass.
+
+## Main
+- `main` HEAD: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Check Runs API: 164 total; first page returned 100: 85 QUEUED, 13 SKIPPED, 2 FAILURE. Remaining 64 were not enumerated here; this is not a complete inventory and is NOT GREEN.
+- Latest PR Acceptance Gate [46014294519](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46014294519): completed FAILURE; latest-attempt jobs endpoint returned 0 jobs.
+- Latest System Health Recovery [46014294623](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46014294623): QUEUED; job [140557344525](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46014294623/job/140557344525) QUEUED.
+- Combined status is FAILURE: Vercel `Deployment rate limited — retry in 24 hours`. No successful deployment evidence.
+- CircleCI remains UNKNOWN; no connected/readable pipeline evidence was available.
+
+## All currently OPEN PRs — exact HEAD Check Runs
+All seven were re-fetched against current main SHA above; all are OPEN / Draft / unmerged, base SHA equals main, and GitHub reports mergeable=true (conflict metadata only).
+
+| PR | HEAD SHA | Check Runs |
+|---|---|---|
+| #674 | `7afe5bd6c749d0c276111fd9597b7c6c9c829895` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #683 | `33daaa9575b20746155c63e623852e65814a408e` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `1f954de0050d42d2816398f616116324d3feee3a` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+Review submissions and inline review threads were re-queried: #674 has zero formal reviews and zero review threads; #683 and #679 each have only an author COMMENTED review; the other four have no formal reviews. No independent APPROVED review is evidenced for any PR in this pass. All seven report Vercel commit status FAILURE with the same provider rate-limit message.
+
+## GPT5-owned work and disposition
+- This PR remains limited to `docs/AGENT_HANDOFF.md`; this update is append-only and does not modify other owners' source, workflows, runner configuration, secrets, permissions, branch protection, billing, production data, or deployment.
+- PR #674 exact HEAD remains Draft. Its current check-run inventory still includes failures, skipped and queued checks; this documentation update is not a test or CI fix.
+- No code tests were run for this documentation-only update. Do not treat this handoff as independent QA, CI acceptance, or merge authorization.
+- Continue GPT5-owned evidence/coordination work while Factory/Runner owners address the 0-job/queued recovery path, Vercel administration addresses quota, and GPT3 supplies independent review.
+
