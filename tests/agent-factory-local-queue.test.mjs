@@ -48,10 +48,14 @@ test("local queue persists a task, claim, result and events across database reop
 test("only one worker can claim a queued task and lease ownership is enforced", () => {
   withQueue((queue) => {
     const task = queue.add({ title: "single worker", payload: { goal: "exclusive claim" } });
-    assert.equal(queue.claim("worker-a").id, task.id);
+    const claimed = queue.claim("worker-a");
+    assert.equal(claimed.id, task.id);
     assert.equal(queue.claim("worker-b"), null);
-    assert.throws(() => queue.complete(task.id, "worker-b", queue.get(task.id).lease_token, { ok: true }), /lease is not owned/);
-    const claimed = queue.get(task.id);\n    assert.equal(queue.complete(task.id, "worker-a", claimed.lease_token, { ok: true }).status, "succeeded");
+    assert.throws(
+      () => queue.complete(task.id, "worker-b", claimed.lease_token, { ok: true }),
+      /lease is not owned/,
+    );
+    assert.equal(queue.complete(task.id, "worker-a", claimed.lease_token, { ok: true }).status, "succeeded");
   });
 });
 
@@ -59,8 +63,9 @@ test("task failures retry and quarantine after the configured third failure", ()
   withQueue((queue) => {
     const task = queue.add({ title: "bounded retry", payload: { goal: "quarantine" } });
     for (let attempt = 1; attempt <= 3; attempt += 1) {
-      assert.equal(queue.claim("worker").id, task.id);
-      const failed = queue.fail(task.id, "worker", "deterministic task failure");
+      const claimed = queue.claim("worker");
+      assert.equal(claimed.id, task.id);
+      const failed = queue.fail(task.id, "worker", claimed.lease_token, "deterministic task failure");
       assert.equal(failed.failures, attempt);
       assert.equal(failed.status, attempt === 3 ? "quarantined" : "retry_wait");
     }
@@ -71,8 +76,8 @@ test("task failures retry and quarantine after the configured third failure", ()
 test("system failures release a task without incrementing task failure count", () => {
   withQueue((queue) => {
     const task = queue.add({ title: "system failure", payload: { goal: "do not quarantine" } });
-    queue.claim("worker");
-    const released = queue.fail(task.id, "worker", "local Ollama unavailable", { scope: "system" });
+    const claimed = queue.claim("worker");
+    const released = queue.fail(task.id, "worker", claimed.lease_token, "local Ollama unavailable", { scope: "system" });
     assert.equal(released.status, "queued");
     assert.equal(released.failures, 0);
     assert.equal(released.last_error, "local Ollama unavailable");
@@ -90,19 +95,12 @@ test("expired worker lease is recovered without inventing a task failure", () =>
     const recovered = queue.get(task.id);
     assert.equal(recovered.status, "queued");
     assert.equal(recovered.failures, 0);
-    assert.equal(recovered.lease_owner, null);\n    assert.equal(recovered.lease_token, null);
+    assert.equal(recovered.lease_owner, null);
+    assert.equal(recovered.lease_token, null);
   }, { now: () => current, leaseMs: 1_000 });
 });
 
-test("queue rejects invalid payloads, retry limits and unknown states", () => {
-  withQueue((queue) => {
-    assert.throws(() => queue.add({ title: "bad payload", payload: [] }), /JSON object/);
-    assert.throws(() => queue.add({ title: "bad retry", payload: {}, maxFailures: 4 }), /from 1 to 3/);
-    assert.throws(() => queue.list({ status: "pending" }), /Unsupported task status/);
-  });
-});
-
-\ntest("expired leases are quarantined after the bounded recovery limit", () => {
+test("expired leases are quarantined after the bounded recovery limit", () => {
   let current = 1_800_000_000_000;
   withQueue((queue) => {
     const task = queue.add({ title: "crash loop", payload: { goal: "bounded recovery" } });
@@ -139,4 +137,12 @@ test("stale lease token is rejected after same worker reclaims an expired task",
       "succeeded",
     );
   }, { now: () => current, leaseMs: 1_000 });
+});
+
+test("queue rejects invalid payloads, retry limits and unknown states", () => {
+  withQueue((queue) => {
+    assert.throws(() => queue.add({ title: "bad payload", payload: [] }), /JSON object/);
+    assert.throws(() => queue.add({ title: "bad retry", payload: {}, maxFailures: 4 }), /from 1 to 3/);
+    assert.throws(() => queue.list({ status: "pending" }), /Unsupported task status/);
+  });
 });
