@@ -1,3 +1,46 @@
+# GPT5 live operations delta — 2026-11-27 (fresh exact-SHA audit; supersedes older snapshots)
+
+Re-read live refs, all current OPEN PR metadata, exact-head check runs, formal review submissions, inline review threads, latest main workflow jobs, and combined status. This section supersedes all older snapshots below; re-fetch before any release decision.
+
+## Main
+- Live `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA Check Runs: **119 total** across both API pages — **81 QUEUED, 3 PENDING, 29 SKIPPED, 5 FAILURE, 1 SUCCESS**. This is an accumulated check-run inventory, not a single workflow result or a green CI run.
+- Latest PR Acceptance Gate [46001784942](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46001784942): completed **FAILURE**; latest-attempt jobs endpoint returned **0 jobs**.
+- Latest Agent Factory System Health Recovery [46001784936](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46001784936): **QUEUED**; job [140514991599](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46001784936/job/140514991599) is QUEUED, no steps yet.
+- Latest Recovery Failure Observer [46002109162](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46002109162): **QUEUED**; job [140516100964](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46002109162/job/140516100964) is QUEUED, no steps yet.
+- Combined commit status: **FAILURE**, Vercel target `build-rate-limit` (external provider quota).
+- Main is **NOT GREEN**. No unchanged rerun, breaker reset, or control-plane mutation was performed.
+
+## All seven OPEN PRs — exact current HEAD / base / checks
+All seven PRs are OPEN / Draft / unmerged; all report `mergeable=true` metadata, which is not a release gate. Every base SHA below equals current main SHA `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+
+| PR | Exact HEAD SHA | Exact-head Check Runs |
+|---|---|---|
+| #683 | `1974c55d0f34a320034c072fb9433f60e4e4d25b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #674 | `8d35048e2035ffea3f3e4b7c467f502d5ec21c96` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `174bd08725bd78a27d9fe44e7ea4bea373a63df9` | 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 2 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #681 | `f93ebb7aca06c9869dd80bbd87180c251fd6d01b` | 3 FAILURE, 11 SKIPPED, 6 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+
+## Formal reviews / threads
+- Formal APPROVED reviews: **0**.
+- #683 and #679 have COMMENTED-only reviews; #674, #677, #681, #672, #676 have no formal review submissions.
+- Inline review threads: **0** for all seven PRs at this check.
+- No PR is eligible for Draft removal, acceptance, or merge. COMMENTED is not APPROVED; `mergeable=true` is metadata only.
+
+## GPT5 ownership / action
+- GPT5's authorized write scope remains the single path `docs/AGENT_HANDOFF.md` on own PR #674. This append-only live evidence refresh is confined to that file and branch.
+- GPT1 retains Factory ownership (#683/#681/#672/#676); GPT2 retains #679/#677; GPT3 supplies independent review/QA. Vercel quota requires project/provider administrator action.
+- No Factory source/workflow/Runner, secrets, permissions, branch protection, production, or deployment state was changed. No local tests/build/lint or independent acceptance was run.
+- Empty Gate jobs and queued/no-step Recovery/Observer jobs do not provide a root cause. Preserve as **UNKNOWN/BLOCKED**; do not infer a code defect or retry unchanged workflows.
+
+**Disposition: BLOCKED / NOT GREEN.** GPT5 completed a verifiable evidence/handoff update only; no release gate has been passed.
+
+
+---
+
 # GPT5 post-write exact-head delta — 2026-11-27
 
 This short correction supersedes the #664 row in the immediately following full snapshot. The append-only update to the authorized handoff path produced commit / new PR HEAD `aadc5fdc08a371bc6cbf03b8f21d3684ffe9ab52`. After the write, PR #664 remains OPEN / Draft / unmerged, base SHA `c2c461029649fda07cc0e440928e896e493b2ea7`, mergeable metadata true; its exact new HEAD has **9 check runs: 2 PENDING, 5 QUEUED, 2 IN_PROGRESS**. These are not passing checks. Main was re-read after the write and remains `c2c461029649fda07cc0e440928e896e493b2ea7`. No approval, Draft removal, merge, test run, or deployment occurred.
