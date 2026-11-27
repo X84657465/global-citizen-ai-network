@@ -236,3 +236,15 @@ jobs:
 
           Write-Host "FACTORY_OLLAMA_SQLITE_REOPEN_READBACK_PASSED"
           Write-Host "FACTORY_LOCAL_AGENT_LOOP_WINDOWS_E2E_PASSED"
+
+          $publishOutput = & node scripts/factory-local.mjs publish $taskId --dry-run
+          if ($LASTEXITCODE -ne 0) { throw "Accepted local task publisher dry-run failed." }
+          $publishPreview = ($publishOutput -join [Environment]::NewLine) | ConvertFrom-Json
+          if ($publishPreview.state -ne "dry_run" -or
+              $publishPreview.task_id -ne $taskId -or
+              $publishPreview.no_remote_writes -ne $true -or
+              -not $publishPreview.branch -or
+              -not $publishPreview.patch_sha256) {
+            throw "Publisher dry-run did not validate the persisted ACCEPTED task and deterministic publication identity."
+          }
+          Write-Host "FACTORY_ACCEPTED_TASK_PUBLISHER_DRY_RUN_PASSED"
