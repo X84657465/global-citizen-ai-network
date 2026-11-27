@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,10 +16,10 @@ function openFixture(t) {
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const databasePath = join(directory, "factory.sqlite");
 
-  function invoke(args, { cwd = repositoryRoot, exit = 0 } = {}) {
+  function invoke(args, { cwd = repositoryRoot, exit = 0, env = {} } = {}) {
     const result = spawnSync(process.execPath, [cli, ...args], {
       cwd,
-      env: { ...process.env, GCAN_FACTORY_DB: databasePath },
+      env: { ...process.env, ...env, GCAN_FACTORY_DB: databasePath },
       encoding: "utf8",
       timeout: 30_000,
     });
@@ -30,6 +30,29 @@ function openFixture(t) {
 
   return { databasePath, directory, invoke };
 }
+
+test("a stored local agent task reaches Ollama configuration validation after CLI restart", (t) => {
+  const { directory, invoke } = openFixture(t);
+  const inputFile = join(directory, "task.json");
+  writeFileSync(inputFile, JSON.stringify({
+    schema_version: 1,
+    title: "Local documentation fixture",
+    goal: "Add one short documentation example",
+    allowed_paths: ["docs/local-factory-fixture.md"],
+    acceptance_criteria: ["Document the example"],
+    explicit_exclusions: [],
+  }));
+
+  const added = invoke(["task", "add-agent", "--file", inputFile]);
+  assert.equal(added.task.payload.task.mode, "local_only");
+
+  const claimed = invoke(["run-once"], {
+    exit: 1,
+    env: { OLLAMA_BASE_URL: "https://127.0.0.1:11434" },
+  });
+  assert.equal(claimed.task.id, added.task.id);
+  assert.match(claimed.task.last_error, /OLLAMA_BASE_URL must be a plain HTTP loopback origin/);
+});
 
 test("one batch runs multiple queued tasks and their evidence survives CLI restart", (t) => {
   const { invoke } = openFixture(t);

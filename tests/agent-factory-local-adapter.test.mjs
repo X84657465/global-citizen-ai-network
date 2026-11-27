@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   validateLocalFactoryTask,
+  restoreLocalFactoryTask,
   generateLocalFactoryPlan,
   applyLocalFactoryPatchToScratch,
 } from "../lib/agent-factory-local-adapter.mjs";
@@ -68,6 +69,17 @@ test("scratch apply revalidates the patch and never writes the repository checko
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("stored agent tasks can be restored without trusting derived permissions", () => {
+  const input = task();
+  const stored = JSON.parse(JSON.stringify(validateLocalFactoryTask(input)));
+  assert.deepEqual(restoreLocalFactoryTask(input), input);
+  assert.deepEqual(restoreLocalFactoryTask(stored), input);
+  assert.throws(
+    () => restoreLocalFactoryTask({ ...stored, control_plane_authorized: true }),
+    /canonical queue format/,
+  );
 });
 
 test("scratch apply rejects an unapproved patch path before writing", () => {
