@@ -9,6 +9,7 @@ import { validateLocalFactoryTask } from "../lib/agent-factory-local-adapter.mjs
 import { createTrustedAcceptanceOracle } from "../lib/agent-factory-trusted-oracle.mjs";
 import { createLocalFactoryPublicationTarget } from "../lib/agent-factory-local-publication-contract.mjs";
 import { publishAcceptedLocalFactoryTask } from "../lib/agent-factory-local-publisher.mjs";
+import { publishAcceptedLocalFactoryTask } from "../lib/agent-factory-local-publisher.mjs";
 
 const args = process.argv.slice(2);
 const databasePath = resolve(process.env.GCAN_FACTORY_DB ?? ".factory/factory-local.sqlite");
@@ -265,6 +266,25 @@ try {
       persistPublication: (record) => queue.recordPublication(taskId, record),
     });
     print(result);
+  } else if (command === "publish") {
+    const taskId = args[1];
+    const dryRun = args.length === 3 && args[2] === "--dry-run";
+    if (!taskId || !/^[A-Za-z0-9_-]{1,128}$/.test(taskId) || (args.length > 2 && !dryRun)) {
+      throw new Error("publish requires <accepted-task-id> and optional --dry-run.");
+    }
+    const taskRecord = queue.get(taskId);
+    if (!taskRecord) throw new Error("Accepted task was not found in the local SQLite queue.");
+    const taskEvents = queue.events(taskId);
+    const existingPublication = queue.getPublication(taskId);
+    const publication = await publishAcceptedLocalFactoryTask({
+      taskRecord,
+      taskEvents,
+      existingPublication,
+      repositoryRoot: process.cwd(),
+      dryRun,
+      persistPublication: dryRun ? null : (value) => queue.recordPublication(taskId, value),
+    });
+    print(publication);
   } else if (command === "status") {
     print(queue.list({ limit: 100 }));
   } else if (command === "logs") {
