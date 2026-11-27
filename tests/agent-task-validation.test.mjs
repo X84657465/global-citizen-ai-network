@@ -456,3 +456,29 @@ test("rejects empty structured patch-contract sections instead of silently ignor
     );
   }
 });
+
+
+test("preserves Operational evidence as supplemental task context without relaxing unknown-section rejection", () => {
+  const body = validIssue().body + "\n\n## Operational evidence\nRun 45914016419 rejected this owner-authored task before AI execution.\nExact error: Unexpected section: Operational evidence.";
+  const task = validateAndBuildTask(validIssue({ body }), "X84657465/global-citizen-ai-network");
+  assert.equal(
+    task.additional_context["Operational evidence"],
+    "Run 45914016419 rejected this owner-authored task before AI execution.\nExact error: Unexpected section: Operational evidence.",
+  );
+
+  const duplicate = validIssue({
+    body: body + "\n\n## Operational evidence\nDuplicate evidence must fail closed.",
+  });
+  assert.throws(
+    () => validateAndBuildTask(duplicate, "X84657465/global-citizen-ai-network"),
+    /Duplicate section: Operational evidence/,
+  );
+
+  const unknown = validIssue({
+    body: validIssue().body + "\n\n## Arbitrary execution override\nMust remain rejected.",
+  });
+  assert.throws(
+    () => validateAndBuildTask(unknown, "X84657465/global-citizen-ai-network"),
+    /Unexpected section: Arbitrary execution override/,
+  );
+});
