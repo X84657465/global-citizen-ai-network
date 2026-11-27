@@ -190,3 +190,30 @@ Added:
 5. 仍需 GPT3 對相同 exact HEAD 進行獨立架構／資安／整合審查。
 
 **目前判斷：** Trusted Acceptance Oracle 已從孤立 helper 接入 CLI intake → SQLite payload → Worker preflight → separate sandbox test execution → pre/post contract verification → SQLite completion gate。這是第一個有可信驗收閘門的 Agent local loop 切片，並非完整 Issue → Draft PR → independent QA → merge 自主交付閉環。
+
+
+## GPT1 實作增量 — V2 GitHub Issue → SQLite Local Queue（2026-11-28）
+
+**狀態：程式碼已提交到 PR #683；本 connector 工作階段尚未執行 Node 單元測試、Windows Ollama E2E 或真實 GitHub 發布，不代表驗收完成。**
+
+新增：
+- `lib/agent-factory-local-issue-intake.mjs`：重用 V2 的 Issue 選擇語義、優先級排序、依賴檢查、既有 task PR 排除、durable Factory state 及原有 `validateAndBuildTask`。
+- 自動進件只選一筆符合條件的 owner-authored／planner-generated `[AI Task]` Issue；重新讀取 Issue 並比對 `updated_at`、canonical URL、number、open state，避免選擇與進件間的 TOCTOU 變更。
+- 建立獨立 source envelope：repository、Issue number、canonical URL、`updated_at`、Factory state version、穩定 dedupe key、Issue body SHA-256。Issue body 仍是不可信任資料；任務路徑與內容必須通過既有 V2 validator。
+- `lib/agent-factory-local-queue.mjs` 新增 SQLite transaction 內的 `addFromSource`：同一 Issue／同一來源版本冪等回傳既有 task；來源版本或 body digest 改變時 fail closed，要求明確 reconciliation，不覆寫舊任務。
+- `scripts/factory-local.mjs intake-next`：透過 `GITHUB_TOKEN` 讀取 V2 Issue queue，並要求操作者預先配置 `GCAN_FACTORY_ORACLE_FILES`（分號分隔的 tracked Oracle test paths）及 `GCAN_FACTORY_BASE_BRANCH`。只有本機 HEAD 與指定 base branch SHA 完全一致才允許進件。
+- Publisher 驗證持久化 source envelope，並在產生的 Draft PR body 同時保留 local task marker 與 V2 的 `<!-- ai-task:<issue-number> -->` marker，使既有 V2 selector 能識別已建立的任務 PR，避免下一輪重複選取。
+
+執行方式（必須在精確 base branch checkout，且設定可信 Oracle）：
+- `GITHUB_TOKEN`：僅用於 GitHub API 讀取及後續已驗收任務的發布。
+- `GCAN_FACTORY_BASE_BRANCH=main`：明確指定發布 base branch；不從當前 feature branch 猜測。
+- `GCAN_FACTORY_ORACLE_FILES=tests/example.test.mjs`：由操作者選定的可信 Oracle；不可由 Issue body 或模型輸出指定。
+- `npm run factory:local -- intake-next`：最多選取並持久化一筆任務；不自動執行任意 shell、不解除 Draft、不自動核准或合併。
+
+新增測試：
+- Issue source envelope canonical identity／digest／state version。
+- selector 單筆選取、active lease、owner 身分、依賴未解決排除。
+- SQLite 相同來源冪等重播、來源變更拒絕。
+- Publisher Draft PR 保留 V2 Issue task marker。
+
+**尚未實證：** 新增測試與完整 `npm run test:unit` 尚未在此 connector 工作階段執行；Windows 真實 Ollama → intake → SQLite → Trusted Oracle → publisher → GitHub Draft PR → restart recovery 的同一 task ID E2E 尚未執行。Exact-HEAD CI 若未完成，仍是 NOT RUN／PENDING；不能解除 Draft。
