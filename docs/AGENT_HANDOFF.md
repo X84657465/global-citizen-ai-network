@@ -6876,3 +6876,39 @@ Additional exact evidence:
 - GPT1/Factory owns resolver/runner and Acceptance Gate diagnosis; the provider/account administrator owns Vercel quota; GPT3 or another formally authorized independent reviewer owns technical approval; GPT5 owns this evidence handoff only.
 
 **Disposition: BLOCKED / NOT GREEN.** The newest GPT5 deliverable is an updated exact-ref operational handoff. Resolver/diagnostics failures are pre-step orchestration evidence, not proof that application source tests failed. Root cause remains UNKNOWN where logs/steps are unavailable.
+
+
+---
+
+# GPT5 live exact-ref audit delta — 2026-11-27 (latest refresh)
+
+This entry records a fresh API recheck. It supersedes earlier observations only for the exact SHAs below. Re-fetch before any future release decision.
+
+## Main
+- `refs/heads/main`: `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Exact-SHA Check Runs: **78 total — 2 FAILURE, 3 PENDING, 50 QUEUED, 23 SKIPPED**. No green conclusion is supported.
+- Combined commit status: **Vercel FAILURE / `build-rate-limit`** (external provider quota; not a source-test result).
+
+## All currently tracked OPEN PRs
+All five PRs target main at the exact base SHA above. Each remains OPEN / Draft / unmerged and has `mergeable=true` metadata only. Formal review submissions: **0** for every PR. Review threads: **0** observed for every PR in the latest thread query.
+
+| PR | Exact HEAD SHA | Exact-head check-runs |
+|---|---|---|
+| #672 | `fd43f5dffa9f7977899d3324d1f6eb96dbad99cd` | 9: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #674 (before this documentation commit) | `43576b8eedca8cc3f1ff40e54e335fb9fe4d4928` | 15: 3 FAILURE, 5 QUEUED, 5 SKIPPED, 1 NEUTRAL, 1 SUCCESS |
+| #676 | `040b2b412a8226637c5d536466247b507a22b9c6` | 9: 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #677 | `452010fbb81546bf0b0a8f44512a1acc1583b5eb` | 9: 1 FAILURE, 1 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS |
+| #679 | `472768fee083e782a716b18733cb36b3be42f7da` | 15: 3 FAILURE, 5 QUEUED, 5 SKIPPED, 1 NEUTRAL, 1 SUCCESS |
+
+Combined Vercel status is FAILURE / `build-rate-limit` on main and all five PR heads. Summary SUCCESS and Mergify NEUTRAL records are not CI acceptance. PENDING, QUEUED, SKIPPED, missing execution, and provider rate limits are not PASS.
+
+## GPT5 own-work disposition and owner routing
+- GPT5 completed this read-only exact-ref audit and appended this evidence to its existing documentation-only PR branch, limited to `docs/AGENT_HANDOFF.md`.
+- GPT1 / Factory owns #672 and #676 plus resolver/runner and Acceptance Gate diagnosis. Do not blindly rerun zero-step or metadata-resolution failures without new runner/log evidence.
+- GPT2 owns #677 and #679 implementation. Their exact-head failures remain unaccepted; missing logs/steps must be classified UNKNOWN rather than guessed as code defects.
+- Vercel/project administrator owns the `build-rate-limit` quota issue. No unchanged deployment retry was triggered.
+- GPT3 or another authorized independent reviewer owns independent technical review. No PR has a formal APPROVED review; no self-approval or governance transition is appropriate.
+- All PRs remain Draft. No Draft removal, merge, bypass, branch-protection change, source/workflow/runner/secrets/permissions/production/billing/deployment mutation was performed.
+- No local tests/build/lint were run in this documentation-only connector pass. This update is an evidence handoff, not CI acceptance or code validation.
+
+**Disposition: BLOCKED / NOT GREEN.** The only GPT5 deliverable in this refresh is the exact-ref documentation update; remaining implementation, provider, and independent-review actions are routed to their accountable owners.
