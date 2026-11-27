@@ -1,9 +1,12 @@
 import { mkdirSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { createLocalFactoryQueue } from "../lib/agent-factory-local-queue.mjs";
 import { LocalFactoryWorkerError, runLocalFactoryAgentTask, runLocalFactoryTask } from "../lib/agent-factory-local-worker.mjs";
 import { validateLocalFactoryTask } from "../lib/agent-factory-local-adapter.mjs";
+import { createTrustedAcceptanceOracle } from "../lib/agent-factory-trusted-oracle.mjs";
 
 const args = process.argv.slice(2);
 const databasePath = resolve(process.env.GCAN_FACTORY_DB ?? ".factory/factory-local.sqlite");
@@ -33,15 +36,28 @@ function parseTitle(values) {
 }
 
 function parseAgentTask(values) {
-  const index = values.indexOf("--file");
-  if (index < 0 || !values[index + 1]) throw new Error("task add-agent requires --file <local-task.json>.");
+  let inputPath = null;
+  const oracleTestFiles = [];
+  for (let index = 0; index < values.length; index += 1) {
+    if (values[index] === "--file" && values[index + 1] && inputPath === null) {
+      inputPath = values[++index];
+    } else if (values[index] === "--oracle-file" && values[index + 1]) {
+      oracleTestFiles.push(values[++index]);
+    } else {
+      throw new Error("task add-agent accepts only --file <local-task.json> and one or more --oracle-file <tracked-tests/*.test.mjs> arguments.");
+    }
+  }
+  if (!inputPath) throw new Error("task add-agent requires --file <local-task.json>.");
+  if (oracleTestFiles.length === 0) {
+    throw new Error("task add-agent requires at least one operator-selected --oracle-file tracked test.");
+  }
   let parsed;
   try {
-    parsed = JSON.parse(readFileSync(resolve(values[index + 1]), "utf8"));
+    parsed = JSON.parse(readFileSync(resolve(inputPath), "utf8"));
   } catch {
     throw new Error("Unable to read or parse the supplied local task JSON file.");
   }
-  return validateLocalFactoryTask(parsed);
+  return { task: validateLocalFactoryTask(parsed), oracleTestFiles };
 }
 
 function parseMaxTasks(values) {
@@ -60,6 +76,7 @@ async function runNextTask(queue) {
     const result = task.payload?.kind === "local-agent-task"
       ? await runLocalFactoryAgentTask({
         payload: task.payload,
+        repositoryRoot: process.cwd(),
         sandboxTests: process.env.GCAN_FACTORY_SANDBOX_TESTS === "1",
       })
       : await runLocalFactoryTask({ payload: task.payload });
@@ -128,12 +145,38 @@ try {
     });
     print({ accepted: true, task });
   } else if (command === "task" && args[1] === "add-agent") {
-    const agentTask = parseAgentTask(args.slice(2));
-    const task = queue.add({
-      title: agentTask.title,
-      payload: { schema_version: 1, kind: "local-agent-task", task: agentTask },
+    const { task: agentTask, oracleTestFiles } = parseAgentTask(args.slice(2));
+    const taskId = randomUUID();
+    let baseSha;
+    try {
+      baseSha = execFileSync("git", ["rev-parse", "HEAD"], {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        windowsHide: true,
+        stdio: ["ignore", "pipe", "pipe"],
+      }).trim();
+    } catch {
+      throw new Error("task add-agent requires a valid Git checkout so the exact intake base SHA can be captured.");
+    }
+    const trustedOracleContract = createTrustedAcceptanceOracle({
+      repositoryRoot: process.cwd(),
+      baseSha,
+      taskId,
+      oracleTestFiles,
+      workerAllowedPaths: agentTask.allowed_paths,
     });
-    print({ accepted: true, task });
+    const task = queue.add({
+      id: taskId,
+      title: agentTask.title,
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: taskId,
+        task: agentTask,
+        trusted_oracle_contract: trustedOracleContract,
+      },
+    });
+    print({ queued: true, trusted_oracle_contract: trustedOracleContract, task });
   } else if (command === "status") {
     print(queue.list({ limit: 100 }));
   } else if (command === "logs") {
