@@ -7166,3 +7166,18 @@ All PR base refs equal the refreshed main SHA. All remain OPEN/Draft. `mergeable
 - No duplicate schedule was created.
 
 **Disposition: BLOCKED / NOT GREEN.** GPT5's only new work in this pass is this verified operations/evidence checkpoint. Main CI, PR #674 acceptance, independent review, Draft removal, and merge remain unresolved.
+
+
+## GPT5 follow-up verification — 2026-11-27 20:37 Asia/Taipei
+
+- Refreshed main still points to `590d132e338dc5bb47243f372a0547c8dfdbfced`.
+- Newest main PR Acceptance Gate run [45999810263](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999810263) is terminal **FAILURE**; jobs endpoint returns an empty list (**0 jobs**).
+- Newest main Recovery run [45999810446](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999810446) is **QUEUED** with only job [140508261150](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999810446/job/140508261150) QUEUED. Failure Observer [45999948628](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999948628) is **QUEUED** with job [140508723769](https://github.com/X84657465/global-citizen-ai-network/actions/runs/45999948628/job/140508723769) QUEUED. No steps have produced terminal evidence.
+- Main combined status has Vercel **FAILURE** with build-rate-limit target.
+- Corrected #674 current exact head to this branch's latest commit `185c353f8c86a80e6d4337a9efc5442e8219b78d` (the earlier 20:34 entry's pre-update SHA is historical). Its exact-head checks remain 3 FAILURE, 5 SKIPPED, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS. No formal approval; zero review threads; PR remains OPEN / Draft.
+- #676 exact head was re-fetched directly: `040b2b412a8226637c5d536466247b507a22b9c6`; checks are 2 PENDING, 5 QUEUED, 1 NEUTRAL, 1 SUCCESS, no formal reviews, zero threads. Its earlier metadata remains OPEN / Draft / mergeable_state=unstable.
+- Across all seven open PRs, only #683 and #679 have COMMENTED review submissions; neither is APPROVED. No PR has an independent formal approval. All seven remain Draft.
+- Issue #117 is OPEN and now has `factory-control-plane-approved`; this label does not expand its explicit allowed paths or authorize GPT5 to modify Factory workflow/control-plane files.
+- Automation remains enabled, next run 2026-11-28 09:00 Asia/Taipei. Last recorded run remains 2026-11-25; delivery_status is UNKNOWN. No duplicate created.
+
+**Current disposition remains BLOCKED / NOT GREEN.** This follow-up is an evidence update only; no test/build/lint/deploy or acceptance was executed.
