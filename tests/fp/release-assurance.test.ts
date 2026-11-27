@@ -166,6 +166,18 @@ test("rejects distinct required job IDs that reuse one exact GitHub job URL", ()
   })), /Duplicate G CI job URL evidence/);
 });
 
+test("rejects non-canonical GitHub job URL IDs with leading zeros or zero", () => {
+  for (const suffix of ["000456", "0"]) {
+    const jobs = G_REQUIRED_CI_JOBS.map((id) => job(id));
+    jobs[0] = job(G_REQUIRED_CI_JOBS[0], {
+      jobUrl: `https://github.com/X84657465/global-citizen-ai-network/actions/runs/123/job/${suffix}`,
+    });
+    assert.throws(() => assessGExactHeadEvidence(bundle({
+      run: { ...bundle().run, jobs },
+    })), /Invalid G GitHub Actions run evidence/);
+  }
+});
+
 test("rejects duplicate job records and malformed run evidence", () => {
   assert.throws(() => assessGExactHeadEvidence(bundle({
     run: { ...bundle().run, jobs: [job("quality"), job("quality")] },
