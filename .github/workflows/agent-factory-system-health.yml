@@ -106,7 +106,7 @@ jobs:
           SOURCE_CI_EVENT: ${{ github.event.workflow_run.event }}
           SOURCE_CI_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
           RESOLVED_PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
-          RESOLVER_OUTCOME: ${{ steps.resolve-pr.outcome }}
+          RESOLVER_OUTCOME: ${{ steps.resolve-pr.outputs.should_recover }}
           CONTROLLER_OUTCOME: not_started_in_observer
         run: |
           {
