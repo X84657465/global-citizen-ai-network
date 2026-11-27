@@ -61,6 +61,7 @@ on:
       - "lib/agent-plan-validation.mjs"
       - "lib/agent-scratch-evidence.mjs"
       - "lib/agent-patch-validation.mjs"
+      - "tests/agent-plan-validation.test.mjs"
     types: [opened, reopened, synchronize]
   issues:
     types: [opened, reopened]
@@ -111,7 +112,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          node --test tests/agent-patch-to-scratch.test.mjs 2>&1 | tee "$RUNNER_TEMP/linux-fixture-test.log"
+          node --test tests/agent-patch-to-scratch.test.mjs tests/agent-plan-validation.test.mjs 2>&1 | tee "$RUNNER_TEMP/linux-fixture-test.log"
           test_status=${PIPESTATUS[0]}
           {
             echo "Linux fixture test exit code: ${test_status}"
