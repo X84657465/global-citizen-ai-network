@@ -313,6 +313,114 @@ function acceptedAgentResult(taskId, contract, oracleFiles, generatedFiles) {
   };
 }
 
+test("pending publication selection filters eligible accepted tasks before applying the batch limit", () => {
+  withQueue((queue) => {
+    for (let index = 0; index < 500; index += 1) {
+      const task = queue.add({
+        id: "historical-" + String(index).padStart(3, "0"),
+        title: "Historical non-agent task " + index,
+        payload: { kind: "maintenance-task", index },
+      });
+      const claim = queue.claim("history-worker");
+      assert.equal(claim.id, task.id);
+      queue.complete(task.id, "history-worker", claim.lease_token, { outcome: "completed" });
+    }
+
+    const id = "later-accepted-publication";
+    const contract = {
+      schema_version: 2,
+      kind: "trusted-acceptance-oracle",
+      task_id: id,
+      base_sha: "a".repeat(40),
+      contract_sha256: "b".repeat(64),
+      files: [{ path: "tests/oracle.test.mjs" }],
+      worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+    };
+    const task = queue.add({
+      id,
+      title: "Later accepted agent task",
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+        publication_target: publicationTarget(id, contract),
+      },
+    });
+    const claim = queue.claim("agent-worker");
+    assert.equal(claim.id, task.id);
+    const result = acceptedAgentResult(
+      id, contract,
+      ["tests/oracle.test.mjs"],
+      ["tests/generated.test.mjs"],
+    );
+    assert.equal(queue.complete(id, "agent-worker", claim.lease_token, result).status, "succeeded");
+
+    const oldSelection = queue.list({ status: "succeeded", limit: 500 }).filter((item) =>
+      item.payload?.kind === "local-agent-task" &&
+      item.result?.acceptance_status === "ACCEPTED" &&
+      queue.getPublication(item.id)?.state !== "draft_pr_created"
+    );
+    assert.deepEqual(oldSelection, []);
+    assert.deepEqual(queue.listPendingPublications({ limit: 10 }).map((item) => item.id), [id]);
+  });
+});
+
+
+test("pending publication retries rotate fairly beyond the 500-task batch limit", () => {
+  withQueue((queue) => {
+    const acceptedIds = [];
+    for (let index = 1; index <= 501; index += 1) {
+      const id = "fair-task-" + String(index).padStart(4, "0");
+      acceptedIds.push(id);
+      const digit = (index % 16).toString(16);
+      const contract = {
+        schema_version: 2,
+        kind: "trusted-acceptance-oracle",
+        task_id: id,
+        base_sha: digit.repeat(40),
+        contract_sha256: digit.repeat(64),
+        files: [{ path: "tests/oracle.test.mjs" }],
+        worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+      };
+      const target = publicationTarget(id, contract);
+      const task = queue.add({
+        id,
+        title: "Fair publication task " + index,
+        payload: {
+          schema_version: 1,
+          kind: "local-agent-task",
+          task_id: id,
+          task: { allowed_paths: contract.worker_allowed_paths },
+          trusted_oracle_contract: contract,
+          publication_target: target,
+        },
+      });
+      const workerId = "fair-worker-" + index;
+      const claim = queue.claim(workerId);
+      assert.equal(claim.id, task.id);
+      const result = acceptedAgentResult(
+        id, contract, ["tests/oracle.test.mjs"], ["tests/generated.test.mjs"],
+      );
+      assert.equal(queue.complete(id, workerId, claim.lease_token, result).status, "succeeded");
+      // Simulate a transient coordinator reservation failure before the local
+      // publication row is created. Every task remains eligible with no row.
+    }
+
+    const first = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
+    assert.equal(first.length, 500);
+    assert.ok(!first.includes("fair-task-0501"));
+    const second = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
+    assert.equal(second.length, 500);
+    assert.ok(second.includes("fair-task-0501"));
+    const attempted = new Set([...first, ...second]);
+    assert.equal(attempted.size, 501);
+    assert.ok(attempted.has("fair-task-0501"));
+    assert.deepEqual([...attempted].sort(), acceptedIds.sort());
+  });
+});
+
 test("SQLite refuses to complete a local agent task from proposal or model-only test evidence", () => {
   withQueue((queue) => {
     const id = "agent-acceptance-gate";
@@ -537,4 +645,121 @@ test("GitHub Issue intake is idempotent and rejects a changed source revision", 
     }), /source changed after prior intake/);
     assert.equal(queue.get("github-issue-42").payload.source_envelope.updated_at, sourceEnvelope.updated_at);
   });
+});
+
+
+test("publication retry lane reserves capacity under sustained arrivals and SQLite reopen", () => {
+  const directory = mkdtempSync(join(tmpdir(), "gcan-publication-sustained-fairness-"));
+  const databasePath = join(directory, "factory.sqlite");
+  const makeAccepted = (queue, id, index) => {
+    const digit = (index % 16).toString(16);
+    const contract = {
+      schema_version: 2,
+      kind: "trusted-acceptance-oracle",
+      task_id: id,
+      base_sha: digit.repeat(40),
+      contract_sha256: digit.repeat(64),
+      files: [{ path: "tests/oracle.test.mjs" }],
+      worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+    };
+    const task = queue.add({
+      id,
+      title: "Sustained arrival task " + index,
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+        publication_target: publicationTarget(id, contract),
+      },
+    });
+    const workerId = "sustained-worker-" + index;
+    const claim = queue.claim(workerId);
+    assert.equal(claim.id, id);
+    assert.equal(queue.complete(id, workerId, claim.lease_token,
+      acceptedAgentResult(id, contract, ["tests/oracle.test.mjs"], ["tests/generated.test.mjs"])).status, "succeeded");
+  };
+
+  let queue = createLocalFactoryQueue({ databasePath });
+  try {
+    makeAccepted(queue, "old-deferred-task", 1);
+    assert.deepEqual(queue.listPendingPublications({ limit: 500 }).map((item) => item.id), ["old-deferred-task"]);
+    queue.close();
+
+    let sequence = 2;
+    for (let round = 0; round < 2; round += 1) {
+      queue = createLocalFactoryQueue({ databasePath });
+      for (let index = 0; index < 500; index += 1) {
+        makeAccepted(queue, "fresh-" + round + "-" + index, sequence++);
+      }
+      const selected = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
+      assert.ok(selected.includes("old-deferred-task"),
+        "reserved retry capacity must select a previously attempted publication in round " + round);
+      queue.close();
+    }
+  } finally {
+    try { queue.close(); } catch {}
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("single-slot publication polling alternates retries and fresh arrivals across SQLite reopen", () => {
+  const directory = mkdtempSync(join(tmpdir(), "gcan-publication-single-slot-fairness-"));
+  const databasePath = join(directory, "factory.sqlite");
+  const makeAccepted = (queue, id, index) => {
+    const digit = (index % 16).toString(16);
+    const contract = {
+      schema_version: 2,
+      kind: "trusted-acceptance-oracle",
+      task_id: id,
+      base_sha: digit.repeat(40),
+      contract_sha256: digit.repeat(64),
+      files: [{ path: "tests/oracle.test.mjs" }],
+      worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+    };
+    queue.add({
+      id,
+      title: "Single-slot fairness task " + index,
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+        publication_target: publicationTarget(id, contract),
+      },
+    });
+    const workerId = "single-slot-worker-" + index;
+    const claim = queue.claim(workerId);
+    assert.equal(claim.id, id);
+    assert.equal(queue.complete(id, workerId, claim.lease_token,
+      acceptedAgentResult(id, contract, ["tests/oracle.test.mjs"], ["tests/generated.test.mjs"])).status, "succeeded");
+  };
+
+  let queue = createLocalFactoryQueue({ databasePath });
+  try {
+    makeAccepted(queue, "old-retry", 1);
+    assert.deepEqual(queue.listPendingPublications({ limit: 1 }).map((item) => item.id), ["old-retry"]);
+    queue.close();
+
+    queue = createLocalFactoryQueue({ databasePath });
+    makeAccepted(queue, "fresh-1", 2);
+    assert.deepEqual(queue.listPendingPublications({ limit: 1 }).map((item) => item.id), ["fresh-1"]);
+    queue.close();
+
+    queue = createLocalFactoryQueue({ databasePath });
+    makeAccepted(queue, "fresh-2", 3);
+    assert.deepEqual(queue.listPendingPublications({ limit: 1 }).map((item) => item.id), ["old-retry"],
+      "the durable lane cursor must give a retry its turn under continuing arrivals");
+    queue.close();
+
+    queue = createLocalFactoryQueue({ databasePath });
+    makeAccepted(queue, "fresh-3", 4);
+    assert.deepEqual(queue.listPendingPublications({ limit: 1 }).map((item) => item.id), ["fresh-2"],
+      "fresh tasks must also make bounded progress after a retry");
+  } finally {
+    try { queue.close(); } catch {}
+    rmSync(directory, { recursive: true, force: true });
+  }
 });

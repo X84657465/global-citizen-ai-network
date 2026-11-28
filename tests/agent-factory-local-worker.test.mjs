@@ -13,7 +13,7 @@ test("local worker executes only the allowlisted queue regression suite and retu
   const result = await runLocalFactoryTask({
     payload: { schema_version: 1, kind: "local-queue-tests" },
     repositoryRoot: process.cwd(),
-    timeoutMs: 120_000,
+    timeoutMs: 300_000,
   });
   assert.equal(result.outcome, "passed");
   assert.equal(result.command_id, "node-test-local-queue");
@@ -79,11 +79,11 @@ test("local agent worker accepts only after separate generated and trusted Oracl
   const criteria = { acceptance_criteria: task.acceptance_criteria };
   const plan = { schema_version: 1, tasks: [
     { ...criteria, id: "inspect", title: "Inspect task", role: "planner", action: "inspect",
-      depends_on: [], allowed_paths: [], max_output_bytes: 4096 },
+      depends_on: [], allowed_paths: [], max_output_bytes: 16384 },
     { ...criteria, id: "implement", title: "Draft example and test", role: "implementer", action: "propose_patch",
       depends_on: ["inspect"], allowed_paths: [documentPath, generatedTestPath], max_output_bytes: 16384 },
     { ...criteria, id: "check", title: "Check example and test", role: "tester", action: "validate_patch",
-      depends_on: ["implement"], allowed_paths: [documentPath, generatedTestPath], max_output_bytes: 4096 },
+      depends_on: ["implement"], allowed_paths: [documentPath, generatedTestPath], max_output_bytes: 16384 },
   ] };
   const patch = {
     schema_version: 1,

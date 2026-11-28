@@ -5,6 +5,7 @@ import { mkdtempSync, mkdirSync, rmSync, symlinkSync, existsSync, readFileSync, 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseStrictTapSummary } from "../lib/agent-factory-local-sandbox.mjs";
+import { validatePlannerGenerationContract } from "../lib/agent-factory-policy.mjs";
 import {
   validateLocalFactoryTask,
   restoreLocalFactoryTask,
@@ -244,4 +245,114 @@ test("strict TAP evidence rejects missing, failed, skipped, todo and empty test 
   assert.equal(parseStrictTapSummary(valid.replace("# fail 0", "# fail 1").replace("ok 1 - one", "not ok 1 - one")).valid, false);
   assert.equal(parseStrictTapSummary(valid.replace("1..1", "")).valid, false);
   assert.equal(parseStrictTapSummary("TAP version 13\n1..0\n# tests 0\n# pass 0\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0").valid, false);
+});
+
+
+test("local planner generation contract rejects loose budgets and incomplete dependency chains", () => {
+  const sourceTask = task();
+  const valid = {
+    schema_version: 1,
+    tasks: [
+      { id: "inspect", role: "planner", action: "inspect", depends_on: [], max_output_bytes: 16384 },
+      { id: "implement", role: "implementer", action: "propose_patch", depends_on: ["inspect"], max_output_bytes: 16384 },
+      { id: "validate", role: "tester", action: "validate_patch", depends_on: ["implement"], max_output_bytes: 16384 },
+    ],
+  };
+  assert.equal(validatePlannerGenerationContract(valid, sourceTask), valid);
+  const smallerNonPatchBudgets = structuredClone(valid);
+  smallerNonPatchBudgets.tasks[0].max_output_bytes = 1024;
+  smallerNonPatchBudgets.tasks[2].max_output_bytes = 512;
+  assert.equal(validatePlannerGenerationContract(smallerNonPatchBudgets, sourceTask), smallerNonPatchBudgets);
+  const duplicateImplementer = structuredClone(valid);
+  duplicateImplementer.tasks.push({ ...valid.tasks[1], id: "implement-two" });
+  assert.throws(() => validatePlannerGenerationContract(duplicateImplementer, sourceTask),
+    /exactly one implementer propose_patch/);
+  const missingInspect = structuredClone(valid);
+  missingInspect.tasks[1].depends_on = [];
+  assert.throws(() => validatePlannerGenerationContract(missingInspect, sourceTask),
+    /planner inspect before propose_patch/);
+  const missingTester = structuredClone(valid);
+  missingTester.tasks[2].depends_on = [];
+  assert.throws(() => validatePlannerGenerationContract(missingTester, sourceTask),
+    /tester validate_patch after propose_patch/);
+});
+
+
+
+test("Ollama planner provider boundary validates generated JSON, budgets, dependencies and timeout failures", async () => {
+  const validPlan = {
+    schema_version: 1,
+    tasks: [
+      {
+        id: "inspect", title: "Inspect the allowed module", role: "planner", action: "inspect",
+        depends_on: [], allowed_paths: [], acceptance_criteria: ["Inspect only the approved module."],
+        max_output_bytes: 1024,
+      },
+      {
+        id: "implement", title: "Propose the approved module patch", role: "implementer", action: "propose_patch",
+        depends_on: ["inspect"], allowed_paths: ["lib/local-adapter-fixture.mjs"],
+        acceptance_criteria: ["Propose only the approved module patch."], max_output_bytes: 16384,
+      },
+      {
+        id: "validate", title: "Validate the proposed patch", role: "tester", action: "validate_patch",
+        depends_on: ["implement"], allowed_paths: [], acceptance_criteria: ["Validate the patch in isolation."],
+        max_output_bytes: 512,
+      },
+    ],
+  };
+  const makeFetch = (responseText, onGenerate = () => {}) => async (url, options = {}) => {
+    if (url.endsWith("/api/tags")) {
+      return { ok: true, status: 200, json: async () => ({ models: [{ name: "test-model", size: 1 }] }) };
+    }
+    assert.ok(url.endsWith("/api/generate"));
+    const request = JSON.parse(options.body);
+    assert.equal(request.model, "test-model");
+    assert.equal(request.stream, false);
+    assert.equal(request.format.properties.tasks.items.properties.max_output_bytes.minimum, 1);
+    assert.equal(request.format.properties.tasks.items.properties.max_output_bytes.maximum, 65536);
+    onGenerate(request);
+    return { ok: true, status: 200, json: async () => ({ response: responseText }) };
+  };
+
+  const validRequests = [];
+  const accepted = await generateLocalFactoryPlan({
+    task: task(),
+    fetchImpl: makeFetch(JSON.stringify(validPlan), (request) => validRequests.push(request)),
+  });
+  assert.equal(accepted.status, "VALIDATED_PLAN");
+  assert.equal(accepted.decision.decision, "approve_for_sandbox_validation");
+  assert.equal(validRequests.length, 1);
+  assert.match(validRequests[0].prompt, /propose_patch tasks, output budget must be 16384/);
+
+  await assert.rejects(() => generateLocalFactoryPlan({
+    task: task(),
+    fetchImpl: makeFetch("{malformed-json"),
+  }), /Ollama did not return valid JSON/);
+
+  const invalidBudget = structuredClone(validPlan);
+  invalidBudget.tasks[1].max_output_bytes = 4096;
+  await assert.rejects(() => generateLocalFactoryPlan({
+    task: task(),
+    fetchImpl: makeFetch(JSON.stringify(invalidBudget)),
+  }), /Generated plan failed independent validation/);
+
+  const invalidDependency = structuredClone(validPlan);
+  invalidDependency.tasks[1].depends_on = [];
+  await assert.rejects(() => generateLocalFactoryPlan({
+    task: task(),
+    fetchImpl: makeFetch(JSON.stringify(invalidDependency)),
+  }), /Generated plan failed independent validation/);
+
+  let generateCalls = 0;
+  const timeoutFetch = async (url) => {
+    if (url.endsWith("/api/tags")) {
+      return { ok: true, status: 200, json: async () => ({ models: [{ name: "test-model", size: 1 }] }) };
+    }
+    generateCalls += 1;
+    throw new Error("simulated provider timeout");
+  };
+  await assert.rejects(() => generateLocalFactoryPlan({
+    task: task(), timeoutMs: 1, fetchImpl: timeoutFetch,
+  }), (error) => error.scope === "system" && /failed or timed out/.test(error.message));
+  assert.equal(generateCalls, 1);
 });

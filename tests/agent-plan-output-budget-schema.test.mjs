@@ -1,0 +1,59 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
+
+test("CLI and local Ollama planner schemas use bounded numeric output budgets", () => {
+  const cli = readFileSync(new URL("../scripts/generate-agent-plan.mjs", import.meta.url), "utf8");
+  const adapter = readFileSync(new URL("../lib/agent-factory-local-adapter.mjs", import.meta.url), "utf8");
+  const boundedNumericBudget = /max_output_bytes:\s*\{\s*type:\s*"integer",\s*minimum:\s*1,\s*maximum:\s*65536\s*\}/;
+  assert.match(cli, boundedNumericBudget);
+  assert.match(adapter, boundedNumericBudget);
+  assert.match(cli, /propose_patch[\s\S]{0,240}16384/);
+  assert.match(adapter, /propose_patch[\s\S]{0,240}16384/);
+  assert.doesNotMatch(cli, /max_output_bytes:\s*\{[^}]*type:\s*"string"/);
+  assert.doesNotMatch(adapter, /max_output_bytes:\s*\{[^}]*type:\s*"string"/);
+});
+
+test("validator accepts small non-patch budgets and bounded patch budgets", () => {
+  const task = { schema_version: 1, allowed_paths: ["lib/factory-worker.mjs"] };
+  const valid = {
+    schema_version: 1,
+    tasks: [
+      {
+        id: "inspect", title: "Inspect Factory worker", role: "planner", action: "inspect",
+        depends_on: [], allowed_paths: [],
+        acceptance_criteria: ["Inspect the bounded Factory worker behavior."],
+        max_output_bytes: 1024,
+      },
+      {
+        id: "patch", title: "Propose Factory worker patch", role: "implementer", action: "propose_patch",
+        depends_on: ["inspect"], allowed_paths: ["lib/factory-worker.mjs"],
+        acceptance_criteria: ["Propose only the approved Factory worker change."],
+        max_output_bytes: 16384,
+      },
+      {
+        id: "validate", title: "Validate Factory worker patch", role: "tester", action: "validate_patch",
+        depends_on: ["patch"], allowed_paths: [],
+        acceptance_criteria: ["Validate the proposed Factory worker patch."],
+        max_output_bytes: 512,
+      },
+    ],
+  };
+  const accepted = validateAgentPlan(valid, task);
+  assert.equal(accepted.tasks[0].max_output_bytes, 1024);
+  assert.equal(accepted.tasks[1].max_output_bytes, 16384);
+  assert.equal(accepted.tasks[2].max_output_bytes, 512);
+
+  const maximum = structuredClone(valid);
+  maximum.tasks[1].max_output_bytes = 65536;
+  assert.equal(validateAgentPlan(maximum, task).tasks[1].max_output_bytes, 65536);
+
+  const undersized = structuredClone(valid);
+  undersized.tasks[1].max_output_bytes = 4096;
+  assert.throws(() => validateAgentPlan(undersized, task), /between 16384 and 65536/);
+
+  const oversized = structuredClone(valid);
+  oversized.tasks[1].max_output_bytes = 65537;
+  assert.throws(() => validateAgentPlan(oversized, task), /between 1 and 65536/);
+});

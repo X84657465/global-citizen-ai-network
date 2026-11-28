@@ -21,7 +21,9 @@ function openFixture(t) {
       cwd,
       env: { ...process.env, ...env, GCAN_FACTORY_DB: databasePath },
       encoding: "utf8",
-      timeout: 30_000,
+      // A batch may run several allowlisted suites sequentially; budget the
+      // parent process for the full batch rather than one worker's deadline.
+      timeout: 600_000,
     });
     assert.ifError(result.error);
     assert.equal(result.status, exit, result.stderr);
@@ -79,10 +81,10 @@ test("one batch runs multiple queued tasks and their evidence survives CLI resta
 
   assert.deepEqual(invoke(["run-until-idle", "--max-tasks", "101"], { exit: 1 }), null);
   assert.deepEqual(invoke(["run-until-idle", "--max-tasks", "2"]), {
-    processed: 2, completed: 2, failed: 0, stop_reason: "limit_reached",
+    processed: 2, completed: 2, failed: 0, publication_deferred: 0, publication_delivered: 0, recovered_publications: 0, stop_reason: "limit_reached",
   });
   assert.deepEqual(invoke(["run-until-idle"]), {
-    processed: 1, completed: 1, failed: 0, stop_reason: "no_eligible_task",
+    processed: 1, completed: 1, failed: 0, publication_deferred: 0, publication_delivered: 0, recovered_publications: 0, stop_reason: "no_eligible_task",
   });
 
   const tasks = invoke(["status"]);
@@ -110,7 +112,7 @@ test("a task failure is persisted and does not block the next ready task", (t) =
   invoke(["task", "add", "--title", "Next task"]);
 
   assert.deepEqual(invoke(["run-until-idle"], { exit: 1 }), {
-    processed: 2, completed: 1, failed: 1, stop_reason: "no_eligible_task",
+    processed: 2, completed: 1, failed: 1, publication_deferred: 0, publication_delivered: 0, recovered_publications: 0, stop_reason: "no_eligible_task",
   });
   assert.deepEqual(invoke(["status"]).map((task) => [task.status, task.attempts]), [
     ["quarantined", 1], ["succeeded", 1],
@@ -128,7 +130,7 @@ test("a system failure ends the batch and leaves the remaining task queued", (t)
   }
 
   assert.deepEqual(invoke(["run-until-idle"], { cwd: directory, exit: 1 }), {
-    processed: 1, completed: 0, failed: 1, stop_reason: "system_failure",
+    processed: 1, completed: 0, failed: 1, publication_deferred: 0, publication_delivered: 0, recovered_publications: 0, stop_reason: "system_failure",
   });
   assert.deepEqual(invoke(["status"]).map((task) => [task.status, task.attempts, task.system_failures]), [
     ["queued", 1, 1], ["queued", 0, 0],
