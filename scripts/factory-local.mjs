@@ -472,15 +472,24 @@ try {
     if (!taskRecord) throw new Error("Accepted task was not found in the local SQLite queue.");
     const taskEvents = queue.events(taskId);
     const existingPublication = queue.getPublication(taskId);
-    const publication = await publishAcceptedLocalFactoryTask({
-      taskRecord,
-      taskEvents,
-      existingPublication,
-      repositoryRoot: process.cwd(),
-      dryRun,
-      persistPublication: dryRun ? null : (value) => queue.recordPublication(taskId, value),
-    });
-    print(publication);
+    if (dryRun) {
+      const publication = await publishAcceptedLocalFactoryTask({
+        taskRecord, taskEvents, existingPublication, repositoryRoot: process.cwd(),
+        dryRun: true, persistPublication: null,
+      });
+      print(publication);
+    } else {
+      if (!coordinator) throw new Error("Remote publication requires the authenticated cross-executor Factory coordinator.");
+      const lease = await coordinator.acquireLease(FACTORY_WORKER_SCOPE, 300_000);
+      if (!lease?.acquired) throw new Error("Another executor currently owns the durable Factory worker lease.");
+      try {
+        if (!await coordinator.assertLease(lease)) throw new Error("Factory worker lease is not current.");
+        const publication = await publishAcceptedTask(queue, taskRecord, { coordinatorClient: coordinator, lease });
+        print(publication);
+      } finally {
+        try { await coordinator.releaseLease(lease); } catch { /* expiry safely reclaims an unreleased lease */ }
+      }
+    }
   } else if (command === "status") {
     print(queue.list({ limit: 100 }));
   } else if (command === "logs") {
@@ -488,7 +497,23 @@ try {
     print(queue.events(args[1]));
   } else if (command === "recover") {
     const recoveredLeases = queue.recoverExpiredLeases();
-    const recoveredPublications = await retryPendingPublications(queue, { force: true });
+    let recoveredPublications = [];
+    if (coordinator) {
+      const lease = await coordinator.acquireLease(FACTORY_WORKER_SCOPE, 300_000);
+      if (lease?.acquired) {
+        try {
+          recoveredPublications = await retryPendingPublications(queue, {
+            force: true, coordinatorClient: coordinator, lease,
+          });
+        } finally {
+          try { await coordinator.releaseLease(lease); } catch { /* expiry safely reclaims an unreleased lease */ }
+        }
+      } else {
+        recoveredPublications = [{ state: "blocked", reason: lease?.reason ?? "coordinator_unavailable" }];
+      }
+    } else {
+      recoveredPublications = [{ state: "blocked", reason: "authenticated_coordinator_unavailable" }];
+    }
     print({ recovered_leases: recoveredLeases, recovered_publications: recoveredPublications });
   } else if (command === "serve" && args.length === 1) {
     await serve(queue, coordinator);
