@@ -12,6 +12,12 @@ on:
       - scripts/factory-local.mjs
       - scripts/run-unit-tests.mjs
       - tests/agent-factory-local-*.test.mjs
+      - tests/agent-factory-cross-executor-coordinator.test.mjs
+      - scripts/factory-coordinator-smoke-test.mjs
+      - supabase/migrations/*.sql
+      - supabase/tests/*.sql
+      - supabase/functions/factory-coordinator/**
+      - lib/agent-factory-cross-executor-coordinator.mjs
       - tests/agent-factory-trusted-oracle.test.mjs
       - tests/factory-local-loop-e2e-oracle.test.mjs
       - tests/factory-local-loop-workflow-policy.test.mjs
@@ -20,6 +26,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 # Never cancel an in-flight local E2E run: duplicate pushes/dispatches
 # previously interrupted the regression suite and converted the remaining
@@ -75,6 +82,12 @@ jobs:
           node --check lib/agent-factory-trusted-oracle.mjs
           if ($LASTEXITCODE -ne 0) { throw "Trusted Oracle syntax check failed." }
 
+      - name: Verify cross-executor lease fencing against the live Factory control plane
+        env:
+          GCAN_FACTORY_COORDINATOR_URL: https://rtkpdafkpncoluhdihlv.supabase.co/functions/v1/factory-coordinator
+          GCAN_FACTORY_COORDINATOR_ANON_KEY: sb_publishable_K41WSy0TN8epC2eIb9z9Iw_Ehh6cN1f
+        run: node scripts/factory-coordinator-smoke-test.mjs
+
       - name: Run local Factory queue, adapter, worker and process-tree tests
         run: |
           $ErrorActionPreference = "Stop"
@@ -121,6 +134,8 @@ jobs:
       - name: Execute one real Ollama-to-sandbox agent task and reopen evidence
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GCAN_FACTORY_COORDINATOR_URL: https://rtkpdafkpncoluhdihlv.supabase.co/functions/v1/factory-coordinator
+          GCAN_FACTORY_COORDINATOR_ANON_KEY: sb_publishable_K41WSy0TN8epC2eIb9z9Iw_Ehh6cN1f
           OLLAMA_BASE_URL: http://127.0.0.1:11434
           GCAN_OLLAMA_MODEL: qwen3:8b
           GCAN_FACTORY_SANDBOX_TESTS: "1"
