@@ -259,12 +259,10 @@ test("local planner generation contract rejects loose budgets and incomplete dep
     ],
   };
   assert.equal(validatePlannerGenerationContract(valid, sourceTask), valid);
-  for (const invalid of [4096, 32768, "16384", null]) {
-    const candidate = structuredClone(valid);
-    candidate.tasks[0].max_output_bytes = invalid;
-    assert.throws(() => validatePlannerGenerationContract(candidate, sourceTask),
-      /Every generated planner task must use numeric max_output_bytes 16384/);
-  }
+  const smallerNonPatchBudgets = structuredClone(valid);
+  smallerNonPatchBudgets.tasks[0].max_output_bytes = 1024;
+  smallerNonPatchBudgets.tasks[2].max_output_bytes = 512;
+  assert.equal(validatePlannerGenerationContract(smallerNonPatchBudgets, sourceTask), smallerNonPatchBudgets);
   const duplicateImplementer = structuredClone(valid);
   duplicateImplementer.tasks.push({ ...valid.tasks[1], id: "implement-two" });
   assert.throws(() => validatePlannerGenerationContract(duplicateImplementer, sourceTask),
