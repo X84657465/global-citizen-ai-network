@@ -313,6 +313,60 @@ function acceptedAgentResult(taskId, contract, oracleFiles, generatedFiles) {
   };
 }
 
+test("pending publication selection filters eligible accepted tasks before applying the batch limit", () => {
+  withQueue((queue) => {
+    for (let index = 0; index < 500; index += 1) {
+      const task = queue.add({
+        id: "historical-" + String(index).padStart(3, "0"),
+        title: "Historical non-agent task " + index,
+        payload: { kind: "maintenance-task", index },
+      });
+      const claim = queue.claim("history-worker");
+      assert.equal(claim.id, task.id);
+      queue.complete(task.id, "history-worker", claim.lease_token, { outcome: "completed" });
+    }
+
+    const id = "later-accepted-publication";
+    const contract = {
+      schema_version: 2,
+      kind: "trusted-acceptance-oracle",
+      task_id: id,
+      base_sha: "a".repeat(40),
+      contract_sha256: "b".repeat(64),
+      files: [{ path: "tests/oracle.test.mjs" }],
+      worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+    };
+    const task = queue.add({
+      id,
+      title: "Later accepted agent task",
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+        publication_target: publicationTarget(id, contract),
+      },
+    });
+    const claim = queue.claim("agent-worker");
+    assert.equal(claim.id, task.id);
+    const result = acceptedAgentResult(
+      id, contract,
+      ["tests/oracle.test.mjs"],
+      ["tests/generated.test.mjs"],
+    );
+    assert.equal(queue.complete(id, "agent-worker", claim.lease_token, result).status, "succeeded");
+
+    const oldSelection = queue.list({ status: "succeeded", limit: 500 }).filter((item) =>
+      item.payload?.kind === "local-agent-task" &&
+      item.result?.acceptance_status === "ACCEPTED" &&
+      queue.getPublication(item.id)?.state !== "draft_pr_created"
+    );
+    assert.deepEqual(oldSelection, []);
+    assert.deepEqual(queue.listPendingPublications({ limit: 10 }).map((item) => item.id), [id]);
+  });
+});
+
 test("SQLite refuses to complete a local agent task from proposal or model-only test evidence", () => {
   withQueue((queue) => {
     const id = "agent-acceptance-gate";
