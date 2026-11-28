@@ -3,14 +3,16 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 
-test("CLI and local Ollama planner schemas constrain output budget to numeric 16384", () => {
+test("CLI and local Ollama planner schemas use bounded numeric output budgets", () => {
   const cli = readFileSync(new URL("../scripts/generate-agent-plan.mjs", import.meta.url), "utf8");
   const adapter = readFileSync(new URL("../lib/agent-factory-local-adapter.mjs", import.meta.url), "utf8");
-  const exactNumericBudget = /max_output_bytes:\s*\{\s*type:\s*"integer",\s*minimum:\s*16384,\s*maximum:\s*16384,\s*enum:\s*\[16384\]\s*\}/;
-  assert.match(cli, exactNumericBudget);
-  assert.match(adapter, exactNumericBudget);
-  assert.doesNotMatch(cli, /max_output_bytes:\s*\{[^}]*type:\s*"string"/);
-  assert.doesNotMatch(adapter, /max_output_bytes:\s*\{[^}]*type:\s*"string"/);
+  const boundedNumericBudget = /max_output_bytes:\\s*\\{\\s*type:\\s*"integer",\\s*minimum:\\s*1,\\s*maximum:\\s*65536\\s*\\}/;
+  assert.match(cli, boundedNumericBudget);
+  assert.match(adapter, boundedNumericBudget);
+  assert.match(cli, /propose_patch[^\\n]*16384|propose_patch[\\s\\S]{0,180}16384/);
+  assert.match(adapter, /propose_patch[\\s\\S]{0,180}16384/);
+  assert.doesNotMatch(cli, /max_output_bytes:\\s*\\{[^}]*type:\\s*"string"/);
+  assert.doesNotMatch(adapter, /max_output_bytes:\\s*\\{[^}]*type:\\s*"string"/);
 });
 
 test("existing fail-closed plan validator accepts the 16384 patch budget and rejects 4096", () => {
