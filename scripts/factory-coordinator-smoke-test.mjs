@@ -63,7 +63,7 @@ assert.equal(await second.recordPublication(
   takeoverLease,
   idempotencyKey,
   "failed",
-  "factory/local-task/fencing-smoke",
+  null,
   null,
 ), true);
 assert.equal(await second.releaseLease(takeoverLease), true);
