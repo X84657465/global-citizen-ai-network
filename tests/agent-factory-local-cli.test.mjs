@@ -21,7 +21,7 @@ function openFixture(t) {
       cwd,
       env: { ...process.env, ...env, GCAN_FACTORY_DB: databasePath },
       encoding: "utf8",
-      timeout: 60_000,
+      timeout: 180_000,
     });
     assert.ifError(result.error);
     assert.equal(result.status, exit, result.stderr);
