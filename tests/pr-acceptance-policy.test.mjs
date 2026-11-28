@@ -86,7 +86,7 @@ test("manual PR acceptance dispatch always checks out policy from the repository
 
 test("PR acceptance serializes only the evaluator by resolved PR identity without occupying the Windows Runner queue", async () => {
   const { readFile } = await import("node:fs/promises");
-  const source = await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8");
+  const source = (await readFile(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8")).replace(/\r\n/g, "\n");
   const header = source.slice(0, source.indexOf("\njobs:"));
   assert.equal(header.includes("\nconcurrency:"), false,
     "the workflow must not serialize unrelated PRs through a global queue");
