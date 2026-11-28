@@ -93,21 +93,34 @@ test("API cooldown honors x-ratelimit-reset epoch seconds and falls back safely"
   assert.equal(apiCooldownUntil({ status: 429, message: "rate limit exceeded" }, now), new Date(now + COOLDOWN_MS).toISOString());
 });
 
-test("planner emits finite deduplicated four-section Runner tasks", () => {
-  const task = nextPlannerTask([]);
-  assert.ok(task);
-  const body = plannerIssueBody(task);
-  for (const heading of ["Goal", "Allowed paths", "Acceptance criteria", "Explicit exclusions"]) assert.equal(body.split("## " + heading).length - 1, 1);
-  assert.match(body, /<!-- ai-task-generated-by-planner -->/);
-  const titles = [task.title];
-  let next = nextPlannerTask(titles);
-  assert.ok(next);
-  assert.notEqual(next.title, task.title);
-  titles.push(next.title);
-  next = nextPlannerTask(titles);
-  assert.ok(next);
-  titles.push(next.title);
+test("planner fallback emits only Factory-scoped verification tasks and stops when exhausted", () => {
+  const forbidden = /product|member feature|billing|contribution|revenue|release-readiness|security evidence/i;
+  const allowedPaths = new Set([
+    "tests/agent-factory-roadmap-scope.test.mjs",
+    "tests/agent-plan-output-budget-schema.test.mjs",
+  ]);
+  const titles = [];
+  let task;
+  while ((task = nextPlannerTask(titles))) {
+    assert.equal(task.scope, "factory");
+    assert.match(task.title, /Factory/i);
+    assert.match(task.goal, /Agent Factory|Factory planner/i);
+    assert.ok(task.paths.length > 0);
+    for (const path of task.paths) assert.ok(allowedPaths.has(path), "unexpected fallback path: " + path);
+    assert.doesNotMatch(task.title, forbidden);
+    assert.doesNotMatch(task.goal, forbidden);
+    assert.doesNotMatch(task.paths.join(" "), forbidden);
+    const body = plannerIssueBody(task);
+    for (const heading of ["Goal", "Allowed paths", "Acceptance criteria", "Explicit exclusions"]) {
+      assert.equal(body.split("## " + heading).length - 1, 1);
+    }
+    assert.match(body, /<!-- ai-task-generated-by-planner -->/);
+    titles.push(task.title);
+  }
+  assert.equal(titles.length, 2);
+  assert.equal(new Set(titles.map((title) => title.toLowerCase())).size, titles.length);
   assert.equal(nextPlannerTask(titles), null);
+  assert.equal(nextPlannerTask([...titles, "unrelated existing issue"]), null);
 });
 
 
