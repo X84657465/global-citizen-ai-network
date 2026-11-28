@@ -101,7 +101,7 @@ test("one batch runs multiple queued tasks and their evidence survives CLI resta
 
 test("a task failure is persisted and does not block the next ready task", (t) => {
   const { databasePath, invoke } = openFixture(t);
-  const queue = createLocalFactoryQueue({ databasePath, now: () => 1 });
+  const queue = createLocalFactoryQueue({ databasePath, now: () => Date.now() });
   try {
     queue.add({ title: "Invalid task", payload: { schema_version: 1, kind: "invalid" } });
   } finally {
