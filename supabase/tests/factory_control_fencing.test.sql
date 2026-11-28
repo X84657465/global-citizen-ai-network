@@ -1,7 +1,7 @@
 begin;
-select plan(7);
+select plan(12);
 
-create temporary table factory_fencing_fixture (
+create temporary table factory_publication_transition_fixture (\n  regression_to_failed_rejected boolean,\n  identity_replacement_rejected boolean,\n  same_state_replay_accepted boolean,\n  published_to_reconciled_accepted boolean,\n  reconciled_regression_rejected boolean\n) on commit drop;\n\ncreate temporary table factory_fencing_fixture (
   initial_token uuid, initial_fence bigint, competitor_denied boolean,
   initial_state_version bigint, takeover_token uuid, takeover_fence bigint,
   stale_assert_rejected boolean, stale_write_rejected boolean,
@@ -19,7 +19,7 @@ declare
   v_stale_assert boolean;
   v_stale_write boolean;
   v_recorded boolean;
-  v_released boolean;
+  v_released boolean;\n  v_regression_to_failed_rejected boolean := false;\n  v_identity_replacement_rejected boolean := false;\n  v_same_state_replay_accepted boolean := false;\n  v_published_to_reconciled_accepted boolean := false;\n  v_reconciled_regression_rejected boolean := false;
   v_event_id uuid := 'd1000000-0000-4000-8000-000000000001';
   v_request_a uuid := 'd2000000-0000-4000-8000-000000000001';
   v_request_b uuid := 'd2000000-0000-4000-8000-000000000002';
@@ -112,7 +112,7 @@ begin
   );
   if not v_recorded then raise exception 'publication result was not persisted'; end if;
 
-  v_released := public.factory_release_lease(
+  begin\n    perform public.factory_record_publication(\n      'test/repo/factory-worker','worker-b',v_request_b,v_token_b,v_fence_b,\n      repeat('a',64),'failed'\n    );\n  exception when sqlstate '55000' then\n    v_regression_to_failed_rejected := true;\n  end;\n\n  begin\n    perform public.factory_record_publication(\n      'test/repo/factory-worker','worker-b',v_request_b,v_token_b,v_fence_b,\n      repeat('a',64),'published','factory/local-task/replaced',683\n    );\n  exception when sqlstate '55000' then\n    v_identity_replacement_rejected := true;\n  end;\n\n  v_same_state_replay_accepted := public.factory_record_publication(\n    'test/repo/factory-worker','worker-b',v_request_b,v_token_b,v_fence_b,\n    repeat('a',64),'published','factory/local-task/test',683\n  );\n\n  v_published_to_reconciled_accepted := public.factory_record_publication(\n    'test/repo/factory-worker','worker-b',v_request_b,v_token_b,v_fence_b,\n    repeat('a',64),'reconciled','factory/local-task/test',683\n  );\n\n  begin\n    perform public.factory_record_publication(\n      'test/repo/factory-worker','worker-b',v_request_b,v_token_b,v_fence_b,\n      repeat('a',64),'published','factory/local-task/test',683\n    );\n  exception when sqlstate '55000' then\n    v_reconciled_regression_rejected := true;\n  end;\n\n  insert into factory_publication_transition_fixture values (\n    v_regression_to_failed_rejected, v_identity_replacement_rejected,\n    v_same_state_replay_accepted, v_published_to_reconciled_accepted,\n    v_reconciled_regression_rejected\n  );\n\n  v_released := public.factory_release_lease(
     'test/repo/factory-worker','worker-b',v_request_b,v_token_b,v_fence_b
   );
   if not v_released then raise exception 'current lease release failed'; end if;
@@ -139,5 +139,5 @@ from factory_fencing_fixture;
 select ok(released, 'current lease owner can release its lease')
 from factory_fencing_fixture;
 
-select * from finish();
+select ok(regression_to_failed_rejected, 'published publication cannot regress to failed')\nfrom factory_publication_transition_fixture;\nselect ok(identity_replacement_rejected, 'published branch and pull request identity cannot be replaced')\nfrom factory_publication_transition_fixture;\nselect ok(same_state_replay_accepted, 'an exact same-state publication replay is idempotently accepted')\nfrom factory_publication_transition_fixture;\nselect ok(published_to_reconciled_accepted, 'published publication may advance to reconciled with the same immutable identity')\nfrom factory_publication_transition_fixture;\nselect ok(reconciled_regression_rejected, 'reconciled publication is terminal and cannot regress')\nfrom factory_publication_transition_fixture;\n\nselect * from finish();
 rollback;
