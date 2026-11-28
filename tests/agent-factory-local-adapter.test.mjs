@@ -5,6 +5,7 @@ import { mkdtempSync, mkdirSync, rmSync, symlinkSync, existsSync, readFileSync, 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseStrictTapSummary } from "../lib/agent-factory-local-sandbox.mjs";
+import { validatePlannerGenerationContract } from "../lib/agent-factory-policy.mjs";
 import {
   validateLocalFactoryTask,
   restoreLocalFactoryTask,
@@ -245,3 +246,36 @@ test("strict TAP evidence rejects missing, failed, skipped, todo and empty test 
   assert.equal(parseStrictTapSummary(valid.replace("1..1", "")).valid, false);
   assert.equal(parseStrictTapSummary("TAP version 13\n1..0\n# tests 0\n# pass 0\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0").valid, false);
 });
+
+
+test("local planner generation contract rejects loose budgets and incomplete dependency chains", () => {
+  const sourceTask = task();
+  const valid = {
+    schema_version: 1,
+    tasks: [
+      { id: "inspect", role: "planner", action: "inspect", depends_on: [], max_output_bytes: 16384 },
+      { id: "implement", role: "implementer", action: "propose_patch", depends_on: ["inspect"], max_output_bytes: 16384 },
+      { id: "validate", role: "tester", action: "validate_patch", depends_on: ["implement"], max_output_bytes: 16384 },
+    ],
+  };
+  assert.equal(validatePlannerGenerationContract(valid, sourceTask), valid);
+  for (const invalid of [4096, 32768, "16384", null]) {
+    const candidate = structuredClone(valid);
+    candidate.tasks[0].max_output_bytes = invalid;
+    assert.throws(() => validatePlannerGenerationContract(candidate, sourceTask),
+      /Every generated planner task must use numeric max_output_bytes 16384/);
+  }
+  const duplicateImplementer = structuredClone(valid);
+  duplicateImplementer.tasks.push({ ...valid.tasks[1], id: "implement-two" });
+  assert.throws(() => validatePlannerGenerationContract(duplicateImplementer, sourceTask),
+    /exactly one implementer propose_patch/);
+  const missingInspect = structuredClone(valid);
+  missingInspect.tasks[1].depends_on = [];
+  assert.throws(() => validatePlannerGenerationContract(missingInspect, sourceTask),
+    /planner inspect before propose_patch/);
+  const missingTester = structuredClone(valid);
+  missingTester.tasks[2].depends_on = [];
+  assert.throws(() => validatePlannerGenerationContract(missingTester, sourceTask),
+    /tester validate_patch after propose_patch/);
+});
+
