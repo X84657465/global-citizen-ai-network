@@ -31,7 +31,7 @@ assert.equal(await first.assertLease(firstLease), false, "the old lease must be 
 
 await assert.rejects(
   () => first.persistTaskState(firstLease, randomUUID(), { stage: "stale-writer" }),
-  /factory coordinator persist_state failed/,
+  /factory coordinator persist_state failed/i,
   "stale executor must not persist state",
 );
 
