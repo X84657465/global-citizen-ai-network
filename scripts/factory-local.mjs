@@ -169,11 +169,7 @@ async function retryPendingPublications(queue, { force = false, coordinatorClien
   const now = Date.now();
   if (!force && now < nextPublicationRetryAt) return [];
   nextPublicationRetryAt = now + 30_000;
-  const acceptedTasks = queue.list({ status: "succeeded", limit: 500 }).filter((task) =>
-    task.payload?.kind === "local-agent-task" &&
-    task.result?.acceptance_status === "ACCEPTED" &&
-    queue.getPublication(task.id)?.state !== "draft_pr_created"
-  );
+  const acceptedTasks = queue.listPendingPublications({ limit: 500 });
   const outcomes = [];
   for (const task of acceptedTasks) {
     try {
@@ -538,7 +534,14 @@ try {
     if (result.claimed && !result.completed) process.exitCode = 1;
   } else if (command === "run-until-idle") {
     const maxTasks = parseMaxTasks(args.slice(1));
-    const summary = { processed: 0, completed: 0, failed: 0, stop_reason: "limit_reached" };
+    const summary = {
+      processed: 0,
+      completed: 0,
+      failed: 0,
+      publication_deferred: 0,
+      publication_delivered: 0,
+      stop_reason: "limit_reached",
+    };
     const attemptedTaskIds = new Set();
     for (let index = 0; index < maxTasks; index += 1) {
       const result = await runNextTask(queue, { excludeTaskIds: [...attemptedTaskIds], coordinatorClient: coordinator });
@@ -550,6 +553,8 @@ try {
       attemptedTaskIds.add(result.task.id);
       if (result.completed) {
         summary.completed += 1;
+        if (result.publication?.state === "deferred_local_only") summary.publication_deferred += 1;
+        if (result.publication?.state === "draft_pr_created") summary.publication_delivered += 1;
       } else {
         summary.failed += 1;
         if (result.failure_scope === "system") {
