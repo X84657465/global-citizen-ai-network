@@ -137,21 +137,23 @@ function parseMaxTasks(values) {
 let nextPublicationRetryAt = 0;
 
 async function publishAcceptedTask(queue, taskRecord, { coordinatorClient = null, lease = null } = {}) {
+  if (taskRecord.payload?.kind === "local-agent-task" && (!coordinatorClient || !lease)) {
+    throw new Error("Remote publication requires the authenticated cross-executor Factory coordinator.");
+  }
   const persistPublication = async (value) => {
-    await queue.recordPublication(taskRecord.id, value);
-    if (!coordinatorClient || !lease) return;
-    if (value.state === "prepared") {
+    if (coordinatorClient && lease && value.state === "prepared") {
       const payloadHash = createHash("sha256").update(JSON.stringify(value)).digest("hex");
       const reservation = await coordinatorClient.reservePublication(
         lease, value.idempotency_key, payloadHash, value,
       );
       if (!reservation?.reserved) throw new Error("Durable cross-executor publication intent was not reserved.");
-    } else if (value.state === "draft_pr_created") {
+    } else if (coordinatorClient && lease && value.state === "draft_pr_created") {
       const recorded = await coordinatorClient.recordPublication(
         lease, value.idempotency_key, "published", value.branch, value.pull_request_number,
       );
       if (!recorded) throw new Error("Durable cross-executor publication result was not recorded.");
     }
+    await queue.recordPublication(taskRecord.id, value);
   };
   return await publishAcceptedLocalFactoryTask({
     taskRecord,
