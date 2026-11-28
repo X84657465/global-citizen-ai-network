@@ -818,8 +818,8 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
     "the unique PR resolution must complete before the privileged Factory state mutation");
   assert.ok(recovery.includes("WORKFLOW_HEAD_SHA: " + "$" + "{{ github.event.workflow_run.head_sha }}"));
   assert.ok(recovery.includes("WORKFLOW_HEAD_REF: " + "$" + "{{ github.event.workflow_run.head_branch }}"));
-  assert.ok(recovery.includes("SYSTEM_HEALTH_PULL_REQUEST_NUMBER: " + "$" + "{{ steps.resolve-pr.outputs.number }}"));
-  assert.ok(recovery.includes("SYSTEM_HEALTH_PR_HEAD_SHA: " + "$" + "{{ steps.resolve-pr.outputs.head_sha }}"));
+  assert.ok(recovery.includes("SYSTEM_HEALTH_PULL_REQUEST_NUMBER: " + "$" + "{{ needs.resolve-system-health.outputs.number }}"));
+  assert.ok(recovery.includes("SYSTEM_HEALTH_PR_HEAD_SHA: " + "$" + "{{ needs.resolve-system-health.outputs.head_sha }}"));
   const recoveryWorkflowHeader = recovery.slice(0, recovery.indexOf("\njobs:"));
   assert.equal(recoveryWorkflowHeader.includes("global-citizen-ai-network-self-hosted-runner"), false,
     "cancelled/failed workflow_run events must not reserve the shared Runner queue at workflow scope");
@@ -830,10 +830,9 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.ok(recoveryJob.includes("cancel-in-progress: false"));
   assert.ok(recovery.includes("runs-on: ubuntu-latest"),
     "the state recovery job must stay on hosted Linux while retaining the shared cross-process queue");
-  assert.ok(recoveryJob.includes("waits in the shared cross-process state-writer queue"));
-  assert.ok(recoveryJob.includes("may queue behind"));
-  assert.ok(recoveryJob.includes("atomic CAS/lease"),
-    "do not imply hosted Linux removes the state-writer queue or permits unsafe lock splitting");
+  assert.ok(recoveryJob.includes("needs: [resolve-system-health]") &&
+    recoveryJob.includes("if: needs.resolve-system-health.outputs.should_recover == 'true'"),
+    "the state-writer job must depend on a successful exact-head eligibility decision");
   for (const permission of ["actions: read", "contents: read", "issues: write", "pull-requests: read"])
     assert.ok(recovery.includes(permission));
   assert.ok(recovery.includes("ref: main"));
@@ -1062,7 +1061,8 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
     "zero matches must prevent the privileged recovery controller from running");
   assert.ok(recoveryWorkflow.includes("if (matches.length > 1)"),
     "ambiguous exact-head PR matches must still fail closed");
-  assert.ok(recoveryWorkflow.includes("if: steps.resolve-pr.outputs.should_recover == 'true'"),
+  assert.ok(recoveryWorkflow.includes("needs: [resolve-system-health]") &&
+    recoveryWorkflow.includes("if: needs.resolve-system-health.outputs.should_recover == 'true'"),
     "the privileged recovery controller must run only after a unique exact-head PR is verified");
   assert.ok(recoveryWorkflow.includes('!ref?.startsWith("ai-task/issue-") && !ref?.startsWith("codex/issue-")'),
     "task branches must remain ineligible for system-breaker recovery");
