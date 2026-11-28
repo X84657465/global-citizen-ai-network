@@ -102,6 +102,6 @@ test("Issue intake fails closed before GitHub reads until cross-executor lease f
     oracleTestFiles: ["tests/oracle.test.mjs"],
     baseSha: "a".repeat(40),
     baseBranch: "main",
-  }), /cross-executor V2 lease\/fencing coordinator/);
+  }), /GitHub Issue intake remains disabled until the deployed cross-executor coordinator/);
   assert.equal(requests, 0);
 });
