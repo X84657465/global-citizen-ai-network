@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { createLocalFactoryQueue } from "../lib/agent-factory-local-queue.mjs";
@@ -11,10 +11,12 @@ import { createLocalFactoryPublicationTarget } from "../lib/agent-factory-local-
 import { publishAcceptedLocalFactoryTask } from "../lib/agent-factory-local-publisher.mjs";
 import { createGitHubApiClient } from "../lib/github-api-client.mjs";
 import { intakeNextGitHubIssue } from "../lib/agent-factory-local-issue-intake.mjs";
+import { createGitHubActionsFactoryCoordinator, FACTORY_WORKER_SCOPE } from "../lib/agent-factory-cross-executor-coordinator.mjs";
 
 const args = process.argv.slice(2);
 const databasePath = resolve(process.env.GCAN_FACTORY_DB ?? ".factory/factory-local.sqlite");
 const workerId = "local-worker-" + process.pid;
+const coordinator = createGitHubActionsFactoryCoordinator();
 
 function usage() {
   console.log([
@@ -134,18 +136,33 @@ function parseMaxTasks(values) {
 
 let nextPublicationRetryAt = 0;
 
-async function publishAcceptedTask(queue, taskRecord) {
-  const publication = await publishAcceptedLocalFactoryTask({
+async function publishAcceptedTask(queue, taskRecord, { coordinatorClient = null, lease = null } = {}) {
+  const persistPublication = async (value) => {
+    await queue.recordPublication(taskRecord.id, value);
+    if (!coordinatorClient || !lease) return;
+    if (value.state === "prepared") {
+      const payloadHash = createHash("sha256").update(JSON.stringify(value)).digest("hex");
+      const reservation = await coordinatorClient.reservePublication(
+        lease, value.idempotency_key, payloadHash, value,
+      );
+      if (!reservation?.reserved) throw new Error("Durable cross-executor publication intent was not reserved.");
+    } else if (value.state === "draft_pr_created") {
+      const recorded = await coordinatorClient.recordPublication(
+        lease, value.idempotency_key, "published", value.branch, value.pull_request_number,
+      );
+      if (!recorded) throw new Error("Durable cross-executor publication result was not recorded.");
+    }
+  };
+  return await publishAcceptedLocalFactoryTask({
     taskRecord,
     taskEvents: queue.events(taskRecord.id),
     existingPublication: queue.getPublication(taskRecord.id),
     repositoryRoot: process.cwd(),
-    persistPublication: (value) => queue.recordPublication(taskRecord.id, value),
+    persistPublication,
   });
-  return publication;
 }
 
-async function retryPendingPublications(queue, { force = false } = {}) {
+async function retryPendingPublications(queue, { force = false, coordinatorClient = null, lease = null } = {}) {
   const now = Date.now();
   if (!force && now < nextPublicationRetryAt) return [];
   nextPublicationRetryAt = now + 30_000;
@@ -157,7 +174,7 @@ async function retryPendingPublications(queue, { force = false } = {}) {
   const outcomes = [];
   for (const task of acceptedTasks) {
     try {
-      outcomes.push({ task_id: task.id, state: (await publishAcceptedTask(queue, task)).state });
+      outcomes.push({ task_id: task.id, state: (await publishAcceptedTask(queue, task, { coordinatorClient, lease })).state });
     } catch (error) {
       outcomes.push({
         task_id: task.id,
@@ -169,58 +186,152 @@ async function retryPendingPublications(queue, { force = false } = {}) {
   return outcomes;
 }
 
-async function runNextTask(queue, { excludeTaskIds = [] } = {}) {
-  const recoveredPublications = await retryPendingPublications(queue);
-  const task = queue.claim(workerId, { excludeTaskIds });
-  if (!task) return {
-    claimed: false,
-    message: "No eligible task is ready.",
-    recovered_publications: recoveredPublications,
+async function runNextTask(queue, { excludeTaskIds = [], coordinatorClient = coordinator } = {}) {
+  let lease = null;
+  let heartbeatTimer = null;
+  let heartbeatInFlight = false;
+  let leaseLost = false;
+  if (coordinatorClient) {
+    lease = await coordinatorClient.acquireLease(FACTORY_WORKER_SCOPE, 300_000);
+    if (!lease?.acquired) {
+      return {
+        claimed: false,
+        message: "Another executor currently owns the durable Factory worker lease.",
+        coordinator_lease: lease?.reason ?? "unavailable",
+      };
+    }
+    heartbeatTimer = setInterval(async () => {
+      if (heartbeatInFlight || leaseLost) return;
+      heartbeatInFlight = true;
+      try {
+        const renewed = await coordinatorClient.renewLease(lease, 300_000);
+        if (!renewed?.renewed) leaseLost = true;
+      } catch {
+        leaseLost = true;
+      } finally {
+        heartbeatInFlight = false;
+      }
+    }, 30_000);
+    heartbeatTimer.unref?.();
+  }
+
+  const assertLease = async () => {
+    if (!coordinatorClient || !lease) return;
+    if (leaseLost || !await coordinatorClient.assertLease(lease)) {
+      leaseLost = true;
+      throw new Error("Factory cross-executor lease was lost; stale worker writes are blocked.");
+    }
+  };
+  const persistState = async (task, status, extra = {}) => {
+    if (!coordinatorClient || !lease) return;
+    await assertLease();
+    const result = await coordinatorClient.persistTaskState(lease, randomUUID(), {
+      task_id: task.id,
+      status,
+      attempts: task.attempts,
+      worker_id: workerId,
+      ...extra,
+    });
+    if (!result?.persisted) throw new Error("Durable Factory task state write was not confirmed.");
   };
 
   try {
-    if (task.payload?.kind === "local-agent-task" && task.payload.task_id !== task.id) {
-      throw new LocalFactoryWorkerError("Queued task ID does not match its persisted Trusted Oracle contract identity.", "task");
-    }
-    const result = task.payload?.kind === "local-agent-task"
-      ? await runLocalFactoryAgentTask({
-        payload: task.payload,
-        repositoryRoot: process.cwd(),
-        sandboxTests: process.env.GCAN_FACTORY_SANDBOX_TESTS === "1",
-      })
-      : await runLocalFactoryTask({ payload: task.payload });
-    const completed = queue.complete(task.id, workerId, task.lease_token, result);
-    if (completed.payload?.kind !== "local-agent-task" || completed.result?.acceptance_status !== "ACCEPTED") {
-      return { claimed: true, completed: true, task: completed, recovered_publications: recoveredPublications };
-    }
+    const recoveredPublications = await retryPendingPublications(queue, {
+      coordinatorClient, lease,
+    });
+    await assertLease();
+    const task = queue.claim(workerId, { excludeTaskIds });
+    if (!task) return {
+      claimed: false,
+      message: "No eligible task is ready.",
+      recovered_publications: recoveredPublications,
+    };
+
     try {
-      const publication = await publishAcceptedTask(queue, completed);
-      return { claimed: true, completed: true, task: completed, publication, recovered_publications: recoveredPublications };
+      if (task.payload?.kind === "local-agent-task" && task.payload.task_id !== task.id) {
+        throw new LocalFactoryWorkerError("Queued task ID does not match its persisted Trusted Oracle contract identity.", "task");
+      }
+      await persistState(task, "running", {
+        source_issue_number: task.payload?.source_envelope?.issue_number ?? null,
+      });
+      const result = task.payload?.kind === "local-agent-task"
+        ? await runLocalFactoryAgentTask({
+          payload: task.payload,
+          repositoryRoot: process.cwd(),
+          sandboxTests: process.env.GCAN_FACTORY_SANDBOX_TESTS === "1",
+        })
+        : await runLocalFactoryTask({ payload: task.payload });
+      await assertLease();
+      await persistState(task, "succeeded", {
+        acceptance_status: result.acceptance_status ?? null,
+        outcome: result.outcome ?? null,
+      });
+      const completed = queue.complete(task.id, workerId, task.lease_token, result);
+      if (completed.payload?.kind !== "local-agent-task" || completed.result?.acceptance_status !== "ACCEPTED") {
+        return { claimed: true, completed: true, task: completed, recovered_publications: recoveredPublications };
+      }
+      try {
+        await assertLease();
+        const publication = await publishAcceptedTask(queue, completed, { coordinatorClient, lease });
+        await assertLease();
+        return { claimed: true, completed: true, task: completed, publication, recovered_publications: recoveredPublications };
+      } catch (error) {
+        return {
+          claimed: true,
+          completed: true,
+          task: completed,
+          publication: queue.getPublication(task.id),
+          publication_error: error instanceof Error ? error.message : "Unknown publication error",
+          recovered_publications: recoveredPublications,
+        };
+      }
     } catch (error) {
-      return {
-        claimed: true,
-        completed: true,
-        task: completed,
-        publication: queue.getPublication(task.id),
-        publication_error: error instanceof Error ? error.message : "Unknown publication error",
-        recovered_publications: recoveredPublications,
-      };
+      if (leaseLost) {
+        return {
+          claimed: true,
+          completed: false,
+          failure_scope: "system",
+          task: queue.get(task.id),
+          lease_lost: true,
+          error: error instanceof Error ? error.message : "Unknown worker error",
+        };
+      }
+      const scope = error?.scope === "task" ? "task" :
+        error instanceof LocalFactoryWorkerError ? error.scope : "system";
+      try {
+        await persistState(task, "failed", {
+          failure_scope: scope,
+          error: error instanceof Error ? error.message : "Unknown worker error",
+        });
+        await assertLease();
+      } catch (fencingError) {
+        return {
+          claimed: true,
+          completed: false,
+          failure_scope: "system",
+          task: queue.get(task.id),
+          lease_lost: true,
+          error: fencingError instanceof Error ? fencingError.message : "Factory fencing check failed.",
+        };
+      }
+      const failed = queue.fail(
+        task.id,
+        workerId,
+        task.lease_token,
+        error instanceof Error ? error.message : "Unknown worker error",
+        { scope },
+      );
+      return { claimed: true, completed: false, failure_scope: scope, task: failed };
     }
-  } catch (error) {
-    const scope = error?.scope === "task" ? "task" :
-      error instanceof LocalFactoryWorkerError ? error.scope : "system";
-    const failed = queue.fail(
-      task.id,
-      workerId,
-      task.lease_token,
-      error instanceof Error ? error.message : "Unknown worker error",
-      { scope },
-    );
-    return { claimed: true, completed: false, failure_scope: scope, task: failed };
+  } finally {
+    if (heartbeatTimer) clearInterval(heartbeatTimer);
+    if (coordinatorClient && lease) {
+      try { await coordinatorClient.releaseLease(lease); } catch { /* expiry safely reclaims an unreleased lease */ }
+    }
   }
 }
 
-async function serve(queue) {
+async function serve(queue, coordinatorClient = coordinator) {
   const shutdown = new AbortController();
   const stop = () => shutdown.abort();
   process.on("SIGINT", stop);
@@ -228,7 +339,7 @@ async function serve(queue) {
   try {
     console.log(JSON.stringify({ event: "worker_started", worker_id: workerId }));
     while (!shutdown.signal.aborted) {
-      const result = await runNextTask(queue);
+      const result = await runNextTask(queue, { coordinatorClient });
       if (!result.claimed) {
         await delay(1_000, undefined, { signal: shutdown.signal });
         continue;
@@ -380,9 +491,9 @@ try {
     const recoveredPublications = await retryPendingPublications(queue, { force: true });
     print({ recovered_leases: recoveredLeases, recovered_publications: recoveredPublications });
   } else if (command === "serve" && args.length === 1) {
-    await serve(queue);
+    await serve(queue, coordinator);
   } else if (command === "run-once") {
-    const result = await runNextTask(queue);
+    const result = await runNextTask(queue, { coordinatorClient: coordinator });
     print(result);
     if (result.claimed && !result.completed) process.exitCode = 1;
   } else if (command === "run-until-idle") {
@@ -390,7 +501,7 @@ try {
     const summary = { processed: 0, completed: 0, failed: 0, stop_reason: "limit_reached" };
     const attemptedTaskIds = new Set();
     for (let index = 0; index < maxTasks; index += 1) {
-      const result = await runNextTask(queue, { excludeTaskIds: [...attemptedTaskIds] });
+      const result = await runNextTask(queue, { excludeTaskIds: [...attemptedTaskIds], coordinatorClient: coordinator });
       if (!result.claimed) {
         summary.stop_reason = "no_eligible_task";
         break;
