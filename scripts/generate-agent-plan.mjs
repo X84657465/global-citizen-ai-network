@@ -2,6 +2,7 @@ import { appendFileSync, readFileSync, mkdirSync, writeFileSync } from "node:fs"
 import { validateAgentPlan } from "../lib/agent-plan-validation.mjs";
 import { buildAgentTaskContext } from "../lib/agent-task-validation.mjs";
 import { evaluateAgentDecision } from "../lib/agent-neural-decision.mjs";
+import { validatePlannerGenerationContract } from "../lib/agent-factory-policy.mjs";
 
 const fail = (message, scope = "system") => {
   if (scope === "task" && process.env.GITHUB_ENV) {
@@ -155,6 +156,7 @@ try {
 let validatedPlan;
 try {
   validatedPlan = validateAgentPlan(candidate, task);
+  validatePlannerGenerationContract(validatedPlan, task);
 } catch (error) {
   fail(error instanceof Error ? error.message : "Generated plan failed validation.", "task");
 }
