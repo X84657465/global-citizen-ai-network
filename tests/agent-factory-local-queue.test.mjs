@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
+import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createLocalFactoryQueue } from "../lib/agent-factory-local-queue.mjs";
@@ -21,6 +22,87 @@ function withQueue(run, options = {}) {
     rmSync(directory, { recursive: true, force: true });
   }
 }
+
+async function withQueueAsync(run, options = {}) {
+  const directory = mkdtempSync(join(tmpdir(), "gcan-local-queue-async-test-"));
+  const queue = createLocalFactoryQueue({
+    databasePath: join(directory, "factory.sqlite"),
+    retryDelayMs: 0,
+    ...options,
+  });
+  try {
+    return await run(queue, directory);
+  } finally {
+    queue.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+}
+
+async function startSQLiteWriteLock(databasePath, durationMs) {
+  const script = [
+    'import { DatabaseSync } from "node:sqlite";',
+    'const db = new DatabaseSync(process.argv[1]);',
+    'db.exec("PRAGMA busy_timeout=5000; BEGIN IMMEDIATE;");',
+    'process.stdout.write("READY\\n");',
+    'setTimeout(() => { db.exec("COMMIT;"); db.close(); }, Number(process.argv[2]));',
+  ].join("\\n");
+  const child = spawn(process.execPath, ["--input-type=module", "-e", script, databasePath, String(durationMs)], {
+    stdio: ["ignore", "pipe", "inherit"],
+  });
+  await new Promise((resolve, reject) => {
+    let output = "";
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      output += chunk;
+      if (output.includes("READY\\n")) resolve();
+    });
+    child.once("error", reject);
+    child.once("exit", (code) => {
+      if (!output.includes("READY\\n")) reject(new Error("SQLite lock holder exited before acquiring its write lock (code " + code + ")."));
+    });
+  });
+  return child;
+}
+
+async function waitForExit(child) {
+  if (child.exitCode !== null) return;
+  await new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", resolve);
+  });
+}
+
+test("claim lease starts after a competing process releases SQLite write lock", async () => {
+  await withQueueAsync(async (queue, directory) => {
+    const task = queue.add({ title: "lock delayed claim", payload: { goal: "lease must start after lock acquisition" } });
+    const child = await startSQLiteWriteLock(join(directory, "factory.sqlite"), 1_600);
+    try {
+      const claimed = queue.claim("worker-after-lock");
+      assert.equal(claimed.id, task.id);
+      assert.ok(claimed.lease_expires_at > Date.now(), "new lease must still be valid when claim returns");
+      assert.equal(queue.get(task.id).status, "running");
+      await waitForExit(child);
+    } finally {
+      if (child.exitCode === null) child.kill();
+    }
+  }, { leaseMs: 1_000 });
+});
+
+test("expired lease recovery samples time after a competing process releases SQLite write lock", async () => {
+  await withQueueAsync(async (queue, directory) => {
+    const task = queue.add({ title: "lock delayed recovery", payload: { goal: "recovery must observe expiry after lock wait" } });
+    const claim = queue.claim("worker-before-lock");
+    assert.equal(claim.id, task.id);
+    const child = await startSQLiteWriteLock(join(directory, "factory.sqlite"), 1_600);
+    try {
+      assert.equal(queue.recoverExpiredLeases(), 1);
+      assert.equal(queue.get(task.id).status, "queued");
+      await waitForExit(child);
+    } finally {
+      if (child.exitCode === null) child.kill();
+    }
+  }, { leaseMs: 1_000 });
+});
 
 test("local queue persists a task, claim, result and events across database reopen", () => {
   const directory = mkdtempSync(join(tmpdir(), "gcan-local-queue-reopen-"));
