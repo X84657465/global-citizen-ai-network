@@ -540,11 +540,15 @@ try {
       failed: 0,
       publication_deferred: 0,
       publication_delivered: 0,
+      recovered_publications: 0,
       stop_reason: "limit_reached",
     };
     const attemptedTaskIds = new Set();
     for (let index = 0; index < maxTasks; index += 1) {
       const result = await runNextTask(queue, { excludeTaskIds: [...attemptedTaskIds], coordinatorClient: coordinator });
+      summary.recovered_publications += Array.isArray(result.recovered_publications)
+        ? result.recovered_publications.length
+        : 0;
       if (!result.claimed) {
         summary.stop_reason = "no_eligible_task";
         break;

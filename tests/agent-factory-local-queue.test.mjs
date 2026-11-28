@@ -646,3 +646,60 @@ test("GitHub Issue intake is idempotent and rejects a changed source revision", 
     assert.equal(queue.get("github-issue-42").payload.source_envelope.updated_at, sourceEnvelope.updated_at);
   });
 });
+
+
+test("publication retry lane stays fair under sustained arrivals and SQLite reopen", () => {
+  const directory = mkdtempSync(join(tmpdir(), "gcan-publication-sustained-fairness-"));
+  const databasePath = join(directory, "factory.sqlite");
+  const makeAccepted = (queue, id, index) => {
+    const digit = (index % 16).toString(16);
+    const contract = {
+      schema_version: 2,
+      kind: "trusted-acceptance-oracle",
+      task_id: id,
+      base_sha: digit.repeat(40),
+      contract_sha256: digit.repeat(64),
+      files: [{ path: "tests/oracle.test.mjs" }],
+      worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+    };
+    const task = queue.add({
+      id,
+      title: "Sustained arrival task " + index,
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+        publication_target: publicationTarget(id, contract),
+      },
+    });
+    const workerId = "sustained-worker-" + index;
+    const claim = queue.claim(workerId);
+    assert.equal(claim.id, id);
+    assert.equal(queue.complete(id, workerId, claim.lease_token,
+      acceptedAgentResult(id, contract, ["tests/oracle.test.mjs"], ["tests/generated.test.mjs"])).status, "succeeded");
+  };
+
+  let queue = createLocalFactoryQueue({ databasePath });
+  try {
+    makeAccepted(queue, "old-deferred-task", 1);
+    assert.deepEqual(queue.listPendingPublications({ limit: 500 }).map((item) => item.id), ["old-deferred-task"]);
+    queue.close();
+
+    let sequence = 2;
+    for (let round = 0; round < 3; round += 1) {
+      queue = createLocalFactoryQueue({ databasePath });
+      for (let index = 0; index < 500; index += 1) {
+        makeAccepted(queue, "fresh-" + round + "-" + index, sequence++);
+      }
+      const selected = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
+      assert.ok(selected.includes("old-deferred-task"),
+        "previously attempted publication must be selected despite 500 fresh arrivals in round " + round);
+      queue.close();
+    }
+  } finally {
+    try { queue.close(); } catch {}
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
