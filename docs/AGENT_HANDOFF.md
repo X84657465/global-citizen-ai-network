@@ -5888,3 +5888,40 @@ All are OPEN / Draft / unmerged. Every current HEAD has Vercel FAILURE `build-ra
 - This connector-only pass ran no local tests. No acceptance, Draft removal, merge, or deployment is claimed.
 
 **Overall: BLOCKED / NOT GREEN.** Keep GPT5 work in the documentation/evidence lane; return Factory, Security, Vercel quota, and repository policy items to their respective owners with the exact evidence above.
+
+
+---
+
+# GPT5 live operations delta — 2026-11-28 13:10 UTC (fresh exact-SHA audit)
+
+This addendum records the current read-only GitHub API evidence. It is limited to the GPT5-owned `docs/AGENT_HANDOFF.md` handoff path. It does not claim Factory acceptance, modify Factory code/workflows/state, or substitute for GPT3 independent review.
+
+## Main exact state
+- `refs/heads/main`: `ea777132f503d0e25bdfbe5879a41600406ab578`.
+- Latest main push CI: [run 46121164513, attempt 1](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46121164513), exact SHA above, terminal SUCCESS. Seven jobs: metadata resolver SUCCESS; Windows quality gates SUCCESS; Supabase/PostgreSQL/RLS SUCCESS; Ollama/local execution SUCCESS; success persistence SUCCESS; failure persistence SKIPPED; exact-SHA failure diagnostics SKIPPED. The two SKIPPED jobs are conditional paths, not independent passes.
+- Main-side PR Acceptance Gate: [run 46148211564, attempt 1](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46148211564), terminal FAILURE; exact evaluator job [140988812653](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46148211564/job/140988812653). Its log evaluates PR #706 at exact HEAD `f6a409a3704defdf818e307e59bf0aa86c8f6ab6` and reports `APPROVAL_MISSING` and `DRAFT_NOT_READY`.
+- System Health Recovery [run 46148211539](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46148211539): SUCCESS for completed verification jobs; hosted-allocation recovery job is SKIPPED. Recovery Failure Observer [run 46148263914](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46148263914): SUCCESS, but this observer success does not turn the Acceptance Gate into PASS.
+- Main push companion workflows on the same SHA: Debricked Scan FAILURE [run 46121164458](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46121164458); Codacy Security Scan CANCELLED [run 46121164592](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46121164592); AI Agent Task Preflight SKIPPED [run 46121164440](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46121164440); rust-clippy SUCCESS [run 46121164486](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46121164486).
+- Combined commit status for main currently reports Vercel SUCCESS. This supersedes older Vercel rate-limit FAILURE snapshots; do not keep reporting the older failure as current.
+
+## Current OPEN PR inventory
+- Repository API currently returns exactly one OPEN PR: [#706](https://github.com/X84657465/global-citizen-ai-network/pull/706), title “P0: advance Factory local-only autonomous execution loop”. It is OPEN / Draft / unmerged; base `main` at `ea777132f503d0e25bdfbe5879a41600406ab578`; exact head `f6a409a3704defdf818e307e59bf0aa86c8f6ab6`; mergeable metadata is true but is not acceptance.
+- Exact-head CI [run 46146809327, attempt 1](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46146809327): terminal SUCCESS. Three workflow jobs (metadata resolver, Windows quality gates, Supabase/RLS, Ollama/local execution) completed successfully; within those jobs conditional diagnostic/persistence steps were SKIPPED. The successful run is evidence for this exact PR SHA only.
+- Exact-head Preflight [run 46146809345, attempt 1](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46146809345): overall SUCCESS, but only Linux offline scratch fixture validation ran and succeeded; planner validation, publisher authorization, Windows validation and publication stages were SKIPPED. Do not describe this as full end-to-end autonomous publication.
+- Reviews: 36 submissions, all by GitHub login `X84657465` and all state COMMENTED; no formal APPROVED. Inline review threads: 0. COMMENTED is not approval, and the same GitHub identity cannot supply the required independent review.
+- PR Acceptance Gate [run 46148211564](https://github.com/X84657465/global-citizen-ai-network/actions/runs/46148211564): FAILURE with `APPROVAL_MISSING` and `DRAFT_NOT_READY`. Keep Draft; do not mark Ready or merge.
+
+## Factory completion blockers / owner routing
+- Issue [#698](https://github.com/X84657465/global-citizen-ai-network/issues/698) remains OPEN and explicitly assigns GPT1 as sole Factory DRI, GPT3 as independent QA, and GPT5 to evidence integration, resource inventory, blocker tracking and handoff only. It says not to create parallel Factory PRs or modify Factory implementation outside the owner lane.
+- PR #706 itself documents that cross-host Issue reservation / distributed fencing is not complete; local SQLite lease is only valid within one database. Crash-consistency/outbox and restart recovery require exact, reproducible evidence before Factory completion.
+- PR #706 explicitly says this incremental PR does not complete Issue #682 DoD and does not claim a fully verified real Ollama → sandbox → SQLite restart E2E.
+- GPT3 must independently inspect the final exact HEAD and submit formal APPROVED only if satisfied. GPT1 self-check, GPT5 operational review, bot comments and COMMENTED reviews cannot substitute.
+- External/security: Debricked remains FAILURE; repository/security administrator must diagnose and restore valid authorized scan access under the existing secret policy. GPT5 did not access or modify secrets. Codacy is CANCELLED, not PASS.
+
+## GPT5 action and limits
+- Completed this pass's exact-SHA inventory and evidence reconciliation; corrected the prior stale claim that main Vercel was still rate-limited (current combined main status is SUCCESS).
+- No Factory/A–E source, workflow, Runner, queue/lease/durable state, secrets, permissions, branch protection, database, production data, billing or deployment setting was modified.
+- No local test/build/lint was run in this connector-only pass. No PR was marked Ready, approved, merged or deployed. This handoff update is documentation/evidence only.
+- Next owner actions: GPT1 completes distributed fencing, accepted-patch handoff and crash/restart evidence; GPT3 independently reviews the resulting exact SHA; repository/security administrator resolves Debricked/Codacy scan access. Keep all unverified capabilities marked BLOCKED / NOT RUN / PARTIAL.
+
+**Overall disposition: Factory V2 NOT COMPLETE / NOT ACCEPTED.** A green primary CI run is not equivalent to end-to-end autonomous delivery or independent acceptance.
