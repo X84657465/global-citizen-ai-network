@@ -169,9 +169,9 @@ async function retryPendingPublications(queue, { force = false } = {}) {
   return outcomes;
 }
 
-async function runNextTask(queue) {
+async function runNextTask(queue, { excludeTaskIds = [] } = {}) {
   const recoveredPublications = await retryPendingPublications(queue);
-  const task = queue.claim(workerId);
+  const task = queue.claim(workerId, { excludeTaskIds });
   if (!task) return {
     claimed: false,
     message: "No eligible task is ready.",
@@ -388,13 +388,15 @@ try {
   } else if (command === "run-until-idle") {
     const maxTasks = parseMaxTasks(args.slice(1));
     const summary = { processed: 0, completed: 0, failed: 0, stop_reason: "limit_reached" };
+    const attemptedTaskIds = new Set();
     for (let index = 0; index < maxTasks; index += 1) {
-      const result = await runNextTask(queue);
+      const result = await runNextTask(queue, { excludeTaskIds: [...attemptedTaskIds] });
       if (!result.claimed) {
         summary.stop_reason = "no_eligible_task";
         break;
       }
       summary.processed += 1;
+      attemptedTaskIds.add(result.task.id);
       if (result.completed) {
         summary.completed += 1;
       } else {
