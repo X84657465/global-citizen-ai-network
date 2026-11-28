@@ -367,6 +367,72 @@ test("pending publication selection filters eligible accepted tasks before apply
   });
 });
 
+
+test("pending publication retries rotate fairly beyond the 500-task batch limit", () => {
+  withQueue((queue) => {
+    const acceptedIds = [];
+    for (let index = 1; index <= 501; index += 1) {
+      const id = "fair-task-" + String(index).padStart(4, "0");
+      acceptedIds.push(id);
+      const digit = (index % 16).toString(16);
+      const contract = {
+        schema_version: 2,
+        kind: "trusted-acceptance-oracle",
+        task_id: id,
+        base_sha: digit.repeat(40),
+        contract_sha256: digit.repeat(64),
+        files: [{ path: "tests/oracle.test.mjs" }],
+        worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+      };
+      const target = publicationTarget(id, contract);
+      const task = queue.add({
+        id,
+        title: "Fair publication task " + index,
+        payload: {
+          schema_version: 1,
+          kind: "local-agent-task",
+          task_id: id,
+          task: { allowed_paths: contract.worker_allowed_paths },
+          trusted_oracle_contract: contract,
+          publication_target: target,
+        },
+      });
+      const claim = queue.claim("fair-worker-" + index);
+      assert.equal(claim.id, task.id);
+      const result = acceptedAgentResult(
+        id, contract, ["tests/oracle.test.mjs"], ["tests/generated.test.mjs"],
+      );
+      assert.equal(queue.complete(id, claim.lease_owner, claim.lease_token, result).status, "succeeded");
+      if (index <= 500) {
+        const patchSha = createHash("sha256").update(id).digest("hex");
+        const identity = {
+          idempotency_key: createHash("sha256").update([
+            "gcan-local-factory-publish-v1", id, contract.base_sha, target.target_sha256, patchSha,
+          ].join("\\n")).digest("hex"),
+          repository: target.repository,
+          base_branch: target.base_branch,
+          base_sha: target.base_sha,
+          contract_sha256: target.contract_sha256,
+          target_sha256: target.target_sha256,
+          branch: "factory/local-task/" + id + "-" + patchSha.slice(0, 12),
+          patch_sha256: patchSha,
+        };
+        queue.recordPublication(id, { ...identity, state: "prepared" });
+      }
+    }
+
+    const first = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
+    assert.equal(first.length, 500);
+    assert.ok(!first.includes("fair-task-0501"));
+    const second = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
+    assert.equal(second.length, 500);
+    const attempted = new Set([...first, ...second]);
+    assert.equal(attempted.size, 501);
+    assert.ok(attempted.has("fair-task-0501"));
+    assert.deepEqual([...attempted].sort(), acceptedIds.sort());
+  });
+});
+
 test("SQLite refuses to complete a local agent task from proposal or model-only test evidence", () => {
   withQueue((queue) => {
     const id = "agent-acceptance-gate";
