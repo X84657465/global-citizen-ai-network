@@ -65,6 +65,29 @@ test("selector chooses only one eligible owner-authored AI Task and honors durab
   }).reason, "active_factory_lease");
 });
 
+test("selector blocks Issue intake during active system cooldown and resumes after expiry", () => {
+  const issue = taskIssue();
+  const base = {
+    issues: [issue],
+    pulls: [],
+    repository: "owner/repo",
+    factoryState: {
+      state_version: 1,
+      tasks: {},
+      active_task: null,
+      system: { cooldown_until: "2026-11-28T01:00:00.000Z" },
+    },
+  };
+  assert.equal(selectEligibleGitHubTask({ ...base, now: Date.parse("2026-11-28T00:59:59.000Z") }).reason,
+    "system_cooldown_active");
+  assert.equal(selectEligibleGitHubTask({ ...base, now: Date.parse("2026-11-28T01:00:00.000Z") }).selected.number, 42);
+  assert.equal(selectEligibleGitHubTask({
+    ...base,
+    factoryState: { ...base.factoryState, system: { cooldown_until: null } },
+    now: Date.parse("2026-11-28T00:00:00.000Z"),
+  }).selected.number, 42);
+});
+
 test("selector excludes planner lookalikes, closed Issues and tasks with unresolved dependencies", () => {
   const plannerLookalike = taskIssue({
     number: 43,
