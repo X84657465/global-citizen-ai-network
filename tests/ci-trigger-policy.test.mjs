@@ -783,16 +783,30 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.ok(recovery.includes('  workflow_run:\n    workflows: ["CI"]\n    types: [completed]'));
   const { start: resolverJobStart, end: resolverJobEnd } = findJobSection(recovery, "resolve-system-health");
   const resolverJob = recovery.slice(resolverJobStart, resolverJobEnd);
+  const observerHeader = resolverJob.slice(0, resolverJob.indexOf("\n    steps:"));
+  assert.doesNotMatch(observerHeader, /^    if:/m,
+    "completed CI diagnostics must not be skipped at job level");
+  const classifyStart = resolverJob.indexOf("      - name: Classify source CI before expensive verification");
+  const classifyEnd = resolverJob.indexOf("\n      - name:", classifyStart + 1);
+  assert.ok(classifyStart >= 0 && classifyEnd > classifyStart);
+  const classifier = resolverJob.slice(classifyStart, classifyEnd);
   for (const guard of [
-    "    if: >-\n      github.event.workflow_run.conclusion == 'success' &&",
-    "      github.event.workflow_run.event == 'pull_request' &&",
-    "      github.event.workflow_run.path == '.github/workflows/ci.yml' &&",
-    "      github.event.workflow_run.head_repository.full_name == github.repository &&",
-    "      !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&",
-    "      !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')",
-  ]) assert.ok(resolverJob.includes(guard), "pre-allocation Recovery eligibility must retain " + guard);
-  assert.ok(resolverJob.includes("Upload recovery diagnostics"),
-    "eligible Recovery runs must retain their diagnostic artifact");
+    "        if: >-\n          github.event.workflow_run.conclusion == 'success' &&",
+    "          github.event.workflow_run.event == 'pull_request' &&",
+    "          github.event.workflow_run.path == '.github/workflows/ci.yml' &&",
+    "          github.event.workflow_run.head_repository.full_name == github.repository &&",
+    "          !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&",
+    "          !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')",
+  ]) assert.ok(classifier.includes(guard), "source eligibility classifier must retain " + guard);
+  for (const name of ["Checkout trusted mainline controller", "Set up Node.js", "Resolve and verify the unique exact-head main PR"]) {
+    const stepStart = resolverJob.indexOf("      - name: " + name);
+    const stepEnd = resolverJob.indexOf("\n      - name:", stepStart + 1);
+    assert.ok(stepStart >= 0 && stepEnd > stepStart);
+    assert.ok(resolverJob.slice(stepStart, stepEnd).includes("        if: steps.classify-source.outputs.eligible == 'true'"),
+      "ineligible CI must skip expensive step: " + name);
+  }
+  assert.ok(resolverJob.includes("      - name: Upload recovery diagnostics\n        if: always()"),
+    "every allocated observer must retain its diagnostic artifact");
   for (const guard of [
     'process.env.WORKFLOW_PATH === ".github/workflows/ci.yml"',
     'process.env.WORKFLOW_CONCLUSION === "success"',

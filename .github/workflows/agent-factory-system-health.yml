@@ -7,18 +7,9 @@ on:
 
 jobs:
   resolve-system-health:
-    name: Resolve completed exact-head CI before resetting system breaker
-    # Allocate a hosted runner only for successful CI from a trusted, same-repo
-    # pull_request on a non-task branch. Failed, untrusted, and task CI events
-    # cannot reset the breaker and must not consume runner capacity merely to
-    # be rejected by the first script step.
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.path == '.github/workflows/ci.yml' &&
-      github.event.workflow_run.head_repository.full_name == github.repository &&
-      !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
-      !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')
+    name: Observe completed CI and resolve exact-head PR
+    # Keep diagnostic evidence for every completed CI event. Ineligible events
+    # skip checkout, Node setup and API verification, and never reach a writer.
     # This read-only exact-head observer runs outside the shared state-writer
     # queue. Only the state-mutating controller job below takes that lock, so
     # verification can start promptly without weakening durable write ordering.
@@ -33,19 +24,34 @@ jobs:
       contents: read
       pull-requests: read
     steps:
+      - name: Classify source CI before expensive verification
+        id: classify-source
+        if: >-
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'pull_request' &&
+          github.event.workflow_run.path == '.github/workflows/ci.yml' &&
+          github.event.workflow_run.head_repository.full_name == github.repository &&
+          !startsWith(github.event.workflow_run.head_branch, 'ai-task/issue-') &&
+          !startsWith(github.event.workflow_run.head_branch, 'codex/issue-')
+        shell: bash
+        run: printf 'eligible=true\n' >> "$GITHUB_OUTPUT"
+
       - name: Checkout trusted mainline controller
+        if: steps.classify-source.outputs.eligible == 'true'
         uses: actions/checkout@v5
         with:
           ref: main
           persist-credentials: false
 
       - name: Set up Node.js
+        if: steps.classify-source.outputs.eligible == 'true'
         uses: actions/setup-node@v5
         with:
           node-version: "22.13.0"
 
       - name: Resolve and verify the unique exact-head main PR
         id: resolve-pr
+        if: steps.classify-source.outputs.eligible == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -113,7 +119,9 @@ jobs:
           SOURCE_CI_EVENT: ${{ github.event.workflow_run.event }}
           SOURCE_CI_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
           RESOLVED_PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
-          RESOLVER_OUTCOME: ${{ steps.resolve-pr.outputs.should_recover }}
+          SOURCE_CLASSIFICATION_OUTCOME: ${{ steps.classify-source.outcome }}
+          RESOLVER_EXECUTION_OUTCOME: ${{ steps.resolve-pr.outcome }}
+          RESOLVER_OUTCOME: ${{ steps.resolve-pr.outputs.should_recover || 'not_run_or_unavailable' }}
           CONTROLLER_OUTCOME: not_started_in_observer
         run: |
           {
@@ -128,6 +136,8 @@ jobs:
             printf 'source_ci_event=%s\n' "$SOURCE_CI_EVENT"
             printf 'source_ci_head_repository=%s\n' "$SOURCE_CI_REPOSITORY"
             printf 'resolved_pr_number=%s\n' "$RESOLVED_PR_NUMBER"
+            printf 'source_classification_step_outcome=%s\n' "$SOURCE_CLASSIFICATION_OUTCOME"
+            printf 'resolver_execution_step_outcome=%s\n' "$RESOLVER_EXECUTION_OUTCOME"
             printf 'resolver_step_outcome=%s\n' "$RESOLVER_OUTCOME"
             printf 'controller_step_outcome=%s\n' "$CONTROLLER_OUTCOME"
           } > "$RUNNER_TEMP/system-health-recovery-summary.txt"

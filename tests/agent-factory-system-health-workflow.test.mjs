@@ -29,7 +29,14 @@ test("system-health recovery invokes its Node controller without the Windows Pow
   assert.ok(controller.includes("group: global-citizen-ai-network-self-hosted-runner"),
     "state-mutating controller must retain the shared serialization lock");
   assert.ok(controller.includes("needs: [resolve-system-health]"), "controller must consume verified observer output");
-  assert.equal(workflow.includes("    if: >-"), false, "job-level filtering must not suppress diagnostic evidence");
+  const observerHeader = observer.slice(0, observer.indexOf("\n    steps:"));
+  assert.doesNotMatch(observerHeader, /^    if:/m, "job-level filtering must not suppress diagnostic evidence");
+  assert.ok(observer.includes("name: Observe completed CI and resolve exact-head PR"),
+    "read-only observer must have a distinct job name from the state-mutating controller");
+  assert.equal(workflow.split("    name: Verify completed exact-head CI before resetting system breaker").length, 2,
+    "Windows fallback must be able to identify exactly one hosted controller job");
+  assert.ok(observer.includes("source_classification_step_outcome=%s"), "diagnostics must distinguish ineligible events");
+  assert.ok(observer.includes("resolver_execution_step_outcome=%s"), "diagnostics must distinguish a skipped resolver from an executed result");
   assert.ok(workflow.includes("WORKFLOW_CONCLUSION"), "resolver must validate source CI conclusion inside the job");
   assert.ok(workflow.includes("WORKFLOW_HEAD_REPOSITORY"), "resolver must reject untrusted source repositories");
   assert.ok(step.includes("        run: |\n          set +e\n"), "controller must preserve its exit status");
