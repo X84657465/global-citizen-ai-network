@@ -103,7 +103,7 @@ test("a task failure is persisted and does not block the next ready task", (t) =
   const { databasePath, invoke } = openFixture(t);
   const queue = createLocalFactoryQueue({ databasePath, now: () => Date.now() });
   try {
-    queue.add({ title: "Invalid task", payload: { schema_version: 1, kind: "invalid" } });
+    queue.add({ title: "Invalid task", payload: { schema_version: 1, kind: "invalid" }, maxFailures: 1 });
   } finally {
     queue.close();
   }
@@ -113,7 +113,7 @@ test("a task failure is persisted and does not block the next ready task", (t) =
     processed: 2, completed: 1, failed: 1, stop_reason: "no_eligible_task",
   });
   assert.deepEqual(invoke(["status"]).map((task) => [task.status, task.attempts]), [
-    ["retry_wait", 1], ["succeeded", 1],
+    ["quarantined", 1], ["succeeded", 1],
   ]);
 });
 
