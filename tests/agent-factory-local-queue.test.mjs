@@ -703,3 +703,63 @@ test("publication retry lane reserves capacity under sustained arrivals and SQLi
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test("single-slot publication polling alternates retries and fresh arrivals across SQLite reopen", () => {
+  const directory = mkdtempSync(join(tmpdir(), "gcan-publication-single-slot-fairness-"));
+  const databasePath = join(directory, "factory.sqlite");
+  const makeAccepted = (queue, id, index) => {
+    const digit = (index % 16).toString(16);
+    const contract = {
+      schema_version: 2,
+      kind: "trusted-acceptance-oracle",
+      task_id: id,
+      base_sha: digit.repeat(40),
+      contract_sha256: digit.repeat(64),
+      files: [{ path: "tests/oracle.test.mjs" }],
+      worker_allowed_paths: ["docs/result.md", "tests/generated.test.mjs"],
+    };
+    queue.add({
+      id,
+      title: "Single-slot fairness task " + index,
+      payload: {
+        schema_version: 1,
+        kind: "local-agent-task",
+        task_id: id,
+        task: { allowed_paths: contract.worker_allowed_paths },
+        trusted_oracle_contract: contract,
+        publication_target: publicationTarget(id, contract),
+      },
+    });
+    const workerId = "single-slot-worker-" + index;
+    const claim = queue.claim(workerId);
+    assert.equal(claim.id, id);
+    assert.equal(queue.complete(id, workerId, claim.lease_token,
+      acceptedAgentResult(id, contract, ["tests/oracle.test.mjs"], ["tests/generated.test.mjs"])).status, "succeeded");
+  };
+
+  let queue = createLocalFactoryQueue({ databasePath });
+  try {
+    makeAccepted(queue, "old-retry", 1);
+    assert.deepEqual(queue.listPendingPublications({ limit: 1 }).map((item) => item.id), ["old-retry"]);
+    queue.close();
+
+    queue = createLocalFactoryQueue({ databasePath });
+    makeAccepted(queue, "fresh-1", 2);
+    assert.deepEqual(queue.listPendingPublications({ limit: 1 }).map((item) => item.id), ["fresh-1"]);
+    queue.close();
+
+    queue = createLocalFactoryQueue({ databasePath });
+    makeAccepted(queue, "fresh-2", 3);
+    assert.deepEqual(queue.listPendingPublications({ limit: 1 }).map((item) => item.id), ["old-retry"],
+      "the durable lane cursor must give a retry its turn under continuing arrivals");
+    queue.close();
+
+    queue = createLocalFactoryQueue({ databasePath });
+    makeAccepted(queue, "fresh-3", 4);
+    assert.deepEqual(queue.listPendingPublications({ limit: 1 }).map((item) => item.id), ["fresh-2"],
+      "fresh tasks must also make bounded progress after a retry");
+  } finally {
+    try { queue.close(); } catch {}
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
