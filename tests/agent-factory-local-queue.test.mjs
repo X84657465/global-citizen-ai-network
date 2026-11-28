@@ -43,7 +43,7 @@ async function startSQLiteWriteLock(databasePath, durationMs) {
     'import { DatabaseSync } from "node:sqlite";',
     'const db = new DatabaseSync(process.argv[1]);',
     'db.exec("PRAGMA busy_timeout=5000; BEGIN IMMEDIATE;");',
-    'process.stdout.write("READY\n");',
+    'process.stdout.write("READY\\n");',
     'setTimeout(() => { db.exec("COMMIT;"); db.close(); }, Number(process.argv[2]));',
   ].join("\n");
   const child = spawn(process.execPath, ["--input-type=module", "-e", script, databasePath, String(durationMs)], {
