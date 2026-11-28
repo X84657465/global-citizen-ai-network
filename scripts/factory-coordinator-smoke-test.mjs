@@ -12,15 +12,15 @@ if (!first || !second) {
 
 const scopeKey = "repo/X84657465/global-citizen-ai-network/factory-smoke/" +
   process.env.GITHUB_RUN_ID + "/" + process.env.GITHUB_RUN_ATTEMPT;
-const firstLease = await first.acquireLease(scopeKey, 1_000);
+const firstLease = await first.acquireLease(scopeKey, 5_000);
 assert.equal(firstLease?.acquired, true, "first executor must acquire the empty lease");
 assert.equal(firstLease.fencing_token, 1, "first lease generation must be one");
 
-const competingLease = await second.acquireLease(scopeKey, 1_000);
+const competingLease = await second.acquireLease(scopeKey, 5_000);
 assert.equal(competingLease?.acquired, false, "a competing executor must not acquire an active lease");
 assert.equal(competingLease.reason, "lease_held");
 
-await new Promise((resolve) => setTimeout(resolve, 1_250));
+await new Promise((resolve) => setTimeout(resolve, 5_250));
 
 const takeoverLease = await second.acquireLease(scopeKey, 60_000);
 assert.equal(takeoverLease?.acquired, true, "second executor must reclaim the expired lease");
