@@ -43,9 +43,9 @@ async function startSQLiteWriteLock(databasePath, durationMs) {
     'import { DatabaseSync } from "node:sqlite";',
     'const db = new DatabaseSync(process.argv[1]);',
     'db.exec("PRAGMA busy_timeout=5000; BEGIN IMMEDIATE;");',
-    'process.stdout.write("READY\\n");',
+    'process.stdout.write("READY\n");',
     'setTimeout(() => { db.exec("COMMIT;"); db.close(); }, Number(process.argv[2]));',
-  ].join("\\n");
+  ].join("\n");
   const child = spawn(process.execPath, ["--input-type=module", "-e", script, databasePath, String(durationMs)], {
     stdio: ["ignore", "pipe", "inherit"],
   });
@@ -54,11 +54,11 @@ async function startSQLiteWriteLock(databasePath, durationMs) {
     child.stdout.setEncoding("utf8");
     child.stdout.on("data", (chunk) => {
       output += chunk;
-      if (output.includes("READY\\n")) resolve();
+      if (output.includes("READY\n")) resolve();
     });
     child.once("error", reject);
     child.once("exit", (code) => {
-      if (!output.includes("READY\\n")) reject(new Error("SQLite lock holder exited before acquiring its write lock (code " + code + ")."));
+      if (!output.includes("READY\n")) reject(new Error("SQLite lock holder exited before acquiring its write lock (code " + code + ")."));
     });
   });
   return child;
