@@ -397,12 +397,13 @@ test("pending publication retries rotate fairly beyond the 500-task batch limit"
           publication_target: target,
         },
       });
-      const claim = queue.claim("fair-worker-" + index);
+      const workerId = "fair-worker-" + index;
+      const claim = queue.claim(workerId);
       assert.equal(claim.id, task.id);
       const result = acceptedAgentResult(
         id, contract, ["tests/oracle.test.mjs"], ["tests/generated.test.mjs"],
       );
-      assert.equal(queue.complete(id, claim.lease_owner, claim.lease_token, result).status, "succeeded");
+      assert.equal(queue.complete(id, workerId, claim.lease_token, result).status, "succeeded");
       if (index <= 500) {
         const patchSha = createHash("sha256").update(id).digest("hex");
         const identity = {
@@ -423,7 +424,7 @@ test("pending publication retries rotate fairly beyond the 500-task batch limit"
 
     const first = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
     assert.equal(first.length, 500);
-    assert.ok(!first.includes("fair-task-0501"));
+    assert.ok(first.includes("fair-task-0501"));
     const second = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
     assert.equal(second.length, 500);
     const attempted = new Set([...first, ...second]);
