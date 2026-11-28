@@ -830,8 +830,10 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.ok(recoveryJob.includes("cancel-in-progress: false"));
   assert.ok(recovery.includes("runs-on: ubuntu-latest"),
     "the state recovery job must stay on hosted Linux while retaining the shared cross-process queue");
-  assert.ok(recoveryJob.includes("waits in the shared cross-process state-writer queue"));
-  assert.ok(recoveryJob.includes("may queue behind"));
+  assert.ok(recoveryJob.includes("needs: [resolve-system-health]"),
+    "the state-mutating controller must wait for exact-head eligibility resolution");
+  assert.ok(recoveryJob.includes("if: needs.resolve-system-health.outputs.should_recover == 'true'"),
+    "the privileged controller job must be gated by the verified observer output");
   assert.ok(recoveryJob.includes("atomic CAS/lease"),
     "do not imply hosted Linux removes the state-writer queue or permits unsafe lock splitting");
   for (const permission of ["actions: read", "contents: read", "issues: write", "pull-requests: read"])
@@ -1062,8 +1064,8 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
     "zero matches must prevent the privileged recovery controller from running");
   assert.ok(recoveryWorkflow.includes("if (matches.length > 1)"),
     "ambiguous exact-head PR matches must still fail closed");
-  assert.ok(recoveryWorkflow.includes("if: steps.resolve-pr.outputs.should_recover == 'true'"),
-    "the privileged recovery controller must run only after a unique exact-head PR is verified");
+  assert.ok(recoveryWorkflow.includes("if: needs.resolve-system-health.outputs.should_recover == 'true'"),
+    "the privileged recovery controller job must run only after a unique exact-head PR is verified");
   assert.ok(recoveryWorkflow.includes('!ref?.startsWith("ai-task/issue-") && !ref?.startsWith("codex/issue-")'),
     "task branches must remain ineligible for system-breaker recovery");
   assert.equal(recoveryWorkflow.includes("workflow_run.pull_requests"), false,
