@@ -24,7 +24,11 @@ function fixture() {
     if (String(url).startsWith("https://token.actions.githubusercontent.com/")) {
       return { ok: true, status: 200, json: async () => ({ value: token }) };
     }
-    return { ok: true, status: 200, json: async () => ({ ok: true, data: [{ acquired: true, lease_token: "lease-token", fencing_token: 7, expires_at: "2026-11-28T10:00:00Z" }] }) };
+    const request = JSON.parse(options.body);
+    const data = request.action === "renew"
+      ? [{ renewed: true, expires_at: "2026-11-28T10:00:00Z" }]
+      : [{ acquired: true, lease_token: "lease-token", fencing_token: 7, expires_at: "2026-11-28T10:00:00Z" }];
+    return { ok: true, status: 200, json: async () => ({ ok: true, data }) };
   };
   return { calls, env, fetchImpl };
 }
