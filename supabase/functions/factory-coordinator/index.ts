@@ -113,6 +113,12 @@ Deno.serve(async (request: Request) => {
     return Response.json({ error: "unsupported_factory_action" }, { status: 400 });
   }
 
+  // Bind every database mutation to the authenticated Actions run identity.
+  const expectedOwner = "github-actions:" + String(claims.run_id) + ":" + String(claims.run_attempt);
+  if (body.args.p_owner_id !== expectedOwner) {
+    return Response.json({ error: "factory_owner_identity_mismatch" }, { status: 403 });
+  }
+
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceRoleKey) {
