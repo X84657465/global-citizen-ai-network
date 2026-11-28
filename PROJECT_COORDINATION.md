@@ -1241,3 +1241,118 @@ GPT1–GPT4 是 A–P 核心工作責任角色；GPT5 是第五個支援角色�
 6. 不得建立新帳號、反覆強制部署或修改保護規則以規避配額；等待 Provider 恢復時推進不依賴它的工作。
 
 **本節及 Master Charter §24.10–§24.11 都是治理提案；須經既有 GPT3 獨立審查及 Repository 核准流程接受。實際角色是否已讀取／啟動／完成，必須由各角色自己的 Repository 證據確認。**
+
+
+---
+
+# P0 緊急優先指令 — Factory Local Loop 1.0（2026-11-27）
+
+> **狀態：已建立 Issue #682、單一 Draft PR #683 與實作分支；SQLite 任務帳本初版及測試已提交，尚未執行驗收。**
+> **PR：** https://github.com/X84657465/global-citizen-ai-network/pull/683
+> **唯一 DRI：GPT1｜工廠負責人。**
+> **追蹤 Issue：#682。實作分支：`feat/factory-local-loop-v1`。**
+
+## 最高優先級
+
+暫停所有非必要 A–P 擴充與 B Product 新功能，優先讓 Agent Factory 在使用者本機完成第一筆可重現的自主任務。第一階段不得把 GitHub Actions、Vercel、雲端 Runner 或付費 API 當成執行前提。這是 Factory-first 的最小可驗收切片，不是降低 A-Core 長期自主交付目標。
+
+## 最小閉環與驗收
+
+`SQLite task queue → single local worker → Ollama plan → validated patch → isolated apply/test → evidence persistence → recovery`
+
+必須有真實端到端執行證據：任務入列、Worker 領取、模型計畫、Patch 驗證、隔離執行、實際測試 exit code、結果與事件寫入 SQLite、程序重啟後可讀回。mock 測試不能代替真實本機驗收。單 Worker、單任務、有限資源與最多三次 task retry；第三次失敗隔離。不得直接修改 main。
+
+## 五 GPT 任務分工（共同事實來源：Issue #682 與本文件）
+
+- **GPT1｜A–E／Factory DRI：** 唯一整合負責人；盤點重用現有 Planner、Patch Validator、Scratch、狀態機；建立最小本機執行入口、SQLite adapter、單 Worker、真實驗收與單一 PR。
+- **GPT2｜F–P：** 不得平行重寫 Factory 核心。支援任務限於盤點既有 Factory Commander v0.1／SQLite ledger／Cindy adapter 的可重用證據、資源上限與必要介面建議；提出結果到 Issue #682，不得修改 GPT1 核心檔案。
+- **GPT3｜獨立架構審查／整合／QA：** 審查資料持久性、冪等、lease/fencing、path allowlist、scratch 隔離、命令 allowlist、timeout、重試隔離、證據真實性與重啟恢復；提供獨立 PASS／FAIL／BLOCKED／NOT RUN 結論。不得以 GPT1 自我審查代替。
+- **GPT4｜B Product：** 暫停 B 新功能；只整理未來消費 Factory 成果所需的唯讀輸出契約，不得讀取 Factory 私有狀態或修改 A 核心。
+- **GPT5｜Global Intelligence & Operations：** 提供最新 main／PR／CI／Runner 阻塞證據與免費本機資源方案；不新增重複 Runner／資料庫，不宣稱具有背景常駐或跨 GPT 私訊能力。
+
+## 共同操作規則
+
+1. 五 GPT 開始工作前必須讀取 Issue #682、本節及 `docs/FACTORY_LOCAL_LOOP_1_0.md`。
+2. 以 GitHub Issue／PR／commit／測試證據作為唯一共同事實來源；本文件不是即時私訊通道。
+3. GPT1 維持唯一整合分支與單一 PR；其他角色先交付分析／審查，不得各自開重疊 PR。
+4. 先 REUSE，再 EXTEND；不得新建第二套互相競爭的 scheduler/state store。
+5. 嚴禁模型 Patch 任意 shell、網路、套件安裝、secrets 存取、正式資料寫入或未授權部署。
+6. PENDING、SKIPPED、0 Job、NOT RUN、mock-only 均非 PASS；精確 SHA 與真實執行結果必須記錄。
+7. 若本機環境或工具不可用，標記 BLOCKED 並列出最小缺口，不得假報已執行。
+8. 不更改 main、secrets、Runner 權限、branch protection、DB/RLS 或正式環境。
+
+## Definition of Done
+
+至少一筆真實本機任務完成 queue → worker → Ollama plan → validated patch → isolated apply → real test → SQLite evidence persistence；重啟後可恢復讀取；三次失敗隔離與系統級失敗分流有測試；GPT3 獨立審查通過。所有狀態須分開標示 IMPLEMENTED、TESTED、ACCEPTED、PARTIAL、BLOCKED、NOT RUN。
+
+
+
+## GPT1 最新執行交接 — Factory Local Loop（2026-11-27）
+
+- 負責人：GPT1｜工廠負責人。
+- P0 PR：#683，分支 `feat/factory-local-loop-v1`，維持 OPEN / Draft。
+- 最新 Main：`590d132e338dc5bb47243f372a0547c8dfdbfced`。
+- 已完成：SQLite 任務佇列、Lease/重啟恢復、三次 task failure quarantine、system failure 指數退避；新增有限範圍 CLI 與固定 allowlist Worker，可執行本機 Queue regression tests 並持久化結果。
+- system failure 退避：獨立計數，預設 30 秒起跳、上限 5 分鐘；不增加 task failure 次數。
+- 未完成：Planner/Patch adapter、Scratch patch apply、真實 Ollama 端到端任務、Windows 本機實測、精確 HEAD CI PASS、GPT3 獨立 APPROVED。
+- 最近一次觀察到 #683 exact HEAD CI Resolver 與 Diagnostics 失敗且 0 steps；工作日誌 API 回傳 BlobNotFound，根因 UNKNOWN。不得盲目重跑同一個 0-step 失敗。
+- Vercel `build-rate-limit` 是外部部署配額阻塞，不是程式測試結果；本機 Worker 工作不依賴 Vercel。
+- 下一步唯一 P0：在保留單 Worker 與固定 allowlist 的前提下，實作不偽造 Issue 身分的 Planner/Patch local adapter，串接安全 scratch apply 和真實測試。
+
+
+
+---
+
+## GPT1｜Factory Local Loop 最新實作交接（2026-11-27）
+
+- 唯一主線：Issue #682 / PR #683 / `feat/factory-local-loop-v1`；保持單一 Draft，不另開重疊 PR。
+- 最新實作增量：新增 `lib/agent-factory-local-adapter.mjs` 與 `tests/agent-factory-local-adapter.test.mjs`。Adapter 支援嚴格本機任務 schema、Ollama 結構化 Planner/Patch、既有 plan/decision/patch/write-policy 驗證，以及 disposable scratch-only apply。
+- 本機任務不偽造 GitHub Issue number、URL、author 或核准 label；路徑限定於 app/components/lib/docs/tests，禁止 traversal、symlink、secret/credential/.env 路徑及未授權控制平面寫入。
+- **不可誤報的執行邊界：** scratch apply 僅回傳 `APPLIED_TO_SCRATCH_NOT_EXECUTED`；尚未實作 OS-level sandbox 執行，不執行生成程式碼或生成測試。
+- 尚未接上 SQLite durable queue/CLI worker；尚無真實 Ollama 執行、Windows E2E、重啟後真實結果讀回、exact-HEAD CI PASS 或 GPT3 獨立 APPROVED。
+- 最新 branch HEAD：`b637c852819226dee45befa7ea1561e5d5c593d0`（docs 更新後）；main：`590d132e338dc5bb47243f372a0547c8dfdbfced`。
+- PR #683 維持 OPEN / Draft。新 HEAD 的 commit workflow-run lookup 當時回傳 0 筆；這不是 CI PASS，也不代表 workflows 已成功。
+- 下一個實作順序：先把 Adapter 以 task kind 接入 SQLite queue/worker，確保 plan/patch/scratch evidence 與事件持久化；再設計並驗證 OS-level sandbox test runner；未有本機 Windows/Ollama 實測前不得宣稱閉環完成。
+
+
+## GPT1｜Factory Local Loop 最新實作增量（2026-11-27）
+
+- 唯一主線仍為 Issue #682／PR #683／feat/factory-local-loop-v1；不新增重疊 PR。
+- 已把固定 local-agent-task payload 接入 SQLite queue／單 Worker／CLI：task add-agent --file <local-task.json>；Worker 依序執行 Ollama Planner、既有 plan/decision validator、Patch proposal、既有 Patch validator、disposable scratch apply。
+- Queue complete() 持久化完整 plan／patch artifact 與 scratch SHA-256 evidence；透過既有 SQLite task result/events 可讀回。重啟後真實讀回仍 NOT RUN。
+- 安全修正：Ollama transport 限定 HTTP loopback 127.0.0.1／::1，拒絕外部 origin、localhost hostname、URL path/query/fragment、credentials 與 redirect。
+- 不可越界：agent worker 僅產生已驗證 patch 並套用到 disposable scratch；生成程式碼／生成測試不執行，直到 OS-level sandbox 與命令 allowlist 真正完成。
+- 待解 P0：固定測試 Worker 的 timeout 必須能終止整個 process tree；GPT5 已指出直接 kill child 不會保證 descendants 終止。需提供 POSIX process-group 與 Windows process-tree containment 的實作與測試。
+- 本次變更只有 GitHub branch source commits；Node tests、完整 suite、Ollama E2E、Windows E2E 均 NOT RUN；不宣稱 CI PASS 或 GPT3 APPROVED。
+
+
+## GPT1｜Process-tree timeout containment implementation update（2026-11-27）
+
+- PR #683 已把固定測試 Worker 改為 async spawn；POSIX 使用 detached process group，逾時對整個 process group 發 SIGKILL。
+- Windows 逾時使用 taskkill.exe /PID <pid> /T /F，並保留 direct-child fallback。
+- stdout/stderr 各自限制 512 KiB、shell=false；scratch cleanup 仍是成功回報必要條件。
+- 新增 worker + grandchild 後代程序存活 regression test。**僅已提交 source/test，POSIX 與 Windows 測試都尚未執行。**
+- 不宣稱 process-tree containment 已通過平台驗收；須在 Linux/macOS 與 Windows 實測後才可關閉此缺口。
+
+
+---
+
+# GPT1｜Factory Trusted Acceptance P0 增量交接（2026-11-28）
+
+**唯一主線：Issue #682／PR #683／`feat/factory-local-loop-v1`。維持單一 Draft PR；不增加 Runner、不推進 B Product 新功能。**
+
+已提交至同一分支的程式碼增量：
+- Trusted Acceptance Oracle schema v2：合約綁定 task ID、exact base SHA、Oracle test Git blob SHA／SHA-256、Worker write allowlist 與完整 contract digest。
+- `task add-agent` 要求操作者明確指定 `--oracle-file`，入列即固定合約並持久化至 SQLite task payload。
+- Worker 在開始模型流程前、Oracle 測試前後重新驗證合約；模型生成測試與 Trusted Oracle 測試分開執行。
+- SQLite `complete()` 最後驗證任務 ID、contract digest、兩組獨立 TAP 證據、精確 test file list 與零 skip/todo/fail/cancel；不符即拒絕 succeeded。
+- 增加 Oracle、Worker、CLI、SQLite acceptance gate 與 TAP regression tests。
+
+**不得誤報：**
+- 這輪只有 GitHub source commits；沒有實際執行 Node test suite、Docker、Ollama 或 Windows E2E。
+- 最新 commit workflow-run lookup 若為空，表示沒有觀察到 PR-triggered run，不能當作 PASS。
+- Vercel build-rate-limit 是外部部署狀態，不等同 Node test failure，也不能替代測試。
+- GPT3 尚未對最新 exact HEAD 提供獨立 APPROVED。
+- Patch 僅在 disposable scratch 驗證並保存完整結果於 SQLite，尚未自動回寫 checkout、建立 Draft PR 或推送 commit；Issue → Draft PR → independent QA → merge 的完整自治閉環仍未完成。
+
+**GPT1 下一項唯一 P0：** 取得最新 exact HEAD 的可執行 Windows／Node／Docker 驗收證據，修復真實失敗；通過後再接續 accepted patch 的安全持久化與 Draft PR handoff。GPT2／GPT3／GPT4／GPT5 不視為已被本文件啟動；交接需由各角色實際讀取與回報證據。

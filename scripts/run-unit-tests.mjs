@@ -13,9 +13,13 @@ function collectTestFiles(directory) {
 }
 
 const databaseIntegrationTests = new Set(["tests/security/two-member-rls.test.mjs"]);
+const e2eOnlyOracleTests = new Set(["tests/factory-local-loop-e2e-oracle.test.mjs"]);
 const discoveredTestFiles = collectTestFiles("tests").map((path) => path.split(String.fromCharCode(92)).join("/")).sort();
-const testFiles = discoveredTestFiles.filter((path) => !databaseIntegrationTests.has(path));
+const testFiles = discoveredTestFiles.filter((path) =>
+  !databaseIntegrationTests.has(path) && !e2eOnlyOracleTests.has(path)
+);
 const deferredDatabaseTests = discoveredTestFiles.filter((path) => databaseIntegrationTests.has(path));
+const deferredE2eOracleTests = discoveredTestFiles.filter((path) => e2eOnlyOracleTests.has(path));
 if (deferredDatabaseTests.length > 0) {
   console.log("Database-backed integration tests are executed by the isolated Supabase CI job: " + deferredDatabaseTests.join(", "));
 }

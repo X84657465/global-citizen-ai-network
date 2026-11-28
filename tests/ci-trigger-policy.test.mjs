@@ -6,6 +6,7 @@ const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta
 const acceptance = readFileSync(new URL("../.github/workflows/pr-acceptance.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const preflight = readFileSync(new URL("../.github/workflows/agent-task-preflight.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const runnerSmoke = readFileSync(new URL("../.github/workflows/self-hosted-runner-smoke.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+const factoryWindows = readFileSync(new URL("../.github/workflows/factory-local-loop-windows-validation.yml", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const publisher = readFileSync(new URL("../scripts/publish-agent-patch.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const resolver = readFileSync(new URL("../scripts/resolve-agent-task-pr.mjs", import.meta.url), "utf8").replace(/\r\n/g, "\n");
@@ -103,8 +104,13 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.ok(workflow.includes("  push:\n    branches: [main]\n"));
   assert.equal(workflow.includes("  push:\n    branches: [main, feat/agent-factory-v2]\n"), false);
   assert.ok(workflow.includes("run-name: CI — ${{ github.event.pull_request.head.sha || github.sha }}"));
-  assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/github-project-showcase, fix/agent-factory-add-output-budget-20261121, fix/agent-factory-new-file-output-budget-20261121, chore/reconcile-ap-governance-on-a-2.0.70-20261121, fix/agent-factory-context-2-0-84-20261121]\n    types: [opened, reopened, synchronize]\n"));
+  assert.ok(workflow.includes("  pull_request:\n    branches: [main, feat/factory-local-loop-v1, feat/github-project-showcase, fix/agent-factory-add-output-budget-20261121, fix/agent-factory-new-file-output-budget-20261121, chore/reconcile-ap-governance-on-a-2.0.70-20261121, fix/agent-factory-context-2-0-84-20261121]\n    types: [opened, edited, reopened, synchronize]\n"));
   assert.ok(workflow.includes("  repository_dispatch:\n    types: [ai-task-ci]\n"));
+  const { start: localQualityStart, end: localQualityEnd } = findJobSection(workflow, "quality");
+  const localQuality = workflow.slice(localQualityStart, localQualityEnd);
+  for (const contract of ["github.event.pull_request.user.login == 'github-actions[bot]'", "github.event.pull_request.base.ref == 'feat/factory-local-loop-v1'", "startsWith(github.event.pull_request.head.ref, 'factory/local-task/')", "contains(github.event.pull_request.body, '<!-- gcan-local-task:')"]) {
+    assert.ok(localQuality.includes(contract), "read-only quality must independently validate Factory-generated local task PRs: " + contract);
+  }
   for (const job of ["quality", "build", "database"]) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
@@ -117,12 +123,44 @@ test("full CI runs on main pushes and pull-request lifecycle events without dupl
   assert.equal(workflow.includes('branches: [main, "codex/**"]'), false);
 });
 
-test("CI keeps stateful quality and integration jobs serialized on the Windows Runner", () => {
+test("CI reserves the shared Runner queue for durable state writers, not read-only quality gates", () => {
   assert.ok(workflowLevelConcurrency.includes("group: global-citizen-ai-network-ci-${{ github.event.pull_request.number || github.event.client_payload.pull_request_number || github.ref }}"));
-  assert.ok(workflowLevelConcurrency.includes("cancel-in-progress:") && workflowLevelConcurrency.includes("ai-task/issue-") && workflowLevelConcurrency.includes("codex/issue-"), "only superseded non-task runs may be cancelled");
+  assert.ok(workflowLevelConcurrency.includes("cancel-in-progress:") && workflowLevelConcurrency.includes("ai-task/issue-") && workflowLevelConcurrency.includes("codex/issue-") && workflowLevelConcurrency.includes("factory/local-task/"), "task PR runs must not be cancelled as superseded work");
   assert.equal(workflowLevelConcurrency.includes("queue: max"), false);
-  const jobs = ["quality", "build", "database", "circuit-breaker", "circuit-breaker-success"];
-  for (const job of jobs) {
+
+  const { start: qualityStart, end: qualityEnd } = findJobSection(workflow, "quality");
+  const quality = workflow.slice(qualityStart, qualityEnd);
+  assert.ok(quality.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.equal(quality.includes("group: global-citizen-ai-network-self-hosted-runner"), false,
+    "read-only quality gates must use the Runner's native queue, not the shared durable-state writer lock");
+  assert.ok(quality.includes("does not mutate durable Factory state"));
+  assert.equal(quality.includes("shell: bash"), false);
+  for (const command of ["npm ci --no-audit --no-fund", "npm run test:unit", "npx --no-install tsc --noEmit", "npm run lint", "npm run build", "npm audit --audit-level=high", "node --test tests/ci-trigger-policy.test.mjs"]) {
+    assert.ok(quality.includes(command), "Windows quality job must execute " + command);
+  }
+  assert.ok(quality.includes("needs: [resolve-candidate]"));
+  assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
+
+  const { start: buildStart, end: buildEnd } = findJobSection(workflow, "build");
+  const build = workflow.slice(buildStart, buildEnd);
+  assert.ok(build.includes("needs.resolve-candidate.outputs.is_task_pr == 'true'"));
+  assert.ok(build.includes("global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(build.includes("global-citizen-ai-network-readonly-build-"));
+  assert.ok(build.includes("format('global-citizen-ai-network-readonly-build-{0}', github.run_id)"));
+  assert.ok(build.includes("if: needs.resolve-candidate.outputs.is_task_pr == 'true'"));
+  assert.ok(build.includes("run: node scripts/agent-factory-v2-controller.mjs"),
+    "candidate-state mutation must stay within the authorized task-PR path");
+
+  const { start: databaseStart, end: databaseEnd } = findJobSection(workflow, "database");
+  const database = workflow.slice(databaseStart, databaseEnd);
+  assert.ok(database.includes("runs-on: [self-hosted, Windows, X64]"));
+  assert.equal(database.includes("global-citizen-ai-network-self-hosted-runner"), false,
+    "run-isolated Supabase integration must not consume durable Factory state-writer slots");
+  assert.ok(database.includes('gcan-ci-" + $env:GITHUB_RUN_ID'),
+    "Supabase projects must remain isolated by exact workflow run");
+
+  const stateWriterJobs = ["circuit-breaker", "circuit-breaker-success"];
+  for (const job of stateWriterJobs) {
     const { start, end } = findJobSection(workflow, job);
     const section = workflow.slice(start, end);
     assert.ok(section.includes("runs-on: [self-hosted, Windows, X64]"), job + " must use the available Windows Runner");
@@ -131,20 +169,15 @@ test("CI keeps stateful quality and integration jobs serialized on the Windows R
     assert.ok(section.includes("cancel-in-progress: false"), job + " must not cancel active Runner work");
     assert.equal(section.includes("shell: bash"), false, job + " must use the native PowerShell Runner shell");
   }
-  const { start: qualityStart, end: qualityEnd } = findJobSection(workflow, "quality");
-  const quality = workflow.slice(qualityStart, qualityEnd);
-  for (const command of ["npm ci --no-audit --no-fund", "npm run test:unit", "npx --no-install tsc --noEmit", "npm run lint", "npm run build", "npm audit --audit-level=high", "node --test tests/ci-trigger-policy.test.mjs"]) {
-    assert.ok(quality.includes(command), "Windows quality job must execute " + command);
-  }
-  assert.ok(quality.includes("needs: [resolve-candidate]"));
-  assert.ok(quality.includes("failure_scope: ${{ steps.classify-failure.outputs.scope }}"));
 });
 
-test("PR metadata resolution uses the verified Windows Runner and shared queue", () => {
+test("read-only PR metadata resolution uses a dedicated Windows Runner queue", () => {
   const { start, end } = findJobSection(workflow, "resolve-candidate");
   const resolverJob = workflow.slice(start, end);
   assert.ok(resolverJob.includes("runs-on: [self-hosted, Windows, X64]"));
-  assert.ok(resolverJob.includes("group: global-citizen-ai-network-self-hosted-runner"));
+  assert.ok(resolverJob.includes("group: global-citizen-ai-network-ci-resolver"));
+  assert.doesNotMatch(resolverJob, /group: global-citizen-ai-network-self-hosted-runner/);
+  assert.doesNotMatch(resolverJob, /:\s*write\b/);
   assert.ok(resolverJob.includes("queue: max"));
   assert.ok(resolverJob.includes("cancel-in-progress: false"));
   assert.equal(resolverJob.includes("shell: bash"), false);
@@ -152,6 +185,7 @@ test("PR metadata resolution uses the verified Windows Runner and shared queue",
   assert.ok(resolverJob.includes("issues: read"));
   assert.ok(resolverJob.includes("pull-requests: read"));
 });
+
 test("preflight coalesces only scheduled pollers while preserving actionable triggers in the shared Runner queue", () => {
   assert.ok(preflight.includes("      - feat/agent-factory-v2\n"), "A-line pushes must run the synthetic factory validation on the active development branch");
   assert.ok(preflight.includes('      - "lib/agent-failure-scope.mjs"\n'), "changes to the task-failure scope helper must trigger factory validation");
@@ -227,7 +261,10 @@ function hasV2ControllerInvocation(source) {
       else commands.push(line);
     }
   }
-  const executableLines = commands.filter(line => !/^\s*#/.test(line));
+  const executableLines = commands.filter(line =>
+    !/^\s*#/.test(line) &&
+    !/^\s*(?:env\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\s]+\s+)*)?node\s+--check\s+/m.test(line)
+  );
   return /^\s*(?:env\s+(?:[A-Za-z_][A-Za-z0-9_]*=[^\s]+\s+)*)?node(?:\s+(?:--[^\s]+|-r\s+\S+))*\s+(?:\.\/)?scripts\/agent-factory-v2-controller\.mjs\b/m
     .test(executableLines.join("\n"));
 }
@@ -257,7 +294,7 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
       const start = jobHeaders[index].index;
       const end = index + 1 < jobHeaders.length ? jobHeaders[index + 1].index : jobsSource.length;
       const section = jobsSource.slice(start, end);
-      if (section.includes("scripts/agent-factory-v2-controller.mjs")) {
+      if (hasV2ControllerInvocation(section)) {
         writerJobs.push({ name: jobHeaders[index][1], section });
       }
     }
@@ -265,12 +302,23 @@ test("every V2 state-writer workflow is serialized by the shared Runner queue", 
     assert.ok(writerJobs.length > 0, fileName + " references the V2 controller but no writer job was detected");
     if (!workflowWideQueue) {
       for (const job of writerJobs) {
-        assert.ok(
-          job.section.includes("group: global-citizen-ai-network-self-hosted-runner") &&
-          job.section.includes("queue: max") &&
-          job.section.includes("cancel-in-progress: false"),
-          fileName + " job " + job.name + " must use the shared non-cancelling Runner queue",
-        );
+        if (fileName === "ci.yml" && job.name === "build") {
+          assert.ok(
+            job.section.includes("needs.resolve-candidate.outputs.is_task_pr == 'true'") &&
+            job.section.includes("'global-citizen-ai-network-self-hosted-runner'") &&
+            job.section.includes("format('global-citizen-ai-network-readonly-build-{0}', github.run_id)") &&
+            job.section.includes("queue: max") &&
+            job.section.includes("cancel-in-progress: false"),
+            "ci.yml build must lock only when its authorized task-PR path writes durable Factory state",
+          );
+        } else {
+          assert.ok(
+            job.section.includes("group: global-citizen-ai-network-self-hosted-runner") &&
+            job.section.includes("queue: max") &&
+            job.section.includes("cancel-in-progress: false"),
+            fileName + " job " + job.name + " must use the shared non-cancelling Runner queue",
+          );
+        }
       }
     }
   }
@@ -282,6 +330,7 @@ test("controller invocation detection includes Node options and ./ prefixes but 
   assert.equal(hasV2ControllerInvocation("        run: node scripts/agent-factory-v2-controller.mjs"), true);
   assert.equal(hasV2ControllerInvocation("        run: node ./scripts/agent-factory-v2-controller.mjs"), true);
   assert.equal(hasV2ControllerInvocation("        run: node --no-warnings ./scripts/agent-factory-v2-controller.mjs"), true);
+  assert.equal(hasV2ControllerInvocation("        run: node --check scripts/agent-factory-v2-controller.mjs"), false);
   assert.equal(hasV2ControllerInvocation("        run: |\\n          # node scripts/agent-factory-v2-controller.mjs"), false);
   assert.equal(hasV2ControllerInvocation("        run: echo '# node scripts/agent-factory-v2-controller.mjs'"), false);
 });
@@ -479,17 +528,20 @@ test("preflight reserves and releases V2 leases and does not overproduce roadmap
 });
 
 
-test("Supabase database and RLS integration runs on the shared Windows Runner", () => {
+test("Supabase database and RLS integration uses run-isolated resources outside the durable state-writer queue", () => {
   const { start, end } = findJobSection(workflow, "database");
   const database = workflow.slice(start, end);
   assert.ok(database.includes("runs-on: [self-hosted, Windows, X64]"));
-  assert.ok(database.includes("group: global-citizen-ai-network-self-hosted-runner"));
-  assert.ok(database.includes("queue: max"));
+  assert.equal(database.includes("global-citizen-ai-network-self-hosted-runner"), false,
+    "isolated database validation must not consume durable Factory state-writer queue slots");
+  assert.ok(database.includes('gcan-ci-" + $env:GITHUB_RUN_ID'),
+    "each CI run must have an isolated Supabase project identity");
+  assert.ok(database.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 19998)"),
+    "each CI run must allocate a separate available port range");
   assert.ok(database.includes("$env:ComSpec /d /s /c 'supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1'"), "native stderr must be redirected by cmd.exe before PowerShell captures output");
   assert.equal(database.includes("$startOutput = & supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit 2>&1 | Out-String"), false, "PowerShell 5.1 must not reinterpret native stderr as NativeCommandError");
   assert.ok(database.includes("supabase test db"));
   assert.ok(database.includes("node --test tests/security/two-member-rls.test.mjs"));
-  assert.ok(database.includes("$candidate = 20000 + (([int64]$env:GITHUB_RUN_ID + ($attempt * 7)) % 19998)"));
   assert.ok(database.includes("SUPABASE_DB_CONTAINER"));
   assert.ok(database.includes("DOCKER_BIN"));
   assert.ok(database.includes("supabase stop --no-backup"));
@@ -830,10 +882,12 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
   assert.ok(recoveryJob.includes("cancel-in-progress: false"));
   assert.ok(recovery.includes("runs-on: ubuntu-latest"),
     "the state recovery job must stay on hosted Linux while retaining the shared cross-process queue");
-  assert.ok(recoveryJob.includes("waits in the shared cross-process state-writer queue"));
-  assert.ok(recoveryJob.includes("may queue behind"));
-  assert.ok(recoveryJob.includes("atomic CAS/lease"),
-    "do not imply hosted Linux removes the state-writer queue or permits unsafe lock splitting");
+  assert.ok(recoveryJob.includes("needs: [resolve-system-health]"),
+    "state mutation must depend on exact-head eligibility resolution");
+  assert.ok(recoveryJob.includes("if: needs.resolve-system-health.outputs.should_recover == 'true'"),
+    "state mutation must be gated by the exact-head resolver output");
+  assert.ok(recoveryJob.includes("SYSTEM_HEALTH_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}"),
+    "the state controller must receive the source CI exact SHA");
   for (const permission of ["actions: read", "contents: read", "issues: write", "pull-requests: read"])
     assert.ok(recovery.includes(permission));
   assert.ok(recovery.includes("ref: main"));
@@ -1062,7 +1116,10 @@ test("post-completion recovery resolver rejects forks, stale heads, wrong bases,
     "zero matches must prevent the privileged recovery controller from running");
   assert.ok(recoveryWorkflow.includes("if (matches.length > 1)"),
     "ambiguous exact-head PR matches must still fail closed");
-  assert.ok(recoveryWorkflow.includes("if: steps.resolve-pr.outputs.should_recover == 'true'"),
+  const recoveryJobBounds = findJobSection(recoveryWorkflow, "reset-system-breaker");
+  const recoveryJobSection = recoveryWorkflow.slice(recoveryJobBounds.start, recoveryJobBounds.end);
+  assert.ok(recoveryJobSection.includes("needs: [resolve-system-health]") &&
+    recoveryJobSection.includes("if: needs.resolve-system-health.outputs.should_recover == 'true'"),
     "the privileged recovery controller must run only after a unique exact-head PR is verified");
   assert.ok(recoveryWorkflow.includes('!ref?.startsWith("ai-task/issue-") && !ref?.startsWith("codex/issue-")'),
     "task branches must remain ineligible for system-breaker recovery");
