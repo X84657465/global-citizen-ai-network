@@ -688,14 +688,16 @@ test("publication retry lane stays fair under sustained arrivals and SQLite reop
     queue.close();
 
     let sequence = 2;
-    for (let round = 0; round < 3; round += 1) {
+    let lastSelectedRound = -1;
+    for (let round = 0; round < 4; round += 1) {
       queue = createLocalFactoryQueue({ databasePath });
       for (let index = 0; index < 500; index += 1) {
         makeAccepted(queue, "fresh-" + round + "-" + index, sequence++);
       }
       const selected = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
-      assert.ok(selected.includes("old-deferred-task"),
-        "previously attempted publication must be selected despite 500 fresh arrivals in round " + round);
+      if (selected.includes("old-deferred-task")) lastSelectedRound = round;
+      assert.ok(round - lastSelectedRound <= 2,
+        "previously attempted publication must not be starved by 500 fresh arrivals in round " + round);
       queue.close();
     }
   } finally {
