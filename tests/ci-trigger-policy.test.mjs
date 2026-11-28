@@ -834,8 +834,10 @@ test("system breaker recovery resolves one trusted main PR from the completed CI
     "the state-mutating controller must wait for exact-head eligibility resolution");
   assert.ok(recoveryJob.includes("if: needs.resolve-system-health.outputs.should_recover == 'true'"),
     "the privileged controller job must be gated by the verified observer output");
-  assert.ok(recoveryJob.includes("atomic CAS/lease"),
-    "do not imply hosted Linux removes the state-writer queue or permits unsafe lock splitting");
+  assert.ok(recoveryJob.includes("group: global-citizen-ai-network-self-hosted-runner")
+    && recoveryJob.includes("queue: max")
+    && recoveryJob.includes("cancel-in-progress: false"),
+    "hosted Linux recovery must retain the shared serialized state-writer queue");
   for (const permission of ["actions: read", "contents: read", "issues: write", "pull-requests: read"])
     assert.ok(recovery.includes(permission));
   assert.ok(recovery.includes("ref: main"));
