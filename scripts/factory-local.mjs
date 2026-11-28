@@ -165,6 +165,7 @@ async function publishAcceptedTask(queue, taskRecord, { coordinatorClient = null
 }
 
 async function retryPendingPublications(queue, { force = false, coordinatorClient = null, lease = null } = {}) {
+  if (!coordinatorClient || !lease) return [];
   const now = Date.now();
   if (!force && now < nextPublicationRetryAt) return [];
   nextPublicationRetryAt = now + 30_000;
@@ -271,6 +272,18 @@ async function runNextTask(queue, { excludeTaskIds = [], coordinatorClient = coo
       const completed = queue.complete(task.id, workerId, task.lease_token, result);
       if (completed.payload?.kind !== "local-agent-task" || completed.result?.acceptance_status !== "ACCEPTED") {
         return { claimed: true, completed: true, task: completed, recovered_publications: recoveredPublications };
+      }
+      if (!coordinatorClient || !lease) {
+        return {
+          claimed: true,
+          completed: true,
+          task: completed,
+          publication: {
+            state: "deferred_local_only",
+            reason: "Remote Draft PR publication requires the authenticated cross-executor coordinator.",
+          },
+          recovered_publications: recoveredPublications,
+        };
       }
       try {
         await assertLease();
