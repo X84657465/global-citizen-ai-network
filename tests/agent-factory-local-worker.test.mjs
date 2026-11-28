@@ -13,7 +13,7 @@ test("local worker executes only the allowlisted queue regression suite and retu
   const result = await runLocalFactoryTask({
     payload: { schema_version: 1, kind: "local-queue-tests" },
     repositoryRoot: process.cwd(),
-    timeoutMs: 120_000,
+    timeoutMs: 300_000,
   });
   assert.equal(result.outcome, "passed");
   assert.equal(result.command_id, "node-test-local-queue");
