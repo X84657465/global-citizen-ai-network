@@ -50,12 +50,19 @@ const reservation = await second.reservePublication(
   { task_id: "fencing-smoke", branch: "factory/local-task/fencing-smoke" },
 );
 assert.equal(reservation?.reserved, true);
+const replay = await second.reservePublication(
+  takeoverLease,
+  idempotencyKey,
+  payloadHash,
+  { task_id: "fencing-smoke", branch: "factory/local-task/fencing-smoke" },
+);
+assert.equal(replay?.replayed, true, "same publication intent must be idempotent");
 assert.equal(await second.recordPublication(
   takeoverLease,
   idempotencyKey,
-  "published",
+  "failed",
   "factory/local-task/fencing-smoke",
-  1,
+  null,
 ), true);
 assert.equal(await second.releaseLease(takeoverLease), true);
 
