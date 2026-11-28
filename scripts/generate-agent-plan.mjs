@@ -67,8 +67,8 @@ const systemPrompt = [
   "allowed_paths must be a subset of the exact supplied allowed_paths. Use an empty array unless proposing a patch.",
   "propose_patch tasks must name at least one approved path. report tasks must use an empty allowed_paths array.",
   "acceptance_criteria must contain 1-8 concise strings, each no longer than 300 characters.",
-  "Every task must use numeric max_output_bytes 16384.",
-  "Every task, including inspect, propose_patch and validate_patch, MUST use numeric max_output_bytes 16384.",
+  "max_output_bytes must be a numeric integer from 1 to 65536.",
+  "For propose_patch tasks, max_output_bytes MUST be at least 16384 and no greater than 65536; non-patch tasks may use smaller budgets.",
   "When allowed_paths contains at least one path, the plan MUST include exactly one implementer task with action propose_patch and at least one of those approved paths.",
   "Include a planner inspect task before the implementer task and a tester validate_patch task after it; express these dependencies explicitly.",
   "The plan MUST NOT omit the implementer patch task merely because the task excludes applying or executing the patch.",
@@ -102,7 +102,7 @@ const planSchema = {
             maxItems: 8,
             items: { type: "string", minLength: 1, maxLength: 300 }
           },
-          max_output_bytes: { type: "integer", minimum: 16384, maximum: 16384, enum: [16384] }
+          max_output_bytes: { type: "integer", minimum: 1, maximum: 65536 }
         }
       }
     }
