@@ -15,6 +15,8 @@ const scopeKey = "repo/X84657465/global-citizen-ai-network/factory-smoke/" +
 const firstLease = await first.acquireLease(scopeKey, 5_000);
 assert.equal(firstLease?.acquired, true, "first executor must acquire the empty lease");
 assert.equal(firstLease.fencing_token, 1, "first lease generation must be one");
+const renewedLease = await first.renewLease(firstLease, 5_000);
+assert.equal(renewedLease?.renewed, true, "current lease owner must be able to renew");
 
 const competingLease = await second.acquireLease(scopeKey, 5_000);
 assert.equal(competingLease?.acquired, false, "a competing executor must not acquire an active lease");
