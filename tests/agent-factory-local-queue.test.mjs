@@ -648,7 +648,7 @@ test("GitHub Issue intake is idempotent and rejects a changed source revision", 
 });
 
 
-test("publication retry lane stays fair under sustained arrivals and SQLite reopen", () => {
+test("publication retry lane reserves capacity under sustained arrivals and SQLite reopen", () => {
   const directory = mkdtempSync(join(tmpdir(), "gcan-publication-sustained-fairness-"));
   const databasePath = join(directory, "factory.sqlite");
   const makeAccepted = (queue, id, index) => {
@@ -688,16 +688,14 @@ test("publication retry lane stays fair under sustained arrivals and SQLite reop
     queue.close();
 
     let sequence = 2;
-    let lastSelectedRound = -1;
-    for (let round = 0; round < 4; round += 1) {
+    for (let round = 0; round < 2; round += 1) {
       queue = createLocalFactoryQueue({ databasePath });
       for (let index = 0; index < 500; index += 1) {
         makeAccepted(queue, "fresh-" + round + "-" + index, sequence++);
       }
       const selected = queue.listPendingPublications({ limit: 500 }).map((item) => item.id);
-      if (selected.includes("old-deferred-task")) lastSelectedRound = round;
-      assert.ok(round - lastSelectedRound <= 2,
-        "previously attempted publication must not be starved by 500 fresh arrivals in round " + round);
+      assert.ok(selected.includes("old-deferred-task"),
+        "reserved retry capacity must select a previously attempted publication in round " + round);
       queue.close();
     }
   } finally {

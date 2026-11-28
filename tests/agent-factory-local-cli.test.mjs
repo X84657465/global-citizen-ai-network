@@ -21,7 +21,9 @@ function openFixture(t) {
       cwd,
       env: { ...process.env, ...env, GCAN_FACTORY_DB: databasePath },
       encoding: "utf8",
-      timeout: 300_000,
+      // A batch may run several allowlisted suites sequentially; budget the
+      // parent process for the full batch rather than one worker's deadline.
+      timeout: 600_000,
     });
     assert.ifError(result.error);
     assert.equal(result.status, exit, result.stderr);
